@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,7 +15,6 @@ interface MusicFormProps {
 
 const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating }) => {
   const [description, setDescription] = useState("");
-  const [lyricsType, setLyricsType] = useState<"instrumental" | "lyrical">("instrumental");
   const [negativeTags, setNegativeTags] = useState("");
   
   const generateRandomSeed = () => {
@@ -33,7 +31,7 @@ const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating }) => {
     
     const params: MusicGenerationRequest = {
       gpt_description_prompt: description,
-      lyrics_type: lyricsType,
+      lyrics_type: "instrumental", // The API only supports instrumental
       seed: generateRandomSeed()
     };
     
@@ -63,29 +61,9 @@ const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating }) => {
             />
           </div>
           
-          <div className="space-y-3">
-            <Label className="text-sm font-medium flex items-center gap-1.5">
-              <Music className="h-4 w-4 text-accent" />
-              Type
-            </Label>
-            <RadioGroup 
-              value={lyricsType} 
-              onValueChange={(v) => setLyricsType(v as "instrumental" | "lyrical")}
-              className="flex flex-col sm:flex-row gap-2"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="instrumental" id="instrumental" />
-                <Label htmlFor="instrumental" className="cursor-pointer">Instrumental</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="lyrical" id="lyrical" />
-                <Label htmlFor="lyrical" className="cursor-pointer">With lyrics</Label>
-              </div>
-            </RadioGroup>
-          </div>
-          
           <div className="space-y-2">
-            <Label htmlFor="negativeTags" className="text-sm font-medium">
+            <Label htmlFor="negativeTags" className="text-sm font-medium flex items-center gap-1.5">
+              <Music className="h-4 w-4 text-accent" />
               Negative tags (optional)
             </Label>
             <Input

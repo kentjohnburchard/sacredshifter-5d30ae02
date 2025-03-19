@@ -5,7 +5,7 @@ const API_BASE_URL = "https://api.piapi.ai/api/v1/task";
 export interface MusicGenerationRequest {
   negative_tags?: string;
   gpt_description_prompt: string;
-  lyrics_type: "instrumental" | "lyrical";
+  lyrics_type: "instrumental"; // Restrict to only "instrumental"
   seed?: number;
 }
 
@@ -26,6 +26,7 @@ export interface MusicTaskResult {
 
 export const generateMusic = async (params: MusicGenerationRequest): Promise<MusicGenerationResponse> => {
   try {
+    console.log("Sending API request with params:", params);
     const response = await fetch(API_BASE_URL, {
       method: "POST",
       headers: {
@@ -41,10 +42,13 @@ export const generateMusic = async (params: MusicGenerationRequest): Promise<Mus
 
     if (!response.ok) {
       const errorData = await response.json();
+      console.error("API error response:", errorData);
       throw new Error(errorData.message || "Failed to generate music");
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log("API success response:", data);
+    return data;
   } catch (error) {
     console.error("Error generating music:", error);
     throw error;
@@ -53,6 +57,7 @@ export const generateMusic = async (params: MusicGenerationRequest): Promise<Mus
 
 export const getTaskResult = async (taskId: string): Promise<MusicTaskResult> => {
   try {
+    console.log(`Checking task result for ID: ${taskId}`);
     const response = await fetch(`${API_BASE_URL}/${taskId}`, {
       method: "GET",
       headers: {
@@ -62,10 +67,13 @@ export const getTaskResult = async (taskId: string): Promise<MusicTaskResult> =>
 
     if (!response.ok) {
       const errorData = await response.json();
+      console.error("Task result error:", errorData);
       throw new Error(errorData.message || "Failed to get task result");
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log("Task result response:", data);
+    return data;
   } catch (error) {
     console.error("Error getting task result:", error);
     throw error;

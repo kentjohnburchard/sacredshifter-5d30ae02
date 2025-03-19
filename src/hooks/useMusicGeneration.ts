@@ -66,6 +66,13 @@ export const useMusicGeneration = () => {
       setIsGenerating(true);
       pollingAttemptsRef.current = 0;
       
+      // Make sure we don't have an ongoing polling interval
+      if (pollingRef.current) {
+        window.clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+      
+      console.log("Starting generation with params:", params);
       const response = await generateMusic(params);
       
       if (!response || !response.task_id) {
@@ -78,12 +85,15 @@ export const useMusicGeneration = () => {
       toast.success("Music generation started");
       
       // Start polling for results
-      if (pollingRef.current) {
-        window.clearInterval(pollingRef.current);
-      }
-      
-      pollingRef.current = window.setInterval(async () => {
-        if (!currentTaskRef.current) return;
+      pollingRef.current = window.setInterval(() => {
+        if (!currentTaskRef.current) {
+          // Clear the interval if we don't have a task ID
+          if (pollingRef.current) {
+            window.clearInterval(pollingRef.current);
+            pollingRef.current = null;
+          }
+          return;
+        }
         
         pollingAttemptsRef.current += 1;
         console.log(`Polling attempt ${pollingAttemptsRef.current} for task ${currentTaskRef.current}`);
@@ -95,40 +105,48 @@ export const useMusicGeneration = () => {
           return;
         }
         
-        try {
-          const result = await getTaskResult(currentTaskRef.current);
-          console.log("Polling result:", result);
-          
-          if (result.status === "completed" && result.result) {
-            // Add new track
-            const newTrack: GeneratedTrack = {
-              id: result.task_id,
-              description: params.gpt_description_prompt,
-              musicUrl: result.result.music_url,
-              coverUrl: result.result.cover_url,
-              timestamp: new Date(),
-              lyrics_type: params.lyrics_type
-            };
+        // We need to use a closure function here to avoid React hook issues
+        const pollTaskResult = async (taskId: string) => {
+          try {
+            const result = await getTaskResult(taskId);
+            console.log("Polling result:", result);
             
-            console.log("Music generation completed successfully:", newTrack);
-            setGeneratedTracks(prev => [newTrack, ...prev]);
-            
-            // Cleanup
-            window.clearInterval(pollingRef.current!);
-            pollingRef.current = null;
-            currentTaskRef.current = null;
-            setIsGenerating(false);
-            
-            toast.success("Your music is ready!");
-          } else if (result.status === "failed") {
-            throw new Error(result.error || "Generation failed");
-          } else {
-            console.log(`Task status: ${result.status}. Continuing to poll...`);
+            if (result.status === "completed" && result.result) {
+              // Add new track
+              const newTrack: GeneratedTrack = {
+                id: result.task_id,
+                description: params.gpt_description_prompt,
+                musicUrl: result.result.music_url,
+                coverUrl: result.result.cover_url,
+                timestamp: new Date(),
+                lyrics_type: params.lyrics_type
+              };
+              
+              console.log("Music generation completed successfully:", newTrack);
+              setGeneratedTracks(prev => [newTrack, ...prev]);
+              
+              // Cleanup
+              if (pollingRef.current) {
+                window.clearInterval(pollingRef.current);
+                pollingRef.current = null;
+              }
+              currentTaskRef.current = null;
+              setIsGenerating(false);
+              
+              toast.success("Your music is ready!");
+            } else if (result.status === "failed") {
+              throw new Error(result.error || "Generation failed");
+            } else {
+              console.log(`Task status: ${result.status}. Continuing to poll...`);
+            }
+            // "pending" or "running" status will continue polling
+          } catch (error) {
+            handleError(error);
           }
-          // "pending" or "running" status will continue polling
-        } catch (error) {
-          handleError(error);
-        }
+        };
+        
+        // Call the function with the current task ID
+        pollTaskResult(currentTaskRef.current);
       }, 5000); // Poll every 5 seconds
     } catch (error) {
       handleError(error);
