@@ -26,6 +26,8 @@ export const useMusicGeneration = () => {
   });
   const pollingRef = useRef<number | null>(null);
   const currentTaskRef = useRef<string | null>(null);
+  const pollingAttemptsRef = useRef(0);
+  const MAX_POLLING_ATTEMPTS = 60; // 5 minutes max (5 seconds * 60)
 
   // Save to localStorage when tracks change
   useEffect(() => {
@@ -49,8 +51,16 @@ export const useMusicGeneration = () => {
 
     try {
       setIsGenerating(true);
+      pollingAttemptsRef.current = 0;
+      
       const response = await generateMusic(params);
+      
+      if (!response || !response.task_id) {
+        throw new Error("Failed to get task ID from API");
+      }
+      
       currentTaskRef.current = response.task_id;
+      console.log("Generation started with task ID:", response.task_id);
       
       toast.success("Music generation started");
       
@@ -58,8 +68,19 @@ export const useMusicGeneration = () => {
       pollingRef.current = window.setInterval(async () => {
         if (!currentTaskRef.current) return;
         
+        pollingAttemptsRef.current += 1;
+        console.log(`Polling attempt ${pollingAttemptsRef.current} for task ${currentTaskRef.current}`);
+        
+        // Check if we've reached the maximum polling attempts
+        if (pollingAttemptsRef.current > MAX_POLLING_ATTEMPTS) {
+          console.error("Max polling attempts reached");
+          handleError(new Error("Generation is taking too long. Please try again."));
+          return;
+        }
+        
         try {
           const result = await getTaskResult(currentTaskRef.current);
+          console.log("Polling result:", result);
           
           if (result.status === "completed" && result.result) {
             // Add new track
@@ -72,6 +93,7 @@ export const useMusicGeneration = () => {
               lyrics_type: params.lyrics_type
             };
             
+            console.log("Music generation completed successfully:", newTrack);
             setGeneratedTracks(prev => [newTrack, ...prev]);
             
             // Cleanup
@@ -83,6 +105,8 @@ export const useMusicGeneration = () => {
             toast.success("Your music is ready!");
           } else if (result.status === "failed") {
             throw new Error(result.error || "Generation failed");
+          } else {
+            console.log(`Task status: ${result.status}. Continuing to poll...`);
           }
           // "pending" or "running" status will continue polling
         } catch (error) {
