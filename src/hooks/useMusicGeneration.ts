@@ -24,6 +24,7 @@ export const useMusicGeneration = () => {
     const saved = localStorage.getItem("generatedTracks");
     return saved ? JSON.parse(saved) : [];
   });
+  
   const pollingRef = useRef<number | null>(null);
   const currentTaskRef = useRef<string | null>(null);
   const pollingAttemptsRef = useRef(0);

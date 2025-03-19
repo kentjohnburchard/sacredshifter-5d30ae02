@@ -48,7 +48,17 @@ export const generateMusic = async (params: MusicGenerationRequest): Promise<Mus
 
     const data = await response.json();
     console.log("API success response:", data);
-    return data;
+    
+    // The API returns data in a nested structure
+    if (data && data.code === 200 && data.data && data.data.task_id) {
+      return {
+        task_id: data.data.task_id,
+        status: data.data.status || "pending"
+      };
+    } else {
+      console.error("Unexpected API response structure:", data);
+      throw new Error("Failed to get task ID from API response");
+    }
   } catch (error) {
     console.error("Error generating music:", error);
     throw error;
@@ -73,7 +83,25 @@ export const getTaskResult = async (taskId: string): Promise<MusicTaskResult> =>
 
     const data = await response.json();
     console.log("Task result response:", data);
-    return data;
+    
+    // Handle the nested response structure
+    if (data && data.code === 200 && data.data) {
+      const taskData = data.data;
+      return {
+        task_id: taskData.task_id,
+        status: taskData.status,
+        result: taskData.output && taskData.output.songs && taskData.output.songs.length > 0
+          ? {
+              music_url: taskData.output.songs[0].url,
+              cover_url: taskData.output.songs[0].cover_url
+            }
+          : undefined,
+        error: taskData.error?.message
+      };
+    } else {
+      console.error("Unexpected task result structure:", data);
+      throw new Error("Invalid task result structure");
+    }
   } catch (error) {
     console.error("Error getting task result:", error);
     throw error;
