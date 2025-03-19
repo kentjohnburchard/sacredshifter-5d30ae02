@@ -1,9 +1,8 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LibraryMusic, Music4 } from "lucide-react";
+import { Music, Music4 } from "lucide-react";
 import Player from "./Player";
 import { GeneratedTrack } from "@/hooks/useMusicGeneration";
 
@@ -24,7 +23,7 @@ const GenerationHistory: React.FC<GenerationHistoryProps> = ({ tracks, onDelete 
     <Card className="w-full max-w-2xl mx-auto border border-border/40 shadow-sm overflow-hidden mt-8 animate-slide-up">
       <CardHeader className="px-6 py-4">
         <CardTitle className="text-xl flex items-center gap-2">
-          <LibraryMusic className="h-5 w-5 text-accent" />
+          <Music className="h-5 w-5 text-accent" />
           Your Music
         </CardTitle>
       </CardHeader>
