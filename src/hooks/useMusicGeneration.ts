@@ -43,6 +43,19 @@ export const useMusicGeneration = () => {
     };
   }, []);
 
+  const handleError = useCallback((error: any) => {
+    console.error("Music generation error:", error);
+    toast.error(error.message || "Failed to generate music");
+    
+    // Cleanup
+    if (pollingRef.current) {
+      window.clearInterval(pollingRef.current);
+      pollingRef.current = null;
+    }
+    currentTaskRef.current = null;
+    setIsGenerating(false);
+  }, []);
+
   const startGeneration = useCallback(async (params: MusicGenerationRequest) => {
     if (isGenerating) {
       toast.warning("A generation is already in progress");
@@ -65,6 +78,10 @@ export const useMusicGeneration = () => {
       toast.success("Music generation started");
       
       // Start polling for results
+      if (pollingRef.current) {
+        window.clearInterval(pollingRef.current);
+      }
+      
       pollingRef.current = window.setInterval(async () => {
         if (!currentTaskRef.current) return;
         
@@ -116,20 +133,7 @@ export const useMusicGeneration = () => {
     } catch (error) {
       handleError(error);
     }
-  }, [isGenerating]);
-
-  const handleError = (error: any) => {
-    console.error("Music generation error:", error);
-    toast.error(error.message || "Failed to generate music");
-    
-    // Cleanup
-    if (pollingRef.current) {
-      window.clearInterval(pollingRef.current);
-      pollingRef.current = null;
-    }
-    currentTaskRef.current = null;
-    setIsGenerating(false);
-  };
+  }, [isGenerating, handleError]);
 
   const deleteTrack = useCallback((id: string) => {
     setGeneratedTracks(prev => prev.filter(track => track.id !== id));
