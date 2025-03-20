@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Music2, LogOut, CreditCard } from "lucide-react";
+import { LogOut, CreditCard } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
@@ -24,13 +24,13 @@ const Header: React.FC = () => {
   return (
     <header className="w-full py-6 px-4 sm:px-6 flex flex-col items-center animate-fade-in backdrop-blur-sm">
       <div className="flex items-center gap-2 mb-4">
-        <div className="p-2 rounded-full bg-white/10">
-          <Music2 className="h-6 w-6 text-purple-300" />
-        </div>
-        <h1 className="text-2xl tracking-tight text-white text-shadow">
-          <span className="font-light">Sacred</span>
-          <span className="font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-200 to-blue-200">Shifter</span>
-        </h1>
+        <Link to="/" className="flex items-center">
+          <img 
+            src="/lovable-uploads/d26329c2-349c-4a0e-af05-875c3a5f2754.png" 
+            alt="Sacred Shifter Logo" 
+            className="h-10 sm:h-12" 
+          />
+        </Link>
       </div>
       
       <div className="flex items-center justify-between w-full max-w-4xl">
