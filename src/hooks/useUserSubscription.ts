@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -59,7 +58,7 @@ export const useUserSubscription = () => {
           is_popular: Boolean(plan.is_popular),
           is_best_value: Boolean(plan.is_best_value),
           yearly_discount: Number(plan.yearly_discount || 0)
-        }));
+        })) as SubscriptionPlan[];
         
         setPlans(formattedPlans);
       } catch (error) {
