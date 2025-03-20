@@ -26,6 +26,13 @@ export interface MusicTaskResult {
   error?: string;
 }
 
+// Track tasks that timed out for later recheck
+const timedOutTasks = new Map<string, {
+  lastChecked: number,
+  retryCount: number,
+  maxRetries: number
+}>();
+
 export const generateMusic = async (params: MusicGenerationRequest): Promise<MusicGenerationResponse> => {
   try {
     // Clone the params to modify them for the API request
@@ -112,6 +119,12 @@ export const getTaskResult = async (taskId: string): Promise<MusicTaskResult> =>
         console.log("Extracted song URL:", songUrl);
         console.log("Extracted cover URL:", coverUrl);
         
+        // If this was a timed out task that we're rechecking, remove it from our tracking
+        if (timedOutTasks.has(taskId)) {
+          console.log(`Previously timed out task ${taskId} is now complete.`);
+          timedOutTasks.delete(taskId);
+        }
+        
         return {
           task_id: taskData.task_id,
           status: taskData.status,
@@ -139,3 +152,70 @@ export const getTaskResult = async (taskId: string): Promise<MusicTaskResult> =>
     throw error;
   }
 };
+
+// New function to check timed out tasks
+export const checkTimedOutTasks = async (): Promise<MusicTaskResult[]> => {
+  const now = Date.now();
+  const TWO_MINUTES = 2 * 60 * 1000; // 2 minutes in milliseconds
+  const results: MusicTaskResult[] = [];
+  
+  // Create a copy of the keys to avoid modification during iteration
+  const taskIds = Array.from(timedOutTasks.keys());
+  
+  for (const taskId of taskIds) {
+    const taskInfo = timedOutTasks.get(taskId);
+    
+    if (!taskInfo) continue;
+    
+    // Check if it's been at least 2 minutes since last check
+    if (now - taskInfo.lastChecked >= TWO_MINUTES) {
+      console.log(`Rechecking timed out task ${taskId} (retry ${taskInfo.retryCount + 1}/${taskInfo.maxRetries})`);
+      
+      try {
+        const result = await getTaskResult(taskId);
+        results.push(result);
+        
+        // If task is completed or failed, remove it from tracking
+        if (result.status === "completed" || result.status === "failed") {
+          console.log(`Task ${taskId} is now ${result.status}, removing from timeout tracking`);
+          timedOutTasks.delete(taskId);
+        } else {
+          // Update last checked time and increment retry count
+          taskInfo.lastChecked = now;
+          taskInfo.retryCount++;
+          
+          // If we've reached max retries, remove from tracking
+          if (taskInfo.retryCount >= taskInfo.maxRetries) {
+            console.log(`Task ${taskId} has reached max retries, giving up`);
+            timedOutTasks.delete(taskId);
+          }
+        }
+      } catch (error) {
+        console.error(`Error rechecking task ${taskId}:`, error);
+        
+        // Increment retry count and update last checked
+        taskInfo.lastChecked = now;
+        taskInfo.retryCount++;
+        
+        // If we've reached max retries, remove from tracking
+        if (taskInfo.retryCount >= taskInfo.maxRetries) {
+          console.log(`Task ${taskId} has reached max retries after errors, giving up`);
+          timedOutTasks.delete(taskId);
+        }
+      }
+    }
+  }
+  
+  return results;
+};
+
+// Add a task to be checked later
+export const addTimedOutTask = (taskId: string, maxRetries: number = 3): void => {
+  console.log(`Adding task ${taskId} to timeout tracking for later checks`);
+  timedOutTasks.set(taskId, {
+    lastChecked: Date.now(),
+    retryCount: 0,
+    maxRetries: maxRetries
+  });
+};
+
