@@ -9,7 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
 import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { MusicNote, History, Sparkles, BookOpen } from "lucide-react";
+import { Music2, History, Sparkles, BookOpen } from "lucide-react";
 
 const Index = () => {
   const [selectedFrequency, setSelectedFrequency] = useState(healingFrequencies[0]);
@@ -69,7 +69,7 @@ const Index = () => {
             <Tabs value={activeTab} onValueChange={setActiveTab} className="glass bg-black/30 backdrop-blur-md border border-white/10 rounded-lg shadow-lg">
               <TabsList className="grid grid-cols-3 bg-transparent border-b border-white/10 w-full rounded-t-lg">
                 <TabsTrigger value="info" className="data-[state=active]:bg-white/10 data-[state=active]:text-white text-slate-200">
-                  <MusicNote className="h-4 w-4 mr-2" />
+                  <Music2 className="h-4 w-4 mr-2" />
                   <span>About</span>
                 </TabsTrigger>
                 <TabsTrigger value="history" className="data-[state=active]:bg-white/10 data-[state=active]:text-white text-slate-200">
