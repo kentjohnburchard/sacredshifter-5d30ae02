@@ -7,15 +7,16 @@ import {
   MusicGenerationRequest, 
   MusicTaskResult 
 } from "../services/api";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface GeneratedTrack {
   id: string;
-  title: string; // Added title field
+  title: string;
   description: string;
   musicUrl: string;
   coverUrl?: string;
   timestamp: Date;
-  lyrics_type: "generate" | "user" | "instrumental"; // Update the type here
+  lyrics_type: "generate" | "user" | "instrumental";
 }
 
 export const useMusicGeneration = () => {
@@ -56,6 +57,32 @@ export const useMusicGeneration = () => {
     }
     currentTaskRef.current = null;
     setIsGenerating(false);
+  }, []);
+
+  const saveToSupabase = useCallback(async (track: GeneratedTrack) => {
+    try {
+      const { error } = await supabase
+        .from('music_generations')
+        .insert([
+          {
+            id: track.id,
+            title: track.title,
+            description: track.description,
+            music_url: track.musicUrl,
+            cover_url: track.coverUrl,
+            lyrics_type: track.lyrics_type,
+            created_at: new Date().toISOString()
+          }
+        ]);
+      
+      if (error) {
+        console.error("Error saving to Supabase:", error);
+      } else {
+        console.log("Successfully saved track to Supabase:", track.id);
+      }
+    } catch (error) {
+      console.error("Error during Supabase save:", error);
+    }
   }, []);
 
   const startGeneration = useCallback(async (params: MusicGenerationRequest) => {
@@ -114,10 +141,15 @@ export const useMusicGeneration = () => {
             console.log("Polling result:", result);
             
             if (result.status === "completed" && result.result) {
+              if (!result.result.music_url) {
+                console.error("Completed status received but no music URL was provided");
+                throw new Error("Music generation completed but no music was produced");
+              }
+              
               // Add new track
               const newTrack: GeneratedTrack = {
                 id: result.task_id,
-                title: params.title, // Add the title from params
+                title: params.title,
                 description: params.gpt_description_prompt,
                 musicUrl: result.result.music_url,
                 coverUrl: result.result.cover_url,
@@ -127,6 +159,9 @@ export const useMusicGeneration = () => {
               
               console.log("Music generation completed successfully:", newTrack);
               setGeneratedTracks(prev => [newTrack, ...prev]);
+              
+              // Save to Supabase
+              saveToSupabase(newTrack);
               
               // Cleanup
               if (pollingRef.current) {
@@ -154,11 +189,27 @@ export const useMusicGeneration = () => {
     } catch (error) {
       handleError(error);
     }
-  }, [isGenerating, handleError]);
+  }, [isGenerating, handleError, saveToSupabase]);
 
-  const deleteTrack = useCallback((id: string) => {
-    setGeneratedTracks(prev => prev.filter(track => track.id !== id));
-    toast.info("Track deleted");
+  const deleteTrack = useCallback(async (id: string) => {
+    try {
+      // Delete from Supabase first
+      const { error } = await supabase
+        .from('music_generations')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        console.error("Error deleting from Supabase:", error);
+      }
+      
+      // Then update local state
+      setGeneratedTracks(prev => prev.filter(track => track.id !== id));
+      toast.info("Track deleted");
+    } catch (error) {
+      console.error("Error during track deletion:", error);
+      toast.error("Failed to delete track");
+    }
   }, []);
 
   return {

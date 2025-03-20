@@ -1,13 +1,14 @@
+
 const API_KEY = "90ae5a4ea209519a1f59f1d3f98de47e33aecb05cf32a2b708cc3f8d6e9fbd2a";
 const API_BASE_URL = "https://api.piapi.ai/api/v1/task";
 
 export interface MusicGenerationRequest {
   negative_tags?: string;
   gpt_description_prompt: string;
-  lyrics_type: "generate" | "user" | "instrumental"; // Update to correct API values
-  title: string; // Added title field
+  lyrics_type: "generate" | "user" | "instrumental"; 
+  title: string;
   seed?: number;
-  make_instrumental?: boolean; // Add make_instrumental flag
+  make_instrumental?: boolean;
 }
 
 export interface MusicGenerationResponse {
@@ -97,26 +98,36 @@ export const getTaskResult = async (taskId: string): Promise<MusicTaskResult> =>
     if (data && data.code === 200 && data.data) {
       const taskData = data.data;
       
-      // Extract song URL and cover URL from the response
-      let songUrl = "";
-      let coverUrl = "";
-      
-      if (taskData.output && taskData.output.songs && taskData.output.songs.length > 0) {
+      // If status is completed, we need to extract song URL and cover URL
+      if (taskData.status === "completed" && 
+          taskData.output && 
+          taskData.output.songs && 
+          taskData.output.songs.length > 0) {
+        
+        // Get the first song as the result
         const song = taskData.output.songs[0];
-        songUrl = song.song_path || ""; // Use song_path instead of url
-        coverUrl = song.image_path || ""; // Use image_path instead of cover_url
+        const songUrl = song.song_path || "";
+        const coverUrl = song.image_path || "";
         
         console.log("Extracted song URL:", songUrl);
         console.log("Extracted cover URL:", coverUrl);
+        
+        return {
+          task_id: taskData.task_id,
+          status: taskData.status,
+          result: {
+            music_url: songUrl,
+            cover_url: coverUrl
+          },
+          error: undefined
+        };
       }
       
+      // For non-completed statuses or if no songs are available yet
       return {
         task_id: taskData.task_id,
         status: taskData.status,
-        result: songUrl ? {
-          music_url: songUrl,
-          cover_url: coverUrl
-        } : undefined,
+        result: undefined,
         error: taskData.error?.message
       };
     } else {
