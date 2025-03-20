@@ -157,19 +157,34 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({ frequency }) => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
   
+  // Music bars animation effect
+  const renderMusicBars = () => {
+    if (!isPlaying) return null;
+    
+    return (
+      <div className="absolute top-0 right-0 mr-4 mt-4 music-bars">
+        <div className="music-bar h-3 animate-music-bar-1"></div>
+        <div className="music-bar h-4 animate-music-bar-2"></div>
+        <div className="music-bar h-2 animate-music-bar-3"></div>
+        <div className="music-bar h-5 animate-music-bar-4"></div>
+      </div>
+    );
+  };
+  
   return (
-    <Card className="border border-border/40 shadow-sm overflow-hidden bg-white dark:bg-gray-900">
+    <Card className="relative border-none shadow-xl glass bg-black/30 backdrop-blur-md border border-white/10 overflow-hidden">
+      {renderMusicBars()}
       <CardContent className="p-5">
         <div className="space-y-4">
           <div className="flex justify-between items-start">
             <div className="space-y-1">
-              <h3 className="font-medium text-xl">
+              <h3 className="font-medium text-xl text-white">
                 <span className={`bg-gradient-to-r ${frequency.color} bg-clip-text text-transparent`}>
                   {frequency.frequency} Hz
                 </span>
-                <span className="ml-2 text-foreground">{frequency.name}</span>
+                <span className="ml-2 text-white">{frequency.name}</span>
               </h3>
-              <p className="text-sm text-muted-foreground flex items-center gap-1">
+              <p className="text-sm text-slate-300 flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5" />
                 <span>
                   {formatTime(elapsedTime)} / {formatTime(maxDuration)}
@@ -179,7 +194,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({ frequency }) => {
           </div>
           
           <div className="relative pt-1">
-            <div className="overflow-hidden h-2 text-xs flex rounded bg-muted">
+            <div className="overflow-hidden h-2 text-xs flex rounded bg-white/10">
               <div
                 style={{ width: `${(elapsedTime / maxDuration) * 100}%` }}
                 className={`shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r ${frequency.color}`}
@@ -192,7 +207,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({ frequency }) => {
               <Button
                 variant="outline"
                 size="icon"
-                className="h-9 w-9 rounded-full"
+                className="h-9 w-9 rounded-full bg-white/5 border-white/10 hover:bg-white/10 text-white"
                 onClick={resetPlayer}
               >
                 <RotateCcw className="h-4 w-4" />
@@ -201,7 +216,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({ frequency }) => {
               <Button
                 variant="default"
                 size="icon"
-                className={`h-12 w-12 rounded-full bg-gradient-to-r ${frequency.color} hover:opacity-90 transition-opacity`}
+                className={`h-12 w-12 rounded-full bg-gradient-to-r ${frequency.color} hover:opacity-90 transition-opacity shadow-lg`}
                 onClick={togglePlay}
               >
                 {isPlaying ? (
@@ -216,7 +231,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({ frequency }) => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-muted-foreground"
+                className="h-8 w-8 text-slate-300 hover:bg-white/10 hover:text-white"
                 onClick={toggleMute}
               >
                 {isMuted ? (
@@ -232,6 +247,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({ frequency }) => {
                 max={1}
                 step={0.01}
                 onValueChange={handleVolumeChange}
+                className="cursor-pointer"
               />
             </div>
           </div>
