@@ -9,6 +9,33 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      credit_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string
+          id: string
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description: string
+          id?: string
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string
+          id?: string
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       music: {
         Row: {
           created_at: string | null
@@ -108,12 +135,122 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_plans: {
+        Row: {
+          created_at: string
+          credits_per_period: number
+          features: Json
+          id: string
+          is_best_value: boolean | null
+          is_popular: boolean | null
+          name: string
+          period: string
+          price: number
+          songs_equivalent: number
+          yearly_discount: number | null
+        }
+        Insert: {
+          created_at?: string
+          credits_per_period: number
+          features: Json
+          id?: string
+          is_best_value?: boolean | null
+          is_popular?: boolean | null
+          name: string
+          period: string
+          price: number
+          songs_equivalent: number
+          yearly_discount?: number | null
+        }
+        Update: {
+          created_at?: string
+          credits_per_period?: number
+          features?: Json
+          id?: string
+          is_best_value?: boolean | null
+          is_popular?: boolean | null
+          name?: string
+          period?: string
+          price?: number
+          songs_equivalent?: number
+          yearly_discount?: number | null
+        }
+        Relationships: []
+      }
+      user_credits: {
+        Row: {
+          balance: number
+          id: string
+          last_updated: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          id?: string
+          last_updated?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          id?: string
+          last_updated?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          is_yearly: boolean | null
+          plan_id: string
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_yearly?: boolean | null
+          plan_id: string
+          started_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_yearly?: boolean | null
+          plan_id?: string
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      use_generation_credit: {
+        Args: {
+          user_id: string
+          credit_cost?: number
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

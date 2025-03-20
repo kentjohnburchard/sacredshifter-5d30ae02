@@ -32,6 +32,7 @@ export const useMusicGeneration = () => {
   const currentTaskRef = useRef<string | null>(null);
   const pollingAttemptsRef = useRef(0);
   const MAX_POLLING_ATTEMPTS = 60; // 5 minutes max (5 seconds * 60)
+  const [userCredits, setUserCredits] = useState<number | null>(null);
 
   // Fetch tracks from Supabase on init
   useEffect(() => {
@@ -83,6 +84,40 @@ export const useMusicGeneration = () => {
     };
     
     fetchTracksFromSupabase();
+  }, [user]);
+
+  // Fetch user credits on init and whenever user changes
+  useEffect(() => {
+    if (!user) {
+      setUserCredits(null);
+      return;
+    }
+
+    const fetchUserCredits = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('user_credits')
+          .select('balance')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        if (error) {
+          console.error("Error fetching user credits:", error);
+          return;
+        }
+        
+        if (data) {
+          setUserCredits(data.balance);
+        } else {
+          // User doesn't have credits record yet, they'll get default credits on first generation
+          setUserCredits(0);
+        }
+      } catch (error) {
+        console.error("Error fetching user credits:", error);
+      }
+    };
+    
+    fetchUserCredits();
   }, [user]);
 
   // Save to localStorage when tracks change
@@ -194,6 +229,29 @@ export const useMusicGeneration = () => {
     }
 
     try {
+      // Check if user has credits
+      const { data: creditsData, error: creditsError } = await supabase
+        .from('user_credits')
+        .select('balance')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      if (creditsError) {
+        console.error("Error checking user credits:", creditsError);
+        toast.error("Could not check your credit balance");
+        return;
+      }
+      
+      const creditBalance = creditsData?.balance || 0;
+      
+      // Cost per generation
+      const GENERATION_COST = 5;
+      
+      if (creditBalance < GENERATION_COST) {
+        toast.error(`Insufficient credits. You need ${GENERATION_COST} credits to generate music. Please subscribe to get more credits.`);
+        return;
+      }
+      
       setIsGenerating(true);
       pollingAttemptsRef.current = 0;
       
@@ -234,6 +292,35 @@ export const useMusicGeneration = () => {
       } catch (error) {
         console.error("Error creating initial Supabase record:", error);
         // Continue anyway as this is not critical
+      }
+      
+      // Deduct credits for the generation
+      try {
+        // Call the SQL function to use credits
+        const { data: deductResult, error: deductError } = await supabase
+          .rpc('use_generation_credit', {
+            user_id: user.id,
+            credit_cost: GENERATION_COST
+          });
+        
+        if (deductError) {
+          console.error("Error deducting credits:", deductError);
+          throw new Error("Failed to deduct credits");
+        }
+        
+        if (!deductResult) {
+          throw new Error("Insufficient credits");
+        }
+        
+        // Update local state
+        setUserCredits(prevCredits => 
+          prevCredits !== null ? prevCredits - GENERATION_COST : null
+        );
+        
+      } catch (error) {
+        console.error("Error processing credits:", error);
+        toast.error("Failed to process credits");
+        throw error;
       }
       
       toast.success("Music generation started");
@@ -381,6 +468,7 @@ export const useMusicGeneration = () => {
     isGenerating,
     generatedTracks,
     startGeneration,
-    deleteTrack
+    deleteTrack,
+    userCredits
   };
 };

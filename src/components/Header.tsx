@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Music2, LogOut } from "lucide-react";
+import { Music2, LogOut, CreditCard } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
@@ -56,6 +56,19 @@ const Header: React.FC = () => {
                 Music Generation
               </Link>
             </NavigationMenuItem>
+            {user && (
+              <NavigationMenuItem>
+                <Link to="/subscription" className={cn(
+                  "px-4 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1",
+                  location.pathname === "/subscription" 
+                    ? "bg-white/10 text-white" 
+                    : "text-slate-300 hover:text-white hover:bg-white/5"
+                )}>
+                  <CreditCard className="h-4 w-4" />
+                  <span>Subscribe</span>
+                </Link>
+              </NavigationMenuItem>
+            )}
           </NavigationMenuList>
         </NavigationMenu>
         

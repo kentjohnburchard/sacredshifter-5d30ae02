@@ -3,13 +3,14 @@ import React, { useState } from "react";
 import Header from "@/components/Header";
 import MusicForm from "@/components/MusicForm";
 import GenerationHistory from "@/components/GenerationHistory";
+import UserCreditsDisplay from "@/components/UserCreditsDisplay";
 import { useMusicGeneration } from "@/hooks/useMusicGeneration";
 import { Card, CardContent } from "@/components/ui/card";
 import { HealingFrequency, healingFrequencies } from "@/data/frequencies";
 import FrequencyInfoBox from "@/components/FrequencyInfoBox";
 
 const MusicGeneration = () => {
-  const { isGenerating, generatedTracks, startGeneration, deleteTrack } = useMusicGeneration();
+  const { isGenerating, generatedTracks, startGeneration, deleteTrack, userCredits } = useMusicGeneration();
   const [selectedFrequency, setSelectedFrequency] = useState<HealingFrequency>(healingFrequencies[0]);
   
   return (
@@ -30,6 +31,9 @@ const MusicGeneration = () => {
             Create beautiful healing music with AI. Enter a description and get a unique track in minutes.
           </p>
         </div>
+        
+        {/* User credits display */}
+        <UserCreditsDisplay credits={userCredits} />
         
         <Card className="border-none shadow-xl bg-black/70 backdrop-blur-md border border-white/10 overflow-hidden mb-10">
           <CardContent className="p-6 text-white">
