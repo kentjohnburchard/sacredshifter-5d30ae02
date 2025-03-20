@@ -66,6 +66,10 @@ const FrequencyInfoBox: React.FC<FrequencyInfoBoxProps> = ({
     setShowMusicDialog(false);
   };
 
+  const openMusicDialog = () => {
+    setShowMusicDialog(true);
+  };
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -103,7 +107,7 @@ const FrequencyInfoBox: React.FC<FrequencyInfoBoxProps> = ({
             </div>
             
             <Button 
-              onClick={() => setShowMusicDialog(true)} 
+              onClick={openMusicDialog} 
               className="w-full mt-2 bg-gradient-to-r from-teal-500 to-purple-600 hover:from-teal-600 hover:to-purple-700"
             >
               Create Music with this Frequency
