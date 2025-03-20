@@ -87,15 +87,27 @@ export const getTaskResult = async (taskId: string): Promise<MusicTaskResult> =>
     // Handle the nested response structure
     if (data && data.code === 200 && data.data) {
       const taskData = data.data;
+      
+      // Extract song URL and cover URL from the response
+      let songUrl = "";
+      let coverUrl = "";
+      
+      if (taskData.output && taskData.output.songs && taskData.output.songs.length > 0) {
+        const song = taskData.output.songs[0];
+        songUrl = song.song_path || ""; // Use song_path instead of url
+        coverUrl = song.image_path || ""; // Use image_path instead of cover_url
+        
+        console.log("Extracted song URL:", songUrl);
+        console.log("Extracted cover URL:", coverUrl);
+      }
+      
       return {
         task_id: taskData.task_id,
         status: taskData.status,
-        result: taskData.output && taskData.output.songs && taskData.output.songs.length > 0
-          ? {
-              music_url: taskData.output.songs[0].url,
-              cover_url: taskData.output.songs[0].cover_url
-            }
-          : undefined,
+        result: songUrl ? {
+          music_url: songUrl,
+          cover_url: coverUrl
+        } : undefined,
         error: taskData.error?.message
       };
     } else {
