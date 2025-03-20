@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Json } from "@/integrations/supabase/types";
 
 export interface SubscriptionPlan {
   id: string;
@@ -49,10 +50,15 @@ export const useUserSubscription = () => {
           
         if (error) throw error;
         
-        // Convert jsonb features to string array
+        // Convert jsonb features to string array and transform the data to match SubscriptionPlan
         const formattedPlans = data.map(plan => ({
           ...plan,
-          features: Array.isArray(plan.features) ? plan.features : [],
+          features: Array.isArray(plan.features) 
+            ? plan.features.map(feature => String(feature)) 
+            : [],
+          is_popular: Boolean(plan.is_popular),
+          is_best_value: Boolean(plan.is_best_value),
+          yearly_discount: Number(plan.yearly_discount || 0)
         }));
         
         setPlans(formattedPlans);
