@@ -17,9 +17,9 @@ const FrequencySelector: React.FC<FrequencySelectorProps> = ({
   onSelect 
 }) => {
   return (
-    <Card className="border-none shadow-xl glass bg-black/30 backdrop-blur-md border border-white/10 overflow-hidden">
+    <Card className="border-none shadow-xl bg-black/50 backdrop-blur-md border border-white/10 overflow-hidden">
       <CardContent className="p-4">
-        <h3 className="text-lg font-medium mb-4 text-center text-white">Sacred Frequencies</h3>
+        <h3 className="text-lg font-medium mb-4 text-center text-white drop-shadow-md">Sacred Frequencies</h3>
         <ScrollArea className="h-[500px] pr-3">
           <div className="space-y-2">
             {frequencies.map((freq) => (
@@ -28,20 +28,20 @@ const FrequencySelector: React.FC<FrequencySelectorProps> = ({
                 className={`
                   p-3 rounded-lg cursor-pointer transition-all duration-300 transform hover:scale-102
                   ${selectedFrequency.id === freq.id 
-                    ? `bg-gradient-to-r ${freq.color} shadow-lg shadow-${freq.color.split('-')[1]}/20` 
-                    : 'bg-white/5 hover:bg-white/10 border border-white/5'
+                    ? `bg-gradient-to-r ${freq.color} shadow-lg shadow-black/40` 
+                    : 'bg-black/40 hover:bg-black/50 border border-white/10'
                   }
                 `}
                 onClick={() => onSelect(freq)}
               >
                 <div className="flex justify-between items-center">
                   <div>
-                    <h4 className={`font-medium ${selectedFrequency.id === freq.id ? 'text-white' : 'text-slate-200'}`}>
+                    <h4 className={`font-medium ${selectedFrequency.id === freq.id ? 'text-white drop-shadow-sm' : 'text-white'}`}>
                       {freq.name}
                     </h4>
                     <div className="flex items-center gap-1">
-                      <Music2 className={`h-3 w-3 ${selectedFrequency.id === freq.id ? 'text-white/90' : 'text-slate-400'}`} />
-                      <p className={`text-sm ${selectedFrequency.id === freq.id ? 'text-white/90' : 'text-slate-400'}`}>
+                      <Music2 className={`h-3 w-3 ${selectedFrequency.id === freq.id ? 'text-white/90' : 'text-slate-300'}`} />
+                      <p className={`text-sm ${selectedFrequency.id === freq.id ? 'text-white/90' : 'text-slate-300'}`}>
                         {freq.frequency} Hz
                       </p>
                     </div>
@@ -49,8 +49,8 @@ const FrequencySelector: React.FC<FrequencySelectorProps> = ({
                   {freq.chakra && (
                     <span className={`text-xs px-2 py-1 rounded-full 
                       ${selectedFrequency.id === freq.id 
-                        ? 'bg-white/20 text-white' 
-                        : 'bg-white/10 text-slate-200'}`
+                        ? 'bg-white/20 text-white font-medium' 
+                        : 'bg-black/40 text-white'}`
                       }
                     >
                       {freq.chakra}

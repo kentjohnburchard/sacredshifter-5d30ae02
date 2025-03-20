@@ -4,31 +4,47 @@ import Header from "@/components/Header";
 import MusicForm from "@/components/MusicForm";
 import GenerationHistory from "@/components/GenerationHistory";
 import { useMusicGeneration } from "@/hooks/useMusicGeneration";
+import { Card, CardContent } from "@/components/ui/card";
 
 const MusicGeneration = () => {
   const { isGenerating, generatedTracks, startGeneration, deleteTrack } = useMusicGeneration();
   
   return (
-    <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-purple-950">
+    <div className="min-h-screen flex flex-col bg-[url('/lovable-uploads/03d64fc7-3a06-4a05-bb16-d5f23d3983f5.png')] bg-cover bg-center bg-fixed">
+      {/* Darker overlay for better readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-indigo-950/95 via-purple-950/95 to-black/95 backdrop-blur-sm -z-10"></div>
+      
       <Header />
       
-      <main className="flex-1 w-full max-w-6xl px-4 py-8 sm:px-6 space-y-8">
-        <div className="text-center space-y-3 mb-8">
-          <h2 className="text-3xl sm:text-4xl font-light tracking-tight">
-            <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-500">
+      <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-8 sm:px-6 space-y-8">
+        <div className="text-center space-y-3 mb-8 animate-fade-in">
+          <h2 className="text-4xl sm:text-5xl font-light tracking-tight">
+            <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-purple-200 to-blue-200 drop-shadow-[0_2px_3px_rgba(0,0,0,0.5)]">
               Music Generation
             </span>
           </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
-            Create beautiful music with AI. Enter a description and get a unique track in minutes.
+          <p className="text-slate-100 max-w-2xl mx-auto font-light text-lg">
+            Create beautiful healing music with AI. Enter a description and get a unique track in minutes.
           </p>
         </div>
         
-        <MusicForm onSubmit={startGeneration} isGenerating={isGenerating} />
-        <GenerationHistory tracks={generatedTracks} onDelete={deleteTrack} />
+        <Card className="border-none shadow-xl bg-black/70 backdrop-blur-md border border-white/10 overflow-hidden mb-10">
+          <CardContent className="p-6 text-white">
+            <MusicForm onSubmit={startGeneration} isGenerating={isGenerating} />
+          </CardContent>
+        </Card>
+        
+        <Card className="border-none shadow-xl bg-black/70 backdrop-blur-md border border-white/10 overflow-hidden">
+          <CardContent className="p-6 text-white">
+            <h3 className="text-xl font-medium mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-purple-200 drop-shadow-sm">
+              Your Generated Tracks
+            </h3>
+            <GenerationHistory tracks={generatedTracks} onDelete={deleteTrack} />
+          </CardContent>
+        </Card>
       </main>
       
-      <footer className="w-full py-6 text-center text-sm text-muted-foreground">
+      <footer className="w-full py-6 text-center text-sm text-slate-300">
         <p>Sacred Shifter - Generate music and heal with sound.</p>
       </footer>
     </div>

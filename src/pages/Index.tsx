@@ -23,7 +23,7 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col bg-[url('/lovable-uploads/03d64fc7-3a06-4a05-bb16-d5f23d3983f5.png')] bg-cover bg-center bg-fixed">
       {/* Darker overlay for better readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-indigo-950/90 via-purple-950/90 to-black/95 backdrop-blur-sm -z-10"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-indigo-950/95 via-purple-950/95 to-black/95 backdrop-blur-sm -z-10"></div>
       
       <Header />
       
