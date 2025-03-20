@@ -25,6 +25,9 @@ const UserCreditsDisplay: React.FC<UserCreditsDisplayProps> = ({ credits, isLoad
     );
   }
 
+  // Format the credits with commas for thousands
+  const formattedCredits = credits !== null ? credits.toLocaleString() : '–';
+
   return (
     <Card className="border-none shadow-md bg-black/70 backdrop-blur-md border border-white/10">
       <CardContent className="p-4 flex items-center justify-between">
@@ -32,7 +35,7 @@ const UserCreditsDisplay: React.FC<UserCreditsDisplayProps> = ({ credits, isLoad
           <PiggyBank className="h-5 w-5 text-accent" />
           <div>
             <span className="text-sm text-slate-300">Your credits:</span>
-            <span className="ml-2 font-bold text-white">{credits !== null ? credits : '–'}</span>
+            <span className="ml-2 font-bold text-white">{formattedCredits}</span>
           </div>
         </div>
         <Link to="/subscription">

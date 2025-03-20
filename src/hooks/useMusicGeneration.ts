@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { 
@@ -95,19 +94,20 @@ export const useMusicGeneration = () => {
 
     const fetchUserCredits = async () => {
       try {
+        // Use select() instead of maybeSingle() to avoid the error
         const { data, error } = await supabase
           .from('user_credits')
           .select('balance')
-          .eq('user_id', user.id)
-          .maybeSingle();
+          .eq('user_id', user.id);
         
         if (error) {
           console.error("Error fetching user credits:", error);
           return;
         }
         
-        if (data) {
-          setUserCredits(data.balance);
+        if (data && data.length > 0) {
+          // Take the first result if there are multiple rows
+          setUserCredits(data[0].balance);
         } else {
           // User doesn't have credits record yet, they'll get default credits on first generation
           setUserCredits(0);
@@ -233,8 +233,7 @@ export const useMusicGeneration = () => {
       const { data: creditsData, error: creditsError } = await supabase
         .from('user_credits')
         .select('balance')
-        .eq('user_id', user.id)
-        .maybeSingle();
+        .eq('user_id', user.id);
       
       if (creditsError) {
         console.error("Error checking user credits:", creditsError);
@@ -242,7 +241,7 @@ export const useMusicGeneration = () => {
         return;
       }
       
-      const creditBalance = creditsData?.balance || 0;
+      const creditBalance = creditsData && creditsData.length > 0 ? creditsData[0].balance : 0;
       
       // Cost per generation
       const GENERATION_COST = 5;

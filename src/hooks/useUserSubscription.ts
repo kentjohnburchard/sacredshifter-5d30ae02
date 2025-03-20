@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -82,27 +83,37 @@ export const useUserSubscription = () => {
     const fetchUserData = async () => {
       setLoading(true);
       try {
-        // Fetch user subscription
+        // Fetch user subscription - fix the maybeSingle issue by using select() and handling multiple results
         const { data: subscriptionData, error: subscriptionError } = await supabase
           .from('user_subscriptions')
           .select('*')
           .eq('user_id', user.id)
-          .eq('is_active', true)
-          .maybeSingle();
+          .eq('is_active', true);
           
         if (subscriptionError) throw subscriptionError;
+        
+        // Handle multiple subscriptions by using the most recent one
+        let activeSubscription = null;
+        if (subscriptionData && subscriptionData.length > 0) {
+          // Sort by start date (newest first) and take the first one
+          activeSubscription = subscriptionData.sort((a, b) => 
+            new Date(b.started_at).getTime() - new Date(a.started_at).getTime()
+          )[0];
+        }
         
         // Fetch user credits
         const { data: creditsData, error: creditsError } = await supabase
           .from('user_credits')
           .select('balance, last_updated')
-          .eq('user_id', user.id)
-          .maybeSingle();
+          .eq('user_id', user.id);
           
         if (creditsError) throw creditsError;
         
-        setUserSubscription(subscriptionData);
-        setUserCredits(creditsData);
+        // Handle potential multiple credit records by taking the first one
+        const userCreditData = creditsData && creditsData.length > 0 ? creditsData[0] : null;
+        
+        setUserSubscription(activeSubscription);
+        setUserCredits(userCreditData);
       } catch (error) {
         console.error("Error fetching user subscription data:", error);
         toast.error("Could not load your subscription information");
