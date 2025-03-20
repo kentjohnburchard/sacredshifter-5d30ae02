@@ -5,7 +5,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Wand2, Music, Sparkles } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Wand2, Music, Sparkles, MicVocal } from "lucide-react";
 import { MusicGenerationRequest } from "@/services/api";
 
 interface MusicFormProps {
@@ -16,6 +17,7 @@ interface MusicFormProps {
 const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating }) => {
   const [description, setDescription] = useState("");
   const [negativeTags, setNegativeTags] = useState("");
+  const [lyricsType, setLyricsType] = useState<"instrumental" | "lyrical">("instrumental");
   
   const generateRandomSeed = () => {
     // Generate a random integer between -1000000 and 1000000
@@ -31,7 +33,7 @@ const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating }) => {
     
     const params: MusicGenerationRequest = {
       gpt_description_prompt: description,
-      lyrics_type: "instrumental", // The API only supports instrumental
+      lyrics_type: lyricsType,
       seed: generateRandomSeed()
     };
     
@@ -59,6 +61,28 @@ const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating }) => {
               className="resize-none min-h-[120px] transition-all focus:ring-accent/50"
               required
             />
+          </div>
+          
+          <div className="space-y-2">
+            <Label className="text-sm font-medium flex items-center gap-1.5">
+              <MicVocal className="h-4 w-4 text-accent" />
+              Lyrics Type
+            </Label>
+            <RadioGroup 
+              className="flex items-center gap-4" 
+              defaultValue="instrumental"
+              value={lyricsType}
+              onValueChange={(value) => setLyricsType(value as "instrumental" | "lyrical")}
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="instrumental" id="instrumental" />
+                <Label htmlFor="instrumental" className="cursor-pointer">Instrumental</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="lyrical" id="lyrical" />
+                <Label htmlFor="lyrical" className="cursor-pointer">With Lyrics</Label>
+              </div>
+            </RadioGroup>
           </div>
           
           <div className="space-y-2">

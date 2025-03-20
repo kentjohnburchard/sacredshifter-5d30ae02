@@ -5,7 +5,7 @@ const API_BASE_URL = "https://api.piapi.ai/api/v1/task";
 export interface MusicGenerationRequest {
   negative_tags?: string;
   gpt_description_prompt: string;
-  lyrics_type: "instrumental"; // Restrict to only "instrumental"
+  lyrics_type: "instrumental" | "lyrical"; // Update to support both options
   seed?: number;
 }
 
