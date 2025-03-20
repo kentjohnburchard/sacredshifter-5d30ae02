@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Header from "@/components/Header";
@@ -10,6 +11,11 @@ import { HealingFrequency, healingFrequencies } from "@/data/frequencies";
 import FrequencyInfoBox from "@/components/FrequencyInfoBox";
 import FrequencyMusicConfirmation from "@/components/FrequencyMusicConfirmation";
 import FrequencySelector from "@/components/FrequencySelector";
+import FrequencyPlayer from "@/components/FrequencyPlayer";
+import FrequencyInfo from "@/components/FrequencyInfo";
+import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Music2, History, Sparkles, BookOpen } from "lucide-react";
 
 const MusicGeneration = () => {
   const location = useLocation();
@@ -17,6 +23,7 @@ const MusicGeneration = () => {
   const [selectedFrequency, setSelectedFrequency] = useState<HealingFrequency>(healingFrequencies[0]);
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
   const [initialFrequency, setInitialFrequency] = useState<HealingFrequency | null>(null);
+  const [activeTab, setActiveTab] = useState("info");
   
   useEffect(() => {
     if (location.state?.selectedFrequency) {
@@ -69,6 +76,7 @@ const MusicGeneration = () => {
           </CardContent>
         </Card>
         
+        {/* Sacred Frequencies Section (moved from Index page) */}
         <Card className="border-none shadow-xl bg-black/70 backdrop-blur-md border border-purple-500/30 overflow-hidden mb-10 rounded-xl">
           <CardContent className="p-6 text-white">
             <h3 className="text-xl font-bold mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-purple-400 text-shadow">
@@ -77,24 +85,72 @@ const MusicGeneration = () => {
             <p className="mb-4 text-slate-200 text-shadow-sm">
               Enhance your music generation by incorporating sacred frequencies. Select a frequency to learn more about its healing properties and meditation practices.
             </p>
-            {showConfirmation ? (
-              <div className="grid md:grid-cols-2 gap-6">
-                <FrequencySelector
-                  frequencies={healingFrequencies}
+            
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
+              <div className="lg:col-span-1">
+                <FrequencySelector 
+                  frequencies={healingFrequencies} 
                   selectedFrequency={selectedFrequency}
-                  onSelect={handleSelectFrequency}
+                  onSelect={setSelectedFrequency}
                 />
-                <div className="bg-black/50 backdrop-blur-md border border-purple-500/30 rounded-lg p-6">
-                  <FrequencyMusicConfirmation frequency={selectedFrequency} />
-                </div>
               </div>
-            ) : (
-              <FrequencyInfoBox 
-                frequencies={healingFrequencies} 
-                selectedFrequency={selectedFrequency} 
-                onSelectFrequency={handleSelectFrequency} 
-              />
-            )}
+              
+              <div className="lg:col-span-2 space-y-6">
+                <FrequencyPlayer frequency={selectedFrequency} />
+                
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-black/70 backdrop-blur-md border border-white/10 rounded-lg shadow-lg">
+                  <TabsList className="grid grid-cols-3 bg-transparent border-b border-white/10 w-full rounded-t-lg">
+                    <TabsTrigger value="info" className="data-[state=active]:bg-white/20 data-[state=active]:text-white text-slate-200">
+                      <Music2 className="h-4 w-4 mr-2" />
+                      <span>About</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="history" className="data-[state=active]:bg-white/20 data-[state=active]:text-white text-slate-200">
+                      <History className="h-4 w-4 mr-2" />
+                      <span>History</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="meditation" className="data-[state=active]:bg-white/20 data-[state=active]:text-white text-slate-200">
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      <span>Meditation</span>
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <ScrollArea className="h-72 p-5 text-white">
+                    <TabsContent value="info" className="mt-0">
+                      <FrequencyInfo frequency={selectedFrequency} />
+                    </TabsContent>
+                    
+                    <TabsContent value="history" className="space-y-4 mt-0">
+                      <h3 className="text-xl font-medium text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-purple-200 drop-shadow-sm">
+                        Historical Origins
+                      </h3>
+                      <p className="text-slate-100">
+                        {selectedFrequency.history || "The historical origins of this frequency are part of ancient sound healing traditions passed down through generations of healers and spiritual practitioners."}
+                      </p>
+                    </TabsContent>
+                    
+                    <TabsContent value="meditation" className="space-y-4 mt-0">
+                      <h3 className="text-xl font-medium text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-purple-200 drop-shadow-sm">
+                        Meditation Practices
+                      </h3>
+                      {selectedFrequency.meditations ? (
+                        <ul className="space-y-2">
+                          {selectedFrequency.meditations.map((meditation, index) => (
+                            <li key={index} className="flex items-start">
+                              <Sparkles className="h-5 w-5 mr-2 text-purple-300 shrink-0 mt-0.5" />
+                              <span className="text-slate-100">{meditation}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-slate-100">
+                          Sit comfortably with your spine straight. Close your eyes and take deep breaths while focusing on the sound. Allow the frequency to flow through your entire being, releasing any tension or blockages.
+                        </p>
+                      )}
+                    </TabsContent>
+                  </ScrollArea>
+                </Tabs>
+              </div>
+            </div>
           </CardContent>
         </Card>
         

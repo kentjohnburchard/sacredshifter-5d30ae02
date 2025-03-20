@@ -1,25 +1,9 @@
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Header from "@/components/Header";
-import FrequencyPlayer from "@/components/FrequencyPlayer";
-import FrequencySelector from "@/components/FrequencySelector";
-import FrequencyInfo from "@/components/FrequencyInfo";
-import { healingFrequencies } from "@/data/frequencies";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
-import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import { Music2, History, Sparkles, BookOpen } from "lucide-react";
 
 const Index = () => {
-  const [selectedFrequency, setSelectedFrequency] = useState(healingFrequencies[0]);
-  const [activeTab, setActiveTab] = useState("info");
-  
-  // Add smooth scrolling to the top when frequency changes
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [selectedFrequency.id]);
-  
   return (
     <div className="min-h-screen flex flex-col bg-[url('/lovable-uploads/03d64fc7-3a06-4a05-bb16-d5f23d3983f5.png')] bg-cover bg-center bg-fixed">
       {/* Darker overlay for better readability */}
@@ -49,76 +33,10 @@ const Index = () => {
               Sound healing is one of the oldest and most natural forms of healing known to man. Since ancient times, sound therapy has been used to treat a variety of physical and mental conditions. The Egyptians used vowel sound chants in healing because they believed vowels were sacred. Tibetan monks use singing bowls, which the body's chakra system responds to.
             </p>
             <p className="text-slate-100">
-              Each frequency below corresponds to a specific vibration that resonates with different parts of your being. They activate the body's natural healing mechanisms and help restore perfect harmony to body, mind, and spirit.
+              Experience the power of sound healing in our Music Generation page, where you can listen to sacred frequencies and even create custom healing music with AI.
             </p>
           </CardContent>
         </Card>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-1">
-            <FrequencySelector 
-              frequencies={healingFrequencies} 
-              selectedFrequency={selectedFrequency}
-              onSelect={setSelectedFrequency}
-            />
-          </div>
-          
-          <div className="lg:col-span-2 space-y-6">
-            <FrequencyPlayer frequency={selectedFrequency} />
-            
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-black/70 backdrop-blur-md border border-white/10 rounded-lg shadow-lg">
-              <TabsList className="grid grid-cols-3 bg-transparent border-b border-white/10 w-full rounded-t-lg">
-                <TabsTrigger value="info" className="data-[state=active]:bg-white/20 data-[state=active]:text-white text-slate-200">
-                  <Music2 className="h-4 w-4 mr-2" />
-                  <span>About</span>
-                </TabsTrigger>
-                <TabsTrigger value="history" className="data-[state=active]:bg-white/20 data-[state=active]:text-white text-slate-200">
-                  <History className="h-4 w-4 mr-2" />
-                  <span>History</span>
-                </TabsTrigger>
-                <TabsTrigger value="meditation" className="data-[state=active]:bg-white/20 data-[state=active]:text-white text-slate-200">
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  <span>Meditation</span>
-                </TabsTrigger>
-              </TabsList>
-              
-              <ScrollArea className="h-72 p-5 text-white">
-                <TabsContent value="info" className="mt-0">
-                  <FrequencyInfo frequency={selectedFrequency} />
-                </TabsContent>
-                
-                <TabsContent value="history" className="space-y-4 mt-0">
-                  <h3 className="text-xl font-medium text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-purple-200 drop-shadow-sm">
-                    Historical Origins
-                  </h3>
-                  <p className="text-slate-100">
-                    {selectedFrequency.history || "The historical origins of this frequency are part of ancient sound healing traditions passed down through generations of healers and spiritual practitioners."}
-                  </p>
-                </TabsContent>
-                
-                <TabsContent value="meditation" className="space-y-4 mt-0">
-                  <h3 className="text-xl font-medium text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-purple-200 drop-shadow-sm">
-                    Meditation Practices
-                  </h3>
-                  {selectedFrequency.meditations ? (
-                    <ul className="space-y-2">
-                      {selectedFrequency.meditations.map((meditation, index) => (
-                        <li key={index} className="flex items-start">
-                          <Sparkles className="h-5 w-5 mr-2 text-purple-300 shrink-0 mt-0.5" />
-                          <span className="text-slate-100">{meditation}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-slate-100">
-                      Sit comfortably with your spine straight. Close your eyes and take deep breaths while focusing on the sound. Allow the frequency to flow through your entire being, releasing any tension or blockages.
-                    </p>
-                  )}
-                </TabsContent>
-              </ScrollArea>
-            </Tabs>
-          </div>
-        </div>
         
         {/* Additional information section */}
         <Card className="mt-12 border-none shadow-xl bg-black/70 backdrop-blur-md border border-white/10">
@@ -131,7 +49,6 @@ const Index = () => {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <h4 className="text-xl font-medium flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-purple-300" />
                     <span>The Solfeggio Frequencies</span>
                   </h4>
                   <p className="text-slate-100">
@@ -141,7 +58,6 @@ const Index = () => {
                 
                 <div className="space-y-3">
                   <h4 className="text-xl font-medium flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-purple-300" />
                     <span>Sound and the Chakras</span>
                   </h4>
                   <p className="text-slate-100">
@@ -151,7 +67,6 @@ const Index = () => {
                 
                 <div className="space-y-3">
                   <h4 className="text-xl font-medium flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-purple-300" />
                     <span>How to Use These Frequencies</span>
                   </h4>
                   <p className="text-slate-100">
@@ -161,7 +76,6 @@ const Index = () => {
                 
                 <div className="space-y-3">
                   <h4 className="text-xl font-medium flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-purple-300" />
                     <span>The Science Behind Sound Healing</span>
                   </h4>
                   <p className="text-slate-100">
