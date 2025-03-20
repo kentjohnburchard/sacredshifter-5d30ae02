@@ -32,6 +32,55 @@ export const useMusicGeneration = () => {
   const pollingAttemptsRef = useRef(0);
   const MAX_POLLING_ATTEMPTS = 60; // 5 minutes max (5 seconds * 60)
 
+  // Fetch tracks from Supabase on init
+  useEffect(() => {
+    const fetchTracksFromSupabase = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('music_generations')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) {
+          console.error("Error fetching from Supabase:", error);
+          return;
+        }
+        
+        if (data && data.length > 0) {
+          // Convert Supabase data to GeneratedTrack format
+          const tracks: GeneratedTrack[] = data.map(item => ({
+            id: item.id,
+            title: item.title || "Untitled",
+            description: item.description || "",
+            musicUrl: item.music_url || "",
+            coverUrl: item.cover_url,
+            timestamp: new Date(item.created_at || new Date()),
+            lyrics_type: item.lyrics_type as "generate" | "user" | "instrumental" || "generate"
+          })).filter(track => track.musicUrl); // Only include tracks with valid URLs
+          
+          // Merge with localStorage, giving preference to Supabase data
+          const savedTracks = localStorage.getItem("generatedTracks");
+          const localTracks: GeneratedTrack[] = savedTracks ? JSON.parse(savedTracks) : [];
+          
+          // Create a map of Supabase track IDs for fast lookup
+          const supabaseTrackIds = new Set(tracks.map(track => track.id));
+          
+          // Add any local tracks that aren't in Supabase
+          const mergedTracks = [
+            ...tracks,
+            ...localTracks.filter(track => !supabaseTrackIds.has(track.id))
+          ];
+          
+          setGeneratedTracks(mergedTracks);
+        }
+      } catch (error) {
+        console.error("Error fetching music history:", error);
+      }
+    };
+    
+    fetchTracksFromSupabase();
+  }, []);
+
   // Save to localStorage when tracks change
   useEffect(() => {
     localStorage.setItem("generatedTracks", JSON.stringify(generatedTracks));
@@ -61,24 +110,62 @@ export const useMusicGeneration = () => {
 
   const saveToSupabase = useCallback(async (track: GeneratedTrack) => {
     try {
-      const { error } = await supabase
+      // First check if this track already exists in Supabase
+      const { data: existingData } = await supabase
         .from('music_generations')
-        .insert([
-          {
-            id: track.id,
+        .select('id')
+        .eq('id', track.id)
+        .maybeSingle();
+      
+      if (existingData) {
+        console.log("Track already exists in Supabase, updating:", track.id);
+        
+        // Update existing record
+        const { error: updateError } = await supabase
+          .from('music_generations')
+          .update({
             title: track.title,
             description: track.description,
             music_url: track.musicUrl,
             cover_url: track.coverUrl,
             lyrics_type: track.lyrics_type,
-            created_at: new Date().toISOString()
-          }
-        ]);
-      
-      if (error) {
-        console.error("Error saving to Supabase:", error);
+            status: 'completed'
+          })
+          .eq('id', track.id);
+          
+        if (updateError) {
+          console.error("Error updating Supabase record:", updateError);
+        } else {
+          console.log("Successfully updated track in Supabase:", track.id);
+        }
       } else {
-        console.log("Successfully saved track to Supabase:", track.id);
+        console.log("Creating new track in Supabase:", track.id);
+        
+        // Insert new record
+        const { error: insertError } = await supabase
+          .from('music_generations')
+          .insert([
+            {
+              id: track.id,
+              title: track.title,
+              description: track.description,
+              music_url: track.musicUrl,
+              cover_url: track.coverUrl,
+              lyrics_type: track.lyrics_type,
+              status: 'completed',
+              created_at: new Date().toISOString(),
+              // These are required fields based on the table structure
+              intention: track.description.substring(0, 100), // Using description as intention
+              elemental_mode: 'default', // Default value
+              frequency: 0 // Default value
+            }
+          ]);
+          
+        if (insertError) {
+          console.error("Error saving to Supabase:", insertError);
+        } else {
+          console.log("Successfully saved track to Supabase:", track.id);
+        }
       }
     } catch (error) {
       console.error("Error during Supabase save:", error);
@@ -111,6 +198,28 @@ export const useMusicGeneration = () => {
       currentTaskRef.current = response.task_id;
       console.log("Generation started with task ID:", response.task_id);
       
+      // Create initial Supabase record with pending status
+      try {
+        await supabase
+          .from('music_generations')
+          .insert([
+            {
+              id: response.task_id,
+              title: params.title,
+              description: params.gpt_description_prompt,
+              lyrics_type: params.lyrics_type,
+              status: 'pending',
+              intention: params.gpt_description_prompt.substring(0, 100),
+              elemental_mode: 'default',
+              frequency: 0
+            }
+          ]);
+        console.log("Created initial pending record in Supabase");
+      } catch (error) {
+        console.error("Error creating initial Supabase record:", error);
+        // Continue anyway as this is not critical
+      }
+      
       toast.success("Music generation started");
       
       // Start polling for results
@@ -130,6 +239,17 @@ export const useMusicGeneration = () => {
         // Check if we've reached the maximum polling attempts
         if (pollingAttemptsRef.current > MAX_POLLING_ATTEMPTS) {
           console.error("Max polling attempts reached");
+          
+          // Update Supabase status to failed
+          try {
+            supabase
+              .from('music_generations')
+              .update({ status: 'failed' })
+              .eq('id', currentTaskRef.current);
+          } catch (e) {
+            console.error("Error updating failed status in Supabase:", e);
+          }
+          
           handleError(new Error("Generation is taking too long. Please try again."));
           return;
         }
@@ -139,6 +259,16 @@ export const useMusicGeneration = () => {
           try {
             const result = await getTaskResult(taskId);
             console.log("Polling result:", result);
+            
+            // Update status in Supabase regardless of completion
+            try {
+              await supabase
+                .from('music_generations')
+                .update({ status: result.status })
+                .eq('id', taskId);
+            } catch (e) {
+              console.error("Error updating status in Supabase:", e);
+            }
             
             if (result.status === "completed" && result.result) {
               if (!result.result.music_url) {
@@ -160,7 +290,7 @@ export const useMusicGeneration = () => {
               console.log("Music generation completed successfully:", newTrack);
               setGeneratedTracks(prev => [newTrack, ...prev]);
               
-              // Save to Supabase
+              // Save to Supabase with completed status and URLs
               saveToSupabase(newTrack);
               
               // Cleanup
@@ -173,6 +303,19 @@ export const useMusicGeneration = () => {
               
               toast.success("Your music is ready!");
             } else if (result.status === "failed") {
+              // Update Supabase with error details
+              try {
+                await supabase
+                  .from('music_generations')
+                  .update({
+                    status: 'failed',
+                    // Store error message in a suitable column if available
+                  })
+                  .eq('id', taskId);
+              } catch (e) {
+                console.error("Error updating failed status in Supabase:", e);
+              }
+              
               throw new Error(result.error || "Generation failed");
             } else {
               console.log(`Task status: ${result.status}. Continuing to poll...`);

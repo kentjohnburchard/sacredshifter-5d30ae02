@@ -34,40 +34,55 @@ export type Database = {
         Row: {
           audio_parameters: Json | null
           audio_url: string | null
+          cover_url: string | null
           created_at: string | null
+          description: string | null
           elemental_mode: string
           frequency: number
           id: string
           intention: string
+          lyrics_type: string | null
           mood: string | null
+          music_url: string | null
           source: string | null
           status: string | null
+          title: string | null
           user_id: string | null
         }
         Insert: {
           audio_parameters?: Json | null
           audio_url?: string | null
+          cover_url?: string | null
           created_at?: string | null
+          description?: string | null
           elemental_mode: string
           frequency: number
           id?: string
           intention: string
+          lyrics_type?: string | null
           mood?: string | null
+          music_url?: string | null
           source?: string | null
           status?: string | null
+          title?: string | null
           user_id?: string | null
         }
         Update: {
           audio_parameters?: Json | null
           audio_url?: string | null
+          cover_url?: string | null
           created_at?: string | null
+          description?: string | null
           elemental_mode?: string
           frequency?: number
           id?: string
           intention?: string
+          lyrics_type?: string | null
           mood?: string | null
+          music_url?: string | null
           source?: string | null
           status?: string | null
+          title?: string | null
           user_id?: string | null
         }
         Relationships: []
