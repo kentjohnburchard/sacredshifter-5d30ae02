@@ -14,7 +14,7 @@ export interface GeneratedTrack {
   musicUrl: string;
   coverUrl?: string;
   timestamp: Date;
-  lyrics_type: "instrumental" | "lyrical";
+  lyrics_type: "generate" | "user" | "instrumental"; // Update the type here
 }
 
 export const useMusicGeneration = () => {

@@ -17,7 +17,7 @@ interface MusicFormProps {
 const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating }) => {
   const [description, setDescription] = useState("");
   const [negativeTags, setNegativeTags] = useState("");
-  const [lyricsType, setLyricsType] = useState<"instrumental" | "lyrical">("instrumental");
+  const [lyricsType, setLyricsType] = useState<"generate" | "user" | "instrumental">("instrumental");
   
   const generateRandomSeed = () => {
     // Generate a random integer between -1000000 and 1000000
@@ -72,15 +72,19 @@ const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating }) => {
               className="flex items-center gap-4" 
               defaultValue="instrumental"
               value={lyricsType}
-              onValueChange={(value) => setLyricsType(value as "instrumental" | "lyrical")}
+              onValueChange={(value) => setLyricsType(value as "generate" | "user" | "instrumental")}
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="instrumental" id="instrumental" />
                 <Label htmlFor="instrumental" className="cursor-pointer">Instrumental</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="lyrical" id="lyrical" />
-                <Label htmlFor="lyrical" className="cursor-pointer">With Lyrics</Label>
+                <RadioGroupItem value="generate" id="generate" />
+                <Label htmlFor="generate" className="cursor-pointer">AI-Generated Lyrics</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="user" id="user" />
+                <Label htmlFor="user" className="cursor-pointer">Custom Lyrics</Label>
               </div>
             </RadioGroup>
           </div>
