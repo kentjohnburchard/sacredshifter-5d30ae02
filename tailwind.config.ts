@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -20,9 +19,10 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				sans: ['Vintage Modern', 'Playfair Display', 'serif'],
+				sans: ['Inter', 'system-ui', 'sans-serif'],
+				modern: ['Inter', 'system-ui', 'sans-serif'],
 				vintage: ['Vintage Modern', 'Playfair Display', 'serif'],
-				segoe: ['Vintage Modern', 'Playfair Display', 'serif'],
+				segoe: ['Inter', 'system-ui', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',

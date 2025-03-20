@@ -1,4 +1,5 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @tailwind base;
@@ -71,7 +72,7 @@
 
 @layer base {
   * {
-    @apply border-border font-vintage;
+    @apply border-border font-modern;
   }
 
   body {
@@ -80,7 +81,7 @@
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-vintage font-semibold;
+    @apply font-modern font-semibold;
   }
 }
 
