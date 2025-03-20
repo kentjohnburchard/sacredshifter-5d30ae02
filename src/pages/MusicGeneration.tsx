@@ -1,13 +1,16 @@
 
-import React from "react";
+import React, { useState } from "react";
 import Header from "@/components/Header";
 import MusicForm from "@/components/MusicForm";
 import GenerationHistory from "@/components/GenerationHistory";
 import { useMusicGeneration } from "@/hooks/useMusicGeneration";
 import { Card, CardContent } from "@/components/ui/card";
+import { HealingFrequency, healingFrequencies } from "@/data/frequencies";
+import FrequencyInfoBox from "@/components/FrequencyInfoBox";
 
 const MusicGeneration = () => {
   const { isGenerating, generatedTracks, startGeneration, deleteTrack } = useMusicGeneration();
+  const [selectedFrequency, setSelectedFrequency] = useState<HealingFrequency>(healingFrequencies[0]);
   
   return (
     <div className="min-h-screen flex flex-col bg-[url('/lovable-uploads/03d64fc7-3a06-4a05-bb16-d5f23d3983f5.png')] bg-cover bg-center bg-fixed">
@@ -31,6 +34,23 @@ const MusicGeneration = () => {
         <Card className="border-none shadow-xl bg-black/70 backdrop-blur-md border border-white/10 overflow-hidden mb-10">
           <CardContent className="p-6 text-white">
             <MusicForm onSubmit={startGeneration} isGenerating={isGenerating} />
+          </CardContent>
+        </Card>
+        
+        {/* Sacred Frequency Info Box */}
+        <Card className="border-none shadow-xl bg-black/70 backdrop-blur-md border border-white/10 overflow-hidden mb-10">
+          <CardContent className="p-6 text-white">
+            <h3 className="text-xl font-medium mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-purple-200 drop-shadow-sm">
+              Sacred Frequencies
+            </h3>
+            <p className="mb-4 text-slate-200">
+              Enhance your music generation by incorporating sacred frequencies. Select a frequency to learn more about its healing properties and meditation practices.
+            </p>
+            <FrequencyInfoBox 
+              frequencies={healingFrequencies} 
+              selectedFrequency={selectedFrequency} 
+              onSelectFrequency={setSelectedFrequency} 
+            />
           </CardContent>
         </Card>
         
