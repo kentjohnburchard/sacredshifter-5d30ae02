@@ -27,9 +27,9 @@ const Header: React.FC = () => {
         <div className="p-2 rounded-full bg-white/10">
           <Music2 className="h-6 w-6 text-purple-300" />
         </div>
-        <h1 className="text-2xl font-medium tracking-tight text-white">
+        <h1 className="text-2xl tracking-tight text-white text-shadow">
           <span className="font-light">Sacred</span>
-          <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-purple-200 to-blue-200">Shifter</span>
+          <span className="font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-200 to-blue-200">Shifter</span>
         </h1>
       </div>
       
@@ -38,7 +38,7 @@ const Header: React.FC = () => {
           <NavigationMenuList>
             <NavigationMenuItem>
               <Link to="/" className={cn(
-                "px-4 py-2 rounded-md text-sm font-medium transition-colors",
+                "px-4 py-2 rounded-md text-sm font-semibold transition-colors",
                 location.pathname === "/" 
                   ? "bg-white/10 text-white" 
                   : "text-slate-300 hover:text-white hover:bg-white/5"
@@ -48,7 +48,7 @@ const Header: React.FC = () => {
             </NavigationMenuItem>
             <NavigationMenuItem>
               <Link to="/music-generation" className={cn(
-                "px-4 py-2 rounded-md text-sm font-medium transition-colors",
+                "px-4 py-2 rounded-md text-sm font-semibold transition-colors",
                 location.pathname === "/music-generation" 
                   ? "bg-white/10 text-white" 
                   : "text-slate-300 hover:text-white hover:bg-white/5"
@@ -68,7 +68,7 @@ const Header: React.FC = () => {
               variant="outline" 
               size="sm" 
               onClick={handleSignOut}
-              className="flex items-center gap-1 bg-white/5 border-white/10 hover:bg-white/10 text-white"
+              className="flex items-center gap-1 bg-white/5 border-white/10 hover:bg-white/10 text-white font-semibold"
             >
               <LogOut className="h-4 w-4" />
               <span className="hidden sm:inline-block">Sign Out</span>
@@ -76,7 +76,7 @@ const Header: React.FC = () => {
           </div>
         ) : (
           <Link to="/auth">
-            <Button variant="outline" size="sm" className="bg-white/5 border-white/10 hover:bg-white/10 text-white">
+            <Button variant="outline" size="sm" className="bg-white/5 border-white/10 hover:bg-white/10 text-white font-semibold">
               Sign In
             </Button>
           </Link>

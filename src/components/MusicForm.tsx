@@ -51,7 +51,7 @@ const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating }) => {
       <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="title" className="text-sm font-medium flex items-center gap-1.5">
+            <Label htmlFor="title" className="text-sm font-bold flex items-center gap-1.5 text-shadow-sm">
               <Tag className="h-4 w-4 text-accent" />
               Song Title
             </Label>
@@ -66,7 +66,7 @@ const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating }) => {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm font-medium flex items-center gap-1.5">
+            <Label htmlFor="description" className="text-sm font-bold flex items-center gap-1.5 text-shadow-sm">
               <Sparkles className="h-4 w-4 text-accent" />
               Describe your music
             </Label>
@@ -81,7 +81,7 @@ const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating }) => {
           </div>
           
           <div className="space-y-2">
-            <Label className="text-sm font-medium flex items-center gap-1.5">
+            <Label className="text-sm font-bold flex items-center gap-1.5 text-shadow-sm">
               <MicVocal className="h-4 w-4 text-accent" />
               Lyrics Type
             </Label>
@@ -93,21 +93,21 @@ const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating }) => {
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="instrumental" id="instrumental" />
-                <Label htmlFor="instrumental" className="cursor-pointer">Instrumental</Label>
+                <Label htmlFor="instrumental" className="cursor-pointer font-medium">Instrumental</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="generate" id="generate" />
-                <Label htmlFor="generate" className="cursor-pointer">AI-Generated Lyrics</Label>
+                <Label htmlFor="generate" className="cursor-pointer font-medium">AI-Generated Lyrics</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="user" id="user" />
-                <Label htmlFor="user" className="cursor-pointer">Custom Lyrics</Label>
+                <Label htmlFor="user" className="cursor-pointer font-medium">Custom Lyrics</Label>
               </div>
             </RadioGroup>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="negativeTags" className="text-sm font-medium flex items-center gap-1.5">
+            <Label htmlFor="negativeTags" className="text-sm font-bold flex items-center gap-1.5 text-shadow-sm">
               <Music className="h-4 w-4 text-accent" />
               Negative tags (optional)
             </Label>

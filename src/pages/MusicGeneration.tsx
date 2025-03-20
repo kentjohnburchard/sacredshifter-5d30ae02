@@ -21,12 +21,12 @@ const MusicGeneration = () => {
       
       <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-8 sm:px-6 space-y-8">
         <div className="text-center space-y-3 mb-8 animate-fade-in">
-          <h2 className="text-4xl sm:text-5xl font-light tracking-tight">
-            <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-purple-200 to-blue-200 drop-shadow-[0_2px_3px_rgba(0,0,0,0.5)]">
+          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-shadow-lg">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-purple-200 to-blue-200">
               Music Generation
             </span>
           </h2>
-          <p className="text-slate-100 max-w-2xl mx-auto font-light text-lg">
+          <p className="text-slate-100 max-w-2xl mx-auto text-lg text-shadow-sm">
             Create beautiful healing music with AI. Enter a description and get a unique track in minutes.
           </p>
         </div>
@@ -40,10 +40,10 @@ const MusicGeneration = () => {
         {/* Sacred Frequency Info Box */}
         <Card className="border-none shadow-xl bg-black/70 backdrop-blur-md border border-white/10 overflow-hidden mb-10">
           <CardContent className="p-6 text-white">
-            <h3 className="text-xl font-medium mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-purple-200 drop-shadow-sm">
+            <h3 className="text-xl font-bold mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-purple-200 text-shadow">
               Sacred Frequencies
             </h3>
-            <p className="mb-4 text-slate-200">
+            <p className="mb-4 text-slate-200 text-shadow-sm">
               Enhance your music generation by incorporating sacred frequencies. Select a frequency to learn more about its healing properties and meditation practices.
             </p>
             <FrequencyInfoBox 
@@ -56,7 +56,7 @@ const MusicGeneration = () => {
         
         <Card className="border-none shadow-xl bg-black/70 backdrop-blur-md border border-white/10 overflow-hidden">
           <CardContent className="p-6 text-white">
-            <h3 className="text-xl font-medium mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-purple-200 drop-shadow-sm">
+            <h3 className="text-xl font-bold mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-purple-200 text-shadow">
               Your Generated Tracks
             </h3>
             <GenerationHistory tracks={generatedTracks} onDelete={deleteTrack} />
