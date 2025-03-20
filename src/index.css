@@ -1,4 +1,6 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -69,7 +71,7 @@
 
 @layer base {
   * {
-    @apply border-border font-segoe;
+    @apply border-border font-vintage;
   }
 
   body {
@@ -78,7 +80,7 @@
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-segoe font-semibold;
+    @apply font-vintage font-semibold;
   }
 }
 
@@ -147,4 +149,13 @@
   width: 3px;
   height: 100%;
   @apply bg-teal-400 rounded-full;
+}
+
+/* Custom font */
+@font-face {
+  font-family: 'Vintage Modern';
+  src: url('/lovable-uploads/vintage-modern.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }

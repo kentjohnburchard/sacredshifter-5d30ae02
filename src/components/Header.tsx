@@ -26,9 +26,9 @@ const Header: React.FC = () => {
       <div className="flex items-center gap-2 mb-4">
         <Link to="/" className="flex items-center">
           <img 
-            src="/lovable-uploads/d26329c2-349c-4a0e-af05-875c3a5f2754.png" 
+            src="/lovable-uploads/a475dc5f-fe7d-4c0c-9af4-f1cf02cfe73f.png" 
             alt="Sacred Shifter Logo" 
-            className="h-10 sm:h-12" 
+            className="h-14 sm:h-16" 
           />
         </Link>
       </div>
@@ -38,7 +38,7 @@ const Header: React.FC = () => {
           <NavigationMenuList>
             <NavigationMenuItem>
               <Link to="/" className={cn(
-                "px-4 py-2 rounded-md text-sm font-semibold transition-colors",
+                "px-4 py-2 rounded-md text-sm font-semibold transition-colors font-vintage",
                 location.pathname === "/" 
                   ? "bg-white/10 text-white" 
                   : "text-slate-300 hover:text-white hover:bg-white/5"
@@ -48,7 +48,7 @@ const Header: React.FC = () => {
             </NavigationMenuItem>
             <NavigationMenuItem>
               <Link to="/music-generation" className={cn(
-                "px-4 py-2 rounded-md text-sm font-semibold transition-colors",
+                "px-4 py-2 rounded-md text-sm font-semibold transition-colors font-vintage",
                 location.pathname === "/music-generation" 
                   ? "bg-white/10 text-white" 
                   : "text-slate-300 hover:text-white hover:bg-white/5"
@@ -59,7 +59,7 @@ const Header: React.FC = () => {
             {user && (
               <NavigationMenuItem>
                 <Link to="/subscription" className={cn(
-                  "px-4 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1",
+                  "px-4 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1 font-vintage",
                   location.pathname === "/subscription" 
                     ? "bg-white/10 text-white" 
                     : "text-slate-300 hover:text-white hover:bg-white/5"
@@ -74,14 +74,14 @@ const Header: React.FC = () => {
         
         {user ? (
           <div className="flex items-center gap-3">
-            <span className="text-sm text-slate-300 hidden sm:inline-block">
+            <span className="text-sm text-slate-300 hidden sm:inline-block font-vintage">
               {user.email}
             </span>
             <Button 
               variant="outline" 
               size="sm" 
               onClick={handleSignOut}
-              className="flex items-center gap-1 bg-white/5 border-white/10 hover:bg-white/10 text-white font-semibold"
+              className="flex items-center gap-1 bg-white/5 border-white/10 hover:bg-white/10 text-white font-semibold font-vintage"
             >
               <LogOut className="h-4 w-4" />
               <span className="hidden sm:inline-block">Sign Out</span>
@@ -89,7 +89,7 @@ const Header: React.FC = () => {
           </div>
         ) : (
           <Link to="/auth">
-            <Button variant="outline" size="sm" className="bg-white/5 border-white/10 hover:bg-white/10 text-white font-semibold">
+            <Button variant="outline" size="sm" className="bg-white/5 border-white/10 hover:bg-white/10 text-white font-semibold font-vintage">
               Sign In
             </Button>
           </Link>

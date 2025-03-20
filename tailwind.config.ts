@@ -20,8 +20,9 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				sans: ['Segoe UI', 'system-ui', 'sans-serif'],
-				segoe: ['Segoe UI', 'system-ui', 'sans-serif'],
+				sans: ['Vintage Modern', 'Playfair Display', 'serif'],
+				vintage: ['Vintage Modern', 'Playfair Display', 'serif'],
+				segoe: ['Vintage Modern', 'Playfair Display', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
