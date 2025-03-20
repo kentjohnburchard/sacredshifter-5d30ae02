@@ -47,12 +47,12 @@ const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating }) => {
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto border border-border/40 shadow-sm animate-slide-up">
+    <Card className="w-full max-w-2xl mx-auto border-none shadow-xl bg-black/70 backdrop-blur-md border border-purple-500/30 overflow-hidden animate-slide-up rounded-xl">
       <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="title" className="text-sm font-bold flex items-center gap-1.5 text-shadow-sm">
-              <Tag className="h-4 w-4 text-accent" />
+            <Label htmlFor="title" className="text-sm font-bold flex items-center gap-1.5 text-shadow-sm text-purple-100">
+              <Tag className="h-4 w-4 text-teal-400" />
               Song Title
             </Label>
             <Input
@@ -60,14 +60,14 @@ const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating }) => {
               placeholder="Enter a title for your song"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="transition-all focus:ring-accent/50"
+              className="transition-all focus:ring-teal-500/50 bg-black/50 border-purple-500/30 text-white placeholder:text-white/50"
               required
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm font-bold flex items-center gap-1.5 text-shadow-sm">
-              <Sparkles className="h-4 w-4 text-accent" />
+            <Label htmlFor="description" className="text-sm font-bold flex items-center gap-1.5 text-shadow-sm text-purple-100">
+              <Sparkles className="h-4 w-4 text-teal-400" />
               Describe your music
             </Label>
             <Textarea
@@ -75,14 +75,14 @@ const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating }) => {
               placeholder="Describe the music you want to create... (e.g. 'A relaxing piano melody with ambient sounds')"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="resize-none min-h-[120px] transition-all focus:ring-accent/50"
+              className="resize-none min-h-[120px] transition-all focus:ring-teal-500/50 bg-black/50 border-purple-500/30 text-white placeholder:text-white/50"
               required
             />
           </div>
           
           <div className="space-y-2">
-            <Label className="text-sm font-bold flex items-center gap-1.5 text-shadow-sm">
-              <MicVocal className="h-4 w-4 text-accent" />
+            <Label className="text-sm font-bold flex items-center gap-1.5 text-shadow-sm text-purple-100">
+              <MicVocal className="h-4 w-4 text-teal-400" />
               Lyrics Type
             </Label>
             <RadioGroup 
@@ -92,23 +92,23 @@ const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating }) => {
               onValueChange={(value) => setLyricsType(value as "generate" | "user" | "instrumental")}
             >
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="instrumental" id="instrumental" />
-                <Label htmlFor="instrumental" className="cursor-pointer font-medium">Instrumental</Label>
+                <RadioGroupItem value="instrumental" id="instrumental" className="border-purple-400 text-teal-400" />
+                <Label htmlFor="instrumental" className="cursor-pointer font-medium text-white">Instrumental</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="generate" id="generate" />
-                <Label htmlFor="generate" className="cursor-pointer font-medium">AI-Generated Lyrics</Label>
+                <RadioGroupItem value="generate" id="generate" className="border-purple-400 text-teal-400" />
+                <Label htmlFor="generate" className="cursor-pointer font-medium text-white">AI-Generated Lyrics</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="user" id="user" />
-                <Label htmlFor="user" className="cursor-pointer font-medium">Custom Lyrics</Label>
+                <RadioGroupItem value="user" id="user" className="border-purple-400 text-teal-400" />
+                <Label htmlFor="user" className="cursor-pointer font-medium text-white">Custom Lyrics</Label>
               </div>
             </RadioGroup>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="negativeTags" className="text-sm font-bold flex items-center gap-1.5 text-shadow-sm">
-              <Music className="h-4 w-4 text-accent" />
+            <Label htmlFor="negativeTags" className="text-sm font-bold flex items-center gap-1.5 text-shadow-sm text-purple-100">
+              <Music className="h-4 w-4 text-teal-400" />
               Negative tags (optional)
             </Label>
             <Input
@@ -116,16 +116,16 @@ const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating }) => {
               placeholder="Elements to avoid (comma separated)"
               value={negativeTags}
               onChange={(e) => setNegativeTags(e.target.value)}
-              className="transition-all focus:ring-accent/50"
+              className="transition-all focus:ring-teal-500/50 bg-black/50 border-purple-500/30 text-white placeholder:text-white/50"
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-purple-200/70">
               Specify elements you want to avoid in your music
             </p>
           </div>
           
           <Button 
             type="submit" 
-            className="w-full flex items-center justify-center gap-2 transition-all"
+            className="w-full flex items-center justify-center gap-2 transition-all bg-gradient-to-r from-teal-500 to-purple-600 hover:from-teal-600 hover:to-purple-700 text-white border-none shadow-lg"
             disabled={isGenerating || !description.trim() || !title.trim()}
           >
             {isGenerating ? (
