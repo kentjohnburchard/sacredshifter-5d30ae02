@@ -17,7 +17,7 @@ const Index = () => {
         <div className="text-center space-y-3 mb-8">
           <h2 className="text-3xl sm:text-4xl font-light tracking-tight">
             <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-500">
-              Sacred Shifter
+              Sacred Healing Frequencies
             </span>
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
