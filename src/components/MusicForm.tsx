@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Wand2, Music, Sparkles, MicVocal } from "lucide-react";
+import { Wand2, Music, Sparkles, MicVocal, Tag } from "lucide-react";
 import { MusicGenerationRequest } from "@/services/api";
 
 interface MusicFormProps {
@@ -15,6 +15,7 @@ interface MusicFormProps {
 }
 
 const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating }) => {
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [negativeTags, setNegativeTags] = useState("");
   const [lyricsType, setLyricsType] = useState<"generate" | "user" | "instrumental">("instrumental");
@@ -27,11 +28,12 @@ const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!description.trim()) {
+    if (!description.trim() || !title.trim()) {
       return;
     }
     
     const params: MusicGenerationRequest = {
+      title: title,
       gpt_description_prompt: description,
       lyrics_type: lyricsType,
       seed: generateRandomSeed()
@@ -48,6 +50,21 @@ const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating }) => {
     <Card className="w-full max-w-2xl mx-auto border border-border/40 shadow-sm animate-slide-up">
       <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="title" className="text-sm font-medium flex items-center gap-1.5">
+              <Tag className="h-4 w-4 text-accent" />
+              Song Title
+            </Label>
+            <Input
+              id="title"
+              placeholder="Enter a title for your song"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="transition-all focus:ring-accent/50"
+              required
+            />
+          </div>
+          
           <div className="space-y-2">
             <Label htmlFor="description" className="text-sm font-medium flex items-center gap-1.5">
               <Sparkles className="h-4 w-4 text-accent" />
@@ -109,7 +126,7 @@ const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating }) => {
           <Button 
             type="submit" 
             className="w-full flex items-center justify-center gap-2 transition-all"
-            disabled={isGenerating || !description.trim()}
+            disabled={isGenerating || !description.trim() || !title.trim()}
           >
             {isGenerating ? (
               <>

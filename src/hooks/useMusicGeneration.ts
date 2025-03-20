@@ -10,6 +10,7 @@ import {
 
 export interface GeneratedTrack {
   id: string;
+  title: string; // Added title field
   description: string;
   musicUrl: string;
   coverUrl?: string;
@@ -116,6 +117,7 @@ export const useMusicGeneration = () => {
               // Add new track
               const newTrack: GeneratedTrack = {
                 id: result.task_id,
+                title: params.title, // Add the title from params
                 description: params.gpt_description_prompt,
                 musicUrl: result.result.music_url,
                 coverUrl: result.result.cover_url,

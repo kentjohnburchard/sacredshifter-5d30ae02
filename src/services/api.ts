@@ -6,6 +6,7 @@ export interface MusicGenerationRequest {
   negative_tags?: string;
   gpt_description_prompt: string;
   lyrics_type: "generate" | "user" | "instrumental"; // Update to correct API values
+  title: string; // Added title field
   seed?: number;
 }
 
