@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 
 interface FrequencyInfoBoxProps {
   frequencies: HealingFrequency[];
@@ -22,6 +23,7 @@ const FrequencyInfoBox: React.FC<FrequencyInfoBoxProps> = ({
 }) => {
   const navigate = useNavigate();
   const [showMusicDialog, setShowMusicDialog] = useState(false);
+  const { toast } = useToast();
 
   const getBenefitIcon = (benefit: string, index: number) => {
     const iconClasses = "h-4 w-4 mr-2 text-purple-300";
@@ -43,12 +45,15 @@ const FrequencyInfoBox: React.FC<FrequencyInfoBoxProps> = ({
     const frequency = frequencies.find(f => f.id === value);
     if (frequency) {
       onSelectFrequency(frequency);
-      // Show the music creation dialog when frequency is selected
-      setShowMusicDialog(true);
     }
   };
 
   const handleCreateMusic = () => {
+    toast({
+      title: "Creating music with " + selectedFrequency.name,
+      description: `Frequency: ${selectedFrequency.frequency}Hz`,
+    });
+    
     // Navigate to the music generation page with the frequency data
     navigate('/music-generation', { 
       state: { 
@@ -56,6 +61,9 @@ const FrequencyInfoBox: React.FC<FrequencyInfoBoxProps> = ({
         generateWithFrequency: true
       } 
     });
+    
+    // Close the dialog
+    setShowMusicDialog(false);
   };
 
   return (
