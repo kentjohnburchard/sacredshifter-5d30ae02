@@ -4,10 +4,10 @@ import { toast } from "sonner";
 import { 
   generateMusic, 
   getTaskResult, 
-  MusicGenerationRequest, 
-  MusicTaskResult 
+  MusicGenerationRequest
 } from "../services/api";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
 
 export interface GeneratedTrack {
   id: string;
@@ -27,6 +27,7 @@ export const useMusicGeneration = () => {
     return saved ? JSON.parse(saved) : [];
   });
   
+  const { user } = useAuth();
   const pollingRef = useRef<number | null>(null);
   const currentTaskRef = useRef<string | null>(null);
   const pollingAttemptsRef = useRef(0);
@@ -34,11 +35,14 @@ export const useMusicGeneration = () => {
 
   // Fetch tracks from Supabase on init
   useEffect(() => {
+    if (!user) return;
+
     const fetchTracksFromSupabase = async () => {
       try {
         const { data, error } = await supabase
           .from('music_generations')
           .select('*')
+          .eq('user_id', user.id)
           .order('created_at', { ascending: false });
         
         if (error) {
@@ -79,7 +83,7 @@ export const useMusicGeneration = () => {
     };
     
     fetchTracksFromSupabase();
-  }, []);
+  }, [user]);
 
   // Save to localStorage when tracks change
   useEffect(() => {
@@ -109,6 +113,11 @@ export const useMusicGeneration = () => {
   }, []);
 
   const saveToSupabase = useCallback(async (track: GeneratedTrack) => {
+    if (!user) {
+      console.log("User not authenticated, skipping Supabase save");
+      return;
+    }
+
     try {
       // First check if this track already exists in Supabase
       const { data: existingData } = await supabase
@@ -147,6 +156,7 @@ export const useMusicGeneration = () => {
           .insert([
             {
               id: track.id,
+              user_id: user.id, // Associate with current user
               title: track.title,
               description: track.description,
               music_url: track.musicUrl,
@@ -170,11 +180,16 @@ export const useMusicGeneration = () => {
     } catch (error) {
       console.error("Error during Supabase save:", error);
     }
-  }, []);
+  }, [user]);
 
   const startGeneration = useCallback(async (params: MusicGenerationRequest) => {
     if (isGenerating) {
       toast.warning("A generation is already in progress");
+      return;
+    }
+
+    if (!user) {
+      toast.error("You must be logged in to generate music");
       return;
     }
 
@@ -205,6 +220,7 @@ export const useMusicGeneration = () => {
           .insert([
             {
               id: response.task_id,
+              user_id: user.id, // Associate with current user
               title: params.title,
               description: params.gpt_description_prompt,
               lyrics_type: params.lyrics_type,
@@ -332,15 +348,21 @@ export const useMusicGeneration = () => {
     } catch (error) {
       handleError(error);
     }
-  }, [isGenerating, handleError, saveToSupabase]);
+  }, [isGenerating, handleError, saveToSupabase, user]);
 
   const deleteTrack = useCallback(async (id: string) => {
+    if (!user) {
+      toast.error("You must be logged in to delete music");
+      return;
+    }
+
     try {
       // Delete from Supabase first
       const { error } = await supabase
         .from('music_generations')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user.id); // Ensure deleting own records only
       
       if (error) {
         console.error("Error deleting from Supabase:", error);
@@ -353,7 +375,7 @@ export const useMusicGeneration = () => {
       console.error("Error during track deletion:", error);
       toast.error("Failed to delete track");
     }
-  }, []);
+  }, [user]);
 
   return {
     isGenerating,
