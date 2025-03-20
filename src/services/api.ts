@@ -1,4 +1,3 @@
-
 const API_KEY = "90ae5a4ea209519a1f59f1d3f98de47e33aecb05cf32a2b708cc3f8d6e9fbd2a";
 const API_BASE_URL = "https://api.piapi.ai/api/v1/task";
 
@@ -8,6 +7,7 @@ export interface MusicGenerationRequest {
   lyrics_type: "generate" | "user" | "instrumental"; // Update to correct API values
   title: string; // Added title field
   seed?: number;
+  make_instrumental?: boolean; // Add make_instrumental flag
 }
 
 export interface MusicGenerationResponse {
@@ -27,7 +27,15 @@ export interface MusicTaskResult {
 
 export const generateMusic = async (params: MusicGenerationRequest): Promise<MusicGenerationResponse> => {
   try {
-    console.log("Sending API request with params:", params);
+    // Clone the params to modify them for the API request
+    const apiParams = { ...params };
+    
+    // Set make_instrumental flag based on lyrics_type
+    if (params.lyrics_type === "instrumental") {
+      apiParams.make_instrumental = true;
+    }
+    
+    console.log("Sending API request with params:", apiParams);
     const response = await fetch(API_BASE_URL, {
       method: "POST",
       headers: {
@@ -37,7 +45,7 @@ export const generateMusic = async (params: MusicGenerationRequest): Promise<Mus
       body: JSON.stringify({
         model: "music-u",
         task_type: "generate_music",
-        input: params
+        input: apiParams
       })
     });
 
