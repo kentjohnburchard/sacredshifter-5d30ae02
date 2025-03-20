@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -8,17 +8,36 @@ import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Wand2, Music, Sparkles, MicVocal, Tag } from "lucide-react";
 import { MusicGenerationRequest } from "@/services/api";
+import { HealingFrequency } from "@/data/frequencies";
 
 interface MusicFormProps {
   onSubmit: (params: MusicGenerationRequest) => void;
   isGenerating: boolean;
+  initialFrequency?: HealingFrequency | null;
 }
 
-const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating }) => {
+const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating, initialFrequency }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [negativeTags, setNegativeTags] = useState("");
   const [lyricsType, setLyricsType] = useState<"generate" | "user" | "instrumental">("instrumental");
+  
+  // Update the form when a frequency is selected
+  useEffect(() => {
+    if (initialFrequency) {
+      // Pre-fill the form with frequency information
+      setTitle(`${initialFrequency.name} Healing`);
+      
+      // Create a description based on the frequency
+      const frequencyDescription = [
+        `A healing meditation track based on the ${initialFrequency.frequency}Hz frequency.`,
+        initialFrequency.chakra ? `Focused on the ${initialFrequency.chakra} chakra.` : '',
+        `Incorporate subtle ${initialFrequency.name.toLowerCase()} tones and harmonics.`
+      ].filter(Boolean).join(' ');
+      
+      setDescription(frequencyDescription);
+    }
+  }, [initialFrequency]);
   
   const generateRandomSeed = () => {
     // Generate a random integer between -1000000 and 1000000

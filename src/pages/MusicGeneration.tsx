@@ -1,5 +1,5 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Header from "@/components/Header";
 import MusicForm from "@/components/MusicForm";
 import GenerationHistory from "@/components/GenerationHistory";
@@ -8,14 +8,39 @@ import { useMusicGeneration } from "@/hooks/useMusicGeneration";
 import { Card, CardContent } from "@/components/ui/card";
 import { HealingFrequency, healingFrequencies } from "@/data/frequencies";
 import FrequencyInfoBox from "@/components/FrequencyInfoBox";
+import FrequencyMusicConfirmation from "@/components/FrequencyMusicConfirmation";
+import FrequencySelector from "@/components/FrequencySelector";
 
 const MusicGeneration = () => {
+  const location = useLocation();
   const { isGenerating, generatedTracks, startGeneration, deleteTrack, userCredits } = useMusicGeneration();
   const [selectedFrequency, setSelectedFrequency] = useState<HealingFrequency>(healingFrequencies[0]);
+  const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
+  const [initialFrequency, setInitialFrequency] = useState<HealingFrequency | null>(null);
+  
+  useEffect(() => {
+    if (location.state?.selectedFrequency) {
+      const incomingFrequency = location.state.selectedFrequency as HealingFrequency;
+      setSelectedFrequency(incomingFrequency);
+      setInitialFrequency(incomingFrequency);
+      
+      if (location.state.generateWithFrequency) {
+        window.history.replaceState({}, document.title);
+      }
+    }
+  }, [location.state]);
+  
+  const handleSelectFrequency = (frequency: HealingFrequency) => {
+    setSelectedFrequency(frequency);
+    setShowConfirmation(true);
+  };
+  
+  const handleCloseConfirmation = () => {
+    setShowConfirmation(false);
+  };
   
   return (
     <div className="min-h-screen flex flex-col bg-[url('/lovable-uploads/03d64fc7-3a06-4a05-bb16-d5f23d3983f5.png')] bg-cover bg-center bg-fixed">
-      {/* Darker overlay for better readability */}
       <div className="absolute inset-0 bg-gradient-to-b from-indigo-950/95 via-purple-950/95 to-black/95 backdrop-blur-sm -z-10"></div>
       
       <Header />
@@ -32,16 +57,18 @@ const MusicGeneration = () => {
           </p>
         </div>
         
-        {/* User credits display */}
         <UserCreditsDisplay credits={userCredits} />
         
         <Card className="border-none shadow-xl bg-black/70 backdrop-blur-md border border-purple-500/30 overflow-hidden mb-10">
           <CardContent className="p-6 text-white">
-            <MusicForm onSubmit={startGeneration} isGenerating={isGenerating} />
+            <MusicForm 
+              onSubmit={startGeneration} 
+              isGenerating={isGenerating} 
+              initialFrequency={initialFrequency}
+            />
           </CardContent>
         </Card>
         
-        {/* Sacred Frequency Info Box */}
         <Card className="border-none shadow-xl bg-black/70 backdrop-blur-md border border-purple-500/30 overflow-hidden mb-10 rounded-xl">
           <CardContent className="p-6 text-white">
             <h3 className="text-xl font-bold mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-purple-400 text-shadow">
@@ -50,11 +77,24 @@ const MusicGeneration = () => {
             <p className="mb-4 text-slate-200 text-shadow-sm">
               Enhance your music generation by incorporating sacred frequencies. Select a frequency to learn more about its healing properties and meditation practices.
             </p>
-            <FrequencyInfoBox 
-              frequencies={healingFrequencies} 
-              selectedFrequency={selectedFrequency} 
-              onSelectFrequency={setSelectedFrequency} 
-            />
+            {showConfirmation ? (
+              <div className="grid md:grid-cols-2 gap-6">
+                <FrequencySelector
+                  frequencies={healingFrequencies}
+                  selectedFrequency={selectedFrequency}
+                  onSelect={handleSelectFrequency}
+                />
+                <div className="bg-black/50 backdrop-blur-md border border-purple-500/30 rounded-lg p-6">
+                  <FrequencyMusicConfirmation frequency={selectedFrequency} />
+                </div>
+              </div>
+            ) : (
+              <FrequencyInfoBox 
+                frequencies={healingFrequencies} 
+                selectedFrequency={selectedFrequency} 
+                onSelectFrequency={handleSelectFrequency} 
+              />
+            )}
           </CardContent>
         </Card>
         
