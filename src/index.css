@@ -1,6 +1,5 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -150,13 +149,4 @@
   width: 3px;
   height: 100%;
   @apply bg-teal-400 rounded-full;
-}
-
-/* Custom font */
-@font-face {
-  font-family: 'Vintage Modern';
-  src: url('/lovable-uploads/vintage-modern.woff2') format('woff2');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
 }

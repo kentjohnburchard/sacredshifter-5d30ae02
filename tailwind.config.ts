@@ -21,7 +21,6 @@ export default {
 			fontFamily: {
 				sans: ['Inter', 'system-ui', 'sans-serif'],
 				modern: ['Inter', 'system-ui', 'sans-serif'],
-				vintage: ['Vintage Modern', 'Playfair Display', 'serif'],
 				segoe: ['Inter', 'system-ui', 'sans-serif'],
 			},
 			colors: {
