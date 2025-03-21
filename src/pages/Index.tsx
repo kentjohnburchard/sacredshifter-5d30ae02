@@ -10,44 +10,41 @@ const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col bg-[url('/lovable-uploads/03d64fc7-3a06-4a05-bb16-d5f23d3983f5.png')] bg-cover bg-center bg-fixed">
-      {/* Darker overlay for better readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-indigo-950/95 via-purple-950/95 to-black/95 backdrop-blur-sm -z-10"></div>
-      
+    <div className="min-h-screen flex flex-col bg-white">
       <Header />
       
       <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-8 sm:px-6 space-y-8">
         <div className="text-center space-y-3 mb-8 animate-fade-in">
           <h2 className="text-4xl sm:text-5xl font-light tracking-tight">
-            <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-purple-200 to-blue-200 drop-shadow-[0_2px_3px_rgba(0,0,0,0.5)]">
+            <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-amber-500 via-purple-500 to-blue-500">
               Sacred Sound Healing
             </span>
           </h2>
-          <p className="text-slate-100 max-w-2xl mx-auto font-light text-lg">
+          <p className="text-gray-600 max-w-2xl mx-auto font-light text-lg">
             Experience the ancient healing power of sacred frequencies. These sound vibrations have been used for millennia to restore harmony and balance to mind, body, and spirit.
           </p>
         </div>
         
         {/* Introduction Card */}
-        <Card className="border-none shadow-xl bg-black/70 backdrop-blur-md border border-white/10 overflow-hidden mb-10">
-          <CardContent className="p-6 text-white">
-            <h3 className="text-2xl font-light mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-purple-200 drop-shadow-sm">
+        <Card className="border border-gray-200 shadow-md overflow-hidden mb-10">
+          <CardContent className="p-6">
+            <h3 className="text-2xl font-light mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
               The Sacred Science of Sound
             </h3>
-            <p className="mb-4 text-slate-100">
+            <p className="mb-4 text-gray-700">
               Sound healing is one of the oldest and most natural forms of healing known to man. Since ancient times, sound therapy has been used to treat a variety of physical and mental conditions. The Egyptians used vowel sound chants in healing because they believed vowels were sacred. Tibetan monks use singing bowls, which the body's chakra system responds to.
             </p>
-            <p className="text-slate-100">
+            <p className="text-gray-700">
               Experience the power of sound healing in our Music Generation page, where you can listen to sacred frequencies and even create custom healing music with AI.
             </p>
           </CardContent>
         </Card>
         
         {/* Additional information section */}
-        <Card className="mt-12 border-none shadow-xl bg-black/70 backdrop-blur-md border border-white/10">
+        <Card className="mt-12 border border-gray-200 shadow-md">
           <CardContent className="p-6 md:p-8">
-            <div className="space-y-6 text-white">
-              <h3 className="text-2xl font-light text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-200 to-blue-200 drop-shadow-sm">
+            <div className="space-y-6">
+              <h3 className="text-2xl font-light text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">
                 Understanding Sound Healing
               </h3>
               
@@ -56,7 +53,7 @@ const Index = () => {
                   <h4 className="text-xl font-medium flex items-center gap-2">
                     <span>The Solfeggio Frequencies</span>
                   </h4>
-                  <p className="text-slate-100">
+                  <p className="text-gray-700">
                     The Solfeggio frequencies are a set of six tones that were used in ancient sacred music, including the beautiful Gregorian chants. Each Solfeggio tone helps to balance energy and heal the mind, body, and spirit in various ways.
                   </p>
                 </div>
@@ -65,7 +62,7 @@ const Index = () => {
                   <h4 className="text-xl font-medium flex items-center gap-2">
                     <span>Sound and the Chakras</span>
                   </h4>
-                  <p className="text-slate-100">
+                  <p className="text-gray-700">
                     Each of the seven chakras in the human body vibrates at its own frequency. When these energy centers become blocked or imbalanced, specific sound frequencies can help to restore harmony. The frequencies provided here are aligned with specific chakras to target healing where you need it most.
                   </p>
                 </div>
@@ -74,7 +71,7 @@ const Index = () => {
                   <h4 className="text-xl font-medium flex items-center gap-2">
                     <span>How to Use These Frequencies</span>
                   </h4>
-                  <p className="text-slate-100">
+                  <p className="text-gray-700">
                     For best results, listen to these healing frequencies with headphones in a quiet, comfortable space. A daily practice of 15-30 minutes can yield the most benefits. You may listen actively during meditation or passively while doing gentle activities or before sleep.
                   </p>
                 </div>
@@ -83,7 +80,7 @@ const Index = () => {
                   <h4 className="text-xl font-medium flex items-center gap-2">
                     <span>The Science Behind Sound Healing</span>
                   </h4>
-                  <p className="text-slate-100">
+                  <p className="text-gray-700">
                     Modern research is beginning to validate what ancient cultures knew about sound healing. Studies show that specific frequencies can affect brainwave states, reduce stress hormones, and even promote cellular healing. Everything in the universe is in a state of vibration, including our bodies, and sound healing works on the principle of resonance.
                   </p>
                 </div>
@@ -105,7 +102,7 @@ const Index = () => {
         </div>
       </main>
       
-      <footer className="w-full py-6 text-center text-sm text-slate-300">
+      <footer className="w-full py-6 text-center text-sm text-gray-500">
         <p>Sacred Shifter - Heal with the power of sound. Journey to harmony through sacred frequencies.</p>
       </footer>
     </div>
