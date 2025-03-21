@@ -11,6 +11,7 @@ import MusicGeneration from "./pages/MusicGeneration";
 import Subscription from "./pages/Subscription";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import MusicLibrary from "./pages/MusicLibrary";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Subscription />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/music-library" 
+              element={
+                <ProtectedRoute>
+                  <MusicLibrary />
                 </ProtectedRoute>
               } 
             />

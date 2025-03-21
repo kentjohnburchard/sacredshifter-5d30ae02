@@ -36,6 +36,36 @@ export type Database = {
         }
         Relationships: []
       }
+      meditation_music: {
+        Row: {
+          audio_url: string
+          created_at: string
+          description: string | null
+          frequency_id: string
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          audio_url: string
+          created_at?: string
+          description?: string | null
+          frequency_id: string
+          id?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          audio_url?: string
+          created_at?: string
+          description?: string | null
+          frequency_id?: string
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       music: {
         Row: {
           created_at: string | null
