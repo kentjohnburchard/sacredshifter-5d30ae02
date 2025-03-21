@@ -2,8 +2,13 @@
 import React from "react";
 import Header from "@/components/Header";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { Music2 } from "lucide-react";
 
 const Index = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen flex flex-col bg-[url('/lovable-uploads/03d64fc7-3a06-4a05-bb16-d5f23d3983f5.png')] bg-cover bg-center bg-fixed">
       {/* Darker overlay for better readability */}
@@ -86,6 +91,18 @@ const Index = () => {
             </div>
           </CardContent>
         </Card>
+        
+        {/* Begin Your Journey Button */}
+        <div className="flex justify-center mt-8 mb-4">
+          <Button 
+            size="lg" 
+            className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white py-6 px-8 rounded-lg shadow-lg transform transition-all duration-300 hover:scale-105"
+            onClick={() => navigate("/music-generation")}
+          >
+            <Music2 className="mr-2 h-5 w-5" />
+            Begin Your Journey
+          </Button>
+        </div>
       </main>
       
       <footer className="w-full py-6 text-center text-sm text-slate-300">
