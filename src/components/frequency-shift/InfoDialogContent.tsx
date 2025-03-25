@@ -5,6 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { CircleIcon, Sparkles, Clock, Music, Heart } from "lucide-react";
 import FrequencyInfo from "@/components/FrequencyInfo";
+import FrequencyMatchDisplay from "./FrequencyMatchDisplay";
 
 interface InfoDialogContentProps {
   matchedFrequency: HealingFrequency | null;
