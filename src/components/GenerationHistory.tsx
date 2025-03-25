@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Music, Music4 } from "lucide-react";
 import Player from "./Player";
-import { GeneratedTrack } from "@/hooks/useMusicGeneration";
+import { GeneratedTrack } from "@/hooks/musicGeneration/types";
 
 interface GenerationHistoryProps {
   tracks: GeneratedTrack[];

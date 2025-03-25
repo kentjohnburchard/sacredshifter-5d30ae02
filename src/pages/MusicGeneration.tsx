@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import MusicForm from "@/components/MusicForm";
 import GenerationHistory from "@/components/GenerationHistory";
 import UserCreditsDisplay from "@/components/UserCreditsDisplay";
-import { useMusicGeneration } from "@/hooks/useMusicGeneration";
+import { useMusicGeneration } from "@/hooks/musicGeneration";
 import { Card, CardContent } from "@/components/ui/card";
 import { HealingFrequency, healingFrequencies } from "@/data/frequencies";
 import FrequencyInfoBox from "@/components/FrequencyInfoBox";

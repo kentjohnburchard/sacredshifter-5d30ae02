@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,7 @@ import {
   Play, Pause, Volume2, VolumeX, 
   SkipBack, Clock, Download, Trash2
 } from "lucide-react";
-import { GeneratedTrack } from "@/hooks/useMusicGeneration";
+import { GeneratedTrack } from "@/hooks/musicGeneration/types";
 
 interface PlayerProps {
   track: GeneratedTrack;
