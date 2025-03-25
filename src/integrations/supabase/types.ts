@@ -165,6 +165,45 @@ export type Database = {
         }
         Relationships: []
       }
+      sessions: {
+        Row: {
+          chakra: string | null
+          chosen_color: string | null
+          frequency: number | null
+          id: string
+          initial_mood: string | null
+          intention: string | null
+          post_session_feeling: string | null
+          session_duration: number | null
+          timestamp: string
+          user_id: string
+        }
+        Insert: {
+          chakra?: string | null
+          chosen_color?: string | null
+          frequency?: number | null
+          id?: string
+          initial_mood?: string | null
+          intention?: string | null
+          post_session_feeling?: string | null
+          session_duration?: number | null
+          timestamp?: string
+          user_id: string
+        }
+        Update: {
+          chakra?: string | null
+          chosen_color?: string | null
+          frequency?: number | null
+          id?: string
+          initial_mood?: string | null
+          intention?: string | null
+          post_session_feeling?: string | null
+          session_duration?: number | null
+          timestamp?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscription_plans: {
         Row: {
           created_at: string
@@ -204,6 +243,33 @@ export type Database = {
           price?: number
           songs_equivalent?: number
           yearly_discount?: number | null
+        }
+        Relationships: []
+      }
+      timeline_snapshots: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          tag: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          tag?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          tag?: string | null
+          title?: string
+          user_id?: string
         }
         Relationships: []
       }

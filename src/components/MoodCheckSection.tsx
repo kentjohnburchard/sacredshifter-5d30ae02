@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { PostgrestQueryBuilder } from "@supabase/supabase-js";
 
 // Define emotion types
 type Emotion = {
@@ -24,19 +23,14 @@ type EnergyLevel = {
   value: number;
 };
 
-// Define a type for the sessions table
-interface SessionsTable {
-  id?: string;
+// Define session type for database operations
+type Session = {
   user_id: string;
-  timestamp?: string;
-  frequency: number;
-  chakra?: string | null;
   initial_mood: string;
-  chosen_color?: string | null;
+  frequency: number;
   intention: string | null;
   session_duration: number;
-  post_session_feeling?: string | null;
-}
+};
 
 const emotions: Emotion[] = [
   { id: "calm", label: "Calm", color: "bg-blue-100 text-blue-700", icon: "😌" },
@@ -112,21 +106,19 @@ const MoodCheckSection: React.FC = () => {
       const frequency = frequencyRecommendations[dominantEmotion] || 432;
       setRecommendedFrequency(frequency);
       
-      // Create a strongly typed query builder for the sessions table
-      const sessions = supabase.from('sessions') as unknown as PostgrestQueryBuilder<SessionsTable>;
-      
       // Save session to Supabase
-      const { data, error } = await sessions
-        .insert([
-          { 
-            user_id: user.id,
-            initial_mood: selectedEmotions.join(','),
-            frequency: frequency,
-            intention: intention || null,
-            session_duration: 0 // Will be updated later
-          }
-        ])
-        .select();
+      const sessionData: Session = { 
+        user_id: user.id,
+        initial_mood: selectedEmotions.join(','),
+        frequency: frequency,
+        intention: intention || null,
+        session_duration: 0 // Will be updated later
+      };
+      
+      const { data, error } = await supabase
+        .from('sessions')
+        .insert([sessionData])
+        .select() as { data: any; error: any };
       
       if (error) {
         console.error("Error saving session:", error);

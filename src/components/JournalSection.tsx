@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { PostgrestQueryBuilder } from "@supabase/supabase-js";
 
 // Define the JournalEntry type to match our database structure
 type JournalEntry = {
@@ -19,16 +18,6 @@ type JournalEntry = {
   tag: string | null;
   created_at: string;
 };
-
-// Define a more specific type for the timeline_snapshots table
-interface TimelineSnapshotsTable {
-  id: string;
-  user_id: string;
-  title: string;
-  notes: string | null;
-  tag: string | null;
-  created_at: string;
-}
 
 const JournalSection: React.FC = () => {
   const [title, setTitle] = useState("");
@@ -50,13 +39,11 @@ const JournalSection: React.FC = () => {
   
   const fetchJournalEntries = async () => {
     try {
-      // Create a strongly typed query builder for the timeline_snapshots table
-      const timelineSnapshots = supabase.from('timeline_snapshots') as unknown as PostgrestQueryBuilder<TimelineSnapshotsTable>;
-      
-      const { data, error } = await timelineSnapshots
+      const { data, error } = await supabase
+        .from('timeline_snapshots')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(5);
+        .limit(5) as { data: JournalEntry[] | null; error: any };
         
       if (error) {
         console.error("Error fetching journal entries:", error);
@@ -85,10 +72,8 @@ const JournalSection: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      // Create a strongly typed query builder for the timeline_snapshots table
-      const timelineSnapshots = supabase.from('timeline_snapshots') as unknown as PostgrestQueryBuilder<TimelineSnapshotsTable>;
-      
-      const { error } = await timelineSnapshots
+      const { error } = await supabase
+        .from('timeline_snapshots')
         .insert([
           {
             user_id: user.id,
@@ -96,7 +81,7 @@ const JournalSection: React.FC = () => {
             notes: notes.trim() || null,
             tag: tag.trim() || null
           }
-        ]);
+        ]) as { error: any };
         
       if (error) {
         console.error("Error saving journal entry:", error);
