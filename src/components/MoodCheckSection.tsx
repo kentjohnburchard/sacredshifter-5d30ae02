@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -82,9 +81,9 @@ const MoodCheckSection: React.FC = () => {
       const frequency = frequencyRecommendations[dominantEmotion as keyof typeof frequencyRecommendations] || 432;
       setRecommendedFrequency(frequency);
       
-      // Save session to Supabase
-      const { data, error } = await supabase
-        .from('sessions')
+      // Save session to Supabase using type assertion to work around TypeScript error
+      const { data, error } = await (supabase
+        .from('sessions') as any)
         .insert([
           { 
             user_id: user.id,

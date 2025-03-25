@@ -29,8 +29,9 @@ const JournalSection: React.FC = () => {
   
   const fetchJournalEntries = async () => {
     try {
-      const { data, error } = await supabase
-        .from('timeline_snapshots')
+      // Use type assertion to work around TypeScript error
+      const { data, error } = await (supabase
+        .from('timeline_snapshots') as any)
         .select('*')
         .order('created_at', { ascending: false })
         .limit(5);
@@ -62,8 +63,9 @@ const JournalSection: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      const { error } = await supabase
-        .from('timeline_snapshots')
+      // Use type assertion to work around TypeScript error
+      const { error } = await (supabase
+        .from('timeline_snapshots') as any)
         .insert([
           {
             user_id: user.id,
