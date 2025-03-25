@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import MusicForm from "@/components/MusicForm";
 import GenerationHistory from "@/components/GenerationHistory";
@@ -16,9 +16,12 @@ import FrequencyInfo from "@/components/FrequencyInfo";
 import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Music2, History, Sparkles, BookOpen } from "lucide-react";
+import { getTemplateByFrequency } from "@/data/journeyTemplates";
+import { JourneyTemplateCard } from "@/components/frequency-journey";
 
 const MusicGeneration = () => {
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { isGenerating, generatedTracks, startGeneration, deleteTrack, userCredits } = useMusicGeneration();
   const [selectedFrequency, setSelectedFrequency] = useState<HealingFrequency>(healingFrequencies[0]);
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
@@ -26,7 +29,18 @@ const MusicGeneration = () => {
   const [activeTab, setActiveTab] = useState("info");
   
   useEffect(() => {
-    if (location.state?.selectedFrequency) {
+    // Check for frequency in URL query params
+    const frequencyParam = searchParams.get('frequency');
+    if (frequencyParam) {
+      const frequencyValue = parseFloat(frequencyParam);
+      const matchedFrequency = healingFrequencies.find(f => f.frequency === frequencyValue);
+      if (matchedFrequency) {
+        setSelectedFrequency(matchedFrequency);
+        setInitialFrequency(matchedFrequency);
+      }
+    }
+    // Check for frequency in location state
+    else if (location.state?.selectedFrequency) {
       const incomingFrequency = location.state.selectedFrequency as HealingFrequency;
       setSelectedFrequency(incomingFrequency);
       setInitialFrequency(incomingFrequency);
@@ -35,7 +49,7 @@ const MusicGeneration = () => {
         window.history.replaceState({}, document.title);
       }
     }
-  }, [location.state]);
+  }, [location.state, searchParams]);
   
   const handleSelectFrequency = (frequency: HealingFrequency) => {
     setSelectedFrequency(frequency);
@@ -45,6 +59,9 @@ const MusicGeneration = () => {
   const handleCloseConfirmation = () => {
     setShowConfirmation(false);
   };
+
+  // Get matching journey template for selected frequency
+  const journeyTemplate = getTemplateByFrequency(selectedFrequency.frequency);
   
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -147,6 +164,17 @@ const MusicGeneration = () => {
                     </TabsContent>
                   </ScrollArea>
                 </Tabs>
+                
+                {/* Journey Template Display */}
+                {journeyTemplate && (
+                  <div className="mt-4">
+                    <h3 className="text-lg font-medium text-center mb-3">Recommended Journey Template</h3>
+                    <JourneyTemplateCard 
+                      template={journeyTemplate} 
+                      showDetails={false}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>

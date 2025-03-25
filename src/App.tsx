@@ -12,6 +12,7 @@ import MusicLibrary from './pages/MusicLibrary';
 import Subscription from './pages/Subscription';
 import NotFound from './pages/NotFound';
 import Timeline from './pages/Timeline';
+import JourneyTemplates from "./pages/JourneyTemplates";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/music-library" element={<MusicLibrary />} />
         <Route path="/subscription" element={<Subscription />} />
         <Route path="/timeline" element={<Timeline />} />
+        <Route path="/journey-templates" element={<JourneyTemplates />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
