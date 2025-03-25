@@ -12,7 +12,7 @@ const EnergyCheck = () => {
         <div className="text-center my-12">
           <h1 className="text-4xl font-light mb-4">
             <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-teal-500">
-              Energy Check-In
+              Check-In
             </span>
           </h1>
           {/* Removed the descriptive paragraph */}
