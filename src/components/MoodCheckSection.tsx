@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,7 +7,6 @@ import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
-// Define emotion types
 type Emotion = {
   id: string;
   label: string;
@@ -16,14 +14,12 @@ type Emotion = {
   icon: string;
 };
 
-// Define energy level types
 type EnergyLevel = {
   id: string;
   label: string;
   value: number;
 };
 
-// Define session type for database operations
 type Session = {
   user_id: string;
   initial_mood: string;
@@ -52,7 +48,6 @@ const energyLevels: EnergyLevel[] = [
   { id: "very-high", label: "Very High", value: 5 }
 ];
 
-// Frequency recommendations based on emotions
 const frequencyRecommendations: Record<string, number> = {
   "calm": 432,
   "joy": 528,
@@ -101,18 +96,16 @@ const MoodCheckSection: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      // Calculate recommended frequency based on dominant emotion
       const dominantEmotion = selectedEmotions[0];
       const frequency = frequencyRecommendations[dominantEmotion] || 432;
       setRecommendedFrequency(frequency);
       
-      // Save session to Supabase
       const sessionData: Session = { 
         user_id: user.id,
         initial_mood: selectedEmotions.join(','),
         frequency: frequency,
         intention: intention || null,
-        session_duration: 0 // Will be updated later
+        session_duration: 0
       };
       
       const { data, error } = await supabase
@@ -129,7 +122,6 @@ const MoodCheckSection: React.FC = () => {
       
       toast.success("Your energy check has been recorded");
       
-      // Navigate to music recommendation
       if (data && data.length > 0) {
         setTimeout(() => {
           navigate("/music-generation", { 
@@ -158,7 +150,7 @@ const MoodCheckSection: React.FC = () => {
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-light tracking-tight">
             <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-teal-500">
-              Energy Check-In
+              Mood Check
             </span>
           </h2>
           <p className="mt-4 text-gray-600 max-w-2xl mx-auto">
