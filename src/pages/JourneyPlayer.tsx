@@ -1,125 +1,117 @@
-import React, { useEffect, useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Play, PauseCircle, Clock, BookOpen } from "lucide-react";
-import { JourneyTemplate, getTemplateByFrequency } from "@/data/journeyTemplates";
-import { HealingFrequency, healingFrequencies } from "@/data/frequencies";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Clock, BookOpen } from "lucide-react";
 import FrequencyPlayer from "@/components/FrequencyPlayer";
-import JournalEntryForm from "@/components/frequency-shift/JournalEntryForm";
+import { healingFrequencies, HealingFrequency } from "@/data/frequencies";
+import { getTemplateByFrequency, JourneyTemplate } from "@/data/journeyTemplates";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const JourneyPlayer = () => {
   const { frequencyId } = useParams();
   const navigate = useNavigate();
-  const [template, setTemplate] = useState<JourneyTemplate | null>(null);
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
   const [frequency, setFrequency] = useState<HealingFrequency | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [showJournal, setShowJournal] = useState(false);
-  const [sessionDuration, setSessionDuration] = useState<number>(5); // minutes
-  const [elapsedTime, setElapsedTime] = useState<number>(0); // seconds
-  const [timerInterval, setTimerInterval] = useState<number | null>(null);
+  const [template, setTemplate] = useState<JourneyTemplate | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [journalDialogOpen, setJournalDialogOpen] = useState(false);
 
-  // Find matching template and frequency data
   useEffect(() => {
-    if (frequencyId) {
-      // Try to parse as number first (for direct frequency value)
-      const freqValue = parseInt(frequencyId);
-      
-      if (!isNaN(freqValue)) {
-        const matchedTemplate = getTemplateByFrequency(freqValue);
-        const matchedFrequency = healingFrequencies.find(f => f.frequency === freqValue);
-        
-        if (matchedTemplate) setTemplate(matchedTemplate);
-        if (matchedFrequency) setFrequency(matchedFrequency);
-      } 
-      // Otherwise look for ID-based match
-      else {
-        const matchedFrequency = healingFrequencies.find(f => f.id === frequencyId);
-        if (matchedFrequency) {
-          setFrequency(matchedFrequency);
-          const matchedTemplate = getTemplateByFrequency(matchedFrequency.frequency);
-          if (matchedTemplate) setTemplate(matchedTemplate);
-        }
-      }
+    if (!frequencyId) {
+      navigate("/journey-templates");
+      return;
     }
-  }, [frequencyId]);
 
-  // Handle Play/Pause
-  const togglePlayPause = () => {
-    if (isPlaying) {
-      // Pause the session
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        setTimerInterval(null);
-      }
-      setIsPlaying(false);
-    } else {
-      // Start the session
-      const interval = setInterval(() => {
-        setElapsedTime(prev => {
-          // Check if session time is up
-          if (prev >= sessionDuration * 60 - 1) {
-            clearInterval(interval);
-            setIsPlaying(false);
-            setShowJournal(true);
-            toast.success("Your frequency journey is complete");
-            return sessionDuration * 60;
+    const frequencyValue = parseFloat(frequencyId);
+    const foundFrequency = healingFrequencies.find(f => f.frequency === frequencyValue);
+    
+    if (!foundFrequency) {
+      toast.error("Frequency not found");
+      navigate("/journey-templates");
+      return;
+    }
+
+    setFrequency(foundFrequency);
+    
+    const matchingTemplate = getTemplateByFrequency(frequencyValue);
+    if (matchingTemplate) {
+      setTemplate(matchingTemplate);
+    }
+    
+    setLoading(false);
+    createSession(foundFrequency);
+  }, [frequencyId, navigate]);
+
+  const createSession = async (frequency: HealingFrequency) => {
+    if (!user) return;
+    
+    try {
+      // Create a new session record
+      const { data, error } = await supabase
+        .from('sessions')
+        .insert([
+          {
+            user_id: user.id,
+            frequency: frequency.frequency,
+            chakra: frequency.chakra || null,
+            intention: template?.affirmation || null,
           }
-          return prev + 1;
-        });
-      }, 1000) as unknown as number;
-      
-      setTimerInterval(interval);
-      setIsPlaying(true);
-      toast.success(`Beginning your ${frequency?.frequency}Hz journey`);
+        ])
+        .select();
+
+      if (error) {
+        console.error("Error creating session:", error);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        setSessionId(data[0].id);
+        console.log("Created session:", data[0].id);
+      }
+    } catch (err) {
+      console.error("Unexpected error creating session:", err);
     }
   };
 
-  // Format time display
-  const formatTime = (totalSeconds: number) => {
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  const handleBack = () => {
+    navigate(-1);
   };
 
-  // Calculate progress percentage
-  const progressPercentage = () => {
-    if (sessionDuration <= 0) return 0;
-    return (elapsedTime / (sessionDuration * 60)) * 100;
+  const handleOpenJournal = () => {
+    setJournalDialogOpen(true);
   };
 
-  // Clean up timer on unmount
-  useEffect(() => {
-    return () => {
-      if (timerInterval) clearInterval(timerInterval);
-    };
-  }, [timerInterval]);
-
-  const handleJournalSaved = () => {
-    setShowJournal(false);
-    toast.success("Your reflection has been saved to your timeline");
-  };
-
-  const handleSetDuration = (minutes: number) => {
-    setSessionDuration(minutes);
-    toast.success(`Session duration set to ${minutes} minutes`);
-  };
-
-  if (!template || !frequency) {
+  if (loading) {
     return (
       <Layout>
-        <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
-          <Card>
-            <CardContent className="p-6 text-center">
-              <h2 className="text-2xl font-medium mb-4">Frequency not found</h2>
-              <p className="text-gray-600 mb-4">Sorry, we couldn't find the frequency journey you're looking for.</p>
-              <Button onClick={() => navigate("/journey-templates")}>
-                Browse Journey Templates
-              </Button>
-            </CardContent>
-          </Card>
+        <div className="container max-w-6xl mx-auto px-4 py-8">
+          <div className="text-center py-12">
+            <p className="text-gray-500">Loading journey...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!frequency || !template) {
+    return (
+      <Layout>
+        <div className="container max-w-6xl mx-auto px-4 py-8">
+          <div className="text-center py-12">
+            <h1 className="text-2xl font-medium text-gray-800 mb-4">Journey Not Found</h1>
+            <p className="text-gray-600 mb-6">
+              We couldn't find the journey you're looking for.
+            </p>
+            <Button onClick={() => navigate("/journey-templates")}>
+              Browse Journeys
+            </Button>
+          </div>
         </div>
       </Layout>
     );
@@ -127,145 +119,80 @@ const JourneyPlayer = () => {
 
   return (
     <Layout>
-      <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
-        <div className="mb-6 flex items-center justify-between">
+      <div className="container max-w-6xl mx-auto px-4 py-8">
+        <div className="mb-6">
           <Button 
             variant="ghost" 
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2"
+            size="sm"
+            onClick={handleBack}
+            className="text-gray-600"
           >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Back</span>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
           </Button>
-          
-          <div className="flex gap-2">
-            <Button 
-              variant={sessionDuration === 5 ? "default" : "outline"}
-              size="sm"
-              onClick={() => handleSetDuration(5)}
-              className={sessionDuration === 5 ? "bg-purple-500 hover:bg-purple-600" : ""}
-            >
-              5 min
-            </Button>
-            <Button 
-              variant={sessionDuration === 10 ? "default" : "outline"}
-              size="sm"
-              onClick={() => handleSetDuration(10)}
-              className={sessionDuration === 10 ? "bg-purple-500 hover:bg-purple-600" : ""}
-            >
-              10 min
-            </Button>
-            <Button 
-              variant={sessionDuration === 15 ? "default" : "outline"}
-              size="sm"
-              onClick={() => handleSetDuration(15)}
-              className={sessionDuration === 15 ? "bg-purple-500 hover:bg-purple-600" : ""}
-            >
-              15 min
-            </Button>
-          </div>
         </div>
-        
-        <Card className="mb-6 overflow-hidden border border-gray-200">
-          <div className={`h-3 bg-gradient-to-r ${template.color}`}></div>
-          <CardContent className="p-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-2xl">{template.emoji}</span>
-                  <h1 className="text-3xl font-light">
-                    <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">
-                      {template.name}
-                    </span>
-                  </h1>
-                </div>
-                
-                <div className="space-y-4 mb-6">
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-800">{frequency.frequency}Hz · {template.chakra} Chakra</h3>
-                    <p className="text-gray-600">{template.vibe}</p>
-                  </div>
-                  
-                  <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
-                    <h3 className="font-medium text-gray-800 mb-2">Today's Affirmation</h3>
-                    <p className="text-gray-700 italic text-lg">"{template.affirmation}"</p>
-                  </div>
-                  
-                  {!isPlaying && !showJournal && (
-                    <div className="mt-4">
-                      <Button 
-                        onClick={togglePlayPause} 
-                        className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 w-full py-6 text-lg"
-                      >
-                        <Play className="h-5 w-5 mr-2" />
-                        Begin {sessionDuration}-Minute Journey
-                      </Button>
-                    </div>
-                  )}
-                  
-                  {isPlaying && (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4 text-purple-500" />
-                          <span className="text-purple-700 font-medium">
-                            {formatTime(elapsedTime)} / {sessionDuration}:00
-                          </span>
-                        </div>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={togglePlayPause}
-                        >
-                          <PauseCircle className="h-4 w-4 mr-1" />
-                          Pause
-                        </Button>
-                      </div>
-                      
-                      {/* Progress bar */}
-                      <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div 
-                          className="bg-gradient-to-r from-purple-500 to-blue-500 h-2.5 rounded-full" 
-                          style={{ width: `${progressPercentage()}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              <div>
-                <FrequencyPlayer frequency={frequency} autoPlay={isPlaying} />
-                
-                <div className="mt-6 p-4 bg-purple-50 rounded-lg border border-purple-100">
-                  <div className="flex items-start gap-2">
-                    <BookOpen className="h-5 w-5 text-purple-500 mt-0.5" />
-                    <div>
-                      <h3 className="font-medium text-purple-800">Session Guidance</h3>
-                      <p className="text-purple-700 mt-1">{template.sessionType}</p>
-                      <p className="text-purple-700 mt-2">Visual: {template.visualTheme}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center mb-2">
+              <span className="text-4xl mr-2">{template.emoji}</span>
+              <h1 className="text-3xl font-light">
+                <span className={`font-medium bg-clip-text text-transparent bg-gradient-to-r ${template.color}`}>
+                  {template.name}
+                </span>
+              </h1>
             </div>
-          </CardContent>
-        </Card>
-        
-        {showJournal && (
-          <Card className="border border-gray-200">
+            <p className="text-lg text-gray-600">{template.vibe}</p>
+          </div>
+
+          <Card className="mb-8 border border-gray-200 shadow-sm overflow-hidden">
             <CardContent className="p-6">
-              <JournalEntryForm 
-                frequency={frequency.frequency}
-                chakra={template.chakra}
-                visualType={template.visualTheme}
-                intention={template.affirmation}
-                onSaved={handleJournalSaved}
-                onCancel={() => setShowJournal(false)}
-              />
+              <div className="space-y-4">
+                <div className="p-4 rounded-lg bg-purple-50 border border-purple-100">
+                  <p className="text-center text-purple-800 italic">"{template.affirmation}"</p>
+                </div>
+                
+                <div className="flex justify-center">
+                  <div className="inline-flex items-center text-gray-600 text-sm">
+                    <Clock className="h-4 w-4 mr-1" />
+                    <span>{frequency.duration ? Math.floor(frequency.duration / 60) : 5} minute journey</span>
+                  </div>
+                </div>
+                
+                {frequency && (
+                  <FrequencyPlayer frequency={frequency} />
+                )}
+                
+                <div className="pt-4">
+                  <Button 
+                    variant="outline"
+                    className="w-full border-purple-200 text-purple-800 hover:bg-purple-50"
+                    onClick={handleOpenJournal}
+                  >
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Journal My Experience
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
-        )}
+
+          <div className="space-y-4">
+            <h2 className="text-xl font-medium text-gray-800">About {frequency.frequency}Hz</h2>
+            <p className="text-gray-600">{frequency.description}</p>
+            
+            {frequency.benefits && frequency.benefits.length > 0 && (
+              <div>
+                <h3 className="text-lg font-medium text-gray-800 mb-2">Benefits</h3>
+                <ul className="list-disc pl-5 space-y-1 text-gray-600">
+                  {frequency.benefits.map((benefit, index) => (
+                    <li key={index}>{benefit}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </Layout>
   );
