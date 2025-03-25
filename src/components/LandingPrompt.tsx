@@ -8,7 +8,7 @@ const LandingPrompt: React.FC = () => {
   const navigate = useNavigate();
   const [currentLine, setCurrentLine] = useState(0);
   const lines = [
-    "Welcome to Vibrational Harmony.",
+    "Welcome to Sacred Shifter.",
     "Your body is frequency. Your thoughts are tone.",
     "Let's begin your resonance journey."
   ];
