@@ -43,7 +43,7 @@ interface MusicGeneration {
   id: string;
   music_url: string;
   frequency: number;
-  session_id: string;
+  session_id?: string | null;
 }
 
 const TimelineViewer: React.FC = () => {
@@ -152,10 +152,14 @@ const TimelineViewer: React.FC = () => {
 
   const fetchMusicGenerations = async (sessionIds: string[]) => {
     try {
+      // Check if the music_generations table actually relates to sessions
+      // Since there's no session_id column, we need to filter differently
+      // Looking at the schema, music_generations might be linked to sessions through user_id and frequency
+      
       const { data, error } = await supabase
         .from("music_generations")
-        .select("id, music_url, frequency, session_id")
-        .in("session_id", sessionIds)
+        .select("id, music_url, frequency, user_id")
+        .eq("user_id", user?.id)
         .not("music_url", "is", null);
 
       if (error) {
@@ -163,12 +167,26 @@ const TimelineViewer: React.FC = () => {
         return;
       }
 
-      // Create a lookup map by session_id
+      // Create a lookup map - we'll match by frequency since there's no direct session_id
       const musicMap: Record<string, MusicGeneration> = {};
-      if (data) {
-        data.forEach(item => {
-          if (item.session_id && item.music_url) {
-            musicMap[item.session_id] = item as MusicGeneration;
+      
+      if (data && Array.isArray(data)) {
+        // For each entry with a session_id, try to find a matching music generation by frequency
+        entries.forEach(entry => {
+          if (entry.session_id && entry.frequency) {
+            // Find music generations with matching frequency
+            const matchingMusic = data.find(item => 
+              item.frequency === entry.frequency && 
+              item.music_url
+            );
+            
+            if (matchingMusic) {
+              musicMap[entry.session_id] = {
+                id: matchingMusic.id,
+                music_url: matchingMusic.music_url,
+                frequency: matchingMusic.frequency
+              };
+            }
           }
         });
       }
