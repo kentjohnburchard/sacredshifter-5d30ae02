@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -58,12 +57,10 @@ const TimelineViewer: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Extract all unique tags from entries
   const allTags = React.useMemo(() => {
     const tagSet = new Set<string>();
     
     entries.forEach(entry => {
-      // Handle both 'tag' string and 'tags' array
       if (entry.tag) {
         tagSet.add(entry.tag);
       }
@@ -83,7 +80,6 @@ const TimelineViewer: React.FC = () => {
     }
 
     try {
-      // First fetch the timeline entries
       const { data: entriesData, error: entriesError } = await supabase
         .from("timeline_snapshots")
         .select("*")
@@ -96,13 +92,11 @@ const TimelineViewer: React.FC = () => {
         return;
       }
 
-      // Collect session_ids to fetch frequencies
       const sessionIds = entriesData
         .filter(entry => entry.session_id)
         .map(entry => entry.session_id)
         .filter(Boolean) as string[];
 
-      // If we have session IDs, fetch related session information for frequencies
       const sessionsWithFrequencies: Record<string, number> = {};
       
       if (sessionIds.length > 0) {
@@ -112,7 +106,6 @@ const TimelineViewer: React.FC = () => {
           .in("id", sessionIds);
 
         if (!sessionsError && sessionsData) {
-          // Create a map of session_id -> frequency
           sessionsData.forEach(session => {
             if (session.frequency) {
               sessionsWithFrequencies[session.id] = session.frequency;
@@ -121,13 +114,11 @@ const TimelineViewer: React.FC = () => {
         }
       }
 
-      // Add frequency data to entries from related sessions
       const entriesWithFrequency = entriesData.map(entry => ({
         ...entry,
         frequency: entry.session_id ? sessionsWithFrequencies[entry.session_id] || null : null
       }));
 
-      // Extract unique frequencies for filtering
       const frequencies = new Set<number>();
       entriesWithFrequency.forEach(entry => {
         if (entry.frequency) {
@@ -138,7 +129,6 @@ const TimelineViewer: React.FC = () => {
 
       setEntries(entriesWithFrequency);
 
-      // Fetch associated audio files for entries with session_ids
       if (sessionIds.length > 0) {
         fetchMusicGenerations(sessionIds);
       }
@@ -152,10 +142,6 @@ const TimelineViewer: React.FC = () => {
 
   const fetchMusicGenerations = async (sessionIds: string[]) => {
     try {
-      // Check if the music_generations table actually relates to sessions
-      // Since there's no session_id column, we need to filter differently
-      // Looking at the schema, music_generations might be linked to sessions through user_id and frequency
-      
       const { data, error } = await supabase
         .from("music_generations")
         .select("id, music_url, frequency, user_id")
@@ -167,14 +153,11 @@ const TimelineViewer: React.FC = () => {
         return;
       }
 
-      // Create a lookup map - we'll match by frequency since there's no direct session_id
       const musicMap: Record<string, MusicGeneration> = {};
       
       if (data && Array.isArray(data)) {
-        // For each entry with a session_id, try to find a matching music generation by frequency
         entries.forEach(entry => {
           if (entry.session_id && entry.frequency) {
-            // Find music generations with matching frequency
             const matchingMusic = data.find(item => 
               item.frequency === entry.frequency && 
               item.music_url
@@ -203,9 +186,9 @@ const TimelineViewer: React.FC = () => {
 
   const handleFilterByTag = (tag: string) => {
     if (activeFilter === tag) {
-      setActiveFilter(null); // Clear the filter if already active
+      setActiveFilter(null);
     } else {
-      setActiveFilter(tag); // Set the new filter
+      setActiveFilter(tag);
     }
   };
 
@@ -214,7 +197,6 @@ const TimelineViewer: React.FC = () => {
   };
 
   const filteredEntries = React.useMemo(() => {
-    // Start with tag filtering
     let filtered = activeFilter 
       ? entries.filter(entry => 
           entry.tag === activeFilter || 
@@ -222,7 +204,6 @@ const TimelineViewer: React.FC = () => {
         )
       : entries;
     
-    // Then apply frequency filtering if needed
     if (frequencyFilter !== "all") {
       const frequencyValue = parseFloat(frequencyFilter);
       filtered = filtered.filter(entry => entry.frequency === frequencyValue);
@@ -232,13 +213,11 @@ const TimelineViewer: React.FC = () => {
   }, [entries, activeFilter, frequencyFilter]);
 
   const handleRevisitJourney = (entry: TimelineEntry) => {
-    // Navigate to music generation page with the session frequency
     if (entry.frequency) {
-      navigate(`/music-generation?frequency=${entry.frequency}`);
-      toast.success(`Loading frequency: ${entry.frequency}Hz`);
+      navigate(`/journey/${entry.frequency}`);
     } else {
       navigate("/music-generation");
-      toast.success("Ready to revisit your frequency journey");
+      toast.success("Ready to create a new frequency journey");
     }
   };
 
@@ -258,9 +237,7 @@ const TimelineViewer: React.FC = () => {
       : text;
   };
 
-  // Find sentiment and theme patterns based on journal content
   const journalInsights = React.useMemo(() => {
-    // Simple keyword-based theme detection
     const themes: Record<string, number> = {
       healing: 0,
       transformation: 0,
@@ -273,7 +250,6 @@ const TimelineViewer: React.FC = () => {
       peace: 0,
     };
     
-    // Count occurrences of theme words in journal entries
     entries.forEach(entry => {
       if (entry.journal) {
         const lowerJournal = entry.journal.toLowerCase();
@@ -285,14 +261,12 @@ const TimelineViewer: React.FC = () => {
       }
     });
     
-    // Find the most common themes
     const sortedThemes = Object.entries(themes)
       .filter(([_, count]) => count > 0)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 2)
       .map(([theme]) => theme);
     
-    // Generate insights based on the data
     const insights: string[] = [];
     if (sortedThemes.length > 0) {
       insights.push(
@@ -300,12 +274,10 @@ const TimelineViewer: React.FC = () => {
       );
     }
     
-    // Check for chakra work
     if (themes.chakra > 0) {
       insights.push("Want to revisit your chakra alignment work?");
     }
     
-    // Check if they have consistent frequency work
     if (uniqueFrequencies.size > 0) {
       const mostFrequentHz = Array.from(uniqueFrequencies)[0];
       insights.push(`You've created ${entries.filter(e => e.frequency === mostFrequentHz).length} entries with ${mostFrequentHz}Hz frequency.`);
@@ -342,7 +314,6 @@ const TimelineViewer: React.FC = () => {
         </h2>
         
         <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
-          {/* Frequency Filter */}
           {uniqueFrequencies.size > 0 && (
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-gray-500" />
@@ -365,7 +336,6 @@ const TimelineViewer: React.FC = () => {
             </div>
           )}
           
-          {/* Tag Filter */}
           {allTags.length > 0 && (
             <div className="flex flex-wrap gap-2 items-center">
               <span className="text-sm text-gray-500 self-center">Tags:</span>
@@ -388,7 +358,6 @@ const TimelineViewer: React.FC = () => {
         </div>
       </div>
 
-      {/* Insights Section */}
       {journalInsights.length > 0 && (
         <div className="bg-purple-50 border border-purple-100 rounded-lg p-4 text-purple-700">
           <h3 className="font-medium mb-2 flex items-center gap-2">
@@ -499,7 +468,6 @@ const TimelineViewer: React.FC = () => {
                           <button 
                             className="text-purple-600 text-sm mt-2 hover:underline focus:outline-none"
                             onClick={() => {
-                              // Display full journal text
                               toast(entry.title, {
                                 description: entry.journal,
                                 duration: 10000,
@@ -513,7 +481,6 @@ const TimelineViewer: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Audio Preview Section */}
                   {entry.session_id && musicGenerations[entry.session_id] && (
                     <AudioPreview 
                       audioUrl={musicGenerations[entry.session_id].music_url} 
@@ -549,7 +516,6 @@ const TimelineViewer: React.FC = () => {
         </div>
       )}
 
-      {/* Edit Entry Dialog */}
       <EditEntryDialog
         entry={editingEntry}
         open={isEditDialogOpen}

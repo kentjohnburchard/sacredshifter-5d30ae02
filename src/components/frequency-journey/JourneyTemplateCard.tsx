@@ -23,8 +23,8 @@ const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({
     if (onBeginJourney) {
       onBeginJourney();
     } else {
-      // Navigate to music generation with this frequency
-      navigate(`/music-generation?frequency=${template.frequency}`);
+      // Navigate to dedicated journey player with this frequency
+      navigate(`/journey/${template.frequency}`);
     }
   };
 

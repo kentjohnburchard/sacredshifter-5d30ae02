@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
@@ -13,6 +14,7 @@ import Subscription from './pages/Subscription';
 import NotFound from './pages/NotFound';
 import Timeline from './pages/Timeline';
 import JourneyTemplates from "./pages/JourneyTemplates";
+import JourneyPlayer from "./pages/JourneyPlayer";
 
 function App() {
   return (
@@ -30,6 +32,7 @@ function App() {
         <Route path="/subscription" element={<Subscription />} />
         <Route path="/timeline" element={<Timeline />} />
         <Route path="/journey-templates" element={<JourneyTemplates />} />
+        <Route path="/journey/:frequencyId" element={<JourneyPlayer />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
