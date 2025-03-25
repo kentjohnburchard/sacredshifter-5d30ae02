@@ -1,5 +1,5 @@
 
-import { PromptStep } from './types';
+import { PromptStep, IntentionSuggestion } from './types';
 
 export const promptSteps: PromptStep[] = [
   {
@@ -68,7 +68,7 @@ export const promptSteps: PromptStep[] = [
       { text: "What does my energy say?", tag: "aura_prompt" }
     ]
   },
-  // Session Recommendation - New Step
+  // Session Recommendation - Final Step
   {
     title: "Your Frequency Match",
     text: "✨ You're aligned with [FREQUENCY] Hz ✨\n\nThis frequency supports your [CHAKRA / STATE]. Let it guide you inward, upward, and beyond.\n\nAre you ready to begin your sound journey?",
@@ -78,4 +78,43 @@ export const promptSteps: PromptStep[] = [
       { text: "Choose a different vibe", tag: "go_back" }
     ]
   }
+];
+
+export const intentionSuggestions: IntentionSuggestion[] = [
+  { text: "I choose peace." },
+  { text: "I trust my path." },
+  { text: "I am safe in my body." },
+  { text: "I release what no longer serves me." },
+  { text: "I am love, and I let it flow." }
+];
+
+export const midJourneyReflection = "You are doing beautifully. Let this sound be the soft bridge between where you've been and where you're becoming.";
+
+export const frequencyGuideText = `Each frequency in this app is selected for its resonance with the body, mind, and subtle energy systems.
+
+Here's a quick guide:
+
+- 396 Hz – Releases fear, grounds the body (Root Chakra)
+- 417 Hz – Clears negativity, unlocks flow (Sacral)
+- 528 Hz – Transformation, DNA repair, love (Solar Plexus)
+- 639 Hz – Heart healing, relationship energy (Heart)
+- 741 Hz – Detox, inner truth (Throat)
+- 852 Hz – Awakens intuition (Third Eye)
+- 963 Hz – Divine connection, unity (Crown)
+
+You'll be guided to the best frequency for your state, but you're always welcome to explore freely.`;
+
+export const breathingPrompt = `Inhale slowly…
+Feel the sound moving through your body.  
+Exhale gently…  
+Let go of anything that doesn't belong to this moment.`;
+
+export const sessionCloseText = `Your frequency is now elevated. Stay here and soak it in, or take a moment to reflect.
+
+What would you like to do next?`;
+
+export const sessionCloseOptions = [
+  { text: "Save this moment to my Timeline", tag: "save_session" },
+  { text: "Set a new intention", tag: "reset_intention" },
+  { text: "Return to Home", tag: "return_home" }
 ];

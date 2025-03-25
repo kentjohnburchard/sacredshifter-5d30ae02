@@ -11,3 +11,7 @@ export type PromptStep = {
   text: string;
   options: PromptOption[];
 };
+
+export type IntentionSuggestion = {
+  text: string;
+};

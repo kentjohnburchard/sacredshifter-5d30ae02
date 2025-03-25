@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { CircleIcon, Sparkles, Clock, Music, Heart } from "lucide-react";
 import FrequencyInfo from "@/components/FrequencyInfo";
 import FrequencyMatchDisplay from "./FrequencyMatchDisplay";
+import { frequencyGuideText } from "./promptSteps";
 
 interface InfoDialogContentProps {
   matchedFrequency: HealingFrequency | null;
@@ -27,8 +28,8 @@ const InfoDialogContent: React.FC<InfoDialogContentProps> = ({
       </TabsList>
       
       <TabsContent value="guide" className="space-y-4">
-        <p className="text-gray-700">
-          Each frequency in this app is selected for its resonance with the body, mind, and subtle energy systems.
+        <p className="text-gray-700 whitespace-pre-line">
+          {frequencyGuideText}
         </p>
         
         <div className="space-y-3 mt-4">
@@ -88,10 +89,6 @@ const InfoDialogContent: React.FC<InfoDialogContentProps> = ({
             </div>
           </div>
         </div>
-        
-        <p className="text-gray-700 mt-4">
-          You'll be guided to the best frequency for your state, but you're always welcome to explore freely.
-        </p>
       </TabsContent>
       
       <TabsContent value="selected" className="space-y-4">
