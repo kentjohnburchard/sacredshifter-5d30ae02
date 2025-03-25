@@ -83,23 +83,49 @@ const TimelineViewer: React.FC = () => {
     }
 
     try {
-      const { data, error } = await supabase
+      // First fetch the timeline entries
+      const { data: entriesData, error: entriesError } = await supabase
         .from("timeline_snapshots")
-        .select("*, sessions:session_id(frequency)")
+        .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error("Error fetching timeline entries:", error);
+      if (entriesError) {
+        console.error("Error fetching timeline entries:", entriesError);
         toast.error("Failed to load timeline entries");
         return;
       }
 
-      // Add frequency data from related sessions if available
-      const entriesWithFrequency = data?.map(entry => ({
+      // Collect session_ids to fetch frequencies
+      const sessionIds = entriesData
+        .filter(entry => entry.session_id)
+        .map(entry => entry.session_id)
+        .filter(Boolean) as string[];
+
+      // If we have session IDs, fetch related session information for frequencies
+      const sessionsWithFrequencies: Record<string, number> = {};
+      
+      if (sessionIds.length > 0) {
+        const { data: sessionsData, error: sessionsError } = await supabase
+          .from("sessions")
+          .select("id, frequency")
+          .in("id", sessionIds);
+
+        if (!sessionsError && sessionsData) {
+          // Create a map of session_id -> frequency
+          sessionsData.forEach(session => {
+            if (session.frequency) {
+              sessionsWithFrequencies[session.id] = session.frequency;
+            }
+          });
+        }
+      }
+
+      // Add frequency data to entries from related sessions
+      const entriesWithFrequency = entriesData.map(entry => ({
         ...entry,
-        frequency: entry.sessions?.frequency || null
-      })) || [];
+        frequency: entry.session_id ? sessionsWithFrequencies[entry.session_id] || null : null
+      }));
 
       // Extract unique frequencies for filtering
       const frequencies = new Set<number>();
@@ -112,16 +138,9 @@ const TimelineViewer: React.FC = () => {
 
       setEntries(entriesWithFrequency);
 
-      // Fetch associated audio files
-      if (data && data.length > 0) {
-        const sessionIds = data
-          .filter(entry => entry.session_id)
-          .map(entry => entry.session_id)
-          .filter(Boolean) as string[];
-
-        if (sessionIds.length > 0) {
-          fetchMusicGenerations(sessionIds);
-        }
+      // Fetch associated audio files for entries with session_ids
+      if (sessionIds.length > 0) {
+        fetchMusicGenerations(sessionIds);
       }
     } catch (error) {
       console.error("Unexpected error:", error);
@@ -146,11 +165,13 @@ const TimelineViewer: React.FC = () => {
 
       // Create a lookup map by session_id
       const musicMap: Record<string, MusicGeneration> = {};
-      data?.forEach(item => {
-        if (item.session_id && item.music_url) {
-          musicMap[item.session_id] = item;
-        }
-      });
+      if (data) {
+        data.forEach(item => {
+          if (item.session_id && item.music_url) {
+            musicMap[item.session_id] = item as MusicGeneration;
+          }
+        });
+      }
 
       setMusicGenerations(musicMap);
     } catch (error) {
