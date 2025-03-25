@@ -31,17 +31,19 @@ const FrequencyInfo: React.FC<FrequencyInfoProps> = ({ frequency }) => {
         <p className="text-slate-200">{frequency.description}</p>
       </div>
       
-      <div>
-        <h4 className="text-md font-medium mb-3 text-white">Benefits</h4>
-        <ul className="space-y-2">
-          {frequency.benefits.map((benefit, index) => (
-            <li key={index} className="flex items-start">
-              {getBenefitIcon(benefit, index)}
-              <span className="text-slate-200">{benefit}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {frequency.benefits && frequency.benefits.length > 0 && (
+        <div>
+          <h4 className="text-md font-medium mb-3 text-white">Benefits</h4>
+          <ul className="space-y-2">
+            {frequency.benefits.map((benefit, index) => (
+              <li key={index} className="flex items-start">
+                {getBenefitIcon(benefit, index)}
+                <span className="text-slate-200">{benefit}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       
       {frequency.chakra && (
         <div>

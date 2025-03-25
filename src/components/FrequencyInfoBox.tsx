@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { HealingFrequency } from "@/data/frequencies";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -54,7 +53,6 @@ const FrequencyInfoBox: React.FC<FrequencyInfoBoxProps> = ({
       description: `Frequency: ${selectedFrequency.frequency}Hz`,
     });
     
-    // Navigate to the music generation page with the frequency data
     navigate('/music-generation', { 
       state: { 
         selectedFrequency,
@@ -62,7 +60,6 @@ const FrequencyInfoBox: React.FC<FrequencyInfoBoxProps> = ({
       } 
     });
     
-    // Close the dialog
     setShowMusicDialog(false);
   };
 
@@ -138,18 +135,22 @@ const FrequencyInfoBox: React.FC<FrequencyInfoBoxProps> = ({
               </TabsContent>
               
               <TabsContent value="benefits" className="mt-0">
-                <ul className="space-y-2">
-                  {selectedFrequency.benefits.map((benefit, index) => (
-                    <li key={index} className="flex items-start">
-                      {getBenefitIcon(benefit, index)}
-                      <span className="text-slate-200 text-shadow-sm">{benefit}</span>
-                    </li>
-                  ))}
-                </ul>
+                {selectedFrequency.benefits && selectedFrequency.benefits.length > 0 ? (
+                  <ul className="space-y-2">
+                    {selectedFrequency.benefits.map((benefit, index) => (
+                      <li key={index} className="flex items-start">
+                        {getBenefitIcon(benefit, index)}
+                        <span className="text-slate-200 text-shadow-sm">{benefit}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-slate-200 text-shadow-sm">No specific benefits have been listed for this frequency.</p>
+                )}
               </TabsContent>
               
               <TabsContent value="meditation" className="mt-0">
-                {selectedFrequency.meditations ? (
+                {selectedFrequency.meditations && selectedFrequency.meditations.length > 0 ? (
                   <ul className="space-y-2">
                     {selectedFrequency.meditations.map((meditation, index) => (
                       <li key={index} className="flex items-start">
@@ -169,7 +170,6 @@ const FrequencyInfoBox: React.FC<FrequencyInfoBoxProps> = ({
         </div>
       </div>
 
-      {/* Music Generation Confirmation Dialog */}
       <Dialog open={showMusicDialog} onOpenChange={setShowMusicDialog}>
         <DialogContent className="bg-black/90 border-purple-500/30 text-white max-w-md">
           <DialogHeader>

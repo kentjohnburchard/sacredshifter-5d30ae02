@@ -130,7 +130,7 @@ const MusicGeneration = () => {
                       <h3 className="text-xl font-medium text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
                         Meditation Practices
                       </h3>
-                      {selectedFrequency.meditations ? (
+                      {selectedFrequency.meditations && selectedFrequency.meditations.length > 0 ? (
                         <ul className="space-y-2">
                           {selectedFrequency.meditations.map((meditation, index) => (
                             <li key={index} className="flex items-start">
