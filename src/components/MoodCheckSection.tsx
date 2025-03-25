@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,7 +8,22 @@ import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
-const emotions = [
+// Define emotion types
+type Emotion = {
+  id: string;
+  label: string;
+  color: string;
+  icon: string;
+};
+
+// Define energy level types
+type EnergyLevel = {
+  id: string;
+  label: string;
+  value: number;
+};
+
+const emotions: Emotion[] = [
   { id: "calm", label: "Calm", color: "bg-blue-100 text-blue-700", icon: "😌" },
   { id: "joy", label: "Joy", color: "bg-yellow-100 text-yellow-700", icon: "😊" },
   { id: "peace", label: "Peace", color: "bg-green-100 text-green-700", icon: "😇" },
@@ -19,7 +35,7 @@ const emotions = [
   { id: "creative", label: "Creative", color: "bg-indigo-100 text-indigo-700", icon: "✨" }
 ];
 
-const energyLevels = [
+const energyLevels: EnergyLevel[] = [
   { id: "very-low", label: "Very Low", value: 1 },
   { id: "low", label: "Low", value: 2 },
   { id: "moderate", label: "Moderate", value: 3 },
@@ -28,7 +44,7 @@ const energyLevels = [
 ];
 
 // Frequency recommendations based on emotions
-const frequencyRecommendations = {
+const frequencyRecommendations: Record<string, number> = {
   "calm": 432,
   "joy": 528,
   "peace": 396,
@@ -78,7 +94,7 @@ const MoodCheckSection: React.FC = () => {
     try {
       // Calculate recommended frequency based on dominant emotion
       const dominantEmotion = selectedEmotions[0];
-      const frequency = frequencyRecommendations[dominantEmotion as keyof typeof frequencyRecommendations] || 432;
+      const frequency = frequencyRecommendations[dominantEmotion] || 432;
       setRecommendedFrequency(frequency);
       
       // Save session to Supabase using type assertion to work around TypeScript error

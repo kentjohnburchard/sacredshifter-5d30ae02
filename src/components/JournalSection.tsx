@@ -9,12 +9,22 @@ import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
+// Define the JournalEntry type to match our database structure
+type JournalEntry = {
+  id: string;
+  user_id: string;
+  title: string;
+  notes: string | null;
+  tag: string | null;
+  created_at: string;
+};
+
 const JournalSection: React.FC = () => {
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
   const [tag, setTag] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [entries, setEntries] = useState<any[]>([]);
+  const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(true);
   
   const { user } = useAuth();
@@ -29,7 +39,7 @@ const JournalSection: React.FC = () => {
   
   const fetchJournalEntries = async () => {
     try {
-      // Use type assertion to work around TypeScript error
+      // Use a more specific type cast to PostgrestQueryBuilder
       const { data, error } = await (supabase
         .from('timeline_snapshots') as any)
         .select('*')
@@ -63,7 +73,7 @@ const JournalSection: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      // Use type assertion to work around TypeScript error
+      // Use a more specific type cast to PostgrestQueryBuilder
       const { error } = await (supabase
         .from('timeline_snapshots') as any)
         .insert([
