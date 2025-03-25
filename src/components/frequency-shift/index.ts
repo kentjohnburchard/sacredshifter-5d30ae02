@@ -12,3 +12,6 @@ export { default as SessionCloseOptions } from './SessionCloseOptions';
 export { default as VisualOverlaySelector } from './VisualOverlaySelector';
 export { default as JournalEntryForm } from './JournalEntryForm';
 export { default as TimelineConfirmation } from './TimelineConfirmation';
+export { default as StageHandler } from './StageHandler';
+export { default as FrequencyShiftDialog } from './FrequencyShiftDialog';
+export { useFrequencyShift } from './useFrequencyShift';
