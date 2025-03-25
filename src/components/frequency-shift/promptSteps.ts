@@ -1,0 +1,81 @@
+
+import { PromptStep } from './types';
+
+export const promptSteps: PromptStep[] = [
+  {
+    title: "Begin Your Frequency Shift",
+    text: "Welcome, radiant soul. You didn't land here by accident. Something in you is ready to shift, align, and remember what it feels like to vibrate in your truth.\n\nBefore we go deeper, take a breath with me. Inhale presence… exhale the noise.\n\nNow tell me—what's calling you today?",
+    options: [
+      { text: "I want to feel better", tag: "mood_shift" },
+      { text: "I want to explore my energy", tag: "chakra_journey" },
+      { text: "I want to shift something deep", tag: "shadow_work" },
+      { text: "I just want to listen and vibe", tag: "music_mode" },
+      { text: "I don't know, I just felt drawn here", tag: "curiosity" }
+    ]
+  },
+  // Feel Better Path
+  {
+    title: "Feel Better – Identify Discomfort",
+    text: "We all have those days. You're not broken—you're simply out of tune. Let's gently recalibrate your energy and bring you back to your center.\n\nWhich part of you feels most out of sync right now?",
+    options: [
+      { text: "My body feels tense", tag: "root", frequency: 396, chakra: "Root" },
+      { text: "I'm stuck in my head", tag: "crown", frequency: 963, chakra: "Crown" },
+      { text: "My heart feels heavy", tag: "heart", frequency: 639, chakra: "Heart" },
+      { text: "I just feel off", tag: "solar", frequency: 528, chakra: "Solar Plexus" }
+    ]
+  },
+  // Explore Energy Path
+  {
+    title: "Explore Energy – Choose a Path",
+    text: "Love that curiosity. Your energy is your compass, your mirror, your masterpiece. Let's explore it like sacred architecture.\n\nWhere would you like to begin?",
+    options: [
+      { text: "Chakra alignment", tag: "full_chakra" },
+      { text: "Aura scan", tag: "intuitive_path" },
+      { text: "Elemental energy", tag: "elemental_mode" },
+      { text: "Surprise me", tag: "quantum_roll" }
+    ]
+  },
+  // Shift Something Deep Path
+  {
+    title: "Shift Deeply – Choose What to Release",
+    text: "You're ready to shift. That's powerful. The willingness to meet yourself is the beginning of transformation.\n\nIs there an emotion, memory, or belief you'd like to move through?",
+    options: [
+      { text: "Fear or anxiety", tag: "fear", frequency: 396, chakra: "Root" },
+      { text: "Shame or guilt", tag: "shame", frequency: 417, chakra: "Sacral" },
+      { text: "Old patterns", tag: "patterns", frequency: 741, chakra: "Throat" },
+      { text: "Grief or loss", tag: "grief", frequency: 639, chakra: "Heart" },
+      { text: "I'm not sure, I just feel it", tag: "general", frequency: 528, chakra: "Solar Plexus" }
+    ]
+  },
+  // Just Listen and Vibe Path
+  {
+    title: "Just Vibe – Choose Your Sound",
+    text: "Sometimes the soul just wants to bathe in sound. No goals, no fixing—just vibes.\n\nPick your vibe and I'll bring the frequency.",
+    options: [
+      { text: "Chill & grounded", tag: "chill", frequency: 396, chakra: "Root" },
+      { text: "Uplifting & sparkly", tag: "uplifting", frequency: 528, chakra: "Solar Plexus" },
+      { text: "Heart-opening", tag: "heart", frequency: 639, chakra: "Heart" },
+      { text: "Cosmic float", tag: "cosmic", frequency: 963, chakra: "Crown" }
+    ]
+  },
+  // Intuitive Journey Path
+  {
+    title: "Intuitive Journey – Guided Flow",
+    text: "That's more than enough. Intuition brought you here—and that's the purest guidance of all.\n\nLet's do a soft scan and offer you a session based on your energetic field.",
+    options: [
+      { text: "Take me to my sound", tag: "random_recommendation" },
+      { text: "Let me set an intention first", tag: "intention_path" },
+      { text: "What does my energy say?", tag: "aura_prompt" }
+    ]
+  },
+  // Session Recommendation - New Step
+  {
+    title: "Your Frequency Match",
+    text: "✨ You're aligned with [FREQUENCY] Hz ✨\n\nThis frequency supports your [CHAKRA / STATE]. Let it guide you inward, upward, and beyond.\n\nAre you ready to begin your sound journey?",
+    options: [
+      { text: "Yes, begin session", tag: "begin_session" },
+      { text: "I want to learn more", tag: "learn_more" },
+      { text: "Choose a different vibe", tag: "go_back" }
+    ]
+  }
+];
