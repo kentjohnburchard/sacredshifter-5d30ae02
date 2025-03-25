@@ -10,3 +10,5 @@ export { default as ActionButtons } from './ActionButtons';
 export { default as InfoDialogContent } from './InfoDialogContent';
 export { default as SessionCloseOptions } from './SessionCloseOptions';
 export { default as VisualOverlaySelector } from './VisualOverlaySelector';
+export { default as JournalEntryForm } from './JournalEntryForm';
+export { default as TimelineConfirmation } from './TimelineConfirmation';

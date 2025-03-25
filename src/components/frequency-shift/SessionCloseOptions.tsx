@@ -1,20 +1,31 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Save, RefreshCw, Home } from "lucide-react";
 import { sessionCloseOptions, sessionCloseText } from "./promptSteps";
+import JournalEntryForm from "./JournalEntryForm";
 
 interface SessionCloseOptionsProps {
   onSaveToTimeline: () => void;
   onResetIntention: () => void;
   onReturnHome: () => void;
+  frequency?: number;
+  chakra?: string;
+  visualType?: string;
+  intention?: string;
 }
 
 const SessionCloseOptions: React.FC<SessionCloseOptionsProps> = ({
   onSaveToTimeline,
   onResetIntention,
-  onReturnHome
+  onReturnHome,
+  frequency,
+  chakra,
+  visualType,
+  intention
 }) => {
+  const [showJournalForm, setShowJournalForm] = useState(false);
+
   const getIcon = (tag: string) => {
     switch (tag) {
       case "save_session":
@@ -31,7 +42,7 @@ const SessionCloseOptions: React.FC<SessionCloseOptionsProps> = ({
   const handleOptionClick = (tag: string) => {
     switch (tag) {
       case "save_session":
-        onSaveToTimeline();
+        setShowJournalForm(true);
         break;
       case "reset_intention":
         onResetIntention();
@@ -43,6 +54,24 @@ const SessionCloseOptions: React.FC<SessionCloseOptionsProps> = ({
         break;
     }
   };
+
+  const handleJournalSaved = () => {
+    setShowJournalForm(false);
+    onSaveToTimeline();
+  };
+
+  if (showJournalForm) {
+    return (
+      <JournalEntryForm
+        frequency={frequency}
+        chakra={chakra}
+        visualType={visualType}
+        intention={intention}
+        onSaved={handleJournalSaved}
+        onCancel={() => setShowJournalForm(false)}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">

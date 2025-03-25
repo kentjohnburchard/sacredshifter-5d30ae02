@@ -1,5 +1,4 @@
-
-import { PromptStep, IntentionSuggestion, VisualOverlayOption } from './types';
+import { PromptStep, IntentionSuggestion, VisualOverlayOption, JournalTag } from './types';
 
 export const promptSteps: PromptStep[] = [
   {
@@ -125,6 +124,15 @@ export const intentionSuggestions: IntentionSuggestion[] = [
   { text: "I am safe in my body." },
   { text: "I release what no longer serves me." },
   { text: "I am love, and I let it flow." }
+];
+
+export const journalTags: JournalTag[] = [
+  { text: "Clarity", value: "clarity" },
+  { text: "Healing", value: "healing" },
+  { text: "Alignment", value: "alignment" },
+  { text: "Empowerment", value: "empowerment" },
+  { text: "Letting go", value: "letting_go" },
+  { text: "Expansion", value: "expansion" },
 ];
 
 export const midJourneyReflection = "You are doing beautifully. Let this sound be the soft bridge between where you've been and where you're becoming.";

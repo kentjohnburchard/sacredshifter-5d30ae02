@@ -23,3 +23,18 @@ export type VisualOverlayOption = {
   color: string;
   description: string;
 };
+
+export type JournalTag = {
+  text: string;
+  value: string;
+};
+
+export type TimelineEntry = {
+  title: string;
+  tag?: string;
+  notes?: string;
+  frequency?: number;
+  chakra?: string;
+  visualType?: string;
+  timestamp: Date;
+};
