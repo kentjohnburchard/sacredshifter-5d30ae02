@@ -15,9 +15,7 @@ const EnergyCheck = () => {
               Energy Check-In
             </span>
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Discover where your energy needs rebalancing and receive personalized frequency recommendations.
-          </p>
+          {/* Removed the descriptive paragraph */}
         </div>
         
         <EnergyCheckTabs activeTab={activeTab} setActiveTab={setActiveTab} />
