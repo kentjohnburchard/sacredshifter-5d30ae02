@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { HealingFrequency, healingFrequencies } from "@/data/frequencies";
-import { Heart, Info, CircleInfo, Sparkles, Clock, Music } from "lucide-react";
+import { Heart, Info, CircleIcon, Sparkles, Clock, Music } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -514,7 +514,7 @@ const FrequencyShiftPrompt: React.FC = () => {
                 </div>
               ) : (
                 <div className="text-center py-8 text-gray-500">
-                  <CircleInfo className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                  <CircleIcon className="h-12 w-12 mx-auto mb-4 text-gray-400" />
                   <p>Complete the journey to see your recommended frequency.</p>
                 </div>
               )}
