@@ -4,6 +4,9 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 const emotions = [
   { id: "calm", label: "Calm", color: "bg-blue-100 text-blue-700", icon: "😌" },
@@ -25,9 +28,28 @@ const energyLevels = [
   { id: "very-high", label: "Very High", value: 5 }
 ];
 
+// Frequency recommendations based on emotions
+const frequencyRecommendations = {
+  "calm": 432,
+  "joy": 528,
+  "peace": 396,
+  "love": 528,
+  "anxiety": 639,
+  "stress": 396,
+  "fatigue": 285,
+  "confusion": 417,
+  "creative": 741
+};
+
 const MoodCheckSection: React.FC = () => {
   const [selectedEmotions, setSelectedEmotions] = useState<string[]>([]);
   const [energyLevel, setEnergyLevel] = useState<number | null>(null);
+  const [intention, setIntention] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [recommendedFrequency, setRecommendedFrequency] = useState<number | null>(null);
+  
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const toggleEmotion = (emotionId: string) => {
     if (selectedEmotions.includes(emotionId)) {
@@ -41,14 +63,69 @@ const MoodCheckSection: React.FC = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (selectedEmotions.length === 0 || energyLevel === null) {
       toast.error("Please select at least one emotion and your energy level");
       return;
     }
     
-    toast.success("Your energy check has been recorded");
-    // Here we would save the data or recommend frequencies
+    if (!user) {
+      toast.error("Please sign in to save your energy check");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      // Calculate recommended frequency based on dominant emotion
+      const dominantEmotion = selectedEmotions[0];
+      const frequency = frequencyRecommendations[dominantEmotion as keyof typeof frequencyRecommendations] || 432;
+      setRecommendedFrequency(frequency);
+      
+      // Save session to Supabase
+      const { data, error } = await supabase
+        .from('sessions')
+        .insert([
+          { 
+            user_id: user.id,
+            initial_mood: selectedEmotions.join(','),
+            frequency: frequency,
+            intention: intention || null,
+            session_duration: 0 // Will be updated later
+          }
+        ])
+        .select();
+      
+      if (error) {
+        console.error("Error saving session:", error);
+        toast.error("Failed to save your energy check");
+        setIsSubmitting(false);
+        return;
+      }
+      
+      toast.success("Your energy check has been recorded");
+      
+      // Navigate to music recommendation
+      if (data && data.length > 0) {
+        setTimeout(() => {
+          navigate("/music-generation", { 
+            state: { 
+              selectedFrequency: { 
+                name: dominantEmotion, 
+                frequency: frequency,
+                description: `Harmonizing frequency for ${dominantEmotion}`
+              },
+              generateWithFrequency: true
+            } 
+          });
+        }, 1500);
+      }
+    } catch (error) {
+      console.error("Error in session creation:", error);
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -114,13 +191,25 @@ const MoodCheckSection: React.FC = () => {
                 </div>
               </div>
               
+              <div>
+                <h3 className="text-lg font-medium mb-4">Set your intention for healing (optional)</h3>
+                <textarea
+                  value={intention}
+                  onChange={(e) => setIntention(e.target.value)}
+                  placeholder="I intend to release stress and welcome peace..."
+                  className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={3}
+                />
+              </div>
+              
               <div className="pt-4 text-center">
                 <Button 
                   onClick={handleSubmit}
-                  className="bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600"
+                  disabled={isSubmitting}
+                  className="bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 text-white"
                   size="lg"
                 >
-                  Get Recommendations
+                  {isSubmitting ? "Processing..." : "Get Recommendations"}
                 </Button>
               </div>
             </div>
