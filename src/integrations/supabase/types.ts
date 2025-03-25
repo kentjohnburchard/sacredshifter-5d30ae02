@@ -169,6 +169,8 @@ export type Database = {
         Row: {
           chakra: string | null
           chosen_color: string | null
+          created_at: string | null
+          duration: number | null
           frequency: number | null
           id: string
           initial_mood: string | null
@@ -177,10 +179,13 @@ export type Database = {
           session_duration: number | null
           timestamp: string
           user_id: string
+          visual_theme: string | null
         }
         Insert: {
           chakra?: string | null
           chosen_color?: string | null
+          created_at?: string | null
+          duration?: number | null
           frequency?: number | null
           id?: string
           initial_mood?: string | null
@@ -189,10 +194,13 @@ export type Database = {
           session_duration?: number | null
           timestamp?: string
           user_id: string
+          visual_theme?: string | null
         }
         Update: {
           chakra?: string | null
           chosen_color?: string | null
+          created_at?: string | null
+          duration?: number | null
           frequency?: number | null
           id?: string
           initial_mood?: string | null
@@ -201,6 +209,7 @@ export type Database = {
           session_duration?: number | null
           timestamp?: string
           user_id?: string
+          visual_theme?: string | null
         }
         Relationships: []
       }
@@ -250,24 +259,33 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          journal: string | null
           notes: string | null
+          session_id: string | null
           tag: string | null
+          tags: string[] | null
           title: string
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
+          journal?: string | null
           notes?: string | null
+          session_id?: string | null
           tag?: string | null
+          tags?: string[] | null
           title: string
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
+          journal?: string | null
           notes?: string | null
+          session_id?: string | null
           tag?: string | null
+          tags?: string[] | null
           title?: string
           user_id?: string
         }

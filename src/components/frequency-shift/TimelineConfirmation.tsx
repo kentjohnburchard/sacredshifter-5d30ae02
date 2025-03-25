@@ -14,7 +14,7 @@ const TimelineConfirmation: React.FC<TimelineConfirmationProps> = ({
   const navigate = useNavigate();
 
   const handleViewTimeline = () => {
-    navigate("/journeys"); // Assuming the timeline is on the journeys page
+    navigate("/timeline"); // Updated to use the new Timeline route
   };
 
   return (
