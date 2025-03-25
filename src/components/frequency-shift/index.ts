@@ -9,3 +9,4 @@ export { default as FrequencyMatchDisplay } from './FrequencyMatchDisplay';
 export { default as ActionButtons } from './ActionButtons';
 export { default as InfoDialogContent } from './InfoDialogContent';
 export { default as SessionCloseOptions } from './SessionCloseOptions';
+export { default as VisualOverlaySelector } from './VisualOverlaySelector';

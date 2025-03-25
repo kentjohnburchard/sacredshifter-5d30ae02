@@ -5,13 +5,14 @@ import { toast } from "sonner";
 import { HealingFrequency, healingFrequencies } from "@/data/frequencies";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
-// Import new components
+// Import components
 import PromptCard from "./frequency-shift/PromptCard";
 import PromptStep from "./frequency-shift/PromptStep";
 import IntentionInput from "./frequency-shift/IntentionInput";
 import FrequencyMatchDisplay from "./frequency-shift/FrequencyMatchDisplay";
 import ActionButtons from "./frequency-shift/ActionButtons";
 import InfoDialogContent from "./frequency-shift/InfoDialogContent";
+import VisualOverlaySelector from "./frequency-shift/VisualOverlaySelector";
 import { promptSteps } from "./frequency-shift/promptSteps";
 import { PromptOption } from "./frequency-shift/types";
 
@@ -23,6 +24,8 @@ const FrequencyShiftPrompt: React.FC = () => {
   const [matchedFrequency, setMatchedFrequency] = useState<HealingFrequency | null>(null);
   const [userIntention, setUserIntention] = useState("");
   const [showIntentionInput, setShowIntentionInput] = useState(false);
+  const [selectedVisual, setSelectedVisual] = useState<string | null>(null);
+  const [showVisualSelector, setShowVisualSelector] = useState(false);
   const navigate = useNavigate();
   
   // Handle option selection
@@ -60,13 +63,19 @@ const FrequencyShiftPrompt: React.FC = () => {
           setCurrentStep(5);
           break;
         default:
-          moveToRecommendationStep();
+          moveToVisualSelectionOrRecommendation();
       }
     } else if (currentStep === 6) {
+      // Visual overlay options
+      if (option.visualType) {
+        setSelectedVisual(option.visualType);
+      }
+      moveToRecommendationStep();
+    } else if (currentStep === 7) {
       // Final options from recommendation screen
       handleRecommendationAction(option.tag);
     } else {
-      // Move to recommendation step after any secondary choice
+      // Move to visual selection after any secondary choice
       if (option.frequency) {
         // Find the corresponding full frequency object
         const matchedFreq = healingFrequencies.find(f => f.frequency === option.frequency) || 
@@ -95,12 +104,18 @@ const FrequencyShiftPrompt: React.FC = () => {
         if (matchedFreq) setMatchedFrequency(matchedFreq);
       }
       
-      moveToRecommendationStep();
+      moveToVisualSelectionOrRecommendation();
     }
   };
   
+  const moveToVisualSelectionOrRecommendation = () => {
+    setShowVisualSelector(true);
+    setCurrentStep(6); // Move to visual overlay selection step
+  };
+  
   const moveToRecommendationStep = () => {
-    setCurrentStep(6); // Move to recommendation step
+    setShowVisualSelector(false);
+    setCurrentStep(7); // Move to recommendation step
   };
   
   const handleRecommendationAction = (action: string) => {
@@ -115,6 +130,7 @@ const FrequencyShiftPrompt: React.FC = () => {
         setCurrentStep(0); // Back to start
         setSelectedTags([]);
         setSelectedPath(null);
+        setSelectedVisual(null);
         break;
       default:
         handleBeginJourney();
@@ -150,12 +166,13 @@ const FrequencyShiftPrompt: React.FC = () => {
       }
     }
     
-    // Navigate to music generation with the selected frequency and intention if any
+    // Navigate to music generation with the selected frequency, intention, and visual overlay
     navigate("/music-generation", {
       state: {
         selectedFrequency: matchedFrequency,
         generateWithFrequency: true,
-        intention: userIntention || undefined
+        intention: userIntention || undefined,
+        visualOverlay: selectedVisual || "none"
       }
     });
   };
@@ -170,11 +187,21 @@ const FrequencyShiftPrompt: React.FC = () => {
   const handleIntentionSubmit = () => {
     setShowIntentionInput(false);
     toast.success("Intention set: " + userIntention);
+    moveToVisualSelectionOrRecommendation();
+  };
+  
+  // Handle visual selection
+  const handleVisualSelect = (visualType: string) => {
+    setSelectedVisual(visualType);
+  };
+  
+  // Handle continue after visual selection
+  const handleVisualContinue = () => {
     moveToRecommendationStep();
   };
   
   // Get the current prompt step
-  const currentPrompt = promptSteps[currentStep];
+  const currentPrompt = promptSteps[currentStep > promptSteps.length - 1 ? promptSteps.length - 1 : currentStep];
   
   // Replace placeholders in the recommendation text
   const getRecommendationText = () => {
@@ -187,6 +214,12 @@ const FrequencyShiftPrompt: React.FC = () => {
 
   const handleStartOver = () => {
     setCurrentStep(0);
+    setSelectedTags([]);
+    setSelectedPath(null);
+    setSelectedVisual(null);
+    setUserIntention("");
+    setShowIntentionInput(false);
+    setShowVisualSelector(false);
   };
   
   return (
@@ -198,7 +231,13 @@ const FrequencyShiftPrompt: React.FC = () => {
             onChange={setUserIntention}
             onSubmit={handleIntentionSubmit}
           />
-        ) : currentStep === 6 && matchedFrequency ? (
+        ) : showVisualSelector ? (
+          <VisualOverlaySelector
+            selectedVisual={selectedVisual}
+            onSelectVisual={handleVisualSelect}
+            onContinue={handleVisualContinue}
+          />
+        ) : currentStep === 7 && matchedFrequency ? (
           <>
             <FrequencyMatchDisplay frequency={matchedFrequency} />
             <p className="text-gray-600 text-center whitespace-pre-line mb-6">

@@ -1,5 +1,5 @@
 
-import { PromptStep, IntentionSuggestion } from './types';
+import { PromptStep, IntentionSuggestion, VisualOverlayOption } from './types';
 
 export const promptSteps: PromptStep[] = [
   {
@@ -68,6 +68,18 @@ export const promptSteps: PromptStep[] = [
       { text: "What does my energy say?", tag: "aura_prompt" }
     ]
   },
+  // Visual Overlay Selection - New Step
+  {
+    title: "Visual Overlay – Choose Your Visual Vibe",
+    text: "Want to enhance your journey with visuals?\n\nPick a visual frequency field that matches your vibe:",
+    options: [
+      { text: "Golden ripple aura", tag: "visual_gold", visualType: "gold" },
+      { text: "Indigo fractal bloom", tag: "visual_indigo", visualType: "indigo" },
+      { text: "Rose quartz wave", tag: "visual_pink", visualType: "pink" },
+      { text: "Violet spiral mandala", tag: "visual_violet", visualType: "violet" },
+      { text: "Just sound for now", tag: "visual_none", visualType: "none" }
+    ]
+  },
   // Session Recommendation - Final Step
   {
     title: "Your Frequency Match",
@@ -77,6 +89,33 @@ export const promptSteps: PromptStep[] = [
       { text: "I want to learn more", tag: "learn_more" },
       { text: "Choose a different vibe", tag: "go_back" }
     ]
+  }
+];
+
+export const visualOverlayOptions: VisualOverlayOption[] = [
+  { 
+    text: "Golden ripple aura", 
+    tag: "visual_gold", 
+    color: "from-yellow-200 to-amber-300",
+    description: "A warm, flowing golden energy field that nurtures and protects."
+  },
+  { 
+    text: "Indigo fractal bloom", 
+    tag: "visual_indigo", 
+    color: "from-indigo-400 to-blue-600",
+    description: "Expanding geometric patterns in deep blues that stimulate insight."
+  },
+  { 
+    text: "Rose quartz wave", 
+    tag: "visual_pink", 
+    color: "from-pink-200 to-rose-300",
+    description: "Gentle pink waves of compassion and heart-centered healing."
+  },
+  { 
+    text: "Violet spiral mandala", 
+    tag: "visual_violet", 
+    color: "from-purple-400 to-violet-600",
+    description: "Swirling violet mandalas connecting you to higher consciousness."
   }
 ];
 

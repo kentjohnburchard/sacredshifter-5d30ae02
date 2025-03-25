@@ -4,6 +4,7 @@ export type PromptOption = {
   tag: string;
   frequency?: number;
   chakra?: string;
+  visualType?: string;
 };
 
 export type PromptStep = {
@@ -14,4 +15,11 @@ export type PromptStep = {
 
 export type IntentionSuggestion = {
   text: string;
+};
+
+export type VisualOverlayOption = {
+  text: string;
+  tag: string;
+  color: string;
+  description: string;
 };
