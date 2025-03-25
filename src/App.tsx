@@ -7,6 +7,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
+import Journeys from "./pages/Journeys";
+import EnergyCheck from "./pages/EnergyCheck";
+import Alignment from "./pages/Alignment";
+import Intentions from "./pages/Intentions";
 import MusicGeneration from "./pages/MusicGeneration";
 import Subscription from "./pages/Subscription";
 import Auth from "./pages/Auth";
@@ -24,6 +28,10 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/journeys" element={<Journeys />} />
+            <Route path="/energy-check" element={<EnergyCheck />} />
+            <Route path="/alignment" element={<Alignment />} />
+            <Route path="/intentions" element={<Intentions />} />
             <Route path="/auth" element={<Auth />} />
             <Route 
               path="/music-generation" 

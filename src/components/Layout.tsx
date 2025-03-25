@@ -1,0 +1,145 @@
+
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
+
+interface LayoutProps {
+  children: React.ReactNode;
+}
+
+const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const location = useLocation();
+  
+  // Check if the current route is active
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-white">
+      {/* Navigation Bar */}
+      <header className="w-full bg-white/90 backdrop-blur-sm border-b border-purple-100 sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex justify-between items-center">
+            {/* Logo */}
+            <Link to="/" className="flex items-center space-x-2">
+              <span className="text-2xl font-medium bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">
+                Sacred Shifter
+              </span>
+            </Link>
+            
+            {/* Navigation Links */}
+            <nav className="hidden md:flex items-center space-x-6">
+              <Link 
+                to="/journeys" 
+                className={`text-sm font-medium transition-colors ${
+                  isActive("/journeys") 
+                    ? "text-purple-700" 
+                    : "text-gray-600 hover:text-purple-500"
+                }`}
+              >
+                Journeys
+              </Link>
+              <Link 
+                to="/energy-check" 
+                className={`text-sm font-medium transition-colors ${
+                  isActive("/energy-check") 
+                    ? "text-purple-700" 
+                    : "text-gray-600 hover:text-purple-500"
+                }`}
+              >
+                Energy Check
+              </Link>
+              <Link 
+                to="/alignment" 
+                className={`text-sm font-medium transition-colors ${
+                  isActive("/alignment") 
+                    ? "text-purple-700" 
+                    : "text-gray-600 hover:text-purple-500"
+                }`}
+              >
+                Alignment
+              </Link>
+              <Link 
+                to="/intentions" 
+                className={`text-sm font-medium transition-colors ${
+                  isActive("/intentions") 
+                    ? "text-purple-700" 
+                    : "text-gray-600 hover:text-purple-500"
+                }`}
+              >
+                Intentions
+              </Link>
+              <Link 
+                to="/music-generation" 
+                className={`text-sm font-medium transition-colors ${
+                  isActive("/music-generation") 
+                    ? "text-purple-700" 
+                    : "text-gray-600 hover:text-purple-500"
+                }`}
+              >
+                Sound Creation
+              </Link>
+            </nav>
+            
+            {/* Mobile Menu Button (simplified for now) */}
+            <div className="md:hidden">
+              <button className="text-gray-600 hover:text-purple-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      {/* Main Content */}
+      <main className="flex-1">
+        {children}
+      </main>
+      
+      {/* Footer */}
+      <footer className="w-full py-6 px-4 bg-gradient-to-r from-purple-50 to-blue-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <h3 className="text-lg font-medium mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">
+                Sacred Shifter
+              </h3>
+              <p className="text-sm text-gray-600">
+                Elevate your consciousness through sacred sound frequencies and intentions.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium mb-2 text-gray-700">Quick Links</h3>
+              <ul className="space-y-2">
+                <li><Link to="/journeys" className="text-xs text-gray-600 hover:text-purple-500">Sound Journeys</Link></li>
+                <li><Link to="/energy-check" className="text-xs text-gray-600 hover:text-purple-500">Energy Check</Link></li>
+                <li><Link to="/alignment" className="text-xs text-gray-600 hover:text-purple-500">Chakra Alignment</Link></li>
+                <li><Link to="/intentions" className="text-xs text-gray-600 hover:text-purple-500">Set Intentions</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium mb-2 text-gray-700">Connect</h3>
+              <ul className="space-y-2">
+                <li><a href="#" className="text-xs text-gray-600 hover:text-purple-500">Instagram</a></li>
+                <li><a href="#" className="text-xs text-gray-600 hover:text-purple-500">YouTube</a></li>
+                <li><a href="#" className="text-xs text-gray-600 hover:text-purple-500">Contact Us</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-8 pt-4 border-t border-gray-200 text-center">
+            <p className="text-xs text-gray-500">
+              © {new Date().getFullYear()} Sacred Shifter. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default Layout;

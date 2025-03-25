@@ -1,14 +1,59 @@
-
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import ComingSoonBanner from "@/components/ComingSoonBanner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Music2 } from "lucide-react";
+import Layout from "@/components/Layout";
+import LandingPrompt from "@/components/LandingPrompt";
+import HeroSection from "@/components/HeroSection";
+import SoundJourneysSection from "@/components/SoundJourneysSection";
+import MoodCheckSection from "@/components/MoodCheckSection";
+import ChakraAlignmentSection from "@/components/ChakraAlignmentSection";
+import IntentionSettingSection from "@/components/IntentionSettingSection";
+import AnimatedBackground from "@/components/AnimatedBackground";
+import { motion } from "framer-motion";
 
 const Index = () => {
   const navigate = useNavigate();
+  const [showLandingPrompt, setShowLandingPrompt] = useState(true);
+  
+  // Check if user has seen the landing prompt before
+  useEffect(() => {
+    const hasSeenPrompt = localStorage.getItem('hasSeenPrompt');
+    if (hasSeenPrompt) {
+      setShowLandingPrompt(false);
+    }
+  }, []);
+  
+  const handleFinishPrompt = () => {
+    setShowLandingPrompt(false);
+    localStorage.setItem('hasSeenPrompt', 'true');
+  };
+
+  // If showing landing prompt, only show that
+  if (showLandingPrompt) {
+    return (
+      <div className="min-h-screen bg-white">
+        <AnimatedBackground />
+        <LandingPrompt />
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 8, duration: 1 }}
+          className="absolute bottom-4 right-4"
+        >
+          <button 
+            onClick={handleFinishPrompt}
+            className="text-sm text-gray-400 hover:text-gray-600"
+          >
+            Skip Intro
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
