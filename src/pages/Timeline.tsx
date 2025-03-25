@@ -10,11 +10,11 @@ const Timeline = () => {
         <div className="text-center my-8 md:my-12">
           <h1 className="text-4xl font-light mb-4">
             <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-teal-500">
-              Frequency Timeline
+              My Frequency Timeline
             </span>
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Review your frequency journey and revisit moments that resonated with you.
+            Revisit your frequency journey and reconnect with moments that resonated with your energy.
           </p>
         </div>
         
