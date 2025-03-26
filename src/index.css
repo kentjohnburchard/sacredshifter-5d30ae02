@@ -7,7 +7,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 251 85% 81%; // Custom hue for #9b87f5
     --foreground: 240 10% 10%;
 
     --card: 0 0% 100%;
@@ -16,7 +16,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 10%;
 
-    --primary: 240 5% 10%;
+    --primary: 251 85% 81%; // #9b87f5
     --primary-foreground: 0 0% 98%;
 
     --secondary: 240 5% 96%;
@@ -25,15 +25,15 @@
     --muted: 240 5% 96%;
     --muted-foreground: 240 5% 40%;
 
-    --accent: 294 100% 59%; /* Purple from the logo */
+    --accent: 251 85% 81%; // Using the primary purple
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 6% 90%;
-    --input: 240 6% 90%;
-    --ring: 240 5% 64%;
+    --border: 251 85% 81%; // Matching primary purple
+    --input: 251 85% 81%; // Matching primary purple
+    --ring: 251 85% 81%; // Matching primary purple
 
     --radius: 0.5rem;
   }

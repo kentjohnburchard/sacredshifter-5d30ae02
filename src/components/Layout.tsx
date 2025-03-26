@@ -28,7 +28,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </div>
 
       {/* Navigation Bar */}
-      <header className="w-full bg-white/90 backdrop-blur-sm border-b border-purple-100 sticky top-0 z-50">
+      <header className="w-full bg-[#9b87f5]/5 backdrop-blur-sm border-b border-[#9b87f5]/10 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex justify-between items-center">
             {/* Logo */}
@@ -46,8 +46,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 to="/journeys" 
                 className={`text-sm font-medium transition-colors ${
                   isActive("/journeys") 
-                    ? "text-purple-700" 
-                    : "text-gray-600 hover:text-purple-500"
+                    ? "text-[#9b87f5]" 
+                    : "text-[#9b87f5]/70 hover:text-[#9b87f5]"
                 }`}
               >
                 Journeys
@@ -56,8 +56,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 to="/energy-check" 
                 className={`text-sm font-medium transition-colors ${
                   isActive("/energy-check") 
-                    ? "text-purple-700" 
-                    : "text-gray-600 hover:text-purple-500"
+                    ? "text-[#9b87f5]" 
+                    : "text-[#9b87f5]/70 hover:text-[#9b87f5]"
                 }`}
               >
                 Energy Check
@@ -66,8 +66,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 to="/alignment" 
                 className={`text-sm font-medium transition-colors ${
                   isActive("/alignment") 
-                    ? "text-purple-700" 
-                    : "text-gray-600 hover:text-purple-500"
+                    ? "text-[#9b87f5]" 
+                    : "text-[#9b87f5]/70 hover:text-[#9b87f5]"
                 }`}
               >
                 Alignment
@@ -76,8 +76,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 to="/intentions" 
                 className={`text-sm font-medium transition-colors ${
                   isActive("/intentions") 
-                    ? "text-purple-700" 
-                    : "text-gray-600 hover:text-purple-500"
+                    ? "text-[#9b87f5]" 
+                    : "text-[#9b87f5]/70 hover:text-[#9b87f5]"
                 }`}
               >
                 Intentions
@@ -86,8 +86,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 to="/music-generation" 
                 className={`text-sm font-medium transition-colors ${
                   isActive("/music-generation") 
-                    ? "text-purple-700" 
-                    : "text-gray-600 hover:text-purple-500"
+                    ? "text-[#9b87f5]" 
+                    : "text-[#9b87f5]/70 hover:text-[#9b87f5]"
                 }`}
               >
                 Sound Creation
@@ -98,7 +98,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="md:hidden">
               <Sheet>
                 <SheetTrigger asChild>
-                  <button className="text-gray-600 hover:text-purple-500 focus:outline-none">
+                  <button className="text-[#9b87f5]/70 hover:text-[#9b87f5] focus:outline-none">
                     <Menu size={24} />
                   </button>
                 </SheetTrigger>
@@ -108,8 +108,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       to="/journeys" 
                       className={`text-lg font-medium transition-colors px-4 py-2 rounded-md ${
                         isActive("/journeys") 
-                          ? "bg-purple-100 text-purple-700" 
-                          : "text-gray-600 hover:bg-purple-50 hover:text-purple-500"
+                          ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
+                          : "text-[#9b87f5]/70 hover:bg-[#9b87f5]/5 hover:text-[#9b87f5]"
                       }`}
                     >
                       Journeys
@@ -118,8 +118,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       to="/energy-check" 
                       className={`text-lg font-medium transition-colors px-4 py-2 rounded-md ${
                         isActive("/energy-check") 
-                          ? "bg-purple-100 text-purple-700" 
-                          : "text-gray-600 hover:bg-purple-50 hover:text-purple-500"
+                          ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
+                          : "text-[#9b87f5]/70 hover:bg-[#9b87f5]/5 hover:text-[#9b87f5]"
                       }`}
                     >
                       Energy Check
@@ -128,8 +128,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       to="/alignment" 
                       className={`text-lg font-medium transition-colors px-4 py-2 rounded-md ${
                         isActive("/alignment") 
-                          ? "bg-purple-100 text-purple-700" 
-                          : "text-gray-600 hover:bg-purple-50 hover:text-purple-500"
+                          ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
+                          : "text-[#9b87f5]/70 hover:bg-[#9b87f5]/5 hover:text-[#9b87f5]"
                       }`}
                     >
                       Alignment
@@ -138,8 +138,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       to="/intentions" 
                       className={`text-lg font-medium transition-colors px-4 py-2 rounded-md ${
                         isActive("/intentions") 
-                          ? "bg-purple-100 text-purple-700" 
-                          : "text-gray-600 hover:bg-purple-50 hover:text-purple-500"
+                          ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
+                          : "text-[#9b87f5]/70 hover:bg-[#9b87f5]/5 hover:text-[#9b87f5]"
                       }`}
                     >
                       Intentions
@@ -148,8 +148,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       to="/music-generation" 
                       className={`text-lg font-medium transition-colors px-4 py-2 rounded-md ${
                         isActive("/music-generation") 
-                          ? "bg-purple-100 text-purple-700" 
-                          : "text-gray-600 hover:bg-purple-50 hover:text-purple-500"
+                          ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
+                          : "text-[#9b87f5]/70 hover:bg-[#9b87f5]/5 hover:text-[#9b87f5]"
                       }`}
                     >
                       Sound Creation
@@ -168,46 +168,46 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </main>
       
       {/* Footer */}
-      <footer className="w-full py-6 px-4 bg-gradient-to-r from-purple-50 to-blue-50">
+      <footer className="w-full py-6 px-4 bg-gradient-to-r from-[#9b87f5]/10 to-[#9b87f5]/5">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h3 className="text-lg font-medium mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-500">
+              <h3 className="text-lg font-medium mb-2 bg-clip-text text-transparent bg-gradient-to-r from-[#9b87f5] to-[#7E69AB]">
                 Sacred Shifter
               </h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-[#9b87f5]/70">
                 Elevate your consciousness through sacred sound frequencies and intentions.
               </p>
             </div>
             <div>
-              <h3 className="text-sm font-medium mb-2 text-gray-700">Quick Links</h3>
+              <h3 className="text-sm font-medium mb-2 text-[#9b87f5]">Quick Links</h3>
               <ul className="space-y-2">
-                <li><Link to="/journeys" className="text-xs text-gray-600 hover:text-purple-500">Sound Journeys</Link></li>
-                <li><Link to="/energy-check" className="text-xs text-gray-600 hover:text-purple-500">Energy Check</Link></li>
-                <li><Link to="/alignment" className="text-xs text-gray-600 hover:text-purple-500">Chakra Alignment</Link></li>
-                <li><Link to="/intentions" className="text-xs text-gray-600 hover:text-purple-500">Set Intentions</Link></li>
+                <li><Link to="/journeys" className="text-xs text-[#9b87f5]/70 hover:text-[#9b87f5]">Sound Journeys</Link></li>
+                <li><Link to="/energy-check" className="text-xs text-[#9b87f5]/70 hover:text-[#9b87f5]">Energy Check</Link></li>
+                <li><Link to="/alignment" className="text-xs text-[#9b87f5]/70 hover:text-[#9b87f5]">Chakra Alignment</Link></li>
+                <li><Link to="/intentions" className="text-xs text-[#9b87f5]/70 hover:text-[#9b87f5]">Set Intentions</Link></li>
               </ul>
             </div>
             <div>
-              <h3 className="text-sm font-medium mb-2 text-gray-700">Connect</h3>
+              <h3 className="text-sm font-medium mb-2 text-[#9b87f5]">Connect</h3>
               <ul className="space-y-2">
-                <li><a href="#" className="text-xs text-gray-600 hover:text-purple-500">Instagram</a></li>
+                <li><a href="#" className="text-xs text-[#9b87f5]/70 hover:text-[#9b87f5]">Instagram</a></li>
                 <li>
                   <a 
                     href="https://www.youtube.com/@sacredshifter" 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="text-xs text-gray-600 hover:text-purple-500"
+                    className="text-xs text-[#9b87f5]/70 hover:text-[#9b87f5]"
                   >
                     YouTube
                   </a>
                 </li>
-                <li><a href="#" className="text-xs text-gray-600 hover:text-purple-500">Contact Us</a></li>
+                <li><a href="#" className="text-xs text-[#9b87f5]/70 hover:text-[#9b87f5]">Contact Us</a></li>
               </ul>
             </div>
           </div>
-          <div className="mt-8 pt-4 border-t border-gray-200 text-center">
-            <p className="text-xs text-gray-500">
+          <div className="mt-8 pt-4 border-t border-[#9b87f5]/10 text-center">
+            <p className="text-xs text-[#9b87f5]/50">
               © {new Date().getFullYear()} Sacred Shifter. All rights reserved.
             </p>
           </div>
