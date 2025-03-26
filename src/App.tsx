@@ -2,6 +2,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
+import ScrollToTop from './components/ScrollToTop';
 import Index from './pages/Index';
 import Auth from './pages/Auth';
 import Journeys from './pages/Journeys';
@@ -19,6 +20,7 @@ import JourneyPlayer from "./pages/JourneyPlayer";
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Toaster />
       <Routes>
         <Route path="/" element={<Index />} />
