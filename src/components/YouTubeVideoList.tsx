@@ -114,7 +114,7 @@ const YouTubeVideoList: React.FC = () => {
             <div className="relative rounded-lg overflow-hidden border border-purple-500/20 shadow-lg">
               <AspectRatio ratio={16/9}>
                 <iframe 
-                  src={`https://www.youtube.com/embed/${videos.find(v => v.id === expandedVideo)?.embedId}?autoplay=1`}
+                  src={`https://www.youtube.com/embed/${videos.find(v => v.id === expandedVideo)?.embedId}`}
                   title={videos.find(v => v.id === expandedVideo)?.title}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
