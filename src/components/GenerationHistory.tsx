@@ -36,7 +36,7 @@ const EmptyState: React.FC<{ message: string }> = ({ message }) => (
     </div>
     <div>
       <p className="text-gray-600">{message}</p>
-      <p className="text-sm text-gray-500 mt-2">Your sound creations will appear here</p>
+      <p className="text-sm text-gray-500 mt-2">Your Sacred Shifter creations will appear here</p>
     </div>
   </div>
 );

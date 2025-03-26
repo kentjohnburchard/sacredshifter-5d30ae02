@@ -1,6 +1,6 @@
 
 import React from "react";
-import { LogOut, CreditCard, Library } from "lucide-react";
+import { LogOut, CreditCard, Library, Music } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
@@ -56,19 +56,19 @@ const Header: React.FC = () => {
                 Music Generation
               </Link>
             </NavigationMenuItem>
+            <NavigationMenuItem>
+              <Link to="/music-library" className={cn(
+                "px-4 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1",
+                location.pathname === "/music-library" 
+                  ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
+                  : "text-[#9b87f5]/70 hover:text-[#9b87f5] hover:bg-[#9b87f5]/5"
+              )}>
+                <Music className="h-4 w-4" />
+                <span>Library</span>
+              </Link>
+            </NavigationMenuItem>
             {user && (
               <>
-                <NavigationMenuItem>
-                  <Link to="/music-library" className={cn(
-                    "px-4 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1",
-                    location.pathname === "/music-library" 
-                      ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
-                      : "text-[#9b87f5]/70 hover:text-[#9b87f5] hover:bg-[#9b87f5]/5"
-                  )}>
-                    <Library className="h-4 w-4" />
-                    <span>Music Library</span>
-                  </Link>
-                </NavigationMenuItem>
                 <NavigationMenuItem>
                   <Link to="/subscription" className={cn(
                     "px-4 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1",

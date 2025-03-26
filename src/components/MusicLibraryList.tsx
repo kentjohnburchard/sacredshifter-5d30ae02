@@ -61,7 +61,7 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
   const handleDownload = (url: string, title: string) => {
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.mp3`;
+    a.download = `sacred_sound_${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.mp3`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -89,7 +89,7 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
   if (isLoading) {
     return (
       <div className="text-center py-10 text-white">
-        <p className="animate-pulse">Loading meditation music...</p>
+        <p className="animate-pulse">Loading sacred sound tracks...</p>
       </div>
     );
   }
@@ -98,9 +98,9 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
     return (
       <div className="text-center py-10 text-white">
         <Music className="h-16 w-16 mx-auto text-purple-400 opacity-50 mb-4" />
-        <p className="text-lg">No meditation music has been uploaded yet.</p>
+        <p className="text-lg">No sacred sound tracks have been uploaded yet.</p>
         <p className="text-sm text-white/70 mt-2">
-          Use the form above to upload your first meditation track.
+          Use the upload tab to add your first sacred sound track.
         </p>
       </div>
     );
@@ -165,9 +165,9 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
       <AlertDialog open={deletingId !== null} onOpenChange={(open) => !open && setDeletingId(null)}>
         <AlertDialogContent className="bg-gray-950 border-purple-500/30 text-white">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Meditation Music</AlertDialogTitle>
+            <AlertDialogTitle>Delete Sacred Sound Track</AlertDialogTitle>
             <AlertDialogDescription className="text-white/70">
-              Are you sure you want to delete this meditation music? This action cannot be undone.
+              Are you sure you want to delete this sacred sound track? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

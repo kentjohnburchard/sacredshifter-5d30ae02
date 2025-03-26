@@ -49,7 +49,7 @@ const FrequencyMusicConfirmation: React.FC<FrequencyMusicConfirmationProps> = ({
           onClick={handleCreateMusic}
           className="w-full bg-gradient-to-r from-brand-lavender to-brand-purple hover:from-brand-purple hover:to-brand-deep flex items-center justify-center gap-2"
         >
-          Create Healing Track
+          Create Sacred Sound
           <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
