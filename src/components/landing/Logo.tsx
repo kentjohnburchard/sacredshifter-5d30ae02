@@ -11,9 +11,9 @@ const Logo: React.FC = () => {
       className="mb-10 w-full flex justify-center"
     >
       <img 
-        src="/lovable-uploads/09ffadc3-5726-41e7-a925-e6e16e0aa144.png" 
+        src="/lovable-uploads/b9b4b625-472c-484e-a49a-41aaf4f604a5.png" 
         alt="Sacred Shifter Logo" 
-        className="w-full max-w-[800px] mx-auto" 
+        className="w-full max-w-[1200px] mx-auto" 
       />
     </motion.div>
   );
