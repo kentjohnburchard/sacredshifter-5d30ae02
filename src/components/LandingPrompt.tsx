@@ -28,6 +28,20 @@ const LandingPrompt: React.FC = () => {
       animate={{ opacity: 1 }}
       className="min-h-[70vh] flex flex-col items-center justify-center text-center px-4 py-20 bg-gradient-to-b from-purple-50 to-white"
     >
+      {/* Enlarged Logo */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.5 }}
+        className="mb-10"
+      >
+        <img 
+          src="/lovable-uploads/44205960-f3a7-4377-96bd-193f157d2d68.png" 
+          alt="Sacred Shifter Logo" 
+          className="w-full max-w-[600px] mx-auto"
+        />
+      </motion.div>
+      
       <div className="space-y-12 mb-10">
         {lines.map((line, index) => (
           <motion.p

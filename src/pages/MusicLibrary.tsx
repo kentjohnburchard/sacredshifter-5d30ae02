@@ -4,10 +4,11 @@ import Header from '@/components/Header';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Library, Upload } from 'lucide-react';
+import { Library, Upload, Youtube } from 'lucide-react';
 import { useMusicLibrary } from '@/hooks/useMusicLibrary';
 import MusicUploadForm from '@/components/MusicUploadForm';
 import MusicLibraryList from '@/components/MusicLibraryList';
+import YouTubeVideoList from '@/components/YouTubeVideoList';
 
 const MusicLibrary: React.FC = () => {
   const {
@@ -36,10 +37,14 @@ const MusicLibrary: React.FC = () => {
         </div>
         
         <Tabs defaultValue="library" className="w-full">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 bg-gray-100 border border-gray-200">
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 bg-gray-100 border border-gray-200">
             <TabsTrigger value="library" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
               <Library className="h-4 w-4 mr-2" />
               Browse Library
+            </TabsTrigger>
+            <TabsTrigger value="youtube" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+              <Youtube className="h-4 w-4 mr-2" />
+              YouTube Videos
             </TabsTrigger>
             <TabsTrigger value="upload" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
               <Upload className="h-4 w-4 mr-2" />
@@ -60,6 +65,10 @@ const MusicLibrary: React.FC = () => {
                 </ScrollArea>
               </CardContent>
             </Card>
+          </TabsContent>
+          
+          <TabsContent value="youtube" className="mt-6">
+            <YouTubeVideoList />
           </TabsContent>
           
           <TabsContent value="upload" className="mt-6">
