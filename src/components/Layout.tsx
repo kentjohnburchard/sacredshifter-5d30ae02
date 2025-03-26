@@ -1,7 +1,9 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Menu, X } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -34,11 +36,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <img 
                 src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
                 alt="Sacred Shifter Logo" 
-                className="h-16"  /* Increased from h-10 to h-16 */
+                className="h-32 w-auto" /* Doubled from h-16 to h-32 */
               />
             </Link>
             
-            {/* Navigation Links */}
+            {/* Navigation Links - Desktop */}
             <nav className="hidden md:flex items-center space-x-6">
               <Link 
                 to="/journeys" 
@@ -92,15 +94,69 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </Link>
             </nav>
             
-            {/* Mobile Menu Button (simplified for now) */}
+            {/* Mobile Menu Button */}
             <div className="md:hidden">
-              <button className="text-gray-600 hover:text-purple-500">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="3" y1="12" x2="21" y2="12"></line>
-                  <line x1="3" y1="6" x2="21" y2="6"></line>
-                  <line x1="3" y1="18" x2="21" y2="18"></line>
-                </svg>
-              </button>
+              <Sheet>
+                <SheetTrigger asChild>
+                  <button className="text-gray-600 hover:text-purple-500 focus:outline-none">
+                    <Menu size={24} />
+                  </button>
+                </SheetTrigger>
+                <SheetContent className="w-[300px] sm:w-[400px]">
+                  <nav className="flex flex-col gap-4 mt-8">
+                    <Link 
+                      to="/journeys" 
+                      className={`text-lg font-medium transition-colors px-4 py-2 rounded-md ${
+                        isActive("/journeys") 
+                          ? "bg-purple-100 text-purple-700" 
+                          : "text-gray-600 hover:bg-purple-50 hover:text-purple-500"
+                      }`}
+                    >
+                      Journeys
+                    </Link>
+                    <Link 
+                      to="/energy-check" 
+                      className={`text-lg font-medium transition-colors px-4 py-2 rounded-md ${
+                        isActive("/energy-check") 
+                          ? "bg-purple-100 text-purple-700" 
+                          : "text-gray-600 hover:bg-purple-50 hover:text-purple-500"
+                      }`}
+                    >
+                      Energy Check
+                    </Link>
+                    <Link 
+                      to="/alignment" 
+                      className={`text-lg font-medium transition-colors px-4 py-2 rounded-md ${
+                        isActive("/alignment") 
+                          ? "bg-purple-100 text-purple-700" 
+                          : "text-gray-600 hover:bg-purple-50 hover:text-purple-500"
+                      }`}
+                    >
+                      Alignment
+                    </Link>
+                    <Link 
+                      to="/intentions" 
+                      className={`text-lg font-medium transition-colors px-4 py-2 rounded-md ${
+                        isActive("/intentions") 
+                          ? "bg-purple-100 text-purple-700" 
+                          : "text-gray-600 hover:bg-purple-50 hover:text-purple-500"
+                      }`}
+                    >
+                      Intentions
+                    </Link>
+                    <Link 
+                      to="/music-generation" 
+                      className={`text-lg font-medium transition-colors px-4 py-2 rounded-md ${
+                        isActive("/music-generation") 
+                          ? "bg-purple-100 text-purple-700" 
+                          : "text-gray-600 hover:bg-purple-50 hover:text-purple-500"
+                      }`}
+                    >
+                      Sound Creation
+                    </Link>
+                  </nav>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </div>
