@@ -64,24 +64,24 @@ const MusicGeneration = () => {
   const journeyTemplate = getTemplateByFrequency(selectedFrequency.frequency);
   
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-[#faf8ff]">
       <Header />
       
       <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-8 sm:px-6 space-y-8">
         <div className="text-center space-y-3 mb-8 animate-fade-in">
           <h2 className="text-4xl sm:text-5xl font-bold tracking-tight">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-500 via-purple-500 to-blue-500">
-              Music Generation
+            <span className="sacred-text-gradient">
+              Sacred Sound Creation
             </span>
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-            Create beautiful healing music with AI. Enter a description and get a unique track in minutes.
+            Create beautiful healing music with AI. Infuse your frequencies and intentions into unique sonic experiences.
           </p>
         </div>
         
         <UserCreditsDisplay credits={userCredits} />
         
-        <Card className="border border-gray-200 shadow-md overflow-hidden mb-10">
+        <Card className="sacred-glass overflow-hidden mb-10 border-brand-lavender/30">
           <CardContent className="p-6">
             <MusicForm 
               onSubmit={startGeneration} 
@@ -92,13 +92,13 @@ const MusicGeneration = () => {
         </Card>
         
         {/* Sacred Frequencies Section */}
-        <Card className="border border-gray-200 shadow-md overflow-hidden mb-10 rounded-xl">
+        <Card className="sacred-glass mb-10 border-brand-lavender/30">
           <CardContent className="p-6">
-            <h3 className="text-xl font-bold mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-purple-500">
+            <h3 className="text-xl font-bold mb-4 text-center sacred-text-gradient">
               Sacred Frequencies
             </h3>
-            <p className="mb-4 text-gray-600">
-              Enhance your music generation by incorporating sacred frequencies. Select a frequency to learn more about its healing properties and meditation practices.
+            <p className="mb-6 text-gray-600 max-w-3xl mx-auto text-center">
+              Enhance your music with sacred frequencies that resonate with your energy. Select a frequency to learn about its healing properties and meditation practices.
             </p>
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
@@ -113,17 +113,17 @@ const MusicGeneration = () => {
               <div className="lg:col-span-2 space-y-6">
                 <FrequencyPlayer frequency={selectedFrequency} />
                 
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-gray-50 border border-gray-200 rounded-lg shadow-sm">
-                  <TabsList className="grid grid-cols-3 bg-transparent border-b border-gray-200 w-full rounded-t-lg">
-                    <TabsTrigger value="info" className="data-[state=active]:bg-white data-[state=active]:text-gray-900 text-gray-600">
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-white/80 rounded-lg shadow-sm border border-brand-lavender/20">
+                  <TabsList className="grid grid-cols-3 bg-brand-lavender/10 border-b border-brand-lavender/20 w-full rounded-t-lg">
+                    <TabsTrigger value="info" className="data-[state=active]:bg-white data-[state=active]:text-brand-chakra text-gray-600">
                       <Music2 className="h-4 w-4 mr-2" />
                       <span>About</span>
                     </TabsTrigger>
-                    <TabsTrigger value="history" className="data-[state=active]:bg-white data-[state=active]:text-gray-900 text-gray-600">
+                    <TabsTrigger value="history" className="data-[state=active]:bg-white data-[state=active]:text-brand-chakra text-gray-600">
                       <History className="h-4 w-4 mr-2" />
                       <span>History</span>
                     </TabsTrigger>
-                    <TabsTrigger value="meditation" className="data-[state=active]:bg-white data-[state=active]:text-gray-900 text-gray-600">
+                    <TabsTrigger value="meditation" className="data-[state=active]:bg-white data-[state=active]:text-brand-chakra text-gray-600">
                       <Sparkles className="h-4 w-4 mr-2" />
                       <span>Meditation</span>
                     </TabsTrigger>
@@ -135,7 +135,7 @@ const MusicGeneration = () => {
                     </TabsContent>
                     
                     <TabsContent value="history" className="space-y-4 mt-0">
-                      <h3 className="text-xl font-medium text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
+                      <h3 className="text-xl font-medium text-center sacred-text-gradient">
                         Historical Origins
                       </h3>
                       <p className="text-gray-700">
@@ -144,14 +144,14 @@ const MusicGeneration = () => {
                     </TabsContent>
                     
                     <TabsContent value="meditation" className="space-y-4 mt-0">
-                      <h3 className="text-xl font-medium text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
+                      <h3 className="text-xl font-medium text-center sacred-text-gradient">
                         Meditation Practices
                       </h3>
                       {selectedFrequency.meditations && selectedFrequency.meditations.length > 0 ? (
                         <ul className="space-y-2">
                           {selectedFrequency.meditations.map((meditation, index) => (
                             <li key={index} className="flex items-start">
-                              <Sparkles className="h-5 w-5 mr-2 text-purple-500 shrink-0 mt-0.5" />
+                              <Sparkles className="h-5 w-5 mr-2 text-brand-purple shrink-0 mt-0.5" />
                               <span className="text-gray-700">{meditation}</span>
                             </li>
                           ))}
@@ -167,8 +167,8 @@ const MusicGeneration = () => {
                 
                 {/* Journey Template Display */}
                 {journeyTemplate && (
-                  <div className="mt-4">
-                    <h3 className="text-lg font-medium text-center mb-3">Recommended Journey Template</h3>
+                  <div className="mt-4 animate-fade-in">
+                    <h3 className="text-lg font-medium text-center mb-3 text-brand-deep">Recommended Journey Template</h3>
                     <JourneyTemplateCard 
                       template={journeyTemplate} 
                       showDetails={false}
@@ -180,18 +180,18 @@ const MusicGeneration = () => {
           </CardContent>
         </Card>
         
-        <Card className="border border-gray-200 shadow-md overflow-hidden rounded-xl">
+        <Card className="sacred-glass border-brand-lavender/30">
           <CardContent className="p-6">
-            <h3 className="text-xl font-bold mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-purple-500">
-              Your Generated Tracks
+            <h3 className="text-xl font-bold mb-6 text-center sacred-text-gradient">
+              Your Sacred Sound Collection
             </h3>
             <GenerationHistory tracks={generatedTracks} onDelete={deleteTrack} />
           </CardContent>
         </Card>
       </main>
       
-      <footer className="w-full py-6 text-center text-sm text-gray-500">
-        <p>Sacred Shifter - Generate music and heal with sound.</p>
+      <footer className="w-full py-6 text-center text-sm text-brand-amythyst">
+        <p>Sacred Shifter • Generate music and heal with sound • {new Date().getFullYear()}</p>
       </footer>
     </div>
   );

@@ -13,40 +13,31 @@ interface GenerationHistoryProps {
 
 const GenerationHistory: React.FC<GenerationHistoryProps> = ({ tracks, onDelete }) => {
   if (tracks.length === 0) {
-    return null;
+    return (
+      <EmptyState message="No tracks generated yet. Create your first sacred sound above." />
+    );
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto border border-border/40 shadow-sm overflow-hidden mt-8 animate-slide-up">
-      <CardHeader className="px-6 py-4">
-        <CardTitle className="text-xl flex items-center gap-2">
-          <Music className="h-5 w-5 text-accent" />
-          Your Music
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-0">
-        <ScrollArea className="h-[400px] px-6 py-4">
-          <div className="space-y-4">
-            {tracks.length > 0 ? (
-              tracks.map(track => (
-                <Player key={track.id} track={track} onDelete={onDelete} />
-              ))
-            ) : (
-              <EmptyState message="No tracks generated yet" />
-            )}
-          </div>
-        </ScrollArea>
-      </CardContent>
-    </Card>
+    <div className="w-full max-w-3xl mx-auto animate-slide-up">
+      <div className="space-y-6">
+        {tracks.map(track => (
+          <Player key={track.id} track={track} onDelete={onDelete} />
+        ))}
+      </div>
+    </div>
   );
 };
 
 const EmptyState: React.FC<{ message: string }> = ({ message }) => (
-  <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
-    <div className="rounded-full bg-secondary p-3">
-      <Music4 className="h-6 w-6 text-muted-foreground" />
+  <div className="flex flex-col items-center justify-center py-12 text-center space-y-5">
+    <div className="rounded-full bg-brand-lavender/10 p-5">
+      <Music4 className="h-12 w-12 text-brand-purple/60" />
     </div>
-    <p className="text-muted-foreground">{message}</p>
+    <div>
+      <p className="text-gray-600">{message}</p>
+      <p className="text-sm text-gray-500 mt-2">Your sound creations will appear here</p>
+    </div>
   </div>
 );
 

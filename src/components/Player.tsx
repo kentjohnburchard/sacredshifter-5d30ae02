@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -112,15 +113,15 @@ const Player: React.FC<PlayerProps> = ({ track, onDelete }) => {
   };
 
   return (
-    <Card className="w-full border border-border/40 shadow-sm animate-fade-in overflow-hidden">
+    <Card className="w-full border border-brand-lavender/20 shadow-sm animate-fade-in overflow-hidden bg-white/80 backdrop-blur-sm hover:shadow-md transition-all">
       <CardContent className="p-5">
         <div className="space-y-4">
           <div className="flex justify-between items-start gap-4">
             <div className="space-y-1 flex-1 min-w-0">
-              <h3 className="font-medium text-sm truncate text-balance">
+              <h3 className="font-medium text-sm truncate text-balance text-brand-deep">
                 {track.description}
               </h3>
-              <p className="text-xs text-muted-foreground flex items-center gap-1">
+              <p className="text-xs text-brand-balancing2/60 flex items-center gap-1">
                 <Clock className="w-3 h-3" />
                 <span>
                   {formatTime(currentTime)} / {duration ? formatTime(duration) : "--:--"}
@@ -131,7 +132,7 @@ const Player: React.FC<PlayerProps> = ({ track, onDelete }) => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                className="h-8 w-8 text-brand-balancing2/60 hover:text-destructive hover:bg-destructive/10"
                 onClick={() => onDelete(track.id)}
               >
                 <Trash2 className="h-4 w-4" />
@@ -139,7 +140,7 @@ const Player: React.FC<PlayerProps> = ({ track, onDelete }) => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                className="h-8 w-8 text-brand-balancing2/60 hover:text-brand-chakra hover:bg-brand-lavender/10"
                 onClick={handleDownload}
               >
                 <Download className="h-4 w-4" />
@@ -161,7 +162,7 @@ const Player: React.FC<PlayerProps> = ({ track, onDelete }) => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 rounded-full"
+                className="h-9 w-9 rounded-full text-brand-balancing2/60 hover:text-brand-chakra hover:bg-brand-lavender/10"
                 onClick={resetPlayer}
               >
                 <SkipBack className="h-4 w-4" />
@@ -170,7 +171,7 @@ const Player: React.FC<PlayerProps> = ({ track, onDelete }) => {
               <Button
                 variant="default"
                 size="icon"
-                className="h-10 w-10 rounded-full"
+                className={`h-10 w-10 rounded-full ${isPlaying ? 'bg-brand-deep' : 'bg-brand-purple'} hover:bg-brand-chakra transition-colors`}
                 onClick={togglePlay}
               >
                 {isPlaying ? (
@@ -185,7 +186,7 @@ const Player: React.FC<PlayerProps> = ({ track, onDelete }) => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-muted-foreground"
+                className="h-8 w-8 text-brand-balancing2/60 hover:text-brand-chakra hover:bg-brand-lavender/10"
                 onClick={toggleMute}
               >
                 {isMuted ? (
@@ -201,6 +202,7 @@ const Player: React.FC<PlayerProps> = ({ track, onDelete }) => {
                 max={1}
                 step={0.01}
                 onValueChange={handleVolumeChange}
+                className="data-[state=active]:bg-brand-purple"
               />
             </div>
           </div>
