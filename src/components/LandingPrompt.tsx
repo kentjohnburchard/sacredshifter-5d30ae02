@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Logo, AnimatedText, CallToAction } from "@/components/landing";
 
 const LandingPrompt: React.FC = () => {
@@ -15,7 +15,7 @@ const LandingPrompt: React.FC = () => {
     if (currentLine < lines.length - 1) {
       const timer = setTimeout(() => {
         setCurrentLine(currentLine + 1);
-      }, 3000); // Increased from 2500ms to 3000ms for smoother transitions
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, [currentLine]);
@@ -28,9 +28,7 @@ const LandingPrompt: React.FC = () => {
       className="min-h-[70vh] flex flex-col items-center justify-center text-center px-4 py-20 bg-gradient-to-b from-purple-50 to-white"
     >
       <Logo />
-      <div className="h-[300px] flex flex-col items-center justify-center"> {/* Fixed height container */}
-        <AnimatedText lines={lines} currentLine={currentLine} />
-      </div>
+      <AnimatedText lines={lines} currentLine={currentLine} />
       <CallToAction isVisible={currentLine >= lines.length - 1} />
     </motion.div>
   );
