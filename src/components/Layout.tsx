@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
@@ -36,7 +36,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <img 
                 src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
                 alt="Sacred Shifter Logo" 
-                className="h-32 w-auto" /* Doubled from h-16 to h-32 */
+                className="h-64 w-auto"
               />
             </Link>
             
