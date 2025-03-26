@@ -71,7 +71,13 @@ export default {
 				brand: {
 					purple: '#9b30ff', // The purple color from the logo
 					dark: '#333333',
-					light: '#ffffff'
+					light: '#ffffff',
+					lavender: '#bf99ff', // Lavender purple from the palette
+					amythyst: '#9966FF', // Amythyst purple from the palette
+					deep: '#361bb3', // Deep purple from the palette
+					chakra: '#7510c9', // Charkra purple from the palette
+					balancing1: '#4d00ff', // Balancing purple 1 from the palette
+					balancing2: '#800080'  // Balancing purple 2 from the palette
 				}
 			},
 			borderRadius: {

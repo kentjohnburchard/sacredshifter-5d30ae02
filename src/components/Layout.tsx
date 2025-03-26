@@ -28,7 +28,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </div>
 
       {/* Navigation Bar */}
-      <header className="w-full bg-[#9b87f5]/5 backdrop-blur-sm border-b border-[#9b87f5]/10 sticky top-0 z-50">
+      <header className="w-full bg-[#bf99ff]/5 backdrop-blur-sm border-b border-[#9966FF]/10 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex justify-between items-center">
             {/* Logo */}
@@ -46,8 +46,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 to="/journeys" 
                 className={`text-sm font-medium transition-colors ${
                   isActive("/journeys") 
-                    ? "text-[#9b87f5]" 
-                    : "text-[#9b87f5]/70 hover:text-[#9b87f5]"
+                    ? "text-[#7510c9]" 
+                    : "text-[#7510c9]/70 hover:text-[#7510c9]"
                 }`}
               >
                 Journeys
@@ -56,8 +56,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 to="/energy-check" 
                 className={`text-sm font-medium transition-colors ${
                   isActive("/energy-check") 
-                    ? "text-[#9b87f5]" 
-                    : "text-[#9b87f5]/70 hover:text-[#9b87f5]"
+                    ? "text-[#7510c9]" 
+                    : "text-[#7510c9]/70 hover:text-[#7510c9]"
                 }`}
               >
                 Energy Check
@@ -66,8 +66,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 to="/alignment" 
                 className={`text-sm font-medium transition-colors ${
                   isActive("/alignment") 
-                    ? "text-[#9b87f5]" 
-                    : "text-[#9b87f5]/70 hover:text-[#9b87f5]"
+                    ? "text-[#7510c9]" 
+                    : "text-[#7510c9]/70 hover:text-[#7510c9]"
                 }`}
               >
                 Alignment
@@ -76,8 +76,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 to="/intentions" 
                 className={`text-sm font-medium transition-colors ${
                   isActive("/intentions") 
-                    ? "text-[#9b87f5]" 
-                    : "text-[#9b87f5]/70 hover:text-[#9b87f5]"
+                    ? "text-[#7510c9]" 
+                    : "text-[#7510c9]/70 hover:text-[#7510c9]"
                 }`}
               >
                 Intentions
@@ -86,8 +86,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 to="/music-generation" 
                 className={`text-sm font-medium transition-colors ${
                   isActive("/music-generation") 
-                    ? "text-[#9b87f5]" 
-                    : "text-[#9b87f5]/70 hover:text-[#9b87f5]"
+                    ? "text-[#7510c9]" 
+                    : "text-[#7510c9]/70 hover:text-[#7510c9]"
                 }`}
               >
                 Sound Creation
@@ -98,7 +98,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="md:hidden">
               <Sheet>
                 <SheetTrigger asChild>
-                  <button className="text-[#9b87f5]/70 hover:text-[#9b87f5] focus:outline-none">
+                  <button className="text-[#7510c9]/70 hover:text-[#7510c9] focus:outline-none">
                     <Menu size={24} />
                   </button>
                 </SheetTrigger>
@@ -108,8 +108,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       to="/journeys" 
                       className={`text-lg font-medium transition-colors px-4 py-2 rounded-md ${
                         isActive("/journeys") 
-                          ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
-                          : "text-[#9b87f5]/70 hover:bg-[#9b87f5]/5 hover:text-[#9b87f5]"
+                          ? "bg-[#9966FF]/10 text-[#7510c9]" 
+                          : "text-[#7510c9]/70 hover:bg-[#9966FF]/5 hover:text-[#7510c9]"
                       }`}
                     >
                       Journeys
@@ -118,8 +118,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       to="/energy-check" 
                       className={`text-lg font-medium transition-colors px-4 py-2 rounded-md ${
                         isActive("/energy-check") 
-                          ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
-                          : "text-[#9b87f5]/70 hover:bg-[#9b87f5]/5 hover:text-[#9b87f5]"
+                          ? "bg-[#9966FF]/10 text-[#7510c9]" 
+                          : "text-[#7510c9]/70 hover:bg-[#9966FF]/5 hover:text-[#7510c9]"
                       }`}
                     >
                       Energy Check
@@ -128,8 +128,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       to="/alignment" 
                       className={`text-lg font-medium transition-colors px-4 py-2 rounded-md ${
                         isActive("/alignment") 
-                          ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
-                          : "text-[#9b87f5]/70 hover:bg-[#9b87f5]/5 hover:text-[#9b87f5]"
+                          ? "bg-[#9966FF]/10 text-[#7510c9]" 
+                          : "text-[#7510c9]/70 hover:bg-[#9966FF]/5 hover:text-[#7510c9]"
                       }`}
                     >
                       Alignment
@@ -138,8 +138,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       to="/intentions" 
                       className={`text-lg font-medium transition-colors px-4 py-2 rounded-md ${
                         isActive("/intentions") 
-                          ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
-                          : "text-[#9b87f5]/70 hover:bg-[#9b87f5]/5 hover:text-[#9b87f5]"
+                          ? "bg-[#9966FF]/10 text-[#7510c9]" 
+                          : "text-[#7510c9]/70 hover:bg-[#9966FF]/5 hover:text-[#7510c9]"
                       }`}
                     >
                       Intentions
@@ -148,8 +148,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       to="/music-generation" 
                       className={`text-lg font-medium transition-colors px-4 py-2 rounded-md ${
                         isActive("/music-generation") 
-                          ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
-                          : "text-[#9b87f5]/70 hover:bg-[#9b87f5]/5 hover:text-[#9b87f5]"
+                          ? "bg-[#9966FF]/10 text-[#7510c9]" 
+                          : "text-[#7510c9]/70 hover:bg-[#9966FF]/5 hover:text-[#7510c9]"
                       }`}
                     >
                       Sound Creation
@@ -168,11 +168,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </main>
       
       {/* Footer */}
-      <footer className="w-full py-6 px-4 bg-gradient-to-r from-[#9b87f5]/10 to-[#9b87f5]/5">
+      <footer className="w-full py-6 px-4 bg-gradient-to-r from-[#9966FF]/10 to-[#bf99ff]/5">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h3 className="text-lg font-medium mb-2 bg-clip-text text-transparent bg-gradient-to-r from-[#800080] to-[#7E69AB]">
+              <h3 className="text-lg font-medium mb-2 bg-clip-text text-transparent bg-gradient-to-r from-[#7510c9] to-[#4d00ff]">
                 Sacred Shifter
               </h3>
               <p className="text-sm text-[#800080]/90">
@@ -206,7 +206,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </ul>
             </div>
           </div>
-          <div className="mt-8 pt-4 border-t border-[#9b87f5]/10 text-center">
+          <div className="mt-8 pt-4 border-t border-[#9966FF]/10 text-center">
             <p className="text-xs text-[#800080]/70">
               © {new Date().getFullYear()} Sacred Shifter. All rights reserved.
             </p>
@@ -218,4 +218,3 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 };
 
 export default Layout;
-
