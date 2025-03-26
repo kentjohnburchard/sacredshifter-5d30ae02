@@ -28,7 +28,7 @@ const Header: React.FC = () => {
           <img 
             src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
             alt="Sacred Shifter Logo" 
-            className="h-14 sm:h-16" 
+            className="h-16 sm:h-20 animate-pulse-subtle transition-all hover:scale-105" 
           />
         </Link>
       </div>

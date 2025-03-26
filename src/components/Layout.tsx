@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -10,13 +9,21 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   
-  // Check if the current route is active
   const isActive = (path: string) => {
     return location.pathname === path;
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-white relative">
+      {/* Logo Watermark */}
+      <div className="fixed inset-0 pointer-events-none z-[1] opacity-5 flex items-center justify-center">
+        <img 
+          src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
+          alt="Sacred Shifter Watermark" 
+          className="max-w-[50%] max-h-[50%] object-contain" 
+        />
+      </div>
+
       {/* Navigation Bar */}
       <header className="w-full bg-white/90 backdrop-blur-sm border-b border-purple-100 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
