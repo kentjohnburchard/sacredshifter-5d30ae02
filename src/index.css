@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -24,7 +25,7 @@
     --muted: 240 5% 96%;
     --muted-foreground: 240 5% 40%;
 
-    --accent: 206 100% 50%;
+    --accent: 294 100% 59%; /* Purple from the logo */
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84% 60%;
@@ -79,11 +80,11 @@
   }
   
   .sacred-gradient {
-    @apply bg-gradient-to-r from-teal-500 to-purple-600;
+    @apply bg-gradient-to-r from-brand-purple to-purple-500;
   }
   
   .sacred-text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-teal-600 to-purple-600;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-purple-600;
   }
 }
 
@@ -117,5 +118,5 @@
 .music-bar {
   width: 3px;
   height: 100%;
-  @apply bg-teal-400 rounded-full;
+  @apply bg-brand-purple rounded-full;
 }

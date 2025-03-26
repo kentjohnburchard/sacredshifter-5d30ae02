@@ -26,7 +26,7 @@ const Header: React.FC = () => {
       <div className="flex items-center gap-2 mb-4">
         <Link to="/" className="flex items-center">
           <img 
-            src="/lovable-uploads/a475dc5f-fe7d-4c0c-9af4-f1cf02cfe73f.png" 
+            src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
             alt="Sacred Shifter Logo" 
             className="h-14 sm:h-16" 
           />

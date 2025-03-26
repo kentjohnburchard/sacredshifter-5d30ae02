@@ -23,9 +23,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="flex justify-between items-center">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
-              <span className="text-2xl font-medium bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">
-                Sacred Shifter
-              </span>
+              <img 
+                src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
+                alt="Sacred Shifter Logo" 
+                className="h-10"
+              />
             </Link>
             
             {/* Navigation Links */}
@@ -106,7 +108,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h3 className="text-lg font-medium mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">
+              <h3 className="text-lg font-medium mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-500">
                 Sacred Shifter
               </h3>
               <p className="text-sm text-gray-600">

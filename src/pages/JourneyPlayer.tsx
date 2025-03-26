@@ -11,6 +11,8 @@ import { getTemplateByFrequency, JourneyTemplate } from "@/data/journeyTemplates
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 const JourneyPlayer = () => {
   const { frequencyId } = useParams();
@@ -21,6 +23,7 @@ const JourneyPlayer = () => {
   const [template, setTemplate] = useState<JourneyTemplate | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [journalDialogOpen, setJournalDialogOpen] = useState(false);
+  const [journalEntry, setJournalEntry] = useState("");
 
   useEffect(() => {
     if (!frequencyId) {
@@ -87,6 +90,37 @@ const JourneyPlayer = () => {
     setJournalDialogOpen(true);
   };
 
+  const handleSaveJournal = async () => {
+    if (!sessionId || !journalEntry.trim()) {
+      setJournalDialogOpen(false);
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('journal_entries')
+        .insert([
+          {
+            user_id: user?.id,
+            session_id: sessionId,
+            content: journalEntry,
+            timestamp: new Date().toISOString()
+          }
+        ]);
+
+      if (error) {
+        toast.error("Failed to save journal entry");
+        console.error("Error saving journal entry:", error);
+      } else {
+        toast.success("Journal entry saved");
+        setJournalDialogOpen(false);
+      }
+    } catch (err) {
+      console.error("Unexpected error saving journal entry:", err);
+      toast.error("An unexpected error occurred");
+    }
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -137,7 +171,7 @@ const JourneyPlayer = () => {
             <div className="inline-flex items-center justify-center mb-2">
               <span className="text-4xl mr-2">{template.emoji}</span>
               <h1 className="text-3xl font-light">
-                <span className={`font-medium bg-clip-text text-transparent bg-gradient-to-r ${template.color}`}>
+                <span className={`font-medium bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-purple-500`}>
                   {template.name}
                 </span>
               </h1>
@@ -194,6 +228,30 @@ const JourneyPlayer = () => {
           </div>
         </div>
       </div>
+
+      <Dialog open={journalDialogOpen} onOpenChange={setJournalDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Journal My Experience</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <Textarea
+              placeholder="Reflect on your experience with this frequency..."
+              className="min-h-[200px]"
+              value={journalEntry}
+              onChange={(e) => setJournalEntry(e.target.value)}
+            />
+            <div className="flex justify-end">
+              <Button
+                className="bg-brand-purple hover:bg-purple-700 text-white"
+                onClick={handleSaveJournal}
+              >
+                Save Entry
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };
