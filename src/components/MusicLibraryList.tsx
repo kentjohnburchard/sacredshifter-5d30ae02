@@ -88,7 +88,7 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
 
   if (isLoading) {
     return (
-      <div className="text-center py-10 text-white">
+      <div className="text-center py-10 text-gray-600">
         <p className="animate-pulse">Loading sacred sound tracks...</p>
       </div>
     );
@@ -96,10 +96,10 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
 
   if (musicList.length === 0) {
     return (
-      <div className="text-center py-10 text-white">
-        <Music className="h-16 w-16 mx-auto text-purple-400 opacity-50 mb-4" />
+      <div className="text-center py-10 text-gray-600">
+        <Music className="h-16 w-16 mx-auto text-brand-purple opacity-50 mb-4" />
         <p className="text-lg">No sacred sound tracks have been uploaded yet.</p>
-        <p className="text-sm text-white/70 mt-2">
+        <p className="text-sm text-gray-500 mt-2">
           Use the upload tab to add your first sacred sound track.
         </p>
       </div>
@@ -109,18 +109,18 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
   return (
     <div className="space-y-4">
       {musicList.map((music) => (
-        <Card key={music.id} className="bg-black/70 backdrop-blur-md border border-purple-500/30 overflow-hidden">
+        <Card key={music.id} className="bg-white/90 backdrop-blur-md border border-purple-200 overflow-hidden">
           <CardContent className="p-4">
             <div className="flex justify-between items-start gap-4">
               <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-white truncate">{music.title}</h3>
-                <p className="text-sm text-white/70 mt-1">
+                <h3 className="font-medium text-gray-800 truncate">{music.title}</h3>
+                <p className="text-sm text-brand-purple mt-1">
                   {getFrequencyName(music.frequency_id)}
                 </p>
                 {music.description && (
-                  <p className="text-sm text-white/70 mt-2 line-clamp-2">{music.description}</p>
+                  <p className="text-sm text-gray-600 mt-2 line-clamp-2">{music.description}</p>
                 )}
-                <p className="text-xs text-white/50 mt-2">
+                <p className="text-xs text-gray-500 mt-2">
                   Added {formatDistanceToNow(new Date(music.created_at), { addSuffix: true })}
                 </p>
               </div>
@@ -129,7 +129,7 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 rounded-full bg-white/10 text-white hover:bg-white/20"
+                  className="h-8 w-8 rounded-full bg-brand-purple/10 text-brand-purple hover:bg-brand-purple/20"
                   onClick={() => handlePlay(music.id, music.audio_url)}
                 >
                   {playingId === music.id ? (
@@ -142,7 +142,7 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 rounded-full bg-white/10 text-white hover:bg-white/20"
+                  className="h-8 w-8 rounded-full bg-brand-purple/10 text-brand-purple hover:bg-brand-purple/20"
                   onClick={() => handleDownload(music.audio_url, music.title)}
                 >
                   <Download className="h-4 w-4" />
@@ -151,7 +151,7 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 rounded-full bg-white/10 text-white hover:bg-red-500/20 hover:text-red-400"
+                  className="h-8 w-8 rounded-full bg-brand-purple/10 text-red-500 hover:bg-red-500/20"
                   onClick={() => handleDeleteClick(music.id, music.audio_url)}
                 >
                   <Trash2 className="h-4 w-4" />
@@ -163,15 +163,15 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
       ))}
       
       <AlertDialog open={deletingId !== null} onOpenChange={(open) => !open && setDeletingId(null)}>
-        <AlertDialogContent className="bg-gray-950 border-purple-500/30 text-white">
+        <AlertDialogContent className="bg-white border-purple-200 text-gray-800">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Sacred Sound Track</AlertDialogTitle>
-            <AlertDialogDescription className="text-white/70">
+            <AlertDialogDescription className="text-gray-600">
               Are you sure you want to delete this sacred sound track? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-transparent border-white/20 text-white hover:bg-white/10">
+            <AlertDialogCancel className="bg-transparent border-gray-300 text-gray-700 hover:bg-gray-100">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
