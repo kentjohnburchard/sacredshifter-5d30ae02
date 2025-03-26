@@ -135,7 +135,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <h3 className="text-sm font-medium mb-2 text-gray-700">Connect</h3>
               <ul className="space-y-2">
                 <li><a href="#" className="text-xs text-gray-600 hover:text-purple-500">Instagram</a></li>
-                <li><a href="#" className="text-xs text-gray-600 hover:text-purple-500">YouTube</a></li>
+                <li>
+                  <a 
+                    href="https://www.youtube.com/@sacredshifter" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-xs text-gray-600 hover:text-purple-500"
+                  >
+                    YouTube
+                  </a>
+                </li>
                 <li><a href="#" className="text-xs text-gray-600 hover:text-purple-500">Contact Us</a></li>
               </ul>
             </div>
