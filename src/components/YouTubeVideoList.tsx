@@ -52,6 +52,34 @@ const YouTubeVideoList: React.FC = () => {
       embedId: "oKPmjyonSBc",
       frequency: "741Hz",
       duration: "6:18"
+    },
+    {
+      id: "video6",
+      title: "963Hz Heart Opening",
+      embedId: "pFuABQcTKPU",
+      frequency: "963Hz",
+      duration: "5:47"
+    },
+    {
+      id: "video7",
+      title: "852Hz Third Eye Opening",
+      embedId: "cNYlCpypJxQ",
+      frequency: "852Hz",
+      duration: "4:33"
+    },
+    {
+      id: "video8",
+      title: "396Hz Liberation from Fear",
+      embedId: "xYxnwDlS5aY",
+      frequency: "396Hz",
+      duration: "7:22"
+    },
+    {
+      id: "video9",
+      title: "417Hz Facilitating Change",
+      embedId: "YbiFO9e8i7Q",
+      frequency: "417Hz",
+      duration: "5:14"
     }
   ]);
 
