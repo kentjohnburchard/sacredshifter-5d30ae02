@@ -24,38 +24,38 @@ const MusicLibrary: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#f8f4ff] to-white">
       <Header />
       
-      <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-8 sm:px-6 space-y-8">
-        <div className="text-center space-y-3 mb-8 animate-fade-in">
-          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight">
+      <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-4 sm:px-6">
+        <div className="text-center space-y-1 mb-4 animate-fade-in">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-brand-purple via-brand-lavender to-brand-amythyst">
               Sacred Sound Library
             </span>
           </h2>
-          <p className="text-[#7510c9]/70 max-w-2xl mx-auto text-lg">
+          <p className="text-[#7510c9]/70 max-w-2xl mx-auto text-sm">
             Upload and manage meditation music for different healing frequencies.
           </p>
         </div>
         
         <Tabs defaultValue="library" className="w-full">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 bg-white border border-purple-200">
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 bg-white border border-purple-200 mb-4">
             <TabsTrigger value="library" className="data-[state=active]:bg-brand-purple/20 data-[state=active]:text-brand-purple">
-              <Library className="h-4 w-4 mr-2" />
-              Browse Library
+              <Library className="h-4 w-4 mr-1" />
+              <span className="text-xs sm:text-sm">Browse Library</span>
             </TabsTrigger>
             <TabsTrigger value="youtube" className="data-[state=active]:bg-brand-purple/20 data-[state=active]:text-brand-purple">
-              <Youtube className="h-4 w-4 mr-2" />
-              YouTube Videos
+              <Youtube className="h-4 w-4 mr-1" />
+              <span className="text-xs sm:text-sm">YouTube Videos</span>
             </TabsTrigger>
             <TabsTrigger value="upload" className="data-[state=active]:bg-brand-purple/20 data-[state=active]:text-brand-purple">
-              <Upload className="h-4 w-4 mr-2" />
-              Upload Music
+              <Upload className="h-4 w-4 mr-1" />
+              <span className="text-xs sm:text-sm">Upload Music</span>
             </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="library" className="mt-6">
+          <TabsContent value="library">
             <Card className="border border-purple-200 shadow-md overflow-hidden rounded-xl bg-white/80 backdrop-blur-sm">
-              <CardContent className="p-6">
-                <ScrollArea className="h-[calc(100vh-300px)] pr-4">
+              <CardContent className="p-4">
+                <ScrollArea className="h-[calc(100vh-220px)] pr-4">
                   <MusicLibraryList
                     musicList={meditationMusic}
                     isLoading={isLoading}
@@ -67,11 +67,11 @@ const MusicLibrary: React.FC = () => {
             </Card>
           </TabsContent>
           
-          <TabsContent value="youtube" className="mt-6">
+          <TabsContent value="youtube">
             <YouTubeVideoList />
           </TabsContent>
           
-          <TabsContent value="upload" className="mt-6">
+          <TabsContent value="upload">
             <div className="max-w-2xl mx-auto">
               <MusicUploadForm onUpload={uploadMusic} isUploading={isUploading} />
             </div>
@@ -79,7 +79,7 @@ const MusicLibrary: React.FC = () => {
         </Tabs>
       </main>
       
-      <footer className="w-full py-6 text-center text-sm text-[#800080]/70">
+      <footer className="w-full py-3 text-center text-xs text-[#800080]/70">
         <p>Sacred Shifter - Upload and share sacred sound healing music with healing frequencies.</p>
       </footer>
     </div>

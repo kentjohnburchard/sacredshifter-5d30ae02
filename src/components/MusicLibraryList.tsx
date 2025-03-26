@@ -88,7 +88,7 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
 
   if (isLoading) {
     return (
-      <div className="text-center py-10 text-gray-600">
+      <div className="text-center py-6 text-gray-600">
         <p className="animate-pulse">Loading sacred sound tracks...</p>
       </div>
     );
@@ -96,10 +96,10 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
 
   if (musicList.length === 0) {
     return (
-      <div className="text-center py-10 text-gray-600">
-        <Music className="h-16 w-16 mx-auto text-brand-purple opacity-50 mb-4" />
-        <p className="text-lg">No sacred sound tracks have been uploaded yet.</p>
-        <p className="text-sm text-gray-500 mt-2">
+      <div className="text-center py-8 text-gray-600">
+        <Music className="h-12 w-12 mx-auto text-brand-purple opacity-50 mb-3" />
+        <p className="text-sm">No sacred sound tracks have been uploaded yet.</p>
+        <p className="text-xs text-gray-500 mt-1">
           Use the upload tab to add your first sacred sound track.
         </p>
       </div>
@@ -107,54 +107,56 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {musicList.map((music) => (
         <Card key={music.id} className="bg-white/90 backdrop-blur-md border border-purple-200 overflow-hidden">
-          <CardContent className="p-4">
-            <div className="flex justify-between items-start gap-4">
+          <CardContent className="p-3">
+            <div className="flex justify-between items-start gap-2">
               <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-gray-800 truncate">{music.title}</h3>
-                <p className="text-sm text-brand-purple mt-1">
-                  {getFrequencyName(music.frequency_id)}
-                </p>
+                <h3 className="font-medium text-sm text-gray-800 truncate">{music.title}</h3>
+                <div className="flex justify-between items-center mt-1">
+                  <p className="text-xs text-brand-purple">
+                    {getFrequencyName(music.frequency_id)}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {formatDistanceToNow(new Date(music.created_at), { addSuffix: true })}
+                  </p>
+                </div>
                 {music.description && (
-                  <p className="text-sm text-gray-600 mt-2 line-clamp-2">{music.description}</p>
+                  <p className="text-xs text-gray-600 mt-1 line-clamp-1">{music.description}</p>
                 )}
-                <p className="text-xs text-gray-500 mt-2">
-                  Added {formatDistanceToNow(new Date(music.created_at), { addSuffix: true })}
-                </p>
               </div>
               
-              <div className="flex gap-2">
+              <div className="flex gap-1">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 rounded-full bg-brand-purple/10 text-brand-purple hover:bg-brand-purple/20"
+                  className="h-7 w-7 rounded-full bg-brand-purple/10 text-brand-purple hover:bg-brand-purple/20"
                   onClick={() => handlePlay(music.id, music.audio_url)}
                 >
                   {playingId === music.id ? (
-                    <Pause className="h-4 w-4" />
+                    <Pause className="h-3 w-3" />
                   ) : (
-                    <Play className="h-4 w-4 ml-0.5" />
+                    <Play className="h-3 w-3 ml-0.5" />
                   )}
                 </Button>
                 
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 rounded-full bg-brand-purple/10 text-brand-purple hover:bg-brand-purple/20"
+                  className="h-7 w-7 rounded-full bg-brand-purple/10 text-brand-purple hover:bg-brand-purple/20"
                   onClick={() => handleDownload(music.audio_url, music.title)}
                 >
-                  <Download className="h-4 w-4" />
+                  <Download className="h-3 w-3" />
                 </Button>
                 
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 rounded-full bg-brand-purple/10 text-red-500 hover:bg-red-500/20"
+                  className="h-7 w-7 rounded-full bg-brand-purple/10 text-red-500 hover:bg-red-500/20"
                   onClick={() => handleDeleteClick(music.id, music.audio_url)}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-3 w-3" />
                 </Button>
               </div>
             </div>
@@ -163,20 +165,20 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
       ))}
       
       <AlertDialog open={deletingId !== null} onOpenChange={(open) => !open && setDeletingId(null)}>
-        <AlertDialogContent className="bg-white border-purple-200 text-gray-800">
+        <AlertDialogContent className="bg-white border-purple-200 text-gray-800 max-w-xs mx-auto">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Sacred Sound Track</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-600">
-              Are you sure you want to delete this sacred sound track? This action cannot be undone.
+            <AlertDialogTitle className="text-base">Delete Sacred Sound Track</AlertDialogTitle>
+            <AlertDialogDescription className="text-xs text-gray-600">
+              Are you sure you want to delete this track? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-transparent border-gray-300 text-gray-700 hover:bg-gray-100">
+            <AlertDialogCancel className="text-xs bg-transparent border-gray-300 text-gray-700 hover:bg-gray-100">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
-              className="bg-red-600 hover:bg-red-700 text-white border-none"
+              className="text-xs bg-red-600 hover:bg-red-700 text-white border-none"
             >
               Delete
             </AlertDialogAction>
