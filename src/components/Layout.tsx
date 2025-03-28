@@ -23,7 +23,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <img 
           src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
           alt="Sacred Shifter Watermark" 
-          className="max-w-[50%] max-h-[50%] object-contain" 
+          className="max-w-[25%] max-h-[25%] object-contain" 
         />
       </div>
 
@@ -36,7 +36,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <img 
                 src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
                 alt="Sacred Shifter Logo" 
-                className="h-64 w-auto"
+                className="h-32 w-auto"
               />
             </Link>
             
