@@ -1,12 +1,21 @@
 
 import React from "react";
-import { LogOut, CreditCard, Library, Music } from "lucide-react";
+import { LogOut, CreditCard, Library, Music, User, LayoutDashboard } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header: React.FC = () => {
   const location = useLocation();
@@ -22,7 +31,7 @@ const Header: React.FC = () => {
   };
   
   return (
-    <header className="w-full py-6 px-4 sm:px-6 flex flex-col items-center animate-fade-in backdrop-blur-sm bg-[#9b87f5]/5">
+    <header className="w-full py-4 px-4 sm:px-6 flex flex-col items-center animate-fade-in backdrop-blur-sm bg-[#9b87f5]/5">
       <div className="flex items-center gap-2 mb-4">
         <Link to="/" className="flex items-center">
           <img 
@@ -70,6 +79,17 @@ const Header: React.FC = () => {
             {user && (
               <>
                 <NavigationMenuItem>
+                  <Link to="/dashboard" className={cn(
+                    "px-4 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1",
+                    location.pathname === "/dashboard" 
+                      ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
+                      : "text-[#9b87f5]/70 hover:text-[#9b87f5] hover:bg-[#9b87f5]/5"
+                  )}>
+                    <LayoutDashboard className="h-4 w-4" />
+                    <span>Dashboard</span>
+                  </Link>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
                   <Link to="/subscription" className={cn(
                     "px-4 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1",
                     location.pathname === "/subscription" 
@@ -86,20 +106,52 @@ const Header: React.FC = () => {
         </NavigationMenu>
         
         {user ? (
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-[#9b87f5]/70 hidden sm:inline-block">
-              {user.email}
-            </span>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleSignOut}
-              className="flex items-center gap-1 bg-[#9b87f5]/5 border-[#9b87f5]/10 hover:bg-[#9b87f5]/10 text-[#9b87f5]"
-            >
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline-block">Sign Out</span>
-            </Button>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src="" alt={user.email || "User"} />
+                  <AvatarFallback className="bg-gradient-to-br from-indigo-400 to-purple-600 text-white">
+                    {user.email?.charAt(0).toUpperCase() || "U"}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">Account</p>
+                  <p className="text-xs leading-none text-muted-foreground truncate">
+                    {user.email}
+                  </p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <Link to="/dashboard" className="flex items-center w-full">
+                  <LayoutDashboard className="mr-2 h-4 w-4" />
+                  <span>Dashboard</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link to="/profile" className="flex items-center w-full">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link to="/subscription" className="flex items-center w-full">
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  <span>Subscription</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleSignOut}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         ) : (
           <Link to="/auth">
             <Button variant="outline" size="sm" className="bg-[#9b87f5]/5 border-[#9b87f5]/10 hover:bg-[#9b87f5]/10 text-[#9b87f5]">

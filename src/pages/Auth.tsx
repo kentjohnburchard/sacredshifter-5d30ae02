@@ -6,25 +6,83 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Music2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Music2, Mail, Lock, AlertCircle, Github, Apple } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { motion } from "framer-motion";
 
 const AUTO_LOGIN_EMAIL = "kentburchard@gmail.com";
 const AUTO_LOGIN_PASSWORD = "pass";
 
+// Form validation schemas
+const loginSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+const signupSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string().min(6, "Password must be at least 6 characters"),
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
+
+const forgotPasswordSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
+type SignupFormValues = z.infer<typeof signupSchema>;
+type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
+
 const Auth = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [activeTab, setActiveTab] = useState<string>("signin");
   const [loading, setLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [resetPasswordSent, setResetPasswordSent] = useState(false);
   const navigate = useNavigate();
+
+  // Initialize form
+  const loginForm = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const signupForm = useForm<SignupFormValues>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
+  const forgotPasswordForm = useForm<ForgotPasswordFormValues>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
 
   // Auto-login check for specific email
   useEffect(() => {
-    if (email === AUTO_LOGIN_EMAIL && password === AUTO_LOGIN_PASSWORD) {
+    if (
+      loginForm.getValues("email") === AUTO_LOGIN_EMAIL && 
+      loginForm.getValues("password") === AUTO_LOGIN_PASSWORD
+    ) {
       handleAutoLogin();
     }
-  }, [email, password]);
+  }, [loginForm.watch("email"), loginForm.watch("password")]);
 
   const handleAutoLogin = async () => {
     try {
@@ -39,182 +97,472 @@ const Auth = () => {
         // If regular login fails, we use a fallback method
         console.log("Using fallback auto-login method");
         // This is a fallback in case the regular login fails
-        toast.success("Welcome back!");
+        toast.success("Welcome back, soul traveler!");
         navigate("/music-generation");
       } else {
-        toast.success("Welcome back!");
+        toast.success("Welcome back, soul traveler!");
         navigate("/music-generation");
       }
     } catch (error) {
       console.error("Error during auto-login:", error);
       // Even if there's an error, we'll proceed with login for this specific user
-      toast.success("Welcome back!");
+      toast.success("Welcome back, soul traveler!");
       navigate("/music-generation");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSignUp = async (data: SignupFormValues) => {
     try {
       setLoading(true);
+      setAuthError(null);
+      
       const { error } = await supabase.auth.signUp({
-        email,
-        password,
+        email: data.email,
+        password: data.password,
       });
 
       if (error) throw error;
       
-      toast.success("Registration successful! Please check your email for verification link.");
+      toast.success("Welcome to Sacred Shifter! Please check your email for verification link.");
+      setActiveTab("signin");
     } catch (error: any) {
+      setAuthError(error.message || "An error occurred during sign up");
       toast.error(error.message || "An error occurred during sign up");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleSignIn = async (data: LoginFormValues) => {
     // Special case for auto-login email
-    if (email === AUTO_LOGIN_EMAIL && password === AUTO_LOGIN_PASSWORD) {
+    if (data.email === AUTO_LOGIN_EMAIL && data.password === AUTO_LOGIN_PASSWORD) {
       handleAutoLogin();
       return;
     }
     
     try {
       setLoading(true);
+      setAuthError(null);
+      
       const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: data.email,
+        password: data.password,
       });
 
       if (error) throw error;
       
-      toast.success("Successfully signed in!");
+      toast.success("Welcome back, soul traveler!");
       navigate("/music-generation");
     } catch (error: any) {
+      setAuthError(error.message || "An error occurred during sign in");
       toast.error(error.message || "An error occurred during sign in");
     } finally {
       setLoading(false);
     }
   };
 
+  const handlePasswordReset = async (data: ForgotPasswordFormValues) => {
+    try {
+      setLoading(true);
+      setAuthError(null);
+      
+      const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
+        redirectTo: `${window.location.origin}/auth?tab=reset-password`,
+      });
+
+      if (error) throw error;
+      
+      setResetPasswordSent(true);
+      toast.success("Password reset email sent. Please check your inbox.");
+    } catch (error: any) {
+      setAuthError(error.message || "An error occurred sending reset email");
+      toast.error(error.message || "An error occurred sending reset email");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOAuthSignIn = async (provider: 'google' | 'apple' | 'github') => {
+    try {
+      setLoading(true);
+      setAuthError(null);
+      
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth-callback`,
+        }
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      setAuthError(error.message || `An error occurred during ${provider} sign in`);
+      toast.error(error.message || `An error occurred during ${provider} sign in`);
+      setLoading(false);
+    }
+  };
+
+  // UI animations
+  const fadeIn = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-purple-950 p-4">
-      <div className="flex items-center gap-2 mb-8">
+      <motion.div 
+        initial="hidden"
+        animate="visible"
+        variants={fadeIn}
+        className="flex items-center gap-2 mb-6"
+      >
         <div className="p-2 rounded-full bg-accent/10">
-          <Music2 className="h-7 w-7 text-accent" />
+          <Music2 className="h-6 w-6 text-accent" />
         </div>
-        <h1 className="text-3xl font-medium tracking-tight">
+        <h1 className="text-2xl font-medium tracking-tight">
           <span className="font-light">Sacred</span>
           <span className="font-semibold">Shifter</span>
         </h1>
-      </div>
+      </motion.div>
       
-      <Card className="w-full max-w-md animate-slide-up border border-border/40 shadow-md">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-semibold">Authentication</CardTitle>
-          <CardDescription>
-            Sign in or create an account to access Sacred Shifter
-          </CardDescription>
-        </CardHeader>
-        
-        <Tabs defaultValue="signin" className="w-full">
-          <TabsList className="grid grid-cols-2 w-full">
-            <TabsTrigger value="signin">Sign In</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
-          </TabsList>
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={fadeIn}
+        className="w-full max-w-md"
+      >
+        <Card className="border border-border/40 shadow-md">
+          <CardHeader className="space-y-1 text-center">
+            <CardTitle className="text-2xl font-semibold">Welcome, Soul Traveler</CardTitle>
+            <CardDescription>
+              Begin your journey with Sacred Shifter
+            </CardDescription>
+          </CardHeader>
           
-          <TabsContent value="signin">
-            <form onSubmit={handleSignIn}>
-              <CardContent className="space-y-4 pt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email-signin">Email</Label>
-                  <Input 
-                    id="email-signin"
-                    type="email" 
-                    placeholder="name@example.com" 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password-signin">Password</Label>
-                    {email === AUTO_LOGIN_EMAIL && (
-                      <span className="text-xs text-green-600">Password is "pass"</span>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid grid-cols-3 w-full">
+              <TabsTrigger value="signin">Sign In</TabsTrigger>
+              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              <TabsTrigger value="forgot">Reset</TabsTrigger>
+            </TabsList>
+            
+            {/* Sign In Tab */}
+            <TabsContent value="signin">
+              <Form {...loginForm}>
+                <form onSubmit={loginForm.handleSubmit(handleSignIn)}>
+                  <CardContent className="space-y-4 pt-4">
+                    {authError && (
+                      <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>
+                          {authError}
+                        </AlertDescription>
+                      </Alert>
                     )}
-                  </div>
-                  <Input 
-                    id="password-signin"
-                    type="password" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    placeholder={email === AUTO_LOGIN_EMAIL ? "Password is 'pass'" : "Enter your password"}
-                  />
-                </div>
-              </CardContent>
-              
-              <CardFooter>
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={loading}
-                >
-                  {loading ? "Signing in..." : "Sign In"}
-                </Button>
-              </CardFooter>
-            </form>
-          </TabsContent>
-          
-          <TabsContent value="signup">
-            <form onSubmit={handleSignUp}>
-              <CardContent className="space-y-4 pt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email-signup">Email</Label>
-                  <Input 
-                    id="email-signup"
-                    type="email" 
-                    placeholder="name@example.com" 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="password-signup">Password</Label>
-                  <Input 
-                    id="password-signup"
-                    type="password" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Password must be at least 6 characters long
-                  </p>
-                </div>
-              </CardContent>
-              
-              <CardFooter>
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={loading}
-                >
-                  {loading ? "Signing up..." : "Sign Up"}
-                </Button>
-              </CardFooter>
-            </form>
-          </TabsContent>
-        </Tabs>
-      </Card>
+                    
+                    <FormField
+                      control={loginForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-accent">
+                              <Mail className="h-4 w-4 text-muted-foreground ml-3" />
+                              <Input 
+                                placeholder="name@example.com" 
+                                className="border-0 focus-visible:ring-0" 
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={loginForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex items-center justify-between">
+                            <FormLabel>Password</FormLabel>
+                            {loginForm.getValues("email") === AUTO_LOGIN_EMAIL && (
+                              <span className="text-xs text-green-600">Password is "pass"</span>
+                            )}
+                          </div>
+                          <FormControl>
+                            <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-accent">
+                              <Lock className="h-4 w-4 text-muted-foreground ml-3" />
+                              <Input 
+                                type="password" 
+                                className="border-0 focus-visible:ring-0"
+                                placeholder={loginForm.getValues("email") === AUTO_LOGIN_EMAIL ? "Password is 'pass'" : "Enter your password"}
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <div className="space-y-3 pt-2">
+                      <Button 
+                        type="submit" 
+                        className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600" 
+                        disabled={loading}
+                      >
+                        {loading ? "Signing in..." : "Sign In"}
+                      </Button>
+                      
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <span className="w-full border-t"></span>
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <Button 
+                          type="button"
+                          variant="outline"
+                          onClick={() => handleOAuthSignIn('google')}
+                          disabled={loading}
+                          className="flex items-center justify-center gap-2"
+                        >
+                          <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
+                            <path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z" fill="currentColor"/>
+                          </svg>
+                          <span>Google</span>
+                        </Button>
+                        <Button 
+                          type="button"
+                          variant="outline"
+                          onClick={() => handleOAuthSignIn('apple')}
+                          disabled={loading}
+                          className="flex items-center justify-center gap-2"
+                        >
+                          <Apple className="h-4 w-4" />
+                          <span>Apple</span>
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </form>
+              </Form>
+            </TabsContent>
+            
+            {/* Sign Up Tab */}
+            <TabsContent value="signup">
+              <Form {...signupForm}>
+                <form onSubmit={signupForm.handleSubmit(handleSignUp)}>
+                  <CardContent className="space-y-4 pt-4">
+                    {authError && (
+                      <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>
+                          {authError}
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    
+                    <FormField
+                      control={signupForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-accent">
+                              <Mail className="h-4 w-4 text-muted-foreground ml-3" />
+                              <Input 
+                                placeholder="name@example.com" 
+                                className="border-0 focus-visible:ring-0" 
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={signupForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-accent">
+                              <Lock className="h-4 w-4 text-muted-foreground ml-3" />
+                              <Input 
+                                type="password" 
+                                className="border-0 focus-visible:ring-0"
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={signupForm.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Confirm Password</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-accent">
+                              <Lock className="h-4 w-4 text-muted-foreground ml-3" />
+                              <Input 
+                                type="password" 
+                                className="border-0 focus-visible:ring-0"
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <div className="space-y-3 pt-2">
+                      <Button 
+                        type="submit" 
+                        className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600" 
+                        disabled={loading}
+                      >
+                        {loading ? "Creating Account..." : "Create Account"}
+                      </Button>
+                      
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <span className="w-full border-t"></span>
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <Button 
+                          type="button"
+                          variant="outline"
+                          onClick={() => handleOAuthSignIn('google')}
+                          disabled={loading}
+                          className="flex items-center justify-center gap-2"
+                        >
+                          <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
+                            <path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z" fill="currentColor"/>
+                          </svg>
+                          <span>Google</span>
+                        </Button>
+                        <Button 
+                          type="button"
+                          variant="outline"
+                          onClick={() => handleOAuthSignIn('apple')}
+                          disabled={loading}
+                          className="flex items-center justify-center gap-2"
+                        >
+                          <Apple className="h-4 w-4" />
+                          <span>Apple</span>
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </form>
+              </Form>
+            </TabsContent>
+            
+            {/* Forgot Password Tab */}
+            <TabsContent value="forgot">
+              <Form {...forgotPasswordForm}>
+                <form onSubmit={forgotPasswordForm.handleSubmit(handlePasswordReset)}>
+                  <CardContent className="space-y-4 pt-4">
+                    {resetPasswordSent ? (
+                      <div className="text-center space-y-3 py-6">
+                        <div className="mx-auto w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                          <Mail className="h-6 w-6 text-green-600" />
+                        </div>
+                        <h3 className="text-lg font-medium">Check Your Email</h3>
+                        <p className="text-sm text-muted-foreground">
+                          We've sent you a link to reset your password. Please check your inbox.
+                        </p>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          onClick={() => {
+                            setResetPasswordSent(false);
+                            forgotPasswordForm.reset();
+                          }}
+                          className="mt-2"
+                        >
+                          Send another email
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        {authError && (
+                          <Alert variant="destructive">
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertDescription>
+                              {authError}
+                            </AlertDescription>
+                          </Alert>
+                        )}
+                        
+                        <div className="text-center mb-4">
+                          <p className="text-sm text-muted-foreground">
+                            Enter your email address and we'll send you a link to reset your password.
+                          </p>
+                        </div>
+                        
+                        <FormField
+                          control={forgotPasswordForm.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Email</FormLabel>
+                              <FormControl>
+                                <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-accent">
+                                  <Mail className="h-4 w-4 text-muted-foreground ml-3" />
+                                  <Input 
+                                    placeholder="name@example.com" 
+                                    className="border-0 focus-visible:ring-0" 
+                                    {...field}
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <Button 
+                          type="submit" 
+                          className="w-full" 
+                          disabled={loading}
+                        >
+                          {loading ? "Sending..." : "Send Reset Link"}
+                        </Button>
+                      </>
+                    )}
+                  </CardContent>
+                </form>
+              </Form>
+            </TabsContent>
+          </Tabs>
+        </Card>
+      </motion.div>
     </div>
   );
 };
