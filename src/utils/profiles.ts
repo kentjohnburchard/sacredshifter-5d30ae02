@@ -15,41 +15,51 @@ export type ProfileType = {
   updated_at: string;
 };
 
-export const fetchProfile = async (userId: string) => {
-  // Use raw query instead of strongly typed query until types are updated
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single();
+export const fetchProfile = async (userId: string): Promise<ProfileType> => {
+  // Use raw SQL query with RPC to avoid type issues
+  const { data, error } = await supabase.rpc('get_profile', { user_id: userId });
   
   if (error) throw error;
+  
+  // If no data is returned, create a default profile
+  if (!data) {
+    return {
+      id: userId,
+      full_name: null,
+      display_name: null,
+      bio: null,
+      avatar_url: null,
+      onboarding_completed: false,
+      initial_mood: null,
+      primary_intention: null,
+      energy_level: null,
+      interests: null,
+      updated_at: new Date().toISOString()
+    };
+  }
+  
   return data as ProfileType;
 };
 
 export const updateProfile = async (userId: string, updates: Partial<ProfileType>) => {
-  // Use raw query instead of strongly typed query until types are updated
-  const { data, error } = await supabase
-    .from('profiles')
-    .update(updates)
-    .eq('id', userId);
+  // Use raw SQL query with RPC to avoid type issues
+  const { data, error } = await supabase.rpc('update_profile', { 
+    p_user_id: userId, 
+    p_updates: updates 
+  });
   
   if (error) throw error;
   return data;
 };
 
-export const checkOnboardingStatus = async (userId: string) => {
+export const checkOnboardingStatus = async (userId: string): Promise<boolean> => {
   try {
-    // Use raw query instead of strongly typed query until types are updated
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('onboarding_completed')
-      .eq('id', userId)
-      .single();
+    // Use raw SQL query with RPC to avoid type issues
+    const { data, error } = await supabase.rpc('check_onboarding_status', { user_id: userId });
     
     if (error) throw error;
     
-    return (data as any).onboarding_completed as boolean;
+    return data as boolean;
   } catch (error) {
     console.error("Error checking onboarding status:", error);
     // Default to not completed if there's an error

@@ -86,14 +86,14 @@ const UserProfile: React.FC = () => {
     try {
       setLoading(true);
       
-      const data = await fetchProfile(user.id);
+      const profileData = await fetchProfile(user.id);
       
-      if (data) {
-        profileForm.setValue("fullName", data.full_name || "");
-        profileForm.setValue("displayName", data.display_name || "");
-        profileForm.setValue("bio", data.bio || "");
-        setAvatarUrl(data.avatar_url);
-        setProfile(data);
+      if (profileData) {
+        profileForm.setValue("fullName", profileData.full_name || "");
+        profileForm.setValue("displayName", profileData.display_name || "");
+        profileForm.setValue("bio", profileData.bio || "");
+        setAvatarUrl(profileData.avatar_url);
+        setProfile(profileData);
       }
     } catch (error: any) {
       console.error("Error fetching profile:", error.message);
