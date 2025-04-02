@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -535,7 +534,10 @@ const UserProfile: React.FC = () => {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-                              <Apple className="h-5 w-5" />
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.539 9.103 1.519 12.09 1 1.468 2.2 3.105 3.773 3.043 1.52-.065 2.09-.987 3.922-.987 1.831 0 2.35.987 3.958.948 1.636-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.577 1.09z" fill="currentColor"/>
+                                <path d="M14.128 3.973c.834-1.014 1.392-2.427 1.234-3.834-1.193.052-2.636.793-3.494 1.807-.767.884-1.438 2.3-1.26 3.66 1.336.105 2.674-.688 3.52-1.633z" fill="currentColor"/>
+                              </svg>
                             </div>
                             <div>
                               <p className="font-medium">Apple</p>

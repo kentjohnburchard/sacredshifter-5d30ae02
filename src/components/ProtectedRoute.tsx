@@ -1,7 +1,8 @@
 
-import React from "react";
-import { Navigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -9,8 +10,45 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, loading } = useAuth();
+  const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
+  const [checkingOnboarding, setCheckingOnboarding] = useState(false);
+  const location = useLocation();
 
-  if (loading) {
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      if (!user) return;
+      
+      // Skip onboarding check for the onboarding page itself
+      if (location.pathname === "/onboarding") {
+        return;
+      }
+      
+      try {
+        setCheckingOnboarding(true);
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("onboarding_completed")
+          .eq("id", user.id)
+          .single();
+        
+        if (error) throw error;
+        
+        setOnboardingCompleted(data.onboarding_completed);
+      } catch (error) {
+        console.error("Error checking onboarding status:", error);
+        // Default to not completed if there's an error
+        setOnboardingCompleted(false);
+      } finally {
+        setCheckingOnboarding(false);
+      }
+    };
+    
+    if (user) {
+      checkOnboarding();
+    }
+  }, [user, location.pathname]);
+
+  if (loading || checkingOnboarding) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent"></div>
@@ -20,6 +58,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   if (!user) {
     return <Navigate to="/auth" replace />;
+  }
+  
+  // If we're not on the onboarding page and onboarding is not completed, redirect to onboarding
+  if (
+    onboardingCompleted === false && 
+    location.pathname !== "/onboarding" && 
+    !checkingOnboarding
+  ) {
+    return <Navigate to="/onboarding" replace />;
   }
 
   return <>{children}</>;
