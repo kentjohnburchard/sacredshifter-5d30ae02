@@ -11,6 +11,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { User, Settings, Bell, Shield, CreditCard, LogOut, AlertCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchProfile, updateProfile, ProfileType } from "@/utils/profiles";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -45,6 +46,7 @@ const UserProfile: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [profile, setProfile] = useState<ProfileType | null>(null);
 
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -84,24 +86,17 @@ const UserProfile: React.FC = () => {
     try {
       setLoading(true);
       
-      // Fetch user profile from profiles table
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-      
-      if (error) throw error;
+      const data = await fetchProfile(user.id);
       
       if (data) {
         profileForm.setValue("fullName", data.full_name || "");
         profileForm.setValue("displayName", data.display_name || "");
         profileForm.setValue("bio", data.bio || "");
         setAvatarUrl(data.avatar_url);
+        setProfile(data);
       }
     } catch (error: any) {
       console.error("Error fetching profile:", error.message);
-      // If the profile doesn't exist yet, we'll create one when the user saves their profile
     } finally {
       setLoading(false);
     }
@@ -114,17 +109,12 @@ const UserProfile: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      const { error } = await supabase
-        .from('profiles')
-        .upsert({
-          id: user.id,
-          full_name: data.fullName,
-          display_name: data.displayName,
-          bio: data.bio,
-          updated_at: new Date(),
-        });
-      
-      if (error) throw error;
+      await updateProfile(user.id, {
+        full_name: data.fullName || null,
+        display_name: data.displayName || null,
+        bio: data.bio || null,
+        updated_at: new Date().toISOString(),
+      });
       
       toast.success("Profile updated successfully");
     } catch (error: any) {
@@ -160,7 +150,6 @@ const UserProfile: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      // First verify current password by attempting to sign in
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: user?.email || "",
         password: data.currentPassword,
@@ -168,7 +157,6 @@ const UserProfile: React.FC = () => {
       
       if (signInError) throw new Error("Current password is incorrect");
       
-      // Update password
       const { error } = await supabase.auth.updateUser({
         password: data.newPassword,
       });
@@ -193,7 +181,6 @@ const UserProfile: React.FC = () => {
     try {
       setUploadingAvatar(true);
       
-      // Upload avatar to storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
       const filePath = `avatars/${fileName}`;
@@ -204,23 +191,16 @@ const UserProfile: React.FC = () => {
       
       if (uploadError) throw uploadError;
       
-      // Get public URL
       const { data: urlData } = await supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
       
       const avatarUrl = urlData.publicUrl;
       
-      // Update profile with avatar URL
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .upsert({
-          id: user.id,
-          avatar_url: avatarUrl,
-          updated_at: new Date(),
-        });
-      
-      if (updateError) throw updateError;
+      await updateProfile(user.id, {
+        avatar_url: avatarUrl,
+        updated_at: new Date().toISOString(),
+      });
       
       setAvatarUrl(avatarUrl);
       toast.success("Avatar updated successfully");
@@ -268,7 +248,6 @@ const UserProfile: React.FC = () => {
     <div className="container py-8 max-w-4xl">
       <div className="flex flex-col space-y-8">
         <div className="flex flex-col md:flex-row gap-8">
-          {/* Avatar and Profile Overview */}
           <Card className="w-full md:w-80 h-fit">
             <CardContent className="pt-6 text-center">
               <div className="flex flex-col items-center">
@@ -320,7 +299,6 @@ const UserProfile: React.FC = () => {
             </CardContent>
           </Card>
           
-          {/* Profile Tabs */}
           <Card className="flex-1">
             <CardHeader>
               <CardTitle>Account Settings</CardTitle>
@@ -519,8 +497,9 @@ const UserProfile: React.FC = () => {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-                              <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
-                                <path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z" fill="currentColor"/>
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.539 9.103 1.519 12.09 1 1.468 2.2 3.105 3.773 3.043 1.52-.065 2.09-.987 3.922-.987 1.831 0 2.35.987 3.958.948 1.636-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.577 1.09z" fill="currentColor"/>
+                                <path d="M14.128 3.973c.834-1.014 1.392-2.427 1.234-3.834-1.193.052-2.636.793-3.494 1.807-.767.884-1.438 2.3-1.26 3.66 1.336.105 2.674-.688 3.52-1.633z" fill="currentColor"/>
                               </svg>
                             </div>
                             <div>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -180,7 +179,6 @@ const UserDashboard: React.FC = () => {
     try {
       setLoading(true);
       
-      // Fetch journal entries
       const { data: journalData, error: journalError } = await supabase
         .from('timeline_snapshots')
         .select('*')
@@ -189,7 +187,6 @@ const UserDashboard: React.FC = () => {
       
       if (journalError) throw journalError;
       
-      // Fetch music generations
       const { data: musicData, error: musicError } = await supabase
         .from('music_generations')
         .select('*')
@@ -278,7 +275,7 @@ const UserDashboard: React.FC = () => {
                 <span>Frequency Journal</span>
               </TabsTrigger>
               <TabsTrigger value="music" className="flex items-center gap-2">
-                <BookMusic className="h-4 w-4" />
+                <Headphones className="h-4 w-4" />
                 <span>Sound Journeys</span>
               </TabsTrigger>
               <TabsTrigger value="analytics" className="flex items-center gap-2">

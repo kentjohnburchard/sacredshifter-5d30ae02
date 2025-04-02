@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { checkOnboardingStatus } from "@/utils/profiles";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -25,15 +25,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       
       try {
         setCheckingOnboarding(true);
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("onboarding_completed")
-          .eq("id", user.id)
-          .single();
-        
-        if (error) throw error;
-        
-        setOnboardingCompleted(data.onboarding_completed);
+        const isCompleted = await checkOnboardingStatus(user.id);
+        setOnboardingCompleted(isCompleted);
       } catch (error) {
         console.error("Error checking onboarding status:", error);
         // Default to not completed if there's an error

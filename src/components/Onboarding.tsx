@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/context/AuthContext";
+import { updateProfile } from "@/utils/profiles";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -81,23 +81,16 @@ const Onboarding: React.FC = () => {
     setLoading(true);
     
     try {
-      // Update user profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .upsert({
-          id: user.id,
-          display_name: name,
-          initial_mood: mood,
-          primary_intention: intention || customIntention,
-          energy_level: energyLevel[0],
-          interests: interests,
-          onboarding_completed: true,
-          updated_at: new Date(),
-        });
+      await updateProfile(user.id, {
+        display_name: name,
+        initial_mood: mood,
+        primary_intention: intention || customIntention,
+        energy_level: energyLevel[0],
+        interests: interests,
+        onboarding_completed: true,
+        updated_at: new Date().toISOString(),
+      });
       
-      if (profileError) throw profileError;
-      
-      // Create initial journal entry
       const { error: journalError } = await supabase
         .from('timeline_snapshots')
         .insert([
