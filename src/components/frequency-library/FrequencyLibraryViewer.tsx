@@ -117,7 +117,7 @@ const FrequencyLibraryViewer = () => {
               </div>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Chakras</SelectItem>
+              <SelectItem value="all-chakras">All Chakras</SelectItem>
               {chakras.map(chakra => (
                 <SelectItem key={chakra} value={chakra}>{chakra}</SelectItem>
               ))}
@@ -132,7 +132,7 @@ const FrequencyLibraryViewer = () => {
               </div>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Vibes</SelectItem>
+              <SelectItem value="all-vibes">All Vibes</SelectItem>
               {vibes.map(vibe => (
                 <SelectItem key={vibe} value={vibe}>{vibe}</SelectItem>
               ))}
