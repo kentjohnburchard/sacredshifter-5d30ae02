@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -18,13 +17,11 @@ export const useFrequencyShift = () => {
   const [showVisualSelector, setShowVisualSelector] = useState(false);
   const navigate = useNavigate();
   
-  // Get the current prompt step
   const getCurrentPrompt = () => {
     const index = currentStep > promptSteps.length - 1 ? promptSteps.length - 1 : currentStep;
     return promptSteps[index];
   };
   
-  // Replace placeholders in the recommendation text
   const getRecommendationText = () => {
     const currentPrompt = getCurrentPrompt();
     if (!matchedFrequency) return currentPrompt.text;
@@ -34,19 +31,15 @@ export const useFrequencyShift = () => {
       .replace("[CHAKRA / STATE]", matchedFrequency.chakra || "energy");
   };
 
-  // Handle main option selection for prompt flow
   const handleOptionSelect = (option: PromptOption) => {
     setSelectedTags([...selectedTags, option.tag]);
     
-    // Handle intention path
     if (option.tag === "intention_path") {
       setShowIntentionInput(true);
       return;
     }
     
-    // Determine next step based on current step and selection
     if (currentStep === 0) {
-      // Main path selection
       switch (option.tag) {
         case "mood_shift":
           setSelectedPath("mood_shift");
@@ -72,20 +65,15 @@ export const useFrequencyShift = () => {
           moveToVisualSelectionOrRecommendation();
       }
     } else if (currentStep === 6) {
-      // Visual overlay options
       if (option.visualType) {
         setSelectedVisual(option.visualType);
       }
       moveToRecommendationStep();
     } else if (currentStep === 7) {
-      // Final options from recommendation screen
       handleRecommendationAction(option.tag);
     } else {
-      // Move to visual selection after any secondary choice
       if (option.frequency) {
-        // Find the corresponding full frequency object
         const matchedFreq = healingFrequencies.find(f => f.frequency === option.frequency) || 
-          // If not found, create a simplified one
           {
             id: option.tag,
             name: option.text,
@@ -98,11 +86,9 @@ export const useFrequencyShift = () => {
         
         setMatchedFrequency(matchedFreq as HealingFrequency);
       } else if (option.tag === "random_recommendation") {
-        // Random selection for "Take me to my sound"
         const randomIndex = Math.floor(Math.random() * healingFrequencies.length);
         setMatchedFrequency(healingFrequencies[randomIndex]);
       } else if (option.tag === "aura_prompt") {
-        // For "What does my energy say?" - pick a resonant frequency
         const resonantFrequencies = [396, 528, 639, 741, 963];
         const randomIndex = Math.floor(Math.random() * resonantFrequencies.length);
         const frequency = resonantFrequencies[randomIndex];
@@ -116,12 +102,12 @@ export const useFrequencyShift = () => {
   
   const moveToVisualSelectionOrRecommendation = () => {
     setShowVisualSelector(true);
-    setCurrentStep(6); // Move to visual overlay selection step
+    setCurrentStep(6);
   };
   
   const moveToRecommendationStep = () => {
     setShowVisualSelector(false);
-    setCurrentStep(7); // Move to recommendation step
+    setCurrentStep(7);
   };
   
   const handleRecommendationAction = (action: string) => {
@@ -133,7 +119,7 @@ export const useFrequencyShift = () => {
         setShowInfoDialog(true);
         break;
       case "go_back":
-        setCurrentStep(0); // Back to start
+        setCurrentStep(0);
         setSelectedTags([]);
         setSelectedPath(null);
         setSelectedVisual(null);
@@ -143,27 +129,22 @@ export const useFrequencyShift = () => {
     }
   };
   
-  // Handle intention submission
   const handleIntentionSubmit = () => {
     setShowIntentionInput(false);
     toast.success("Intention set: " + userIntention);
     moveToVisualSelectionOrRecommendation();
   };
   
-  // Handle visual selection
   const handleVisualSelect = (visualType: string) => {
     setSelectedVisual(visualType);
   };
   
-  // Handle continue after visual selection
   const handleVisualContinue = () => {
     moveToRecommendationStep();
   };
   
-  // Handle beginning the sound journey
   const handleBeginJourney = () => {
     if (!matchedFrequency) {
-      // If no specific frequency matched, choose one based on tags
       const selectedOption = promptSteps
         .flatMap(step => step.options)
         .find(option => selectedTags.includes(option.tag) && option.frequency);
@@ -184,12 +165,10 @@ export const useFrequencyShift = () => {
           });
         }
       } else {
-        // Default to 528Hz (Love Frequency) if no specific match
         setMatchedFrequency(healingFrequencies.find(f => f.frequency === 528) || healingFrequencies[0]);
       }
     }
     
-    // Navigate to music generation with the selected frequency, intention, and visual overlay
     navigate("/music-generation", {
       state: {
         selectedFrequency: matchedFrequency,
@@ -200,7 +179,6 @@ export const useFrequencyShift = () => {
     });
   };
   
-  // Handle saving to timeline
   const handleSaveToTimeline = async () => {
     toast.success("Your frequency journey has been saved to your timeline");
     handleBeginJourney();

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,13 +21,10 @@ const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating, initialFr
   const [negativeTags, setNegativeTags] = useState("");
   const [lyricsType, setLyricsType] = useState<"generate" | "user" | "instrumental">("instrumental");
   
-  // Update the form when a frequency is selected
   useEffect(() => {
     if (initialFrequency) {
-      // Pre-fill the form with frequency information
       setTitle(`${initialFrequency.name} Healing`);
       
-      // Create a description based on the frequency
       const frequencyDescription = [
         `A healing meditation track based on the ${initialFrequency.frequency}Hz frequency.`,
         initialFrequency.chakra ? `Focused on the ${initialFrequency.chakra} chakra.` : '',
@@ -40,7 +36,6 @@ const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating, initialFr
   }, [initialFrequency]);
   
   const generateRandomSeed = () => {
-    // Generate a random integer between -1000000 and 1000000
     return Math.floor(Math.random() * 2000000) - 1000000;
   };
 
@@ -55,7 +50,8 @@ const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating, initialFr
       title: title,
       gpt_description_prompt: description,
       lyrics_type: lyricsType,
-      seed: generateRandomSeed()
+      seed: generateRandomSeed(),
+      frequency: initialFrequency ? initialFrequency.frequency : undefined
     };
     
     if (negativeTags.trim()) {

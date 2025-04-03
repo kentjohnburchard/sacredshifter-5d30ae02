@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
 const SUPABASE_URL = "https://mikltjgbvxrxndtszorb.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "your-anon-key-here"; // You'll need to replace this with the anon key from your new project
+const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pa2x0amdidnhyeG5kdHN6b3JiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTk2MzkxMDQsImV4cCI6MjAzNTIxNTEwNH0.YnzZdPDJUW44xfH0Jmk8Ax2j_O0VhJCKDLBUbcR6nFI"; 
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";

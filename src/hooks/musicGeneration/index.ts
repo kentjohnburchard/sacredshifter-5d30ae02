@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { generateMusic, checkTimedOutTasks } from "@/services/api";
@@ -33,7 +32,6 @@ export const useMusicGeneration = (): UseMusicGenerationResult => {
   const pollingAttemptsRef = useRef(0);
   const [userCredits, setUserCredits] = useState<number | null>(null);
 
-  // Fetch tracks from Supabase on mount
   useEffect(() => {
     if (!user) return;
 
@@ -58,7 +56,6 @@ export const useMusicGeneration = (): UseMusicGenerationResult => {
     loadTracksFromSupabase();
   }, [user]);
 
-  // Fetch user credits on mount
   useEffect(() => {
     if (!user) {
       setUserCredits(null);
@@ -73,12 +70,10 @@ export const useMusicGeneration = (): UseMusicGenerationResult => {
     loadUserCredits();
   }, [user]);
 
-  // Save tracks to localStorage on change
   useEffect(() => {
     localStorage.setItem("generatedTracks", JSON.stringify(generatedTracks));
   }, [generatedTracks]);
 
-  // Check for timed out tasks periodically
   useEffect(() => {
     const checkInterval = window.setInterval(async () => {
       try {
@@ -136,7 +131,6 @@ export const useMusicGeneration = (): UseMusicGenerationResult => {
     };
   }, []);
 
-  // Clean up polling on unmount
   useEffect(() => {
     return () => {
       if (pollingRef.current) {
@@ -190,7 +184,6 @@ export const useMusicGeneration = (): UseMusicGenerationResult => {
       
       toast.success("Music generation started");
       
-      // Start polling for results
       startPolling(
         response.task_id,
         { 
@@ -200,7 +193,6 @@ export const useMusicGeneration = (): UseMusicGenerationResult => {
           setIsGenerating 
         },
         (result) => {
-          // On success callback
           const newTrack: GeneratedTrack = {
             id: result.task_id,
             title: params.title,
