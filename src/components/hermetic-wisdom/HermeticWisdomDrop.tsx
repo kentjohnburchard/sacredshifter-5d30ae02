@@ -1,4 +1,3 @@
-
 import React from "react";
 import { 
   HoverCard, 
@@ -65,8 +64,8 @@ const wisdomDrops: Record<string, WisdomDropContent> = {
     explanation: [
       "The Universe is basically one big EDM track—everything's shaking, pulsing, resonating all the time.",
       "You are a frequency. What you vibe with? You attract.",
-      "When you feel "off," you're not broken—you're just out of tune.",
-      "This principle doesn't say "be happy all the time." It says: "Learn to choose your damn station.""
+      "When you feel 'off', you're not broken—you're just out of tune.",
+      "This principle doesn't say 'be happy all the time.' It says: 'Learn to choose your damn station.'"
     ],
     valeSays: "Your body is a tuning fork, babe. You've just been letting Twitter tune it. Reclaim your sound. Shift your frequency, and reality *has* to follow.",
     affirmation: "I align with the frequency of my highest self."
@@ -105,7 +104,7 @@ const wisdomDrops: Record<string, WisdomDropContent> = {
     title: "Every cause has its effect; every effect has its cause.",
     quote: "Every cause has its effect; every effect has its cause.",
     explanation: [
-      "Coincidence? That's just cosmic shorthand for "you're not paying attention."",
+      "Coincidence? That's just cosmic shorthand for 'you're not paying attention.'",
       "This principle says you're not a victim of chance—you're a vibrational domino-pusher.",
       "Everything you think, say, or feel sets something in motion.",
       "If life's a mess? Track the ripples back to the source—you."
