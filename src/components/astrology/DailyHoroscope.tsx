@@ -3,7 +3,9 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
+import { Loader2, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 // Define the local type
 interface UserSign {
@@ -16,43 +18,49 @@ export const DailyHoroscope: React.FC = () => {
   const [horoscope, setHoroscope] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   
-  useEffect(() => {
-    if (user) {
-      const fetchUserSign = async () => {
-        try {
-          const { data, error } = await supabase
-            .from('user_astrology_data' as any)
-            .select('sun_sign')
-            .eq('user_id', user.id)
-            .single();
-            
-          if (data && !error) {
-            setUserSign(data as UserSign);
-            
-            // Generate horoscope based on sun sign (this would ideally come from an API)
-            if (data.sun_sign) {
-              generateHoroscope(data.sun_sign);
-            } else {
-              setHoroscope("Complete your astrological profile to see your daily horoscope.");
-              setLoading(false);
-            }
-          } else {
-            setHoroscope("Complete your astrological profile to see your daily horoscope.");
-            setLoading(false);
-          }
-        } catch (error) {
-          console.error("Error fetching user sign:", error);
-          setHoroscope("Unable to load your horoscope at this time.");
-          setLoading(false);
-        }
-      };
-      
-      fetchUserSign();
-    } else {
+  const fetchUserSignData = async () => {
+    if (!user) {
       setHoroscope("Sign in to view your personalized daily horoscope.");
       setLoading(false);
+      return;
     }
+    
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('user_astrology_data')
+        .select('sun_sign')
+        .eq('user_id', user.id)
+        .maybeSingle();
+        
+      if (error) {
+        console.error("Error fetching user sign:", error);
+        throw error;
+      }
+      
+      if (data && data.sun_sign) {
+        setUserSign({ sun_sign: data.sun_sign });
+        generateHoroscope(data.sun_sign);
+      } else {
+        setHoroscope("Complete your astrological profile to see your daily horoscope.");
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Error fetching user sign:", error);
+      toast.error("Unable to load your horoscope data");
+      setHoroscope("Unable to load your horoscope at this time.");
+      setLoading(false);
+    }
+  };
+  
+  useEffect(() => {
+    fetchUserSignData();
   }, [user]);
+  
+  const handleRefresh = () => {
+    fetchUserSignData();
+    toast.success("Refreshing your cosmic guidance");
+  };
   
   const generateHoroscope = (sign: string) => {
     // In a real app, this would call an API
@@ -78,10 +86,23 @@ export const DailyHoroscope: React.FC = () => {
   return (
     <Card className="overflow-hidden border border-purple-100/50 dark:border-purple-900/20">
       <CardHeader className="bg-gradient-to-r from-indigo-50/50 to-purple-50/50 dark:from-indigo-950/30 dark:to-purple-950/30">
-        <CardTitle className="text-center text-2xl">
-          Daily Cosmic Guidance
-          {userSign.sun_sign && <span className="block text-lg text-indigo-600/80 mt-1">{userSign.sun_sign}</span>}
-        </CardTitle>
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-2xl">
+            Daily Cosmic Guidance
+            {userSign.sun_sign && <span className="block text-lg text-indigo-600/80 dark:text-indigo-400/80 mt-1">{userSign.sun_sign}</span>}
+          </CardTitle>
+          {userSign.sun_sign && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300" 
+              onClick={handleRefresh}
+            >
+              <RefreshCw className="h-4 w-4 mr-1" />
+              <span className="sr-only md:not-sr-only">Refresh</span>
+            </Button>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="p-6 text-center">
         {loading ? (

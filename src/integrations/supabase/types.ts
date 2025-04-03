@@ -358,6 +358,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_astrology_data: {
+        Row: {
+          birth_date: string
+          birth_place: string
+          birth_time: string | null
+          created_at: string | null
+          dominant_element: string | null
+          id: string
+          moon_sign: string | null
+          rising_sign: string | null
+          sun_sign: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          birth_date: string
+          birth_place: string
+          birth_time?: string | null
+          created_at?: string | null
+          dominant_element?: string | null
+          id?: string
+          moon_sign?: string | null
+          rising_sign?: string | null
+          sun_sign?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          birth_date?: string
+          birth_place?: string
+          birth_time?: string | null
+          created_at?: string | null
+          dominant_element?: string | null
+          id?: string
+          moon_sign?: string | null
+          rising_sign?: string | null
+          sun_sign?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_credits: {
         Row: {
           balance: number | null
