@@ -1,8 +1,15 @@
-
 import React from "react";
 import { motion } from "framer-motion";
 
-const AnimatedBackground: React.FC = () => {
+interface AnimatedBackgroundProps {
+  colorScheme: string;
+  isActive?: boolean;
+}
+
+const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ 
+  colorScheme,
+  isActive = false
+}) => {
   // Create array of objects for the wave elements
   const waves = Array.from({ length: 5 }).map((_, i) => ({
     id: `wave-${i}`,

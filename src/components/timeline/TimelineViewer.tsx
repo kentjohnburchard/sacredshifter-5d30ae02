@@ -28,18 +28,18 @@ import AudioPreview from "./AudioPreview";
 
 interface TimelineEntry {
   id: string;
-  title: string;
-  notes: string | null;
-  tag: string | null;
-  tags?: string[] | null;
-  journal?: string | null;
-  created_at: string;
-  frequency?: number | null;
-  session_id?: string | null;
-  chakra?: string | null;
-  visual_type?: string | null;
-  intention?: string | null;
   user_id: string;
+  title: string;
+  notes: string;
+  tag: string;
+  tags?: string[];
+  journal?: string;
+  session_id?: string;
+  frequency?: number;
+  chakra?: string;
+  visual_type?: string;
+  intention?: string;
+  created_at: string;
   updated_at: string;
 }
 
@@ -97,12 +97,12 @@ const TimelineViewer: React.FC = () => {
         return;
       }
 
-      const timelineEntries: TimelineEntry[] = entriesData.map(entry => ({
+      const timelineEntries: TimelineEntry[] = processJournalEntries(entriesData.map(entry => ({
         ...entry,
         tags: entry.tags || [],
         journal: entry.notes,
         session_id: entry.session_id || undefined
-      }));
+      })));
 
       const frequencies = new Set<number>();
       timelineEntries.forEach(entry => {

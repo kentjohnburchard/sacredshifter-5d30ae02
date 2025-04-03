@@ -26,6 +26,7 @@ const MusicGeneration = () => {
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
   const [initialFrequency, setInitialFrequency] = useState<HealingFrequency | null>(null);
   const [activeTab, setActiveTab] = useState("info");
+  const [isPlaying, setIsPlaying] = useState(false);
   
   useEffect(() => {
     const frequencyParam = searchParams.get('frequency');
@@ -106,11 +107,18 @@ const MusicGeneration = () => {
               </div>
               
               <div className="lg:col-span-2 space-y-6">
-                <FrequencyPlayer 
-                  audioUrl={selectedFrequency.audio_url || ''} 
-                  isPlaying={false} 
-                  onPlayToggle={() => {}} 
-                />
+                {selectedFrequency && (
+                  <div className="my-4 flex items-center gap-4">
+                    <p className="text-lg">
+                      Playing {selectedFrequency.frequency}Hz - {selectedFrequency.name}:
+                    </p>
+                    <FrequencyPlayer
+                      audioUrl={selectedFrequency.audio_url || ''}
+                      isPlaying={isPlaying}
+                      onPlayToggle={() => setIsPlaying(!isPlaying)}
+                    />
+                  </div>
+                )}
                 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-white/80 rounded-lg shadow-sm border border-brand-lavender/20">
                   <TabsList className="grid grid-cols-3 bg-brand-lavender/10 border-b border-brand-lavender/20 w-full rounded-t-lg">

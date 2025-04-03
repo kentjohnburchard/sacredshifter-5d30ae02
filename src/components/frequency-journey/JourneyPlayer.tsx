@@ -63,10 +63,13 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
 
   return (
     <div className="relative min-h-[80vh]">
-      <AnimatedBackground 
-        colorScheme={bgGradient} 
-        isPlaying={isPlaying} // Pass isPlaying as a prop instead of isActive
-      />
+      {/* Pass correct props to AnimatedBackground */}
+      <div className="absolute inset-0 z-0">
+        <AnimatedBackground 
+          colorScheme={bgGradient.split(' ')[1]} 
+          isActive={isPlaying} 
+        />
+      </div>
       
       <div className="relative z-10">
         <Card className="bg-black/40 backdrop-blur-md border border-white/10 text-white shadow-xl">
