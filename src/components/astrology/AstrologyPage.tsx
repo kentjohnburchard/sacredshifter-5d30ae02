@@ -40,7 +40,7 @@ const AstrologyPage: React.FC = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-indigo-50/30 to-purple-50/30 dark:from-gray-900 dark:to-purple-950">
+    <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
       <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-8 sm:px-6 space-y-8">

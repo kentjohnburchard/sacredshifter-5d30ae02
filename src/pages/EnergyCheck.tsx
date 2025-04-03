@@ -10,7 +10,7 @@ const EnergyCheck = () => {
   const [activeTab, setActiveTab] = useState("frequency");
   
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#f8f4ff] to-white">
+    <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
       <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-8 sm:px-6 space-y-8">

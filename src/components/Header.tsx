@@ -31,7 +31,7 @@ const Header: React.FC = () => {
   };
   
   return (
-    <header className="w-full py-4 px-4 sm:px-6 flex flex-col items-center animate-fade-in backdrop-blur-sm bg-[#9b87f5]/5">
+    <header className="w-full py-4 px-4 sm:px-6 flex flex-col items-center animate-fade-in bg-white/80 backdrop-blur-sm shadow-sm dark:bg-gray-900/80">
       <div className="flex items-center gap-2 mb-4">
         <Link to="/" className="flex items-center">
           <img 
@@ -139,7 +139,7 @@ const Header: React.FC = () => {
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuContent className="w-56 bg-white dark:bg-gray-900" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">Account</p>
