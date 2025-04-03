@@ -8,7 +8,7 @@ interface ElementalProfileProps {
 }
 
 export const ElementalProfile: React.FC<ElementalProfileProps> = ({ dominantElement }) => {
-  // Calculate mock elemental distribution
+  // Calculate elemental distribution based on dominant element
   const getElementalValues = () => {
     const baseValues = {
       Fire: 25,
@@ -88,7 +88,7 @@ export const ElementalProfile: React.FC<ElementalProfileProps> = ({ dominantElem
               <Progress 
                 value={value} 
                 className="h-2" 
-                indicatorClassName={getElementColor(element)} 
+                className={getElementColor(element)} 
               />
             </div>
           ))}

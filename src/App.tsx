@@ -1,150 +1,108 @@
-
-import React, { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
-import { Toaster } from 'sonner';
-import ScrollToTop from './components/ScrollToTop';
-import Index from './pages/Index';
-import Auth from './pages/Auth';
-import Journeys from './pages/Journeys';
-import EnergyCheck from './pages/EnergyCheck';
-import Alignment from './pages/Alignment';
-import Intentions from './pages/Intentions';
-import MusicGeneration from './pages/MusicGeneration';
-import MusicLibrary from './pages/MusicLibrary';
-import Subscription from './pages/Subscription';
-import NotFound from './pages/NotFound';
-import Timeline from './pages/Timeline';
-import JourneyTemplates from "./pages/JourneyTemplates";
-import JourneyPlayer from "./pages/JourneyPlayer";
-import FrequencyLibrary from "./pages/FrequencyLibrary";
-import HermeticWisdom from "./pages/HermeticWisdom";
-import Dashboard from './pages/Dashboard';
-import Profile from './pages/Profile';
-import Onboarding from './components/Onboarding';
-import { AuthProvider, useAuth } from "@/context/AuthContext";
-import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
-import { ThemeProvider } from 'next-themes';
-import AnimatedBackground from './components/AnimatedBackground';
-import { AstrologyPage } from './components/astrology';
-import Astrology from './pages/Astrology';
-
-const queryClient = new QueryClient();
-
-// Auth callback page for OAuth providers
-const AuthCallback = () => {
-  const location = useLocation();
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Check if there's an error in the URL
-    const hashParams = new URLSearchParams(location.hash.substring(1));
-    const errorParam = hashParams.get('error');
-    const errorDescription = hashParams.get('error_description');
-    
-    if (errorParam) {
-      setError(`${errorParam}: ${errorDescription}`);
-    }
-  }, [location]);
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Authentication Error</h2>
-          <p className="text-gray-700 mb-6">{error}</p>
-          <button
-            onClick={() => window.location.href = '/auth'}
-            className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-          >
-            Return to Login
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
-    </div>
-  );
-};
-
-// Check if user needs to complete onboarding
-const OnboardingWrapper = () => {
-  const { user, loading } = useAuth();
-  const [needsOnboarding, setNeedsOnboarding] = useState<boolean | null>(null);
-  
-  useEffect(() => {
-    const checkOnboardingStatus = async () => {
-      if (!user || loading) return;
-      
-      try {
-        const { data, error } = await fetch(`/api/check-onboarding?userId=${user.id}`).then(res => res.json());
-        
-        if (error) throw error;
-        
-        setNeedsOnboarding(!data?.onboarding_completed);
-      } catch (error) {
-        console.error("Error checking onboarding status:", error);
-        // Default to showing onboarding if we can't check
-        setNeedsOnboarding(true);
-      }
-    };
-    
-    checkOnboardingStatus();
-  }, [user, loading]);
-  
-  if (loading || needsOnboarding === null) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
-      </div>
-    );
-  }
-  
-  if (needsOnboarding) {
-    return <Onboarding />;
-  }
-  
-  return <Navigate to="/dashboard" replace />;
-};
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { Auth } from '@supabase/auth-ui-react';
+import { ThemeSupa } from '@supabase/auth-ui-shared';
+import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
+import Account from '@/pages/Account';
+import Home from '@/pages/Home';
+import Pricing from '@/pages/Pricing';
+import About from '@/pages/About';
+import Contact from '@/pages/Contact';
+import Blog from '@/pages/Blog';
+import ComingSoon from '@/pages/ComingSoon';
+import AnimatedBackground from '@/components/AnimatedBackground';
+import Astrology from '@/pages/Astrology';
+import MusicGeneration from '@/pages/MusicGeneration';
+import Meditation from '@/pages/Meditation';
+import Focus from '@/pages/Focus';
+import MoodJournal from '@/pages/MoodJournal';
+import Timeline from '@/pages/Timeline';
+import { AuthProvider } from '@/context/AuthContext';
+import CreditsDisplay from '@/components/CreditsDisplay';
+import MusicPlayer from '@/components/MusicPlayer';
+import FrequencyDetails from '@/components/FrequencyDetails';
+import Soundscapes from '@/pages/Soundscapes';
+import { Sonner } from 'sonner';
 
 function App() {
+  const [showBackground, setShowBackground] = useState(true);
+  const session = useSession();
+  const supabase = useSupabaseClient();
+
+  useEffect(() => {
+    const path = window.location.pathname;
+    setShowBackground(
+      path === '/' ||
+      path === '/pricing' ||
+      path === '/about' ||
+      path === '/contact' ||
+      path === '/blog' ||
+      path === '/astrology' ||
+      path === '/music-generation' ||
+      path === '/meditation' ||
+      path === '/focus' ||
+      path === '/soundscapes'
+    );
+  }, []);
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <ThemeProvider defaultTheme="light" storageKey="sacred-shifter-theme">
-          <BrowserRouter>
-            <ScrollToTop />
-            <AnimatedBackground />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/auth-callback" element={<AuthCallback />} />
-              <Route path="/onboarding" element={<Onboarding />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/journeys" element={<Journeys />} />
-              <Route path="/energy-check" element={<EnergyCheck />} />
-              <Route path="/hermetic-wisdom" element={<HermeticWisdom />} />
-              <Route path="/music-generation" element={<MusicGeneration />} />
-              <Route path="/music-library" element={<MusicLibrary />} />
-              <Route path="/subscription" element={<Subscription />} />
-              <Route path="/frequency-library" element={<FrequencyLibrary />} />
-              <Route path="/journey-player/:frequencyId" element={<JourneyPlayer />} />
-              <Route path="/timeline" element={<Timeline />} />
-              <Route path="/journey-templates" element={<JourneyTemplates />} />
-              <Route path="/intentions" element={<Intentions />} />
-              <Route path="/alignment" element={<Alignment />} />
-              <Route path="/astrology" element={<Astrology />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Toaster />
-          </BrowserRouter>
-        </ThemeProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+    <AuthProvider>
+      <Router>
+        <Sonner />
+        {showBackground && (
+          <AnimatedBackground colorScheme="purple" />
+        )}
+        <Routes>
+          <Route exact path="/" element={<Home />} />
+          <Route exact path="/pricing" element={<Pricing />} />
+          <Route exact path="/about" element={<About />} />
+          <Route exact path="/contact" element={<Contact />} />
+          <Route exact path="/blog" element={<Blog />} />
+          <Route exact path="/coming-soon" element={<ComingSoon />} />
+          <Route exact path="/astrology" element={<Astrology />} />
+          <Route exact path="/music-generation" element={<MusicGeneration />} />
+          <Route exact path="/meditation" element={<Meditation />} />
+          <Route exact path="/focus" element={<Focus />} />
+          <Route exact path="/soundscapes" element={<Soundscapes />} />
+          <Route exact path="/mood-journal" element={<MoodJournal />} />
+          <Route exact path="/timeline" element={<Timeline />} />
+          <Route
+            exact
+            path="/account"
+            element={
+              !session ? (
+                <Navigate to="/login" replace />
+              ) : (
+                <Account key={session.user.id} session={session} />
+              )
+            }
+          />
+          <Route
+            exact
+            path="/login"
+            element={
+              session ? (
+                <Navigate to="/account" replace />
+              ) : (
+                <div className="flex justify-center items-center min-h-screen">
+                  <div className="w-full max-w-md">
+                    <Auth
+                      supabaseClient={supabase}
+                      appearance={{ theme: ThemeSupa }}
+                      providers={['google', 'github']}
+                      redirectTo={`${window.location.origin}/account`}
+                    />
+                  </div>
+                </div>
+              )
+            }
+          />
+          <Route exact path="/frequency/:id" element={<FrequencyDetails />} />
+        </Routes>
+        <CreditsDisplay />
+        <MusicPlayer />
+      </Router>
+    </AuthProvider>
   );
 }
 

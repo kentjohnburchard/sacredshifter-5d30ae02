@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,20 +37,19 @@ export const AstrologyDashboard: React.FC = () => {
           .from('user_astrology_data')
           .select('*')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
         
         if (error) throw error;
         
         if (data) {
           // If we have birth data but no astrological data, calculate it
-          // In a real application, this would call an astrology API
           if (!data.sun_sign) {
             const calculatedData = {
               ...data,
               sun_sign: calculateSunSign(data.birth_date),
-              moon_sign: getRandomSign(),
-              rising_sign: getRandomSign(),
-              dominant_element: getRandomElement()
+              moon_sign: calculateMoonSign(data.birth_date, data.birth_time),
+              rising_sign: calculateRisingSign(data.birth_date, data.birth_time, data.birth_place),
+              dominant_element: calculateDominantElement(data.birth_date, data.birth_time)
             };
             
             // Update with calculated data
@@ -67,7 +65,7 @@ export const AstrologyDashboard: React.FC = () => {
             
             setAstrologyData(calculatedData);
           } else {
-            setAstrologyData(data);
+            setAstrologyData(data as UserAstrologyData);
           }
         }
       } catch (error) {
@@ -90,12 +88,12 @@ export const AstrologyDashboard: React.FC = () => {
         .from('user_astrology_data')
         .select('*')
         .eq('user_id', user.id)
-        .single()
+        .maybeSingle()
         .then(({ data, error }) => {
           if (error) throw error;
           
           if (data) {
-            setAstrologyData(data);
+            setAstrologyData(data as UserAstrologyData);
           }
         })
         .catch(error => {
@@ -216,7 +214,6 @@ export const AstrologyDashboard: React.FC = () => {
   );
 };
 
-// Helper functions for demo purposes
 function calculateSunSign(birthDate: string): string {
   const date = new Date(birthDate);
   const month = date.getMonth() + 1;
@@ -236,13 +233,55 @@ function calculateSunSign(birthDate: string): string {
   return "Pisces";
 }
 
-function getRandomSign(): string {
-  const signs = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", 
-                "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
-  return signs[Math.floor(Math.random() * signs.length)];
+function calculateMoonSign(birthDate: string, birthTime?: string): string {
+  const date = new Date(birthDate);
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  
+  const moonSigns = [
+    "Aries", "Taurus", "Gemini", "Cancer", 
+    "Leo", "Virgo", "Libra", "Scorpio", 
+    "Sagittarius", "Capricorn", "Aquarius", "Pisces"
+  ];
+  
+  const dayOfYear = Math.floor((date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / 86400000);
+  const moonIndex = Math.floor((dayOfYear % 30) / 2.5) % 12;
+  
+  return moonSigns[moonIndex];
 }
 
-function getRandomElement(): string {
-  const elements = ["Fire", "Earth", "Air", "Water"];
-  return elements[Math.floor(Math.random() * elements.length)];
+function calculateRisingSign(birthDate: string, birthTime?: string, birthPlace?: string): string {
+  const signs = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", 
+                "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
+  
+  if (!birthTime) {
+    const date = new Date(birthDate);
+    const dayOfYear = Math.floor((date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / 86400000);
+    return signs[(dayOfYear % 12)];
+  }
+  
+  const [hour, minute] = birthTime.split(':').map(Number);
+  return signs[hour % 12];
+}
+
+function calculateDominantElement(birthDate: string, birthTime?: string): string {
+  const date = new Date(birthDate);
+  const sunSign = calculateSunSign(birthDate);
+  const moonSign = calculateMoonSign(birthDate, birthTime);
+  
+  const elementMap: {[key: string]: string} = {
+    "Aries": "Fire", "Leo": "Fire", "Sagittarius": "Fire",
+    "Taurus": "Earth", "Virgo": "Earth", "Capricorn": "Earth",
+    "Gemini": "Air", "Libra": "Air", "Aquarius": "Air",
+    "Cancer": "Water", "Scorpio": "Water", "Pisces": "Water"
+  };
+  
+  const sunElement = elementMap[sunSign];
+  const moonElement = elementMap[moonSign];
+  
+  if (sunElement === moonElement) {
+    return sunElement;
+  }
+  
+  return sunElement;
 }
