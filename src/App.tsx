@@ -21,7 +21,7 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Onboarding from './components/Onboarding';
 import { AuthProvider, useAuth } from "@/context/AuthContext";
-import { QueryClientProvider, QueryClient } from 'react-query';
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { ThemeProvider } from 'next-themes';
 import AnimatedBackground from './components/AnimatedBackground';
 import { AstrologyPage } from './components/astrology';
