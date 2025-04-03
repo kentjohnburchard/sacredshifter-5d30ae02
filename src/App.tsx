@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
@@ -17,11 +16,16 @@ import Timeline from './pages/Timeline';
 import JourneyTemplates from "./pages/JourneyTemplates";
 import JourneyPlayer from "./pages/JourneyPlayer";
 import FrequencyLibrary from "./pages/FrequencyLibrary";
-import HermeticWisdom from "./pages/HermeticWisdom"; // Import the new page
+import HermeticWisdom from "./pages/HermeticWisdom";
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Onboarding from './components/Onboarding';
 import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { QueryClientProvider, QueryClient } from 'react-query';
+import { ThemeProvider } from 'next-themes';
+import AnimatedBackground from './components/AnimatedBackground';
+
+const queryClient = new QueryClient();
 
 // Auth callback page for OAuth providers
 const AuthCallback = () => {
@@ -105,33 +109,39 @@ const OnboardingWrapper = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <ScrollToTop />
-        <Toaster />
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/auth-callback" element={<AuthCallback />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/journeys" element={<Journeys />} />
-          <Route path="/energy-check" element={<EnergyCheck />} />
-          <Route path="/alignment" element={<Alignment />} />
-          <Route path="/intentions" element={<Intentions />} />
-          <Route path="/music-generation" element={<MusicGeneration />} />
-          <Route path="/music-library" element={<MusicLibrary />} />
-          <Route path="/subscription" element={<Subscription />} />
-          <Route path="/timeline" element={<Timeline />} />
-          <Route path="/journey-templates" element={<JourneyTemplates />} />
-          <Route path="/journey/:frequencyId" element={<JourneyPlayer />} />
-          <Route path="/frequency-library" element={<FrequencyLibrary />} />
-          <Route path="/hermetic-wisdom" element={<HermeticWisdom />} /> {/* Add the new route */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <ThemeProvider defaultTheme="light" storageKey="sacred-shifter-theme">
+          <ScrollToTop />
+          <BrowserRouter>
+            <AnimatedBackground />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/auth-callback" element={<AuthCallback />} />
+              <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/journeys" element={<Journeys />} />
+              <Route path="/energy-check" element={<EnergyCheck />} />
+              <Route path="/hermetic-wisdom" element={<HermeticWisdom />} />
+              <Route path="/music-generation" element={<MusicGeneration />} />
+              <Route path="/music-library" element={<MusicLibrary />} />
+              <Route path="/subscription" element={<Subscription />} />
+              <Route path="/frequency-library" element={<FrequencyLibrary />} />
+              <Route path="/journey-player/:frequencyId" element={<JourneyPlayer />} />
+              <Route path="/timeline" element={<Timeline />} />
+              <Route path="/journey-templates" element={<JourneyTemplates />} />
+              <Route path="/intentions" element={<Intentions />} />
+              <Route path="/alignment" element={<Alignment />} />
+              <Route path="/astrology" element={<Astrology />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <Toaster />
+          </BrowserRouter>
+        </ThemeProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
