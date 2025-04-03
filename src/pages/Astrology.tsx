@@ -54,11 +54,11 @@ const Astrology = () => {
         <div className="text-center space-y-3 mb-8 animate-fade-in">
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-violet-600">
-              Cosmic Harmony
+              🌀 The Sacred Signature
             </span>
           </h1>
           <p className="text-indigo-600/70 max-w-2xl mx-auto text-lg">
-            Discover how your unique birth chart influences your energy and spiritual journey.
+            Every star, every planet, every vibration = your divine stamp.
           </p>
         </div>
         
@@ -121,10 +121,11 @@ const Astrology = () => {
       </main>
       
       <footer className="w-full py-6 text-center text-sm text-indigo-600/50">
-        <p>Sacred Shifter - Align your energy with cosmic rhythms.</p>
+        <p>🌀 The Sacred Signature - Align your energy with cosmic rhythms.</p>
       </footer>
     </div>
   );
 };
 
 export default Astrology;
+
