@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, YinYang, Music4, Layers, MessageSquare, Circle } from "lucide-react";
+import { Sparkles, CircleOff, Music4, Layers, MessageSquare, Circle, Compass } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { 
@@ -60,7 +60,7 @@ const hermetic = [
     frequency: healingFrequencies.find(f => f.frequency === 639) || healingFrequencies[2], // Heart Chakra
     animation: "Yin-yang orbiting spheres + pulsing gradients",
     tag: "hermetic_polarity",
-    icon: YinYang,
+    icon: CircleOff,
     color: "from-green-300 to-teal-600"
   },
   {
@@ -96,7 +96,7 @@ const hermetic = [
     frequency: healingFrequencies.find(f => f.frequency === 396) || healingFrequencies[7], // Root Chakra
     animation: "Dual-flow energy currents interweaving",
     tag: "hermetic_gender",
-    icon: YinYang,
+    icon: Compass,
     color: "from-red-300 to-red-600"
   }
 ];
