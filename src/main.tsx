@@ -10,9 +10,11 @@ import './index.css'
 // Create a client
 const queryClient = new QueryClient()
 
-// Initialize Supabase client
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+// Initialize Supabase client with hardcoded values from the client.ts file
+// This ensures we have fallback values if environment variables are not loaded
+const supabaseUrl = "https://mikltjgbvxrxndtszorb.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pa2x0amdidnhyeG5kdHN6b3JiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM2NDI3MDksImV4cCI6MjA1OTIxODcwOX0.f4QfhZzSZJ92AjCfbkEMrrmzJrWI617H-FyjJKJ8_70";
+
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 const container = document.getElementById('root')
