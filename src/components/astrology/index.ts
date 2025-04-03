@@ -6,3 +6,4 @@ export { DailyHoroscope } from "./DailyHoroscope";
 export { PlanetaryTransits } from "./PlanetaryTransits";
 export { BirthChart } from "./BirthChart";
 export { ElementalProfile } from "./ElementalProfile";
+export { default as AstrologyPage } from "./AstrologyPage";

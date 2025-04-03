@@ -24,6 +24,7 @@ import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { QueryClientProvider, QueryClient } from 'react-query';
 import { ThemeProvider } from 'next-themes';
 import AnimatedBackground from './components/AnimatedBackground';
+import { AstrologyPage } from './components/astrology';
 
 const queryClient = new QueryClient();
 
@@ -134,7 +135,7 @@ function App() {
               <Route path="/journey-templates" element={<JourneyTemplates />} />
               <Route path="/intentions" element={<Intentions />} />
               <Route path="/alignment" element={<Alignment />} />
-              <Route path="/astrology" element={<Astrology />} />
+              <Route path="/astrology" element={<AstrologyPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster />
