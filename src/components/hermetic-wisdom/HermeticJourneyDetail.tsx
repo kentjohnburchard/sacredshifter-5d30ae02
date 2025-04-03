@@ -1,11 +1,16 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Play, ArrowLeft } from "lucide-react";
+import { Play, ArrowLeft, Music } from "lucide-react";
 import { HermeticJourney } from "@/data/hermeticJourneys";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import HermeticPlaylist from "./HermeticPlaylist";
+import HermeticTrackUploadModal from "./HermeticTrackUploadModal";
+import { getTracksForPrinciple } from "@/services/hermeticPlaylistService";
+import { HermeticTrack } from "@/types/playlist";
+import FrequencyPlayer from "@/components/FrequencyPlayer";
 
 interface HermeticJourneyDetailProps {
   journey: HermeticJourney;
@@ -14,11 +19,33 @@ interface HermeticJourneyDetailProps {
 
 const HermeticJourneyDetail: React.FC<HermeticJourneyDetailProps> = ({ journey, onBack }) => {
   const navigate = useNavigate();
+  const [tracks, setTracks] = useState<HermeticTrack[]>([]);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [currentPlayingTrack, setCurrentPlayingTrack] = useState<HermeticTrack | null>(null);
+
+  useEffect(() => {
+    const loadTracks = async () => {
+      const principlesTracks = await getTracksForPrinciple(journey.principle);
+      setTracks(principlesTracks);
+    };
+    
+    loadTracks();
+  }, [journey.principle]);
 
   const handleStartJourney = () => {
     // Navigate to the frequency journey player with this frequency
     navigate(`/journey/${journey.frequency}`);
     toast.success(`Starting ${journey.title} journey`);
+  };
+
+  const handleTrackPlay = (track: HermeticTrack) => {
+    setCurrentPlayingTrack(track);
+    setIsAudioPlaying(true);
+  };
+
+  const handleTrackUploaded = (newTrack: HermeticTrack) => {
+    setTracks(prev => [newTrack, ...prev]);
   };
 
   return (
@@ -30,6 +57,20 @@ const HermeticJourneyDetail: React.FC<HermeticJourneyDetailProps> = ({ journey, 
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h2 className="text-2xl font-semibold">{journey.title}</h2>
+          
+          {currentPlayingTrack && (
+            <div className="ml-auto flex items-center gap-2">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-medium">{currentPlayingTrack.title}</p>
+                <p className="text-xs text-gray-500">{currentPlayingTrack.artist}</p>
+              </div>
+              <FrequencyPlayer
+                audioUrl={currentPlayingTrack.audioUrl}
+                isPlaying={isAudioPlaying}
+                onPlayToggle={() => setIsAudioPlaying(!isAudioPlaying)}
+              />
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -64,6 +105,32 @@ const HermeticJourneyDetail: React.FC<HermeticJourneyDetailProps> = ({ journey, 
           <p className="text-gray-700 whitespace-pre-line">{journey.guidedPrompt}</p>
         </div>
         
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-medium text-purple-700">
+              <Music className="h-5 w-5 inline mr-2" />
+              Journey Playlist
+            </h3>
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="text-sm"
+              onClick={() => setUploadModalOpen(true)}
+            >
+              Add Track
+            </Button>
+          </div>
+          
+          <HermeticPlaylist
+            principle={journey.principle}
+            frequency={journey.frequency}
+            chakra={journey.chakra}
+            tracks={tracks}
+            onTrackPlay={handleTrackPlay}
+            onUploadClick={() => setUploadModalOpen(true)}
+          />
+        </div>
+        
         <div className="flex justify-center">
           <Button 
             onClick={handleStartJourney}
@@ -73,6 +140,13 @@ const HermeticJourneyDetail: React.FC<HermeticJourneyDetailProps> = ({ journey, 
           </Button>
         </div>
       </CardContent>
+      
+      <HermeticTrackUploadModal 
+        open={uploadModalOpen}
+        onOpenChange={setUploadModalOpen}
+        defaultPrinciple={journey.principle}
+        onTrackUploaded={handleTrackUploaded}
+      />
     </Card>
   );
 };
