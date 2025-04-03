@@ -1,30 +1,26 @@
 
 import React, { useState, useEffect } from "react";
-import { 
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useAuth } from "@/context/AuthContext";
 import TagsInput from "./TagsInput";
-import { Check, X } from "lucide-react";
 
 interface TimelineEntry {
   id: string;
+  user_id: string;
   title: string;
   notes: string | null;
-  tags: string[] | null;
-  journal: string | null;
+  tag: string | null;
+  tags?: string[];
+  journal?: string;
+  frequency?: number | null;
+  chakra?: string | null;
   created_at: string;
+  updated_at: string;
 }
 
 interface EditEntryDialogProps {
@@ -40,141 +36,143 @@ const EditEntryDialog: React.FC<EditEntryDialogProps> = ({
   onOpenChange,
   onEntryUpdated
 }) => {
-  const [title, setTitle] = useState(entry?.title || "");
-  const [notes, setNotes] = useState(entry?.notes || "");
-  const [journal, setJournal] = useState(entry?.journal || "");
-  const [tags, setTags] = useState<string[]>(entry?.tags || []);
-  const [isSaving, setIsSaving] = useState(false);
-  const { user } = useAuth();
+  const [title, setTitle] = useState("");
+  const [notes, setNotes] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Reset form when entry changes
   useEffect(() => {
     if (entry) {
       setTitle(entry.title || "");
       setNotes(entry.notes || "");
-      setJournal(entry.journal || "");
       setTags(entry.tags || []);
     }
   }, [entry]);
 
   const handleSave = async () => {
-    if (!entry || !user) return;
-
-    setIsSaving(true);
+    if (!entry) return;
+    
+    setIsLoading(true);
+    
     try {
       const { error } = await supabase
         .from("timeline_snapshots")
         .update({
           title,
           notes,
-          journal,
-          tags
+          tags,
+          updated_at: new Date().toISOString()
         })
-        .eq("id", entry.id)
-        .eq("user_id", user.id);
-
-      if (error) {
-        console.error("Error updating entry:", error);
-        toast.error("Failed to update entry");
-        return;
-      }
-
-      toast.success("✅ Your moment has been updated. Reconnection complete.");
+        .eq("id", entry.id);
+      
+      if (error) throw error;
+      
+      toast.success("Timeline entry updated successfully");
       onEntryUpdated();
       onOpenChange(false);
     } catch (error) {
-      console.error("Unexpected error:", error);
-      toast.error("An error occurred while updating");
+      console.error("Error updating timeline entry:", error);
+      toast.error("Failed to update timeline entry");
     } finally {
-      setIsSaving(false);
+      setIsLoading(false);
     }
   };
 
-  if (!entry) return null;
+  const handleDelete = async () => {
+    if (!entry) return;
+    
+    if (!confirm("Are you sure you want to delete this entry?")) {
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      const { error } = await supabase
+        .from("timeline_snapshots")
+        .delete()
+        .eq("id", entry.id);
+      
+      if (error) throw error;
+      
+      toast.success("Timeline entry deleted");
+      onEntryUpdated();
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Error deleting timeline entry:", error);
+      toast.error("Failed to delete timeline entry");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden">
-        <DialogHeader className="bg-gradient-to-r from-purple-500 to-blue-500 p-6 text-white">
-          <DialogTitle className="text-xl font-semibold">Edit Saved Moment</DialogTitle>
-          <DialogDescription className="text-white/80 mt-1">
-            Update your moment details and reconnect with this vibration
-          </DialogDescription>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Edit Timeline Entry</DialogTitle>
         </DialogHeader>
         
-        <div className="p-6 overflow-y-auto max-h-[70vh]">
-          <div className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="title" className="text-base font-medium">Update your moment title</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Give this moment a meaningful title"
-                className="w-full"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="tags" className="text-base font-medium">Tags</Label>
-              <TagsInput 
-                value={tags} 
-                onChange={setTags} 
-                placeholder="Add tags that represent this moment"
-              />
-              <p className="text-xs text-gray-500">
-                Suggested: Healing, Clarity, Empowerment, Letting Go, Alignment, Expansion
-              </p>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="notes" className="text-base font-medium">Notes</Label>
-              <Textarea
-                id="notes"
-                value={notes || ""}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Brief notes about this frequency moment"
-                className="min-h-[80px]"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="journal" className="text-base font-medium">Update your reflection</Label>
-              <Textarea
-                id="journal"
-                value={journal || ""}
-                onChange={(e) => setJournal(e.target.value)}
-                placeholder="Reflect on your experience, insights, or feelings during this frequency journey"
-                className="min-h-[150px]"
-              />
-              <p className="text-xs text-gray-500">
-                Take a moment to reflect on how this frequency made you feel and what insights emerged
-              </p>
-            </div>
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="title">Title</Label>
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter a title for this entry"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="notes">Notes</Label>
+            <Textarea
+              id="notes"
+              value={notes || ""}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Add notes about this frequency experience"
+              rows={4}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="tags">Tags</Label>
+            <TagsInput 
+              value={tags} 
+              onChange={setTags} 
+              placeholder="Add tags and press Enter"
+            />
           </div>
         </div>
         
-        <DialogFooter className="p-4 border-t">
+        <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:justify-between">
           <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            className="flex items-center gap-1"
+            type="button"
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={isLoading}
           >
-            <X className="h-4 w-4" />
-            Cancel
+            Delete Entry
           </Button>
-          <Button 
-            onClick={handleSave}
-            disabled={isSaving}
-            className="bg-gradient-to-r from-purple-500 to-blue-500 text-white flex items-center gap-1"
-          >
-            {isSaving ? "Updating..." : (
-              <>
-                <Check className="h-4 w-4" />
-                Save Changes
-              </>
-            )}
-          </Button>
+          
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isLoading}
+            >
+              Cancel
+            </Button>
+            
+            <Button 
+              type="button" 
+              onClick={handleSave}
+              disabled={isLoading || !title.trim()}
+            >
+              Save Changes
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

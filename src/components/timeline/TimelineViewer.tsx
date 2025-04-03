@@ -30,15 +30,15 @@ interface TimelineEntry {
   id: string;
   user_id: string;
   title: string;
-  notes: string;
-  tag: string;
+  notes: string | null;
+  tag: string | null;
   tags?: string[];
   journal?: string;
-  session_id?: string;
-  frequency?: number;
-  chakra?: string;
-  visual_type?: string;
-  intention?: string;
+  session_id?: string | null;
+  frequency?: number | null;
+  chakra?: string | null;
+  visual_type?: string | null;
+  intention?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -106,7 +106,7 @@ const TimelineViewer: React.FC = () => {
         return;
       }
 
-      const processedEntries = processJournalEntries(entriesData);
+      const processedEntries = processJournalEntries(entriesData || []);
 
       const frequencies = new Set<number>();
       processedEntries.forEach(entry => {
