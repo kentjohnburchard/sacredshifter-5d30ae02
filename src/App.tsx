@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
@@ -10,11 +10,11 @@ import AnimatedBackground from '@/components/AnimatedBackground';
 import { Toaster } from 'sonner';
 
 function App() {
-  const [showBackground, setShowBackground] = useState(true);
+  const [showBackground, setShowBackground] = React.useState(true);
   const session = useSession();
   const supabase = useSupabaseClient();
 
-  useEffect(() => {
+  React.useEffect(() => {
     const path = window.location.pathname;
     setShowBackground(
       path === '/' ||

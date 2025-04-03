@@ -1,136 +1,148 @@
 
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuth } from "@/context/AuthContext";
 import { Progress } from "@/components/ui/progress";
-import { Clock, Calendar } from "lucide-react";
 
 export const PlanetaryTransits: React.FC = () => {
-  const { user } = useAuth();
-  
-  // Mock data for transits - in a real app, this would be calculated based on current planetary positions
+  // Mock data for planets in transit
   const transits = [
     {
-      planet: "Mercury",
-      sign: "Gemini",
-      startDate: "2025-04-01",
-      endDate: "2025-04-20",
-      description: "Communication flows easily. A good time for writing and learning.",
-      impact: 75,
-      isRetrograde: false,
-      element: "Air"
+      planet: "Jupiter",
+      sign: "Taurus",
+      house: 2,
+      aspect: "Trine",
+      intensity: 85,
+      influence: "Expansion and growth in finances and material resources",
+      color: "bg-yellow-500"
     },
     {
-      planet: "Venus",
-      sign: "Taurus",
-      startDate: "2025-03-15",
-      endDate: "2025-04-10",
-      description: "Harmonious energy for relationships and finances. Enjoy simple pleasures.",
-      impact: 60,
-      isRetrograde: false,
-      element: "Earth"
+      planet: "Saturn",
+      sign: "Pisces",
+      house: 12,
+      aspect: "Square",
+      intensity: 60,
+      influence: "Discipline and structure in your subconscious mind",
+      color: "bg-blue-800"
     },
     {
       planet: "Mars",
-      sign: "Aries",
-      startDate: "2025-04-02",
-      endDate: "2025-05-15",
-      description: "Dynamic energy boosts your drive and motivation. Channel it productively.",
-      impact: 80,
-      isRetrograde: false,
-      element: "Fire"
+      sign: "Gemini",
+      house: 3,
+      aspect: "Conjunction",
+      intensity: 75,
+      influence: "Energizing your communication and learning abilities",
+      color: "bg-red-600"
     },
     {
-      planet: "Jupiter",
-      sign: "Pisces",
-      startDate: "2025-01-25",
-      endDate: "2025-06-10",
-      description: "Spiritual growth and creative inspiration. Trust your intuition.",
-      impact: 65,
-      isRetrograde: false,
-      element: "Water"
+      planet: "Venus",
+      sign: "Cancer",
+      house: 4,
+      aspect: "Sextile",
+      intensity: 50,
+      influence: "Harmony and pleasure in your home and family life",
+      color: "bg-green-400"
+    },
+    {
+      planet: "Mercury",
+      sign: "Leo",
+      house: 5,
+      aspect: "Opposition",
+      intensity: 65,
+      influence: "Enhanced thinking and expression in creative pursuits",
+      color: "bg-purple-500"
     }
   ];
   
-  const getPlanetColor = (element: string, isRetrograde: boolean) => {
-    if (isRetrograde) return "bg-purple-400";
+  // Get the major transit (highest intensity)
+  const majorTransit = [...transits].sort((a, b) => b.intensity - a.intensity)[0];
+  
+  // Get frequency recommendation based on transit
+  const getRecommendedFrequency = (planet: string) => {
+    const frequencies: Record<string, number> = {
+      "Sun": 528,
+      "Moon": 396,
+      "Mercury": 285,
+      "Venus": 639,
+      "Mars": 741,
+      "Jupiter": 417,
+      "Saturn": 174,
+      "Uranus": 852,
+      "Neptune": 369,
+      "Pluto": 963
+    };
     
-    switch (element) {
-      case "Fire": return "bg-red-500";
-      case "Earth": return "bg-green-500";
-      case "Air": return "bg-blue-400";
-      case "Water": return "bg-blue-600";
-      default: return "bg-indigo-500";
-    }
+    return frequencies[planet] || 528;
   };
-  
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  };
-  
-  if (!user) {
-    return (
-      <Card className="overflow-hidden border border-purple-100/50 dark:border-purple-900/20">
-        <CardHeader className="bg-gradient-to-r from-indigo-50/50 to-purple-50/50 dark:from-indigo-950/30 dark:to-purple-950/30">
-          <CardTitle>Current Cosmic Transits</CardTitle>
-          <CardDescription>Sign in to see how planetary movements affect your energy</CardDescription>
-        </CardHeader>
-        <CardContent className="p-6">
-          <p className="text-center">Please sign in to view current planetary transits and their influence on your chart.</p>
-        </CardContent>
-      </Card>
-    );
-  }
   
   return (
-    <Card className="overflow-hidden border border-purple-100/50 dark:border-purple-900/20">
-      <CardHeader className="bg-gradient-to-r from-indigo-50/50 to-purple-50/50 dark:from-indigo-950/30 dark:to-purple-950/30">
-        <CardTitle>Current Cosmic Transits</CardTitle>
-        <CardDescription>Key planetary movements affecting your energy</CardDescription>
-      </CardHeader>
-      <CardContent className="p-6">
-        <div className="space-y-6">
-          {transits.map((transit, index) => (
-            <div key={index} className="space-y-2">
+    <div className="grid gap-6">
+      <Card className="border-purple-100 dark:border-purple-900/20">
+        <CardHeader>
+          <CardTitle>Current Planetary Transits</CardTitle>
+          <CardDescription>How cosmic movements are influencing your energetic field</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {transits.map((transit) => (
+            <div key={transit.planet} className="space-y-2">
               <div className="flex justify-between items-center">
                 <div>
-                  <h3 className="font-medium text-lg">{transit.planet} in {transit.sign}</h3>
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <Calendar className="h-3.5 w-3.5 mr-1" />
-                    <span>{formatDate(transit.startDate)} - {formatDate(transit.endDate)}</span>
-                    {transit.isRetrograde && (
-                      <span className="ml-2 px-1.5 py-0.5 text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded">
-                        Retrograde
-                      </span>
-                    )}
-                  </div>
+                  <h4 className="font-medium">{transit.planet} in {transit.sign}</h4>
+                  <p className="text-sm text-muted-foreground">
+                    House {transit.house} • {transit.aspect} aspect
+                  </p>
                 </div>
-                <div className="text-right">
-                  <span className="text-sm font-medium">{transit.element}</span>
-                </div>
+                <span className="text-sm font-semibold">
+                  {transit.intensity}%
+                </span>
               </div>
               
-              <p className="text-sm">{transit.description}</p>
+              <Progress 
+                value={transit.intensity} 
+                className={`h-2 ${transit.color}`}
+              />
               
-              <div className="pt-1">
-                <div className="flex justify-between text-xs mb-1">
-                  <span>Impact</span>
-                  <span>{transit.impact}%</span>
-                </div>
-                <Progress 
-                  value={transit.impact} 
-                  className="h-1.5"
-                  style={{
-                    backgroundColor: 'var(--background)',
-                    '--progress-background': getPlanetColor(transit.element, transit.isRetrograde)
-                  }}
-                />
-              </div>
+              <p className="text-sm text-muted-foreground">
+                {transit.influence}
+              </p>
             </div>
           ))}
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+      
+      <Card className="border-purple-100 dark:border-purple-900/20 bg-gradient-to-r from-indigo-50/50 to-purple-50/50 dark:from-indigo-950/40 dark:to-purple-950/40">
+        <CardHeader>
+          <CardTitle>Major Transit: {majorTransit.planet} in {majorTransit.sign}</CardTitle>
+          <CardDescription>Focus on this energy for optimal alignment</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <p>
+              {majorTransit.planet} is currently in {majorTransit.sign}, creating a {majorTransit.aspect.toLowerCase()} aspect 
+              that influences your {getOrdinal(majorTransit.house)} house of life. This transit is particularly 
+              significant at {majorTransit.intensity}% intensity.
+            </p>
+            
+            <div className="p-4 bg-white/80 dark:bg-gray-800/30 rounded-lg space-y-3">
+              <h4 className="font-medium">Recommended Focus:</h4>
+              <p className="text-sm">{majorTransit.influence}</p>
+              
+              <div>
+                <h5 className="text-sm font-medium mb-2">Suggested Frequency:</h5>
+                <div className="inline-block px-3 py-1 bg-white dark:bg-gray-800 rounded-full text-sm shadow-sm">
+                  {getRecommendedFrequency(majorTransit.planet)} Hz
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
+
+// Helper function to get ordinal number
+function getOrdinal(n: number) {
+  const suffixes = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return n + (suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0]);
+}
