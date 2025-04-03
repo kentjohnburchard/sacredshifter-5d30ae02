@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
@@ -113,8 +114,8 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ThemeProvider defaultTheme="light" storageKey="sacred-shifter-theme">
-          <ScrollToTop />
           <BrowserRouter>
+            <ScrollToTop />
             <AnimatedBackground />
             <Routes>
               <Route path="/" element={<Index />} />
