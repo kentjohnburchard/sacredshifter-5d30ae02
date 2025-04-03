@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,7 +23,8 @@ type MusicGeneration = {
   title: string | null;
   intention: string;
   frequency: number;
-  audio_url: string | null;
+  audio_url?: string | null; // Changed from audio_url to make it optional
+  music_url?: string | null; // Added this optional property
   created_at: string | null;
 };
 
@@ -82,6 +84,9 @@ const SoundJourneyCard: React.FC<{ generation: MusicGeneration }> = ({ generatio
     };
   }, []);
 
+  // Get the appropriate audio URL (handle both audio_url and music_url properties)
+  const audioUrl = generation.audio_url || generation.music_url;
+
   return (
     <Card className="overflow-hidden h-full border border-indigo-100 dark:border-indigo-900/50 transition-shadow hover:shadow-md">
       <CardHeader className="pb-2">
@@ -96,9 +101,9 @@ const SoundJourneyCard: React.FC<{ generation: MusicGeneration }> = ({ generatio
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-0">
-        {generation.audio_url ? (
+        {audioUrl ? (
           <div className="mt-2">
-            <audio ref={audioRef} src={generation.audio_url} onEnded={() => setIsPlaying(false)} />
+            <audio ref={audioRef} src={audioUrl} onEnded={() => setIsPlaying(false)} />
             <Button 
               variant="outline" 
               size="sm" 
@@ -197,7 +202,18 @@ const UserDashboard: React.FC = () => {
       if (musicError) throw musicError;
       
       setJournalEntries(journalData || []);
-      setSoundJourneys(musicData || []);
+      
+      // Map the music_generations data to MusicGeneration type
+      const formattedMusicData = (musicData || []).map(item => ({
+        id: item.id,
+        title: item.title,
+        intention: item.intention || "",
+        frequency: item.frequency || 0,
+        music_url: item.music_url,
+        created_at: item.created_at
+      }));
+      
+      setSoundJourneys(formattedMusicData);
     } catch (error: any) {
       console.error("Error fetching user content:", error.message);
       toast.error("Failed to load your content");

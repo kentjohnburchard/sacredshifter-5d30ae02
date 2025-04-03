@@ -26,7 +26,7 @@ export interface MusicGenerationRequest {
   title: string;
   seed?: number;
   make_instrumental?: boolean;
-  frequency?: HealingFrequency;
+  frequency?: number | HealingFrequency;  // Allow both number and HealingFrequency
 }
 
 export interface MusicGenerationResponse {

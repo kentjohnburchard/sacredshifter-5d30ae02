@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { generateMusic, checkTimedOutTasks } from "@/services/api";
@@ -16,6 +17,7 @@ import {
   MusicGenerationRequest,
   UseMusicGenerationResult 
 } from "./types";
+import { HealingFrequency } from "@/data/frequencies";
 
 export * from "./types";
 
@@ -171,7 +173,18 @@ export const useMusicGeneration = (): UseMusicGenerationResult => {
       setIsGenerating(true);
       
       console.log("Starting generation with params:", params);
-      const response = await generateMusic(params);
+      
+      // Convert HealingFrequency to number if needed
+      const apiParams = {
+        ...params,
+        frequency: params.frequency ? 
+          (typeof params.frequency === 'number' ? 
+            params.frequency : 
+            params.frequency.frequency) : 
+          undefined
+      };
+      
+      const response = await generateMusic(apiParams);
       
       if (!response || !response.task_id) {
         throw new Error("Failed to get task ID from API");
@@ -183,6 +196,13 @@ export const useMusicGeneration = (): UseMusicGenerationResult => {
       );
       
       toast.success("Music generation started");
+      
+      // Convert HealingFrequency to number for database storage if needed
+      const frequencyValue = params.frequency ? 
+        (typeof params.frequency === 'number' ? 
+          params.frequency : 
+          params.frequency.frequency) : 
+        undefined;
       
       startPolling(
         response.task_id,
@@ -212,7 +232,7 @@ export const useMusicGeneration = (): UseMusicGenerationResult => {
           title: params.title,
           description: params.gpt_description_prompt,
           lyricsType: params.lyrics_type,
-          frequency: params.frequency
+          frequency: frequencyValue
         }
       );
     } catch (error) {

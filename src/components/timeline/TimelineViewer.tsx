@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -32,11 +31,16 @@ interface TimelineEntry {
   title: string;
   notes: string | null;
   tag: string | null;
-  tags: string[] | null;
-  journal: string | null;
+  tags?: string[] | null;
+  journal?: string | null;
   created_at: string;
-  session_id: string | null;
   frequency?: number | null;
+  session_id?: string | null;
+  chakra?: string | null;
+  visual_type?: string | null;
+  intention?: string | null;
+  user_id: string;
+  updated_at: string;
 }
 
 interface MusicGeneration {
@@ -93,46 +97,24 @@ const TimelineViewer: React.FC = () => {
         return;
       }
 
-      const sessionIds = entriesData
-        .filter(entry => entry.session_id)
-        .map(entry => entry.session_id)
-        .filter(Boolean) as string[];
-
-      const sessionsWithFrequencies: Record<string, number> = {};
-      
-      if (sessionIds.length > 0) {
-        const { data: sessionsData, error: sessionsError } = await supabase
-          .from("sessions")
-          .select("id, frequency")
-          .in("id", sessionIds);
-
-        if (!sessionsError && sessionsData) {
-          sessionsData.forEach(session => {
-            if (session.frequency) {
-              sessionsWithFrequencies[session.id] = session.frequency;
-            }
-          });
-        }
-      }
-
-      const entriesWithFrequency = entriesData.map(entry => ({
+      const timelineEntries: TimelineEntry[] = entriesData.map(entry => ({
         ...entry,
-        frequency: entry.session_id ? sessionsWithFrequencies[entry.session_id] || null : null
+        tags: entry.tags || [],
+        journal: entry.notes,
+        session_id: entry.session_id || undefined
       }));
 
       const frequencies = new Set<number>();
-      entriesWithFrequency.forEach(entry => {
+      timelineEntries.forEach(entry => {
         if (entry.frequency) {
           frequencies.add(entry.frequency);
         }
       });
       setUniqueFrequencies(frequencies);
 
-      setEntries(entriesWithFrequency);
+      setEntries(timelineEntries);
 
-      if (sessionIds.length > 0) {
-        fetchMusicGenerations(sessionIds);
-      }
+      fetchMusicGenerations(entriesData.map(e => e.frequency).filter(Boolean) as number[]);
     } catch (error) {
       console.error("Unexpected error:", error);
       toast.error("An error occurred while loading your timeline");
@@ -141,12 +123,14 @@ const TimelineViewer: React.FC = () => {
     }
   };
 
-  const fetchMusicGenerations = async (sessionIds: string[]) => {
+  const fetchMusicGenerations = async (frequencies: number[]) => {
+    if (!frequencies.length || !user?.id) return;
+    
     try {
       const { data, error } = await supabase
         .from("music_generations")
         .select("id, music_url, frequency, user_id")
-        .eq("user_id", user?.id)
+        .eq("user_id", user.id)
         .not("music_url", "is", null);
 
       if (error) {
@@ -158,14 +142,14 @@ const TimelineViewer: React.FC = () => {
       
       if (data && Array.isArray(data)) {
         entries.forEach(entry => {
-          if (entry.session_id && entry.frequency) {
+          if (entry.frequency) {
             const matchingMusic = data.find(item => 
               item.frequency === entry.frequency && 
               item.music_url
             );
             
             if (matchingMusic) {
-              musicMap[entry.session_id] = {
+              musicMap[entry.id] = {
                 id: matchingMusic.id,
                 music_url: matchingMusic.music_url,
                 frequency: matchingMusic.frequency
@@ -482,9 +466,9 @@ const TimelineViewer: React.FC = () => {
                     )}
                   </div>
 
-                  {entry.session_id && musicGenerations[entry.session_id] && (
+                  {musicGenerations[entry.id] && (
                     <AudioPreview 
-                      audioUrl={musicGenerations[entry.session_id].music_url} 
+                      audioUrl={musicGenerations[entry.id].music_url} 
                       title={entry.title}
                     />
                   )}

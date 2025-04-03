@@ -28,7 +28,6 @@ const MusicGeneration = () => {
   const [activeTab, setActiveTab] = useState("info");
   
   useEffect(() => {
-    // Check for frequency in URL query params
     const frequencyParam = searchParams.get('frequency');
     if (frequencyParam) {
       const frequencyValue = parseFloat(frequencyParam);
@@ -38,7 +37,6 @@ const MusicGeneration = () => {
         setInitialFrequency(matchedFrequency);
       }
     }
-    // Check for frequency in location state
     else if (location.state?.selectedFrequency) {
       const incomingFrequency = location.state.selectedFrequency as HealingFrequency;
       setSelectedFrequency(incomingFrequency);
@@ -59,7 +57,6 @@ const MusicGeneration = () => {
     setShowConfirmation(false);
   };
 
-  // Get matching journey template for selected frequency
   const journeyTemplate = getTemplateByFrequency(selectedFrequency.frequency);
   
   return (
@@ -90,7 +87,6 @@ const MusicGeneration = () => {
           </CardContent>
         </Card>
         
-        {/* Sacred Frequencies Section */}
         <Card className="sacred-glass mb-10 border-brand-lavender/30">
           <CardContent className="p-6">
             <h3 className="text-xl font-bold mb-4 text-center sacred-text-gradient">
@@ -110,7 +106,11 @@ const MusicGeneration = () => {
               </div>
               
               <div className="lg:col-span-2 space-y-6">
-                <FrequencyPlayer frequency={selectedFrequency} />
+                <FrequencyPlayer 
+                  audioUrl={selectedFrequency.audio_url || ''} 
+                  isPlaying={false} 
+                  onPlayToggle={() => {}} 
+                />
                 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-white/80 rounded-lg shadow-sm border border-brand-lavender/20">
                   <TabsList className="grid grid-cols-3 bg-brand-lavender/10 border-b border-brand-lavender/20 w-full rounded-t-lg">
@@ -164,7 +164,6 @@ const MusicGeneration = () => {
                   </ScrollArea>
                 </Tabs>
                 
-                {/* Journey Template Display */}
                 {journeyTemplate && (
                   <div className="mt-4 animate-fade-in">
                     <h3 className="text-lg font-medium text-center mb-3 text-brand-deep">Recommended Journey Template</h3>
