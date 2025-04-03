@@ -1,18 +1,21 @@
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Music, Music4 } from "lucide-react";
 import Player from "./Player";
 import { GeneratedTrack } from "@/hooks/musicGeneration/types";
 
 interface GenerationHistoryProps {
-  tracks: GeneratedTrack[];
-  onDelete: (id: string) => void;
+  tracks?: GeneratedTrack[];
+  onDelete?: (id: string) => void;
 }
 
-const GenerationHistory: React.FC<GenerationHistoryProps> = ({ tracks, onDelete }) => {
-  if (tracks.length === 0) {
+const GenerationHistory: React.FC<GenerationHistoryProps> = ({ 
+  tracks = [], // Provide default empty array
+  onDelete = () => {} // Provide default no-op function
+}) => {
+  if (!tracks || tracks.length === 0) {
     return (
       <EmptyState message="No tracks generated yet. Create your first sacred sound above." />
     );

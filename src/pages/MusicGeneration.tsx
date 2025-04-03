@@ -7,12 +7,14 @@ import UserCreditsDisplay from "@/components/UserCreditsDisplay";
 import SubscriptionPromotion from "@/components/SubscriptionPromotion";
 import { useAuth } from "@/context/AuthContext";
 import { useUserSubscription } from "@/hooks/useUserSubscription";
+import useMusicGeneration from "@/hooks/musicGeneration";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const MusicGeneration = () => {
   const [activeTab, setActiveTab] = useState<string>("create");
   const { user } = useAuth();
   const { userCredits, loading } = useUserSubscription();
+  const { isGenerating, generatedTracks, startGeneration, deleteTrack } = useMusicGeneration();
 
   return (
     <Layout>
@@ -46,11 +48,17 @@ const MusicGeneration = () => {
           </TabsList>
           
           <TabsContent value="create">
-            <MusicForm />
+            <MusicForm 
+              onSubmit={startGeneration} 
+              isGenerating={isGenerating} 
+            />
           </TabsContent>
           
           <TabsContent value="history">
-            <GenerationHistory />
+            <GenerationHistory 
+              tracks={generatedTracks} 
+              onDelete={deleteTrack} 
+            />
           </TabsContent>
         </Tabs>
       </div>

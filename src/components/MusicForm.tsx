@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,12 +11,16 @@ import { MusicGenerationRequest } from "@/services/api";
 import { HealingFrequency } from "@/data/frequencies";
 
 interface MusicFormProps {
-  onSubmit: (params: MusicGenerationRequest) => void;
-  isGenerating: boolean;
+  onSubmit?: (params: MusicGenerationRequest) => void;
+  isGenerating?: boolean;
   initialFrequency?: HealingFrequency | null;
 }
 
-const MusicForm: React.FC<MusicFormProps> = ({ onSubmit, isGenerating, initialFrequency }) => {
+const MusicForm: React.FC<MusicFormProps> = ({ 
+  onSubmit = () => {}, // Provide default no-op function
+  isGenerating = false, 
+  initialFrequency = null 
+}) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [negativeTags, setNegativeTags] = useState("");
