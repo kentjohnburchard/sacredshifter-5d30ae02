@@ -5,9 +5,13 @@ import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import Astrology from '@/pages/Astrology';
+import Focus from '@/pages/Focus';
 import { AuthProvider } from '@/context/AuthContext';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import { Toaster } from 'sonner';
+import Layout from '@/components/Layout';
+import ScrollToTop from '@/components/ScrollToTop';
+import Header from '@/components/Header';
 
 function App() {
   const [showBackground, setShowBackground] = React.useState(true);
@@ -33,31 +37,32 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <ScrollToTop />
         <Toaster />
         {showBackground && (
           <AnimatedBackground colorScheme="purple" />
         )}
         <Routes>
-          <Route path="/" element={<div>Home Page</div>} />
-          <Route path="/pricing" element={<div>Pricing Page</div>} />
-          <Route path="/about" element={<div>About Page</div>} />
-          <Route path="/contact" element={<div>Contact Page</div>} />
-          <Route path="/blog" element={<div>Blog Page</div>} />
-          <Route path="/coming-soon" element={<div>Coming Soon</div>} />
-          <Route path="/astrology" element={<Astrology />} />
-          <Route path="/music-generation" element={<div>Music Generation</div>} />
-          <Route path="/meditation" element={<div>Meditation</div>} />
-          <Route path="/focus" element={<div>Focus</div>} />
-          <Route path="/soundscapes" element={<div>Soundscapes</div>} />
-          <Route path="/mood-journal" element={<div>Mood Journal</div>} />
-          <Route path="/timeline" element={<div>Timeline</div>} />
+          <Route path="/" element={<Layout><div className="min-h-screen">Home Page</div></Layout>} />
+          <Route path="/pricing" element={<Layout><div className="min-h-screen">Pricing Page</div></Layout>} />
+          <Route path="/about" element={<Layout><div className="min-h-screen">About Page</div></Layout>} />
+          <Route path="/contact" element={<Layout><div className="min-h-screen">Contact Page</div></Layout>} />
+          <Route path="/blog" element={<Layout><div className="min-h-screen">Blog Page</div></Layout>} />
+          <Route path="/coming-soon" element={<Layout><div className="min-h-screen">Coming Soon</div></Layout>} />
+          <Route path="/astrology" element={<Layout><Astrology /></Layout>} />
+          <Route path="/music-generation" element={<Layout><div className="min-h-screen">Music Generation</div></Layout>} />
+          <Route path="/meditation" element={<Layout><div className="min-h-screen">Meditation</div></Layout>} />
+          <Route path="/focus" element={<Layout><Focus /></Layout>} />
+          <Route path="/soundscapes" element={<Layout><div className="min-h-screen">Soundscapes</div></Layout>} />
+          <Route path="/mood-journal" element={<Layout><div className="min-h-screen">Mood Journal</div></Layout>} />
+          <Route path="/timeline" element={<Layout><div className="min-h-screen">Timeline</div></Layout>} />
           <Route
             path="/account"
             element={
               !session ? (
                 <Navigate to="/login" replace />
               ) : (
-                <div>Account Page</div>
+                <Layout><div className="min-h-screen">Account Page</div></Layout>
               )
             }
           />
@@ -80,7 +85,7 @@ function App() {
               )
             }
           />
-          <Route path="/frequency/:id" element={<div>Frequency Details</div>} />
+          <Route path="/frequency/:id" element={<Layout><div className="min-h-screen">Frequency Details</div></Layout>} />
         </Routes>
       </Router>
     </AuthProvider>
