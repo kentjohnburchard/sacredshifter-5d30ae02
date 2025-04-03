@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, CircleOff, Music4, Layers, MessageSquare, Circle, Compass } from "lucide-react";
+import { Sparkles, CircleOff, Music4, Layers, MessageSquare, Circle, Compass, Info } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { 
@@ -14,7 +14,7 @@ import {
 import { HealingFrequency, healingFrequencies } from "@/data/frequencies";
 import { motion } from "framer-motion";
 import { hermeticJourneys, HermeticJourney } from "@/data/hermeticJourneys";
-import HermeticJourneyDetail from "@/components/hermetic-wisdom/HermeticJourneyDetail";
+import { HermeticJourneyDetail, HermeticWisdomDrop } from "@/components/hermetic-wisdom";
 
 const hermetic = [
   {
@@ -156,11 +156,26 @@ const HermeticWisdom = () => {
                 >
                   <div className={`h-3 bg-gradient-to-r ${principle.color}`}></div>
                   <div className="p-6">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className={`p-2 rounded-full bg-gradient-to-r ${principle.color} bg-opacity-10`}>
-                        <principle.icon className="h-6 w-6 text-gray-700" />
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-full bg-gradient-to-r ${principle.color} bg-opacity-10`}>
+                          <principle.icon className="h-6 w-6 text-gray-700" />
+                        </div>
+                        <h3 className="text-xl font-semibold text-gray-800">{principle.title}</h3>
                       </div>
-                      <h3 className="text-xl font-semibold text-gray-800">{principle.title}</h3>
+                      <HermeticWisdomDrop 
+                        principle={principle.title} 
+                        variant="dialog"
+                      >
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 w-8 p-0 text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-full"
+                        >
+                          <Info className="h-4 w-4" />
+                          <span className="sr-only">Vale's Wisdom</span>
+                        </Button>
+                      </HermeticWisdomDrop>
                     </div>
                     
                     <p className="italic text-gray-600 mb-3">"{principle.quote}"</p>

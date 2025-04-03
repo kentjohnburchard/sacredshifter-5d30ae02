@@ -2,12 +2,13 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Play, ArrowLeft, Music } from "lucide-react";
+import { Play, ArrowLeft, Music, Info } from "lucide-react";
 import { HermeticJourney } from "@/data/hermeticJourneys";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import HermeticPlaylist from "./HermeticPlaylist";
 import HermeticTrackUploadModal from "./HermeticTrackUploadModal";
+import HermeticWisdomDrop from "./HermeticWisdomDrop";
 import { getTracksForPrinciple } from "@/services/hermeticPlaylistService";
 import { HermeticTrack } from "@/types/playlist";
 import FrequencyPlayer from "@/components/FrequencyPlayer";
@@ -75,7 +76,22 @@ const HermeticJourneyDetail: React.FC<HermeticJourneyDetailProps> = ({ journey, 
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
-            <h3 className="text-lg font-medium mb-2 text-purple-700">Details</h3>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-lg font-medium text-purple-700">Details</h3>
+              <HermeticWisdomDrop 
+                principle={journey.principle} 
+                variant="hover-card"
+              >
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 w-8 p-0 text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-full"
+                >
+                  <Info className="h-4 w-4" />
+                  <span className="sr-only">Vale's Wisdom</span>
+                </Button>
+              </HermeticWisdomDrop>
+            </div>
             <div className="space-y-2 text-gray-700">
               <p><span className="font-medium">Principle:</span> {journey.principle}</p>
               <p><span className="font-medium">Frequency:</span> {journey.frequency}Hz</p>
