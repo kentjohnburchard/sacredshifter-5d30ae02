@@ -53,17 +53,22 @@ export const AstrologyDashboard: React.FC = () => {
             };
             
             // Update with calculated data
-            await supabase
-              .from('user_astrology_data')
-              .update({
-                sun_sign: calculatedData.sun_sign,
-                moon_sign: calculatedData.moon_sign,
-                rising_sign: calculatedData.rising_sign,
-                dominant_element: calculatedData.dominant_element
-              })
-              .eq('user_id', user.id);
-            
-            setAstrologyData(calculatedData);
+            try {
+              await supabase
+                .from('user_astrology_data')
+                .update({
+                  sun_sign: calculatedData.sun_sign,
+                  moon_sign: calculatedData.moon_sign,
+                  rising_sign: calculatedData.rising_sign,
+                  dominant_element: calculatedData.dominant_element
+                })
+                .eq('user_id', user.id);
+                
+              setAstrologyData(calculatedData);
+            } catch (updateError) {
+              console.error("Error updating astrology data:", updateError);
+              toast.error("Failed to update your astrology data");
+            }
           } else {
             setAstrologyData(data as UserAstrologyData);
           }
@@ -90,16 +95,12 @@ export const AstrologyDashboard: React.FC = () => {
         .eq('user_id', user.id)
         .maybeSingle()
         .then(({ data, error }) => {
-          if (error) throw error;
-          
-          if (data) {
+          if (error) {
+            console.error("Error refetching astrology data:", error);
+            toast.error("Failed to reload your astrology data");
+          } else if (data) {
             setAstrologyData(data as UserAstrologyData);
           }
-        })
-        .catch(error => {
-          console.error("Error refetching astrology data:", error);
-        })
-        .finally(() => {
           setLoading(false);
         });
     }

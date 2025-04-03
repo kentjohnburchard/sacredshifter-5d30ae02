@@ -121,7 +121,10 @@ export const PlanetaryTransits: React.FC = () => {
                 <Progress 
                   value={transit.impact} 
                   className="h-1.5"
-                  indicatorClassName={getPlanetColor(transit.element, transit.isRetrograde)} 
+                  style={{
+                    backgroundColor: 'var(--background)',
+                    '--progress-background': getPlanetColor(transit.element, transit.isRetrograde)
+                  }}
                 />
               </div>
             </div>
