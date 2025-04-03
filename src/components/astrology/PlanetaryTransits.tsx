@@ -120,8 +120,8 @@ export const PlanetaryTransits: React.FC = () => {
                 </div>
                 <Progress 
                   value={transit.impact} 
-                  className="h-1.5" 
-                  className={getPlanetColor(transit.element, transit.isRetrograde)} 
+                  className="h-1.5"
+                  indicatorClassName={getPlanetColor(transit.element, transit.isRetrograde)} 
                 />
               </div>
             </div>

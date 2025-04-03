@@ -22,14 +22,18 @@ const Astrology = () => {
   useEffect(() => {
     if (user) {
       const checkUserBirthData = async () => {
-        const { data, error } = await supabase
-          .from('user_astrology_data' as any)
-          .select('*')
-          .eq('user_id', user.id)
-          .maybeSingle();
-          
-        if (data && !error) {
-          setUserHasBirthData(true);
+        try {
+          const { data, error } = await supabase
+            .from('user_astrology_data')
+            .select('*')
+            .eq('user_id', user.id)
+            .maybeSingle();
+            
+          if (data && !error) {
+            setUserHasBirthData(true);
+          }
+        } catch (error) {
+          console.error("Error checking user birth data:", error);
         }
       };
       

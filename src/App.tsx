@@ -1,28 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
-import Account from '@/pages/Account';
-import Home from '@/pages/Home';
-import Pricing from '@/pages/Pricing';
-import About from '@/pages/About';
-import Contact from '@/pages/Contact';
-import Blog from '@/pages/Blog';
-import ComingSoon from '@/pages/ComingSoon';
-import AnimatedBackground from '@/components/AnimatedBackground';
 import Astrology from '@/pages/Astrology';
-import MusicGeneration from '@/pages/MusicGeneration';
-import Meditation from '@/pages/Meditation';
-import Focus from '@/pages/Focus';
-import MoodJournal from '@/pages/MoodJournal';
-import Timeline from '@/pages/Timeline';
 import { AuthProvider } from '@/context/AuthContext';
-import CreditsDisplay from '@/components/CreditsDisplay';
-import MusicPlayer from '@/components/MusicPlayer';
-import FrequencyDetails from '@/components/FrequencyDetails';
-import Soundscapes from '@/pages/Soundscapes';
-import { Sonner } from 'sonner';
+import AnimatedBackground from '@/components/AnimatedBackground';
+import { Toaster } from 'sonner';
 
 function App() {
   const [showBackground, setShowBackground] = useState(true);
@@ -48,37 +33,35 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <Sonner />
+        <Toaster />
         {showBackground && (
           <AnimatedBackground colorScheme="purple" />
         )}
         <Routes>
-          <Route exact path="/" element={<Home />} />
-          <Route exact path="/pricing" element={<Pricing />} />
-          <Route exact path="/about" element={<About />} />
-          <Route exact path="/contact" element={<Contact />} />
-          <Route exact path="/blog" element={<Blog />} />
-          <Route exact path="/coming-soon" element={<ComingSoon />} />
-          <Route exact path="/astrology" element={<Astrology />} />
-          <Route exact path="/music-generation" element={<MusicGeneration />} />
-          <Route exact path="/meditation" element={<Meditation />} />
-          <Route exact path="/focus" element={<Focus />} />
-          <Route exact path="/soundscapes" element={<Soundscapes />} />
-          <Route exact path="/mood-journal" element={<MoodJournal />} />
-          <Route exact path="/timeline" element={<Timeline />} />
+          <Route path="/" element={<div>Home Page</div>} />
+          <Route path="/pricing" element={<div>Pricing Page</div>} />
+          <Route path="/about" element={<div>About Page</div>} />
+          <Route path="/contact" element={<div>Contact Page</div>} />
+          <Route path="/blog" element={<div>Blog Page</div>} />
+          <Route path="/coming-soon" element={<div>Coming Soon</div>} />
+          <Route path="/astrology" element={<Astrology />} />
+          <Route path="/music-generation" element={<div>Music Generation</div>} />
+          <Route path="/meditation" element={<div>Meditation</div>} />
+          <Route path="/focus" element={<div>Focus</div>} />
+          <Route path="/soundscapes" element={<div>Soundscapes</div>} />
+          <Route path="/mood-journal" element={<div>Mood Journal</div>} />
+          <Route path="/timeline" element={<div>Timeline</div>} />
           <Route
-            exact
             path="/account"
             element={
               !session ? (
                 <Navigate to="/login" replace />
               ) : (
-                <Account key={session.user.id} session={session} />
+                <div>Account Page</div>
               )
             }
           />
           <Route
-            exact
             path="/login"
             element={
               session ? (
@@ -97,10 +80,8 @@ function App() {
               )
             }
           />
-          <Route exact path="/frequency/:id" element={<FrequencyDetails />} />
+          <Route path="/frequency/:id" element={<div>Frequency Details</div>} />
         </Routes>
-        <CreditsDisplay />
-        <MusicPlayer />
       </Router>
     </AuthProvider>
   );

@@ -88,7 +88,7 @@ export const ElementalProfile: React.FC<ElementalProfileProps> = ({ dominantElem
               <Progress 
                 value={value} 
                 className="h-2" 
-                className={getElementColor(element)} 
+                indicatorClassName={getElementColor(element)} 
               />
             </div>
           ))}
