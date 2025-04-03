@@ -17,6 +17,7 @@ import Timeline from './pages/Timeline';
 import JourneyTemplates from "./pages/JourneyTemplates";
 import JourneyPlayer from "./pages/JourneyPlayer";
 import FrequencyLibrary from "./pages/FrequencyLibrary";
+import HermeticWisdom from "./pages/HermeticWisdom"; // Import the new page
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Onboarding from './components/Onboarding';
@@ -126,6 +127,7 @@ function App() {
           <Route path="/journey-templates" element={<JourneyTemplates />} />
           <Route path="/journey/:frequencyId" element={<JourneyPlayer />} />
           <Route path="/frequency-library" element={<FrequencyLibrary />} />
+          <Route path="/hermetic-wisdom" element={<HermeticWisdom />} /> {/* Add the new route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

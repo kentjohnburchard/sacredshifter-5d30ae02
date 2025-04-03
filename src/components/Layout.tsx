@@ -92,6 +92,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               >
                 Sound Creation
               </Link>
+              <Link 
+                to="/hermetic-wisdom" 
+                className={`text-sm font-medium transition-colors ${
+                  isActive("/hermetic-wisdom") 
+                    ? "text-[#7510c9]" 
+                    : "text-[#7510c9]/70 hover:text-[#7510c9]"
+                }`}
+              >
+                Hermetic Wisdom
+              </Link>
             </nav>
             
             {/* Mobile Menu Button */}
@@ -153,6 +163,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       }`}
                     >
                       Sound Creation
+                    </Link>
+                    <Link 
+                      to="/hermetic-wisdom" 
+                      className={`text-lg font-medium transition-colors px-4 py-2 rounded-md ${
+                        isActive("/hermetic-wisdom") 
+                          ? "bg-[#9966FF]/10 text-[#7510c9]" 
+                          : "text-[#7510c9]/70 hover:bg-[#9966FF]/5 hover:text-[#7510c9]"
+                      }`}
+                    >
+                      Hermetic Wisdom
                     </Link>
                   </nav>
                 </SheetContent>
