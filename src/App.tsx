@@ -16,6 +16,7 @@ import NotFound from './pages/NotFound';
 import Timeline from './pages/Timeline';
 import JourneyTemplates from "./pages/JourneyTemplates";
 import JourneyPlayer from "./pages/JourneyPlayer";
+import FrequencyLibrary from "./pages/FrequencyLibrary";
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Onboarding from './components/Onboarding';
@@ -124,6 +125,7 @@ function App() {
           <Route path="/timeline" element={<Timeline />} />
           <Route path="/journey-templates" element={<JourneyTemplates />} />
           <Route path="/journey/:frequencyId" element={<JourneyPlayer />} />
+          <Route path="/frequency-library" element={<FrequencyLibrary />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
