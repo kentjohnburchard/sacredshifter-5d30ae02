@@ -15,7 +15,20 @@ function Calendar({
   showOutsideDays = true,
   ...props
 }: CalendarProps) {
-  const [year, setYear] = React.useState(new Date().getFullYear());
+  const [month, setMonth] = React.useState<Date>(props.defaultMonth || new Date());
+  
+  const handleMonthChange = (month: Date) => {
+    setMonth(month);
+    if (props.onMonthChange) {
+      props.onMonthChange(month);
+    }
+  };
+  
+  const months = [
+    "January", "February", "March", "April", "May", "June", 
+    "July", "August", "September", "October", "November", "December"
+  ];
+  
   const yearsRange = React.useMemo(() => {
     const currentYear = new Date().getFullYear();
     return Array.from({ length: 100 }, (_, i) => currentYear - 80 + i);
@@ -25,6 +38,8 @@ function Calendar({
     <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn("p-3 pointer-events-auto", className)}
+      month={month}
+      onMonthChange={handleMonthChange}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
@@ -62,30 +77,42 @@ function Calendar({
       components={{
         IconLeft: ({ ..._props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ..._props }) => <ChevronRight className="h-4 w-4" />,
-        Caption: (props) => {
-          const date = props.displayMonth;
-          const month = date.toLocaleDateString("en-US", { month: "long" });
-          const currentYear = date.getFullYear();
+        Caption: ({ displayMonth }) => {
+          const currentMonth = displayMonth.getMonth();
+          const currentYear = displayMonth.getFullYear();
           
-          // Sync with the year state when the month changes
-          React.useEffect(() => {
-            setYear(currentYear);
-          }, [currentYear]);
+          const handleMonthSelect = (value: string) => {
+            const newMonth = months.indexOf(value);
+            const newDate = new Date(displayMonth);
+            newDate.setMonth(newMonth);
+            handleMonthChange(newDate);
+          };
           
-          const handleYearChange = (value: string) => {
+          const handleYearSelect = (value: string) => {
             const newYear = parseInt(value);
-            setYear(newYear);
-            const newDate = new Date(date);
+            const newDate = new Date(displayMonth);
             newDate.setFullYear(newYear);
-            props.onMonthChange?.(newDate);
+            handleMonthChange(newDate);
           };
           
           return (
-            <div className="flex justify-center items-center gap-1 relative">
-              <span className="text-sm font-medium">{month}</span>
-              <Select value={year.toString()} onValueChange={handleYearChange}>
+            <div className="flex justify-center items-center gap-2">
+              <Select value={months[currentMonth]} onValueChange={handleMonthSelect}>
+                <SelectTrigger className="h-7 w-[110px] text-xs border-none focus:ring-0">
+                  <SelectValue>{months[currentMonth]}</SelectValue>
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {months.map((month) => (
+                    <SelectItem key={month} value={month} className="text-xs">
+                      {month}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <Select value={currentYear.toString()} onValueChange={handleYearSelect}>
                 <SelectTrigger className="h-7 w-[70px] text-xs border-none focus:ring-0">
-                  <SelectValue>{year}</SelectValue>
+                  <SelectValue>{currentYear}</SelectValue>
                 </SelectTrigger>
                 <SelectContent className="max-h-60">
                   {yearsRange.map((y) => (

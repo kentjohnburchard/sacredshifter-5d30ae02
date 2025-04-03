@@ -31,8 +31,8 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 251 85% 81%; /* Matching primary purple */
-    --input: 251 85% 81%; /* Matching primary purple */
+    --border: 240 5% 84%; /* Lighter border */
+    --input: 240 5% 84%; /* Lighter input */
     --ring: 251 85% 81%; /* Matching primary purple */
 
     --radius: 0.5rem;

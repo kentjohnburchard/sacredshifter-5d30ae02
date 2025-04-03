@@ -67,8 +67,9 @@ export const UserBirthDataForm: React.FC<UserBirthDataFormProps> = ({
       // Convert date to ISO string for storage
       const formattedDate = format(data.birthDate, "yyyy-MM-dd");
       
+      // Using a custom type-unsafe FROM clause for now - this will be fixed properly when the table is created
       const { error } = await supabase
-        .from('user_astrology_data')
+        .from('user_astrology_data' as any)
         .upsert({
           user_id: user.id,
           birth_date: formattedDate,

@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import { AstrologyDashboard } from "@/components/astrology";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,11 +19,11 @@ const Astrology = () => {
   const [activeTab, setActiveTab] = useState("profile");
   
   // Check if user has birth data
-  React.useEffect(() => {
+  useEffect(() => {
     if (user) {
       const checkUserBirthData = async () => {
         const { data, error } = await supabase
-          .from('user_astrology_data')
+          .from('user_astrology_data' as any)
           .select('*')
           .eq('user_id', user.id)
           .maybeSingle();
@@ -43,7 +43,7 @@ const Astrology = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-indigo-50/30 to-purple-50/30 dark:from-gray-900 dark:to-purple-950">
+    <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
       <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-8 sm:px-6 space-y-8">

@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import { AstrologyDashboard, UserBirthDataForm, ZodiacSignCard, DailyHoroscope, PlanetaryTransits } from "@/components/astrology";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +8,6 @@ import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
 
 const AstrologyPage: React.FC = () => {
   const { user } = useAuth();
@@ -20,7 +19,7 @@ const AstrologyPage: React.FC = () => {
     if (user) {
       const checkUserBirthData = async () => {
         const { data, error } = await supabase
-          .from('user_astrology_data')
+          .from('user_astrology_data' as any)
           .select('*')
           .eq('user_id', user.id)
           .maybeSingle();
