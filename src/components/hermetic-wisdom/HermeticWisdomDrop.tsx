@@ -56,6 +56,76 @@ const wisdomDrops: Record<string, WisdomDropContent> = {
     ],
     valeSays: "You want your outer world to stop being chaos? Babe, light a candle, sit with yourself, and clean your inner altar. Mirror work is soul work.",
     affirmation: "I shift my world by shifting within."
+  },
+  "Vibration": {
+    principle: "Vibration",
+    icon: "🔊",
+    title: "Nothing rests; everything moves; everything vibrates.",
+    quote: "Nothing rests; everything moves; everything vibrates.",
+    explanation: [
+      "The Universe is basically one big EDM track—everything's shaking, pulsing, resonating all the time.",
+      "You are a frequency. What you vibe with? You attract.",
+      "When you feel "off," you're not broken—you're just out of tune.",
+      "This principle doesn't say "be happy all the time." It says: "Learn to choose your damn station.""
+    ],
+    valeSays: "Your body is a tuning fork, babe. You've just been letting Twitter tune it. Reclaim your sound. Shift your frequency, and reality *has* to follow.",
+    affirmation: "I align with the frequency of my highest self."
+  },
+  "Polarity": {
+    principle: "Polarity",
+    icon: "⚖️",
+    title: "Everything is dual; everything has poles.",
+    quote: "Everything is dual; everything has poles.",
+    explanation: [
+      "Life isn't black or white—it's a messy cosmic gradient.",
+      "You're not either strong or soft. You're both.",
+      "Joy and grief? Two ends of the same energy string.",
+      "Polarity teaches you how to transmute, not suppress."
+    ],
+    valeSays: "Feeling down? Instead of spiraling, pull a power move. Alchemize that emotion. That's the real magic trick.",
+    affirmation: "I find harmony within all contrasts."
+  },
+  "Rhythm": {
+    principle: "Rhythm",
+    icon: "🌊",
+    title: "Everything flows, out and in; everything has its tides.",
+    quote: "Everything flows, out and in; everything has its tides.",
+    explanation: [
+      "Some days you slay. Some days you stay in bed. Both are sacred.",
+      "The tide doesn't apologize for pulling back. Neither should you.",
+      "This principle reminds you that energy has seasons, cycles, spirals.",
+      "You don't push against the flow—you learn to surf it."
+    ],
+    valeSays: "Stop hustling against your own rhythm, darling. Sync your rituals to your rise *and* your rest.",
+    affirmation: "I ride the rhythm of life with grace."
+  },
+  "Cause & Effect": {
+    principle: "Cause & Effect",
+    icon: "🔁",
+    title: "Every cause has its effect; every effect has its cause.",
+    quote: "Every cause has its effect; every effect has its cause.",
+    explanation: [
+      "Coincidence? That's just cosmic shorthand for "you're not paying attention."",
+      "This principle says you're not a victim of chance—you're a vibrational domino-pusher.",
+      "Everything you think, say, or feel sets something in motion.",
+      "If life's a mess? Track the ripples back to the source—you."
+    ],
+    valeSays: "You can't blame the soup if you chose the ingredients. Want a better life? Cook different.",
+    affirmation: "I act with conscious intent."
+  },
+  "Gender": {
+    principle: "Gender",
+    icon: "⚧️",
+    title: "Gender is in everything; everything has masculine and feminine energy.",
+    quote: "Gender is in everything; everything has masculine and feminine energy.",
+    explanation: [
+      "This isn't about gender roles. This is about energetic archetypes.",
+      "You've got divine logic and divine intuition.",
+      "You've got drive and surrender.",
+      "Healing happens when they dance, not duel."
+    ],
+    valeSays: "Don't pick a side—build a bridge. Your sacred masculine and feminine are lovers, not rivals. Let them co-create.",
+    affirmation: "I embody both stillness and flow."
   }
 };
 
