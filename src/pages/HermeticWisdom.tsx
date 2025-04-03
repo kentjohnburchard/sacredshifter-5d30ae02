@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/accordion";
 import { HealingFrequency, healingFrequencies } from "@/data/frequencies";
 import { motion } from "framer-motion";
+import { hermeticJourneys, HermeticJourney } from "@/data/hermeticJourneys";
+import HermeticJourneyDetail from "@/components/hermetic-wisdom/HermeticJourneyDetail";
 
 const hermetic = [
   {
@@ -104,115 +106,133 @@ const hermetic = [
 const HermeticWisdom = () => {
   const navigate = useNavigate();
   const [selectedPrinciple, setSelectedPrinciple] = useState<string | null>(null);
+  const [selectedJourney, setSelectedJourney] = useState<HermeticJourney | null>(null);
 
   const handleExplore = (tag: string) => {
-    // For now, we'll just log the action. Later this could navigate to specific journey pages
-    console.log(`Starting session: ${tag}`);
-    // Future enhancement: navigate to a specific journey
-    // navigate(`/journey/${tag}`);
+    // Find the corresponding journey for the principle
+    const journey = hermeticJourneys.find(j => j.tag === tag);
+    if (journey) {
+      setSelectedJourney(journey);
+      setSelectedPrinciple(journey.principle);
+    } else {
+      console.log(`No journey found for tag: ${tag}`);
+    }
+  };
+
+  const handleBack = () => {
+    setSelectedJourney(null);
+    setSelectedPrinciple(null);
   };
 
   return (
     <Layout>
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-light mb-4">
-            <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">
-              Hermetic Wisdom Hub
-            </span>
-          </h1>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            These 7 principles come from the ancient teachings of Hermes Trismegistus, as written in the Kybalion. 
-            They form the foundation of vibrational alignment, intention, and spiritual transformation.
-          </p>
-        </div>
+        {selectedJourney ? (
+          <div className="mb-8">
+            <HermeticJourneyDetail journey={selectedJourney} onBack={handleBack} />
+          </div>
+        ) : (
+          <>
+            <div className="text-center mb-8">
+              <h1 className="text-4xl font-light mb-4">
+                <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">
+                  Hermetic Wisdom Hub
+                </span>
+              </h1>
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+                These 7 principles come from the ancient teachings of Hermes Trismegistus, as written in the Kybalion. 
+                They form the foundation of vibrational alignment, intention, and spiritual transformation.
+              </p>
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {hermetic.map((principle) => (
-            <motion.div
-              key={principle.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: hermetic.indexOf(principle) * 0.1 }}
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
-            >
-              <div className={`h-3 bg-gradient-to-r ${principle.color}`}></div>
-              <div className="p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className={`p-2 rounded-full bg-gradient-to-r ${principle.color} bg-opacity-10`}>
-                    <principle.icon className="h-6 w-6 text-gray-700" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-800">{principle.title}</h3>
-                </div>
-                
-                <p className="italic text-gray-600 mb-3">"{principle.quote}"</p>
-                <p className="text-gray-700 mb-3">{principle.description}</p>
-                <div className="mb-3 text-sm text-gray-600">
-                  <strong>Affirmation:</strong> {principle.affirmation}
-                </div>
-                <div className="mb-3 text-sm text-gray-600">
-                  <strong>Frequency:</strong> {principle.frequency.name} ({principle.frequency.frequency}Hz)
-                </div>
-                <div className="mb-4 text-sm text-gray-600">
-                  <strong>Animation:</strong> {principle.animation}
-                </div>
-                
-                <Button
-                  onClick={() => handleExplore(principle.tag)}
-                  className={`w-full bg-gradient-to-r ${principle.color} text-white hover:opacity-90`}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {hermetic.map((principle) => (
+                <motion.div
+                  key={principle.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: hermetic.indexOf(principle) * 0.1 }}
+                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
                 >
-                  Explore {principle.title}
-                </Button>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+                  <div className={`h-3 bg-gradient-to-r ${principle.color}`}></div>
+                  <div className="p-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className={`p-2 rounded-full bg-gradient-to-r ${principle.color} bg-opacity-10`}>
+                        <principle.icon className="h-6 w-6 text-gray-700" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-800">{principle.title}</h3>
+                    </div>
+                    
+                    <p className="italic text-gray-600 mb-3">"{principle.quote}"</p>
+                    <p className="text-gray-700 mb-3">{principle.description}</p>
+                    <div className="mb-3 text-sm text-gray-600">
+                      <strong>Affirmation:</strong> {principle.affirmation}
+                    </div>
+                    <div className="mb-3 text-sm text-gray-600">
+                      <strong>Frequency:</strong> {principle.frequency.name} ({principle.frequency.frequency}Hz)
+                    </div>
+                    <div className="mb-4 text-sm text-gray-600">
+                      <strong>Animation:</strong> {principle.animation}
+                    </div>
+                    
+                    <Button
+                      onClick={() => handleExplore(principle.tag)}
+                      className={`w-full bg-gradient-to-r ${principle.color} text-white hover:opacity-90`}
+                    >
+                      Explore {principle.title}
+                    </Button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
 
-        <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Discover More About Hermetic Principles</h2>
-          
-          <Accordion type="single" collapsible>
-            <AccordionItem value="kybalion">
-              <AccordionTrigger className="text-gray-800">About The Kybalion</AccordionTrigger>
-              <AccordionContent>
-                <p className="text-gray-700">
-                  The Kybalion is a book published in 1908 by "Three Initiates" that claims to present the essence of the 
-                  teachings of Hermes Trismegistus. These principles have influenced esoteric and spiritual traditions worldwide.
-                </p>
-              </AccordionContent>
-            </AccordionItem>
-            
-            <AccordionItem value="application">
-              <AccordionTrigger className="text-gray-800">Applying These Principles</AccordionTrigger>
-              <AccordionContent>
-                <p className="text-gray-700">
-                  Each principle offers a unique lens through which to understand yourself and the universe. 
-                  Through meditation, sound healing, and intention setting, you can align with these universal laws.
-                </p>
-              </AccordionContent>
-            </AccordionItem>
-            
-            <AccordionItem value="history">
-              <AccordionTrigger className="text-gray-800">Historical Context</AccordionTrigger>
-              <AccordionContent>
-                <p className="text-gray-700">
-                  Hermes Trismegistus is a legendary figure associated with the Greek god Hermes and the Egyptian god Thoth. 
-                  The teachings attributed to him have influenced alchemy, astrology, and various mystical traditions.
-                </p>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </div>
+            <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-6 mb-8">
+              <h2 className="text-2xl font-semibold text-gray-800 mb-4">Discover More About Hermetic Principles</h2>
+              
+              <Accordion type="single" collapsible>
+                <AccordionItem value="kybalion">
+                  <AccordionTrigger className="text-gray-800">About The Kybalion</AccordionTrigger>
+                  <AccordionContent>
+                    <p className="text-gray-700">
+                      The Kybalion is a book published in 1908 by "Three Initiates" that claims to present the essence of the 
+                      teachings of Hermes Trismegistus. These principles have influenced esoteric and spiritual traditions worldwide.
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
+                
+                <AccordionItem value="application">
+                  <AccordionTrigger className="text-gray-800">Applying These Principles</AccordionTrigger>
+                  <AccordionContent>
+                    <p className="text-gray-700">
+                      Each principle offers a unique lens through which to understand yourself and the universe. 
+                      Through meditation, sound healing, and intention setting, you can align with these universal laws.
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
+                
+                <AccordionItem value="history">
+                  <AccordionTrigger className="text-gray-800">Historical Context</AccordionTrigger>
+                  <AccordionContent>
+                    <p className="text-gray-700">
+                      Hermes Trismegistus is a legendary figure associated with the Greek god Hermes and the Egyptian god Thoth. 
+                      The teachings attributed to him have influenced alchemy, astrology, and various mystical traditions.
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
 
-        <div className="text-center">
-          <Button
-            onClick={() => navigate("/")}
-            variant="outline"
-            className="bg-white hover:bg-gray-50"
-          >
-            Back to Home
-          </Button>
-        </div>
+            <div className="text-center">
+              <Button
+                onClick={() => navigate("/")}
+                variant="outline"
+                className="bg-white hover:bg-gray-50"
+              >
+                Back to Home
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     </Layout>
   );
