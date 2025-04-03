@@ -10,6 +10,7 @@ export interface HealingFrequency {
   duration?: number; // default duration in seconds
   history?: string;
   meditations?: string[];
+  audio_url?: string; // Added this property
 }
 
 export const healingFrequencies: HealingFrequency[] = [

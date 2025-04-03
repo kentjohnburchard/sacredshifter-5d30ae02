@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -78,6 +79,16 @@ const TimelineViewer: React.FC = () => {
     return Array.from(tagSet);
   }, [entries]);
 
+  // Function to process journal entries from the database
+  const processJournalEntries = (entries: any[]): TimelineEntry[] => {
+    return entries.map(entry => ({
+      ...entry,
+      tags: entry.tags || [],
+      journal: entry.notes || '',
+      session_id: entry.session_id
+    }));
+  };
+
   const fetchTimelineEntries = async () => {
     if (!user) {
       setLoading(false);
@@ -97,24 +108,31 @@ const TimelineViewer: React.FC = () => {
         return;
       }
 
-      const timelineEntries: TimelineEntry[] = processJournalEntries(entriesData.map(entry => ({
+      const processedEntries = entriesData.map(entry => ({
         ...entry,
         tags: entry.tags || [],
-        journal: entry.notes,
-        session_id: entry.session_id || undefined
-      })));
+        journal: entry.notes || '',
+        session_id: entry.session_id
+      }));
 
       const frequencies = new Set<number>();
-      timelineEntries.forEach(entry => {
+      processedEntries.forEach(entry => {
         if (entry.frequency) {
           frequencies.add(entry.frequency);
         }
       });
       setUniqueFrequencies(frequencies);
 
-      setEntries(timelineEntries);
+      setEntries(processedEntries);
 
-      fetchMusicGenerations(entriesData.map(e => e.frequency).filter(Boolean) as number[]);
+      // Fetch music generations for frequencies that have data
+      const frequenciesWithData = processedEntries
+        .filter(e => e.frequency)
+        .map(e => e.frequency as number);
+        
+      if (frequenciesWithData.length > 0) {
+        fetchMusicGenerations(frequenciesWithData);
+      }
     } catch (error) {
       console.error("Unexpected error:", error);
       toast.error("An error occurred while loading your timeline");

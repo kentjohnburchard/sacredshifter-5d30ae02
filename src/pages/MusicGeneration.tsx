@@ -113,7 +113,7 @@ const MusicGeneration = () => {
                       Playing {selectedFrequency.frequency}Hz - {selectedFrequency.name}:
                     </p>
                     <FrequencyPlayer
-                      audioUrl={selectedFrequency.audio_url || ''}
+                      audioUrl={selectedFrequency.audio_url || ""}
                       isPlaying={isPlaying}
                       onPlayToggle={() => setIsPlaying(!isPlaying)}
                     />

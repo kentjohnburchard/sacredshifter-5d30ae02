@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause } from "lucide-react";
 
@@ -7,7 +7,7 @@ interface FrequencyPlayerProps {
   audioUrl: string;
   isPlaying: boolean;
   onPlayToggle: () => void;
-  frequency?: number; // Added this prop
+  frequency?: number; // Optional frequency prop
 }
 
 const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
