@@ -2,6 +2,9 @@
 import React, { useState } from "react";
 import Header from "@/components/Header";
 import { EnergyCheckTabs } from "@/components/energy-check";
+import { Link } from "react-router-dom";
+import { BookOpen } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const EnergyCheck = () => {
   const [activeTab, setActiveTab] = useState("frequency");
@@ -20,6 +23,15 @@ const EnergyCheck = () => {
           <p className="text-[#7510c9]/70 max-w-2xl mx-auto text-lg">
             Align your energy and set sacred intentions for your journey.
           </p>
+          
+          <div className="flex justify-center mt-4">
+            <Link to="/hermetic-wisdom">
+              <Button variant="outline" className="gap-2 text-purple-600 border-purple-200 hover:bg-purple-50">
+                <BookOpen className="h-4 w-4" />
+                <span>Explore Hermetic Wisdom Hub</span>
+              </Button>
+            </Link>
+          </div>
         </div>
         
         <EnergyCheckTabs activeTab={activeTab} setActiveTab={setActiveTab} />
