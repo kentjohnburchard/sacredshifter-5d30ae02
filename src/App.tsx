@@ -14,6 +14,7 @@ import Intentions from '@/pages/Intentions';
 import Soundscapes from '@/pages/Soundscapes';
 import JourneyTemplates from '@/pages/JourneyTemplates';
 import JourneyPlayer from '@/pages/JourneyPlayer';
+import Index from '@/pages/Index';
 import { AuthProvider } from '@/context/AuthContext';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import { Toaster } from 'sonner';
@@ -51,7 +52,7 @@ function App() {
           <AnimatedBackground colorScheme="purple" />
         )}
         <Routes>
-          <Route path="/" element={<Layout><div className="min-h-screen">Home Page</div></Layout>} />
+          <Route path="/" element={<Index />} />
           <Route path="/pricing" element={<Layout><div className="min-h-screen">Pricing Page</div></Layout>} />
           <Route path="/about" element={<Layout><div className="min-h-screen">About Page</div></Layout>} />
           <Route path="/contact" element={<Layout><div className="min-h-screen">Contact Page</div></Layout>} />

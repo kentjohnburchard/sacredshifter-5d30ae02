@@ -5,7 +5,7 @@ import ComingSoonBanner from "@/components/ComingSoonBanner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate, Link } from "react-router-dom";
-import { Music2 } from "lucide-react";
+import { Music2, CheckSquare, Heart, Zap, Book, Stars, Library, Clock, HeartPulse } from "lucide-react";
 import Layout from "@/components/Layout";
 import LandingPrompt from "@/components/LandingPrompt";
 import { motion } from "framer-motion";
@@ -80,7 +80,7 @@ const Index = () => {
                   Sound healing is one of the oldest and most natural forms of healing known to man. The Egyptians used vowel sound chants in healing because they believed vowels were sacred. Tibetan monks use singing bowls, which the body's chakra system responds to.
                 </p>
                 <p className="text-gray-700 text-sm">
-                  Experience the power of sound healing in our Music Generation page, where you can listen to sacred frequencies.
+                  Experience the power of sound healing in our application, where you can listen to sacred frequencies.
                 </p>
               </CardContent>
             </Card>
@@ -109,43 +109,52 @@ const Index = () => {
             </Card>
           </div>
           
-          {/* Comprehensive Page Guide */}
+          {/* All App Pages Section */}
           <div className="mt-12 mb-8">
             <h3 className="text-2xl font-light text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">
-              Navigate Your Healing Journey
+              Explore Our Sacred Healing Features
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Energy Check */}
+              {/* Journey Templates */}
               <Card className="border border-purple-100 hover:border-purple-300 transition-all shadow-sm">
                 <CardContent className="p-4">
-                  <h4 className="font-medium text-lg mb-2 text-purple-700">Energy Check</h4>
+                  <h4 className="font-medium text-lg mb-2 text-purple-700 flex items-center">
+                    <Library className="mr-2 h-4 w-4" />
+                    Healing Journeys
+                  </h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Explore curated sound experiences designed for specific healing purposes like sleep, focus, and anxiety release.
+                  </p>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link to="/journey-templates">Explore Healing Journeys</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              {/* Energy Check */}
+              <Card className="border border-blue-100 hover:border-blue-300 transition-all shadow-sm">
+                <CardContent className="p-4">
+                  <h4 className="font-medium text-lg mb-2 text-blue-700 flex items-center">
+                    <CheckSquare className="mr-2 h-4 w-4" />
+                    Energy Check
+                  </h4>
                   <p className="text-sm text-gray-600 mb-3">
                     Assess your current energy state, set intentions, and discover frequencies that align with your needs.
                   </p>
                   <Button asChild variant="outline" className="w-full">
-                    <Link to="/energy-check">Explore Energy Check</Link>
+                    <Link to="/energy-check">Try Energy Check</Link>
                   </Button>
                 </CardContent>
               </Card>
               
-              {/* Healing Journeys */}
-              <Card className="border border-blue-100 hover:border-blue-300 transition-all shadow-sm">
-                <CardContent className="p-4">
-                  <h4 className="font-medium text-lg mb-2 text-blue-700">Healing Journeys</h4>
-                  <p className="text-sm text-gray-600 mb-3">
-                    Curated sound experiences designed for specific healing purposes like sleep, focus, and anxiety release.
-                  </p>
-                  <Button asChild variant="outline" className="w-full">
-                    <Link to="/journey-templates">Browse Healing Journeys</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-              
-              {/* Chakra Alignment */}
+              {/* Alignment */}
               <Card className="border border-indigo-100 hover:border-indigo-300 transition-all shadow-sm">
                 <CardContent className="p-4">
-                  <h4 className="font-medium text-lg mb-2 text-indigo-700">Chakra Alignment</h4>
+                  <h4 className="font-medium text-lg mb-2 text-indigo-700 flex items-center">
+                    <Heart className="mr-2 h-4 w-4" />
+                    Chakra Alignment
+                  </h4>
                   <p className="text-sm text-gray-600 mb-3">
                     Balance your energy centers with precision frequency healing designed for each chakra.
                   </p>
@@ -158,7 +167,10 @@ const Index = () => {
               {/* Intentions */}
               <Card className="border border-teal-100 hover:border-teal-300 transition-all shadow-sm">
                 <CardContent className="p-4">
-                  <h4 className="font-medium text-lg mb-2 text-teal-700">Intentions</h4>
+                  <h4 className="font-medium text-lg mb-2 text-teal-700 flex items-center">
+                    <Zap className="mr-2 h-4 w-4" />
+                    Intentions
+                  </h4>
                   <p className="text-sm text-gray-600 mb-3">
                     Set powerful intentions that resonate with your highest vibration and manifest your desired reality.
                   </p>
@@ -171,7 +183,10 @@ const Index = () => {
               {/* Meditation */}
               <Card className="border border-cyan-100 hover:border-cyan-300 transition-all shadow-sm">
                 <CardContent className="p-4">
-                  <h4 className="font-medium text-lg mb-2 text-cyan-700">Meditation</h4>
+                  <h4 className="font-medium text-lg mb-2 text-cyan-700 flex items-center">
+                    <Music2 className="mr-2 h-4 w-4" />
+                    Meditation
+                  </h4>
                   <p className="text-sm text-gray-600 mb-3">
                     Find peace and elevate your consciousness through guided meditations enhanced with sacred frequencies.
                   </p>
@@ -184,7 +199,10 @@ const Index = () => {
               {/* Focus */}
               <Card className="border border-green-100 hover:border-green-300 transition-all shadow-sm">
                 <CardContent className="p-4">
-                  <h4 className="font-medium text-lg mb-2 text-green-700">Focus</h4>
+                  <h4 className="font-medium text-lg mb-2 text-green-700 flex items-center">
+                    <Book className="mr-2 h-4 w-4" />
+                    Focus
+                  </h4>
                   <p className="text-sm text-gray-600 mb-3">
                     Enhance concentration and mental clarity with sound frequencies designed to optimize brain function.
                   </p>
@@ -197,7 +215,10 @@ const Index = () => {
               {/* Astrology */}
               <Card className="border border-violet-100 hover:border-violet-300 transition-all shadow-sm">
                 <CardContent className="p-4">
-                  <h4 className="font-medium text-lg mb-2 text-violet-700">Astrology</h4>
+                  <h4 className="font-medium text-lg mb-2 text-violet-700 flex items-center">
+                    <Stars className="mr-2 h-4 w-4" />
+                    Astrology
+                  </h4>
                   <p className="text-sm text-gray-600 mb-3">
                     Explore cosmic connections and how celestial energies influence your personal frequency.
                   </p>
@@ -210,7 +231,10 @@ const Index = () => {
               {/* Soundscapes */}
               <Card className="border border-amber-100 hover:border-amber-300 transition-all shadow-sm">
                 <CardContent className="p-4">
-                  <h4 className="font-medium text-lg mb-2 text-amber-700">Soundscapes</h4>
+                  <h4 className="font-medium text-lg mb-2 text-amber-700 flex items-center">
+                    <Library className="mr-2 h-4 w-4" />
+                    Soundscapes
+                  </h4>
                   <p className="text-sm text-gray-600 mb-3">
                     Immerse yourself in ambient sound environments designed to enhance your focus, creativity, and spiritual connection.
                   </p>
@@ -223,7 +247,10 @@ const Index = () => {
               {/* Timeline */}
               <Card className="border border-rose-100 hover:border-rose-300 transition-all shadow-sm">
                 <CardContent className="p-4">
-                  <h4 className="font-medium text-lg mb-2 text-rose-700">Timeline</h4>
+                  <h4 className="font-medium text-lg mb-2 text-rose-700 flex items-center">
+                    <Clock className="mr-2 h-4 w-4" />
+                    Timeline
+                  </h4>
                   <p className="text-sm text-gray-600 mb-3">
                     Revisit your frequency journey and reconnect with moments that resonated with your energy.
                   </p>
@@ -242,8 +269,8 @@ const Index = () => {
               className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white rounded-lg shadow-md transform transition-all duration-300 hover:scale-105"
               onClick={() => navigate("/energy-check")}
             >
-              <Music2 className="mr-2 h-4 w-4" />
-              Begin Your Journey
+              <HeartPulse className="mr-2 h-4 w-4" />
+              Begin Your Healing Journey
             </Button>
           </div>
         </div>
