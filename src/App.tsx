@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
-import Astrology from '@/pages/Astrology';
+import { AstrologyPage } from '@/components/astrology';  // Updated import
 import Focus from '@/pages/Focus';
 import Meditation from '@/pages/Meditation';
 import { AuthProvider } from '@/context/AuthContext';
@@ -50,10 +49,10 @@ function App() {
           <Route path="/contact" element={<Layout><div className="min-h-screen">Contact Page</div></Layout>} />
           <Route path="/blog" element={<Layout><div className="min-h-screen">Blog Page</div></Layout>} />
           <Route path="/coming-soon" element={<Layout><div className="min-h-screen">Coming Soon</div></Layout>} />
-          <Route path="/astrology" element={<Layout><Astrology /></Layout>} />
+          <Route path="/astrology" element={<AstrologyPage />} />
           <Route path="/music-generation" element={<Layout><div className="min-h-screen">Music Generation</div></Layout>} />
           <Route path="/meditation" element={<Meditation />} />
-          <Route path="/focus" element={<Layout><Focus /></Layout>} />
+          <Route path="/focus" element={<Focus />} />
           <Route path="/soundscapes" element={<Layout><div className="min-h-screen">Soundscapes</div></Layout>} />
           <Route path="/mood-journal" element={<Layout><div className="min-h-screen">Mood Journal</div></Layout>} />
           <Route path="/timeline" element={<Layout><div className="min-h-screen">Timeline</div></Layout>} />

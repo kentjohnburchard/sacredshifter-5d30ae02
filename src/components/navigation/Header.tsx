@@ -26,8 +26,9 @@ const Header: React.FC = () => {
             <NavLink to="/alignment">Alignment</NavLink>
             <NavLink to="/intentions">Intentions</NavLink>
             <NavLink to="/meditation">Meditation</NavLink>
-            <NavLink to="/music-generation">Sound Creation</NavLink>
-            <NavLink to="/hermetic-wisdom">Hermetic Wisdom</NavLink>
+            <NavLink to="/focus">Focus</NavLink>
+            <NavLink to="/astrology">Astrology</NavLink>
+            <NavLink to="/soundscapes">Soundscapes</NavLink>
           </nav>
           
           {/* Mobile Menu Button */}
@@ -45,8 +46,9 @@ const Header: React.FC = () => {
                   <NavLink to="/alignment" isMobile>Alignment</NavLink>
                   <NavLink to="/intentions" isMobile>Intentions</NavLink>
                   <NavLink to="/meditation" isMobile>Meditation</NavLink>
-                  <NavLink to="/music-generation" isMobile>Sound Creation</NavLink>
-                  <NavLink to="/hermetic-wisdom" isMobile>Hermetic Wisdom</NavLink>
+                  <NavLink to="/focus" isMobile>Focus</NavLink>
+                  <NavLink to="/astrology" isMobile>Astrology</NavLink>
+                  <NavLink to="/soundscapes" isMobile>Soundscapes</NavLink>
                 </nav>
               </SheetContent>
             </Sheet>
