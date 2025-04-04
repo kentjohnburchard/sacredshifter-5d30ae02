@@ -7,7 +7,7 @@ import NavLink from "./NavLink";
 
 const Header: React.FC = () => {
   return (
-    <header className="w-full bg-[#bf99ff]/5 backdrop-blur-sm border-b border-[#9966FF]/10 sticky top-0 z-50">
+    <header className="w-full bg-[#bf99ff]/5 backdrop-blur-sm border-b border-[#9966FF]/10 fixed top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
         <div className="flex justify-between items-center">
           {/* Logo */}
@@ -29,6 +29,7 @@ const Header: React.FC = () => {
             <NavLink to="/focus">Focus</NavLink>
             <NavLink to="/astrology">Astrology</NavLink>
             <NavLink to="/soundscapes">Soundscapes</NavLink>
+            <NavLink to="/timeline">Timeline</NavLink>
           </nav>
           
           {/* Mobile Menu Button */}
@@ -39,7 +40,7 @@ const Header: React.FC = () => {
                   <Menu size={24} />
                 </button>
               </SheetTrigger>
-              <SheetContent className="w-[300px] sm:w-[400px]">
+              <SheetContent className="w-[300px] sm:w-[400px] bg-white">
                 <nav className="flex flex-col gap-4 mt-8">
                   <NavLink to="/journeys" isMobile>Journeys</NavLink>
                   <NavLink to="/energy-check" isMobile>Energy Check</NavLink>
@@ -49,6 +50,7 @@ const Header: React.FC = () => {
                   <NavLink to="/focus" isMobile>Focus</NavLink>
                   <NavLink to="/astrology" isMobile>Astrology</NavLink>
                   <NavLink to="/soundscapes" isMobile>Soundscapes</NavLink>
+                  <NavLink to="/timeline" isMobile>Timeline</NavLink>
                 </nav>
               </SheetContent>
             </Sheet>
