@@ -23,6 +23,8 @@ const LandingPrompt: React.FC = () => {
       // After showing the last line, wait a moment and then navigate to index
       const redirectTimer = setTimeout(() => {
         navigate("/", { replace: true });
+        // Set localStorage to remember user has seen intro
+        localStorage.setItem('hasSeenIntro', 'true');
       }, 4000); // Wait 4 seconds after showing the last line
       return () => clearTimeout(redirectTimer);
     }
@@ -37,11 +39,6 @@ const LandingPrompt: React.FC = () => {
     >
       <Logo />
       <AnimatedText lines={lines} currentLine={currentLine} />
-      {currentLine >= lines.length - 1 && (
-        <div className="mt-6 text-xl text-gray-600">
-          Let's begin your resonance journey.
-        </div>
-      )}
     </motion.div>
   );
 };
