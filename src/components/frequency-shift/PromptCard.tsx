@@ -9,11 +9,30 @@ interface PromptCardProps {
 
 const PromptCard = ({ children }: PromptCardProps) => {
   return (
-    <Card className="border border-gray-200 shadow-md overflow-hidden rounded-lg">
-      <CardContent className="p-6 sm:p-8">
-        {children}
-      </CardContent>
-    </Card>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7 }}
+    >
+      <Card className="border border-purple-100/80 shadow-md overflow-hidden rounded-lg bg-white/95 
+                     hover:shadow-mystic transition-all duration-500">
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-b from-purple-100/20 to-transparent 
+                   pointer-events-none opacity-50"
+          animate={{ 
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{ 
+            duration: 8, 
+            repeat: Infinity,
+            repeatType: "reverse"
+          }}
+        />
+        <CardContent className="p-6 sm:p-8 relative z-10">
+          {children}
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 

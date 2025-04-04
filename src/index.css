@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Lora:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&family=Quicksand:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,80 +7,80 @@
 
 @layer base {
   :root {
-    --background: 240 30% 99%; /* Lighter background */
-    --foreground: 240 10% 10%;
+    --background: 260 30% 98%; /* Lighter background with subtle purple hue */
+    --foreground: 250 10% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 10%;
+    --card-foreground: 250 10% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 10%;
+    --popover-foreground: 250 10% 10%;
 
-    --primary: 251 85% 81%; /* #9b87f5 */
+    --primary: 265 85% 81%; /* Vibrant purple */
     --primary-foreground: 0 0% 98%;
 
-    --secondary: 240 5% 96%;
-    --secondary-foreground: 240 5% 10%;
+    --secondary: 250 5% 96%;
+    --secondary-foreground: 250 5% 10%;
 
-    --muted: 240 5% 96%;
-    --muted-foreground: 240 5% 40%;
+    --muted: 250 5% 96%;
+    --muted-foreground: 250 5% 40%;
 
-    --accent: 251 85% 81%; /* Using the primary purple */
+    --accent: 265 85% 81%; /* Using the primary purple */
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 5% 84%; /* Lighter border */
-    --input: 240 5% 84%; /* Lighter input */
-    --ring: 251 85% 81%; /* Matching primary purple */
+    --border: 250 15% 85%; /* Subtle purple border */
+    --input: 250 15% 85%; /* Subtle purple input */
+    --ring: 265 85% 81%; /* Matching primary purple */
 
-    --radius: 0.5rem;
+    --radius: 0.6rem; /* Slightly more rounded corners */
   }
 
   .dark {
-    --background: 240 10% 10%;
+    --background: 250 15% 8%;
     --foreground: 0 0% 98%;
 
-    --card: 240 10% 12%;
+    --card: 250 15% 10%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 240 10% 12%;
+    --popover: 250 15% 10%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 251 70% 70%;
-    --primary-foreground: 240 10% 10%;
+    --primary: 265 70% 70%;
+    --primary-foreground: 250 15% 10%;
 
-    --secondary: 240 10% 16%;
+    --secondary: 250 15% 16%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 240 10% 16%;
-    --muted-foreground: 240 5% 65%;
+    --muted: 250 15% 16%;
+    --muted-foreground: 250 5% 65%;
 
-    --accent: 251 70% 70%;
-    --accent-foreground: 240 10% 10%;
+    --accent: 265 70% 70%;
+    --accent-foreground: 250 15% 10%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 10% 20%;
-    --input: 240 10% 20%;
-    --ring: 251 70% 70%;
+    --border: 250 15% 20%;
+    --input: 250 15% 20%;
+    --ring: 265 70% 70%;
   }
 }
 
 @layer base {
   * {
-    @apply border-border font-modern;
+    @apply border-border;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-modern bg-gradient-to-b from-purple-50 to-white;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-modern font-medium;
+    @apply font-playfair font-medium;
   }
 
   h1 {
@@ -100,7 +100,7 @@
   }
 
   p {
-    @apply text-base;
+    @apply text-base font-modern;
   }
 
   .text-small {
@@ -110,11 +110,23 @@
 
 @layer utilities {
   .glass {
-    @apply backdrop-blur-md bg-white/80 border border-gray-200 shadow-sm;
+    @apply backdrop-blur-md bg-white/80 border border-white/40 shadow-sm;
   }
   
   .sacred-glass {
-    @apply backdrop-blur-md bg-white/90 border border-gray-200 rounded-xl shadow-lg;
+    @apply backdrop-blur-md bg-white/90 border border-white/30 rounded-xl shadow-md;
+  }
+  
+  .cosmic-card {
+    @apply bg-white/90 border border-purple-200/50 rounded-xl shadow-md 
+           hover:shadow-mystic hover:border-purple-300/60 transition-all 
+           duration-300 overflow-hidden;
+  }
+  
+  .cosmic-button {
+    @apply bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600
+           text-white rounded-lg shadow-sm hover:shadow-md transform transition-all 
+           duration-300 hover:scale-[1.02] hover:shadow-inner-glow;
   }
   
   .text-balance {
@@ -140,6 +152,10 @@
   .sacred-text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-deep;
   }
+  
+  .cosmic-text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-brand-purple to-brand-sapphire;
+  }
 
   .logo-watermark {
     @apply fixed inset-0 pointer-events-none z-[1] opacity-5 flex items-center justify-center;
@@ -151,19 +167,58 @@
   
   /* Consistent card styling */
   .card-heading {
-    @apply text-xl font-medium mb-3 text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500;
+    @apply text-xl font-playfair font-medium mb-3 text-center cosmic-text-gradient;
+  }
+  
+  .card-content {
+    @apply text-base font-modern text-gray-600;
   }
   
   .page-title {
-    @apply text-3xl sm:text-4xl font-light text-center;
+    @apply text-3xl sm:text-4xl font-playfair font-medium text-center mb-4 cosmic-text-gradient;
   }
   
   .page-subtitle {
-    @apply text-base text-gray-600 max-w-2xl mx-auto text-center;
+    @apply text-base text-gray-600 max-w-2xl mx-auto text-center mb-8;
   }
   
   .section-title {
-    @apply text-2xl font-medium text-center mb-6;
+    @apply text-2xl font-playfair font-medium text-center mb-6 cosmic-text-gradient;
+  }
+  
+  /* Cosmic micro-interactions */
+  .shimmer-hover {
+    @apply hover:bg-gradient-to-r hover:from-purple-200/50 hover:via-indigo-200/50 hover:to-purple-200/50 hover:bg-[length:200%_100%] hover:animate-shimmer transition-all duration-300;
+  }
+  
+  .glow-hover {
+    @apply hover:shadow-cosmic transition-shadow duration-300;
+  }
+  
+  .pulse-hover {
+    @apply hover:animate-cosmic-pulse;
+  }
+  
+  .twinkle {
+    @apply relative;
+  }
+  
+  .twinkle::after {
+    @apply content-[''] absolute top-0 left-0 w-full h-full pointer-events-none;
+    background-image: radial-gradient(circle, white 1px, transparent 1px);
+    background-size: 15px 15px;
+    opacity: 0.2;
+    animation: twinkle 3s infinite ease-in-out;
+  }
+  
+  /* Kent mode styles */
+  .kent-mode {
+    @apply italic text-brand-aurapink;
+  }
+  
+  /* Wave transition */
+  .wave-transition {
+    @apply transition-all duration-500 animate-gentle-wave;
   }
 }
 
@@ -178,11 +233,11 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-border rounded-full;
+  @apply bg-purple-200 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-muted-foreground;
+  @apply bg-purple-300;
 }
 
 /* Music visualization */
@@ -224,4 +279,38 @@
   50% {
     height: 100%;
   }
+}
+
+/* Cosmic starfield background */
+.starfield {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background-image: 
+    radial-gradient(1px 1px at 10% 10%, rgba(255, 255, 255, 0.3) 50%, transparent 100%),
+    radial-gradient(1px 1px at 20% 50%, rgba(255, 255, 255, 0.2) 50%, transparent 100%),
+    radial-gradient(1px 1px at 30% 30%, rgba(255, 255, 255, 0.3) 50%, transparent 100%),
+    radial-gradient(1px 1px at 40% 70%, rgba(255, 255, 255, 0.3) 50%, transparent 100%),
+    radial-gradient(1px 1px at 50% 40%, rgba(255, 255, 255, 0.3) 50%, transparent 100%),
+    radial-gradient(1px 1px at 60% 30%, rgba(255, 255, 255, 0.3) 50%, transparent 100%),
+    radial-gradient(1px 1px at 70% 70%, rgba(255, 255, 255, 0.3) 50%, transparent 100%),
+    radial-gradient(1px 1px at 80% 40%, rgba(255, 255, 255, 0.3) 50%, transparent 100%),
+    radial-gradient(1px 1px at 90% 10%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  opacity: 0.1;
+}
+
+/* Sacred Messages */
+.sacred-footer-message {
+  @apply text-xs text-center italic text-purple-500 opacity-60 hover:opacity-100 transition-opacity duration-300;
+  animation: fadeInOut 10s infinite ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
 }

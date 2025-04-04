@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { JourneyTemplate } from "@/data/journeyTemplates";
+import { motion } from "framer-motion";
 
 interface JourneyTemplateCardProps {
   template: JourneyTemplate;
@@ -16,74 +17,118 @@ const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template }) =
   const firstFrequencyValue = template.frequencies[0]?.value.split(' ')[0] || '';
   
   return (
-    <Card 
-      className="bg-gradient-to-br from-indigo-50 to-purple-50 border border-purple-200 overflow-hidden shadow-md hover:shadow-lg transition-all"
-      style={{ borderTopColor: template.color || '#6b46c1' }}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7 }}
+      viewport={{ once: true, margin: "-100px" }}
     >
-      <CardHeader className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
-        <CardTitle className="flex justify-between items-center">
+      <Card 
+        className="cosmic-card"
+        style={{ borderTopColor: template.color || '#6b46c1' }}
+      >
+        <CardHeader className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white relative overflow-hidden">
+          {/* Subtle cosmic shimmer overlay */}
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxyYWRpYWxHcmFkaWVudCBpZD0ic3RhciIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNTAlIiBmeD0iNTAlIiBmeT0iNTAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSJ3aGl0ZSIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IndoaXRlIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI3N0YXIpIi8+PC9zdmc+')]
+                opacity-30 mix-blend-overlay"></div>
+          
+          <CardTitle className="flex justify-between items-center relative z-10">
+            <div>
+              <motion.h3 
+                className="text-xl font-playfair" 
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
+                {template.emoji && `${template.emoji} `}{template.title}
+              </motion.h3>
+              <p className="text-sm font-light mt-1 font-modern">{template.subtitle}</p>
+            </div>
+            <div className="flex gap-1">
+              {template.chakras?.map((chakra) => (
+                <motion.div
+                  key={chakra}
+                  whileHover={{ scale: 1.1, rotate: 3 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <Badge variant="outline" className="border-white/40 text-white shimmer-hover">
+                    {chakra}
+                  </Badge>
+                </motion.div>
+              ))}
+              {template.vibe && (
+                <motion.div
+                  whileHover={{ scale: 1.1, rotate: -3 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <Badge variant="outline" className="border-white/40 text-white shimmer-hover">
+                    {template.vibe}
+                  </Badge>
+                </motion.div>
+              )}
+            </div>
+          </CardTitle>
+        </CardHeader>
+        
+        <CardContent className="p-6 space-y-4">
           <div>
-            <h3 className="text-xl font-medium">
-              {template.emoji && `${template.emoji} `}{template.title}
-            </h3>
-            <p className="text-sm font-light mt-1">{template.subtitle}</p>
+            <h4 className="text-sm font-medium text-purple-700 font-playfair mb-1">Purpose</h4>
+            <p className="text-sm text-gray-600 font-modern">
+              {template.purpose}
+            </p>
           </div>
-          <div className="flex gap-1">
-            {template.chakras?.map((chakra) => (
-              <Badge key={chakra} variant="outline" className="border-white/40 text-white">
-                {chakra}
-              </Badge>
-            ))}
-            {template.vibe && (
-              <Badge variant="outline" className="border-white/40 text-white">
-                {template.vibe}
-              </Badge>
-            )}
+          
+          <div>
+            <h4 className="text-sm font-medium text-purple-700 font-playfair mb-1">Frequencies</h4>
+            <ul className="space-y-1 text-sm text-gray-600 font-modern">
+              {template.frequencies.map((freq, index) => (
+                <motion.li 
+                  key={index} 
+                  className="flex items-start gap-2 shimmer-hover p-1 rounded-md"
+                  whileHover={{ x: 3 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <span className="text-purple-500 font-medium">{freq.name} ({freq.value}):</span> 
+                  <span>{freq.description}</span>
+                </motion.li>
+              ))}
+            </ul>
           </div>
-        </CardTitle>
-      </CardHeader>
-      
-      <CardContent className="p-6 space-y-4">
-        <div>
-          <h4 className="text-sm font-medium text-purple-700 mb-1">Purpose</h4>
-          <p className="text-sm text-gray-600">
-            {template.purpose}
-          </p>
-        </div>
-        
-        <div>
-          <h4 className="text-sm font-medium text-purple-700 mb-1">Frequencies</h4>
-          <ul className="space-y-1 text-sm text-gray-600">
-            {template.frequencies.map((freq, index) => (
-              <li key={index} className="flex items-start gap-2">
-                <span className="text-purple-500 font-medium">{freq.name} ({freq.value}):</span> 
-                <span>{freq.description}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-        
-        <div className="p-4 bg-white/80 rounded-lg border border-purple-100">
-          <p className="text-sm italic text-gray-600 relative">
-            <span className="text-3xl text-purple-300 absolute -top-3 -left-2">"</span>
-            {template.valeQuote.replace("Vale", "Kent")}
-            <span className="text-3xl text-purple-300 absolute -bottom-5 -right-2">"</span>
-          </p>
-          <p className="text-xs text-right mt-2 text-purple-600 font-medium">— Kent</p>
-        </div>
-        
-        <div className="pt-4 flex justify-end">
-          <Button 
-            asChild
-            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+          
+          <motion.div 
+            className="p-4 bg-white/80 backdrop-blur-sm rounded-lg border border-purple-100 relative overflow-hidden"
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 200, damping: 10 }}
           >
-            <Link to={`/journey/${firstFrequencyValue}`}>
-              Begin Journey <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+            {/* Subtle shimmer effect */}
+            <motion.div 
+              className="absolute inset-0 bg-gradient-to-r from-purple-100/20 via-transparent to-purple-100/20 bg-[length:200%_100%]"
+              animate={{ 
+                backgroundPosition: ['0% 0%', '100% 0%', '0% 0%'],
+              }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            ></motion.div>
+            
+            <p className="text-sm italic text-gray-600 relative font-lora">
+              <span className="text-3xl text-purple-300 absolute -top-3 -left-2">"</span>
+              {template.valeQuote.replace("Vale", "Kent")}
+              <span className="text-3xl text-purple-300 absolute -bottom-5 -right-2">"</span>
+            </p>
+            <p className="text-xs text-right mt-2 text-purple-600 font-medium">— Kent</p>
+          </motion.div>
+          
+          <div className="pt-4 flex justify-end">
+            <Button 
+              asChild
+              className="cosmic-button"
+            >
+              <Link to={`/journey/${firstFrequencyValue}`}>
+                Begin Journey <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 

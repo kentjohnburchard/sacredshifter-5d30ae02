@@ -23,6 +23,11 @@ export default {
 				sans: ['Inter', 'system-ui', 'sans-serif'],
 				modern: ['Inter', 'system-ui', 'sans-serif'],
 				segoe: ['Inter', 'system-ui', 'sans-serif'],
+				playfair: ['Playfair Display', 'serif'],
+				lora: ['Lora', 'serif'],
+				cormorant: ['Cormorant Garamond', 'serif'],
+				quicksand: ['Quicksand', 'sans-serif'],
+				raleway: ['Raleway', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -77,7 +82,10 @@ export default {
 					deep: '#361bb3', // Deep purple from the palette
 					chakra: '#7510c9', // Charkra purple from the palette
 					balancing1: '#4d00ff', // Balancing purple 1 from the palette
-					balancing2: '#800080'  // Balancing purple 2 from the palette
+					balancing2: '#800080',  // Balancing purple 2 from the palette
+					sapphire: '#0F52BA',   // Sapphire blue
+					aurapink: '#FF77FF',   // Aura pink
+					softgold: '#D4AF37',   // Soft gold
 				}
 			},
 			borderRadius: {
@@ -118,7 +126,25 @@ export default {
 					'0%': { height: '10%' },
 					'50%': { height: '80%' },
 					'100%': { height: '10%' }
-				}
+				},
+				'shimmer': {
+					'0%': { 'background-position': '0% 50%' },
+					'50%': { 'background-position': '100% 50%' },
+					'100%': { 'background-position': '0% 50%' }
+				},
+				'twinkle': {
+					'0%, 100%': { opacity: '0.6' },
+					'50%': { opacity: '1' }
+				},
+				'cosmic-pulse': {
+					'0%, 100%': { transform: 'scale(1)', 'box-shadow': '0 0 0 0 rgba(155, 48, 255, 0.2)' },
+					'50%': { transform: 'scale(1.03)', 'box-shadow': '0 0 0 10px rgba(155, 48, 255, 0)' }
+				},
+				'gentle-wave': {
+					'0%': { transform: 'translateY(0) translateX(0)' },
+					'50%': { transform: 'translateY(-5px) translateX(5px)' },
+					'100%': { transform: 'translateY(0) translateX(0)' }
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -131,8 +157,23 @@ export default {
 				'music-bar-1': 'music-bars 1.2s ease-in-out infinite',
 				'music-bar-2': 'music-bars 1.7s ease-in-out infinite 0.2s',
 				'music-bar-3': 'music-bars 1.5s ease-in-out infinite 0.4s',
-				'music-bar-4': 'music-bars 1.3s ease-in-out infinite 0.6s'
-			}
+				'music-bar-4': 'music-bars 1.3s ease-in-out infinite 0.6s',
+				'shimmer': 'shimmer 3s infinite linear',
+				'twinkle': 'twinkle 2s infinite ease-in-out',
+				'cosmic-pulse': 'cosmic-pulse 2s infinite ease-in-out',
+				'gentle-wave': 'gentle-wave 3s infinite ease-in-out',
+			},
+			backgroundImage: {
+				'cosmic-gradient': 'linear-gradient(to bottom, #2c1a4d, #0c0524)',
+				'twilight-gradient': 'linear-gradient(135deg, #614385 0%, #516395 100%)',
+				'violet-sapphire': 'linear-gradient(135deg, #9b30ff 0%, #0F52BA 100%)',
+				'mystical-glow': 'radial-gradient(circle, rgba(155,48,255,0.15) 0%, rgba(15,82,186,0.05) 70%, rgba(0,0,0,0) 100%)'
+			},
+			boxShadow: {
+				'inner-glow': 'inset 0 0 10px rgba(155, 48, 255, 0.3)',
+				'cosmic': '0 0 15px rgba(155, 48, 255, 0.5)',
+				'mystic': '0 5px 15px rgba(15, 82, 186, 0.3)'
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
