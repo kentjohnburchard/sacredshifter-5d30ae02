@@ -1,3 +1,4 @@
+
 import React from "react";
 import { 
   HoverCard, 
@@ -160,8 +161,8 @@ const HermeticWisdomDrop: React.FC<HermeticWisdomDropProps> = ({
       </div>
       
       <div className="bg-purple-50 p-3 rounded-md border border-purple-100">
-        <p className="text-sm font-medium mb-1">Vale says:</p>
-        <p className="text-sm italic">{wisdom.valeSays}</p>
+        <p className="text-sm font-medium mb-1">Kent says:</p>
+        <p className="text-sm italic">{wisdom.valeSays.replace("Vale", "Kent")}</p>
       </div>
       
       <div className="border-t pt-2">
@@ -179,12 +180,12 @@ const HermeticWisdomDrop: React.FC<HermeticWisdomDropProps> = ({
             {children || (
               <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full">
                 <Info className="h-4 w-4" />
-                <span className="sr-only">Vale's Wisdom on {principle}</span>
+                <span className="sr-only">Kent's Wisdom on {principle}</span>
               </Button>
             )}
           </TooltipTrigger>
           <TooltipContent side="right" className="max-w-sm">
-            <p className="text-sm">Click for Vale's wisdom on {principle}</p>
+            <p className="text-sm">Click for Kent's wisdom on {principle}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -198,7 +199,7 @@ const HermeticWisdomDrop: React.FC<HermeticWisdomDropProps> = ({
           {children || (
             <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full">
               <Info className="h-4 w-4" />
-              <span className="sr-only">Vale's Wisdom on {principle}</span>
+              <span className="sr-only">Kent's Wisdom on {principle}</span>
             </Button>
           )}
         </HoverCardTrigger>
@@ -215,14 +216,14 @@ const HermeticWisdomDrop: React.FC<HermeticWisdomDropProps> = ({
         {children || (
           <Button variant="ghost" size="sm" className="gap-2 text-purple-600 hover:text-purple-700 hover:bg-purple-50">
             <Quote className="h-4 w-4" />
-            <span>Vale's Wisdom</span>
+            <span>Kent's Wisdom</span>
           </Button>
         )}
       </AlertDialogTrigger>
       <AlertDialogContent className="max-w-md">
         <AlertDialogHeader>
           <AlertDialogTitle>
-            Vale's Wisdom Drop – {principle} Edition
+            Kent's Wisdom Drop – {principle} Edition
           </AlertDialogTitle>
           <AlertDialogDescription asChild>
             {renderWisdomContent()}

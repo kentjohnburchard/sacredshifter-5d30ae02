@@ -67,7 +67,7 @@ const TinnitusSupportJourney: React.FC = () => {
             You don't have to fight the ringing—you just have to meet it with peace.
             <span className="text-3xl text-purple-300 absolute -bottom-5 -right-2">"</span>
           </p>
-          <p className="text-xs text-right mt-2 text-purple-600 font-medium">— Vale</p>
+          <p className="text-xs text-right mt-2 text-purple-600 font-medium">— Kent</p>
         </div>
         
         <div className="flex flex-wrap gap-2 pt-2">

@@ -2,7 +2,6 @@
 import React from "react";
 import journeyTemplates from "@/data/journeyTemplates";
 import JourneyTemplateCard from "./JourneyTemplateCard";
-import TinnitusSupportJourney from "./TinnitusSupportJourney";
 
 const JourneyTemplatesGrid: React.FC = () => {
   return (

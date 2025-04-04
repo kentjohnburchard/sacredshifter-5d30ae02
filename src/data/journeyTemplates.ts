@@ -256,6 +256,110 @@ const journeyTemplates: JourneyTemplate[] = [
     sessionType: "Productivity",
     vibe: "Energizing",
     color: "#2196f3"
+  },
+  {
+    id: "anxiety-release",
+    title: "Anxiety Release",
+    subtitle: "Theta-Alpha Blend",
+    description: "A gentle journey to release anxiety and restore calm through soothing frequency combinations and guided breathwork.",
+    purpose: "Release anxiety, calm the nervous system, and restore inner peace through targeted frequency work.",
+    frequencies: [
+      {
+        name: "Theta Waves",
+        value: "6-7 Hz",
+        description: "Stress reduction and emotional release"
+      },
+      {
+        name: "Alpha Waves",
+        value: "8-10 Hz",
+        description: "Relaxed awareness and presence"
+      },
+      {
+        name: "Solfeggio Frequency",
+        value: "396 Hz",
+        description: "Releasing fear patterns and blockages"
+      },
+      {
+        name: "Solfeggio Frequency",
+        value: "639 Hz",
+        description: "Heart healing and emotional balance"
+      }
+    ],
+    soundSources: [
+      "Flowing water sounds",
+      "Gentle wind chimes",
+      "Ambient nature sounds",
+      "Subtle heartbeat rhythm (60 BPM)"
+    ],
+    guidedPrompt: "Notice where you're holding tension in your body.\nWith each exhale, release that tension a little more.\nFeel the frequencies washing through you like gentle waves.\nYou are safe here, supported in this space between breaths.",
+    valeQuote: "Anxiety isn't your enemy—it's just energy asking for direction. We're not shutting it down; we're transforming it into something useful.",
+    affirmation: "I release what doesn't serve me. I am safe in this moment. My breath is my anchor.",
+    features: [
+      "Guided breathing patterns",
+      "Progressive muscle relaxation sequence",
+      "Anxiety intensity tracking",
+      "SOS quick-relief mode"
+    ],
+    tags: ["Anxiety", "Stress Relief", "Emotional Balance", "Calm", "Breathwork"],
+    chakras: ["Heart", "Solar Plexus", "Root"],
+    duration: 20,
+    emoji: "🌊",
+    visualTheme: "Ocean waves gradient",
+    sessionType: "Emotional Release",
+    vibe: "Calming",
+    color: "#4caf50"
+  },
+  {
+    id: "creativity-boost",
+    title: "Creativity Boost",
+    subtitle: "Gamma-Theta Combination",
+    description: "Activate creative flow states and remove creative blocks through a unique blend of frequency patterns.",
+    purpose: "Stimulate creative thinking, remove blocks, and enhance artistic expression through frequency activation.",
+    frequencies: [
+      {
+        name: "Gamma Waves",
+        value: "30-40 Hz",
+        description: "Heightened perception and insights"
+      },
+      {
+        name: "Theta Waves",
+        value: "4-7 Hz",
+        description: "Access to subconscious creativity"
+      },
+      {
+        name: "Solfeggio Frequency",
+        value: "417 Hz",
+        description: "Breaking creative patterns and blocks"
+      },
+      {
+        name: "Solfeggio Frequency",
+        value: "528 Hz",
+        description: "Transformation and inspiration"
+      }
+    ],
+    soundSources: [
+      "Ambient harmonics",
+      "Subtle percussion elements",
+      "Water droplet sounds",
+      "Wind through trees"
+    ],
+    guidedPrompt: "Close your eyes and see colors forming behind your eyelids.\nLet images and ideas arise without judgment.\nNotice connections forming between seemingly unrelated concepts.\nYour creative mind is a vessel being filled with inspiration.",
+    valeQuote: "Creativity isn't about being special—it's about being receptive. These frequencies are tuning you to receive the ideas that have been waiting for you to notice them.",
+    affirmation: "I am a vessel for creative expression. Ideas flow through me effortlessly.",
+    features: [
+      "Visual imagery prompts",
+      "Idea capture integration",
+      "Inspirational quote generator",
+      "Creative challenge suggestions"
+    ],
+    tags: ["Creativity", "Inspiration", "Artistic Flow", "Innovation", "Ideation"],
+    chakras: ["Sacral", "Third Eye", "Crown"],
+    duration: 25,
+    emoji: "✨",
+    visualTheme: "Vibrant color bursts",
+    sessionType: "Creative Flow",
+    vibe: "Inspiring",
+    color: "#ff9800"
   }
 ];
 

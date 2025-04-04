@@ -63,6 +63,15 @@ const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template }) =
           </ul>
         </div>
         
+        <div className="p-4 bg-white/80 rounded-lg border border-purple-100">
+          <p className="text-sm italic text-gray-600 relative">
+            <span className="text-3xl text-purple-300 absolute -top-3 -left-2">"</span>
+            {template.valeQuote.replace("Vale", "Kent")}
+            <span className="text-3xl text-purple-300 absolute -bottom-5 -right-2">"</span>
+          </p>
+          <p className="text-xs text-right mt-2 text-purple-600 font-medium">— Kent</p>
+        </div>
+        
         <div className="pt-4 flex justify-end">
           <Button 
             asChild
