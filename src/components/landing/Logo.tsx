@@ -30,7 +30,7 @@ const Logo: React.FC = () => {
         animate="animate"
         src="/lovable-uploads/b9b4b625-472c-484e-a49a-41aaf4f604a5.png" 
         alt="Sacred Shifter Logo" 
-        className="w-full max-w-[270px] mx-auto" // Increased by 50% from 180px
+        className="w-full max-w-[270px] mx-auto"
       />
     </motion.div>
   );

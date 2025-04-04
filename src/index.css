@@ -80,7 +80,31 @@
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-modern font-semibold;
+    @apply font-modern font-medium;
+  }
+
+  h1 {
+    @apply text-3xl sm:text-4xl;
+  }
+
+  h2 {
+    @apply text-2xl sm:text-3xl;
+  }
+
+  h3 {
+    @apply text-xl sm:text-2xl;
+  }
+
+  h4 {
+    @apply text-lg;
+  }
+
+  p {
+    @apply text-base;
+  }
+
+  .text-small {
+    @apply text-sm;
   }
 }
 
@@ -123,6 +147,23 @@
 
   .logo-watermark-image {
     @apply max-w-[50%] max-h-[50%] object-contain;
+  }
+  
+  /* Consistent card styling */
+  .card-heading {
+    @apply text-xl font-medium mb-3 text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500;
+  }
+  
+  .page-title {
+    @apply text-3xl sm:text-4xl font-light text-center;
+  }
+  
+  .page-subtitle {
+    @apply text-base text-gray-600 max-w-2xl mx-auto text-center;
+  }
+  
+  .section-title {
+    @apply text-2xl font-medium text-center mb-6;
   }
 }
 

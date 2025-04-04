@@ -24,9 +24,9 @@ const Layout: React.FC<LayoutProps> = ({ children, pageTitle }) => {
         <div className="flex-1 md:ml-64">
           {/* Add top padding to account for header height */}
           <div className="pt-36">
-            {/* Page Title */}
+            {/* Page Title - Standardized styling and centered on all devices */}
             {pageTitle && (
-              <div className="w-full pb-4 px-4 sm:px-6 text-center md:text-left">
+              <div className="w-full pb-6 px-4 sm:px-6 text-center">
                 <h1 className="text-3xl sm:text-4xl font-light">
                   <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">
                     {pageTitle}
