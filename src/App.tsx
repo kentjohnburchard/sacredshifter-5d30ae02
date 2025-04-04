@@ -13,6 +13,8 @@ import EnergyCheck from '@/pages/EnergyCheck';
 import Alignment from '@/pages/Alignment';
 import Intentions from '@/pages/Intentions';
 import Soundscapes from '@/pages/Soundscapes';
+import JourneyTemplates from '@/pages/JourneyTemplates';
+import JourneyPlayer from '@/pages/JourneyPlayer';
 import { AuthProvider } from '@/context/AuthContext';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import { Toaster } from 'sonner';
@@ -64,6 +66,8 @@ function App() {
           <Route path="/mood-journal" element={<Layout><div className="min-h-screen">Mood Journal</div></Layout>} />
           <Route path="/timeline" element={<Timeline />} />
           <Route path="/journeys" element={<Journeys />} />
+          <Route path="/journey-templates" element={<JourneyTemplates />} />
+          <Route path="/journey/:frequencyId" element={<JourneyPlayer />} />
           <Route path="/energy-check" element={<EnergyCheck />} />
           <Route path="/alignment" element={<Alignment />} />
           <Route path="/intentions" element={<Intentions />} />

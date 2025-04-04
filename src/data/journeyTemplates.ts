@@ -1,114 +1,80 @@
 
-import { HealingFrequency } from "@/data/frequencies";
+import { HealingFrequency } from "./frequencies";
 
 export interface JourneyTemplate {
   id: string;
-  frequency: number;
-  name: string;
-  chakra: string;
-  vibe: string;
-  visualTheme: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  purpose: string;
+  frequencies: {
+    name: string;
+    value: string;
+    description: string;
+  }[];
+  soundSources: string[];
+  guidedPrompt: string;
+  valeQuote: string;
   affirmation: string;
-  sessionType: string;
-  color: string;
-  emoji: string;
+  features: string[];
+  tags: string[];
+  chakras?: string[];
+  imageUrl?: string;
+  duration?: number;
 }
 
-export const journeyTemplates: JourneyTemplate[] = [
+const journeyTemplates: JourneyTemplate[] = [
   {
-    id: "396hz",
-    frequency: 396,
-    name: "Grounded Release",
-    chakra: "Root",
-    vibe: "Safety, stability, releasing fear",
-    visualTheme: "Deep red earth ripple",
-    affirmation: "I am safe. I am rooted. I let go of fear.",
-    sessionType: "Body scan, breath + grounding",
-    color: "from-red-400 to-red-600",
-    emoji: "🔴"
-  },
-  {
-    id: "417hz",
-    frequency: 417,
-    name: "Flow & Renewal",
-    chakra: "Sacral",
-    vibe: "Creativity, pleasure, clearing shame",
-    visualTheme: "Orange water bloom",
-    affirmation: "I embrace change. I create with joy.",
-    sessionType: "Movement or emotional detox",
-    color: "from-orange-400 to-orange-600",
-    emoji: "🟠"
-  },
-  {
-    id: "528hz",
-    frequency: 528,
-    name: "Radiant Transformation",
-    chakra: "Solar Plexus",
-    vibe: "Empowerment, love, cellular healing",
-    visualTheme: "Golden solar pulse",
-    affirmation: "I am powerful. I transform with love.",
-    sessionType: "Intention-setting + frequency bath",
-    color: "from-yellow-400 to-yellow-600",
-    emoji: "🟡"
-  },
-  {
-    id: "639hz",
-    frequency: 639,
-    name: "Open Heart Alignment",
-    chakra: "Heart",
-    vibe: "Connection, healing relationships, inner peace",
-    visualTheme: "Green aura bloom",
-    affirmation: "I open my heart to love and forgiveness.",
-    sessionType: "Heart coherence + emotional release",
-    color: "from-green-400 to-green-600",
-    emoji: "💚"
-  },
-  {
-    id: "741hz",
-    frequency: 741,
-    name: "Speak Your Truth",
-    chakra: "Throat",
-    vibe: "Detox, self-expression, authenticity",
-    visualTheme: "Blue harmonic waves",
-    affirmation: "I express myself freely and clearly.",
-    sessionType: "Breath + guided vocal release",
-    color: "from-blue-400 to-blue-600",
-    emoji: "🔵"
-  },
-  {
-    id: "852hz",
-    frequency: 852,
-    name: "Inner Vision",
-    chakra: "Third Eye",
-    vibe: "Intuition, clarity, wisdom",
-    visualTheme: "Indigo fractal bloom",
-    affirmation: "I trust my inner guidance.",
-    sessionType: "Meditation + intuitive activation",
-    color: "from-indigo-400 to-indigo-600",
-    emoji: "🟣"
-  },
-  {
-    id: "963hz",
-    frequency: 963,
-    name: "Cosmic Connection",
-    chakra: "Crown",
-    vibe: "Unity, spiritual awakening, oneness",
-    visualTheme: "Violet spiral mandala",
-    affirmation: "I am connected to all that is.",
-    sessionType: "Deep sound journey + silence space",
-    color: "from-purple-400 to-purple-600",
-    emoji: "⚪"
+    id: "silent-tune",
+    title: "Silent Tune",
+    subtitle: "Realigning the Inner Ear",
+    description: "A healing journey designed to soothe the perception of ringing in the ears through frequency balancing, nervous system regulation, and deep auditory relaxation.",
+    purpose: "Soothe the perception of ringing in the ears through frequency balancing, nervous system regulation, and deep auditory relaxation.",
+    frequencies: [
+      {
+        name: "Alpha Waves",
+        value: "8-12 Hz",
+        description: "Entrains relaxed alertness via binaural beats"
+      },
+      {
+        name: "Delta Waves",
+        value: "1-4 Hz",
+        description: "For deep regeneration and sleep alignment"
+      },
+      {
+        name: "Solfeggio Frequency",
+        value: "528 Hz",
+        description: "Cellular repair & vibrational healing"
+      },
+      {
+        name: "Solfeggio Frequency",
+        value: "741 Hz",
+        description: "Detox, clarity, emotional release"
+      },
+      {
+        name: "Solfeggio Frequency",
+        value: "963 Hz",
+        description: "Crown silence + deep surrender"
+      }
+    ],
+    soundSources: [
+      "Gentle rain + ambient soundbed",
+      "Low-volume frequency overlays (optional headphone setting)",
+      "Pink noise option toggle"
+    ],
+    guidedPrompt: "Sit comfortably or lie down.\nLet your awareness drop into your breath.\nImagine the ringing as ripples.\nEach breath softens them. Each tone realigns them.\nYou are tuning yourself back into silence.",
+    valeQuote: "Sometimes the world gets loud inside your head. So we breathe, we vibe, and we tune out the static. You don't have to fight the ringing—you just have to meet it with peace.",
+    affirmation: "I release inner noise. I tune to silence. I allow healing.",
+    features: [
+      "\"Low Sensitivity Mode\" toggle (limits high-pitched overtones)",
+      "\"No Headphones\" option (play via speaker for hypersensitive users)",
+      "Sleep Timer integration (5–60 minutes)",
+      "Save to Timeline with \"Silent Tune\" tag"
+    ],
+    tags: ["Tinnitus", "Ear Health", "Sound Healing", "Relaxation", "Sleep Support"],
+    chakras: ["Crown", "Third Eye", "Throat"],
+    duration: 30
   }
 ];
 
-// Helper function to find a template by frequency
-export const getTemplateByFrequency = (frequency: number): JourneyTemplate | undefined => {
-  return journeyTemplates.find(template => template.frequency === frequency);
-};
-
-// Helper function to find a template by chakra
-export const getTemplateByChakra = (chakra: string): JourneyTemplate | undefined => {
-  return journeyTemplates.find(template => 
-    template.chakra.toLowerCase() === chakra.toLowerCase()
-  );
-};
+export default journeyTemplates;
