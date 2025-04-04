@@ -21,11 +21,11 @@ const CallToAction: React.FC<CallToActionProps> = ({ isVisible }) => {
       transition={{ duration: 1, delay: 1 }}
     >
       <Button 
-        onClick={() => navigate("/energy-check")}
+        onClick={() => navigate("/")}
         className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white py-6 px-8 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105"
         size="lg"
       >
-        Begin Vibe Check-In
+        Begin Your Experience
       </Button>
     </motion.div>
   );

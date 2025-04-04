@@ -109,6 +109,152 @@ const Index = () => {
             </Card>
           </div>
           
+          {/* Begin Your Journey Button and Hermetic Principles Section */}
+          <div className="mb-12">
+            <div className="flex justify-center mb-8">
+              <Button 
+                size="default" 
+                className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white rounded-lg shadow-md transform transition-all duration-300 hover:scale-105"
+                onClick={() => navigate("/energy-check")}
+              >
+                <HeartPulse className="mr-2 h-4 w-4" />
+                Begin Your Healing Journey
+              </Button>
+            </div>
+            
+            {/* Hermetic Principles Section */}
+            <Card className="border border-gray-200 shadow-sm mb-8">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-medium mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-indigo-500">
+                  The Seven Hermetic Principles
+                </h3>
+                <p className="text-gray-600 mb-6 text-center">
+                  Ancient wisdom that guides our understanding of energy, consciousness, and the universe.
+                </p>
+                
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-purple-700">1. Principle of Mentalism</h4>
+                    <p className="text-sm text-gray-600">"THE ALL is Mind; The Universe is Mental." All existence originates in the mind of THE ALL.</p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-blue-700">2. Principle of Correspondence</h4>
+                    <p className="text-sm text-gray-600">"As above, so below; as below, so above." What happens on one level of reality also happens on other levels.</p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-indigo-700">3. Principle of Vibration</h4>
+                    <p className="text-sm text-gray-600">"Nothing rests; everything moves; everything vibrates." All matter, energy, and thought are vibrations.</p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-violet-700">4. Principle of Polarity</h4>
+                    <p className="text-sm text-gray-600">"Everything is dual; everything has poles; everything has its pair of opposites." Opposites are identical in nature but different in degree.</p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-pink-700">5. Principle of Rhythm</h4>
+                    <p className="text-sm text-gray-600">"Everything flows, out and in; everything has its tides." All things rise and fall in a measured motion.</p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-rose-700">6. Principle of Cause and Effect</h4>
+                    <p className="text-sm text-gray-600">"Every Cause has its Effect; every Effect has its Cause." Nothing happens by chance; there is a causal relationship to all things.</p>
+                  </div>
+                  
+                  <div className="col-span-1 md:col-span-2 lg:col-span-1 space-y-2">
+                    <h4 className="font-medium text-amber-700">7. Principle of Gender</h4>
+                    <p className="text-sm text-gray-600">"Gender is in everything; everything has its Masculine and Feminine Principles." Gender manifests on all planes as creative energy.</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Expanded Sound Healing Information */}
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              {/* Solfeggio Frequencies */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-medium mb-4 bg-clip-text text-transparent bg-gradient-to-r from-amber-500 to-orange-500">
+                    Solfeggio Frequencies
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    The Solfeggio frequencies are a set of sacred tones that were believed to be used in ancient Gregorian chants. Each frequency has a specific purpose for healing and spiritual growth.
+                  </p>
+                  <div className="space-y-3">
+                    <div>
+                      <h4 className="font-medium text-amber-700">396 Hz - Liberation from Fear</h4>
+                      <p className="text-sm text-gray-600">Liberates you from fear and guilt, clearing negative beliefs.</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-orange-700">417 Hz - Facilitating Change</h4>
+                      <p className="text-sm text-gray-600">Helps release negative energy and facilitates positive change.</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-red-700">528 Hz - Transformation and Miracles</h4>
+                      <p className="text-sm text-gray-600">Known as the "Love Frequency," it repairs DNA and brings transformative changes.</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-purple-700">639 Hz - Connection and Relationships</h4>
+                      <p className="text-sm text-gray-600">Enhances communication and understanding in relationships.</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-blue-700">741 Hz - Awakening Intuition</h4>
+                      <p className="text-sm text-gray-600">Awakens intuition and helps with problem-solving.</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-indigo-700">852 Hz - Returning to Spiritual Order</h4>
+                      <p className="text-sm text-gray-600">Helps return to spiritual balance and higher consciousness.</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Sound and Chakras */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-medium mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">
+                    Sound and Chakras
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    Each of your body's energy centers (chakras) resonates with specific frequencies. When these energy centers are balanced, you experience optimal health and well-being.
+                  </p>
+                  <div className="space-y-3">
+                    <div>
+                      <h4 className="font-medium text-red-700">Root Chakra - 396 Hz</h4>
+                      <p className="text-sm text-gray-600">Located at the base of the spine, relates to feelings of safety and grounding.</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-orange-700">Sacral Chakra - 417 Hz</h4>
+                      <p className="text-sm text-gray-600">Located in the lower abdomen, relates to creativity and sexual energy.</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-yellow-700">Solar Plexus Chakra - 528 Hz</h4>
+                      <p className="text-sm text-gray-600">Located in the upper abdomen, relates to self-esteem and confidence.</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-green-700">Heart Chakra - 639 Hz</h4>
+                      <p className="text-sm text-gray-600">Located at the center of the chest, relates to love and compassion.</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-blue-700">Throat Chakra - 741 Hz</h4>
+                      <p className="text-sm text-gray-600">Located in the throat, relates to communication and self-expression.</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-indigo-700">Third Eye Chakra - 852 Hz</h4>
+                      <p className="text-sm text-gray-600">Located between the eyes, relates to intuition and wisdom.</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-violet-700">Crown Chakra - 963 Hz</h4>
+                      <p className="text-sm text-gray-600">Located at the top of the head, relates to spiritual connection and enlightenment.</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+          
           {/* All App Pages Section */}
           <div className="mt-12 mb-8">
             <h3 className="text-2xl font-light text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">
@@ -260,18 +406,6 @@ const Index = () => {
                 </CardContent>
               </Card>
             </div>
-          </div>
-          
-          {/* Begin Your Journey Button */}
-          <div className="flex justify-center mb-4">
-            <Button 
-              size="default" 
-              className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white rounded-lg shadow-md transform transition-all duration-300 hover:scale-105"
-              onClick={() => navigate("/energy-check")}
-            >
-              <HeartPulse className="mr-2 h-4 w-4" />
-              Begin Your Healing Journey
-            </Button>
           </div>
         </div>
       </main>
