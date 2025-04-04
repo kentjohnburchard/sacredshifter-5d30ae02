@@ -86,6 +86,176 @@ const journeyTemplates: JourneyTemplate[] = [
     sessionType: "Sound Healing",
     vibe: "Calming",
     color: "#4a90e2"
+  },
+  {
+    id: "chakra-harmony",
+    title: "Chakra Harmony",
+    subtitle: "Balancing Energy Centers",
+    description: "A comprehensive journey through all seven chakras to align and balance your energy centers.",
+    purpose: "Align and harmonize all seven chakras for complete energetic balance and well-being.",
+    frequencies: [
+      {
+        name: "Root Chakra",
+        value: "396 Hz",
+        description: "Grounding and security"
+      },
+      {
+        name: "Sacral Chakra",
+        value: "417 Hz",
+        description: "Creativity and emotional flow"
+      },
+      {
+        name: "Solar Plexus",
+        value: "528 Hz",
+        description: "Personal power and confidence"
+      },
+      {
+        name: "Heart Chakra",
+        value: "639 Hz",
+        description: "Love and compassion"
+      },
+      {
+        name: "Throat Chakra",
+        value: "741 Hz",
+        description: "Expression and truth"
+      },
+      {
+        name: "Third Eye",
+        value: "852 Hz",
+        description: "Intuition and insight"
+      },
+      {
+        name: "Crown Chakra",
+        value: "963 Hz",
+        description: "Connection to higher consciousness"
+      }
+    ],
+    soundSources: [
+      "Crystal singing bowls",
+      "Harmonic overtone chanting",
+      "Nature sounds corresponding to each chakra"
+    ],
+    guidedPrompt: "Begin at your root and feel the energy rise.\nWith each breath, allow the frequencies to resonate and clear blockages.\nMove up through each chakra, feeling them align and balance.\nAs you reach the crown, experience the harmony of your complete energy system.",
+    valeQuote: "When all energetic centers are in harmony, you become a channel for pure life force. Every chakra has its wisdom—listen to them all.",
+    affirmation: "I am balanced. I am aligned. My energy flows freely through all centers of my being.",
+    features: [
+      "Progressive chakra journey",
+      "Visualizations for each energy center",
+      "Option to focus on specific chakras",
+      "Full-body energy scan"
+    ],
+    tags: ["Chakra", "Balance", "Energy Work", "Alignment", "Spiritual"],
+    chakras: ["Root", "Sacral", "Solar Plexus", "Heart", "Throat", "Third Eye", "Crown"],
+    duration: 45,
+    emoji: "🔄",
+    visualTheme: "Rainbow spectrum",
+    sessionType: "Chakra Alignment",
+    vibe: "Balancing",
+    color: "#9c27b0"
+  },
+  {
+    id: "deep-sleep",
+    title: "Deep Sleep",
+    subtitle: "Theta Wave Immersion",
+    description: "A gentle descent into deep, restorative sleep through theta wave entrainment and soothing soundscapes.",
+    purpose: "Guide the mind and body into deep, rejuvenating sleep through gentle frequency shifts and calming soundscapes.",
+    frequencies: [
+      {
+        name: "Theta Waves",
+        value: "4-7 Hz",
+        description: "Sleep preparation and dream state"
+      },
+      {
+        name: "Delta Waves",
+        value: "1-4 Hz",
+        description: "Deep, restorative sleep"
+      },
+      {
+        name: "Solfeggio Frequency",
+        value: "396 Hz",
+        description: "Releasing anxiety and fear"
+      },
+      {
+        name: "Solfeggio Frequency",
+        value: "528 Hz",
+        description: "Harmonic repair while sleeping"
+      }
+    ],
+    soundSources: [
+      "Ocean waves",
+      "Gentle rainfall",
+      "Soft ambient pads",
+      "Heart-rate synced rhythms"
+    ],
+    guidedPrompt: "Allow your body to sink deeply into your bed.\nFeel each muscle releasing tension with every exhale.\nYour mind slows as the frequencies guide you deeper.\nDrift naturally into sleep as the journey continues to work with your subconscious.",
+    valeQuote: "Sleep is not just rest—it's active healing. While you dream, the frequencies speak to your cells, restoring what the day has taken.",
+    affirmation: "I surrender to deep, healing sleep. My mind is calm, my body restores.",
+    features: [
+      "Auto-fading volume over time",
+      "Sleep cycle tracking integration",
+      "Ambient light adaptation",
+      "Morning gentle wake option"
+    ],
+    tags: ["Sleep", "Relaxation", "Restoration", "Theta", "Delta"],
+    chakras: ["Root", "Third Eye"],
+    duration: 60,
+    emoji: "💤",
+    visualTheme: "Night sky gradient",
+    sessionType: "Sleep Support",
+    vibe: "Soothing",
+    color: "#3f51b5"
+  },
+  {
+    id: "focus-flow",
+    title: "Focus Flow",
+    subtitle: "Alpha Wave Activation",
+    description: "Enhance concentration and mental clarity through alpha wave stimulation and focus-enhancing frequencies.",
+    purpose: "Sharpen mental focus, enhance concentration, and boost productivity through brain wave optimization.",
+    frequencies: [
+      {
+        name: "Alpha Waves",
+        value: "10-12 Hz",
+        description: "Focused alertness and concentration"
+      },
+      {
+        name: "Gamma Bursts",
+        value: "40 Hz",
+        description: "Cognitive processing and problem-solving"
+      },
+      {
+        name: "Solfeggio Frequency",
+        value: "417 Hz",
+        description: "Breaking patterns and facilitating change"
+      },
+      {
+        name: "Beta Waves",
+        value: "15-18 Hz",
+        description: "Active mental engagement"
+      }
+    ],
+    soundSources: [
+      "Minimal ambient soundscape",
+      "Light water elements",
+      "Subtle tempo-based cues",
+      "White noise undertones"
+    ],
+    guidedPrompt: "Center your awareness on your breath.\nFeel your mind becoming sharp yet calm.\nDistractions fade as the frequencies support your natural focus state.\nYour attention becomes laser-like, yet effortless.",
+    valeQuote: "The focused mind is like a perfectly tuned instrument. These frequencies help you find that precise resonance where work becomes flow.",
+    affirmation: "My mind is clear, sharp, and present. I focus with ease and purpose.",
+    features: [
+      "Pomodoro technique integration",
+      "Focus metrics tracking",
+      "Focus retention indicators",
+      "Low distraction mode"
+    ],
+    tags: ["Focus", "Productivity", "Concentration", "Work", "Study"],
+    chakras: ["Solar Plexus", "Third Eye"],
+    duration: 25,
+    emoji: "🔍",
+    visualTheme: "Clear blue gradient",
+    sessionType: "Productivity",
+    vibe: "Energizing",
+    color: "#2196f3"
   }
 ];
 
