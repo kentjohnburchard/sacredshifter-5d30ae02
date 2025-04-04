@@ -23,7 +23,7 @@ const Layout: React.FC<LayoutProps> = ({ children, pageTitle }) => {
         
         <div className="flex-1 md:ml-64">
           {/* Add top padding to account for header height */}
-          <div className="pt-28">
+          <div className="pt-36">
             {/* Page Title */}
             {pageTitle && (
               <div className="w-full pb-4 px-4 sm:px-6 text-center md:text-left">
@@ -48,7 +48,7 @@ const Layout: React.FC<LayoutProps> = ({ children, pageTitle }) => {
 
       {/* Mobile Sidebar (empty div for offset since the sidebar component already has mobile navigation) */}
       <div className="md:hidden">
-        <div className="h-28"></div> {/* Adjusted height for the header on mobile */}
+        <div className="h-36"></div> {/* Adjusted height for the header on mobile */}
       </div>
     </div>
   );

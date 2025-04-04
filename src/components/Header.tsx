@@ -31,19 +31,20 @@ const Header: React.FC = () => {
   };
   
   return (
-    <header className="w-full py-2 px-4 sm:px-6 flex flex-col items-center animate-fade-in bg-white/80 backdrop-blur-sm shadow-sm dark:bg-gray-900/80 fixed top-0 z-50">
-      <div className="flex items-center gap-2 mb-1">
+    <header className="w-full py-3 px-4 sm:px-6 flex items-center justify-between animate-fade-in bg-white/80 backdrop-blur-sm shadow-sm dark:bg-gray-900/80 fixed top-0 z-50">
+      {/* Logo - Increased size by 50% */}
+      <div className="flex items-center">
         <Link to="/" className="flex items-center">
           <img 
             src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
             alt="Sacred Shifter Logo" 
-            className="h-20 sm:h-24 animate-pulse-subtle transition-all hover:scale-105"
+            className="h-28 sm:h-32 animate-pulse-subtle transition-all hover:scale-105"
           />
         </Link>
       </div>
       
-      {/* Only show user profile/login button in header, navigation moved to sidebar */}
-      <div className="flex items-center justify-end w-full max-w-6xl">
+      {/* User Profile - Now aligned with the logo */}
+      <div className="flex items-center">
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

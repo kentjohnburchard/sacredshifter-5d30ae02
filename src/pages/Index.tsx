@@ -20,7 +20,7 @@ const Index = () => {
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
       
-      <main className="flex-1 pt-28"> {/* Add top padding to avoid content being hidden behind header */}
+      <main className="flex-1 pt-36"> {/* Increased padding to prevent content from being hidden under header */}
         <div className="max-w-6xl mx-auto px-4 py-4 sm:px-6">
           <div className="text-center space-y-2 mb-4 animate-fade-in">
             <h2 className="text-3xl sm:text-4xl font-light tracking-tight">
