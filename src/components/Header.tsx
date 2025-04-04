@@ -31,13 +31,13 @@ const Header: React.FC = () => {
   };
   
   return (
-    <header className="w-full py-4 px-4 sm:px-6 flex flex-col items-center animate-fade-in bg-white/80 backdrop-blur-sm shadow-sm dark:bg-gray-900/80 fixed top-0 z-50">
-      <div className="flex items-center gap-2 mb-4">
+    <header className="w-full py-2 px-4 sm:px-6 flex flex-col items-center animate-fade-in bg-white/80 backdrop-blur-sm shadow-sm dark:bg-gray-900/80 fixed top-0 z-50">
+      <div className="flex items-center gap-2 mb-1">
         <Link to="/" className="flex items-center">
           <img 
             src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
             alt="Sacred Shifter Logo" 
-            className="h-40 sm:h-48 animate-pulse-subtle transition-all hover:scale-105"
+            className="h-20 sm:h-24 animate-pulse-subtle transition-all hover:scale-105"
           />
         </Link>
       </div>

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,7 +20,7 @@ const Index = () => {
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
       
-      <main className="flex-1">
+      <main className="flex-1 pt-28"> {/* Add top padding to avoid content being hidden behind header */}
         <div className="max-w-6xl mx-auto px-4 py-4 sm:px-6">
           <div className="text-center space-y-2 mb-4 animate-fade-in">
             <h2 className="text-3xl sm:text-4xl font-light tracking-tight">
@@ -87,7 +88,7 @@ const Index = () => {
             </div>
           </div>
           
-          {/* All App Pages Section - MOVED BEFORE HERMETIC PRINCIPLES */}
+          {/* All App Pages Section */}
           <div className="mb-12">
             <h3 className="text-2xl font-light text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">
               Explore Our Sacred Healing Features
@@ -240,7 +241,7 @@ const Index = () => {
             </div>
           </div>
           
-          {/* Hermetic Principles Section - MOVED AFTER EXPLORE FEATURES */}
+          {/* Hermetic Principles Section */}
           <Card className="border border-gray-200 shadow-sm mb-8">
             <CardContent className="p-6">
               <h3 className="text-xl font-medium mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-indigo-500">
