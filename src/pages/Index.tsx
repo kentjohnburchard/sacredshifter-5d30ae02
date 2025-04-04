@@ -1,7 +1,5 @@
-
 import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
-import ComingSoonBanner from "@/components/ComingSoonBanner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate, Link } from "react-router-dom";
@@ -23,8 +21,6 @@ const Index = () => {
       
       <main className="flex-1">
         <div className="max-w-6xl mx-auto px-4 py-4 sm:px-6">
-          <ComingSoonBanner />
-          
           <div className="text-center space-y-2 mb-4 animate-fade-in">
             <h2 className="text-3xl sm:text-4xl font-light tracking-tight">
               <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-amber-500 via-purple-500 to-blue-500">
