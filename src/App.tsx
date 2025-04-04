@@ -15,6 +15,7 @@ import Soundscapes from '@/pages/Soundscapes';
 import JourneyTemplates from '@/pages/JourneyTemplates';
 import JourneyPlayer from '@/pages/JourneyPlayer';
 import Index from '@/pages/Index';
+import AuthPage from '@/pages/Auth';
 import { AuthProvider } from '@/context/AuthContext';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import { Toaster } from 'sonner';
@@ -53,17 +54,17 @@ function App() {
         )}
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/pricing" element={<Layout><div className="min-h-screen">Pricing Page</div></Layout>} />
-          <Route path="/about" element={<Layout><div className="min-h-screen">About Page</div></Layout>} />
-          <Route path="/contact" element={<Layout><div className="min-h-screen">Contact Page</div></Layout>} />
-          <Route path="/blog" element={<Layout><div className="min-h-screen">Blog Page</div></Layout>} />
-          <Route path="/coming-soon" element={<Layout><div className="min-h-screen">Coming Soon</div></Layout>} />
+          <Route path="/pricing" element={<Layout pageTitle="Pricing"><div className="min-h-screen">Pricing Page</div></Layout>} />
+          <Route path="/about" element={<Layout pageTitle="About Us"><div className="min-h-screen">About Page</div></Layout>} />
+          <Route path="/contact" element={<Layout pageTitle="Contact Us"><div className="min-h-screen">Contact Page</div></Layout>} />
+          <Route path="/blog" element={<Layout pageTitle="Blog"><div className="min-h-screen">Blog Page</div></Layout>} />
+          <Route path="/coming-soon" element={<Layout pageTitle="Coming Soon"><div className="min-h-screen">Coming Soon</div></Layout>} />
           <Route path="/astrology" element={<Astrology />} />
-          <Route path="/music-generation" element={<Layout><div className="min-h-screen">Music Generation</div></Layout>} />
+          <Route path="/music-generation" element={<Layout pageTitle="Music Generation"><div className="min-h-screen">Music Generation</div></Layout>} />
           <Route path="/meditation" element={<Meditation />} />
           <Route path="/focus" element={<Focus />} />
           <Route path="/soundscapes" element={<Soundscapes />} />
-          <Route path="/mood-journal" element={<Layout><div className="min-h-screen">Mood Journal</div></Layout>} />
+          <Route path="/mood-journal" element={<Layout pageTitle="Mood Journal"><div className="min-h-screen">Mood Journal</div></Layout>} />
           <Route path="/timeline" element={<Timeline />} />
           <Route path="/journeys" element={<Navigate to="/journey-templates" replace />} />
           <Route path="/journey-templates" element={<JourneyTemplates />} />
@@ -71,13 +72,14 @@ function App() {
           <Route path="/energy-check" element={<EnergyCheck />} />
           <Route path="/alignment" element={<Alignment />} />
           <Route path="/intentions" element={<Intentions />} />
+          <Route path="/auth" element={<AuthPage />} />
           <Route
             path="/account"
             element={
               !session ? (
-                <Navigate to="/login" replace />
+                <Navigate to="/auth" replace />
               ) : (
-                <Layout><div className="min-h-screen">Account Page</div></Layout>
+                <Layout pageTitle="My Account"><div className="min-h-screen">Account Page</div></Layout>
               )
             }
           />
@@ -87,20 +89,11 @@ function App() {
               session ? (
                 <Navigate to="/account" replace />
               ) : (
-                <div className="flex justify-center items-center min-h-screen">
-                  <div className="w-full max-w-md">
-                    <Auth
-                      supabaseClient={supabase}
-                      appearance={{ theme: ThemeSupa }}
-                      providers={['google', 'github']}
-                      redirectTo={`${window.location.origin}/account`}
-                    />
-                  </div>
-                </div>
+                <Navigate to="/auth" replace />
               )
             }
           />
-          <Route path="/frequency/:id" element={<Layout><div className="min-h-screen">Frequency Details</div></Layout>} />
+          <Route path="/frequency/:id" element={<Layout pageTitle="Frequency Details"><div className="min-h-screen">Frequency Details</div></Layout>} />
         </Routes>
       </Router>
     </AuthProvider>
