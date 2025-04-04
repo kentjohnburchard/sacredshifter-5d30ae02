@@ -13,7 +13,7 @@ const Logo: React.FC = () => {
       <img 
         src="/lovable-uploads/b9b4b625-472c-484e-a49a-41aaf4f604a5.png" 
         alt="Sacred Shifter Logo" 
-        className="w-full max-w-[120px] mx-auto" 
+        className="w-full max-w-[180px] mx-auto" 
       />
     </motion.div>
   );

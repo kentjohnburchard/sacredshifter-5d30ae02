@@ -29,7 +29,11 @@ const LandingPrompt: React.FC = () => {
     >
       <Logo />
       <AnimatedText lines={lines} currentLine={currentLine} />
-      <CallToAction isVisible={currentLine >= lines.length - 1} />
+      {currentLine >= lines.length - 1 && (
+        <div className="mt-6 text-xl text-gray-600">
+          Let's begin your resonance journey.
+        </div>
+      )}
     </motion.div>
   );
 };
