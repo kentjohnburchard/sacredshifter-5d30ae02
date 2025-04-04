@@ -4,6 +4,7 @@ import Sidebar from "./Sidebar";
 import Footer from "./navigation/Footer";
 import Watermark from "./Watermark";
 import { Sparkles } from "lucide-react";
+import { toast } from "sonner";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -37,6 +38,10 @@ const Layout: React.FC<LayoutProps> = ({ children, pageTitle }) => {
   // Toggle Kent Mode
   const toggleKentMode = () => {
     setKentMode(prev => !prev);
+    toast.success(kentMode ? "Returning to normal consciousness" : "Kent Mode activated! Cosmic sass unlocked.", {
+      icon: <Sparkles className={`${kentMode ? "text-purple-400" : "text-brand-aurapink"}`} />,
+      position: "bottom-center"
+    });
   };
 
   return (

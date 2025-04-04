@@ -14,6 +14,7 @@ import Intentions from '@/pages/Intentions';
 import Soundscapes from '@/pages/Soundscapes';
 import JourneyTemplates from '@/pages/JourneyTemplates';
 import JourneyPlayer from '@/pages/JourneyPlayer';
+import HermeticWisdom from '@/pages/HermeticWisdom'; // Added this import
 import Index from '@/pages/Index';
 import AuthPage from '@/pages/Auth';
 import { AuthProvider } from '@/context/AuthContext';
@@ -46,7 +47,8 @@ function App() {
       path === '/meditation' ||
       path === '/focus' ||
       path === '/soundscapes' ||
-      path === '/timeline'
+      path === '/timeline' ||
+      path === '/hermetic-wisdom' // Added this path
     );
   }, []);
 
@@ -80,6 +82,7 @@ function App() {
           <Route path="/energy-check" element={<EnergyCheck />} />
           <Route path="/alignment" element={<Alignment />} />
           <Route path="/intentions" element={<Intentions />} />
+          <Route path="/hermetic-wisdom" element={<HermeticWisdom />} /> {/* Added this route */}
           <Route path="/auth" element={<AuthPage />} />
           <Route
             path="/account"

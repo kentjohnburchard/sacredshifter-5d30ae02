@@ -1,5 +1,6 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Lora:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&family=Quicksand:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,65 +8,56 @@
 
 @layer base {
   :root {
-    --background: 260 30% 98%; /* Lighter background with subtle purple hue */
-    --foreground: 250 10% 10%;
-
+    --background: 0 0% 100%;
+    --foreground: 224 71.4% 4.1%;
     --card: 0 0% 100%;
-    --card-foreground: 250 10% 10%;
-
+    --card-foreground: 224 71.4% 4.1%;
     --popover: 0 0% 100%;
-    --popover-foreground: 250 10% 10%;
+    --popover-foreground: 224 71.4% 4.1%;
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 210 20% 98%;
+    --secondary: 220 14.3% 95.9%;
+    --secondary-foreground: 220.9 39.3% 11%;
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 220 8.9% 46.1%;
+    --accent: 220 14.3% 95.9%;
+    --accent-foreground: 220.9 39.3% 11%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 262.1 83.3% 57.8%;
+    --radius: 0.5rem;
 
-    --primary: 265 85% 81%; /* Vibrant purple */
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 250 5% 96%;
-    --secondary-foreground: 250 5% 10%;
-
-    --muted: 250 5% 96%;
-    --muted-foreground: 250 5% 40%;
-
-    --accent: 265 85% 81%; /* Using the primary purple */
-    --accent-foreground: 0 0% 98%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 250 15% 85%; /* Subtle purple border */
-    --input: 250 15% 85%; /* Subtle purple input */
-    --ring: 265 85% 81%; /* Matching primary purple */
-
-    --radius: 0.6rem; /* Slightly more rounded corners */
+    /* Custom Colors */
+    --brand-purple: 262 83% 58%;
+    --brand-blue: 215 100% 50%;
+    --brand-aurapink: 328 86% 78%;
+    --cosmic-indigo: 242 83% 7%;
+    --cosmic-blue: 217 91% 60%;
+    --cosmic-violet: 270 86% 40%;
   }
 
   .dark {
-    --background: 250 15% 8%;
-    --foreground: 0 0% 98%;
-
-    --card: 250 15% 10%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 250 15% 10%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 265 70% 70%;
-    --primary-foreground: 250 15% 10%;
-
-    --secondary: 250 15% 16%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 250 15% 16%;
-    --muted-foreground: 250 5% 65%;
-
-    --accent: 265 70% 70%;
-    --accent-foreground: 250 15% 10%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 250 15% 20%;
-    --input: 250 15% 20%;
-    --ring: 265 70% 70%;
+    --background: 224 71.4% 4.1%;
+    --foreground: 210 20% 98%;
+    --card: 224 71.4% 4.1%;
+    --card-foreground: 210 20% 98%;
+    --popover: 224 71.4% 4.1%;
+    --popover-foreground: 210 20% 98%;
+    --primary: 263.4 70% 50.4%;
+    --primary-foreground: 210 20% 98%;
+    --secondary: 215 27.9% 16.9%;
+    --secondary-foreground: 210 20% 98%;
+    --muted: 215 27.9% 16.9%;
+    --muted-foreground: 217.9 10.6% 64.9%;
+    --accent: 215 27.9% 16.9%;
+    --accent-foreground: 210 20% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 215 27.9% 16.9%;
+    --input: 215 27.9% 16.9%;
+    --ring: 263.4 70% 50.4%;
   }
 }
 
@@ -73,244 +65,133 @@
   * {
     @apply border-border;
   }
-
   body {
-    @apply bg-background text-foreground font-modern bg-gradient-to-b from-purple-50 to-white;
+    @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
-  
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-playfair font-medium;
-  }
-
-  h1 {
-    @apply text-3xl sm:text-4xl;
-  }
-
-  h2 {
-    @apply text-2xl sm:text-3xl;
-  }
-
-  h3 {
-    @apply text-xl sm:text-2xl;
-  }
-
-  h4 {
-    @apply text-lg;
-  }
-
-  p {
-    @apply text-base font-modern;
-  }
-
-  .text-small {
-    @apply text-sm;
-  }
 }
 
-@layer utilities {
-  .glass {
-    @apply backdrop-blur-md bg-white/80 border border-white/40 shadow-sm;
-  }
-  
-  .sacred-glass {
-    @apply backdrop-blur-md bg-white/90 border border-white/30 rounded-xl shadow-md;
-  }
-  
-  .cosmic-card {
-    @apply bg-white/90 border border-purple-200/50 rounded-xl shadow-md 
-           hover:shadow-mystic hover:border-purple-300/60 transition-all 
-           duration-300 overflow-hidden;
-  }
-  
-  .cosmic-button {
-    @apply bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600
-           text-white rounded-lg shadow-sm hover:shadow-md transform transition-all 
-           duration-300 hover:scale-[1.02] hover:shadow-inner-glow;
-  }
-  
-  .text-balance {
-    text-wrap: balance;
-  }
-  
-  .text-shadow {
-    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-  }
-  
-  .text-shadow-sm {
-    text-shadow: 0 1px 1px rgba(0,0,0,0.1);
-  }
-  
-  .text-shadow-lg {
-    text-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  }
-  
-  .sacred-gradient {
-    @apply bg-gradient-to-r from-brand-purple to-purple-500;
-  }
-  
-  .sacred-text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-deep;
-  }
-  
-  .cosmic-text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-brand-purple to-brand-sapphire;
-  }
-
-  .logo-watermark {
-    @apply fixed inset-0 pointer-events-none z-[1] opacity-5 flex items-center justify-center;
-  }
-
-  .logo-watermark-image {
-    @apply max-w-[50%] max-h-[50%] object-contain;
-  }
-  
-  /* Consistent card styling */
-  .card-heading {
-    @apply text-xl font-playfair font-medium mb-3 text-center cosmic-text-gradient;
-  }
-  
-  .card-content {
-    @apply text-base font-modern text-gray-600;
-  }
-  
-  .page-title {
-    @apply text-3xl sm:text-4xl font-playfair font-medium text-center mb-4 cosmic-text-gradient;
-  }
-  
-  .page-subtitle {
-    @apply text-base text-gray-600 max-w-2xl mx-auto text-center mb-8;
-  }
-  
-  .section-title {
-    @apply text-2xl font-playfair font-medium text-center mb-6 cosmic-text-gradient;
-  }
-  
-  /* Cosmic micro-interactions */
-  .shimmer-hover {
-    @apply hover:bg-gradient-to-r hover:from-purple-200/50 hover:via-indigo-200/50 hover:to-purple-200/50 hover:bg-[length:200%_100%] hover:animate-shimmer transition-all duration-300;
-  }
-  
-  .glow-hover {
-    @apply hover:shadow-cosmic transition-shadow duration-300;
-  }
-  
-  .pulse-hover {
-    @apply hover:animate-cosmic-pulse;
-  }
-  
-  .twinkle {
-    @apply relative;
-  }
-  
-  .twinkle::after {
-    @apply content-[''] absolute top-0 left-0 w-full h-full pointer-events-none;
-    background-image: radial-gradient(circle, white 1px, transparent 1px);
-    background-size: 15px 15px;
-    opacity: 0.2;
-    animation: twinkle 3s infinite ease-in-out;
-  }
-  
-  /* Kent mode styles */
-  .kent-mode {
-    @apply italic text-brand-aurapink;
-  }
-  
-  /* Wave transition */
-  .wave-transition {
-    @apply transition-all duration-500 animate-gentle-wave;
-  }
+/* Global Typography */
+body {
+  font-family: 'Inter', sans-serif;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+/* Standard page title styles */
+.page-title {
+  @apply text-3xl sm:text-4xl font-playfair font-semibold text-center;
+  background: linear-gradient(to right, rgb(125, 80, 230), rgb(50, 130, 250));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+  padding: 0 1rem;
 }
 
-::-webkit-scrollbar-thumb {
-  @apply bg-purple-200 rounded-full;
+/* Common subtitle styling */
+.page-subtitle {
+  @apply text-lg text-gray-600 text-center max-w-3xl mx-auto mb-8 leading-relaxed;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-purple-300;
+/* Font utility classes */
+.font-playfair {
+  font-family: 'Playfair Display', serif;
 }
 
-/* Music visualization */
-.music-bars {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 24px;
-  gap: 2px;
+.font-inter {
+  font-family: 'Inter', sans-serif;
 }
 
-.music-bar {
-  width: 3px;
-  height: 100%;
-  @apply bg-brand-lavender rounded-full;
+/* Animation utilities */
+.animate-float {
+  animation: floating 6s ease-in-out infinite;
 }
 
-/* Add music-bar animations */
-.music-bar:nth-child(1) {
-  animation: music-bar-anim 1.2s ease-in-out infinite;
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s infinite;
 }
 
-.music-bar:nth-child(2) {
-  animation: music-bar-anim 1.7s ease-in-out infinite 0.2s;
+.animate-spin-slow {
+  animation: spin 8s linear infinite;
 }
 
-.music-bar:nth-child(3) {
-  animation: music-bar-anim 1.5s ease-in-out infinite 0.4s;
+.animate-shimmer {
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.2) 20%,
+    rgba(255, 255, 255, 0.1) 40%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
 }
 
-.music-bar:nth-child(4) {
-  animation: music-bar-anim 1.3s ease-in-out infinite 0.6s;
+/* Sacred footer message styling */
+.sacred-footer-message {
+  @apply text-sm text-gray-500 italic font-light;
 }
 
-@keyframes music-bar-anim {
-  0%, 100% {
-    height: 20%;
-  }
-  50% {
-    height: 100%;
-  }
+.kent-mode {
+  @apply text-brand-aurapink font-medium;
 }
 
-/* Cosmic starfield background */
+/* Starfield effect */
 .starfield {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  pointer-events: none;
   z-index: -1;
   background-image: 
-    radial-gradient(1px 1px at 10% 10%, rgba(255, 255, 255, 0.3) 50%, transparent 100%),
-    radial-gradient(1px 1px at 20% 50%, rgba(255, 255, 255, 0.2) 50%, transparent 100%),
-    radial-gradient(1px 1px at 30% 30%, rgba(255, 255, 255, 0.3) 50%, transparent 100%),
-    radial-gradient(1px 1px at 40% 70%, rgba(255, 255, 255, 0.3) 50%, transparent 100%),
-    radial-gradient(1px 1px at 50% 40%, rgba(255, 255, 255, 0.3) 50%, transparent 100%),
-    radial-gradient(1px 1px at 60% 30%, rgba(255, 255, 255, 0.3) 50%, transparent 100%),
-    radial-gradient(1px 1px at 70% 70%, rgba(255, 255, 255, 0.3) 50%, transparent 100%),
-    radial-gradient(1px 1px at 80% 40%, rgba(255, 255, 255, 0.3) 50%, transparent 100%),
-    radial-gradient(1px 1px at 90% 10%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  opacity: 0.1;
+    radial-gradient(1px 1px at 25px 5px, white 50%, transparent 100%),
+    radial-gradient(1px 1px at 50px 25px, white 50%, transparent 100%),
+    radial-gradient(1px 1px at 125px 20px, white 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 50px 75px, white 50%, transparent 100%),
+    radial-gradient(2px 2px at 175px 175px, white 50%, transparent 100%),
+    radial-gradient(2px 2px at 20px 216px, white 50%, transparent 100%),
+    radial-gradient(2px 2px at 250px 350px, white 50%, transparent 100%),
+    radial-gradient(1px 1px at 300px 120px, white 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 350px 275px, white 50%, transparent 100%),
+    radial-gradient(1px 1px at 150px 318px, white 50%, transparent 100%);
+  background-repeat: repeat;
+  background-size: 400px 400px;
+  opacity: 0.15;
 }
 
-/* Sacred Messages */
-.sacred-footer-message {
-  @apply text-xs text-center italic text-purple-500 opacity-60 hover:opacity-100 transition-opacity duration-300;
-  animation: fadeInOut 10s infinite ease-in-out;
+/* Special shadows */
+.shadow-cosmic {
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.15), 0 0 3px rgba(168, 85, 247, 0.1);
 }
 
-@keyframes fadeInOut {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
+.shadow-mystic {
+  box-shadow: 0 8px 25px rgba(91, 33, 182, 0.1), 0 4px 12px rgba(91, 33, 182, 0.05);
+}
+
+/* Animations keyframes */
+@keyframes floating {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes pulse-subtle {
+  0% { opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }

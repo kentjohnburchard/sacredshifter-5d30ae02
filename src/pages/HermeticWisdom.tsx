@@ -15,6 +15,7 @@ import { HealingFrequency, healingFrequencies } from "@/data/frequencies";
 import { motion } from "framer-motion";
 import { hermeticJourneys, HermeticJourney } from "@/data/hermeticJourneys";
 import { HermeticJourneyDetail, HermeticWisdomDrop } from "@/components/hermetic-wisdom";
+import HermeticPrincipleCard from "@/components/hermetic-wisdom/HermeticPrincipleCard";
 
 const hermetic = [
   {
@@ -125,117 +126,202 @@ const HermeticWisdom = () => {
   };
 
   return (
-    <Layout>
-      <div className="max-w-6xl mx-auto px-4 py-8">
+    <Layout pageTitle="Hermetic Wisdom Hub">
+      <div className="max-w-6xl mx-auto px-4 py-6">
         {selectedJourney ? (
           <div className="mb-8">
             <HermeticJourneyDetail journey={selectedJourney} onBack={handleBack} />
           </div>
         ) : (
           <>
-            <div className="text-center mb-8">
-              <h1 className="text-4xl font-light mb-4">
+            <motion.div 
+              className="text-center mb-12"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8 }}
+            >
+              <h1 className="font-playfair text-4xl font-light mb-6">
                 <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">
-                  Hermetic Wisdom Hub
+                  The 7 Hermetic Principles
                 </span>
               </h1>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-4">
                 These 7 principles come from the ancient teachings of Hermes Trismegistus, as written in the Kybalion. 
                 They form the foundation of vibrational alignment, intention, and spiritual transformation.
               </p>
-            </div>
+              <p className="text-md text-gray-600 max-w-3xl mx-auto">
+                Each principle corresponds to a specific frequency that resonates with different aspects of our being, 
+                creating a powerful framework for understanding how vibration shapes our reality.
+              </p>
+            </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
               {hermetic.map((principle) => (
-                <motion.div
+                <HermeticPrincipleCard
                   key={principle.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: hermetic.indexOf(principle) * 0.1 }}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
-                >
-                  <div className={`h-3 bg-gradient-to-r ${principle.color}`}></div>
-                  <div className="p-6">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-full bg-gradient-to-r ${principle.color} bg-opacity-10`}>
-                          <principle.icon className="h-6 w-6 text-gray-700" />
-                        </div>
-                        <h3 className="text-xl font-semibold text-gray-800">{principle.title}</h3>
-                      </div>
-                      <HermeticWisdomDrop 
-                        principle={principle.title} 
-                        variant="dialog"
-                      >
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="h-8 w-8 p-0 text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-full"
-                        >
-                          <Info className="h-4 w-4" />
-                          <span className="sr-only">Vale's Wisdom</span>
-                        </Button>
-                      </HermeticWisdomDrop>
-                    </div>
-                    
-                    <p className="italic text-gray-600 mb-3">"{principle.quote}"</p>
-                    <p className="text-gray-700 mb-3">{principle.description}</p>
-                    <div className="mb-3 text-sm text-gray-600">
-                      <strong>Affirmation:</strong> {principle.affirmation}
-                    </div>
-                    <div className="mb-3 text-sm text-gray-600">
-                      <strong>Frequency:</strong> {principle.frequency.name} ({principle.frequency.frequency}Hz)
-                    </div>
-                    <div className="mb-4 text-sm text-gray-600">
-                      <strong>Animation:</strong> {principle.animation}
-                    </div>
-                    
-                    <Button
-                      onClick={() => handleExplore(principle.tag)}
-                      className={`w-full bg-gradient-to-r ${principle.color} text-white hover:opacity-90`}
-                    >
-                      Explore {principle.title}
-                    </Button>
-                  </div>
-                </motion.div>
+                  id={principle.id}
+                  title={principle.title}
+                  quote={principle.quote}
+                  description={principle.description}
+                  affirmation={principle.affirmation}
+                  frequency={principle.frequency.frequency}
+                  frequencyName={principle.frequency.name}
+                  animation={principle.animation}
+                  color={principle.color}
+                  tag={principle.tag}
+                  icon={principle.icon}
+                  onClick={() => handleExplore(principle.tag)}
+                />
               ))}
             </div>
 
-            <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-6 mb-8">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4">Discover More About Hermetic Principles</h2>
+            <motion.div 
+              className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8 mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.8 }}
+            >
+              <h2 className="font-playfair text-2xl font-semibold text-gray-800 mb-6">Understanding Hermetic Wisdom & Frequency</h2>
               
-              <Accordion type="single" collapsible>
+              <div className="prose max-w-none">
+                <p className="mb-4">
+                  The Hermetic principles provide a profound framework for understanding the relationship 
+                  between consciousness, vibration, and manifestation. These ancient teachings remain remarkably 
+                  relevant in our modern understanding of quantum physics and vibrational medicine.
+                </p>
+                
+                <h3 className="font-playfair text-xl mt-6 mb-3">Frequencies & Hermetic Principles</h3>
+                <p className="mb-4">
+                  Each Hermetic principle is associated with a specific frequency that resonates with different 
+                  aspects of our consciousness and physical being. These frequencies align with our chakra system,
+                  creating powerful opportunities for transformation through sound.
+                </p>
+                
+                <div className="bg-purple-50 p-6 rounded-lg mb-6">
+                  <h4 className="font-playfair text-lg font-medium mb-3">Key Frequency-Principle Connections:</h4>
+                  <ul className="list-disc pl-5 space-y-2">
+                    <li><strong>Mentalism (963Hz)</strong> - Crown Chakra - Pure consciousness, universal mind connection</li>
+                    <li><strong>Correspondence (852Hz)</strong> - Third Eye Chakra - Inner sight, pattern recognition</li>
+                    <li><strong>Vibration (528Hz)</strong> - Heart Chakra (center) - DNA repair, harmony, transformation</li>
+                    <li><strong>Polarity (639Hz)</strong> - Heart Chakra (emotional) - Balance, harmonizing opposites</li>
+                    <li><strong>Rhythm (417Hz)</strong> - Sacral Chakra - Flow, creativity, cyclical wisdom</li>
+                    <li><strong>Cause & Effect (741Hz)</strong> - Throat Chakra - Expression, manifestation</li>
+                    <li><strong>Gender (396Hz)</strong> - Root Chakra - Grounding, stability, balance of energies</li>
+                  </ul>
+                </div>
+                
+                <h3 className="font-playfair text-xl mt-6 mb-3">Scientific Foundations</h3>
+                <p className="mb-4">
+                  Modern science has begun to validate what ancient wisdom has long taught. Cymatics—the study 
+                  of visible sound vibration—shows how different frequencies create distinct geometric patterns 
+                  in physical matter. This perfectly aligns with the Hermetic principle that "everything vibrates."
+                </p>
+                
+                <p className="mb-4">
+                  When we consciously work with frequencies through meditation, sound healing, or intention setting, 
+                  we're directly applying Hermetic principles to shift our physical and energetic state.
+                </p>
+                
+                <h3 className="font-playfair text-xl mt-6 mb-3">Application in Sacred Shifter</h3>
+                <p className="mb-4">
+                  This application leverages these principles in several ways:
+                </p>
+                
+                <ul className="list-disc pl-5 space-y-2 mb-6">
+                  <li><strong>Intention Setting</strong> - Applying Mentalism by focusing consciousness</li>
+                  <li><strong>Frequency Journeys</strong> - Using specific vibrational frequencies to shift your energy</li>
+                  <li><strong>Chakra Alignment</strong> - Working with Correspondence to balance inner and outer</li>
+                  <li><strong>Timeline Tracking</strong> - Observing the Rhythm and Cause & Effect in your healing journey</li>
+                </ul>
+                
+                <div className="border-l-4 border-purple-500 pl-4 italic">
+                  "When you change the frequency of your consciousness, you change the frequency of your reality.
+                  This is not metaphor—it's vibrational physics."
+                </div>
+              </div>
+              
+              <Accordion type="single" collapsible className="mt-8">
                 <AccordionItem value="kybalion">
-                  <AccordionTrigger className="text-gray-800">About The Kybalion</AccordionTrigger>
+                  <AccordionTrigger className="text-gray-800 font-playfair">History of The Kybalion</AccordionTrigger>
                   <AccordionContent>
+                    <p className="text-gray-700 mb-3">
+                      The Kybalion was first published in 1908 by "Three Initiates" (widely believed to include William 
+                      Walker Atkinson). It claims to present the essence of the teachings of Hermes Trismegistus, 
+                      a legendary figure associated with both the Greek god Hermes and the Egyptian god Thoth.
+                    </p>
                     <p className="text-gray-700">
-                      The Kybalion is a book published in 1908 by "Three Initiates" that claims to present the essence of the 
-                      teachings of Hermes Trismegistus. These principles have influenced esoteric and spiritual traditions worldwide.
+                      These teachings were part of the Hermetic tradition that heavily influenced alchemy, astrology, 
+                      and various mystical traditions throughout history. The text has been foundational to Western 
+                      esoteric traditions and continues to inform modern spiritual practices.
                     </p>
                   </AccordionContent>
                 </AccordionItem>
                 
                 <AccordionItem value="application">
-                  <AccordionTrigger className="text-gray-800">Applying These Principles</AccordionTrigger>
+                  <AccordionTrigger className="text-gray-800 font-playfair">Daily Application of Hermetic Principles</AccordionTrigger>
                   <AccordionContent>
-                    <p className="text-gray-700">
-                      Each principle offers a unique lens through which to understand yourself and the universe. 
-                      Through meditation, sound healing, and intention setting, you can align with these universal laws.
+                    <p className="text-gray-700 mb-3">
+                      Integrating these principles into daily life can be transformative:
                     </p>
+                    <ul className="list-disc pl-5 text-gray-700 space-y-2">
+                      <li><strong>Mentalism</strong> - Practice thought awareness and conscious creation</li>
+                      <li><strong>Correspondence</strong> - Notice parallels between your inner state and outer reality</li>
+                      <li><strong>Vibration</strong> - Choose environments, music, and people that match your desired frequency</li>
+                      <li><strong>Polarity</strong> - Find balance between opposing forces rather than resisting them</li>
+                      <li><strong>Rhythm</strong> - Recognize life's cycles and flow with them rather than against them</li>
+                      <li><strong>Cause & Effect</strong> - Take responsibility for your choices and their ripple effects</li>
+                      <li><strong>Gender</strong> - Balance receptive and projective energies in your creativity and relationships</li>
+                    </ul>
                   </AccordionContent>
                 </AccordionItem>
                 
-                <AccordionItem value="history">
-                  <AccordionTrigger className="text-gray-800">Historical Context</AccordionTrigger>
+                <AccordionItem value="quantum">
+                  <AccordionTrigger className="text-gray-800 font-playfair">Quantum Physics & Hermetic Wisdom</AccordionTrigger>
                   <AccordionContent>
-                    <p className="text-gray-700">
-                      Hermes Trismegistus is a legendary figure associated with the Greek god Hermes and the Egyptian god Thoth. 
-                      The teachings attributed to him have influenced alchemy, astrology, and various mystical traditions.
+                    <p className="text-gray-700 mb-3">
+                      Modern quantum physics has revealed surprising parallels to Hermetic principles:
+                    </p>
+                    <ul className="list-disc pl-5 text-gray-700 space-y-2">
+                      <li>The observer effect demonstrates how consciousness (Mentalism) affects physical reality</li>
+                      <li>Quantum entanglement mirrors the principle of Correspondence ("as above, so below")</li>
+                      <li>String theory proposes that all matter consists of tiny vibrating strings (Vibration)</li>
+                      <li>Wave-particle duality reflects Polarity at the quantum level</li>
+                    </ul>
+                    <p className="text-gray-700 mt-3">
+                      These connections suggest that ancient mystics may have intuitively understood aspects of reality 
+                      that science is only now beginning to verify through empirical methods.
                     </p>
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
-            </div>
+            </motion.div>
+
+            <motion.div 
+              className="max-w-4xl mx-auto bg-white rounded-lg shadow-md overflow-hidden mb-12"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.8 }}
+            >
+              <div className="bg-gradient-to-r from-purple-500 to-blue-600 p-6 text-white">
+                <h2 className="font-playfair text-2xl font-semibold mb-2">Sacred Frequency Journey</h2>
+                <p>
+                  Experience the power of Hermetic principles through guided frequency meditation journeys 
+                  designed to align your consciousness with universal wisdom.
+                </p>
+              </div>
+              <div className="p-6">
+                <p className="mb-4">
+                  Each journey combines specific frequencies, guided visualization, and Hermetic wisdom 
+                  to create profound shifts in your energy and consciousness.
+                </p>
+                <Button 
+                  onClick={() => navigate("/journey-templates")}
+                  className="bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:opacity-90"
+                >
+                  Explore All Journeys
+                </Button>
+              </div>
+            </motion.div>
 
             <div className="text-center">
               <Button
