@@ -1,3 +1,4 @@
+
 import React from "react";
 import { LogOut, CreditCard, Library, Music, User, LayoutDashboard, BookOpen, Stars, Compass, CheckSquare, Heart, Zap, Clock, HeartPulse } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
@@ -41,111 +42,8 @@ const Header: React.FC = () => {
         </Link>
       </div>
       
-      <div className="flex items-center justify-between w-full max-w-6xl">
-        <NavigationMenu>
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <Link to="/journey-templates" className={cn(
-                "px-4 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1",
-                (location.pathname === "/journey-templates" || location.pathname === "/journeys")
-                  ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
-                  : "text-[#9b87f5]/70 hover:text-[#9b87f5] hover:bg-[#9b87f5]/5"
-              )}>
-                <Compass className="h-4 w-4" />
-                <span>Healing Journeys</span>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link to="/energy-check" className={cn(
-                "px-4 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1",
-                location.pathname === "/energy-check" 
-                  ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
-                  : "text-[#9b87f5]/70 hover:text-[#9b87f5] hover:bg-[#9b87f5]/5"
-              )}>
-                <CheckSquare className="h-4 w-4" />
-                <span>Energy Check</span>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link to="/alignment" className={cn(
-                "px-4 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1",
-                location.pathname === "/alignment" 
-                  ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
-                  : "text-[#9b87f5]/70 hover:text-[#9b87f5] hover:bg-[#9b87f5]/5"
-              )}>
-                <Heart className="h-4 w-4" />
-                <span>Alignment</span>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link to="/intentions" className={cn(
-                "px-4 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1",
-                location.pathname === "/intentions" 
-                  ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
-                  : "text-[#9b87f5]/70 hover:text-[#9b87f5] hover:bg-[#9b87f5]/5"
-              )}>
-                <Zap className="h-4 w-4" />
-                <span>Intentions</span>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link to="/meditation" className={cn(
-                "px-4 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1",
-                location.pathname === "/meditation" 
-                  ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
-                  : "text-[#9b87f5]/70 hover:text-[#9b87f5] hover:bg-[#9b87f5]/5"
-              )}>
-                <Music className="h-4 w-4" />
-                <span>Meditation</span>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link to="/focus" className={cn(
-                "px-4 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1",
-                location.pathname === "/focus" 
-                  ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
-                  : "text-[#9b87f5]/70 hover:text-[#9b87f5] hover:bg-[#9b87f5]/5"
-              )}>
-                <BookOpen className="h-4 w-4" />
-                <span>Focus</span>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link to="/astrology" className={cn(
-                "px-4 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1",
-                location.pathname === "/astrology" 
-                  ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
-                  : "text-[#9b87f5]/70 hover:text-[#9b87f5] hover:bg-[#9b87f5]/5"
-              )}>
-                <Stars className="h-4 w-4" />
-                <span>Astrology</span>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link to="/soundscapes" className={cn(
-                "px-4 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1",
-                location.pathname === "/soundscapes" 
-                  ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
-                  : "text-[#9b87f5]/70 hover:text-[#9b87f5] hover:bg-[#9b87f5]/5"
-              )}>
-                <Library className="h-4 w-4" />
-                <span>Soundscapes</span>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link to="/timeline" className={cn(
-                "px-4 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1",
-                location.pathname === "/timeline" 
-                  ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
-                  : "text-[#9b87f5]/70 hover:text-[#9b87f5] hover:bg-[#9b87f5]/5"
-              )}>
-                <Clock className="h-4 w-4" />
-                <span>Timeline</span>
-              </Link>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
-        
+      {/* Only show user profile/login button in header, navigation moved to sidebar */}
+      <div className="flex items-center justify-end w-full max-w-6xl">
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

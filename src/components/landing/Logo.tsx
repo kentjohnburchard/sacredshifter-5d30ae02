@@ -3,6 +3,7 @@ import React from "react";
 import { motion } from "framer-motion";
 
 const Logo: React.FC = () => {
+  // Fix the pulseVariants type issue by using proper Framer Motion types
   const pulseVariants = {
     initial: { scale: 1, opacity: 0.9 },
     animate: {
@@ -11,7 +12,7 @@ const Logo: React.FC = () => {
       transition: {
         duration: 3,
         repeat: Infinity,
-        repeatType: "reverse"
+        repeatType: "reverse" as const // Use const assertion to fix type
       }
     }
   };

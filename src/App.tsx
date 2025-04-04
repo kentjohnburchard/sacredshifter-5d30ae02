@@ -21,7 +21,6 @@ import AnimatedBackground from '@/components/AnimatedBackground';
 import { Toaster } from 'sonner';
 import Layout from '@/components/Layout';
 import ScrollToTop from '@/components/ScrollToTop';
-import Sidebar from '@/components/Sidebar';
 import LandingPrompt from '@/components/LandingPrompt';
 
 function App() {
@@ -59,11 +58,6 @@ function App() {
         {showBackground && (
           <AnimatedBackground colorScheme="purple" />
         )}
-        
-        {/* Mobile sidebar for all pages */}
-        <div className="md:hidden">
-          <Sidebar />
-        </div>
         
         <Routes>
           <Route path="/" element={hasSeenIntro ? <Index /> : <LandingPrompt />} />
