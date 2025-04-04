@@ -4,10 +4,15 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
-import Astrology from '@/pages/Astrology';  // Updated import to use page component
+import Astrology from '@/pages/Astrology';
 import Focus from '@/pages/Focus';
 import Meditation from '@/pages/Meditation';
-import Timeline from '@/pages/Timeline';  // Import the Timeline page
+import Timeline from '@/pages/Timeline';
+import Journeys from '@/pages/Journeys';
+import EnergyCheck from '@/pages/EnergyCheck';
+import Alignment from '@/pages/Alignment';
+import Intentions from '@/pages/Intentions';
+import Soundscapes from '@/pages/Soundscapes';
 import { AuthProvider } from '@/context/AuthContext';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import { Toaster } from 'sonner';
@@ -55,9 +60,13 @@ function App() {
           <Route path="/music-generation" element={<Layout><div className="min-h-screen">Music Generation</div></Layout>} />
           <Route path="/meditation" element={<Meditation />} />
           <Route path="/focus" element={<Focus />} />
-          <Route path="/soundscapes" element={<Layout><div className="min-h-screen">Soundscapes</div></Layout>} />
+          <Route path="/soundscapes" element={<Soundscapes />} />
           <Route path="/mood-journal" element={<Layout><div className="min-h-screen">Mood Journal</div></Layout>} />
           <Route path="/timeline" element={<Timeline />} />
+          <Route path="/journeys" element={<Journeys />} />
+          <Route path="/energy-check" element={<EnergyCheck />} />
+          <Route path="/alignment" element={<Alignment />} />
+          <Route path="/intentions" element={<Intentions />} />
           <Route
             path="/account"
             element={

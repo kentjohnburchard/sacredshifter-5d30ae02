@@ -1,6 +1,6 @@
 
 import React from "react";
-import Header from "./navigation/Header";
+import Header from "./Header"; // Using the main Header instead of navigation/Header
 import Footer from "./navigation/Footer";
 import Watermark from "./Watermark";
 
@@ -18,7 +18,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <Header />
       
       {/* Main Content */}
-      <main className="flex-1 pt-32 pb-8">
+      <main className="flex-1 pt-64 pb-8">
         {children}
       </main>
       
