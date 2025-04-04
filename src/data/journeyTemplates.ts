@@ -21,6 +21,12 @@ export interface JourneyTemplate {
   chakras?: string[];
   imageUrl?: string;
   duration?: number;
+  emoji?: string;
+  name?: string;
+  visualTheme?: string;
+  sessionType?: string;
+  vibe?: string;
+  color?: string;
 }
 
 const journeyTemplates: JourneyTemplate[] = [
@@ -73,8 +79,28 @@ const journeyTemplates: JourneyTemplate[] = [
     ],
     tags: ["Tinnitus", "Ear Health", "Sound Healing", "Relaxation", "Sleep Support"],
     chakras: ["Crown", "Third Eye", "Throat"],
-    duration: 30
+    duration: 30,
+    emoji: "🎵",
+    name: "Silent Tune",
+    visualTheme: "Gentle blue waves",
+    sessionType: "Sound Healing",
+    vibe: "Calming",
+    color: "#4a90e2"
   }
 ];
+
+// Function to find a template based on frequency
+export const getTemplateByFrequency = (frequency: number): JourneyTemplate | null => {
+  // Look for a template that has a frequency matching the provided value
+  const template = journeyTemplates.find(template => {
+    return template.frequencies.some(freq => {
+      // Extract the numeric part from frequency values like "528 Hz"
+      const freqValue = freq.value.split(' ')[0];
+      return parseFloat(freqValue) === frequency;
+    });
+  });
+  
+  return template || null;
+};
 
 export default journeyTemplates;

@@ -12,4 +12,11 @@ export interface FrequencyLibraryItem {
   benefits?: string[];
   created_at?: string;
   user_id?: string;
+  tags?: string[];
+  vibe_profile?: string;
+}
+
+export interface UserSavedFrequency extends FrequencyLibraryItem {
+  saved_at: string;
+  notes?: string;
 }
