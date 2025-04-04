@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import ComingSoonBanner from "@/components/ComingSoonBanner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Music2 } from "lucide-react";
 import Layout from "@/components/Layout";
 import LandingPrompt from "@/components/LandingPrompt";
@@ -109,12 +109,138 @@ const Index = () => {
             </Card>
           </div>
           
+          {/* Comprehensive Page Guide */}
+          <div className="mt-12 mb-8">
+            <h3 className="text-2xl font-light text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">
+              Navigate Your Healing Journey
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Energy Check */}
+              <Card className="border border-purple-100 hover:border-purple-300 transition-all shadow-sm">
+                <CardContent className="p-4">
+                  <h4 className="font-medium text-lg mb-2 text-purple-700">Energy Check</h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Assess your current energy state, set intentions, and discover frequencies that align with your needs.
+                  </p>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link to="/energy-check">Explore Energy Check</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              {/* Healing Journeys */}
+              <Card className="border border-blue-100 hover:border-blue-300 transition-all shadow-sm">
+                <CardContent className="p-4">
+                  <h4 className="font-medium text-lg mb-2 text-blue-700">Healing Journeys</h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Curated sound experiences designed for specific healing purposes like sleep, focus, and anxiety release.
+                  </p>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link to="/journey-templates">Browse Healing Journeys</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              {/* Chakra Alignment */}
+              <Card className="border border-indigo-100 hover:border-indigo-300 transition-all shadow-sm">
+                <CardContent className="p-4">
+                  <h4 className="font-medium text-lg mb-2 text-indigo-700">Chakra Alignment</h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Balance your energy centers with precision frequency healing designed for each chakra.
+                  </p>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link to="/alignment">Align Your Chakras</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              {/* Intentions */}
+              <Card className="border border-teal-100 hover:border-teal-300 transition-all shadow-sm">
+                <CardContent className="p-4">
+                  <h4 className="font-medium text-lg mb-2 text-teal-700">Intentions</h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Set powerful intentions that resonate with your highest vibration and manifest your desired reality.
+                  </p>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link to="/intentions">Set Your Intentions</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              {/* Meditation */}
+              <Card className="border border-cyan-100 hover:border-cyan-300 transition-all shadow-sm">
+                <CardContent className="p-4">
+                  <h4 className="font-medium text-lg mb-2 text-cyan-700">Meditation</h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Find peace and elevate your consciousness through guided meditations enhanced with sacred frequencies.
+                  </p>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link to="/meditation">Start Meditating</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              {/* Focus */}
+              <Card className="border border-green-100 hover:border-green-300 transition-all shadow-sm">
+                <CardContent className="p-4">
+                  <h4 className="font-medium text-lg mb-2 text-green-700">Focus</h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Enhance concentration and mental clarity with sound frequencies designed to optimize brain function.
+                  </p>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link to="/focus">Improve Focus</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              {/* Astrology */}
+              <Card className="border border-violet-100 hover:border-violet-300 transition-all shadow-sm">
+                <CardContent className="p-4">
+                  <h4 className="font-medium text-lg mb-2 text-violet-700">Astrology</h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Explore cosmic connections and how celestial energies influence your personal frequency.
+                  </p>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link to="/astrology">Discover Astrology</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              {/* Soundscapes */}
+              <Card className="border border-amber-100 hover:border-amber-300 transition-all shadow-sm">
+                <CardContent className="p-4">
+                  <h4 className="font-medium text-lg mb-2 text-amber-700">Soundscapes</h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Immerse yourself in ambient sound environments designed to enhance your focus, creativity, and spiritual connection.
+                  </p>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link to="/soundscapes">Explore Soundscapes</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              {/* Timeline */}
+              <Card className="border border-rose-100 hover:border-rose-300 transition-all shadow-sm">
+                <CardContent className="p-4">
+                  <h4 className="font-medium text-lg mb-2 text-rose-700">Timeline</h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Revisit your frequency journey and reconnect with moments that resonated with your energy.
+                  </p>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link to="/timeline">View Your Timeline</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+          
           {/* Begin Your Journey Button */}
           <div className="flex justify-center mb-4">
             <Button 
               size="default" 
               className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white rounded-lg shadow-md transform transition-all duration-300 hover:scale-105"
-              onClick={() => navigate("/music-generation")}
+              onClick={() => navigate("/energy-check")}
             >
               <Music2 className="mr-2 h-4 w-4" />
               Begin Your Journey
