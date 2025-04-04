@@ -34,7 +34,16 @@ import { NavigationMenu,
 } from "@/components/ui/navigation-menu";
 import { Badge } from "@/components/ui/badge";
 
-const SidebarLink = ({ to, icon: Icon, label, isActive, isPro = false, isNew = false }) => {
+interface SidebarLinkProps {
+  to: string;
+  icon: React.ElementType;
+  label: string;
+  isActive: boolean;
+  isPro?: boolean;
+  isNew?: boolean;
+}
+
+const SidebarLink: React.FC<SidebarLinkProps> = ({ to, icon: Icon, label, isActive, isPro = false, isNew = false }) => {
   return (
     <Link
       to={to}
@@ -76,7 +85,7 @@ const Sidebar = () => {
     <div className="flex h-full flex-col overflow-hidden py-2">
       <div className="flex items-center justify-center mb-4">
         <Link to="/" className="flex items-center gap-2 px-4 py-2">
-          <Logo className="h-8 w-auto" />
+          <Logo />
           <span className="text-xl font-semibold text-foreground">
             Sacred <span className="text-purple-600">Shifter</span>
           </span>
