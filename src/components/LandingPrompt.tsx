@@ -1,10 +1,12 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Logo, AnimatedText, CallToAction } from "@/components/landing";
+import { Logo, AnimatedText } from "@/components/landing";
+import { useNavigate } from "react-router-dom";
 
 const LandingPrompt: React.FC = () => {
   const [currentLine, setCurrentLine] = useState(0);
+  const navigate = useNavigate();
   const lines = [
     "Welcome to Sacred Shifter.",
     "Your body is frequency. Your thoughts are tone.",
@@ -17,8 +19,14 @@ const LandingPrompt: React.FC = () => {
         setCurrentLine(currentLine + 1);
       }, 3000);
       return () => clearTimeout(timer);
+    } else {
+      // After showing the last line, wait a moment and then navigate to index
+      const redirectTimer = setTimeout(() => {
+        navigate("/", { replace: true });
+      }, 4000); // Wait 4 seconds after showing the last line
+      return () => clearTimeout(redirectTimer);
     }
-  }, [currentLine]);
+  }, [currentLine, navigate]);
 
   return (
     <motion.div 

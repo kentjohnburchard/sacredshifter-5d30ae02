@@ -22,13 +22,19 @@ import { Toaster } from 'sonner';
 import Layout from '@/components/Layout';
 import ScrollToTop from '@/components/ScrollToTop';
 import Sidebar from '@/components/Sidebar';
+import LandingPrompt from '@/components/LandingPrompt';
 
 function App() {
   const [showBackground, setShowBackground] = React.useState(true);
   const session = useSession();
   const supabase = useSupabaseClient();
+  const [hasSeenIntro, setHasSeenIntro] = React.useState(false);
 
   React.useEffect(() => {
+    // Check if user has seen intro before
+    const introSeen = localStorage.getItem('hasSeenIntro');
+    setHasSeenIntro(!!introSeen);
+
     const path = window.location.pathname;
     setShowBackground(
       path === '/' ||
@@ -60,7 +66,8 @@ function App() {
         </div>
         
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={hasSeenIntro ? <Index /> : <LandingPrompt />} />
+          <Route path="/intro" element={<LandingPrompt />} />
           <Route path="/pricing" element={<Layout pageTitle="Pricing"><div className="min-h-screen">Pricing Page</div></Layout>} />
           <Route path="/about" element={<Layout pageTitle="About Us"><div className="min-h-screen">About Page</div></Layout>} />
           <Route path="/contact" element={<Layout pageTitle="Contact Us"><div className="min-h-screen">Contact Page</div></Layout>} />

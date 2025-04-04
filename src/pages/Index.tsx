@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import ComingSoonBanner from "@/components/ComingSoonBanner";
@@ -7,47 +6,15 @@ import { Button } from "@/components/ui/button";
 import { useNavigate, Link } from "react-router-dom";
 import { Music2, CheckSquare, Heart, Zap, Book, Stars, Library, Clock, HeartPulse } from "lucide-react";
 import Layout from "@/components/Layout";
-import LandingPrompt from "@/components/LandingPrompt";
 import { motion } from "framer-motion";
 
 const Index = () => {
   const navigate = useNavigate();
-  const [showLandingPrompt, setShowLandingPrompt] = useState(true);
   
-  // Check if user has seen the landing prompt before
+  // Mark that the user has seen the intro
   useEffect(() => {
-    const hasSeenPrompt = localStorage.getItem('hasSeenPrompt');
-    if (hasSeenPrompt) {
-      setShowLandingPrompt(false);
-    }
+    localStorage.setItem('hasSeenIntro', 'true');
   }, []);
-  
-  const handleFinishPrompt = () => {
-    setShowLandingPrompt(false);
-    localStorage.setItem('hasSeenPrompt', 'true');
-  };
-
-  // If showing landing prompt, only show that
-  if (showLandingPrompt) {
-    return (
-      <div className="min-h-screen bg-white">
-        <LandingPrompt />
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 8, duration: 1 }}
-          className="absolute bottom-4 right-4"
-        >
-          <button 
-            onClick={handleFinishPrompt}
-            className="text-sm text-gray-400 hover:text-gray-600"
-          >
-            Skip Intro
-          </button>
-        </motion.div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
