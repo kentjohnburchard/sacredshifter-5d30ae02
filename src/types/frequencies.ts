@@ -16,7 +16,11 @@ export interface FrequencyLibraryItem {
   vibe_profile?: string;
 }
 
-export interface UserSavedFrequency extends FrequencyLibraryItem {
-  saved_at: string;
+export interface UserSavedFrequency {
+  id: string;
+  user_id: string;
+  frequency_id: string;
+  created_at: string;
   notes?: string;
+  frequency: FrequencyLibraryItem;
 }
