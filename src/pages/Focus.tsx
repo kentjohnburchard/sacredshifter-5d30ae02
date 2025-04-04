@@ -1,490 +1,283 @@
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { 
-  Play, 
-  Pause, 
-  RotateCcw, 
-  Volume2, 
-  VolumeX,
-  Clock,
-  Music,
-  Brain,
-  ArrowRight,
-  Sun
-} from "lucide-react";
-import { healingFrequencies } from "@/data/frequencies";
-import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Slider } from "@/components/ui/slider";
+import { Play, Pause, SkipForward, SkipBack, Volume2 } from "lucide-react";
+import { useAudioPlayer } from "@/hooks/useAudioPlayer";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { formatTime } from "@/lib/utils";
+import { toast } from "sonner";
 
-const Focus: React.FC = () => {
-  // Timer state
-  const [duration, setDuration] = useState<number>(25 * 60); // Default 25 minutes in seconds
-  const [timeLeft, setTimeLeft] = useState<number>(25 * 60);
-  const [isActive, setIsActive] = useState<boolean>(false);
-  const [isPaused, setIsPaused] = useState<boolean>(false);
+const focusSessions = [
+  {
+    id: "pomodoro",
+    name: "Pomodoro",
+    description: "25 minutes of focused work followed by a 5-minute break",
+    duration: 25 * 60, // 25 minutes in seconds
+    frequency: "396 Hz",
+    benefits: "Enhances focus and concentration",
+  },
+  {
+    id: "deep-work",
+    name: "Deep Work",
+    description: "50 minutes of deep focus followed by a 10-minute break",
+    duration: 50 * 60, // 50 minutes in seconds
+    frequency: "528 Hz",
+    benefits: "Promotes clarity and deep concentration",
+  },
+  {
+    id: "quick-focus",
+    name: "Quick Focus",
+    description: "15 minutes of intense focus for quick tasks",
+    duration: 15 * 60, // 15 minutes in seconds
+    frequency: "432 Hz",
+    benefits: "Helps with quick bursts of productivity",
+  },
+];
+
+const Focus = () => {
+  const [activeSession, setActiveSession] = useState(focusSessions[0]);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [volume, setVolume] = useLocalStorage("focusVolume", 80);
+  const [remainingTime, setRemainingTime] = useState(activeSession.duration);
+  const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
   
-  // Frequency state
-  const [selectedFrequency, setSelectedFrequency] = useState<string>("beta");
-  const [volume, setVolume] = useState<number>(50);
-  const [isMuted, setIsMuted] = useState<boolean>(false);
-  const [playFrequency, setPlayFrequency] = useState<boolean>(true);
+  const { 
+    audioRef, 
+    togglePlayPause, 
+    handleTimeUpdate, 
+    handleVolumeChange,
+    duration,
+    currentAudioTime,
+    isAudioPlaying
+  } = useAudioPlayer();
   
-  // Background noise settings
-  const [backgroundNoise, setBackgroundNoise] = useState<string>("none");
-  const [showCompletionAlert, setShowCompletionAlert] = useState<boolean>(true);
-  
-  // Audio elements
-  const frequencyAudioRef = useRef<HTMLAudioElement | null>(null);
-  const backgroundAudioRef = useRef<HTMLAudioElement | null>(null);
-  
-  const { toast } = useToast();
-
-  // Get frequency audio URL based on selection
-  const getFrequencyAudioUrl = () => {
-    switch (selectedFrequency) {
-      case "beta":
-        return healingFrequencies.find(f => f.frequency > 14)?.audio_url || "";
-      case "alpha":
-        return healingFrequencies.find(f => f.frequency >= 8 && f.frequency < 14)?.audio_url || "";
-      case "theta":
-        return healingFrequencies.find(f => f.frequency >= 4 && f.frequency < 8)?.audio_url || "";
-      default:
-        return "";
-    }
-  };
-
-  // Get background noise audio URL
-  const getBackgroundNoiseUrl = () => {
-    switch (backgroundNoise) {
-      case "rain":
-        return "https://pixabay.com/sound-effects/light-rain-ambient-114354.mp3";
-      case "white-noise":
-        return "https://pixabay.com/sound-effects/white-noise-6453.mp3";
-      case "nature":
-        return "https://pixabay.com/sound-effects/forest-with-small-river-birds-and-nature-field-recording-6735.mp3";
-      default:
-        return "";
-    }
-  };
-
-  // Format time for display
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  // Initialize and update audio elements
+  // Reset timer when changing sessions
   useEffect(() => {
-    if (!frequencyAudioRef.current) {
-      frequencyAudioRef.current = new Audio(getFrequencyAudioUrl());
-      frequencyAudioRef.current.loop = true;
-    } else {
-      frequencyAudioRef.current.src = getFrequencyAudioUrl();
-      frequencyAudioRef.current.load();
+    if (timer) {
+      clearInterval(timer);
+      setTimer(null);
     }
-
-    if (!backgroundAudioRef.current) {
-      backgroundAudioRef.current = new Audio(getBackgroundNoiseUrl());
-      backgroundAudioRef.current.loop = true;
-    } else {
-      backgroundAudioRef.current.src = getBackgroundNoiseUrl();
-      backgroundAudioRef.current.load();
+    setRemainingTime(activeSession.duration);
+    setIsPlaying(false);
+    
+    // Reset audio
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
     }
-
-    // Set volume
-    if (frequencyAudioRef.current) {
-      frequencyAudioRef.current.volume = isMuted ? 0 : volume / 100;
-    }
-    if (backgroundAudioRef.current) {
-      backgroundAudioRef.current.volume = isMuted ? 0 : (volume / 100) * 0.5; // Background at 50% of main volume
-    }
-
-    return () => {
-      // Cleanup audio on component unmount
-      if (frequencyAudioRef.current) {
-        frequencyAudioRef.current.pause();
-      }
-      if (backgroundAudioRef.current) {
-        backgroundAudioRef.current.pause();
-      }
-    };
-  }, [selectedFrequency, backgroundNoise, volume, isMuted]);
-
-  // Timer effect
+  }, [activeSession]);
+  
+  // Handle timer
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-
-    if (isActive && !isPaused) {
-      interval = setInterval(() => {
-        setTimeLeft((prevTime) => {
-          if (prevTime <= 1) {
-            // Timer finished
-            clearInterval(interval!);
-            handleTimerComplete();
+    if (isPlaying && remainingTime > 0) {
+      const interval = setInterval(() => {
+        setRemainingTime(prev => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            setIsPlaying(false);
+            toast.success(`${activeSession.name} session completed!`);
             return 0;
           }
-          return prevTime - 1;
+          return prev - 1;
         });
       }, 1000);
-    } else if (interval) {
-      clearInterval(interval);
+      
+      setTimer(interval);
+      
+      return () => clearInterval(interval);
+    } else if (!isPlaying && timer) {
+      clearInterval(timer);
+      setTimer(null);
     }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isActive, isPaused]);
-
-  // Handle audio playback based on timer state
-  useEffect(() => {
-    if (isActive && !isPaused && playFrequency) {
-      if (frequencyAudioRef.current) {
-        try {
-          frequencyAudioRef.current.play().catch(e => console.error("Audio play error:", e));
-        } catch (e) {
-          console.error("Audio play error:", e);
-        }
-      }
-      if (backgroundAudioRef.current && backgroundNoise !== 'none') {
-        try {
-          backgroundAudioRef.current.play().catch(e => console.error("Background audio play error:", e));
-        } catch (e) {
-          console.error("Background audio play error:", e);
-        }
-      }
-    } else {
-      if (frequencyAudioRef.current) {
-        frequencyAudioRef.current.pause();
-      }
-      if (backgroundAudioRef.current) {
-        backgroundAudioRef.current.pause();
-      }
-    }
-  }, [isActive, isPaused, playFrequency, backgroundNoise]);
-
-  const handleTimerComplete = () => {
-    setIsActive(false);
-    setIsPaused(false);
-    
-    // Stop all audio
-    if (frequencyAudioRef.current) {
-      frequencyAudioRef.current.pause();
-    }
-    if (backgroundAudioRef.current) {
-      backgroundAudioRef.current.pause();
-    }
-    
-    // Show completion notification
-    if (showCompletionAlert) {
-      toast({
-        title: "Focus Session Complete!",
-        description: "Great job! Your focus session has ended.",
-      });
+  }, [isPlaying, activeSession]);
+  
+  const handleStartSession = () => {
+    setIsPlaying(!isPlaying);
+    togglePlayPause();
+  };
+  
+  const handleSessionChange = (sessionId: string) => {
+    const session = focusSessions.find(s => s.id === sessionId);
+    if (session) {
+      setActiveSession(session);
     }
   };
-
-  const startTimer = () => {
-    if (timeLeft === 0) {
-      setTimeLeft(duration);
-    }
-    setIsActive(true);
-    setIsPaused(false);
+  
+  const formatSessionTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
-
-  const pauseTimer = () => {
-    setIsPaused(true);
-  };
-
-  const resetTimer = () => {
-    setIsActive(false);
-    setIsPaused(false);
-    setTimeLeft(duration);
-    
-    // Stop all audio
-    if (frequencyAudioRef.current) {
-      frequencyAudioRef.current.pause();
-    }
-    if (backgroundAudioRef.current) {
-      backgroundAudioRef.current.pause();
-    }
-  };
-
-  const setCustomDuration = (minutes: number) => {
-    const newDuration = minutes * 60;
-    setDuration(newDuration);
-    if (!isActive) {
-      setTimeLeft(newDuration);
-    }
-  };
-
-  const handleVolumeChange = (value: number[]) => {
-    const newVolume = value[0];
-    setVolume(newVolume);
-    
-    if (newVolume === 0) {
-      setIsMuted(true);
-    } else {
-      setIsMuted(false);
-      if (frequencyAudioRef.current) {
-        frequencyAudioRef.current.volume = newVolume / 100;
-      }
-      if (backgroundAudioRef.current) {
-        backgroundAudioRef.current.volume = (newVolume / 100) * 0.5;
-      }
-    }
-  };
-
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
-    if (frequencyAudioRef.current) {
-      frequencyAudioRef.current.volume = !isMuted ? 0 : volume / 100;
-    }
-    if (backgroundAudioRef.current) {
-      backgroundAudioRef.current.volume = !isMuted ? 0 : (volume / 100) * 0.5;
-    }
-  };
-
+  
   return (
-    <Layout>
-      <div className="max-w-6xl mx-auto px-4 py-12">
-        <div className="text-center mb-10">
-          <h1 className="text-4xl font-light mb-4">
-            <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-[#7510c9] to-[#4d00ff]">
-              Focus Session
-            </span>
-          </h1>
+    <Layout pageTitle="Focus">
+      <div className="max-w-6xl mx-auto px-4 py-4 sm:px-6">
+        <div className="mb-8 text-center">
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Enhance your productivity with brainwave entrainment frequencies that help you focus and concentrate.
+            Enhance your productivity with sacred frequencies designed to improve focus and concentration.
           </p>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Frequency Selection */}
-          <div className="bg-white rounded-xl shadow-md p-6 border border-purple-100">
-            <div className="flex items-center mb-4">
-              <Brain className="h-5 w-5 text-purple-600 mr-2" />
-              <h2 className="text-xl font-semibold text-purple-700">Frequency Selection</h2>
-            </div>
-            
-            <p className="text-gray-600 mb-4">Select a frequency that helps you focus and concentrate on your tasks.</p>
-            
-            <RadioGroup 
-              value={selectedFrequency} 
-              onValueChange={setSelectedFrequency}
-              className="space-y-3"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="beta" id="beta" />
-                <Label htmlFor="beta" className="text-sm font-medium cursor-pointer">
-                  Beta (14-30 Hz) - Active concentration, problem-solving
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="alpha" id="alpha" />
-                <Label htmlFor="alpha" className="text-sm font-medium cursor-pointer">
-                  Alpha (8-13.9 Hz) - Relaxed focus, calm alertness
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="theta" id="theta" />
-                <Label htmlFor="theta" className="text-sm font-medium cursor-pointer">
-                  Theta (4-7.9 Hz) - Deep meditation, enhanced creativity
-                </Label>
-              </div>
-            </RadioGroup>
-            
-            <div className="mt-6 space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label htmlFor="volume" className="text-sm font-medium">
-                    Volume
-                  </Label>
-                  <button onClick={toggleMute} className="text-purple-600 hover:text-purple-700">
-                    {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                  </button>
-                </div>
-                <Slider
-                  id="volume"
-                  min={0}
-                  max={100}
-                  step={1}
-                  value={[volume]}
-                  onValueChange={handleVolumeChange}
-                  className="[&>[data-scale-x]]:bg-purple-200 [&>[data-scale-x-active]]:bg-purple-500"
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <Label htmlFor="play-frequency" className="text-sm font-medium">
-                  Play frequency during session
-                </Label>
-                <Switch
-                  id="play-frequency"
-                  checked={playFrequency}
-                  onCheckedChange={setPlayFrequency}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Background Sound</Label>
-                <div className="grid grid-cols-4 gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className={`${backgroundNoise === 'none' ? 'bg-purple-100 border-purple-300' : ''}`}
-                    onClick={() => setBackgroundNoise('none')}
-                  >
-                    None
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className={`${backgroundNoise === 'rain' ? 'bg-purple-100 border-purple-300' : ''}`}
-                    onClick={() => setBackgroundNoise('rain')}
-                  >
-                    Rain
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className={`${backgroundNoise === 'white-noise' ? 'bg-purple-100 border-purple-300' : ''}`}
-                    onClick={() => setBackgroundNoise('white-noise')}
-                  >
-                    White Noise
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className={`${backgroundNoise === 'nature' ? 'bg-purple-100 border-purple-300' : ''}`}
-                    onClick={() => setBackgroundNoise('nature')}
-                  >
-                    Nature
-                  </Button>
-                </div>
-              </div>
-            </div>
+        
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
+          <div className="md:col-span-2">
+            <Card className="border border-gray-200 shadow-sm h-full">
+              <CardContent className="p-6">
+                <Tabs defaultValue="pomodoro" className="w-full" onValueChange={handleSessionChange}>
+                  <TabsList className="grid grid-cols-3 mb-6">
+                    {focusSessions.map(session => (
+                      <TabsTrigger key={session.id} value={session.id}>
+                        {session.name}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                  
+                  {focusSessions.map(session => (
+                    <TabsContent key={session.id} value={session.id} className="space-y-4">
+                      <div className="text-center mb-8">
+                        <h3 className="text-2xl font-light mb-2">{session.name}</h3>
+                        <p className="text-gray-600">{session.description}</p>
+                      </div>
+                      
+                      <div className="flex flex-col items-center justify-center space-y-8">
+                        <div className="text-6xl font-light text-purple-600">
+                          {formatSessionTime(remainingTime)}
+                        </div>
+                        
+                        <div className="flex items-center space-x-4">
+                          <Button 
+                            variant="outline" 
+                            size="icon"
+                            onClick={() => {
+                              setRemainingTime(activeSession.duration);
+                              setIsPlaying(false);
+                              if (audioRef.current) {
+                                audioRef.current.pause();
+                                audioRef.current.currentTime = 0;
+                              }
+                            }}
+                          >
+                            <SkipBack className="h-4 w-4" />
+                          </Button>
+                          
+                          <Button 
+                            variant="default" 
+                            size="lg"
+                            className="w-16 h-16 rounded-full bg-purple-600 hover:bg-purple-700"
+                            onClick={handleStartSession}
+                          >
+                            {isPlaying ? (
+                              <Pause className="h-6 w-6" />
+                            ) : (
+                              <Play className="h-6 w-6 ml-1" />
+                            )}
+                          </Button>
+                          
+                          <Button 
+                            variant="outline" 
+                            size="icon"
+                            onClick={() => {
+                              toast.info("Skipping to next session");
+                              const currentIndex = focusSessions.findIndex(s => s.id === activeSession.id);
+                              const nextIndex = (currentIndex + 1) % focusSessions.length;
+                              setActiveSession(focusSessions[nextIndex]);
+                            }}
+                          >
+                            <SkipForward className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2 w-full max-w-xs">
+                          <Volume2 className="h-4 w-4 text-gray-500" />
+                          <Slider
+                            value={[volume]}
+                            max={100}
+                            step={1}
+                            onValueChange={(value) => {
+                              setVolume(value[0]);
+                              handleVolumeChange(value[0] / 100);
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </TabsContent>
+                  ))}
+                </Tabs>
+              </CardContent>
+            </Card>
           </div>
           
-          {/* Timer */}
-          <div className="bg-white rounded-xl shadow-md p-6 border border-purple-100">
-            <div className="flex items-center mb-4">
-              <Clock className="h-5 w-5 text-purple-600 mr-2" />
-              <h2 className="text-xl font-semibold text-purple-700">Session Timer</h2>
-            </div>
-            
-            <p className="text-gray-600 mb-4">Set a timer for your focus session to maintain productivity.</p>
-            
-            <div className="flex space-x-3 mb-8">
-              <Button
-                variant="outline"
-                className={`flex-1 ${duration === 25 * 60 ? 'bg-purple-100 border-purple-300' : ''}`}
-                onClick={() => setCustomDuration(25)}
-              >
-                25 min
-              </Button>
-              <Button
-                variant="outline"
-                className={`flex-1 ${duration === 45 * 60 ? 'bg-purple-100 border-purple-300' : ''}`}
-                onClick={() => setCustomDuration(45)}
-              >
-                45 min
-              </Button>
-              <Button
-                variant="outline"
-                className={`flex-1 ${duration === 60 * 60 ? 'bg-purple-100 border-purple-300' : ''}`}
-                onClick={() => setCustomDuration(60)}
-              >
-                60 min
-              </Button>
-            </div>
-            
-            <div className="text-center mb-8">
-              <div className="text-6xl font-bold text-purple-800 mb-4 font-mono">
-                {formatTime(timeLeft)}
-              </div>
-              
-              <div className="flex justify-center space-x-4">
-                {!isActive || isPaused ? (
-                  <Button 
-                    className="px-6 py-4 h-auto bg-purple-600 hover:bg-purple-700"
-                    onClick={startTimer}
-                  >
-                    <Play className="h-5 w-5 mr-2" />
-                    {isPaused ? 'Resume' : 'Start'}
-                  </Button>
-                ) : (
-                  <Button 
-                    className="px-6 py-4 h-auto bg-amber-500 hover:bg-amber-600"
-                    onClick={pauseTimer}
-                  >
-                    <Pause className="h-5 w-5 mr-2" />
-                    Pause
-                  </Button>
-                )}
+          <div>
+            <Card className="border border-gray-200 shadow-sm h-full">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-medium mb-4">Session Details</h3>
                 
-                <Button 
-                  variant="outline"
-                  className="px-6 py-4 h-auto"
-                  onClick={resetTimer}
-                  disabled={!isActive && timeLeft === duration}
-                >
-                  <RotateCcw className="h-5 w-5 mr-2" />
-                  Reset
-                </Button>
-              </div>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <Label htmlFor="completion-alert" className="text-sm font-medium">
-                Play alert when session ends
-              </Label>
-              <Switch
-                id="completion-alert"
-                checked={showCompletionAlert}
-                onCheckedChange={setShowCompletionAlert}
-              />
-            </div>
-            
-            {isActive && !isPaused && (
-              <div className="mt-4 p-3 bg-purple-50 rounded-lg border border-purple-100 flex items-center">
-                <Sun className="h-5 w-5 text-purple-500 mr-2 animate-pulse" />
-                <p className="text-sm text-purple-700">
-                  Focus session in progress. Stay focused!
-                </p>
-              </div>
-            )}
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500">FREQUENCY</h4>
+                    <p className="text-lg">{activeSession.frequency}</p>
+                  </div>
+                  
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500">DURATION</h4>
+                    <p className="text-lg">{activeSession.duration / 60} minutes</p>
+                  </div>
+                  
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500">BENEFITS</h4>
+                    <p className="text-lg">{activeSession.benefits}</p>
+                  </div>
+                  
+                  <div className="pt-4">
+                    <h4 className="text-sm font-medium text-gray-500 mb-2">TIPS FOR BETTER FOCUS</h4>
+                    <ul className="list-disc pl-5 space-y-1 text-sm text-gray-600">
+                      <li>Find a quiet space free from distractions</li>
+                      <li>Set clear intentions for your focus session</li>
+                      <li>Stay hydrated during your session</li>
+                      <li>Take deep breaths if you feel your focus waning</li>
+                      <li>Use headphones for the best frequency experience</li>
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
         
-        <div className="mt-8 text-center">
-          <Button 
-            variant="outline" 
-            className="text-purple-600 border-purple-200 hover:bg-purple-50"
-            onClick={() => {
-              if (isActive) {
-                const confirmed = window.confirm("You have an active focus session. Are you sure you want to navigate away?");
-                if (confirmed) {
-                  // Navigate to meditation
-                  window.location.href = "/meditation";
-                }
-              } else {
-                // Navigate to meditation
-                window.location.href = "/meditation";
-              }
-            }}
-          >
-            <Music className="h-4 w-4 mr-2" />
-            Try a Guided Meditation
-            <ArrowRight className="h-4 w-4 ml-2" />
-          </Button>
-        </div>
+        <Card className="border border-gray-200 shadow-sm mb-8">
+          <CardContent className="p-6">
+            <h3 className="text-xl font-medium mb-4">About Focus Frequencies</h3>
+            <p className="text-gray-600 mb-4">
+              Sacred frequencies can enhance focus and concentration by synchronizing brainwaves to optimal states for cognitive performance. 
+              The frequencies used in these sessions have been carefully selected to promote mental clarity, reduce distractions, and support sustained attention.
+            </p>
+            <div className="grid md:grid-cols-3 gap-4 text-sm">
+              <div>
+                <h4 className="font-medium mb-1">396 Hz - Liberation from Fear</h4>
+                <p className="text-gray-600">Helps clear mental blocks and negative thought patterns that interfere with focus.</p>
+              </div>
+              <div>
+                <h4 className="font-medium mb-1">528 Hz - Transformation</h4>
+                <p className="text-gray-600">Promotes clarity of mind and enhanced cognitive function for complex problem-solving.</p>
+              </div>
+              <div>
+                <h4 className="font-medium mb-1">432 Hz - Natural Harmony</h4>
+                <p className="text-gray-600">Aligns with the natural frequency of the universe, promoting a state of relaxed alertness ideal for focus.</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+      
+      <audio 
+        ref={audioRef}
+        src="/sounds/focus-ambient.mp3" 
+        loop 
+        onTimeUpdate={handleTimeUpdate}
+      />
     </Layout>
   );
 };
