@@ -21,7 +21,7 @@ const Header: React.FC = () => {
           
           {/* Navigation Links - Desktop */}
           <nav className="hidden md:flex items-center space-x-6">
-            <NavLink to="/journeys">Journeys</NavLink>
+            <NavLink to="/journey-templates">Healing Journeys</NavLink>
             <NavLink to="/energy-check">Energy Check</NavLink>
             <NavLink to="/alignment">Alignment</NavLink>
             <NavLink to="/intentions">Intentions</NavLink>
@@ -42,7 +42,7 @@ const Header: React.FC = () => {
               </SheetTrigger>
               <SheetContent className="w-[300px] sm:w-[400px] bg-white">
                 <nav className="flex flex-col gap-4 mt-8">
-                  <NavLink to="/journeys" isMobile>Journeys</NavLink>
+                  <NavLink to="/journey-templates" isMobile>Healing Journeys</NavLink>
                   <NavLink to="/energy-check" isMobile>Energy Check</NavLink>
                   <NavLink to="/alignment" isMobile>Alignment</NavLink>
                   <NavLink to="/intentions" isMobile>Intentions</NavLink>

@@ -18,7 +18,7 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-sm font-medium mb-2 text-[#800080]">Quick Links</h3>
             <ul className="space-y-2">
-              <li><Link to="/journeys" className="text-xs text-[#800080]/90 hover:text-[#800080]">Sound Journeys</Link></li>
+              <li><Link to="/journey-templates" className="text-xs text-[#800080]/90 hover:text-[#800080]">Healing Journeys</Link></li>
               <li><Link to="/energy-check" className="text-xs text-[#800080]/90 hover:text-[#800080]">Energy Check</Link></li>
               <li><Link to="/alignment" className="text-xs text-[#800080]/90 hover:text-[#800080]">Chakra Alignment</Link></li>
               <li><Link to="/intentions" className="text-xs text-[#800080]/90 hover:text-[#800080]">Set Intentions</Link></li>

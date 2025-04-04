@@ -8,7 +8,6 @@ import Astrology from '@/pages/Astrology';
 import Focus from '@/pages/Focus';
 import Meditation from '@/pages/Meditation';
 import Timeline from '@/pages/Timeline';
-import Journeys from '@/pages/Journeys';
 import EnergyCheck from '@/pages/EnergyCheck';
 import Alignment from '@/pages/Alignment';
 import Intentions from '@/pages/Intentions';
@@ -65,7 +64,7 @@ function App() {
           <Route path="/soundscapes" element={<Soundscapes />} />
           <Route path="/mood-journal" element={<Layout><div className="min-h-screen">Mood Journal</div></Layout>} />
           <Route path="/timeline" element={<Timeline />} />
-          <Route path="/journeys" element={<Journeys />} />
+          <Route path="/journeys" element={<Navigate to="/journey-templates" replace />} />
           <Route path="/journey-templates" element={<JourneyTemplates />} />
           <Route path="/journey/:frequencyId" element={<JourneyPlayer />} />
           <Route path="/energy-check" element={<EnergyCheck />} />

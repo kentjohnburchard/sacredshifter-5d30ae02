@@ -1,4 +1,3 @@
-
 import React from "react";
 import { LogOut, CreditCard, Library, Music, User, LayoutDashboard, BookOpen, Stars, Compass, CheckSquare, Heart, Zap, Clock, HeartPulse } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
@@ -46,24 +45,13 @@ const Header: React.FC = () => {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-              <Link to="/journeys" className={cn(
+              <Link to="/journey-templates" className={cn(
                 "px-4 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1",
-                location.pathname === "/journeys" 
+                (location.pathname === "/journey-templates" || location.pathname === "/journeys")
                   ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
                   : "text-[#9b87f5]/70 hover:text-[#9b87f5] hover:bg-[#9b87f5]/5"
               )}>
                 <Compass className="h-4 w-4" />
-                <span>Journeys</span>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link to="/journey-templates" className={cn(
-                "px-4 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1",
-                location.pathname === "/journey-templates" 
-                  ? "bg-[#9b87f5]/10 text-[#9b87f5]" 
-                  : "text-[#9b87f5]/70 hover:text-[#9b87f5] hover:bg-[#9b87f5]/5"
-              )}>
-                <HeartPulse className="h-4 w-4" />
                 <span>Healing Journeys</span>
               </Link>
             </NavigationMenuItem>
