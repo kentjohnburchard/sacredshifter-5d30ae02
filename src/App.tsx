@@ -6,6 +6,7 @@ import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import Astrology from '@/pages/Astrology';
 import Focus from '@/pages/Focus';
+import Meditation from '@/pages/Meditation';
 import { AuthProvider } from '@/context/AuthContext';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import { Toaster } from 'sonner';
@@ -51,7 +52,7 @@ function App() {
           <Route path="/coming-soon" element={<Layout><div className="min-h-screen">Coming Soon</div></Layout>} />
           <Route path="/astrology" element={<Layout><Astrology /></Layout>} />
           <Route path="/music-generation" element={<Layout><div className="min-h-screen">Music Generation</div></Layout>} />
-          <Route path="/meditation" element={<Layout><div className="min-h-screen">Meditation</div></Layout>} />
+          <Route path="/meditation" element={<Meditation />} />
           <Route path="/focus" element={<Layout><Focus /></Layout>} />
           <Route path="/soundscapes" element={<Layout><div className="min-h-screen">Soundscapes</div></Layout>} />
           <Route path="/mood-journal" element={<Layout><div className="min-h-screen">Mood Journal</div></Layout>} />

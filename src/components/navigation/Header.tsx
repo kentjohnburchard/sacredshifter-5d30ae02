@@ -25,6 +25,7 @@ const Header: React.FC = () => {
             <NavLink to="/energy-check">Energy Check</NavLink>
             <NavLink to="/alignment">Alignment</NavLink>
             <NavLink to="/intentions">Intentions</NavLink>
+            <NavLink to="/meditation">Meditation</NavLink>
             <NavLink to="/music-generation">Sound Creation</NavLink>
             <NavLink to="/hermetic-wisdom">Hermetic Wisdom</NavLink>
           </nav>
@@ -43,6 +44,7 @@ const Header: React.FC = () => {
                   <NavLink to="/energy-check" isMobile>Energy Check</NavLink>
                   <NavLink to="/alignment" isMobile>Alignment</NavLink>
                   <NavLink to="/intentions" isMobile>Intentions</NavLink>
+                  <NavLink to="/meditation" isMobile>Meditation</NavLink>
                   <NavLink to="/music-generation" isMobile>Sound Creation</NavLink>
                   <NavLink to="/hermetic-wisdom" isMobile>Hermetic Wisdom</NavLink>
                 </nav>
