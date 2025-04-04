@@ -37,7 +37,9 @@ export const useAudioPlayer = () => {
       audio.pause();
       setIsAudioPlaying(false);
     } else {
-      audio.play();
+      audio.play().catch(error => {
+        console.error("Error playing audio:", error);
+      });
       setIsAudioPlaying(true);
     }
   };
