@@ -130,6 +130,10 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       audio.removeEventListener("canplaythrough", handleCanPlay);
       audio.removeEventListener("error", handleError);
       audio.removeEventListener("ended", handleEnded);
+      
+      // Clean up audio element
+      audio.pause();
+      audio.src = "";
     };
   }, [effectiveAudioUrl, onPlayToggle, id]);
   

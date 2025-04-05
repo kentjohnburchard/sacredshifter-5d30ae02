@@ -67,7 +67,8 @@ const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
         intention: intention || null,
         frequency: frequency || null,
         chakra: chakra || null,
-        visual_type: visualType || null
+        visual_type: visualType || null,
+        tags: selectedTag ? [selectedTag] : []
       });
 
       // Save to Supabase timeline_snapshots table

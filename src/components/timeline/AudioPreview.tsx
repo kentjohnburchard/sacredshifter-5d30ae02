@@ -15,6 +15,21 @@ const AudioPreview: React.FC<AudioPreviewProps> = ({ audioUrl, title }) => {
   const [error, setError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // Helper function to format audio URL
+  const formatAudioUrl = (url: string): string => {
+    if (!url) return '';
+    
+    // If it's already a proper URL with http/https, return as is
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    
+    // For other URLs, assume they're relative to Supabase storage
+    return `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${url}`;
+  };
+
+  const processedUrl = formatAudioUrl(audioUrl);
+
   useEffect(() => {
     // Create audio element when component mounts
     if (!audioRef.current) {
@@ -27,10 +42,12 @@ const AudioPreview: React.FC<AudioPreviewProps> = ({ audioUrl, title }) => {
     setIsPlaying(false);
     
     if (audioRef.current) {
+      console.log("Setting up audio preview with URL:", processedUrl);
+      
       // Set up event listeners for the audio element
       const handleCanPlay = () => {
         setIsLoaded(true);
-        console.log("Audio loaded successfully:", audioUrl);
+        console.log("Audio loaded successfully:", processedUrl);
       };
       
       const handleError = (e: Event) => {
@@ -43,7 +60,7 @@ const AudioPreview: React.FC<AudioPreviewProps> = ({ audioUrl, title }) => {
       audioRef.current.addEventListener("error", handleError);
       
       // Load the audio source
-      audioRef.current.src = audioUrl;
+      audioRef.current.src = processedUrl;
       audioRef.current.load();
       
       // Cleanup event listeners when component unmounts or URL changes
@@ -56,7 +73,7 @@ const AudioPreview: React.FC<AudioPreviewProps> = ({ audioUrl, title }) => {
         }
       };
     }
-  }, [audioUrl]);
+  }, [processedUrl]);
 
   const togglePlayback = () => {
     if (!audioRef.current) return;

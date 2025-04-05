@@ -80,9 +80,14 @@ export const useAudioPlayer = () => {
       return `https://cdn.pixabay.com/${path}`;
     }
     
-    // For other URLs, assume they're relative to the app's root
-    console.log("Using relative URL:", url);
-    return url;
+    // For Supabase storage URLs
+    if (url.includes('storage/v1/object')) {
+      return url;
+    }
+    
+    // For other URLs, assume they're relative to the Supabase storage
+    console.log("Using Supabase storage URL:", url);
+    return `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${url}`;
   };
 
   const setAudioSource = (src: string) => {
