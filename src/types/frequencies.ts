@@ -8,12 +8,15 @@ export interface FrequencyLibraryItem {
   color?: string;
   length?: number;
   audio_url?: string;
+  url?: string; // Added for compatibility
+  visual_url?: string; // Added for visual thumbnails
   affirmation?: string;
   benefits?: string[];
   created_at?: string;
   user_id?: string;
   tags?: string[];
   vibe_profile?: string;
+  principle?: string; // Added for Hermetic principle association
 }
 
 export interface UserSavedFrequency {

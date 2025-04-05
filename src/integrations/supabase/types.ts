@@ -36,6 +36,45 @@ export type Database = {
         }
         Relationships: []
       }
+      fractal_visuals: {
+        Row: {
+          chakra: string | null
+          created_at: string | null
+          formula: string | null
+          frequency: number
+          id: string
+          notes: string | null
+          prime_number: number
+          principle: string | null
+          type: string | null
+          visual_url: string | null
+        }
+        Insert: {
+          chakra?: string | null
+          created_at?: string | null
+          formula?: string | null
+          frequency: number
+          id?: string
+          notes?: string | null
+          prime_number: number
+          principle?: string | null
+          type?: string | null
+          visual_url?: string | null
+        }
+        Update: {
+          chakra?: string | null
+          created_at?: string | null
+          formula?: string | null
+          frequency?: number
+          id?: string
+          notes?: string | null
+          prime_number?: number
+          principle?: string | null
+          type?: string | null
+          visual_url?: string | null
+        }
+        Relationships: []
+      }
       frequency_library: {
         Row: {
           affirmation: string | null
@@ -93,6 +132,42 @@ export type Database = {
           url?: string | null
           vibe_profile?: string | null
           visual_theme?: string | null
+        }
+        Relationships: []
+      }
+      frequency_visuals: {
+        Row: {
+          chakra: string | null
+          created_at: string | null
+          frequency: number
+          id: string
+          principle: string | null
+          tags: string[] | null
+          title: string | null
+          type: string | null
+          visual_url: string
+        }
+        Insert: {
+          chakra?: string | null
+          created_at?: string | null
+          frequency: number
+          id?: string
+          principle?: string | null
+          tags?: string[] | null
+          title?: string | null
+          type?: string | null
+          visual_url: string
+        }
+        Update: {
+          chakra?: string | null
+          created_at?: string | null
+          frequency?: number
+          id?: string
+          principle?: string | null
+          tags?: string[] | null
+          title?: string | null
+          type?: string | null
+          visual_url?: string
         }
         Relationships: []
       }

@@ -1,29 +1,28 @@
 
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Play, Pause, BookmarkIcon, Plus, Tag } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Play, Pause, Plus, Heart } from "lucide-react";
 import { FrequencyLibraryItem } from "@/types/frequencies";
+import { formatDuration } from "@/utils/formatters";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 import FrequencyPlayer from "@/components/FrequencyPlayer";
+import { useNavigate } from "react-router-dom";
 
 interface HermeticFrequencyCardProps {
   frequency: FrequencyLibraryItem;
-  onAddToJourney?: () => void;
-  onSaveToFavorites?: () => void;
 }
 
-const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({
-  frequency,
-  onAddToJourney,
-  onSaveToFavorites
-}) => {
+const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency }) => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Get chakra color based on chakra name
+  // Get the audio URL from either audio_url or url property
+  const audioUrl = frequency.audio_url || frequency.url || "";
+
   const getChakraColor = (chakra: string): string => {
     switch (chakra?.toLowerCase()) {
       case 'root': return 'from-red-500 to-red-600';
@@ -37,27 +36,17 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({
     }
   };
 
-  // Get chakra animation class
-  const getChakraPulseAnimation = (chakra: string): string => {
-    const baseAnimation = "animate-pulse-slow";
+  const getChakraTextColor = (chakra: string): string => {
     switch (chakra?.toLowerCase()) {
-      case 'root': return `${baseAnimation} bg-red-50`;
-      case 'sacral': return `${baseAnimation} bg-orange-50`;
-      case 'solar plexus': return `${baseAnimation} bg-yellow-50`;
-      case 'heart': return `${baseAnimation} bg-green-50`;
-      case 'throat': return `${baseAnimation} bg-blue-50`;
-      case 'third eye': return `${baseAnimation} bg-indigo-50`;
-      case 'crown': return `${baseAnimation} bg-purple-50`;
-      default: return `${baseAnimation} bg-gray-50`;
+      case 'root': return 'text-red-500';
+      case 'sacral': return 'text-orange-500';
+      case 'solar plexus': return 'text-yellow-500';
+      case 'heart': return 'text-green-500';
+      case 'throat': return 'text-blue-500';
+      case 'third eye': return 'text-indigo-500';
+      case 'crown': return 'text-purple-500';
+      default: return 'text-gray-500';
     }
-  };
-
-  // Format duration from seconds to MM:SS
-  const formatDuration = (seconds?: number) => {
-    if (!seconds) return "00:00";
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   const handlePlayToggle = () => {
@@ -65,85 +54,125 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({
   };
 
   const handleAddToJourney = () => {
-    if (onAddToJourney) {
-      onAddToJourney();
-    } else {
-      toast.success(`Added ${frequency.title} to your journey`);
+    if (!user) {
+      toast.error("Please sign in to add frequencies to your journey");
+      return;
     }
+    toast.success(`Added ${frequency.title} to your journey`);
+    // Actual implementation would add this to a user's journey in the database
   };
 
-  const handleSaveToFavorites = () => {
-    if (onSaveToFavorites) {
-      onSaveToFavorites();
-    } else {
-      toast.success(`Saved ${frequency.title} to your favorites`);
+  const handleSave = () => {
+    if (!user) {
+      toast.error("Please sign in to save frequencies");
+      return;
     }
+    toast.success(`Saved ${frequency.title} to your library`);
+    // Actual implementation would save this to the user's saved frequencies
   };
+
+  const handleCardClick = () => {
+    // Navigate to the frequency detail page
+    navigate(`/frequency/${frequency.id}`);
+  };
+
+  // Default chakra gradient if none is provided
+  const chakraGradient = getChakraColor(frequency.chakra);
+  // Frequency value for display
+  const freqValue = typeof frequency.frequency === 'number' ? `${frequency.frequency} Hz` : frequency.frequency;
 
   return (
-    <Card className={`overflow-hidden h-full border-transparent shadow-md transition-all duration-500 ${getChakraPulseAnimation(frequency.chakra)}`}>
-      <div className={`h-2 bg-gradient-to-r ${getChakraColor(frequency.chakra)}`} />
+    <Card 
+      className={`overflow-hidden border transition-all hover:shadow-md 
+        ${isPlaying ? 'border-purple-300 shadow-purple-100' : 'border-gray-200'}`}
+    >
+      <div 
+        className="h-32 bg-cover bg-center relative"
+        style={{
+          backgroundImage: frequency.visual_url 
+            ? `url(${frequency.visual_url})` 
+            : `linear-gradient(to right bottom, ${frequency.visual_url ? 'rgba(0,0,0,0.3), rgba(0,0,0,0.3)' : 'rgba(0,0,0,0)'}, rgba(0,0,0,0)), linear-gradient(to right, var(--${frequency.chakra?.toLowerCase() || 'gray'}-gradient-start), var(--${frequency.chakra?.toLowerCase() || 'gray'}-gradient-end))`
+        }}
+      >
+        <div className={`absolute inset-0 bg-gradient-to-b ${chakraGradient} opacity-75`}></div>
+        <div className="absolute bottom-0 left-0 right-0 p-3 flex justify-between items-center z-10">
+          <div>
+            <Badge 
+              variant="outline" 
+              className="bg-white/90 text-gray-800 mb-1 font-medium"
+            >
+              {freqValue}
+            </Badge>
+            {frequency.principle && (
+              <Badge 
+                variant="outline" 
+                className="bg-black/50 text-white ml-2 mb-1"
+              >
+                {frequency.principle}
+              </Badge>
+            )}
+          </div>
+          <FrequencyPlayer audioUrl={audioUrl} isPlaying={isPlaying} onPlayToggle={handlePlayToggle} />
+        </div>
+      </div>
       
-      {frequency.visual_url && (
-        <div className="h-24 bg-cover bg-center" style={{ backgroundImage: `url(${frequency.visual_url})` }} />
-      )}
-      
-      <CardContent className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-medium text-gray-900 text-lg">{frequency.title}</h3>
-          <Badge className={`bg-gradient-to-r ${getChakraColor(frequency.chakra)} text-white border-none`}>
-            {frequency.frequency}Hz
-          </Badge>
+      <CardContent className="p-3 pt-2">
+        <div className="mb-2">
+          <h3 
+            className="font-medium text-gray-800 line-clamp-1 cursor-pointer hover:text-purple-700" 
+            onClick={handleCardClick}
+          >
+            {frequency.title}
+          </h3>
+          <div className="flex items-center gap-1 mt-0.5">
+            <span className={`text-xs ${getChakraTextColor(frequency.chakra)}`}>
+              {frequency.chakra} Chakra
+            </span>
+            {frequency.length && (
+              <span className="text-xs text-gray-500 ml-auto">
+                {formatDuration(frequency.length)}
+              </span>
+            )}
+          </div>
         </div>
         
-        {frequency.description && (
-          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{frequency.description}</p>
-        )}
-        
-        <div className="flex flex-wrap gap-1 my-2">
-          {frequency.tags && frequency.tags.map(tag => (
-            <Badge key={tag} variant="outline" className="text-xs bg-white hover:bg-gray-50 cursor-pointer">
+        <div className="flex flex-wrap gap-1 mb-2">
+          {frequency.tags && frequency.tags.slice(0, 3).map((tag, index) => (
+            <Badge 
+              key={index}
+              variant="outline" 
+              className="text-xs py-0 px-1.5 bg-gray-50"
+            >
               {tag}
             </Badge>
           ))}
-        </div>
-        
-        <div className="flex items-center gap-1 text-xs text-gray-500 mb-3">
-          <Clock className="h-3.5 w-3.5" />
-          <span>{formatDuration(frequency.length || 180)}</span>
-          
-          {frequency.principle && (
-            <Badge variant="secondary" className="ml-2 text-xs">
-              {frequency.principle}
+          {frequency.tags && frequency.tags.length > 3 && (
+            <Badge 
+              variant="outline" 
+              className="text-xs py-0 px-1.5 bg-gray-50"
+            >
+              +{frequency.tags.length - 3}
             </Badge>
           )}
         </div>
         
-        <div className="flex flex-wrap gap-2 mt-4">
-          <FrequencyPlayer 
-            audioUrl={frequency.audio_url || ""} 
-            isPlaying={isPlaying}
-            onPlayToggle={handlePlayToggle}
-          />
-          
+        <div className="flex items-center gap-1.5">
           <Button 
+            variant="outline" 
             size="sm" 
-            variant="outline"
-            className="text-xs px-2"
+            className="text-xs px-2 py-1 h-7 bg-purple-50 border-purple-100 text-purple-700 hover:bg-purple-100 flex-1"
             onClick={handleAddToJourney}
           >
-            <Plus className="h-3.5 w-3.5 mr-1" />
-            Add to Journey
+            <Plus className="h-3.5 w-3.5 mr-1" /> Add to Journey
           </Button>
-          
           <Button 
+            variant="ghost" 
             size="sm" 
-            variant="ghost"
-            className="text-xs px-2"
-            onClick={handleSaveToFavorites}
+            className="w-7 h-7 p-0"
+            onClick={handleSave}
           >
-            <BookmarkIcon className="h-3.5 w-3.5 mr-1" />
-            Save
+            <Heart className="h-3.5 w-3.5" />
+            <span className="sr-only">Save</span>
           </Button>
         </div>
       </CardContent>
