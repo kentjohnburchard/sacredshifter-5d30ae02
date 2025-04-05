@@ -18,22 +18,23 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const checkOnboarding = async () => {
       if (!user) return;
       
-      // Skip onboarding check for the onboarding page itself
-      if (location.pathname === "/onboarding") {
-        return;
-      }
+      // Temporarily disable onboarding check since we don't have an onboarding page yet
+      setOnboardingCompleted(true);
+      return;
       
+      /* Commented out until onboarding page is created
       try {
         setCheckingOnboarding(true);
         const isCompleted = await checkOnboardingStatus(user.id);
         setOnboardingCompleted(isCompleted);
       } catch (error) {
         console.error("Error checking onboarding status:", error);
-        // Default to not completed if there's an error
-        setOnboardingCompleted(false);
+        // Default to completed if there's an error to prevent redirect loop
+        setOnboardingCompleted(true);
       } finally {
         setCheckingOnboarding(false);
       }
+      */
     };
     
     if (user) {
@@ -53,6 +54,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <Navigate to="/auth" replace />;
   }
   
+  /* Commented out until onboarding page is implemented
   // If we're not on the onboarding page and onboarding is not completed, redirect to onboarding
   if (
     onboardingCompleted === false && 
@@ -61,6 +63,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   ) {
     return <Navigate to="/onboarding" replace />;
   }
+  */
 
   return <>{children}</>;
 };

@@ -20,6 +20,7 @@ import Subscription from './pages/Subscription';
 import NotFound from './pages/NotFound';
 import FrequencyLibraryPage from './pages/FrequencyLibrary';
 import FrequencyDetailPage from './pages/FrequencyDetailPage';
+import Onboarding from './pages/Onboarding';
 
 // Define routes
 function App() {
@@ -27,6 +28,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/auth" element={<Auth />} />
+      <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/energy-check" element={<ProtectedRoute><EnergyCheck /></ProtectedRoute>} />
       <Route path="/alignment" element={<ProtectedRoute><Alignment /></ProtectedRoute>} />
