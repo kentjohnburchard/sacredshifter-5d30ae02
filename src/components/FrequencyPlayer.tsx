@@ -29,20 +29,14 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   const [hasError, setHasError] = useState(false);
   const [audioFileUrl, setAudioFileUrl] = useState<string | null>(null);
   
-  // Try to fetch the audio file URL using a simple query that avoids TypeScript errors
+  // Try to fetch the audio file URL from the database if frequencyId is provided
   useEffect(() => {
     const fetchAudioFile = async () => {
       if (frequencyId) {
         try {
-          // Using raw SQL query to avoid TypeScript errors
           const { data, error } = await supabase
             .from('frequency_library')
-            .select(`
-              id,
-              audio_url,
-              url,
-              title
-            `)
+            .select('audio_url, url')
             .eq('id', frequencyId)
             .single();
           
@@ -63,6 +57,8 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
           console.error("Failed to fetch audio file data:", err);
         }
       }
+      
+      setIsLoading(false);
     };
 
     fetchAudioFile();
@@ -72,13 +68,16 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   const formatAudioUrl = (inputUrl?: string): string => {
     if (!inputUrl) return '';
     
+    // Remove any potential query parameters that might cause issues
+    const cleanedUrl = inputUrl.split('?')[0];
+    
     // If it's already a full URL, return as is
-    if (inputUrl.startsWith('http://') || inputUrl.startsWith('https://')) {
-      return inputUrl;
+    if (cleanedUrl.startsWith('http://') || cleanedUrl.startsWith('https://')) {
+      return cleanedUrl;
     }
     
     // Construct Supabase storage URL
-    return `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${inputUrl}`;
+    return `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${cleanedUrl}`;
   };
   
   // Determine the best audio URL to use, prioritizing the one from the database
@@ -96,15 +95,15 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     
     // Create a new audio element if it doesn't exist
     if (!audioRef.current) {
-      audioRef.current = new Audio(effectiveAudioUrl);
+      audioRef.current = new Audio();
       if (id) {
         audioRef.current.id = id; // Set the HTML id if provided
       }
-    } else {
-      audioRef.current.src = effectiveAudioUrl;
     }
     
     const audio = audioRef.current;
+    audio.src = effectiveAudioUrl;
+    audio.preload = "auto"; // Preload audio data
     
     const handleCanPlay = () => {
       setIsLoading(false);
@@ -115,7 +114,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       console.error("Audio error:", err);
       setHasError(true);
       setIsLoading(false);
-      toast.error(`Failed to load audio. Please check the file.`);
+      toast.error(`Failed to load audio file`);
     };
     
     const handleEnded = () => {
@@ -144,7 +143,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
         playPromise.catch(error => {
           console.error("Error playing audio:", error);
           setHasError(true);
-          toast.error("Unable to play audio. Please check the file.");
+          toast.error("Unable to play audio. Please check the file or try again later.");
         });
       }
     } else if (audioRef.current) {

@@ -17,6 +17,7 @@ const AudioDebugger = () => {
   useEffect(() => {
     const audio = new Audio();
     audioRef.current = audio;
+    audio.volume = volume;
     
     // Add event listeners
     audio.addEventListener("play", () => {
@@ -33,6 +34,7 @@ const AudioDebugger = () => {
       setAudioStatus("Error");
       console.error("Audio error:", err);
       toast.error("Failed to load audio");
+      setIsPlaying(false);
     });
     
     audio.addEventListener("canplaythrough", () => {
@@ -46,17 +48,28 @@ const AudioDebugger = () => {
       console.log("Audio playback ended");
     });
     
-    // Set initial source
-    audio.src = audioSrc;
-    audio.volume = volume;
-    audio.load();
-    
+    // Set initial source later to avoid immediate loading
     return () => {
       audio.pause();
       audio.src = "";
       audioRef.current = null;
     };
   }, []);
+  
+  // Effect to handle audio source changes
+  useEffect(() => {
+    if (!audioRef.current) return;
+    
+    // Reset playing state when source changes
+    setIsPlaying(false);
+    
+    // Set the source and load the audio
+    audioRef.current.src = audioSrc;
+    audioRef.current.load();
+    
+    setAudioStatus("Loading");
+    
+  }, [audioSrc]);
   
   // Toggle play/pause
   const togglePlay = () => {
@@ -131,12 +144,8 @@ const AudioDebugger = () => {
             variant="outline" 
             size="sm"
             onClick={() => {
+              // Test with a different known working audio
               setAudioSrc("https://cdn.pixabay.com/download/audio/2021/11/13/audio_cb1c12a96d.mp3");
-              if (audioRef.current) {
-                audioRef.current.src = "https://cdn.pixabay.com/download/audio/2021/11/13/audio_cb1c12a96d.mp3";
-                audioRef.current.load();
-                setAudioStatus("Source changed");
-              }
             }}
           >
             Change Source

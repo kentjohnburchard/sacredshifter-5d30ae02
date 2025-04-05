@@ -62,6 +62,7 @@ const SoundLibraryPreview = () => {
           freq => (freq.audio_url && freq.audio_url.trim() !== '') || 
                  (freq.url && freq.url.trim() !== '')
         );
+        console.log("Found", validFrequencies.length, "frequencies with valid audio files");
         setFrequencies(validFrequencies);
       }
     } catch (err) {
