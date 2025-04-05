@@ -1,5 +1,6 @@
 
-import { AztroResponse } from "./astro.types";
+import { AztroResponse, NatalChartResponse, BirthData } from "./astro.types";
+import { supabase } from "@/integrations/supabase/client";
 
 export async function fetchDailyHoroscope(sign: string): Promise<AztroResponse> {
   try {
@@ -36,5 +37,70 @@ export async function fetchDailyHoroscope(sign: string): Promise<AztroResponse> 
       lucky_number: '7',
       lucky_time: 'Anytime'
     };
+  }
+}
+
+export async function getNatalChart(data: BirthData): Promise<NatalChartResponse> {
+  try {
+    console.log("Requesting natal chart with data:", data);
+    
+    const { data: natalChartData, error } = await supabase.functions.invoke('astro-chart', {
+      body: JSON.stringify(data)
+    });
+    
+    if (error) {
+      console.error("Error fetching natal chart:", error);
+      throw error;
+    }
+    
+    console.log("Received natal chart data:", natalChartData);
+    return natalChartData as NatalChartResponse;
+  } catch (error) {
+    console.error("Error getting natal chart:", error);
+    
+    // Return fallback data in case of error
+    return {
+      sun_sign: "Unknown",
+      moon_sign: "Unknown",
+      rising_sign: "Unknown",
+      elements: { water: 0, fire: 0, earth: 0, air: 0 },
+      modalities: { cardinal: 0, fixed: 0, mutable: 0 },
+      dominant_planets: []
+    };
+  }
+}
+
+export async function saveNatalProfile(data: BirthData & NatalChartResponse): Promise<void> {
+  if (!data.userId) {
+    console.error("Cannot save natal profile: No user ID provided");
+    return;
+  }
+  
+  try {
+    const { error } = await supabase
+      .from('natal_profiles')
+      .upsert({
+        user_id: data.userId,
+        name: data.name,
+        birth_date: data.birthDate,
+        birth_time: data.birthTime,
+        birth_location: data.birthLocation,
+        sun_sign: data.sun_sign,
+        moon_sign: data.moon_sign,
+        rising_sign: data.rising_sign,
+        elements: data.elements,
+        modalities: data.modalities,
+        dominant_planets: data.dominant_planets,
+        chart_svg_url: data.chart_svg_url,
+        updated_at: new Date().toISOString()
+      });
+      
+    if (error) {
+      throw error;
+    }
+    
+    console.log("Natal profile saved successfully");
+  } catch (error) {
+    console.error("Error saving natal profile:", error);
   }
 }
