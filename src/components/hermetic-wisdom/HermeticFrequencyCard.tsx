@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +20,7 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
   const [isPlaying, setIsPlaying] = useState(false);
   const [fractalVisual, setFractalVisual] = useState<FractalVisual | null>(null);
   const [showFractalDialog, setShowFractalDialog] = useState(false);
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -35,17 +35,17 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
           .from("fractal_visuals")
           .select("*")
           .eq("frequency", frequency.frequency)
-          .maybeSingle();
+          .limit(1);
 
         if (error) {
           console.error("Error fetching fractal visual:", error);
           return;
         }
 
-        if (data) {
-          setFractalVisual(data);
+        if (data && data.length > 0) {
+          setFractalVisual(data[0]);
           // Update the frequency object with the fractal visual
-          frequency.fractal_visual = data;
+          frequency.fractal_visual = data[0];
         }
       } catch (err) {
         console.error("Failed to fetch fractal visual:", err);
@@ -53,6 +53,14 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
     };
 
     fetchFractalVisual();
+    
+    // Clean up any audio when component unmounts
+    return () => {
+      if (audioElement) {
+        audioElement.pause();
+        audioElement.src = "";
+      }
+    };
   }, [frequency.frequency]);
 
   const getChakraColor = (chakra: string): string => {
@@ -89,7 +97,42 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
   };
 
   const handlePlayToggle = () => {
-    setIsPlaying(!isPlaying);
+    // Clean up previous audio if it exists
+    if (audioElement) {
+      audioElement.pause();
+    }
+    
+    if (!isPlaying) {
+      // Create new audio element when starting to play
+      try {
+        const audio = new Audio(audioUrl);
+        
+        audio.addEventListener('ended', () => {
+          setIsPlaying(false);
+          setAudioElement(null);
+        });
+        
+        // Attempt to play
+        audio.play()
+          .then(() => {
+            setAudioElement(audio);
+            setIsPlaying(true);
+          })
+          .catch(err => {
+            console.error("Error playing audio:", err);
+            toast.error("Unable to play audio. Please try again.");
+          });
+      } catch (err) {
+        console.error("Error creating audio:", err);
+        toast.error("There was a problem playing this frequency.");
+      }
+    } else {
+      // Already playing, so pause
+      if (audioElement) {
+        audioElement.pause();
+      }
+      setIsPlaying(false);
+    }
   };
 
   const handleAddToJourney = () => {
@@ -211,7 +254,25 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
                 </Badge>
               )}
             </div>
-            <FrequencyPlayer audioUrl={audioUrl} isPlaying={isPlaying} onPlayToggle={handlePlayToggle} />
+            
+            <Button 
+              variant="outline"
+              size="icon"
+              className="h-8 w-8 rounded-full bg-white/10 border-white/20 text-white hover:bg-white/20"
+              onClick={(e) => {
+                e.stopPropagation();
+                handlePlayToggle();
+              }}
+            >
+              {isPlaying ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Play className="h-4 w-4 ml-0.5" />
+              )}
+              <span className="sr-only">
+                {isPlaying ? 'Pause' : 'Play'} {frequency.title}
+              </span>
+            </Button>
           </div>
         </div>
         
@@ -277,7 +338,6 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
         </CardContent>
       </Card>
       
-      {/* Full Screen Fractal Dialog */}
       <Dialog open={showFractalDialog} onOpenChange={setShowFractalDialog}>
         <DialogContent className="max-w-5xl h-full max-h-[90vh] p-0 overflow-hidden">
           <div className="relative w-full h-full">

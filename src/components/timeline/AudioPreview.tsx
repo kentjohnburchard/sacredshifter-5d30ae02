@@ -13,37 +13,49 @@ const AudioPreview: React.FC<AudioPreviewProps> = ({ audioUrl, title }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     // Create audio element when component mounts
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+    }
+    
+    // Reset state when URL changes
+    setIsLoaded(false);
+    setError(null);
+    setIsPlaying(false);
+    
     if (audioRef.current) {
       // Set up event listeners for the audio element
-      audioRef.current.addEventListener("canplaythrough", () => {
+      const handleCanPlay = () => {
         setIsLoaded(true);
         console.log("Audio loaded successfully:", audioUrl);
-      });
+      };
       
-      audioRef.current.addEventListener("error", (e) => {
+      const handleError = (e: Event) => {
         console.error("Audio loading error:", e);
         setError("Could not load audio");
         setIsPlaying(false);
-      });
+      };
+      
+      audioRef.current.addEventListener("canplaythrough", handleCanPlay);
+      audioRef.current.addEventListener("error", handleError);
       
       // Load the audio source
       audioRef.current.src = audioUrl;
       audioRef.current.load();
+      
+      // Cleanup event listeners when component unmounts or URL changes
+      return () => {
+        if (audioRef.current) {
+          audioRef.current.removeEventListener("canplaythrough", handleCanPlay);
+          audioRef.current.removeEventListener("error", handleError);
+          audioRef.current.pause();
+          audioRef.current.src = "";
+        }
+      };
     }
-    
-    // Cleanup event listeners when component unmounts
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.removeEventListener("canplaythrough", () => {});
-        audioRef.current.removeEventListener("error", () => {});
-        audioRef.current.pause();
-        audioRef.current.src = "";
-      }
-    };
   }, [audioUrl]);
 
   const togglePlayback = () => {
@@ -51,21 +63,39 @@ const AudioPreview: React.FC<AudioPreviewProps> = ({ audioUrl, title }) => {
     
     if (isPlaying) {
       audioRef.current.pause();
+      setIsPlaying(false);
     } else {
       // Play with error handling
-      audioRef.current.play().catch(err => {
-        console.error("Error playing audio:", err);
-        setError("Unable to play audio");
-        toast.error("Could not play audio. Please try again.");
-      });
+      const playPromise = audioRef.current.play();
+      
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsPlaying(true);
+          })
+          .catch(err => {
+            console.error("Error playing audio:", err);
+            setError("Unable to play audio");
+            toast.error("Could not play audio. Please try again.");
+          });
+      }
     }
-    
-    setIsPlaying(!isPlaying);
   };
 
-  const handleAudioEnded = () => {
-    setIsPlaying(false);
-  };
+  useEffect(() => {
+    // Add ended event listener
+    const handleAudioEnded = () => setIsPlaying(false);
+    
+    if (audioRef.current) {
+      audioRef.current.addEventListener("ended", handleAudioEnded);
+      
+      return () => {
+        if (audioRef.current) {
+          audioRef.current.removeEventListener("ended", handleAudioEnded);
+        }
+      };
+    }
+  }, []);
 
   if (error) {
     return (
@@ -77,12 +107,6 @@ const AudioPreview: React.FC<AudioPreviewProps> = ({ audioUrl, title }) => {
 
   return (
     <div className="flex items-center gap-2 my-2">
-      <audio 
-        ref={audioRef} 
-        onEnded={handleAudioEnded} 
-        preload="auto"
-      />
-      
       <Button
         type="button"
         variant="outline"
