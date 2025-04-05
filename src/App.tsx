@@ -21,6 +21,8 @@ import NotFound from './pages/NotFound';
 import FrequencyLibraryPage from './pages/FrequencyLibrary';
 import FrequencyDetailPage from './pages/FrequencyDetailPage';
 import Onboarding from './pages/Onboarding';
+import JourneyTemplates from './pages/JourneyTemplates';
+import Soundscapes from './pages/Soundscapes';
 
 // Define routes
 function App() {
@@ -44,7 +46,9 @@ function App() {
       <Route path="/subscription" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
       <Route path="/frequencies/:frequencyId" element={<FrequencyDetailPage />} />
       <Route path="/frequency-library" element={<FrequencyLibraryPage />} />
-      <Route path="/*" element={<NotFound />} />
+      <Route path="/journey-templates" element={<ProtectedRoute><JourneyTemplates /></ProtectedRoute>} />
+      <Route path="/soundscapes" element={<ProtectedRoute><Soundscapes /></ProtectedRoute>} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
