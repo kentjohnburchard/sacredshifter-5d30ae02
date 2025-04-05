@@ -9,4 +9,5 @@ export { default as HermeticSoundExplorer } from './HermeticSoundExplorer';
 export { default as HermeticFrequencyCard } from './HermeticFrequencyCard';
 export { default as FractalVisualsExplorer } from './FractalVisualsExplorer';
 export { default as BecomeTheOneJourney } from './BecomeTheOneJourney';
+export { default as VisualVibrationViewer } from './VisualVibrationViewer';
 

@@ -6,7 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   HermeticWisdomLibrary, 
   HermeticSoundExplorer,
-  FractalVisualsExplorer 
+  FractalVisualsExplorer,
+  VisualVibrationViewer
 } from "@/components/hermetic-wisdom";
 import { useLocation } from "react-router-dom";
 
@@ -42,16 +43,19 @@ const HermeticWisdom: React.FC = () => {
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="mb-6 w-full max-w-md mx-auto">
-            <TabsTrigger value="principles" className="w-1/4">
+            <TabsTrigger value="principles" className="w-1/5">
               Principles
             </TabsTrigger>
-            <TabsTrigger value="sound" className="w-1/4">
+            <TabsTrigger value="sound" className="w-1/5">
               Sound Library
             </TabsTrigger>
-            <TabsTrigger value="fractals" className="w-1/4">
+            <TabsTrigger value="fractals" className="w-1/5">
               Fractals
             </TabsTrigger>
-            <TabsTrigger value="journeys" className="w-1/4">
+            <TabsTrigger value="vibration-viewer" className="w-1/5">
+              Vibration Viewer
+            </TabsTrigger>
+            <TabsTrigger value="journeys" className="w-1/5">
               My Journeys
             </TabsTrigger>
           </TabsList>
@@ -66,6 +70,10 @@ const HermeticWisdom: React.FC = () => {
           
           <TabsContent value="fractals" className="space-y-6">
             <FractalVisualsExplorer />
+          </TabsContent>
+          
+          <TabsContent value="vibration-viewer" className="space-y-6">
+            <VisualVibrationViewer />
           </TabsContent>
           
           <TabsContent value="journeys" className="space-y-6">
