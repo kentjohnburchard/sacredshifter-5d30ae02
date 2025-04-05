@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from './context/AuthContext';
+
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import ProtectedRoute from './components/ProtectedRoute';
 import Index from './pages/Index';
 import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
@@ -20,25 +21,8 @@ import NotFound from './pages/NotFound';
 import FrequencyLibraryPage from './pages/FrequencyLibrary';
 import FrequencyDetailPage from './pages/FrequencyDetailPage';
 
-// ProtectedRoute component
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    if (!user) {
-      navigate('/auth', { replace: true, state: { from: location } });
-    }
-  }, [user, navigate, location]);
-
-  return user ? children : null;
-}
-
 // Define routes
 function App() {
-  
-
   return (
     <Routes>
       <Route path="/" element={<Index />} />
@@ -53,9 +37,9 @@ function App() {
       <Route path="/music-library" element={<ProtectedRoute><MusicLibrary /></ProtectedRoute>} />
       <Route path="/music-generation" element={<ProtectedRoute><MusicGeneration /></ProtectedRoute>} />
       <Route path="/hermetic-wisdom" element={<ProtectedRoute><HermeticWisdom /></ProtectedRoute>} />
-      <Route path="/astrology" element={<Astrology />} />
-      <Route path="/meditation" element={<Meditation />} />
-      <Route path="/subscription" element={<Subscription />} />
+      <Route path="/astrology" element={<ProtectedRoute><Astrology /></ProtectedRoute>} />
+      <Route path="/meditation" element={<ProtectedRoute><Meditation /></ProtectedRoute>} />
+      <Route path="/subscription" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
       <Route path="/frequencies/:frequencyId" element={<FrequencyDetailPage />} />
       <Route path="/frequency-library" element={<FrequencyLibraryPage />} />
       <Route path="/*" element={<NotFound />} />
