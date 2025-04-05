@@ -1,9 +1,8 @@
-
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { NatalChartResponse } from "@/utils/astro.types";
-import { Sparkles, Sun, Moon, Sunrise, PieChart, Planets } from "lucide-react";
+import { Sparkles, Sun, Moon, Sunrise, PieChart, Landmark } from "lucide-react";
 
 interface NatalChartDisplayProps {
   chartData: NatalChartResponse;
@@ -51,7 +50,6 @@ export const NatalChartDisplay: React.FC<NatalChartDisplayProps> = ({
     }
   };
 
-  // Find dominant element
   const dominantElement = Object.entries(chartData.elements).reduce(
     (max, [element, value]) => (value > max.value ? { element, value } : max),
     { element: '', value: 0 }
@@ -59,7 +57,6 @@ export const NatalChartDisplay: React.FC<NatalChartDisplayProps> = ({
 
   return (
     <div className="space-y-8 mt-6">
-      {/* Sun, Moon, Rising Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -179,14 +176,12 @@ export const NatalChartDisplay: React.FC<NatalChartDisplayProps> = ({
         </motion.div>
       </div>
 
-      {/* Elements and Modalities Section */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Elements Chart */}
           <Card className="overflow-hidden border-purple-100 dark:border-purple-900/20 backdrop-blur-sm bg-white/80 dark:bg-black/40">
             <CardHeader className="bg-gradient-to-r from-purple-50/50 to-pink-50/50 dark:from-purple-950/30 dark:to-pink-950/30">
               <CardTitle className="flex items-center gap-2">
@@ -225,11 +220,10 @@ export const NatalChartDisplay: React.FC<NatalChartDisplayProps> = ({
             </CardContent>
           </Card>
 
-          {/* Modalities Chart */}
           <Card className="overflow-hidden border-blue-100 dark:border-blue-900/20 backdrop-blur-sm bg-white/80 dark:bg-black/40">
             <CardHeader className="bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:from-blue-950/30 dark:to-indigo-950/30">
               <CardTitle className="flex items-center gap-2">
-                <Planets className="h-5 w-5 text-blue-500" />
+                <Landmark className="h-5 w-5 text-blue-500" />
                 Your Cosmic Modalities
               </CardTitle>
               <CardDescription>
@@ -273,7 +267,6 @@ export const NatalChartDisplay: React.FC<NatalChartDisplayProps> = ({
         </div>
       </motion.div>
 
-      {/* Chart SVG Display */}
       {chartData.chart_svg_url && (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -299,7 +292,6 @@ export const NatalChartDisplay: React.FC<NatalChartDisplayProps> = ({
         </motion.div>
       )}
       
-      {/* Dominant Planets */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

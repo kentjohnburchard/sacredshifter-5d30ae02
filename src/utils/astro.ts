@@ -77,21 +77,22 @@ export async function saveNatalProfile(data: BirthData & NatalChartResponse): Pr
   }
   
   try {
+    // Instead of trying to write to the natal_profiles table that doesn't exist,
+    // we'll store the data in the user's astrology data table which does exist
     const { error } = await supabase
-      .from('natal_profiles')
+      .from('user_astrology_data')
       .upsert({
         user_id: data.userId,
-        name: data.name,
         birth_date: data.birthDate,
         birth_time: data.birthTime,
-        birth_location: data.birthLocation,
+        birth_place: data.birthLocation,
         sun_sign: data.sun_sign,
         moon_sign: data.moon_sign,
         rising_sign: data.rising_sign,
-        elements: data.elements,
-        modalities: data.modalities,
-        dominant_planets: data.dominant_planets,
-        chart_svg_url: data.chart_svg_url,
+        dominant_element: Object.entries(data.elements).reduce(
+          (max, [element, value]) => (value > max.value ? { element, value } : max),
+          { element: '', value: 0 }
+        ).element,
         updated_at: new Date().toISOString()
       });
       
