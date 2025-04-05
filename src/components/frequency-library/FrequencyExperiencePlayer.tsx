@@ -121,24 +121,19 @@ const FrequencyExperiencePlayer = () => {
     queryFn: async () => {
       if (!frequencyId) return [];
       
-      // Use raw SQL query to get around the TypeScript error since we just created this table
+      // Use direct query since the function might not be available yet
       const { data, error } = await supabase
-        .rpc('get_frequency_feedback', { track_id_param: frequencyId });
-      
+        .from('frequency_feedback')
+        .select('*')
+        .eq('track_id', frequencyId)
+        .order('created_at', { ascending: false });
+          
       if (error) {
         console.error("Error fetching comments:", error);
-        // Fallback to direct query if RPC doesn't exist yet
-        const { data: directData, error: directError } = await supabase
-          .from('frequency_feedback')
-          .select('*')
-          .eq('track_id', frequencyId)
-          .order('created_at', { ascending: false });
-          
-        if (directError) throw directError;
-        return directData || [];
+        throw error;
       }
       
-      return data || [];
+      return data as FrequencyFeedback[] || [];
     },
     enabled: !!frequencyId
   });
@@ -415,7 +410,7 @@ const FrequencyExperiencePlayer = () => {
               </TabsTrigger>
               <TabsTrigger value="comments">
                 <MessageCircle className="h-4 w-4 mr-2" />
-                Testimonials ({comments?.length || 0})
+                Testimonials ({comments && Array.isArray(comments) ? comments.length : 0})
               </TabsTrigger>
             </TabsList>
             
@@ -453,7 +448,7 @@ const FrequencyExperiencePlayer = () => {
               <div className="space-y-4">
                 {isLoadingComments ? (
                   <p>Loading comments...</p>
-                ) : comments && comments.length > 0 ? (
+                ) : comments && Array.isArray(comments) && comments.length > 0 ? (
                   comments.map((comment: FrequencyFeedback) => (
                     <div key={comment.id} className="border-t pt-4">
                       <div className="flex justify-between items-center mb-2">
