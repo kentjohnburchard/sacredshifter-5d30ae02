@@ -1,5 +1,6 @@
 
 import { useState, useRef, useEffect } from 'react';
+import { toast } from 'sonner';
 
 export const useAudioPlayer = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -20,6 +21,7 @@ export const useAudioPlayer = () => {
     const setAudioData = () => {
       setDuration(audio.duration);
       setAudioLoaded(true);
+      console.log("Audio loaded and ready:", audio.src);
     };
 
     const setAudioTime = () => {
@@ -30,9 +32,11 @@ export const useAudioPlayer = () => {
       console.error("Error playing audio:", e);
       setAudioError("Failed to load or play audio");
       setIsAudioPlaying(false);
+      toast.error("Could not load audio. The file may be missing or in an unsupported format.");
     };
     
     const handleAudioEnded = () => {
+      console.log("Audio playback ended");
       setIsAudioPlaying(false);
       setCurrentAudioTime(0);
     };
@@ -53,6 +57,14 @@ export const useAudioPlayer = () => {
   }, []);
 
   const setAudioSource = (src: string) => {
+    if (!src) {
+      console.error("No audio source provided");
+      setAudioError("No audio source provided");
+      return;
+    }
+    
+    console.log("Setting audio source:", src);
+    
     if (audioRef.current) {
       // Reset state
       setAudioLoaded(false);
@@ -64,30 +76,50 @@ export const useAudioPlayer = () => {
         setIsAudioPlaying(false);
       }
       
-      // Set new source
-      audioRef.current.src = src;
-      audioRef.current.load();
+      try {
+        // Set new source
+        audioRef.current.src = src;
+        audioRef.current.load();
+      } catch (err) {
+        console.error("Error setting audio source:", err);
+        setAudioError(`Error setting audio source: ${err}`);
+        toast.error("Failed to load audio file");
+      }
     }
   };
 
   const togglePlayPause = () => {
     const audio = audioRef.current;
-    if (!audio || !audioLoaded) return;
+    if (!audio) {
+      console.error("Audio element not initialized");
+      return;
+    }
+    
+    // If no source, don't try to play
+    if (!audio.src) {
+      console.error("No audio source set");
+      toast.error("No audio available");
+      return;
+    }
 
     if (isAudioPlaying) {
+      console.log("Pausing audio:", audio.src);
       audio.pause();
       setIsAudioPlaying(false);
     } else {
+      console.log("Playing audio:", audio.src);
       const playPromise = audio.play();
       
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
             setIsAudioPlaying(true);
+            console.log("Audio playback started successfully");
           })
           .catch(error => {
             console.error("Error playing audio:", error);
-            setAudioError("Failed to play audio");
+            setAudioError(`Failed to play audio: ${error.message}`);
+            toast.error("Failed to play audio. Please try again.");
           });
       }
     }

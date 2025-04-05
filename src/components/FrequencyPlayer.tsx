@@ -20,46 +20,63 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   
+  // Initialize or update the audio element when audioUrl changes
   useEffect(() => {
-    // Create a new audio element if one doesn't exist
-    if (!audioRef.current) {
-      audioRef.current = new Audio(audioUrl);
-      
-      // Add event listeners
-      audioRef.current.addEventListener("canplaythrough", () => {
-        setIsLoading(false);
-        console.log("Audio ready to play:", audioUrl);
-      });
-      
-      audioRef.current.addEventListener("error", (err) => {
-        console.error("Audio error:", err);
-        setHasError(true);
-        setIsLoading(false);
-        toast.error("Failed to load audio file");
-      });
-      
-      // Handle ended event
-      audioRef.current.addEventListener("ended", () => {
-        console.log("Audio playback ended");
-        onPlayToggle();
-      });
+    if (!audioUrl) {
+      console.error("No audio URL provided to FrequencyPlayer");
+      setHasError(true);
+      setIsLoading(false);
+      return;
     }
+
+    // Create a new audio element
+    const audio = new Audio();
+    audioRef.current = audio;
+    
+    // Add event listeners
+    const handleCanPlay = () => {
+      setIsLoading(false);
+      console.log("Audio ready to play:", audioUrl);
+    };
+    
+    const handleError = (err: Event) => {
+      console.error("Audio error:", err);
+      setHasError(true);
+      setIsLoading(false);
+      toast.error("Failed to load audio file");
+    };
+    
+    // Handle ended event
+    const handleEnded = () => {
+      console.log("Audio playback ended");
+      onPlayToggle(); // Reset playing state when audio ends
+    };
+
+    audio.addEventListener("canplaythrough", handleCanPlay);
+    audio.addEventListener("error", handleError);
+    audio.addEventListener("ended", handleEnded);
+    
+    // Set the audio source and load it
+    audio.src = audioUrl;
+    audio.load();
     
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.removeEventListener("canplaythrough", () => {});
-        audioRef.current.removeEventListener("error", () => {});
-        audioRef.current.removeEventListener("ended", () => {});
+      if (audio) {
+        audio.pause();
+        audio.removeEventListener("canplaythrough", handleCanPlay);
+        audio.removeEventListener("error", handleError);
+        audio.removeEventListener("ended", handleEnded);
+        audio.src = "";
       }
     };
   }, [audioUrl, onPlayToggle]);
   
   // Handle play/pause toggling
   useEffect(() => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || hasError) return;
     
     if (isPlaying) {
+      console.log("Attempting to play audio:", audioUrl);
       const playPromise = audioRef.current.play();
       
       if (playPromise !== undefined) {
@@ -72,7 +89,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     } else {
       audioRef.current.pause();
     }
-  }, [isPlaying, onPlayToggle]);
+  }, [isPlaying, onPlayToggle, audioUrl, hasError]);
 
   return (
     <div className="flex items-center gap-2">
@@ -82,6 +99,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
         disabled={isLoading || hasError}
         className={`h-10 w-10 rounded-full ${hasError ? 'bg-red-100' : 'border-white/20 bg-white/10'} text-white hover:bg-white/20 hover:text-white ${isLoading ? 'opacity-50' : ''}`}
         onClick={onPlayToggle}
+        aria-label={isPlaying ? "Pause" : "Play"}
       >
         {isPlaying ? (
           <Pause className="h-5 w-5" />

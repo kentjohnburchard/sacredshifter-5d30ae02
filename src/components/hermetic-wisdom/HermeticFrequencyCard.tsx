@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 import FrequencyPlayer from "@/components/FrequencyPlayer";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 interface HermeticFrequencyCardProps {
   frequency: FrequencyLibraryItem;
@@ -20,7 +21,6 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
   const [isPlaying, setIsPlaying] = useState(false);
   const [fractalVisual, setFractalVisual] = useState<FractalVisual | null>(null);
   const [showFractalDialog, setShowFractalDialog] = useState(false);
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -35,17 +35,20 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
           .from("fractal_visuals")
           .select("*")
           .eq("frequency", frequency.frequency)
-          .limit(1);
+          .limit(1)
+          .single(); // Use single() to force a single result or error
 
         if (error) {
-          console.error("Error fetching fractal visual:", error);
+          if (error.code !== 'PGRST116') { // Ignore "no rows returned" error
+            console.error("Error fetching fractal visual:", error);
+          }
           return;
         }
 
-        if (data && data.length > 0) {
-          setFractalVisual(data[0]);
+        if (data) {
+          setFractalVisual(data);
           // Update the frequency object with the fractal visual
-          frequency.fractal_visual = data[0];
+          frequency.fractal_visual = data;
         }
       } catch (err) {
         console.error("Failed to fetch fractal visual:", err);
@@ -53,14 +56,6 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
     };
 
     fetchFractalVisual();
-    
-    // Clean up any audio when component unmounts
-    return () => {
-      if (audioElement) {
-        audioElement.pause();
-        audioElement.src = "";
-      }
-    };
   }, [frequency.frequency]);
 
   const getChakraColor = (chakra: string): string => {
@@ -97,42 +92,12 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
   };
 
   const handlePlayToggle = () => {
-    // Clean up previous audio if it exists
-    if (audioElement) {
-      audioElement.pause();
+    if (!audioUrl) {
+      toast.error("No audio available for this frequency");
+      return;
     }
     
-    if (!isPlaying) {
-      // Create new audio element when starting to play
-      try {
-        const audio = new Audio(audioUrl);
-        
-        audio.addEventListener('ended', () => {
-          setIsPlaying(false);
-          setAudioElement(null);
-        });
-        
-        // Attempt to play
-        audio.play()
-          .then(() => {
-            setAudioElement(audio);
-            setIsPlaying(true);
-          })
-          .catch(err => {
-            console.error("Error playing audio:", err);
-            toast.error("Unable to play audio. Please try again.");
-          });
-      } catch (err) {
-        console.error("Error creating audio:", err);
-        toast.error("There was a problem playing this frequency.");
-      }
-    } else {
-      // Already playing, so pause
-      if (audioElement) {
-        audioElement.pause();
-      }
-      setIsPlaying(false);
-    }
+    setIsPlaying(!isPlaying);
   };
 
   const handleAddToJourney = () => {
@@ -335,11 +300,24 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
               <span className="sr-only">Save</span>
             </Button>
           </div>
+          
+          {isPlaying && audioUrl && (
+            <div className="mt-2 pt-2 border-t border-gray-100">
+              <FrequencyPlayer 
+                audioUrl={audioUrl}
+                isPlaying={isPlaying}
+                onPlayToggle={handlePlayToggle}
+              />
+            </div>
+          )}
         </CardContent>
       </Card>
       
       <Dialog open={showFractalDialog} onOpenChange={setShowFractalDialog}>
         <DialogContent className="max-w-5xl h-full max-h-[90vh] p-0 overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="sr-only">Fractal Visualization</DialogTitle>
+          </DialogHeader>
           <div className="relative w-full h-full">
             <div 
               className={`absolute inset-0 bg-cover bg-center ${getFractalAnimationClass(fractalVisual?.type)}`}

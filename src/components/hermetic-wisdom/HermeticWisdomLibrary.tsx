@@ -46,7 +46,7 @@ const HermeticWisdomLibrary = () => {
       setIsLoading(true);
       
       try {
-        // For now, create mock data based on the hermetic journeys
+        // Create mock data based on the hermetic journeys
         // In a real implementation, this would fetch from Supabase
         const mockAssets: AudioAsset[] = hermeticJourneys.map(journey => ({
           id: `asset-${journey.id}`,
@@ -54,7 +54,7 @@ const HermeticWisdomLibrary = () => {
           frequency: journey.frequency,
           chakra: journey.chakra,
           principle: journey.principle,
-          audioUrl: "https://pixabay.com/music/meditation-spiritual-zen-spiritual-yoga-meditation-relaxing-music-21400.mp3", // placeholder
+          audioUrl: "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3", // Using a working audio URL
           tags: [journey.tag, journey.chakra.toLowerCase(), "frequency"],
           duration: 180 + Math.floor(Math.random() * 180) // random duration between 3-6 minutes
         }));
@@ -82,12 +82,19 @@ const HermeticWisdomLibrary = () => {
   };
 
   const handlePlayAudio = (asset: AudioAsset) => {
+    // If the same track is clicked, toggle play/pause
     if (currentTrack && currentTrack.id === asset.id) {
       setIsPlaying(!isPlaying);
     } else {
+      // If a different track is clicked, set it as current and play it
       setCurrentTrack(asset);
       setIsPlaying(true);
     }
+  };
+
+  // Toggle play/pause for the current track
+  const handlePlayToggle = () => {
+    setIsPlaying(!isPlaying);
   };
 
   return (
@@ -148,7 +155,7 @@ const HermeticWisdomLibrary = () => {
                 <FrequencyPlayer 
                   audioUrl={currentTrack.audioUrl}
                   isPlaying={isPlaying}
-                  onPlayToggle={() => setIsPlaying(!isPlaying)}
+                  onPlayToggle={handlePlayToggle}
                 />
               </Card>
             </div>
