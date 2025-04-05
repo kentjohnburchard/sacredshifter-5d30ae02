@@ -40,9 +40,11 @@ export type Database = {
         Row: {
           affirmation: string | null
           audio_url: string | null
-          chakra: string
+          category: string | null
+          chakra: string | null
           created_at: string | null
           description: string | null
+          duration: number | null
           frequency: number
           id: string
           length: number | null
@@ -50,15 +52,18 @@ export type Database = {
           tags: string[] | null
           title: string
           updated_at: string | null
+          url: string | null
           vibe_profile: string | null
           visual_theme: string | null
         }
         Insert: {
           affirmation?: string | null
           audio_url?: string | null
-          chakra: string
+          category?: string | null
+          chakra?: string | null
           created_at?: string | null
           description?: string | null
+          duration?: number | null
           frequency: number
           id?: string
           length?: number | null
@@ -66,15 +71,18 @@ export type Database = {
           tags?: string[] | null
           title: string
           updated_at?: string | null
+          url?: string | null
           vibe_profile?: string | null
           visual_theme?: string | null
         }
         Update: {
           affirmation?: string | null
           audio_url?: string | null
-          chakra?: string
+          category?: string | null
+          chakra?: string | null
           created_at?: string | null
           description?: string | null
+          duration?: number | null
           frequency?: number
           id?: string
           length?: number | null
@@ -82,6 +90,7 @@ export type Database = {
           tags?: string[] | null
           title?: string
           updated_at?: string | null
+          url?: string | null
           vibe_profile?: string | null
           visual_theme?: string | null
         }

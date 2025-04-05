@@ -5,3 +5,5 @@ export { default as HermeticTrackUploadModal } from './HermeticTrackUploadModal'
 export { default as HermeticWisdomDrop } from './HermeticWisdomDrop';
 export { default as HermeticPrincipleCard } from './HermeticPrincipleCard';
 export { default as HermeticWisdomLibrary } from './HermeticWisdomLibrary';
+export { default as HermeticSoundExplorer } from './HermeticSoundExplorer';
+export { default as HermeticFrequencyCard } from './HermeticFrequencyCard';

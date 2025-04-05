@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { Auth } from '@supabase/auth-ui-react';
@@ -14,7 +13,7 @@ import Intentions from '@/pages/Intentions';
 import Soundscapes from '@/pages/Soundscapes';
 import JourneyTemplates from '@/pages/JourneyTemplates';
 import JourneyPlayer from '@/pages/JourneyPlayer';
-import HermeticWisdom from '@/pages/HermeticWisdom'; // Added this import
+import HermeticWisdom from '@/pages/HermeticWisdom';
 import Index from '@/pages/Index';
 import AuthPage from '@/pages/Auth';
 import { AuthProvider } from '@/context/AuthContext';
@@ -48,7 +47,7 @@ function App() {
       path === '/focus' ||
       path === '/soundscapes' ||
       path === '/timeline' ||
-      path === '/hermetic-wisdom' // Added this path
+      path === '/hermetic-wisdom'
     );
   }, []);
 
@@ -82,7 +81,8 @@ function App() {
           <Route path="/energy-check" element={<EnergyCheck />} />
           <Route path="/alignment" element={<Alignment />} />
           <Route path="/intentions" element={<Intentions />} />
-          <Route path="/hermetic-wisdom" element={<HermeticWisdom />} /> {/* Added this route */}
+          <Route path="/hermetic-wisdom" element={<HermeticWisdom />} />
+          <Route path="/hermetic-wisdom/:principleId" element={<HermeticWisdom />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route
             path="/account"
