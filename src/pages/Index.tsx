@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate, Link } from "react-router-dom";
 import { Music2, CheckSquare, Heart, Zap, Book, Stars, Library, Clock, HeartPulse } from "lucide-react";
 import Layout from "@/components/Layout";
+import { SoundLibraryPreview } from "@/components/landing";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -290,7 +291,6 @@ const Index = () => {
           
           {/* Expanded Sound Healing Information */}
           <div className="grid md:grid-cols-2 gap-6 mb-8">
-            {/* Solfeggio Frequencies */}
             <Card className="border border-gray-200 shadow-sm">
               <CardContent className="p-6">
                 <h3 className="text-xl font-medium mb-4 bg-clip-text text-transparent bg-gradient-to-r from-amber-500 to-orange-500">
@@ -328,7 +328,6 @@ const Index = () => {
               </CardContent>
             </Card>
               
-            {/* Sound and Chakras */}
             <Card className="border border-gray-200 shadow-sm">
               <CardContent className="p-6">
                 <h3 className="text-xl font-medium mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">
@@ -369,6 +368,11 @@ const Index = () => {
                 </div>
               </CardContent>
             </Card>
+          </div>
+          
+          {/* Sound Library Preview Section - New addition */}
+          <div className="mb-8">
+            <SoundLibraryPreview />
           </div>
         </div>
       </main>

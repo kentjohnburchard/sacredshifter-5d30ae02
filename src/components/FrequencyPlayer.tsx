@@ -12,6 +12,7 @@ interface FrequencyPlayerProps {
   onPlayToggle: () => void;
   frequency?: number;
   frequencyId?: string;
+  id?: string; // Added id prop for identifying specific player instances
 }
 
 const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
@@ -20,7 +21,8 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   isPlaying,
   onPlayToggle,
   frequency,
-  frequencyId
+  frequencyId,
+  id // New id parameter
 }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -95,6 +97,9 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     // Create a new audio element if it doesn't exist
     if (!audioRef.current) {
       audioRef.current = new Audio(effectiveAudioUrl);
+      if (id) {
+        audioRef.current.id = id; // Set the HTML id if provided
+      }
     } else {
       audioRef.current.src = effectiveAudioUrl;
     }
@@ -127,7 +132,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       audio.removeEventListener("error", handleError);
       audio.removeEventListener("ended", handleEnded);
     };
-  }, [effectiveAudioUrl, onPlayToggle]);
+  }, [effectiveAudioUrl, onPlayToggle, id]);
   
   useEffect(() => {
     if (!audioRef.current || hasError) return;
