@@ -14,7 +14,8 @@ interface FrequencyPlayerProps {
 const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   audioUrl,
   isPlaying,
-  onPlayToggle
+  onPlayToggle,
+  frequency
 }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,6 +30,10 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       return;
     }
 
+    // Format the URL correctly - this is the key fix
+    const formattedUrl = formatAudioUrl(audioUrl);
+    console.log("Formatted audio URL:", formattedUrl);
+    
     // Create a new audio element
     const audio = new Audio();
     audioRef.current = audio;
@@ -36,7 +41,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     // Add event listeners
     const handleCanPlay = () => {
       setIsLoading(false);
-      console.log("Audio ready to play:", audioUrl);
+      console.log("Audio ready to play:", formattedUrl);
     };
     
     const handleError = (err: Event) => {
@@ -57,7 +62,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     audio.addEventListener("ended", handleEnded);
     
     // Set the audio source and load it
-    audio.src = audioUrl;
+    audio.src = formattedUrl;
     audio.load();
     
     return () => {
@@ -71,12 +76,31 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     };
   }, [audioUrl, onPlayToggle]);
   
+  // Format the audio URL to ensure it's a proper URL
+  const formatAudioUrl = (url: string): string => {
+    // If it's already a proper URL with http/https, return as is
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    
+    // If it's a path to a file from Pixabay, fix the URL
+    // Pixabay URLs often come as /music/... instead of https://pixabay.com/music/...
+    if (url.includes('pixabay.com') || url.includes('/music/')) {
+      // Make sure there's no leading slash in the path
+      const path = url.startsWith('/') ? url.substring(1) : url;
+      return `https://cdn.pixabay.com/${path}`;
+    }
+    
+    // For other URLs, assume they're relative to the app's root
+    return url;
+  };
+  
   // Handle play/pause toggling
   useEffect(() => {
     if (!audioRef.current || hasError) return;
     
     if (isPlaying) {
-      console.log("Attempting to play audio:", audioUrl);
+      console.log("Attempting to play audio:", audioRef.current.src);
       const playPromise = audioRef.current.play();
       
       if (playPromise !== undefined) {
@@ -107,6 +131,9 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
           <Play className="h-5 w-5 ml-0.5" />
         )}
       </Button>
+      {frequency && (
+        <span className="text-xs text-white/70">{frequency}Hz</span>
+      )}
     </div>
   );
 };

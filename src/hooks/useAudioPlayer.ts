@@ -56,6 +56,25 @@ export const useAudioPlayer = () => {
     };
   }, []);
 
+  const formatAudioUrl = (url: string): string => {
+    // If it's already a proper URL with http/https, return as is
+    if (!url) return '';
+    
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    
+    // If it's a path to a file from Pixabay, fix the URL
+    if (url.includes('pixabay.com') || url.includes('/music/')) {
+      // Make sure there's no leading slash in the path
+      const path = url.startsWith('/') ? url.substring(1) : url;
+      return `https://cdn.pixabay.com/${path}`;
+    }
+    
+    // For other URLs, assume they're relative to the app's root
+    return url;
+  };
+
   const setAudioSource = (src: string) => {
     if (!src) {
       console.error("No audio source provided");
@@ -63,7 +82,8 @@ export const useAudioPlayer = () => {
       return;
     }
     
-    console.log("Setting audio source:", src);
+    const formattedUrl = formatAudioUrl(src);
+    console.log("Setting audio source:", formattedUrl);
     
     if (audioRef.current) {
       // Reset state
@@ -78,7 +98,7 @@ export const useAudioPlayer = () => {
       
       try {
         // Set new source
-        audioRef.current.src = src;
+        audioRef.current.src = formattedUrl;
         audioRef.current.load();
       } catch (err) {
         console.error("Error setting audio source:", err);
@@ -155,6 +175,8 @@ export const useAudioPlayer = () => {
     setAudioSource,
     audioLoaded,
     audioError,
-    seekTo
+    seekTo,
+    formatAudioUrl
   };
 };
+

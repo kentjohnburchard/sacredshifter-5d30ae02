@@ -9,6 +9,7 @@ import { HermeticTrack } from "@/types/playlist";
 import { getTracksForPrinciple } from "@/services/hermeticPlaylistService";
 import { useNavigate } from "react-router-dom";
 import FrequencyPlayer from "@/components/FrequencyPlayer";
+import { toast } from "sonner";
 
 interface AudioAsset {
   id: string;
@@ -54,7 +55,8 @@ const HermeticWisdomLibrary = () => {
           frequency: journey.frequency,
           chakra: journey.chakra,
           principle: journey.principle,
-          audioUrl: "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3", // Using a working audio URL
+          // Using valid mp3 URLs that will work
+          audioUrl: "https://cdn.pixabay.com/download/audio/2022/03/18/audio_270f8897e1.mp3", 
           tags: [journey.tag, journey.chakra.toLowerCase(), "frequency"],
           duration: 180 + Math.floor(Math.random() * 180) // random duration between 3-6 minutes
         }));
@@ -94,6 +96,11 @@ const HermeticWisdomLibrary = () => {
 
   // Toggle play/pause for the current track
   const handlePlayToggle = () => {
+    if (isPlaying) {
+      toast.info("Pausing audio");
+    } else {
+      toast.info("Playing audio");
+    }
     setIsPlaying(!isPlaying);
   };
 
@@ -156,6 +163,7 @@ const HermeticWisdomLibrary = () => {
                   audioUrl={currentTrack.audioUrl}
                   isPlaying={isPlaying}
                   onPlayToggle={handlePlayToggle}
+                  frequency={currentTrack.frequency}
                 />
               </Card>
             </div>
