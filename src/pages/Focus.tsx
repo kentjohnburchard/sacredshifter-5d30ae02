@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import Layout from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
-import { Play, Pause, SkipForward, SkipBack, Volume2, Music, Waveform } from "lucide-react";
+import { Play, Pause, SkipForward, SkipBack, Volume2, Music, AudioWaves } from "lucide-react";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { formatTime } from "@/lib/utils";
@@ -60,7 +59,6 @@ const Focus = () => {
     isAudioPlaying
   } = useAudioPlayer();
   
-  // Load the appropriate frequency audio when session changes
   useEffect(() => {
     const loadFrequencyAudio = async () => {
       try {
@@ -79,7 +77,6 @@ const Focus = () => {
     loadFrequencyAudio();
   }, [activeSession, setAudioSource]);
   
-  // Reset timer when changing sessions
   useEffect(() => {
     if (timer) {
       clearInterval(timer);
@@ -88,14 +85,12 @@ const Focus = () => {
     setRemainingTime(activeSession.duration);
     setIsPlaying(false);
     
-    // Reset audio
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
   }, [activeSession]);
   
-  // Handle timer
   useEffect(() => {
     if (isPlaying && remainingTime > 0) {
       const interval = setInterval(() => {
@@ -169,7 +164,7 @@ const Focus = () => {
                         )}
                         {audioSrc && !loading && (
                           <div className="mt-2 text-sm flex items-center justify-center gap-1 text-purple-600">
-                            <Waveform className="h-4 w-4" />
+                            <AudioWaves className="h-4 w-4" />
                             <span>{getFrequencyName(session.frequency)}</span>
                           </div>
                         )}
