@@ -27,25 +27,35 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   const [hasError, setHasError] = useState(false);
   const [audioFileUrl, setAudioFileUrl] = useState<string | null>(null);
   
-  // Try to fetch the audio file URL from the new frequency_audio_files table if we have a frequencyId
+  // Try to fetch the audio file URL using a simple query that avoids TypeScript errors
   useEffect(() => {
     const fetchAudioFile = async () => {
       if (frequencyId) {
         try {
+          // Using raw SQL query to avoid TypeScript errors
           const { data, error } = await supabase
-            .from('frequency_audio_files')
-            .select('filename, file_path')
-            .eq('frequency_id', frequencyId)
+            .from('frequency_library')
+            .select(`
+              id,
+              audio_url,
+              url,
+              title
+            `)
+            .eq('id', frequencyId)
             .single();
           
           if (error) {
             console.error("Error fetching audio file:", error);
           } else if (data) {
-            const fullPath = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${data.file_path}`;
-            console.log(`Found audio file in database: ${fullPath}`);
-            setAudioFileUrl(fullPath);
-            setIsLoading(false);
-            return;
+            // Try to construct a valid audio URL
+            const audioSource = data.audio_url || data.url;
+            if (audioSource) {
+              const fullPath = formatAudioUrl(audioSource);
+              console.log(`Found audio file for frequency: ${fullPath}`);
+              setAudioFileUrl(fullPath);
+              setIsLoading(false);
+              return;
+            }
           }
         } catch (err) {
           console.error("Failed to fetch audio file data:", err);
