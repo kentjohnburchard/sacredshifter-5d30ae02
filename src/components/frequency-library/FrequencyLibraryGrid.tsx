@@ -1,5 +1,6 @@
 
 import React, { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -63,75 +64,80 @@ const FrequencyLibraryGrid: React.FC<FrequencyLibraryGridProps> = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-fade-in">
       {filteredFrequencies.map((frequency) => (
-        <Card 
+        <Link 
+          to={`/frequencies/${frequency.id}`} 
           key={frequency.id}
-          className="overflow-hidden transition-all duration-300 hover:shadow-lg border border-gray-200 hover:border-gray-300 group"
+          className="block transition-transform duration-200 hover:scale-[1.02]"
         >
-          <div className={`h-2 bg-gradient-to-r ${getChakraColor(frequency.chakra)}`} />
-          <CardContent className="p-5">
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="font-medium text-lg line-clamp-1">{frequency.title}</h3>
-              <HoverCard>
-                <HoverCardTrigger asChild>
-                  <div className="flex-shrink-0">
-                    <ChakraIcon chakra={frequency.chakra} className="h-6 w-6" />
-                  </div>
-                </HoverCardTrigger>
-                <HoverCardContent className="w-60">
-                  <div className="space-y-2">
-                    <h4 className="font-medium">{frequency.chakra} Chakra</h4>
-                    <p className="text-sm text-gray-500">
-                      {frequency.frequency} Hz frequency
-                    </p>
-                  </div>
-                </HoverCardContent>
-              </HoverCard>
-            </div>
-            
-            <div className="flex items-center text-sm text-gray-600 mb-3">
-              <span className="font-medium">{frequency.frequency} Hz</span>
-              {frequency.length && (
-                <span className="ml-2 text-gray-400">
-                  • {formatTime(frequency.length)}
-                </span>
+          <Card 
+            className="overflow-hidden transition-all duration-300 hover:shadow-lg border border-gray-200 hover:border-gray-300 group h-full"
+          >
+            <div className={`h-2 bg-gradient-to-r ${getChakraColor(frequency.chakra)}`} />
+            <CardContent className="p-5">
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="font-medium text-lg line-clamp-1">{frequency.title}</h3>
+                <HoverCard>
+                  <HoverCardTrigger asChild>
+                    <div className="flex-shrink-0">
+                      <ChakraIcon chakra={frequency.chakra} className="h-6 w-6" />
+                    </div>
+                  </HoverCardTrigger>
+                  <HoverCardContent className="w-60">
+                    <div className="space-y-2">
+                      <h4 className="font-medium">{frequency.chakra} Chakra</h4>
+                      <p className="text-sm text-gray-500">
+                        {frequency.frequency} Hz frequency
+                      </p>
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+              </div>
+              
+              <div className="flex items-center text-sm text-gray-600 mb-3">
+                <span className="font-medium">{frequency.frequency} Hz</span>
+                {frequency.length && (
+                  <span className="ml-2 text-gray-400">
+                    • {formatTime(frequency.length)}
+                  </span>
+                )}
+              </div>
+              
+              {frequency.description && (
+                <p className="text-sm text-gray-600 mb-3 line-clamp-2">{frequency.description}</p>
               )}
-            </div>
-            
-            {frequency.description && (
-              <p className="text-sm text-gray-600 mb-3 line-clamp-2">{frequency.description}</p>
-            )}
-            
-            {frequency.principle && (
-              <div className="mb-3">
-                <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-                  {frequency.principle}
-                </Badge>
-              </div>
-            )}
-            
-            {frequency.tags && frequency.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1 mb-4">
-                {frequency.tags.map(tag => (
-                  <Badge key={tag} variant="secondary" className="text-xs bg-gray-100">
-                    {tag}
+              
+              {frequency.principle && (
+                <div className="mb-3">
+                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                    {frequency.principle}
                   </Badge>
-                ))}
+                </div>
+              )}
+              
+              {frequency.tags && frequency.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-4">
+                  {frequency.tags.map(tag => (
+                    <Badge key={tag} variant="secondary" className="text-xs bg-gray-100">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+              
+              <div className="mt-3" onClick={(e) => e.preventDefault()}>
+                <FrequencyPlayer
+                  audioUrl={frequency.audio_url}
+                  url={frequency.url}
+                  isPlaying={playingIndex === frequency.id}
+                  onPlayToggle={() => handlePlayToggle(frequency.id)}
+                  frequency={frequency.frequency}
+                  frequencyId={frequency.id}
+                  id={`frequency-audio-${frequency.id}`}
+                />
               </div>
-            )}
-            
-            <div className="mt-3">
-              <FrequencyPlayer
-                audioUrl={frequency.audio_url}
-                url={frequency.url}
-                isPlaying={playingIndex === frequency.id}
-                onPlayToggle={() => handlePlayToggle(frequency.id)}
-                frequency={frequency.frequency}
-                frequencyId={frequency.id}
-                id={`frequency-audio-${frequency.id}`}
-              />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </Link>
       ))}
     </div>
   );

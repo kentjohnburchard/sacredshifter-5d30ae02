@@ -3,7 +3,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { FrequencyLibraryItem } from "@/types/frequencies";
-import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import FrequencyLibraryGrid from "./FrequencyLibraryGrid";
 import FrequencyFilters from "./FrequencyFilters";
@@ -96,20 +95,13 @@ const FrequencyLibrary: React.FC<FrequencyLibraryProps> = ({ className }) => {
 
   return (
     <div className={`space-y-6 ${className}`}>
-      <div className="relative">
-        <Input
-          placeholder="Search frequencies, titles, descriptions, or tags..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-4 py-2"
-        />
-      </div>
-      
       <FrequencyFilters
         chakras={chakras}
         principles={principles}
         chakraFilter={chakraFilter}
         principleFilter={principleFilter}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
         onChakraFilterChange={setChakraFilter}
         onPrincipleFilterChange={setPrincipleFilter}
       />
