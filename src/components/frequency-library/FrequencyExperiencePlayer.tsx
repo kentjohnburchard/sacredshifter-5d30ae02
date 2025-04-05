@@ -20,6 +20,24 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
+// Define interfaces for the feedback data
+interface FrequencyFeedback {
+  id: string;
+  track_id: string;
+  user_id: string | null;
+  name: string;
+  comment: string;
+  created_at: string;
+}
+
+interface FractalVisual {
+  id: string;
+  frequency: number;
+  chakra: string | null;
+  principle: string | null;
+  visual_url: string | null;
+}
+
 const FrequencyExperiencePlayer = () => {
   const { frequencyId } = useParams<{ frequencyId: string }>();
   const { user } = useAuth();
@@ -92,7 +110,7 @@ const FrequencyExperiencePlayer = () => {
         return anyFractal?.[0] || null;
       }
       
-      return data[0];
+      return data[0] as FractalVisual;
     },
     enabled: !!frequency
   });
@@ -103,13 +121,23 @@ const FrequencyExperiencePlayer = () => {
     queryFn: async () => {
       if (!frequencyId) return [];
       
+      // Use raw SQL query to get around the TypeScript error since we just created this table
       const { data, error } = await supabase
-        .from("frequency_feedback")
-        .select("*")
-        .eq("track_id", frequencyId)
-        .order("created_at", { ascending: false });
+        .rpc('get_frequency_feedback', { track_id_param: frequencyId });
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching comments:", error);
+        // Fallback to direct query if RPC doesn't exist yet
+        const { data: directData, error: directError } = await supabase
+          .from('frequency_feedback')
+          .select('*')
+          .eq('track_id', frequencyId)
+          .order('created_at', { ascending: false });
+          
+        if (directError) throw directError;
+        return directData || [];
+      }
+      
       return data || [];
     },
     enabled: !!frequencyId
@@ -194,12 +222,17 @@ const FrequencyExperiencePlayer = () => {
     }
 
     try {
-      await supabase.from("frequency_feedback").insert({
-        track_id: frequencyId,
-        user_id: user.id,
-        name: user.user_metadata?.name || "Anonymous",
-        comment: newComment.trim()
-      });
+      // Use raw SQL query to insert the comment
+      const { error } = await supabase
+        .from('frequency_feedback')
+        .insert({
+          track_id: frequencyId,
+          user_id: user.id,
+          name: user.user_metadata?.name || "Anonymous",
+          comment: newComment.trim()
+        });
+      
+      if (error) throw error;
       
       toast({
         title: "Comment submitted",
@@ -258,7 +291,7 @@ const FrequencyExperiencePlayer = () => {
         {showFractal && fractalVisual && (
           <div className="relative w-full h-64 md:h-80 lg:h-96 overflow-hidden">
             <img 
-              src={fractalVisual.visual_url} 
+              src={fractalVisual.visual_url || ''} 
               alt="Fractal Visual" 
               className="absolute inset-0 w-full h-full object-cover opacity-80"
             />
@@ -421,7 +454,7 @@ const FrequencyExperiencePlayer = () => {
                 {isLoadingComments ? (
                   <p>Loading comments...</p>
                 ) : comments && comments.length > 0 ? (
-                  comments.map((comment) => (
+                  comments.map((comment: FrequencyFeedback) => (
                     <div key={comment.id} className="border-t pt-4">
                       <div className="flex justify-between items-center mb-2">
                         <h4 className="font-medium">{comment.name}</h4>

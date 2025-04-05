@@ -113,6 +113,41 @@ export type Database = {
           },
         ]
       }
+      frequency_feedback: {
+        Row: {
+          comment: string
+          created_at: string | null
+          id: string
+          name: string
+          track_id: string
+          user_id: string | null
+        }
+        Insert: {
+          comment: string
+          created_at?: string | null
+          id?: string
+          name: string
+          track_id: string
+          user_id?: string | null
+        }
+        Update: {
+          comment?: string
+          created_at?: string | null
+          id?: string
+          name?: string
+          track_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "frequency_feedback_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "frequency_library"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       frequency_library: {
         Row: {
           affirmation: string | null
