@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import Layout from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,7 +10,11 @@ import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { formatTime } from "@/lib/utils";
 import { toast } from "sonner";
-import { createFrequencyBlobUrl, getFrequencyName } from "@/utils/audioUtils";
+import { getFrequencyName } from "@/utils/audioUtils";
+import { getFrequencyAudioUrl, SoundMode, getFrequencyTrackInfo } from "@/utils/focusTrackMap";
+import AudioVisualizer from "@/components/AudioVisualizer";
+import SoundModeSelector from "@/components/SoundModeSelector";
+import SessionControls from "@/components/SessionControls";
 
 const focusSessions = [
   {
@@ -47,6 +52,14 @@ const Focus = () => {
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
   const [audioSrc, setAudioSrc] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [soundMode, setSoundMode] = useLocalStorage<SoundMode>("focusSoundMode", "pureTone");
+  const [loopEnabled, setLoopEnabled] = useLocalStorage("focusLoopEnabled", true);
+  const [cycleFrequencies, setCycleFrequencies] = useLocalStorage("focusCycleFrequencies", false);
+  const [frequencyCycleTimer, setFrequencyCycleTimer] = useState<NodeJS.Timeout | null>(null);
+  const [frequencyIndex, setFrequencyIndex] = useState(0);
+  
+  const cycleFrequencyList = [396, 432, 528]; // List of frequencies to cycle through
+  const frequencyCycleInterval = 10 * 60; // 10 minutes in seconds
   
   const { 
     audioRef, 
@@ -63,9 +76,19 @@ const Focus = () => {
     const loadFrequencyAudio = async () => {
       try {
         setLoading(true);
-        const audioBlobUrl = await createFrequencyBlobUrl(activeSession.frequency);
-        setAudioSrc(audioBlobUrl);
-        setAudioSource(audioBlobUrl);
+        
+        // Get the audio URL from the frequency map
+        const audioUrl = getFrequencyAudioUrl(activeSession.frequency, soundMode);
+        
+        if (audioUrl) {
+          console.log(`Loading frequency audio for ${activeSession.frequency}Hz in ${soundMode} mode`);
+          setAudioSrc(audioUrl);
+          setAudioSource(audioUrl);
+        } else {
+          console.error("No audio URL found for frequency:", activeSession.frequency);
+          toast.error("Failed to load frequency audio");
+        }
+        
         setLoading(false);
       } catch (error) {
         console.error("Failed to load frequency audio:", error);
@@ -75,7 +98,7 @@ const Focus = () => {
     };
     
     loadFrequencyAudio();
-  }, [activeSession, setAudioSource]);
+  }, [activeSession, setAudioSource, soundMode]);
   
   useEffect(() => {
     if (timer) {
@@ -90,6 +113,45 @@ const Focus = () => {
       audioRef.current.currentTime = 0;
     }
   }, [activeSession]);
+  
+  // Handle audio looping
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.loop = loopEnabled;
+    }
+  }, [loopEnabled, audioRef]);
+  
+  // Handle frequency cycling
+  useEffect(() => {
+    if (cycleFrequencies && isPlaying) {
+      if (frequencyCycleTimer) {
+        clearTimeout(frequencyCycleTimer);
+      }
+      
+      const timer = setTimeout(() => {
+        const nextIndex = (frequencyIndex + 1) % cycleFrequencyList.length;
+        setFrequencyIndex(nextIndex);
+        
+        // Find the session with the matching frequency
+        const targetFrequency = cycleFrequencyList[nextIndex];
+        const matchingSession = focusSessions.find(s => s.frequency === targetFrequency);
+        
+        if (matchingSession) {
+          setActiveSession(matchingSession);
+          toast.info(`Cycling to ${matchingSession.name} (${targetFrequency}Hz)`);
+        }
+      }, frequencyCycleInterval * 1000); // Convert to milliseconds
+      
+      setFrequencyCycleTimer(timer);
+      
+      return () => {
+        clearTimeout(timer);
+      };
+    } else if (frequencyCycleTimer) {
+      clearTimeout(frequencyCycleTimer);
+      setFrequencyCycleTimer(null);
+    }
+  }, [cycleFrequencies, isPlaying, frequencyIndex]);
   
   useEffect(() => {
     if (isPlaying && remainingTime > 0) {
@@ -126,11 +188,18 @@ const Focus = () => {
     }
   };
   
+  const handleSoundModeChange = (mode: SoundMode) => {
+    setSoundMode(mode);
+    toast.info(`Sound mode changed to ${mode}`);
+  };
+  
   const formatSessionTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
+  
+  const frequencyInfo = getFrequencyTrackInfo(activeSession.frequency);
   
   return (
     <Layout pageTitle="Focus">
@@ -156,21 +225,32 @@ const Focus = () => {
                   
                   {focusSessions.map(session => (
                     <TabsContent key={session.id} value={session.id} className="space-y-4">
-                      <div className="text-center mb-8">
+                      <div className="text-center mb-6">
                         <h3 className="text-2xl font-light mb-2">{session.name}</h3>
-                        <p className="text-gray-600">{session.description}</p>
+                        <p className="text-gray-600 mb-2">{session.description}</p>
                         {loading && (
                           <div className="mt-2 text-sm text-purple-600">Loading frequency audio...</div>
                         )}
                         {audioSrc && !loading && (
                           <div className="mt-2 text-sm flex items-center justify-center gap-1 text-purple-600">
                             <AudioLines className="h-4 w-4" />
-                            <span>{getFrequencyName(session.frequency)}</span>
+                            <span>
+                              {frequencyInfo?.displayName || getFrequencyName(session.frequency)}
+                            </span>
                           </div>
                         )}
                       </div>
                       
-                      <div className="flex flex-col items-center justify-center space-y-8">
+                      {/* Audio Visualizer */}
+                      {audioRef.current && (
+                        <AudioVisualizer 
+                          audioRef={audioRef} 
+                          isPlaying={isPlaying}
+                          frequency={session.frequency}
+                        />
+                      )}
+                      
+                      <div className="flex flex-col items-center justify-center space-y-6">
                         <div className="text-6xl font-light text-purple-600">
                           {formatSessionTime(remainingTime)}
                         </div>
@@ -242,9 +322,25 @@ const Focus = () => {
           <div>
             <Card className="border border-gray-200 shadow-sm h-full">
               <CardContent className="p-6">
-                <h3 className="text-xl font-medium mb-4">Session Details</h3>
+                <h3 className="text-xl font-medium mb-4">Session Settings</h3>
                 
-                <div className="space-y-4">
+                <div className="space-y-6">
+                  {/* Sound Mode Selector */}
+                  <SoundModeSelector 
+                    soundMode={soundMode} 
+                    onChange={handleSoundModeChange} 
+                  />
+                  
+                  {/* Session Controls */}
+                  <SessionControls 
+                    loopEnabled={loopEnabled}
+                    cycleFrequencies={cycleFrequencies}
+                    onLoopChange={setLoopEnabled}
+                    onCycleChange={setCycleFrequencies}
+                  />
+                  
+                  <div className="border-t border-gray-200 pt-4 mt-4"></div>
+                  
                   <div>
                     <h4 className="text-sm font-medium text-gray-500">FREQUENCY</h4>
                     <div className="flex items-center gap-2 text-lg">
@@ -263,7 +359,7 @@ const Focus = () => {
                     <p className="text-lg">{activeSession.benefits}</p>
                   </div>
                   
-                  <div className="pt-4">
+                  <div>
                     <h4 className="text-sm font-medium text-gray-500 mb-2">TIPS FOR BETTER FOCUS</h4>
                     <ul className="list-disc pl-5 space-y-1 text-sm text-gray-600">
                       <li>Find a quiet space free from distractions</li>
@@ -308,7 +404,7 @@ const Focus = () => {
         <audio 
           ref={audioRef}
           src={audioSrc} 
-          loop 
+          loop={loopEnabled}
           onTimeUpdate={handleTimeUpdate}
         />
       )}
