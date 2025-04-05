@@ -1,0 +1,125 @@
+
+import React, { useState, useEffect, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { FrequencyLibraryItem } from "@/types/frequencies";
+import { Input } from "@/components/ui/input";
+import { Loader2 } from "lucide-react";
+import FrequencyLibraryGrid from "./FrequencyLibraryGrid";
+import FrequencyFilters from "./FrequencyFilters";
+
+interface FrequencyLibraryProps {
+  className?: string;
+}
+
+const FrequencyLibrary: React.FC<FrequencyLibraryProps> = ({ className }) => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [chakraFilter, setChakraFilter] = useState<string | null>(null);
+  const [principleFilter, setPrincipleFilter] = useState<string | null>(null);
+
+  // Fetch frequencies from Supabase
+  const { data: frequencies, isLoading, error } = useQuery({
+    queryKey: ["frequencies"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("frequency_library")
+        .select("*")
+        .order("frequency", { ascending: true });
+        
+      if (error) {
+        throw new Error(`Error fetching frequencies: ${error.message}`);
+      }
+      
+      return data as FrequencyLibraryItem[];
+    }
+  });
+
+  // Create unique lists of chakras and principles for filters
+  const { chakras, principles } = useMemo(() => {
+    if (!frequencies) return { chakras: [], principles: [] };
+    
+    const chakraSet = new Set<string>();
+    const principleSet = new Set<string>();
+    
+    frequencies.forEach(freq => {
+      if (freq.chakra) chakraSet.add(freq.chakra);
+      if (freq.principle) principleSet.add(freq.principle);
+    });
+    
+    return {
+      chakras: Array.from(chakraSet).sort(),
+      principles: Array.from(principleSet).sort()
+    };
+  }, [frequencies]);
+  
+  // Filter frequencies by search query
+  const filteredFrequencies = useMemo(() => {
+    if (!frequencies) return [];
+    
+    if (!searchQuery) return frequencies;
+    
+    const query = searchQuery.toLowerCase();
+    return frequencies.filter(freq => 
+      freq.title?.toLowerCase().includes(query) || 
+      freq.description?.toLowerCase().includes(query) ||
+      freq.frequency?.toString().includes(query) ||
+      freq.chakra?.toLowerCase().includes(query) ||
+      freq.principle?.toLowerCase().includes(query) ||
+      freq.tags?.some(tag => tag.toLowerCase().includes(query))
+    );
+  }, [frequencies, searchQuery]);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+        <span className="ml-2">Loading frequencies...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="py-8 text-center text-red-600">
+        <p>Error loading frequency library: {error instanceof Error ? error.message : 'Unknown error'}</p>
+        <p className="mt-2 text-sm">Please check your connection and try again.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`space-y-6 ${className}`}>
+      <div className="relative">
+        <Input
+          placeholder="Search frequencies, titles, descriptions, or tags..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-4 py-2"
+        />
+      </div>
+      
+      <FrequencyFilters
+        chakras={chakras}
+        principles={principles}
+        chakraFilter={chakraFilter}
+        principleFilter={principleFilter}
+        onChakraFilterChange={setChakraFilter}
+        onPrincipleFilterChange={setPrincipleFilter}
+      />
+      
+      {filteredFrequencies.length === 0 ? (
+        <p className="text-center py-8 text-gray-500">
+          No frequencies found. Try adjusting your search or filters.
+        </p>
+      ) : (
+        <FrequencyLibraryGrid
+          frequencies={filteredFrequencies}
+          chakraFilter={chakraFilter}
+          principleFilter={principleFilter}
+        />
+      )}
+    </div>
+  );
+};
+
+export default FrequencyLibrary;

@@ -125,6 +125,7 @@ export type Database = {
           frequency: number
           id: string
           length: number | null
+          principle: string | null
           session_type: string | null
           tags: string[] | null
           title: string
@@ -144,6 +145,7 @@ export type Database = {
           frequency: number
           id?: string
           length?: number | null
+          principle?: string | null
           session_type?: string | null
           tags?: string[] | null
           title: string
@@ -163,6 +165,7 @@ export type Database = {
           frequency?: number
           id?: string
           length?: number | null
+          principle?: string | null
           session_type?: string | null
           tags?: string[] | null
           title?: string

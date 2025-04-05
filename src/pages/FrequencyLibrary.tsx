@@ -1,13 +1,13 @@
 
-import React, { useState } from "react";
+import React from "react";
 import Layout from "@/components/Layout";
-import FrequencyLibraryViewer from "@/components/frequency-library/FrequencyLibraryViewer";
+import FrequencyLibrary from "@/components/frequency-library/FrequencyLibrary";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Library, BookmarkIcon, Music } from "lucide-react";
+import { Library, BookmarkIcon } from "lucide-react";
 import SavedFrequenciesViewer from "@/components/frequency-library/SavedFrequenciesViewer";
 
-const FrequencyLibrary = () => {
+const FrequencyLibraryPage = () => {
   return (
     <Layout>
       <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
@@ -37,7 +37,7 @@ const FrequencyLibrary = () => {
           <TabsContent value="library">
             <Card className="border border-gray-200 shadow-sm">
               <CardContent className="p-4 sm:p-6">
-                <FrequencyLibraryViewer />
+                <FrequencyLibrary />
               </CardContent>
             </Card>
           </TabsContent>
@@ -55,4 +55,4 @@ const FrequencyLibrary = () => {
   );
 };
 
-export default FrequencyLibrary;
+export default FrequencyLibraryPage;
