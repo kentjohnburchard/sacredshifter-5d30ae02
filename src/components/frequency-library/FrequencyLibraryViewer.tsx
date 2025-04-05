@@ -39,9 +39,9 @@ const FrequencyLibraryViewer = () => {
       .filter(freq => {
         // Search filter
         const searchMatch = !search || 
-          freq.title.toLowerCase().includes(search.toLowerCase()) ||
+          freq.title?.toLowerCase().includes(search.toLowerCase()) ||
           freq.description?.toLowerCase().includes(search.toLowerCase()) ||
-          freq.frequency.toString().includes(search);
+          freq.frequency?.toString().includes(search);
         
         // Chakra filter
         const chakraMatch = !chakraFilter || freq.chakra === chakraFilter;
@@ -109,7 +109,7 @@ const FrequencyLibraryViewer = () => {
         </div>
         
         <div className="flex space-x-2">
-          <Select value={chakraFilter || ""} onValueChange={value => setChakraFilter(value || null)}>
+          <Select value={chakraFilter || "all-chakras"} onValueChange={value => setChakraFilter(value === "all-chakras" ? null : value)}>
             <SelectTrigger className="w-[150px]">
               <div className="flex items-center">
                 <Filter className="h-4 w-4 mr-2" />
@@ -124,7 +124,7 @@ const FrequencyLibraryViewer = () => {
             </SelectContent>
           </Select>
           
-          <Select value={vibeFilter || ""} onValueChange={value => setVibeFilter(value || null)}>
+          <Select value={vibeFilter || "all-vibes"} onValueChange={value => setVibeFilter(value === "all-vibes" ? null : value)}>
             <SelectTrigger className="w-[150px]">
               <div className="flex items-center">
                 <Music className="h-4 w-4 mr-2" />

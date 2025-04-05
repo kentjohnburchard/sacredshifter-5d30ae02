@@ -52,22 +52,29 @@ const FrequencyLibrary: React.FC<FrequencyLibraryProps> = ({ className }) => {
     };
   }, [frequencies]);
   
-  // Filter frequencies by search query
+  // Filter frequencies based on all filters and search
   const filteredFrequencies = useMemo(() => {
     if (!frequencies) return [];
     
-    if (!searchQuery) return frequencies;
-    
-    const query = searchQuery.toLowerCase();
-    return frequencies.filter(freq => 
-      freq.title?.toLowerCase().includes(query) || 
-      freq.description?.toLowerCase().includes(query) ||
-      freq.frequency?.toString().includes(query) ||
-      freq.chakra?.toLowerCase().includes(query) ||
-      freq.principle?.toLowerCase().includes(query) ||
-      freq.tags?.some(tag => tag.toLowerCase().includes(query))
-    );
-  }, [frequencies, searchQuery]);
+    return frequencies.filter(freq => {
+      // Search filter
+      const searchMatch = !searchQuery || 
+        freq.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        freq.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        freq.frequency?.toString().includes(searchQuery) ||
+        freq.chakra?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        freq.principle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        freq.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+      
+      // Chakra filter
+      const chakraMatch = !chakraFilter || freq.chakra === chakraFilter;
+      
+      // Principle filter
+      const principleMatch = !principleFilter || freq.principle === principleFilter;
+      
+      return searchMatch && chakraMatch && principleMatch;
+    });
+  }, [frequencies, searchQuery, chakraFilter, principleFilter]);
 
   if (isLoading) {
     return (
