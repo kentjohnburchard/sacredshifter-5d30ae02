@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -15,11 +14,11 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
+import Logo from "@/components/landing/Logo";
 
 const AUTO_LOGIN_EMAIL = "kentburchard@gmail.com";
 const AUTO_LOGIN_PASSWORD = "pass";
 
-// Form validation schemas
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -49,7 +48,6 @@ const Auth = () => {
   const [resetPasswordSent, setResetPasswordSent] = useState(false);
   const navigate = useNavigate();
 
-  // Initialize form
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -74,7 +72,6 @@ const Auth = () => {
     },
   });
 
-  // Auto-login check for specific email
   useEffect(() => {
     if (
       loginForm.getValues("email") === AUTO_LOGIN_EMAIL && 
@@ -87,16 +84,13 @@ const Auth = () => {
   const handleAutoLogin = async () => {
     try {
       setLoading(true);
-      // For the auto-login email, we sign in with the specific password
       const { data, error } = await supabase.auth.signInWithPassword({
         email: AUTO_LOGIN_EMAIL,
         password: AUTO_LOGIN_PASSWORD
       });
       
       if (error) {
-        // If regular login fails, we use a fallback method
         console.log("Using fallback auto-login method");
-        // This is a fallback in case the regular login fails
         toast.success("Welcome back, soul traveler!");
         navigate("/music-generation");
       } else {
@@ -105,7 +99,6 @@ const Auth = () => {
       }
     } catch (error) {
       console.error("Error during auto-login:", error);
-      // Even if there's an error, we'll proceed with login for this specific user
       toast.success("Welcome back, soul traveler!");
       navigate("/music-generation");
     } finally {
@@ -136,7 +129,6 @@ const Auth = () => {
   };
 
   const handleSignIn = async (data: LoginFormValues) => {
-    // Special case for auto-login email
     if (data.email === AUTO_LOGIN_EMAIL && data.password === AUTO_LOGIN_PASSWORD) {
       handleAutoLogin();
       return;
@@ -204,7 +196,6 @@ const Auth = () => {
     }
   };
 
-  // UI animations
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
@@ -218,13 +209,7 @@ const Auth = () => {
         variants={fadeIn}
         className="flex items-center gap-2 mb-6"
       >
-        <div className="p-2 rounded-full bg-accent/10">
-          <Music2 className="h-6 w-6 text-accent" />
-        </div>
-        <h1 className="text-2xl font-medium tracking-tight">
-          <span className="font-light">Sacred</span>
-          <span className="font-semibold">Shifter</span>
-        </h1>
+        <Logo />
       </motion.div>
       
       <motion.div
@@ -248,7 +233,6 @@ const Auth = () => {
               <TabsTrigger value="forgot">Reset</TabsTrigger>
             </TabsList>
             
-            {/* Sign In Tab */}
             <TabsContent value="signin">
               <Form {...loginForm}>
                 <form onSubmit={loginForm.handleSubmit(handleSignIn)}>
@@ -358,7 +342,6 @@ const Auth = () => {
               </Form>
             </TabsContent>
             
-            {/* Sign Up Tab */}
             <TabsContent value="signup">
               <Form {...signupForm}>
                 <form onSubmit={signupForm.handleSubmit(handleSignUp)}>
@@ -483,7 +466,6 @@ const Auth = () => {
               </Form>
             </TabsContent>
             
-            {/* Forgot Password Tab */}
             <TabsContent value="forgot">
               <Form {...forgotPasswordForm}>
                 <form onSubmit={forgotPasswordForm.handleSubmit(handlePasswordReset)}>
