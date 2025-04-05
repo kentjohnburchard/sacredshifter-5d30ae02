@@ -9,27 +9,33 @@ import { getTracksForPrinciple } from "@/services/hermeticPlaylistService";
 import { useNavigate } from "react-router-dom";
 import FrequencyPlayer from "@/components/FrequencyPlayer";
 import { toast } from "sonner";
-
-interface AudioAsset {
-  id: string;
-  title: string;
-  frequency: number;
-  chakra: string;
-  principle: string;
-  audioUrl: string;
-  tags: string[];
-  duration: number;
-}
+import { useQuery } from "@tanstack/react-query";
+import { FrequencyLibraryItem } from "@/types/frequencies";
 
 const HermeticWisdomLibrary = () => {
   const [selectedPrinciple, setSelectedPrinciple] = useState<string | null>(null);
-  const [audioAssets, setAudioAssets] = useState<AudioAsset[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [currentTrack, setCurrentTrack] = useState<AudioAsset | null>(null);
+  const [currentTrack, setCurrentTrack] = useState<FrequencyLibraryItem | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const navigate = useNavigate();
 
-  // Map of principle names to their icon components
+  // Fetch frequencies related to Hermetic Principles
+  const { data: frequencies, isLoading } = useQuery({
+    queryKey: ["hermetic-frequencies"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('frequency_library')
+        .select('*')
+        .ilike('principle', '%Hermetic%');  // Add principle filtering if needed
+
+      if (error) {
+        console.error("Error fetching Hermetic frequencies:", error);
+        return [];
+      }
+      return data as FrequencyLibraryItem[];
+    }
+  });
+
+  // Principle icons mapping
   const principleIcons = {
     "Mentalism": Sparkles,
     "Correspondence": Headphones,
@@ -40,62 +46,21 @@ const HermeticWisdomLibrary = () => {
     "Gender": MusicIcon
   };
 
-  useEffect(() => {
-    // Fetch audio assets from the library
-    const fetchAudioAssets = async () => {
-      setIsLoading(true);
-      
-      try {
-        // Create mock data based on the hermetic journeys
-        // In a real implementation, this would fetch from Supabase
-        const mockAssets: AudioAsset[] = hermeticJourneys.map(journey => ({
-          id: `asset-${journey.id}`,
-          title: `${journey.frequency}Hz - ${journey.title}`,
-          frequency: journey.frequency,
-          chakra: journey.chakra,
-          principle: journey.principle,
-          // Using working audio URLs from pixabay
-          audioUrl: "https://cdn.pixabay.com/download/audio/2022/03/18/audio_270f8897e1.mp3", 
-          tags: [journey.tag, journey.chakra.toLowerCase(), "frequency"],
-          duration: 180 + Math.floor(Math.random() * 180) // random duration between 3-6 minutes
-        }));
-        
-        setAudioAssets(mockAssets);
-      } catch (error) {
-        console.error("Error fetching audio assets:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAudioAssets();
-  }, []);
-
-  const handlePrincipleSelect = (principle: string) => {
-    setSelectedPrinciple(principle === selectedPrinciple ? null : principle);
-  };
-
-  const handleJourneyClick = (principleId: string) => {
-    const journey = hermeticJourneys.find(j => j.principle === principleId);
-    if (journey) {
-      navigate(`/hermetic-wisdom/${journey.id}`);
-    }
-  };
-
-  const handlePlayAudio = (asset: AudioAsset) => {
-    // If the same track is clicked, toggle play/pause
-    if (currentTrack && currentTrack.id === asset.id) {
-      setIsPlaying(!isPlaying);
-    } else {
-      // If a different track is clicked, set it as current and play it
-      setCurrentTrack(asset);
-      setIsPlaying(true);
-    }
-  };
-
-  // Toggle play/pause for the current track
+  // Toggle play for the current track
   const handlePlayToggle = () => {
     setIsPlaying(!isPlaying);
+  };
+
+  // Select a track to play
+  const handleSelectTrack = (track: FrequencyLibraryItem) => {
+    if (currentTrack?.id === track.id) {
+      // If clicking the same track, toggle play/pause
+      setIsPlaying(!isPlaying);
+    } else {
+      // If a different track, set as current and start playing
+      setCurrentTrack(track);
+      setIsPlaying(true);
+    }
   };
 
   return (
@@ -122,8 +87,8 @@ const HermeticWisdomLibrary = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {hermeticJourneys.map((journey) => {
-                const asset = audioAssets.find(a => a.principle === journey.principle);
                 const IconComponent = principleIcons[journey.principle as keyof typeof principleIcons] || Sparkles;
+                const frequency = frequencies?.find(f => f.principle === journey.principle);
                 
                 return (
                   <HermeticPrincipleCard
@@ -139,7 +104,13 @@ const HermeticWisdomLibrary = () => {
                     color={getColorForChakra(journey.chakra)}
                     tag={journey.tag}
                     icon={IconComponent}
-                    onClick={() => handleJourneyClick(journey.principle)}
+                    onClick={() => {
+                      if (frequency) {
+                        handleSelectTrack(frequency);
+                      } else {
+                        toast.error("No frequency found for this principle.");
+                      }
+                    }}
                   />
                 );
               })}
@@ -153,8 +124,9 @@ const HermeticWisdomLibrary = () => {
                   <p className="font-medium">{currentTrack.title}</p>
                   <p className="text-xs">{currentTrack.principle}</p>
                 </div>
-                <FrequencyPlayer 
-                  audioUrl={currentTrack.audioUrl}
+                <FrequencyPlayer
+                  audioUrl={currentTrack.audio_url}
+                  url={currentTrack.url}
                   isPlaying={isPlaying}
                   onPlayToggle={handlePlayToggle}
                   frequency={currentTrack.frequency}

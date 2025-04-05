@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +12,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import FrequencyPlayer from "@/components/FrequencyPlayer"; // Update import
 
 interface FrequencyCardProps {
   frequency: FrequencyLibraryItem;
@@ -22,7 +22,6 @@ interface FrequencyCardProps {
 
 const FrequencyCard: React.FC<FrequencyCardProps> = ({ frequency, savedId, notes }) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -44,28 +43,7 @@ const FrequencyCard: React.FC<FrequencyCardProps> = ({ frequency, savedId, notes
   };
 
   const handlePlay = () => {
-    if (!frequency.audio_url) {
-      toast.error("No audio available for this frequency");
-      return;
-    }
-    
-    if (isPlaying && audioElement) {
-      audioElement.pause();
-      setIsPlaying(false);
-      setAudioElement(null);
-    } else {
-      const audio = new Audio(frequency.audio_url);
-      audio.addEventListener('ended', () => {
-        setIsPlaying(false);
-        setAudioElement(null);
-      });
-      audio.play().catch(err => {
-        toast.error("Error playing audio");
-        console.error("Audio playback error:", err);
-      });
-      setIsPlaying(true);
-      setAudioElement(audio);
-    }
+    setIsPlaying(!isPlaying);
   };
 
   const handleStartJourney = () => {
@@ -170,20 +148,13 @@ const FrequencyCard: React.FC<FrequencyCardProps> = ({ frequency, savedId, notes
       
       <CardFooter className="flex justify-between p-4 pt-0 gap-2">
         <div className="flex gap-1">
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-gray-200"
-            onClick={handlePlay}
-            disabled={!frequency.audio_url}
-          >
-            {isPlaying ? (
-              <Pause className="h-3.5 w-3.5 mr-1" />
-            ) : (
-              <Play className="h-3.5 w-3.5 mr-1" />
-            )}
-            {isPlaying ? "Pause" : "Play"}
-          </Button>
+          <FrequencyPlayer
+            audioUrl={frequency.audio_url}
+            url={frequency.url}
+            isPlaying={isPlaying}
+            onPlayToggle={handlePlay}
+            frequency={frequency.frequency}
+          />
           
           {savedId ? (
             <Button

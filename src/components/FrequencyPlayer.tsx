@@ -5,7 +5,8 @@ import { Play, Pause } from "lucide-react";
 import { toast } from "sonner";
 
 interface FrequencyPlayerProps {
-  audioUrl: string;
+  audioUrl?: string; // Make audioUrl optional
+  url?: string; // Add support for the url field
   isPlaying: boolean;
   onPlayToggle: () => void;
   frequency?: number; // Optional frequency prop
@@ -13,6 +14,7 @@ interface FrequencyPlayerProps {
 
 const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   audioUrl,
+  url, // New prop
   isPlaying,
   onPlayToggle,
   frequency
@@ -21,29 +23,32 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   
+  // Prioritize URL, fallback to audioUrl
+  const effectiveAudioUrl = url || audioUrl;
+  
   // Format the audio URL to ensure it's a proper URL
-  const formatAudioUrl = (url: string): string => {
-    // If it's already a proper URL with http/https, return as is
-    if (!url) return '';
+  const formatAudioUrl = (inputUrl: string): string => {
+    if (!inputUrl) return '';
     
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
+    // If it's already a proper URL with http/https, return as is
+    if (inputUrl.startsWith('http://') || inputUrl.startsWith('https://')) {
+      return inputUrl;
     }
     
     // If it's a path to a file from Pixabay, fix the URL
-    if (url.includes('pixabay.com') || url.includes('/music/')) {
+    if (inputUrl.includes('pixabay.com') || inputUrl.includes('/music/')) {
       // Make sure there's no leading slash in the path
-      const path = url.startsWith('/') ? url.substring(1) : url;
+      const path = inputUrl.startsWith('/') ? inputUrl.substring(1) : inputUrl;
       return `https://cdn.pixabay.com/download/audio/${path}`;
     }
     
     // For other URLs, assume they're relative to the app's root
-    return url;
+    return inputUrl;
   };
   
   // Initialize or update the audio element when audioUrl changes
   useEffect(() => {
-    if (!audioUrl) {
+    if (!effectiveAudioUrl) {
       console.error("No audio URL provided to FrequencyPlayer");
       setHasError(true);
       setIsLoading(false);
@@ -51,7 +56,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     }
 
     // Format the URL correctly
-    const formattedUrl = formatAudioUrl(audioUrl);
+    const formattedUrl = formatAudioUrl(effectiveAudioUrl);
     console.log("Formatted audio URL:", formattedUrl);
     
     // Create a new audio element if it doesn't exist
@@ -71,7 +76,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       console.error("Audio error:", err);
       setHasError(true);
       setIsLoading(false);
-      toast.error("Failed to load audio file");
+      toast.error(`Failed to load audio file: ${formattedUrl}`);
     };
     
     // Handle ended event
@@ -93,7 +98,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       audio.removeEventListener("error", handleError);
       audio.removeEventListener("ended", handleEnded);
     };
-  }, [audioUrl, onPlayToggle]);
+  }, [effectiveAudioUrl, onPlayToggle]);
   
   // Handle play/pause toggling
   useEffect(() => {
