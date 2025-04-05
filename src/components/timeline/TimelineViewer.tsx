@@ -94,6 +94,7 @@ const TimelineViewer: React.FC = () => {
     }
 
     try {
+      console.log("Fetching timeline entries for user:", user.id);
       const { data: entriesData, error: entriesError } = await supabase
         .from("timeline_snapshots")
         .select("*")
@@ -106,6 +107,7 @@ const TimelineViewer: React.FC = () => {
         return;
       }
 
+      console.log("Timeline entries fetched:", entriesData?.length || 0);
       const processedEntries = processJournalEntries(entriesData || []);
 
       const frequencies = new Set<number>();
@@ -137,10 +139,12 @@ const TimelineViewer: React.FC = () => {
     if (!frequencies.length || !user?.id) return;
     
     try {
+      console.log("Fetching music generations for frequencies:", frequencies);
       const { data, error } = await supabase
         .from("music_generations")
         .select("id, music_url, frequency, user_id")
         .eq("user_id", user.id)
+        .in("frequency", frequencies)
         .not("music_url", "is", null);
 
       if (error) {
@@ -148,13 +152,15 @@ const TimelineViewer: React.FC = () => {
         return;
       }
 
+      console.log("Music generations fetched:", data?.length || 0, data);
+
       const musicMap: Record<string, MusicGeneration> = {};
       
       if (data && Array.isArray(data)) {
         entries.forEach(entry => {
           if (entry.frequency) {
             const matchingMusic = data.find(item => 
-              item.frequency === entry.frequency && 
+              Math.abs(item.frequency - entry.frequency) < 0.1 &&
               item.music_url
             );
             
@@ -164,6 +170,7 @@ const TimelineViewer: React.FC = () => {
                 music_url: matchingMusic.music_url,
                 frequency: matchingMusic.frequency
               };
+              console.log(`Matched music for entry ${entry.id} with frequency ${entry.frequency}Hz`);
             }
           }
         });
@@ -479,7 +486,7 @@ const TimelineViewer: React.FC = () => {
                   {musicGenerations[entry.id] && (
                     <AudioPreview 
                       audioUrl={musicGenerations[entry.id].music_url} 
-                      title={entry.title}
+                      title={`${entry.frequency}Hz frequency audio`}
                     />
                   )}
                   

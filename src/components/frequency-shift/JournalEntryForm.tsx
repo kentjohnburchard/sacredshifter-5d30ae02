@@ -59,21 +59,33 @@ const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
     setIsSubmitting(true);
 
     try {
+      console.log("Saving timeline entry with data:", {
+        user_id: user.id,
+        title: title.trim(),
+        notes: notes.trim() || null,
+        tag: selectedTag || null,
+        intention: intention || null,
+        frequency: frequency || null,
+        chakra: chakra || null,
+        visual_type: visualType || null
+      });
+
       // Save to Supabase timeline_snapshots table
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('timeline_snapshots')
-        .insert([
-          {
-            user_id: user.id,
-            title: title.trim(),
-            notes: notes.trim() || null,
-            tag: selectedTag || null,
-            intention: intention || null,
-            frequency: frequency || null,
-            chakra: chakra || null,
-            visual_type: visualType || null
-          }
-        ]);
+        .insert([{
+          user_id: user.id,
+          title: title.trim(),
+          notes: notes.trim() || null,
+          tag: selectedTag || null, 
+          intention: intention || null,
+          frequency: frequency || null,
+          chakra: chakra || null,
+          visual_type: visualType || null,
+          // Add tags array to make filtering easier
+          tags: selectedTag ? [selectedTag] : []
+        }])
+        .select();
 
       if (error) {
         console.error("Error saving timeline entry:", error);
@@ -81,6 +93,7 @@ const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
         return;
       }
 
+      console.log("Timeline entry saved successfully:", data);
       toast.success("Your moment has been saved to your timeline");
       onSaved();
     } catch (error) {
