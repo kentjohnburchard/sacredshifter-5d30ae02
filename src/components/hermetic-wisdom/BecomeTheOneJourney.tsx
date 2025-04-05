@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +12,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { JourneyPhase } from "@/types/frequencies";
 import FrequencyPlayer from "@/components/FrequencyPlayer";
 import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 interface BecomeTheOneJourneyProps {
   onStartJourney?: () => void;
@@ -80,12 +81,42 @@ const BecomeTheOneJourney: React.FC<BecomeTheOneJourneyProps> = ({ onStartJourne
   const [activePhase, setActivePhase] = useState<number>(0);
   const [declaration, setDeclaration] = useState<string>("");
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [consciousnessMode, setConsciousnessMode] = useState<"normal" | "kent">("normal");
+  const [currentQuote, setCurrentQuote] = useState<string>("");
   const { user } = useAuth();
   
   const currentPhase = becomeTheOnePhases[activePhase];
   const totalDuration = becomeTheOnePhases.reduce((sum, phase) => sum + (phase.duration || 0), 0);
   const formattedTotalDuration = `${Math.floor(totalDuration / 60)} minutes`;
-  
+
+  React.useEffect(() => {
+    const fetchQuote = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('journey_quotes')
+          .select('quote')
+          .eq('journey_slug', 'become-the-one')
+          .eq('mode', consciousnessMode)
+          .or(`phase.eq.${currentPhase.title.toLowerCase().split('–')[0].trim()},phase.eq.general`)
+          .limit(1)
+          .single();
+
+        if (error) {
+          console.error("Error fetching quote:", error);
+          return;
+        }
+
+        if (data) {
+          setCurrentQuote(data.quote);
+        }
+      } catch (err) {
+        console.error("Unexpected error:", err);
+      }
+    };
+
+    fetchQuote();
+  }, [activePhase, consciousnessMode]);
+
   const handleNextPhase = () => {
     if (activePhase < becomeTheOnePhases.length - 1) {
       setActivePhase(activePhase + 1);

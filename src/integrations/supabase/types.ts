@@ -247,6 +247,33 @@ export type Database = {
         }
         Relationships: []
       }
+      journey_quotes: {
+        Row: {
+          created_at: string | null
+          id: string
+          journey_slug: string
+          mode: string
+          phase: string
+          quote: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          journey_slug: string
+          mode: string
+          phase: string
+          quote: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          journey_slug?: string
+          mode?: string
+          phase?: string
+          quote?: string
+        }
+        Relationships: []
+      }
       meditation_music: {
         Row: {
           audio_url: string
