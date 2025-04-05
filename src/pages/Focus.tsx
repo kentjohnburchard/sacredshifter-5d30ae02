@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
-import { Play, Pause, SkipForward, SkipBack, Volume2, Music, AudioWaves } from "lucide-react";
+import { Play, Pause, SkipForward, SkipBack, Volume2, Music, AudioLines } from "lucide-react";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { formatTime } from "@/lib/utils";
@@ -164,7 +164,7 @@ const Focus = () => {
                         )}
                         {audioSrc && !loading && (
                           <div className="mt-2 text-sm flex items-center justify-center gap-1 text-purple-600">
-                            <AudioWaves className="h-4 w-4" />
+                            <AudioLines className="h-4 w-4" />
                             <span>{getFrequencyName(session.frequency)}</span>
                           </div>
                         )}
