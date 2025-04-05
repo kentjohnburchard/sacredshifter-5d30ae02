@@ -1,19 +1,13 @@
 
-export interface AztroResponse {
-  date_range: string;
-  current_date: string;
-  description: string;
-  compatibility: string;
-  mood: string;
-  color: string;
-  lucky_number: string;
-  lucky_time: string;
-}
+import { AztroResponse } from "./astro.types";
 
 export async function fetchDailyHoroscope(sign: string): Promise<AztroResponse> {
   try {
     const response = await fetch(`https://aztro.sameerkumar.website/?sign=${sign}&day=today`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
     
     if (!response.ok) {
