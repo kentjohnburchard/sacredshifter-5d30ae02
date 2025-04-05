@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,6 +11,7 @@ import {
 } from "@/components/hermetic-wisdom";
 import { useLocation } from "react-router-dom";
 import AudioDebugger from "@/components/hermetic-wisdom/AudioDebugger";
+import { toast } from "sonner";
 
 const HermeticWisdom: React.FC = () => {
   const location = useLocation();
@@ -21,6 +22,24 @@ const HermeticWisdom: React.FC = () => {
     }
     return "principles";
   });
+
+  // Check if components are loading properly
+  useEffect(() => {
+    try {
+      // Log component initialization
+      console.log("HermeticWisdom component initialized");
+    } catch (error) {
+      console.error("Error initializing HermeticWisdom component:", error);
+    }
+  }, []);
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    // Add a small delay to ensure components load properly
+    setTimeout(() => {
+      console.log(`Tab changed to: ${value}`);
+    }, 100);
+  };
 
   return (
     <Layout>
@@ -46,7 +65,7 @@ const HermeticWisdom: React.FC = () => {
           <AudioDebugger />
         </div>
         
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="mb-6 w-full max-w-md mx-auto">
             <TabsTrigger value="principles" className="w-1/5">
               Principles

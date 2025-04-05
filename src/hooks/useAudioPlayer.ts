@@ -13,6 +13,7 @@ export const useAudioPlayer = () => {
   useEffect(() => {
     // Create audio element if it doesn't exist
     if (!audioRef.current) {
+      console.log("Creating new Audio element");
       audioRef.current = new Audio();
     }
     
@@ -52,13 +53,21 @@ export const useAudioPlayer = () => {
       audio.removeEventListener('timeupdate', setAudioTime);
       audio.removeEventListener('error', handleAudioError);
       audio.removeEventListener('ended', handleAudioEnded);
-      audio.pause();
+      
+      // Pause audio when component is unmounted
+      if (isAudioPlaying) {
+        console.log("Pausing audio on cleanup");
+        audio.pause();
+      }
     };
-  }, []);
+  }, [isAudioPlaying]);
 
   const formatAudioUrl = (url: string): string => {
     // If it's already a proper URL with http/https, return as is
-    if (!url) return '';
+    if (!url) {
+      console.warn("Empty audio URL provided");
+      return '';
+    }
     
     if (url.startsWith('http://') || url.startsWith('https://')) {
       return url;
@@ -72,6 +81,7 @@ export const useAudioPlayer = () => {
     }
     
     // For other URLs, assume they're relative to the app's root
+    console.log("Using relative URL:", url);
     return url;
   };
 
@@ -100,11 +110,14 @@ export const useAudioPlayer = () => {
         // Set new source
         audioRef.current.src = formattedUrl;
         audioRef.current.load();
+        console.log("Audio started loading:", formattedUrl);
       } catch (err) {
         console.error("Error setting audio source:", err);
         setAudioError(`Error setting audio source: ${err}`);
         toast.error("Failed to load audio file");
       }
+    } else {
+      console.error("Audio element not initialized");
     }
   };
 
@@ -179,4 +192,3 @@ export const useAudioPlayer = () => {
     formatAudioUrl
   };
 };
-

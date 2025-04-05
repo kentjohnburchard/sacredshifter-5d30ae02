@@ -10,7 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 import FrequencyPlayer from "@/components/FrequencyPlayer";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface HermeticFrequencyCardProps {
   frequency: FrequencyLibraryItem;
@@ -20,6 +20,7 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
   const [isPlaying, setIsPlaying] = useState(false);
   const [fractalVisual, setFractalVisual] = useState<FractalVisual | null>(null);
   const [showFractalDialog, setShowFractalDialog] = useState(false);
+  const [isLoadingFractal, setIsLoadingFractal] = useState(true);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -27,32 +28,60 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
 
   useEffect(() => {
     const fetchFractalVisual = async () => {
+      setIsLoadingFractal(true);
       try {
-        const { data, error } = await supabase
+        console.log(`Fetching fractal visual for frequency: ${frequency.frequency}Hz`);
+        
+        // First try exact match by frequency
+        let { data, error } = await supabase
           .from("fractal_visuals")
           .select("*")
           .eq("frequency", frequency.frequency)
-          .limit(1)
-          .single();
+          .limit(1);
 
         if (error) {
-          if (error.code !== 'PGRST116') {
-            console.error("Error fetching fractal visual:", error);
-          }
+          console.error("Error fetching fractal visual:", error);
+          setIsLoadingFractal(false);
           return;
         }
 
-        if (data) {
-          setFractalVisual(data);
-          frequency.fractal_visual = data;
+        // If no exact match, try by chakra or principle
+        if (!data || data.length === 0) {
+          const query = supabase.from("fractal_visuals").select("*");
+          
+          if (frequency.chakra) {
+            query.eq("chakra", frequency.chakra);
+          } else if (frequency.principle) {
+            query.eq("principle", frequency.principle);
+          }
+          
+          const { data: altData, error: altError } = await query.limit(1);
+          
+          if (altError) {
+            console.error("Error fetching alternative fractal visual:", altError);
+            setIsLoadingFractal(false);
+            return;
+          }
+          
+          data = altData;
+        }
+
+        if (data && data.length > 0) {
+          console.log("Fractal visual found:", data[0]);
+          setFractalVisual(data[0]);
+          frequency.fractal_visual = data[0];
+        } else {
+          console.log("No fractal visual found for this frequency");
         }
       } catch (err) {
         console.error("Failed to fetch fractal visual:", err);
+      } finally {
+        setIsLoadingFractal(false);
       }
     };
 
     fetchFractalVisual();
-  }, [frequency.frequency]);
+  }, [frequency.frequency, frequency.chakra, frequency.principle]);
 
   const getChakraColor = (chakra: string): string => {
     switch (chakra?.toLowerCase()) {
@@ -116,7 +145,8 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
     navigate(`/frequency/${frequency.id}`);
   };
 
-  const handleExpandFractal = () => {
+  const handleExpandFractal = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setShowFractalDialog(true);
   };
 
@@ -164,7 +194,13 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
                 : undefined
           }}
         >
-          {(!fractalVisual?.visual_url && !frequency.visual_url) && (
+          {isLoadingFractal && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100/50">
+              <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          )}
+          
+          {(!fractalVisual?.visual_url && !frequency.visual_url && !isLoadingFractal) && (
             <div className={`absolute inset-0 bg-gradient-to-b ${chakraGradient} opacity-75`}></div>
           )}
           
@@ -175,10 +211,7 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
               variant="ghost" 
               size="icon" 
               className="absolute top-2 right-2 bg-black/40 hover:bg-black/60 text-white rounded-full z-10"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleExpandFractal();
-              }}
+              onClick={handleExpandFractal}
             >
               <Maximize2 className="h-4 w-4" />
               <span className="sr-only">Expand Fractal</span>
@@ -310,13 +343,19 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
           <DialogHeader>
             <DialogTitle className="sr-only">Fractal Visualization</DialogTitle>
           </DialogHeader>
-          <div className="relative w-full h-full">
-            <div 
-              className={`absolute inset-0 bg-cover bg-center ${getFractalAnimationClass(fractalVisual?.type)}`}
-              style={{
-                backgroundImage: fractalVisual?.visual_url ? `url(${fractalVisual.visual_url})` : undefined
-              }}
-            />
+          <div className="relative w-full h-full min-h-[400px]">
+            {fractalVisual?.visual_url ? (
+              <div 
+                className={`absolute inset-0 bg-cover bg-center ${getFractalAnimationClass(fractalVisual?.type)}`}
+                style={{
+                  backgroundImage: `url(${fractalVisual.visual_url})`
+                }}
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                <p className="text-gray-500">Fractal visual not available</p>
+              </div>
+            )}
             
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-6">
               <div className="text-white max-w-xl">
