@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -55,7 +54,7 @@ const HermeticWisdomLibrary = () => {
           frequency: journey.frequency,
           chakra: journey.chakra,
           principle: journey.principle,
-          // Using valid mp3 URLs that will work
+          // Using working audio URLs from pixabay
           audioUrl: "https://cdn.pixabay.com/download/audio/2022/03/18/audio_270f8897e1.mp3", 
           tags: [journey.tag, journey.chakra.toLowerCase(), "frequency"],
           duration: 180 + Math.floor(Math.random() * 180) // random duration between 3-6 minutes
@@ -96,11 +95,6 @@ const HermeticWisdomLibrary = () => {
 
   // Toggle play/pause for the current track
   const handlePlayToggle = () => {
-    if (isPlaying) {
-      toast.info("Pausing audio");
-    } else {
-      toast.info("Playing audio");
-    }
     setIsPlaying(!isPlaying);
   };
 

@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause } from "lucide-react";
 import { toast } from "sonner";
@@ -21,6 +21,26 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   
+  // Format the audio URL to ensure it's a proper URL
+  const formatAudioUrl = (url: string): string => {
+    // If it's already a proper URL with http/https, return as is
+    if (!url) return '';
+    
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    
+    // If it's a path to a file from Pixabay, fix the URL
+    if (url.includes('pixabay.com') || url.includes('/music/')) {
+      // Make sure there's no leading slash in the path
+      const path = url.startsWith('/') ? url.substring(1) : url;
+      return `https://cdn.pixabay.com/download/audio/${path}`;
+    }
+    
+    // For other URLs, assume they're relative to the app's root
+    return url;
+  };
+  
   // Initialize or update the audio element when audioUrl changes
   useEffect(() => {
     if (!audioUrl) {
@@ -30,13 +50,16 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       return;
     }
 
-    // Format the URL correctly - this is the key fix
+    // Format the URL correctly
     const formattedUrl = formatAudioUrl(audioUrl);
     console.log("Formatted audio URL:", formattedUrl);
     
-    // Create a new audio element
-    const audio = new Audio();
-    audioRef.current = audio;
+    // Create a new audio element if it doesn't exist
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+    }
+    
+    const audio = audioRef.current;
     
     // Add event listeners
     const handleCanPlay = () => {
@@ -66,34 +89,11 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     audio.load();
     
     return () => {
-      if (audio) {
-        audio.pause();
-        audio.removeEventListener("canplaythrough", handleCanPlay);
-        audio.removeEventListener("error", handleError);
-        audio.removeEventListener("ended", handleEnded);
-        audio.src = "";
-      }
+      audio.removeEventListener("canplaythrough", handleCanPlay);
+      audio.removeEventListener("error", handleError);
+      audio.removeEventListener("ended", handleEnded);
     };
   }, [audioUrl, onPlayToggle]);
-  
-  // Format the audio URL to ensure it's a proper URL
-  const formatAudioUrl = (url: string): string => {
-    // If it's already a proper URL with http/https, return as is
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
-    }
-    
-    // If it's a path to a file from Pixabay, fix the URL
-    // Pixabay URLs often come as /music/... instead of https://pixabay.com/music/...
-    if (url.includes('pixabay.com') || url.includes('/music/')) {
-      // Make sure there's no leading slash in the path
-      const path = url.startsWith('/') ? url.substring(1) : url;
-      return `https://cdn.pixabay.com/${path}`;
-    }
-    
-    // For other URLs, assume they're relative to the app's root
-    return url;
-  };
   
   // Handle play/pause toggling
   useEffect(() => {
@@ -106,14 +106,14 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       if (playPromise !== undefined) {
         playPromise.catch(error => {
           console.error("Error playing audio:", error);
-          onPlayToggle(); // Reset playing state on error
+          // Don't automatically toggle state here - let the parent handle it
           toast.error("Unable to play audio. Please try again.");
         });
       }
-    } else {
+    } else if (audioRef.current) {
       audioRef.current.pause();
     }
-  }, [isPlaying, onPlayToggle, audioUrl, hasError]);
+  }, [isPlaying, hasError]);
 
   return (
     <div className="flex items-center gap-2">
@@ -122,7 +122,11 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
         size="icon"
         disabled={isLoading || hasError}
         className={`h-10 w-10 rounded-full ${hasError ? 'bg-red-100' : 'border-white/20 bg-white/10'} text-white hover:bg-white/20 hover:text-white ${isLoading ? 'opacity-50' : ''}`}
-        onClick={onPlayToggle}
+        onClick={() => {
+          if (!isLoading && !hasError) {
+            onPlayToggle();
+          }
+        }}
         aria-label={isPlaying ? "Pause" : "Play"}
       >
         {isPlaying ? (

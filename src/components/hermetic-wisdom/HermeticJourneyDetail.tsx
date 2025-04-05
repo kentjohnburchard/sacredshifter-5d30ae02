@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,14 +34,17 @@ const HermeticJourneyDetail: React.FC<HermeticJourneyDetailProps> = ({ journey, 
   }, [journey.principle]);
 
   const handleStartJourney = () => {
-    // Navigate to the frequency journey player with this frequency
     navigate(`/journey/${journey.frequency}`);
     toast.success(`Starting ${journey.title} journey`);
   };
 
   const handleTrackPlay = (track: HermeticTrack) => {
-    setCurrentPlayingTrack(track);
-    setIsAudioPlaying(true);
+    if (currentPlayingTrack && currentPlayingTrack.id === track.id) {
+      setIsAudioPlaying(!isAudioPlaying);
+    } else {
+      setCurrentPlayingTrack(track);
+      setIsAudioPlaying(true);
+    }
   };
 
   const handleTrackUploaded = (newTrack: HermeticTrack) => {
