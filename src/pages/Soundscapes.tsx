@@ -12,21 +12,7 @@ const Soundscapes: React.FC = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
       >
-        <motion.div
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-        >
-          <h2 className="text-3xl font-bold mb-4 text-indigo-700 dark:text-indigo-400">
-            Immersive Soundscapes
-          </h2>
-          <p className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
-            Explore our collection of healing soundscapes designed to transport you to states of deep relaxation and transformation.
-          </p>
-        </motion.div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mt-8">
           {soundscapeItems.map((item, index) => (
             <motion.div 
               key={index}

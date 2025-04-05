@@ -10,7 +10,6 @@ import {
   VisualVibrationViewer
 } from "@/components/hermetic-wisdom";
 import { useLocation } from "react-router-dom";
-import AudioDebugger from "@/components/hermetic-wisdom/AudioDebugger";
 import { toast } from "sonner";
 
 const HermeticWisdom: React.FC = () => {
@@ -60,10 +59,6 @@ const HermeticWisdom: React.FC = () => {
             and fractal visuals aligned with chakra energy centers.
           </p>
         </motion.div>
-        
-        <div className="mb-6">
-          <AudioDebugger />
-        </div>
         
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="mb-6 w-full max-w-md mx-auto">

@@ -86,55 +86,15 @@ const ChakraAlignmentSection: React.FC = () => {
   };
 
   return (
-    <section className="py-16 sm:py-24 bg-gradient-to-b from-white to-purple-50">
+    <section className="py-8 sm:py-12 bg-gradient-to-b from-white to-purple-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-light tracking-tight">
-            <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">
-              Chakra Alignment
-            </span>
-          </h2>
-          <p className="mt-4 text-gray-600 max-w-2xl mx-auto">
-            Balance your energy centers with sacred frequencies specifically tuned to each chakra.
-            Select a chakra to begin your healing journey.
-          </p>
-        </div>
-        
-        <div className="flex flex-col items-center mb-12">
-          <div className="relative w-[280px] h-[500px] sm:w-[320px] sm:h-[600px]">
-            {/* Human body silhouette */}
-            <div className="absolute inset-0 bg-gray-200/50 rounded-full w-32 h-32 mx-auto mt-12"></div>
-            
-            {/* Chakra points */}
-            {chakras.map((chakra, index) => {
-              // Calculate position based on index
-              const top = 75 + index * (450 / (chakras.length - 1));
-              
-              return (
-                <motion.button
-                  key={chakra.id}
-                  initial={{ scale: 1 }}
-                  animate={{ 
-                    scale: selectedChakra === chakra.id ? [1, 1.2, 1] : 1,
-                    boxShadow: selectedChakra === chakra.id ? "0 0 15px 5px rgba(255,255,255,0.7)" : "none"
-                  }}
-                  transition={{ duration: 2, repeat: selectedChakra === chakra.id ? Infinity : 0 }}
-                  onClick={() => handleSelectChakra(chakra.id)}
-                  className={`absolute left-1/2 transform -translate-x-1/2 w-6 h-6 rounded-full ${chakra.color} z-10`}
-                  style={{ top: `${top}px` }}
-                >
-                  <span className="sr-only">{chakra.name}</span>
-                </motion.button>
-              );
-            })}
-          </div>
-        </div>
-        
+        {/* Chakra details card - Shown first on mobile */}
         {selectedChakra && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
+            className="mb-8 md:mb-12"
           >
             {chakras.filter(chakra => chakra.id === selectedChakra).map(chakra => (
               <Card key={chakra.id} className="border border-gray-200 overflow-hidden max-w-2xl mx-auto">
@@ -169,9 +129,62 @@ const ChakraAlignmentSection: React.FC = () => {
           </motion.div>
         )}
         
+        {/* Chakra selection visualization */}
+        <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12">
+          {/* Chakra points visualization */}
+          <div className="relative w-[280px] h-[500px] sm:w-[320px] sm:h-[600px] order-2 md:order-1">
+            {/* Human body silhouette */}
+            <div className="absolute inset-0 bg-gray-200/50 rounded-full w-32 h-32 mx-auto mt-12"></div>
+            
+            {/* Chakra points */}
+            {chakras.map((chakra, index) => {
+              // Calculate position based on index
+              const top = 75 + index * (450 / (chakras.length - 1));
+              
+              return (
+                <motion.button
+                  key={chakra.id}
+                  initial={{ scale: 1 }}
+                  animate={{ 
+                    scale: selectedChakra === chakra.id ? [1, 1.2, 1] : 1,
+                    boxShadow: selectedChakra === chakra.id ? "0 0 15px 5px rgba(255,255,255,0.7)" : "none"
+                  }}
+                  transition={{ duration: 2, repeat: selectedChakra === chakra.id ? Infinity : 0 }}
+                  onClick={() => handleSelectChakra(chakra.id)}
+                  className={`absolute left-1/2 transform -translate-x-1/2 w-6 h-6 rounded-full ${chakra.color} z-10`}
+                  style={{ top: `${top}px` }}
+                >
+                  <span className="sr-only">{chakra.name}</span>
+                </motion.button>
+              );
+            })}
+          </div>
+          
+          {/* Chakra list (on larger screens) */}
+          <div className="order-1 md:order-2 w-full md:w-auto">
+            <div className="grid grid-cols-2 md:grid-cols-1 gap-2 md:gap-3 max-w-xs">
+              {chakras.map((chakra) => (
+                <button
+                  key={chakra.id}
+                  onClick={() => handleSelectChakra(chakra.id)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
+                    selectedChakra === chakra.id
+                      ? `${chakra.color.replace('bg-', 'bg-')} text-white`
+                      : 'bg-white/80 hover:bg-white'
+                  }`}
+                >
+                  <div className={`w-3 h-3 rounded-full ${chakra.color}`}></div>
+                  <span className="text-sm font-medium">{chakra.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        
+        {/* Instructions when no chakra is selected */}
         {!selectedChakra && (
-          <div className="text-center text-gray-500">
-            <p>Select a chakra point on the figure to explore</p>
+          <div className="text-center text-gray-500 mt-8">
+            <p>Select a chakra point to explore</p>
           </div>
         )}
       </div>
