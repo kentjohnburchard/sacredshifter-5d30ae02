@@ -5,11 +5,11 @@ import { Play, Pause } from "lucide-react";
 import { toast } from "sonner";
 
 interface FrequencyPlayerProps {
-  audioUrl?: string; // Make audioUrl optional
-  url?: string; // Add support for the url field
+  audioUrl?: string;
+  url?: string;
   isPlaying: boolean;
   onPlayToggle: () => void;
-  frequency?: number; // Optional frequency prop
+  frequency?: number;
 }
 
 const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
@@ -23,75 +23,61 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   
-  // Prioritize URL, fallback to audioUrl
-  const effectiveAudioUrl = url || audioUrl;
-  
-  // Format the audio URL to ensure it's a proper URL
-  const formatAudioUrl = (inputUrl: string): string => {
+  // Improved URL formatting function
+  const formatAudioUrl = (inputUrl?: string): string => {
     if (!inputUrl) return '';
     
-    // If it's already a proper URL with http/https, return as is
+    // If it's already a full URL, return as is
     if (inputUrl.startsWith('http://') || inputUrl.startsWith('https://')) {
       return inputUrl;
     }
     
-    // If it's a simple path, assume it's a Supabase storage URL
-    if (!inputUrl.includes('/')) {
-      return `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${inputUrl}`;
-    }
-    
-    // For other URLs, assume they're relative to the app's root
-    return inputUrl;
+    // Construct Supabase storage URL
+    return `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${inputUrl}`;
   };
   
-  // Initialize or update the audio element when audioUrl changes
+  // Determine the best audio URL to use
+  const effectiveAudioUrl = formatAudioUrl(url || audioUrl);
+  
   useEffect(() => {
     if (!effectiveAudioUrl) {
-      console.error("No audio URL provided to FrequencyPlayer");
+      console.error("No valid audio URL provided");
       setHasError(true);
       setIsLoading(false);
       return;
     }
 
-    // Format the URL correctly
-    const formattedUrl = formatAudioUrl(effectiveAudioUrl);
-    console.log("Formatted audio URL:", formattedUrl);
+    console.log("Attempting to play audio from URL:", effectiveAudioUrl);
     
     // Create a new audio element if it doesn't exist
     if (!audioRef.current) {
-      audioRef.current = new Audio();
+      audioRef.current = new Audio(effectiveAudioUrl);
+    } else {
+      audioRef.current.src = effectiveAudioUrl;
     }
     
     const audio = audioRef.current;
     
-    // Add event listeners
     const handleCanPlay = () => {
       setIsLoading(false);
-      console.log("Audio ready to play:", formattedUrl);
+      console.log("Audio ready to play:", effectiveAudioUrl);
     };
     
     const handleError = (err: Event) => {
       console.error("Audio error:", err);
       setHasError(true);
       setIsLoading(false);
-      toast.error(`Failed to load audio: ${formattedUrl.substring(0, 50)}...`);
+      toast.error(`Failed to load audio: ${effectiveAudioUrl}`);
     };
     
-    // Handle ended event
     const handleEnded = () => {
       console.log("Audio playback ended");
-      onPlayToggle(); // Reset playing state when audio ends
+      onPlayToggle();
     };
 
     audio.addEventListener("canplaythrough", handleCanPlay);
     audio.addEventListener("error", handleError);
     audio.addEventListener("ended", handleEnded);
-    
-    // Set the audio source and load it
-    audio.src = formattedUrl;
-    audio.load();
-    setIsLoading(true);
-    setHasError(false);
     
     return () => {
       audio.removeEventListener("canplaythrough", handleCanPlay);
@@ -100,19 +86,17 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     };
   }, [effectiveAudioUrl, onPlayToggle]);
   
-  // Handle play/pause toggling
   useEffect(() => {
     if (!audioRef.current || hasError) return;
     
     if (isPlaying) {
-      console.log("Attempting to play audio:", audioRef.current.src);
       const playPromise = audioRef.current.play();
       
       if (playPromise !== undefined) {
         playPromise.catch(error => {
           console.error("Error playing audio:", error);
           setHasError(true);
-          toast.error("Unable to play audio. Please try again.");
+          toast.error("Unable to play audio. Please check the file.");
         });
       }
     } else if (audioRef.current) {
