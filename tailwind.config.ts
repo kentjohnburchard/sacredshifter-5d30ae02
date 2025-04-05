@@ -73,6 +73,17 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Adding custom brand colors
+        brand: {
+          purple: "hsl(var(--brand-purple))",
+          blue: "hsl(var(--brand-blue))",
+          aurapink: "hsl(var(--brand-aurapink))"
+        },
+        cosmic: {
+          indigo: "hsl(var(--cosmic-indigo))",
+          blue: "hsl(var(--cosmic-blue))",
+          violet: "hsl(var(--cosmic-violet))"
+        }
       },
       borderRadius: {
         lg: "var(--radius)",
