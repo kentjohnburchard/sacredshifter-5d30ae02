@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState, useEffect, useRef } from "react";
 import Layout from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
-import { Play, Pause, SkipForward, SkipBack, Volume2 } from "lucide-react";
+import { Play, Pause, SkipForward, SkipBack, Volume2, Music, Waveform } from "lucide-react";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { formatTime } from "@/lib/utils";
 import { toast } from "sonner";
+import { createFrequencyBlobUrl, getFrequencyName } from "@/utils/audioUtils";
 
 const focusSessions = [
   {
@@ -16,7 +18,7 @@ const focusSessions = [
     name: "Pomodoro",
     description: "25 minutes of focused work followed by a 5-minute break",
     duration: 25 * 60, // 25 minutes in seconds
-    frequency: "396 Hz",
+    frequency: 396,
     benefits: "Enhances focus and concentration",
   },
   {
@@ -24,7 +26,7 @@ const focusSessions = [
     name: "Deep Work",
     description: "50 minutes of deep focus followed by a 10-minute break",
     duration: 50 * 60, // 50 minutes in seconds
-    frequency: "528 Hz",
+    frequency: 528,
     benefits: "Promotes clarity and deep concentration",
   },
   {
@@ -32,7 +34,7 @@ const focusSessions = [
     name: "Quick Focus",
     description: "15 minutes of intense focus for quick tasks",
     duration: 15 * 60, // 15 minutes in seconds
-    frequency: "432 Hz",
+    frequency: 432,
     benefits: "Helps with quick bursts of productivity",
   },
 ];
@@ -44,16 +46,38 @@ const Focus = () => {
   const [volume, setVolume] = useLocalStorage("focusVolume", 80);
   const [remainingTime, setRemainingTime] = useState(activeSession.duration);
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
+  const [audioSrc, setAudioSrc] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   
   const { 
     audioRef, 
     togglePlayPause, 
     handleTimeUpdate, 
     handleVolumeChange,
+    setAudioSource,
     duration,
     currentAudioTime,
     isAudioPlaying
   } = useAudioPlayer();
+  
+  // Load the appropriate frequency audio when session changes
+  useEffect(() => {
+    const loadFrequencyAudio = async () => {
+      try {
+        setLoading(true);
+        const audioBlobUrl = await createFrequencyBlobUrl(activeSession.frequency);
+        setAudioSrc(audioBlobUrl);
+        setAudioSource(audioBlobUrl);
+        setLoading(false);
+      } catch (error) {
+        console.error("Failed to load frequency audio:", error);
+        toast.error("Failed to load frequency audio");
+        setLoading(false);
+      }
+    };
+    
+    loadFrequencyAudio();
+  }, [activeSession, setAudioSource]);
   
   // Reset timer when changing sessions
   useEffect(() => {
@@ -140,6 +164,15 @@ const Focus = () => {
                       <div className="text-center mb-8">
                         <h3 className="text-2xl font-light mb-2">{session.name}</h3>
                         <p className="text-gray-600">{session.description}</p>
+                        {loading && (
+                          <div className="mt-2 text-sm text-purple-600">Loading frequency audio...</div>
+                        )}
+                        {audioSrc && !loading && (
+                          <div className="mt-2 text-sm flex items-center justify-center gap-1 text-purple-600">
+                            <Waveform className="h-4 w-4" />
+                            <span>{getFrequencyName(session.frequency)}</span>
+                          </div>
+                        )}
                       </div>
                       
                       <div className="flex flex-col items-center justify-center space-y-8">
@@ -168,6 +201,7 @@ const Focus = () => {
                             size="lg"
                             className="w-16 h-16 rounded-full bg-purple-600 hover:bg-purple-700"
                             onClick={handleStartSession}
+                            disabled={loading}
                           >
                             {isPlaying ? (
                               <Pause className="h-6 w-6" />
@@ -218,7 +252,10 @@ const Focus = () => {
                 <div className="space-y-4">
                   <div>
                     <h4 className="text-sm font-medium text-gray-500">FREQUENCY</h4>
-                    <p className="text-lg">{activeSession.frequency}</p>
+                    <div className="flex items-center gap-2 text-lg">
+                      <Music className="h-4 w-4 text-purple-500" />
+                      <span>{activeSession.frequency} Hz</span>
+                    </div>
                   </div>
                   
                   <div>
@@ -272,12 +309,14 @@ const Focus = () => {
         </Card>
       </div>
       
-      <audio 
-        ref={audioRef}
-        src="/sounds/focus-ambient.mp3" 
-        loop 
-        onTimeUpdate={handleTimeUpdate}
-      />
+      {audioSrc && (
+        <audio 
+          ref={audioRef}
+          src={audioSrc} 
+          loop 
+          onTimeUpdate={handleTimeUpdate}
+        />
+      )}
     </Layout>
   );
 };
