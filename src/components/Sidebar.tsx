@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useSession } from '@supabase/auth-helpers-react';
@@ -86,9 +85,7 @@ const Sidebar = () => {
       <div className="flex items-center justify-center mb-4">
         <Link to="/" className="flex items-center gap-2 px-4 py-2">
           <Logo />
-          <span className="text-xl font-semibold text-foreground">
-            Sacred <span className="text-purple-600">Shifter</span>
-          </span>
+          {/* Sacred Shifter text removed */}
         </Link>
       </div>
       
