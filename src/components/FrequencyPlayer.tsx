@@ -12,7 +12,7 @@ interface FrequencyPlayerProps {
   onPlayToggle: () => void;
   frequency?: number;
   frequencyId?: string;
-  id?: string; // Added id prop for identifying specific player instances
+  id?: string;
 }
 
 const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
@@ -22,7 +22,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   onPlayToggle,
   frequency,
   frequencyId,
-  id // New id parameter
+  id
 }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -64,7 +64,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     fetchAudioFile();
   }, [frequencyId]);
   
-  // Improved URL formatting function for direct URLs
+  // Improved URL formatting function with better error handling
   const formatAudioUrl = (inputUrl?: string): string => {
     if (!inputUrl) return '';
     
@@ -97,7 +97,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     if (!audioRef.current) {
       audioRef.current = new Audio();
       if (id) {
-        audioRef.current.id = id; // Set the HTML id if provided
+        audioRef.current.id = id;
       }
     }
     

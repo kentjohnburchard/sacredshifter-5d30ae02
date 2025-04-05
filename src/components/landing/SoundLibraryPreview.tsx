@@ -112,7 +112,7 @@ const SoundLibraryPreview = () => {
   };
 
   const navigateToHermeticWisdom = () => {
-    navigate('/hermetic-wisdom');
+    navigate('/frequency-library');
   };
 
   return (
