@@ -18,6 +18,8 @@ export interface FrequencyLibraryItem {
   vibe_profile?: string;
   principle?: string; // Added for Hermetic principle association
   fractal_visual?: FractalVisual; // Reference to associated fractal visual
+  journey_template?: string; // Added for linking to journey templates
+  journey_phase?: string; // Added for multi-phase journeys
 }
 
 export interface UserSavedFrequency {
@@ -41,4 +43,37 @@ export interface FractalVisual {
   notes?: string;
   formula?: string;
   created_at?: string;
+}
+
+export interface JourneyPhase {
+  title: string;
+  description: string;
+  frequency: number | number[];
+  message: string;
+  visual_type?: string;
+  affirmation?: string;
+  activity?: string;
+  duration?: number; // in seconds
+  chakras?: string[];
+  principles?: string[];
+  fractal_visual?: FractalVisual;
+}
+
+export interface HermeticJourneyTemplate {
+  id: string;
+  title: string;
+  subtitle?: string;
+  theme: string;
+  type: string;
+  description: string;
+  frequency_anchor: number[];
+  phases: JourneyPhase[];
+  tags?: string[];
+  chakras?: string[];
+  principles?: string[];
+  duration?: number; // total duration in seconds
+  creator?: string;
+  created_at?: string;
+  visual_theme?: string;
+  color?: string;
 }
