@@ -28,6 +28,7 @@ const HermeticWisdomLibrary = () => {
         const { data: freqData, error } = await supabase
           .from('frequency_library')
           .select('*')
+          .or('audio_url.neq.null,url.neq.null')
           .limit(20);
         
         if (error) {
@@ -35,14 +36,20 @@ const HermeticWisdomLibrary = () => {
           return [];
         }
         
+        // Filter out entries where audio_url or url exist but are empty strings
+        const validFrequencies = freqData.filter(freq => 
+          (freq.audio_url && freq.audio_url.trim() !== '') || 
+          (freq.url && freq.url.trim() !== '')
+        );
+        
         // Filter to only the frequencies that might be related to Hermetic principles
-        const hermeticFrequencies = freqData.filter(freq => 
+        const hermeticFrequencies = validFrequencies.filter(freq => 
           freq.tags?.some((tag: string) => tag.toLowerCase().includes('hermetic')) ||
           freq.category?.toLowerCase().includes('hermetic') ||
           freq.title?.toLowerCase().includes('hermetic')
-        ) || freqData;
+        ) || validFrequencies;
         
-        console.log("Found Hermetic frequencies:", hermeticFrequencies);
+        console.log("Found Hermetic frequencies with audio:", hermeticFrequencies.length);
         return hermeticFrequencies as FrequencyLibraryItem[];
       } catch (err) {
         console.error("Failed to fetch Hermetic frequencies:", err);

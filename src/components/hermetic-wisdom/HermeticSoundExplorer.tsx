@@ -34,62 +34,55 @@ const HermeticSoundExplorer: React.FC = () => {
   const fetchFrequencies = async () => {
     setIsLoading(true);
     try {
-      // Attempt to fetch from Supabase
+      // Fetch only frequencies that have audio_url or url set (meaning they have associated audio files)
       const { data: supabaseData, error } = await supabase
         .from('frequency_library')
-        .select('*');
+        .select('*')
+        .or('audio_url.neq.null,url.neq.null');
 
       if (error) {
         console.error("Error fetching from Supabase:", error);
-        // Use mock data from hermetic journeys as fallback
-        const mockFrequencies = hermeticJourneys.map(journey => ({
-          id: journey.id,
-          title: `${journey.frequency}Hz - ${journey.title}`,
-          frequency: journey.frequency,
-          description: journey.audioDescription,
-          chakra: journey.chakra,
-          principle: journey.principle,
-          audio_url: "https://pixabay.com/music/meditation-spiritual-zen-spiritual-yoga-meditation-relaxing-music-21400.mp3",
-          tags: [journey.tag, journey.chakra.toLowerCase(), "frequency"],
-          length: 180 + Math.floor(Math.random() * 180)
-        }));
-        setFrequencies(mockFrequencies as FrequencyLibraryItem[]);
+        fallbackToMockData();
       } else if (supabaseData && supabaseData.length > 0) {
-        // Use real data from Supabase
-        setFrequencies(supabaseData as FrequencyLibraryItem[]);
+        // Filter out entries where audio_url or url exist but are empty strings
+        const validFrequencies = supabaseData.filter(freq => 
+          (freq.audio_url && freq.audio_url.trim() !== '') || 
+          (freq.url && freq.url.trim() !== '')
+        );
+        
+        if (validFrequencies.length > 0) {
+          console.log(`Found ${validFrequencies.length} frequencies with valid audio files`);
+          setFrequencies(validFrequencies as FrequencyLibraryItem[]);
+        } else {
+          console.log("No frequencies with valid audio URLs found, using mock data");
+          fallbackToMockData();
+        }
       } else {
-        // No data or empty array, fall back to mock data
-        const mockFrequencies = hermeticJourneys.map(journey => ({
-          id: journey.id,
-          title: `${journey.frequency}Hz - ${journey.title}`,
-          frequency: journey.frequency,
-          description: journey.audioDescription,
-          chakra: journey.chakra,
-          principle: journey.principle,
-          audio_url: "https://pixabay.com/music/meditation-spiritual-zen-spiritual-yoga-meditation-relaxing-music-21400.mp3",
-          tags: [journey.tag, journey.chakra.toLowerCase(), "frequency"],
-          length: 180 + Math.floor(Math.random() * 180)
-        }));
-        setFrequencies(mockFrequencies as FrequencyLibraryItem[]);
+        console.log("No frequencies found in database, using mock data");
+        fallbackToMockData();
       }
     } catch (err) {
       console.error("Error in fetchFrequencies:", err);
-      // Fallback to mock data
-      const mockFrequencies = hermeticJourneys.map(journey => ({
-        id: journey.id,
-        title: `${journey.frequency}Hz - ${journey.title}`,
-        frequency: journey.frequency,
-        description: journey.audioDescription,
-        chakra: journey.chakra,
-        principle: journey.principle,
-        audio_url: "https://pixabay.com/music/meditation-spiritual-zen-spiritual-yoga-meditation-relaxing-music-21400.mp3",
-        tags: [journey.tag, journey.chakra.toLowerCase(), "frequency"],
-        length: 180 + Math.floor(Math.random() * 180)
-      }));
-      setFrequencies(mockFrequencies as FrequencyLibraryItem[]);
+      fallbackToMockData();
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const fallbackToMockData = () => {
+    // Generate mock data from hermetic journeys as fallback
+    const mockFrequencies = hermeticJourneys.map(journey => ({
+      id: journey.id,
+      title: `${journey.frequency}Hz - ${journey.title}`,
+      frequency: journey.frequency,
+      description: journey.audioDescription,
+      chakra: journey.chakra,
+      principle: journey.principle,
+      audio_url: "https://pixabay.com/music/meditation-spiritual-zen-spiritual-yoga-meditation-relaxing-music-21400.mp3",
+      tags: [journey.tag, journey.chakra.toLowerCase(), "frequency"],
+      length: 180 + Math.floor(Math.random() * 180)
+    }));
+    setFrequencies(mockFrequencies as FrequencyLibraryItem[]);
   };
 
   // Filter frequencies based on active filters
