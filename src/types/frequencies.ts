@@ -17,6 +17,7 @@ export interface FrequencyLibraryItem {
   tags?: string[];
   vibe_profile?: string;
   principle?: string; // Added for Hermetic principle association
+  fractal_visual?: FractalVisual; // Reference to associated fractal visual
 }
 
 export interface UserSavedFrequency {
@@ -26,4 +27,18 @@ export interface UserSavedFrequency {
   created_at: string;
   notes?: string;
   frequency: FrequencyLibraryItem;
+}
+
+export interface FractalVisual {
+  id: string;
+  frequency: number;
+  chakra?: string;
+  principle?: string;
+  visual_url: string;
+  type?: string;
+  prime_number?: number;
+  title?: string;
+  notes?: string;
+  formula?: string;
+  created_at?: string;
 }

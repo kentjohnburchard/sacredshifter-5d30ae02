@@ -1,13 +1,16 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { FrequencyLibraryItem } from "@/types/frequencies";
+import { FrequencyLibraryItem, FractalVisual } from "@/types/frequencies";
 import FrequencyPlayer from "@/components/FrequencyPlayer";
 import { Badge } from "@/components/ui/badge";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import { formatDuration } from "@/utils/formatters";
+import { supabase } from "@/integrations/supabase/client";
+import { Maximize2 } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface JourneyPlayerProps {
   frequency: FrequencyLibraryItem;
@@ -27,6 +30,36 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
   const [intention, setIntention] = useState("");
   const [reflection, setReflection] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
+  const [fractalVisual, setFractalVisual] = useState<FractalVisual | null>(null);
+  const [showFractalDialog, setShowFractalDialog] = useState(false);
+  
+  useEffect(() => {
+    const fetchFractalVisual = async () => {
+      try {
+        // Query the fractal_visuals table to find matching fractal by frequency
+        const { data, error } = await supabase
+          .from("fractal_visuals")
+          .select("*")
+          .eq("frequency", frequency.frequency)
+          .maybeSingle();
+
+        if (error) {
+          console.error("Error fetching fractal visual:", error);
+          return;
+        }
+
+        if (data) {
+          setFractalVisual(data);
+          // Update the frequency object with the fractal visual
+          frequency.fractal_visual = data;
+        }
+      } catch (err) {
+        console.error("Failed to fetch fractal visual:", err);
+      }
+    };
+
+    fetchFractalVisual();
+  }, [frequency.frequency]);
   
   const handleStartSession = () => {
     if (intention.trim().length > 0) {
@@ -59,17 +92,34 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
     }
   };
 
+  const getFractalAnimationClass = (type?: string): string => {
+    if (type === 'animation') {
+      return 'animate-fractal-zoom';
+    }
+    return '';
+  };
+
   const bgGradient = getBackgroundColor(frequency.chakra);
 
   return (
     <div className="relative min-h-[80vh]">
-      {/* Pass correct props to AnimatedBackground */}
-      <div className="absolute inset-0 z-0">
-        <AnimatedBackground 
-          colorScheme={bgGradient.split(' ')[1]} 
-          isActive={isPlaying} 
-        />
-      </div>
+      {/* Fractal Visual Background */}
+      {fractalVisual?.visual_url ? (
+        <div 
+          className={`absolute inset-0 z-0 bg-cover bg-center ${getFractalAnimationClass(fractalVisual.type)}`}
+          style={{ backgroundImage: `url(${fractalVisual.visual_url})` }}
+        >
+          <div className={`absolute inset-0 bg-gradient-to-b from-black/30 to-black/70`}></div>
+        </div>
+      ) : (
+        /* Fallback to AnimatedBackground */
+        <div className="absolute inset-0 z-0">
+          <AnimatedBackground 
+            colorScheme={bgGradient.split(' ')[1]} 
+            isActive={isPlaying} 
+          />
+        </div>
+      )}
       
       <div className="relative z-10">
         <Card className="bg-black/40 backdrop-blur-md border border-white/10 text-white shadow-xl">
@@ -81,21 +131,45 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
                 </CardTitle>
                 <div className="flex mt-2 gap-2">
                   <Badge className="bg-white/20">{frequency.chakra} Chakra</Badge>
+                  {fractalVisual?.principle && (
+                    <Badge variant="outline" className="text-white/80 border-white/20">
+                      {fractalVisual.principle}
+                    </Badge>
+                  )}
                   {frequency.length && (
                     <Badge variant="outline" className="text-white/80 border-white/20">
                       {formatDuration(frequency.length)}
                     </Badge>
                   )}
+                  {fractalVisual?.prime_number && (
+                    <Badge variant="outline" className="bg-purple-500/30 text-white border-purple-300/50">
+                      Prime {fractalVisual.prime_number}
+                    </Badge>
+                  )}
                 </div>
               </div>
               
-              {frequency.audio_url && (
-                <FrequencyPlayer 
-                  audioUrl={frequency.audio_url}
-                  isPlaying={isPlaying}
-                  onPlayToggle={handlePlayToggle}
-                />
-              )}
+              <div className="flex items-center gap-2">
+                {fractalVisual && (
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    className="text-white border-white/20 hover:bg-white/10"
+                    onClick={() => setShowFractalDialog(true)}
+                  >
+                    <Maximize2 className="h-4 w-4 mr-1" />
+                    <span className="hidden sm:inline">Expand Fractal</span>
+                  </Button>
+                )}
+                
+                {frequency.audio_url && (
+                  <FrequencyPlayer 
+                    audioUrl={frequency.audio_url}
+                    isPlaying={isPlaying}
+                    onPlayToggle={handlePlayToggle}
+                  />
+                )}
+              </div>
             </div>
           </CardHeader>
           
@@ -162,6 +236,64 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
             </CardFooter>
           )}
         </Card>
+        
+        {/* Full Screen Fractal Dialog */}
+        {fractalVisual && (
+          <Dialog open={showFractalDialog} onOpenChange={setShowFractalDialog}>
+            <DialogContent className="max-w-5xl h-full max-h-[90vh] p-0 overflow-hidden">
+              <div className="relative w-full h-full">
+                <div 
+                  className={`absolute inset-0 bg-cover bg-center ${getFractalAnimationClass(fractalVisual.type)}`}
+                  style={{ backgroundImage: `url(${fractalVisual.visual_url})` }}
+                />
+                
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-6">
+                  <div className="text-white max-w-xl">
+                    <h2 className="text-2xl font-semibold mb-2">
+                      {fractalVisual.title || frequency.title || `${frequency.frequency}Hz Fractal`}
+                    </h2>
+                    
+                    <div className="flex flex-wrap items-center gap-2 mb-4">
+                      <Badge variant="outline" className="border-white/30 text-white">
+                        {frequency.frequency}Hz
+                      </Badge>
+                      <Badge variant="outline" className="border-white/30 text-white">
+                        {frequency.chakra} Chakra
+                      </Badge>
+                      {fractalVisual.principle && (
+                        <Badge variant="outline" className="border-white/30 text-white">
+                          {fractalVisual.principle} Principle
+                        </Badge>
+                      )}
+                      {fractalVisual.prime_number && (
+                        <Badge variant="outline" className="border-purple-300 bg-purple-500/30 text-white">
+                          Prime {fractalVisual.prime_number}
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    {fractalVisual.notes && (
+                      <p className="text-white/80 mb-4">{fractalVisual.notes}</p>
+                    )}
+                    
+                    {fractalVisual.formula && (
+                      <div className="bg-black/30 p-3 rounded mb-4">
+                        <p className="text-sm font-mono text-green-300">{fractalVisual.formula}</p>
+                      </div>
+                    )}
+                    
+                    <Button 
+                      className="mt-4 bg-white text-purple-800 hover:bg-white/90"
+                      onClick={() => setShowFractalDialog(false)}
+                    >
+                      Return to Journey
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     </div>
   );

@@ -3,7 +3,11 @@ import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { HermeticWisdomLibrary, HermeticSoundExplorer } from "@/components/hermetic-wisdom";
+import { 
+  HermeticWisdomLibrary, 
+  HermeticSoundExplorer,
+  FractalVisualsExplorer 
+} from "@/components/hermetic-wisdom";
 import { useLocation } from "react-router-dom";
 
 const HermeticWisdom: React.FC = () => {
@@ -32,19 +36,22 @@ const HermeticWisdom: React.FC = () => {
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Experience the vibrational essence of the Seven Hermetic Principles through sound frequencies 
-            aligned with chakra energy centers.
+            and fractal visuals aligned with chakra energy centers.
           </p>
         </motion.div>
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="mb-6 w-full max-w-md mx-auto">
-            <TabsTrigger value="principles" className="w-1/3">
+            <TabsTrigger value="principles" className="w-1/4">
               Principles
             </TabsTrigger>
-            <TabsTrigger value="sound" className="w-1/3">
+            <TabsTrigger value="sound" className="w-1/4">
               Sound Library
             </TabsTrigger>
-            <TabsTrigger value="journeys" className="w-1/3">
+            <TabsTrigger value="fractals" className="w-1/4">
+              Fractals
+            </TabsTrigger>
+            <TabsTrigger value="journeys" className="w-1/4">
               My Journeys
             </TabsTrigger>
           </TabsList>
@@ -55,6 +62,10 @@ const HermeticWisdom: React.FC = () => {
           
           <TabsContent value="sound" className="space-y-6">
             <HermeticSoundExplorer />
+          </TabsContent>
+          
+          <TabsContent value="fractals" className="space-y-6">
+            <FractalVisualsExplorer />
           </TabsContent>
           
           <TabsContent value="journeys" className="space-y-6">

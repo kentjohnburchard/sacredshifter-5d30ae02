@@ -7,3 +7,4 @@ export { default as HermeticPrincipleCard } from './HermeticPrincipleCard';
 export { default as HermeticWisdomLibrary } from './HermeticWisdomLibrary';
 export { default as HermeticSoundExplorer } from './HermeticSoundExplorer';
 export { default as HermeticFrequencyCard } from './HermeticFrequencyCard';
+export { default as FractalVisualsExplorer } from './FractalVisualsExplorer';
