@@ -24,22 +24,57 @@ const HermeticWisdomLibrary = () => {
     queryKey: ["hermetic-frequencies"],
     queryFn: async () => {
       try {
+        // First, try to get frequencies with associated audio files
+        const { data: audioFrequencies, error: audioFreqError } = await supabase
+          .from('frequency_audio_files')
+          .select(`
+            id,
+            frequency_id,
+            filename,
+            title,
+            description,
+            frequency_library(*)
+          `)
+          .limit(20);
+
+        if (audioFreqError) {
+          console.error("Error fetching audio frequencies:", audioFreqError);
+        } else if (audioFrequencies && audioFrequencies.length > 0) {
+          console.log("Found frequencies with audio files:", audioFrequencies);
+          
+          // Map to the expected FrequencyLibraryItem format
+          const mappedFrequencies = audioFrequencies.map(item => {
+            const freqData = item.frequency_library as FrequencyLibraryItem;
+            return {
+              ...freqData,
+              audio_url: item.filename, // Use the filename from the audio_files table
+              title: item.title || freqData.title,
+              description: item.description || freqData.description,
+            };
+          }).filter(f => f); // Filter out any null values
+          
+          if (mappedFrequencies.length > 0) {
+            return mappedFrequencies as FrequencyLibraryItem[];
+          }
+        }
+        
+        // Fallback to standard frequency library
         const { data, error } = await supabase
           .from('frequency_library')
           .select('*')
-          .limit(10); // We'll filter in the app instead of the query
-
+          .limit(20); 
+        
         if (error) {
           console.error("Error fetching frequencies:", error);
           return [];
         }
-
+        
         // Filter to only the frequencies that might be related to Hermetic principles
         const hermeticFrequencies = data.filter(freq => 
           freq.tags?.some((tag: string) => tag.toLowerCase().includes('hermetic')) ||
           freq.category?.toLowerCase().includes('hermetic') ||
           freq.title?.toLowerCase().includes('hermetic')
-        );
+        ) || data;
         
         console.log("Found Hermetic frequencies:", hermeticFrequencies);
         return hermeticFrequencies as FrequencyLibraryItem[];
@@ -75,7 +110,7 @@ const HermeticWisdomLibrary = () => {
       // If a different track, set as current and start playing
       setCurrentTrack(track);
       setIsPlaying(true);
-      console.log("Selected track to play:", track.title, "URL:", track.url || track.audio_url);
+      console.log("Selected track to play:", track.title, "ID:", track.id, "URL:", track.url || track.audio_url);
     }
   };
 
@@ -149,6 +184,7 @@ const HermeticWisdomLibrary = () => {
                   isPlaying={isPlaying}
                   onPlayToggle={handlePlayToggle}
                   frequency={currentTrack.frequency}
+                  frequencyId={currentTrack.id}
                 />
               </Card>
             </div>

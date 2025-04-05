@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface FrequencyPlayerProps {
   audioUrl?: string;
@@ -10,6 +11,7 @@ interface FrequencyPlayerProps {
   isPlaying: boolean;
   onPlayToggle: () => void;
   frequency?: number;
+  frequencyId?: string;
 }
 
 const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
@@ -17,13 +19,44 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   url,
   isPlaying,
   onPlayToggle,
-  frequency
+  frequency,
+  frequencyId
 }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [audioFileUrl, setAudioFileUrl] = useState<string | null>(null);
   
-  // Improved URL formatting function
+  // Try to fetch the audio file URL from the new frequency_audio_files table if we have a frequencyId
+  useEffect(() => {
+    const fetchAudioFile = async () => {
+      if (frequencyId) {
+        try {
+          const { data, error } = await supabase
+            .from('frequency_audio_files')
+            .select('filename, file_path')
+            .eq('frequency_id', frequencyId)
+            .single();
+          
+          if (error) {
+            console.error("Error fetching audio file:", error);
+          } else if (data) {
+            const fullPath = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${data.file_path}`;
+            console.log(`Found audio file in database: ${fullPath}`);
+            setAudioFileUrl(fullPath);
+            setIsLoading(false);
+            return;
+          }
+        } catch (err) {
+          console.error("Failed to fetch audio file data:", err);
+        }
+      }
+    };
+
+    fetchAudioFile();
+  }, [frequencyId]);
+  
+  // Improved URL formatting function for direct URLs
   const formatAudioUrl = (inputUrl?: string): string => {
     if (!inputUrl) return '';
     
@@ -36,8 +69,8 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     return `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${inputUrl}`;
   };
   
-  // Determine the best audio URL to use
-  const effectiveAudioUrl = formatAudioUrl(url || audioUrl);
+  // Determine the best audio URL to use, prioritizing the one from the database
+  const effectiveAudioUrl = audioFileUrl || formatAudioUrl(url || audioUrl);
   
   useEffect(() => {
     if (!effectiveAudioUrl) {
@@ -67,7 +100,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       console.error("Audio error:", err);
       setHasError(true);
       setIsLoading(false);
-      toast.error(`Failed to load audio: ${effectiveAudioUrl}`);
+      toast.error(`Failed to load audio. Please check the file.`);
     };
     
     const handleEnded = () => {

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,22 +23,20 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Get the audio URL from either audio_url or url property
   const audioUrl = frequency.audio_url || frequency.url || "";
 
   useEffect(() => {
     const fetchFractalVisual = async () => {
       try {
-        // Query the fractal_visuals table to find matching fractal by frequency
         const { data, error } = await supabase
           .from("fractal_visuals")
           .select("*")
           .eq("frequency", frequency.frequency)
           .limit(1)
-          .single(); // Use single() to force a single result or error
+          .single();
 
         if (error) {
-          if (error.code !== 'PGRST116') { // Ignore "no rows returned" error
+          if (error.code !== 'PGRST116') {
             console.error("Error fetching fractal visual:", error);
           }
           return;
@@ -47,7 +44,6 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
 
         if (data) {
           setFractalVisual(data);
-          // Update the frequency object with the fractal visual
           frequency.fractal_visual = data;
         }
       } catch (err) {
@@ -106,7 +102,6 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
       return;
     }
     toast.success(`Added ${frequency.title} to your journey`);
-    // Actual implementation would add this to a user's journey in the database
   };
 
   const handleSave = () => {
@@ -115,11 +110,9 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
       return;
     }
     toast.success(`Saved ${frequency.title} to your library`);
-    // Actual implementation would save this to the user's saved frequencies
   };
 
   const handleCardClick = () => {
-    // Navigate to the frequency detail page
     navigate(`/frequency/${frequency.id}`);
   };
 
@@ -152,9 +145,7 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
     }
   };
 
-  // Default chakra gradient if none is provided
   const chakraGradient = getChakraColor(frequency.chakra);
-  // Frequency value for display
   const freqValue = typeof frequency.frequency === 'number' ? `${frequency.frequency} Hz` : frequency.frequency;
 
   return (
@@ -307,6 +298,7 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
                 audioUrl={audioUrl}
                 isPlaying={isPlaying}
                 onPlayToggle={handlePlayToggle}
+                frequencyId={frequency.id}
               />
             </div>
           )}

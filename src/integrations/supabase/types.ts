@@ -75,6 +75,44 @@ export type Database = {
         }
         Relationships: []
       }
+      frequency_audio_files: {
+        Row: {
+          created_at: string
+          description: string | null
+          file_path: string
+          filename: string
+          frequency_id: string
+          id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          file_path: string
+          filename: string
+          frequency_id: string
+          id?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          file_path?: string
+          filename?: string
+          frequency_id?: string
+          id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "frequency_audio_files_frequency_id_fkey"
+            columns: ["frequency_id"]
+            isOneToOne: false
+            referencedRelation: "frequency_library"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       frequency_library: {
         Row: {
           affirmation: string | null
@@ -577,6 +615,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_audio_url: {
+        Args: {
+          filename: string
+        }
+        Returns: string
+      }
       use_generation_credit: {
         Args: {
           user_id: string

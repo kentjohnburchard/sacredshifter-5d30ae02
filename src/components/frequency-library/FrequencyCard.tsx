@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import FrequencyPlayer from "@/components/FrequencyPlayer"; // Update import
+import FrequencyPlayer from "@/components/FrequencyPlayer";
 
 interface FrequencyCardProps {
   frequency: FrequencyLibraryItem;
@@ -28,7 +28,6 @@ const FrequencyCard: React.FC<FrequencyCardProps> = ({ frequency, savedId, notes
   const [saveNotes, setSaveNotes] = useState(notes || "");
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
 
-  // Get color gradient for the chakra
   const getChakraColor = (chakra: string) => {
     switch (chakra.toLowerCase()) {
       case 'root': return 'from-red-500 to-red-600';
@@ -58,7 +57,6 @@ const FrequencyCard: React.FC<FrequencyCardProps> = ({ frequency, savedId, notes
 
     try {
       if (savedId) {
-        // Update existing saved frequency
         await supabase
           .from('user_saved_frequencies')
           .update({ notes: saveNotes })
@@ -66,7 +64,6 @@ const FrequencyCard: React.FC<FrequencyCardProps> = ({ frequency, savedId, notes
         
         toast.success("Saved frequency updated");
       } else {
-        // Save new frequency
         await supabase
           .from('user_saved_frequencies')
           .insert({
@@ -154,6 +151,7 @@ const FrequencyCard: React.FC<FrequencyCardProps> = ({ frequency, savedId, notes
             isPlaying={isPlaying}
             onPlayToggle={handlePlay}
             frequency={frequency.frequency}
+            frequencyId={frequency.id}
           />
           
           {savedId ? (
