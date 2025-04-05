@@ -1,137 +1,80 @@
 
 import React from "react";
-import { 
-  HoverCard, 
-  HoverCardTrigger, 
-  HoverCardContent 
-} from "@/components/ui/hover-card";
-import { 
-  AlertDialog, 
-  AlertDialogTrigger, 
-  AlertDialogContent, 
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogAction
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Info, Quote } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Info, Sparkles } from "lucide-react";
 
-export interface WisdomDropContent {
-  principle: string;
-  icon: string;
-  title: string;
-  quote: string;
-  explanation: string[];
-  valeSays: string;
-  affirmation: string;
-}
-
-const wisdomDrops: Record<string, WisdomDropContent> = {
+const principleWisdom = {
   "Mentalism": {
-    principle: "Mentalism",
-    icon: "🧠",
-    title: "The All is Mind; the Universe is Mental.",
-    quote: "The All is Mind; the Universe is Mental.",
-    explanation: [
-      "Your thoughts are the Wi-Fi signal broadcasting your reality.",
-      "Think crap, get crap. Think clarity, get alignment.",
-      "The Universe isn't judging—it's just syncing to your frequency."
-    ],
-    valeSays: "You don't have to fake positive vibes—but you do need to be *deliberate.* Your thoughts are spells, darling. Choose them like sacred ingredients. Brew your reality on purpose.",
-    affirmation: "My thoughts are the origin of my reality."
+    title: "Principle of Mentalism",
+    description: "The All is Mind; The Universe is Mental.",
+    explanation: "This principle explains that everything in the material universe is mental, a projection of the mind of the All. Consciousness is primary, matter secondary.",
+    frequency: "963Hz",
+    chakra: "Crown",
+    scienceConnection: "Quantum physics shows that consciousness affects quantum systems through observation. The consciousness collapses quantum probability waves into particle reality.",
+    frequencyEffect: "963Hz corresponds to pineal gland activation, higher consciousness, and unity awareness. This frequency enhances meditation, spiritual connection, and transcendent states.",
   },
   "Correspondence": {
-    principle: "Correspondence",
-    icon: "🪞",
-    title: "As above, so below; as within, so without.",
-    quote: "As above, so below; as within, so without.",
-    explanation: [
-      "The whole damn Universe is a mirror.",
-      "Your relationships? Reflect your boundaries.",
-      "Your home? Reflects your inner order.",
-      "Your boss Karen? Probably reflecting something unresolved in *you* (sorry)."
-    ],
-    valeSays: "You want your outer world to stop being chaos? Babe, light a candle, sit with yourself, and clean your inner altar. Mirror work is soul work.",
-    affirmation: "I shift my world by shifting within."
+    title: "Principle of Correspondence",
+    description: "As Above, So Below; As Within, So Without.",
+    explanation: "This principle demonstrates the harmony and connection between different planes of existence. Patterns repeat themselves across scale and dimension.",
+    frequency: "852Hz",
+    chakra: "Third Eye",
+    scienceConnection: "Fractal mathematics and holographic theory show how patterns replicate at different scales. The structure of the atom resembles the structure of a solar system.",
+    frequencyEffect: "852Hz aligns with intuition, insight, and clarity of perception. This frequency helps clear mental blocks, enhance visualization, and strengthen intuitive abilities.",
   },
   "Vibration": {
-    principle: "Vibration",
-    icon: "🔊",
-    title: "Nothing rests; everything moves; everything vibrates.",
-    quote: "Nothing rests; everything moves; everything vibrates.",
-    explanation: [
-      "The Universe is basically one big EDM track—everything's shaking, pulsing, resonating all the time.",
-      "You are a frequency. What you vibe with? You attract.",
-      "When you feel 'off', you're not broken—you're just out of tune.",
-      "This principle doesn't say 'be happy all the time.' It says: 'Learn to choose your damn station.'"
-    ],
-    valeSays: "Your body is a tuning fork, babe. You've just been letting Twitter tune it. Reclaim your sound. Shift your frequency, and reality *has* to follow.",
-    affirmation: "I align with the frequency of my highest self."
+    title: "Principle of Vibration",
+    description: "Nothing Rests; Everything Moves; Everything Vibrates.",
+    explanation: "This principle reveals that everything is in constant motion at varying frequencies. Differences in vibration create different manifestations of matter, energy, and consciousness.",
+    frequency: "528Hz",
+    chakra: "Solar Plexus",
+    scienceConnection: "String theory proposes that all particles are actually tiny vibrating strings, with different vibration patterns producing different particles.",
+    frequencyEffect: "528Hz is known as the 'Miracle Tone' or 'DNA repair frequency'. It promotes transformation, increased energy, and manifestation of intentions.",
   },
   "Polarity": {
-    principle: "Polarity",
-    icon: "⚖️",
-    title: "Everything is dual; everything has poles.",
-    quote: "Everything is dual; everything has poles.",
-    explanation: [
-      "Life isn't black or white—it's a messy cosmic gradient.",
-      "You're not either strong or soft. You're both.",
-      "Joy and grief? Two ends of the same energy string.",
-      "Polarity teaches you how to transmute, not suppress."
-    ],
-    valeSays: "Feeling down? Instead of spiraling, pull a power move. Alchemize that emotion. That's the real magic trick.",
-    affirmation: "I find harmony within all contrasts."
+    title: "Principle of Polarity",
+    description: "Everything is Dual; Everything has Poles; Everything has its Opposite.",
+    explanation: "This principle shows that opposites are identical in nature but different in degree. All paradoxes can be reconciled through understanding this principle.",
+    frequency: "639Hz",
+    chakra: "Heart",
+    scienceConnection: "Electromagnetism demonstrates polarity with positive and negative charges. The balance of opposing forces creates stability in physical systems.",
+    frequencyEffect: "639Hz harmonizes relationships, promotes compassion, and helps resolve conflicts. This frequency balances emotional extremes and encourages understanding.",
   },
   "Rhythm": {
-    principle: "Rhythm",
-    icon: "🌊",
-    title: "Everything flows, out and in; everything has its tides.",
-    quote: "Everything flows, out and in; everything has its tides.",
-    explanation: [
-      "Some days you slay. Some days you stay in bed. Both are sacred.",
-      "The tide doesn't apologize for pulling back. Neither should you.",
-      "This principle reminds you that energy has seasons, cycles, spirals.",
-      "You don't push against the flow—you learn to surf it."
-    ],
-    valeSays: "Stop hustling against your own rhythm, darling. Sync your rituals to your rise *and* your rest.",
-    affirmation: "I ride the rhythm of life with grace."
+    title: "Principle of Rhythm",
+    description: "Everything Flows; Out and In; All Things Rise and Fall.",
+    explanation: "This principle describes the cyclic nature of all things. Pendulum swings manifest in everything from tides to economies, emotions to civilizations.",
+    frequency: "417Hz",
+    chakra: "Sacral",
+    scienceConnection: "Circadian rhythms, economic cycles, and planetary movements all demonstrate the principle of rhythm in different domains.",
+    frequencyEffect: "417Hz facilitates change, releases trauma, and enables creative flow. This frequency helps us break out of stagnant patterns and embody flow consciousness.",
   },
   "Cause & Effect": {
-    principle: "Cause & Effect",
-    icon: "🔁",
-    title: "Every cause has its effect; every effect has its cause.",
-    quote: "Every cause has its effect; every effect has its cause.",
-    explanation: [
-      "Coincidence? That's just cosmic shorthand for 'you're not paying attention.'",
-      "This principle says you're not a victim of chance—you're a vibrational domino-pusher.",
-      "Everything you think, say, or feel sets something in motion.",
-      "If life's a mess? Track the ripples back to the source—you."
-    ],
-    valeSays: "You can't blame the soup if you chose the ingredients. Want a better life? Cook different.",
-    affirmation: "I act with conscious intent."
+    title: "Principle of Cause and Effect",
+    description: "Every Cause has its Effect; Every Effect has its Cause.",
+    explanation: "This principle states that nothing happens by chance; there are causal connections among all events, though they may operate across planes and dimensions.",
+    frequency: "741Hz",
+    chakra: "Throat",
+    scienceConnection: "Chaos theory shows how small causes can create large, unpredictable effects through sensitivity to initial conditions.",
+    frequencyEffect: "741Hz empowers self-expression, creative manifestation, and living with integrity. This frequency helps clear toxicity and promotes speaking your truth.",
   },
   "Gender": {
-    principle: "Gender",
-    icon: "⚧️",
-    title: "Gender is in everything; everything has masculine and feminine energy.",
-    quote: "Gender is in everything; everything has masculine and feminine energy.",
-    explanation: [
-      "This isn't about gender roles. This is about energetic archetypes.",
-      "You've got divine logic and divine intuition.",
-      "You've got drive and surrender.",
-      "Healing happens when they dance, not duel."
-    ],
-    valeSays: "Don't pick a side—build a bridge. Your sacred masculine and feminine are lovers, not rivals. Let them co-create.",
-    affirmation: "I embody both stillness and flow."
-  }
+    title: "Principle of Gender",
+    description: "Gender is in Everything; Everything has Masculine and Feminine Principles.",
+    explanation: "This principle reveals the creative interplay between receptive and projective energies in all things, from human relationships to atomic structure.",
+    frequency: "396Hz",
+    chakra: "Root",
+    scienceConnection: "Particle-wave duality in quantum physics demonstrates complementary properties similar to the masculine (particle) and feminine (wave) aspects.",
+    frequencyEffect: "396Hz grounds spiritual energy, provides stability, and releases fear. This frequency helps establish foundation and security while clearing blockages.",
+  },
 };
 
 interface HermeticWisdomDropProps {
   principle: string;
-  variant?: "tooltip" | "hover-card" | "dialog";
+  variant: "hover-card" | "dialog";
   children?: React.ReactNode;
 }
 
@@ -140,100 +83,102 @@ const HermeticWisdomDrop: React.FC<HermeticWisdomDropProps> = ({
   variant = "hover-card",
   children
 }) => {
-  const wisdom = wisdomDrops[principle];
-  
-  if (!wisdom) {
-    return <span>No wisdom found for {principle}</span>;
-  }
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const wisdom = principleWisdom[principle as keyof typeof principleWisdom] || {
+    title: principle,
+    description: "Hermetic wisdom",
+    explanation: "Information about this principle",
+    frequency: "Unknown",
+    chakra: "Unknown",
+    scienceConnection: "Scientific correlation",
+    frequencyEffect: "Effect on consciousness",
+  };
 
-  const renderWisdomContent = () => (
+  const getChakraColor = (chakra: string) => {
+    switch (chakra) {
+      case "Root": return "bg-red-100 text-red-800 border-red-200";
+      case "Sacral": return "bg-orange-100 text-orange-800 border-orange-200";
+      case "Solar Plexus": return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "Heart": return "bg-green-100 text-green-800 border-green-200";
+      case "Throat": return "bg-blue-100 text-blue-800 border-blue-200";
+      case "Third Eye": return "bg-indigo-100 text-indigo-800 border-indigo-200";
+      case "Crown": return "bg-purple-100 text-purple-800 border-purple-200";
+      default: return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  const content = (
     <div className="space-y-3">
-      <div className="flex items-center gap-2">
-        <span className="text-2xl">{wisdom.icon}</span>
-        <h3 className="text-lg font-medium">{wisdom.principle}: <span className="italic font-normal">"{wisdom.quote}"</span></h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold">{wisdom.title}</h3>
+        <Badge className={getChakraColor(wisdom.chakra)}>
+          {wisdom.chakra} Chakra • {wisdom.frequency}
+        </Badge>
+      </div>
+      
+      <p className="italic text-gray-700">"{wisdom.description}"</p>
+      
+      <div className="space-y-2">
+        <h4 className="font-medium text-purple-700">Core Understanding:</h4>
+        <p className="text-gray-700">{wisdom.explanation}</p>
       </div>
       
       <div className="space-y-2">
-        {wisdom.explanation.map((line, index) => (
-          <p key={index} className="text-sm">{line}</p>
-        ))}
-        <p className="text-sm">This isn't manifestation fluff—it's <strong>vibrational physics</strong>. Your mind is the control panel. Your beliefs are the code. And what you feel? That's your signal strength.</p>
+        <h4 className="font-medium text-purple-700">Scientific Connection:</h4>
+        <p className="text-gray-700">{wisdom.scienceConnection}</p>
       </div>
       
-      <div className="bg-purple-50 p-3 rounded-md border border-purple-100">
-        <p className="text-sm font-medium mb-1">Kent says:</p>
-        <p className="text-sm italic">{wisdom.valeSays.replace("Vale", "Kent")}</p>
-      </div>
-      
-      <div className="border-t pt-2">
-        <p className="text-sm font-medium">Affirmation:</p>
-        <p className="text-sm italic">"{wisdom.affirmation}"</p>
+      <div className="space-y-2">
+        <h4 className="font-medium text-purple-700">Frequency Effect:</h4>
+        <p className="text-gray-700">{wisdom.frequencyEffect}</p>
       </div>
     </div>
   );
-
-  if (variant === "tooltip") {
-    return (
-      <TooltipProvider>
-        <Tooltip delayDuration={300}>
-          <TooltipTrigger asChild>
-            {children || (
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full">
-                <Info className="h-4 w-4" />
-                <span className="sr-only">Kent's Wisdom on {principle}</span>
-              </Button>
-            )}
-          </TooltipTrigger>
-          <TooltipContent side="right" className="max-w-sm">
-            <p className="text-sm">Click for Kent's wisdom on {principle}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    );
-  }
 
   if (variant === "hover-card") {
     return (
       <HoverCard>
         <HoverCardTrigger asChild>
           {children || (
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full">
-              <Info className="h-4 w-4" />
-              <span className="sr-only">Kent's Wisdom on {principle}</span>
+            <Button variant="ghost" size="sm" className="text-purple-600 hover:text-purple-700 hover:bg-purple-50">
+              <Info className="h-4 w-4 mr-1" />
+              Learn More
             </Button>
           )}
         </HoverCardTrigger>
-        <HoverCardContent className="w-80" side="right">
-          {renderWisdomContent()}
-        </HoverCardContent>
+        <HoverCardContent className="w-80">{content}</HoverCardContent>
       </HoverCard>
     );
   }
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        {children || (
-          <Button variant="ghost" size="sm" className="gap-2 text-purple-600 hover:text-purple-700 hover:bg-purple-50">
-            <Quote className="h-4 w-4" />
-            <span>Kent's Wisdom</span>
-          </Button>
-        )}
-      </AlertDialogTrigger>
-      <AlertDialogContent className="max-w-md">
-        <AlertDialogHeader>
-          <AlertDialogTitle>
-            Kent's Wisdom Drop – {principle} Edition
-          </AlertDialogTitle>
-          <AlertDialogDescription asChild>
-            {renderWisdomContent()}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogAction>Got it</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <>
+      {children ? (
+        <span onClick={() => setDialogOpen(true)}>{children}</span>
+      ) : (
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+          onClick={() => setDialogOpen(true)}
+        >
+          <Info className="h-4 w-4 mr-1" />
+          Learn More
+        </Button>
+      )}
+      
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-purple-600" />
+              Hermetic Wisdom
+            </DialogTitle>
+          </DialogHeader>
+          {content}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
