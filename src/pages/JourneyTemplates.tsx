@@ -3,7 +3,6 @@ import React from "react";
 import Layout from "@/components/Layout";
 import { JourneyTemplatesGrid } from "@/components/frequency-journey";
 import { motion } from "framer-motion";
-import { toast } from "sonner";
 
 const JourneyTemplates = () => {
   return (
@@ -14,15 +13,20 @@ const JourneyTemplates = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
       >
-        <motion.p 
-          className="page-subtitle"
+        <motion.div
+          className="text-center mb-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.6 }}
         >
-          Explore our curated journeys designed to address specific healing needs. Each journey combines frequencies, 
-          soundscapes, and guidance to support your path to wellness.
-        </motion.p>
+          <h2 className="text-3xl font-bold mb-4 text-indigo-700 dark:text-indigo-400">
+            Sacred Healing Journeys
+          </h2>
+          <p className="text-lg text-gray-700 dark:text-gray-300 max-w-3xl mx-auto mb-6">
+            Explore our curated journeys designed to address specific healing needs. Each journey combines frequencies, 
+            soundscapes, and guidance to support your path to wellness.
+          </p>
+        </motion.div>
         
         <JourneyTemplatesGrid />
       </motion.div>

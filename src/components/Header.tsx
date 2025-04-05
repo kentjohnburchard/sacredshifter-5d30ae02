@@ -43,7 +43,7 @@ const Header: React.FC = () => {
         </Link>
       </div>
       
-      {/* User Profile - Now aligned with the logo */}
+      {/* User Profile */}
       <div className="flex items-center">
         {user ? (
           <DropdownMenu>
