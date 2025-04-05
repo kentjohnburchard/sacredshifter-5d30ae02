@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,16 +23,30 @@ const HermeticWisdomLibrary = () => {
   const { data: frequencies, isLoading } = useQuery({
     queryKey: ["hermetic-frequencies"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('frequency_library')
-        .select('*')
-        .ilike('principle', '%Hermetic%');  // Add principle filtering if needed
+      try {
+        const { data, error } = await supabase
+          .from('frequency_library')
+          .select('*')
+          .limit(10); // We'll filter in the app instead of the query
 
-      if (error) {
-        console.error("Error fetching Hermetic frequencies:", error);
+        if (error) {
+          console.error("Error fetching frequencies:", error);
+          return [];
+        }
+
+        // Filter to only the frequencies that might be related to Hermetic principles
+        const hermeticFrequencies = data.filter(freq => 
+          freq.tags?.some((tag: string) => tag.toLowerCase().includes('hermetic')) ||
+          freq.category?.toLowerCase().includes('hermetic') ||
+          freq.title?.toLowerCase().includes('hermetic')
+        );
+        
+        console.log("Found Hermetic frequencies:", hermeticFrequencies);
+        return hermeticFrequencies as FrequencyLibraryItem[];
+      } catch (err) {
+        console.error("Failed to fetch Hermetic frequencies:", err);
         return [];
       }
-      return data as FrequencyLibraryItem[];
     }
   });
 
@@ -60,6 +75,7 @@ const HermeticWisdomLibrary = () => {
       // If a different track, set as current and start playing
       setCurrentTrack(track);
       setIsPlaying(true);
+      console.log("Selected track to play:", track.title, "URL:", track.url || track.audio_url);
     }
   };
 
@@ -88,7 +104,10 @@ const HermeticWisdomLibrary = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {hermeticJourneys.map((journey) => {
                 const IconComponent = principleIcons[journey.principle as keyof typeof principleIcons] || Sparkles;
-                const frequency = frequencies?.find(f => f.principle === journey.principle);
+                const frequency = frequencies?.find(f => 
+                  Math.abs(f.frequency - journey.frequency) < 1 || 
+                  f.title?.toLowerCase().includes(journey.principle.toLowerCase())
+                );
                 
                 return (
                   <HermeticPrincipleCard
@@ -122,7 +141,7 @@ const HermeticWisdomLibrary = () => {
               <Card className="p-3 flex items-center gap-3 bg-purple-600 text-white shadow-lg">
                 <div>
                   <p className="font-medium">{currentTrack.title}</p>
-                  <p className="text-xs">{currentTrack.principle}</p>
+                  <p className="text-xs">{currentTrack.chakra || "Unknown chakra"}</p>
                 </div>
                 <FrequencyPlayer
                   audioUrl={currentTrack.audio_url}

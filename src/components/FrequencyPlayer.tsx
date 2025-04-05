@@ -14,7 +14,7 @@ interface FrequencyPlayerProps {
 
 const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   audioUrl,
-  url, // New prop
+  url,
   isPlaying,
   onPlayToggle,
   frequency
@@ -35,11 +35,9 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       return inputUrl;
     }
     
-    // If it's a path to a file from Pixabay, fix the URL
-    if (inputUrl.includes('pixabay.com') || inputUrl.includes('/music/')) {
-      // Make sure there's no leading slash in the path
-      const path = inputUrl.startsWith('/') ? inputUrl.substring(1) : inputUrl;
-      return `https://cdn.pixabay.com/download/audio/${path}`;
+    // If it's a simple path, assume it's a Supabase storage URL
+    if (!inputUrl.includes('/')) {
+      return `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${inputUrl}`;
     }
     
     // For other URLs, assume they're relative to the app's root
@@ -76,7 +74,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       console.error("Audio error:", err);
       setHasError(true);
       setIsLoading(false);
-      toast.error(`Failed to load audio file: ${formattedUrl}`);
+      toast.error(`Failed to load audio: ${formattedUrl.substring(0, 50)}...`);
     };
     
     // Handle ended event
@@ -92,6 +90,8 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     // Set the audio source and load it
     audio.src = formattedUrl;
     audio.load();
+    setIsLoading(true);
+    setHasError(false);
     
     return () => {
       audio.removeEventListener("canplaythrough", handleCanPlay);
@@ -111,7 +111,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       if (playPromise !== undefined) {
         playPromise.catch(error => {
           console.error("Error playing audio:", error);
-          // Don't automatically toggle state here - let the parent handle it
+          setHasError(true);
           toast.error("Unable to play audio. Please try again.");
         });
       }
