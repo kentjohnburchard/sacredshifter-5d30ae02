@@ -21,7 +21,8 @@ export type SectionKey =
   | "cosmicProfile" 
   | "settings" 
   | "loveDashboard"
-  | "communityWall";
+  | "communityWall"
+  | "sacredBlueprint";
 
 const sectionExplanations: Record<SectionKey, SectionExplanationType> = {
   home: {
@@ -88,6 +89,11 @@ const sectionExplanations: Record<SectionKey, SectionExplanationType> = {
     title: "Community Blessing Wall",
     standard: "A sacred space where our collective energies merge. Read blessings from fellow journeyers, share your own light, and feel the power of unified consciousness across distance.",
     kent: "Think of this as spiritual social media without the ego trips. Pure vibes, heartfelt blessings, and cosmic cheerleading from your soul fam across the globe. The internet, but make it enlightened."
+  },
+  sacredBlueprint: {
+    title: "Sacred Blueprint",
+    standard: "Discover your unique vibrational fingerprint—a personalized frequency chart and spiritual identity map. This living document reflects your energetic essence and offers guidance for your soul's journey.",
+    kent: "This isn't just a profile—it's your soul's signature frequency in technicolor. See your energetic DNA, your cosmic calling card, your vibrational thumbprint. The universe knows your frequency; now you will too."
   }
 };
 

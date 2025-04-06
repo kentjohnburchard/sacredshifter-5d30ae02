@@ -1,3 +1,4 @@
+
 import React from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -132,11 +133,58 @@ const Home: React.FC = () => {
               </Card>
             </motion.div>
 
-            {/* Hermetic Wisdom Section */}
+            {/* Sacred Blueprint Section (NEW) */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.35 }}
+            >
+              <Card className="h-full border-indigo-100 hover:border-indigo-200 transition-all">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Sparkles className="h-5 w-5 mr-2 text-indigo-500" />
+                    Sacred Blueprint
+                  </CardTitle>
+                  <CardDescription>
+                    Discover your unique vibrational fingerprint and spiritual identity map.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4 mb-6">
+                    <div className="flex items-start">
+                      <Sparkles className="h-4 w-4 mr-2 text-indigo-500 mt-1" />
+                      <div>
+                        <p className="font-medium">Frequency Chart</p>
+                        <p className="text-sm text-gray-600">Visualize your unique energetic signature and resonance patterns.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <Heart className="h-4 w-4 mr-2 text-indigo-500 mt-1" />
+                      <div>
+                        <p className="font-medium">Soul Profile</p>
+                        <p className="text-sm text-gray-600">Receive a personalized spiritual identity map and guidance.</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <Link to="/sacred-blueprint">
+                    <Button 
+                      variant="default" 
+                      className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700"
+                    >
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Reveal Your Blueprint
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </motion.div>
+            
+            {/* Hermetic Wisdom Section */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
             >
               <Card className="h-full border-blue-100 hover:border-blue-200 transition-all">
                 <CardHeader>
@@ -173,53 +221,6 @@ const Home: React.FC = () => {
                     >
                       <BookOpen className="mr-2 h-4 w-4" />
                       Explore Hermetic Wisdom
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            </motion.div>
-            
-            {/* Energy Check Section */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-            >
-              <Card className="h-full border-indigo-100 hover:border-indigo-200 transition-all">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Sparkles className="h-5 w-5 mr-2 text-indigo-500" />
-                    Energy Alignment
-                  </CardTitle>
-                  <CardDescription>
-                    Check in with your energy and receive personalized frequency recommendations.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4 mb-6">
-                    <div className="flex items-start">
-                      <Sparkles className="h-4 w-4 mr-2 text-indigo-500 mt-1" />
-                      <div>
-                        <p className="font-medium">Energy Check</p>
-                        <p className="text-sm text-gray-600">Assess your current energy state and discover frequencies for your needs.</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start">
-                      <Music className="h-4 w-4 mr-2 text-indigo-500 mt-1" />
-                      <div>
-                        <p className="font-medium">Personalized Journey</p>
-                        <p className="text-sm text-gray-600">Get a tailored sound healing experience based on your current energy.</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <Link to="/energy-check">
-                    <Button 
-                      variant="default" 
-                      className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700"
-                    >
-                      <Sparkles className="mr-2 h-4 w-4" />
-                      Start Energy Check
                     </Button>
                   </Link>
                 </CardContent>

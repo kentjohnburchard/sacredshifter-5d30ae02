@@ -27,6 +27,7 @@ import LandingPrompt from './components/LandingPrompt';
 import PersonalVibeSettings from './pages/PersonalVibeSettings';
 import HeartCenter from './pages/HeartCenter';
 import HeartDashboard from './pages/HeartDashboard';
+import SacredBlueprint from './pages/SacredBlueprint';
 
 // Define routes
 function App() {
@@ -58,6 +59,8 @@ function App() {
       {/* Heart Center Routes */}
       <Route path="/heart-center" element={<ProtectedRoute><HeartCenter /></ProtectedRoute>} />
       <Route path="/heart-dashboard" element={<ProtectedRoute><HeartDashboard /></ProtectedRoute>} />
+      {/* Sacred Blueprint Route */}
+      <Route path="/sacred-blueprint" element={<ProtectedRoute><SacredBlueprint /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

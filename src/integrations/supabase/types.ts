@@ -448,6 +448,87 @@ export type Database = {
         }
         Relationships: []
       }
+      sacred_blueprint_quiz_responses: {
+        Row: {
+          created_at: string | null
+          id: string
+          question_id: string
+          response: string | null
+          response_type: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          question_id: string
+          response?: string | null
+          response_type?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          question_id?: string
+          response?: string | null
+          response_type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sacred_blueprints: {
+        Row: {
+          blueprint_text: string | null
+          chakra_signature: Json | null
+          core_frequency: string | null
+          created_at: string | null
+          elemental_resonance: string | null
+          emotional_profile: string | null
+          energetic_archetype: string | null
+          frequency_value: number | null
+          id: string
+          musical_key: string | null
+          name: string | null
+          shadow_frequencies: string[] | null
+          updated_at: string | null
+          user_id: string
+          version: number | null
+        }
+        Insert: {
+          blueprint_text?: string | null
+          chakra_signature?: Json | null
+          core_frequency?: string | null
+          created_at?: string | null
+          elemental_resonance?: string | null
+          emotional_profile?: string | null
+          energetic_archetype?: string | null
+          frequency_value?: number | null
+          id?: string
+          musical_key?: string | null
+          name?: string | null
+          shadow_frequencies?: string[] | null
+          updated_at?: string | null
+          user_id: string
+          version?: number | null
+        }
+        Update: {
+          blueprint_text?: string | null
+          chakra_signature?: Json | null
+          core_frequency?: string | null
+          created_at?: string | null
+          elemental_resonance?: string | null
+          emotional_profile?: string | null
+          energetic_archetype?: string | null
+          frequency_value?: number | null
+          id?: string
+          musical_key?: string | null
+          name?: string | null
+          shadow_frequencies?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+          version?: number | null
+        }
+        Relationships: []
+      }
       session_reflections: {
         Row: {
           content: string
