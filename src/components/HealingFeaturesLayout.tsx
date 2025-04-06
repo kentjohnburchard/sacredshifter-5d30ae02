@@ -47,7 +47,7 @@ const HealingFeature: React.FC<HealingFeatureProps> = ({
       className={`z-10 ${positionClasses[position]}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.5, delay: position === "top" ? 0 : 0.1 * ["top", "right", "bottom", "left", "top-left", "top-right", "bottom-left", "bottom-right"].indexOf(position) }}
       whileHover={{ scale: 1.05 }}
     >
       <Link to={link} className="block">
@@ -130,15 +130,15 @@ const HealingFeaturesLayout: React.FC<HealingFeaturesLayoutProps> = ({ children 
   ];
 
   return (
-    <div className="relative w-full h-full min-h-[800px] py-16">
+    <div className="relative w-full h-full min-h-[800px] mx-auto py-16">
       {/* Background decorative elements */}
       <div className="absolute inset-0 z-0">
         <div className="absolute top-1/3 left-1/4 w-64 h-64 bg-purple-300/10 rounded-full filter blur-3xl"></div>
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-300/10 rounded-full filter blur-3xl"></div>
       </div>
       
-      {/* Border containing the healing features */}
-      <div className="relative max-w-5xl mx-auto border border-purple-200/20 rounded-3xl p-16 bg-white/5 backdrop-blur-sm">
+      {/* Create a visible decorative border */}
+      <div className="relative max-w-5xl mx-auto border border-purple-200 rounded-3xl p-16 bg-white/5 backdrop-blur-sm shadow-sm">
         {/* Healing features positioned around the border */}
         {features.map((feature, index) => (
           <HealingFeature key={index} {...feature} />
