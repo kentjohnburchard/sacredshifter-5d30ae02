@@ -64,11 +64,15 @@ export const useUserPreferences = () => {
           new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
         )[0];
         
+        // We need to handle the type conversion correctly here
+        // Type assert the database record to include consciousness_mode
+        const dbPrefs = latestPrefs as any;
+        
         setPreferences({
           ...latestPrefs,
           soundscapeMode: latestPrefs.soundscape_mode,
           kent_mode: latestPrefs.kent_mode || false,
-          consciousness_mode: latestPrefs.consciousness_mode || "standard"
+          consciousness_mode: dbPrefs.consciousness_mode || "standard"
         });
       } else {
         // User doesn't have preferences yet, we can try to use astrology data
