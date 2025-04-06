@@ -2,75 +2,172 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Music } from "lucide-react";
-import Header from "@/components/navigation/Header";
+import { Music, Info, BookOpen, Sparkles } from "lucide-react";
+import Header from "@/components/Header";
 import HealingFeatures from "@/components/HealingFeatures";
+import { Link } from "react-router-dom";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import SoundLibraryPreview from "@/components/landing/SoundLibraryPreview";
 
 const Home: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-purple-50">
       <Header />
-      <div className="container mx-auto px-4 py-6">
-        <div className="max-w-4xl mx-auto">
-          {/* HealingFeatures moved to the top */}
+      <div className="container mx-auto px-4 py-24">
+        <div className="max-w-5xl mx-auto">
+          {/* Feature cards at the top */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
+            transition={{ duration: 0.8 }}
+            className="mb-12"
           >
             <HealingFeatures />
           </motion.div>
           
-          {/* Understanding Sound Healing moved below features */}
-          <div className="text-center space-y-4 mt-8 mb-8">
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1 }}
-              className="mb-4"
-            >
-              <h1 className="text-3xl md:text-4xl font-light">
+          {/* Sound Healing Sections */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="mb-12"
+          >
+            <div className="text-center mb-8">
+              <h2 className="text-3xl md:text-4xl font-light">
                 <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">
                   Understanding Sound Healing
                 </span>
-              </h1>
-            </motion.div>
+              </h2>
+              <p className="text-gray-600 mt-2 max-w-2xl mx-auto">
+                Sound healing is an ancient practice that uses vibrations to restore balance and harmony to the body and mind.
+              </p>
+            </div>
             
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.3 }}
-            >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <div className="bg-white/80 backdrop-blur-sm p-4 rounded-lg border border-purple-100 shadow-sm">
-                  <h3 className="text-base font-medium text-gray-800 mb-1">Solfeggio Frequencies</h3>
-                  <p className="text-gray-600 text-sm">
-                    Ancient sacred tones used in Gregorian chants, each balancing energy and healing in various ways.
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <Card className="border-purple-100">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center">
+                    <Music className="h-5 w-5 mr-2 text-purple-500" />
+                    Solfeggio Frequencies
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600">
+                    Ancient sacred tones used in Gregorian chants, each vibrating at specific frequencies that can promote healing and spiritual awakening. 
+                    The most known frequencies include 396Hz (releasing fear), 432Hz (universal harmony), 528Hz (transformation and DNA repair), and 639Hz (connecting relationships).
                   </p>
-                </div>
-                
-                <div className="bg-white/80 backdrop-blur-sm p-4 rounded-lg border border-purple-100 shadow-sm">
-                  <h3 className="text-base font-medium text-gray-800 mb-1">Sound and Chakras</h3>
-                  <p className="text-gray-600 text-sm">
-                    Each chakra vibrates at its own frequency. Specific frequencies restore harmony to blocked energy centers.
+                </CardContent>
+              </Card>
+              
+              <Card className="border-purple-100">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center">
+                    <Sparkles className="h-5 w-5 mr-2 text-purple-500" />
+                    Sound and Chakras
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600">
+                    Each chakra vibrates at its own frequency. Using specific sound frequencies can restore harmony to blocked energy centers. 
+                    From the Root chakra (396Hz) to the Crown chakra (963Hz), sound waves help realign your subtle energy system.
                   </p>
-                </div>
-              </div>
-            </motion.div>
+                </CardContent>
+              </Card>
+            </div>
             
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.5 }}
-            >
-              <Button
-                className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-none px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all mt-6"
+            <Link to="/frequency-library">
+              <Button 
+                variant="default" 
+                className="mx-auto block bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
               >
                 <Music className="mr-2 h-4 w-4" />
-                Begin Your Healing Journey
+                Explore Healing Frequencies
               </Button>
-            </motion.div>
-          </div>
+            </Link>
+          </motion.div>
+          
+          {/* Hermetic Wisdom Section */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="mb-12"
+          >
+            <div className="text-center mb-8">
+              <h2 className="text-3xl md:text-4xl font-light">
+                <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-blue-500">
+                  Hermetic Principles & Vibration
+                </span>
+              </h2>
+              <p className="text-gray-600 mt-2 max-w-2xl mx-auto">
+                Ancient wisdom that explains the vibrational nature of the universe, connecting sound healing with universal laws.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <Card className="border-blue-100">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center">
+                    <Info className="h-5 w-5 mr-2 text-blue-500" />
+                    The Principle of Vibration
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600">
+                    "Nothing rests; everything moves; everything vibrates." The entire universe is in constant motion and vibration, including our bodies, thoughts, and emotions.
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-blue-100">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center">
+                    <BookOpen className="h-5 w-5 mr-2 text-blue-500" />
+                    Sound as Medicine
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600">
+                    By applying specific sound frequencies, we can influence our own vibrational state, promoting healing and alignment with higher frequencies of consciousness.
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-blue-100">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center">
+                    <Sparkles className="h-5 w-5 mr-2 text-blue-500" />
+                    Vibrational Alignment
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600">
+                    When we align our personal vibration with healing frequencies, we can shift our state of being, overcome blockages, and manifest our intentions more effectively.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <Link to="/hermetic-wisdom">
+              <Button 
+                variant="outline" 
+                className="mx-auto block border-blue-200 text-blue-600 hover:bg-blue-50"
+              >
+                <BookOpen className="mr-2 h-4 w-4" />
+                Explore Hermetic Wisdom
+              </Button>
+            </Link>
+          </motion.div>
+          
+          {/* Sound Library Preview */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="mt-12"
+          >
+            <SoundLibraryPreview />
+          </motion.div>
         </div>
       </div>
       
