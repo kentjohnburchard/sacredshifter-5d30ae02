@@ -28,7 +28,71 @@ const Home: React.FC = () => {
             <HealingFeatures />
           </motion.div>
           
-          {/* Quote Component - Moved higher for prominence */}
+          {/* Sacred Blueprint Hero Section - NEW */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.05 }}
+            className="mb-12"
+          >
+            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 shadow-lg">
+              <div className="absolute inset-0 bg-cover bg-center opacity-10" 
+                   style={{ backgroundImage: "url('https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?ixlib=rb-4.0.3')" }}>
+              </div>
+              <div className="grid md:grid-cols-2 gap-6 p-6 md:p-8 relative z-10">
+                <div className="space-y-4">
+                  <span className="inline-block px-3 py-1 rounded-full bg-indigo-100 text-indigo-800 text-xs font-medium">
+                    New Feature
+                  </span>
+                  <h2 className="text-3xl font-bold text-gradient bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-600">
+                    <TrademarkedName>Sacred Blueprint</TrademarkedName>
+                  </h2>
+                  <p className="text-gray-700">
+                    Discover your unique vibrational fingerprint that reveals your energetic signature, 
+                    spiritual identity, and soul purpose through a personalized frequency assessment.
+                  </p>
+                  <div className="space-y-3 pt-2">
+                    <div className="flex items-center gap-2">
+                      <span className="h-6 w-6 rounded-full bg-indigo-100 flex items-center justify-center">
+                        <Sparkles className="h-3 w-3 text-indigo-600" />
+                      </span>
+                      <p className="text-sm text-gray-700">Reveal your core frequency</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center">
+                        <Heart className="h-3 w-3 text-purple-600" />
+                      </span>
+                      <p className="text-sm text-gray-700">Map your chakra signature</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center">
+                        <Music className="h-3 w-3 text-blue-600" />
+                      </span>
+                      <p className="text-sm text-gray-700">Discover your musical key resonance</p>
+                    </div>
+                  </div>
+                  <Link to="/sacred-blueprint" className="inline-block mt-2">
+                    <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white">
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Reveal Your Blueprint
+                    </Button>
+                  </Link>
+                </div>
+                <div className="flex items-center justify-center">
+                  <div className="relative w-64 h-64">
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-300/30 to-indigo-300/30 animate-pulse-subtle"></div>
+                    <div className="absolute inset-4 rounded-full bg-gradient-to-br from-purple-400/40 to-indigo-400/40 animate-pulse-subtle" style={{ animationDelay: "0.5s" }}></div>
+                    <div className="absolute inset-8 rounded-full bg-gradient-to-br from-purple-500/50 to-indigo-500/50 animate-pulse-subtle" style={{ animationDelay: "1s" }}></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Sparkles className="h-16 w-16 text-indigo-600" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+          
+          {/* Quote Component */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
