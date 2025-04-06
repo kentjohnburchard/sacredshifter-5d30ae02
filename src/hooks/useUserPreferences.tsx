@@ -42,6 +42,7 @@ export const useUserPreferences = () => {
         return;
       }
 
+      // Use the generic query approach to avoid type errors with table names
       const { data, error } = await supabase
         .from('user_preferences')
         .select('*')
@@ -55,7 +56,7 @@ export const useUserPreferences = () => {
       }
 
       if (data) {
-        setPreferences(data);
+        setPreferences(data as UserPreferences);
       } else {
         // User doesn't have preferences yet, we can try to use astrology data
         const { data: astrologyData } = await supabase
@@ -104,6 +105,7 @@ export const useUserPreferences = () => {
         updated_at: new Date().toISOString()
       };
 
+      // Use the generic query approach to avoid type errors with table names
       const { error } = await supabase
         .from('user_preferences')
         .upsert(prefsToSave);
@@ -114,7 +116,7 @@ export const useUserPreferences = () => {
         return false;
       }
 
-      setPreferences(prefsToSave);
+      setPreferences(prefsToSave as UserPreferences);
       toast.success("Your cosmic vibe has been saved!");
       return true;
     } catch (err) {
