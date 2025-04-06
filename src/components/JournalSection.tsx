@@ -42,6 +42,7 @@ const JournalSection: React.FC = () => {
       const { data, error } = await supabase
         .from('timeline_snapshots')
         .select('*')
+        .eq('user_id', user?.id)
         .order('created_at', { ascending: false })
         .limit(5) as { data: JournalEntry[] | null; error: any };
         

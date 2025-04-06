@@ -184,13 +184,18 @@ const UserDashboard: React.FC = () => {
     try {
       setLoading(true);
       
+      // Explicitly add user_id to the query to ensure we only get entries for the current user
       const { data: journalData, error: journalError } = await supabase
         .from('timeline_snapshots')
         .select('*')
+        .eq('user_id', user?.id)
         .order('created_at', { ascending: false })
         .limit(6);
       
-      if (journalError) throw journalError;
+      if (journalError) {
+        console.error("Error fetching journal entries:", journalError);
+        throw journalError;
+      }
       
       const { data: musicData, error: musicError } = await supabase
         .from('music_generations')
@@ -199,8 +204,12 @@ const UserDashboard: React.FC = () => {
         .order('created_at', { ascending: false })
         .limit(6);
       
-      if (musicError) throw musicError;
+      if (musicError) {
+        console.error("Error fetching music data:", musicError);
+        throw musicError;
+      }
       
+      console.log("Journal entries fetched:", journalData?.length || 0, journalData);
       setJournalEntries(journalData || []);
       
       // Map the music_generations data to MusicGeneration type
@@ -214,6 +223,7 @@ const UserDashboard: React.FC = () => {
       }));
       
       setSoundJourneys(formattedMusicData);
+      console.log("Music generations fetched:", formattedMusicData.length || 0);
     } catch (error: any) {
       console.error("Error fetching user content:", error.message);
       toast.error("Failed to load your content");
