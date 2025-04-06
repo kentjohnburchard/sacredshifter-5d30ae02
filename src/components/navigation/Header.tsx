@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Home, Menu, User, X, Palette } from 'lucide-react';
+import { Home, Menu, User, X, Palette, Heart } from 'lucide-react';
 
 const Header: React.FC = () => {
   const { user } = useAuth();
@@ -30,6 +30,9 @@ const Header: React.FC = () => {
                   <Link to="/dashboard" className="text-gray-600 hover:text-purple-600 transition-colors">Dashboard</Link>
                   <Link to="/energy-check" className="text-gray-600 hover:text-purple-600 transition-colors">Energy Check</Link>
                   <Link to="/frequency-library" className="text-gray-600 hover:text-purple-600 transition-colors">Frequencies</Link>
+                  <Link to="/heart-center" className="text-gray-600 hover:text-pink-600 transition-colors">
+                    <Heart className="h-4 w-4 inline mr-1" /> Heart Center
+                  </Link>
                 </>
               )}
             </nav>
@@ -81,6 +84,9 @@ const Header: React.FC = () => {
                   <Link to="/dashboard" className="text-gray-600 hover:text-purple-600 transition-colors py-1">Dashboard</Link>
                   <Link to="/energy-check" className="text-gray-600 hover:text-purple-600 transition-colors py-1">Energy Check</Link>
                   <Link to="/frequency-library" className="text-gray-600 hover:text-purple-600 transition-colors py-1">Frequencies</Link>
+                  <Link to="/heart-center" className="text-gray-600 hover:text-pink-600 transition-colors py-1">
+                    <Heart className="h-4 w-4 inline mr-1" /> Heart Center
+                  </Link>
                   <Link to="/personal-vibe" className="text-gray-600 hover:text-purple-600 transition-colors py-1">My Vibe</Link>
                   <Link to="/profile" className="text-gray-600 hover:text-purple-600 transition-colors py-1">Profile</Link>
                 </>

@@ -10,13 +10,13 @@ import SoundLibraryPreview from "@/components/landing/SoundLibraryPreview";
 import GlobalWatermark from "@/components/GlobalWatermark";
 import Header from "@/components/navigation/Header";
 import AboutSacredShifter from "@/components/AboutSacredShifter";
+import ConsciousnessToggle from "@/components/ConsciousnessToggle";
+import Layout from "@/components/Layout";
 
 const Home: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-purple-50">
-      <Header />
-      
-      <div className="container mx-auto px-4 py-12 pt-24">
+    <Layout>
+      <div className="container mx-auto px-4 py-8">
         <div className="max-w-5xl mx-auto">
           {/* Feature cards at the top */}
           <motion.div
@@ -28,243 +28,228 @@ const Home: React.FC = () => {
             <HealingFeatures />
           </motion.div>
           
-          {/* About Sacred Shifter Section - New Addition */}
+          {/* Quote Component - Moved higher for prominence */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.15 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            className="mb-12"
           >
             <AboutSacredShifter />
           </motion.div>
 
-          {/* Heart Center Feature - New Addition */}
+          {/* Sound Library Preview - Moved up for better flow */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.25 }}
-            className="mb-12"
-          >
-            <div className="text-center mb-8">
-              <h2 className="text-3xl md:text-4xl font-light">
-                <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-500">
-                  Heart Center Expansion
-                </span>
-              </h2>
-              <p className="text-gray-600 mt-2 max-w-2xl mx-auto">
-                Access, cultivate, and radiate love through sacred frequencies and heart-centered practices.
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <Card className="border-pink-100">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center">
-                    <Heart className="h-5 w-5 mr-2 text-pink-500" />
-                    Mirror Portal
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600">
-                    Experience a reflective affirmation journey with the Mirror Portal. See yourself through the lens of love and receive real-time affirmations tuned to your emotional state.
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-pink-100">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center">
-                    <Sparkles className="h-5 w-5 mr-2 text-pink-500" />
-                    Soul Hugs
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600">
-                    Share and receive love through the community-powered Soul Hug feature. Send anonymous messages of love, forgiveness, and encouragement to others on their healing journey.
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-pink-100">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center">
-                    <Music className="h-5 w-5 mr-2 text-pink-500" />
-                    Heart Frequencies
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600">
-                    Immerse yourself in specially tuned frequencies that resonate with the heart chakra. Set loving intentions before listening to deepen your connection to self and others.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-            
-            <Link to="/heart-center">
-              <Button 
-                variant="default" 
-                className="mx-auto block bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700"
-              >
-                <Heart className="mr-2 h-4 w-4" />
-                Enter Heart Center
-              </Button>
-            </Link>
-          </motion.div>
-          
-          {/* Sound Healing Sections */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="mb-12"
-          >
-            <div className="text-center mb-8">
-              <h2 className="text-3xl md:text-4xl font-light">
-                <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">
-                  Understanding Sound Healing
-                </span>
-              </h2>
-              <p className="text-gray-600 mt-2 max-w-2xl mx-auto">
-                Sound healing is an ancient practice that uses vibrations to restore balance and harmony to the body and mind.
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <Card className="border-purple-100">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center">
-                    <Music className="h-5 w-5 mr-2 text-purple-500" />
-                    Solfeggio Frequencies
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600">
-                    Ancient sacred tones used in Gregorian chants, each vibrating at specific frequencies that can promote healing and spiritual awakening. 
-                    The most known frequencies include 396Hz (releasing fear), 432Hz (universal harmony), 528Hz (transformation and DNA repair), and 639Hz (connecting relationships).
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-purple-100">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center">
-                    <Sparkles className="h-5 w-5 mr-2 text-purple-500" />
-                    Sound and Chakras
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600">
-                    Each chakra vibrates at its own frequency. Using specific sound frequencies can restore harmony to blocked energy centers. 
-                    From the Root chakra (396Hz) to the Crown chakra (963Hz), sound waves help realign your subtle energy system.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-            
-            <Link to="/frequency-library">
-              <Button 
-                variant="default" 
-                className="mx-auto block bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-              >
-                <Music className="mr-2 h-4 w-4" />
-                Explore Healing Frequencies
-              </Button>
-            </Link>
-          </motion.div>
-          
-          {/* Hermetic Wisdom Section */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="mb-12"
-          >
-            <div className="text-center mb-8">
-              <h2 className="text-3xl md:text-4xl font-light">
-                <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-blue-500">
-                  Hermetic Principles & Vibration
-                </span>
-              </h2>
-              <p className="text-gray-600 mt-2 max-w-2xl mx-auto">
-                Ancient wisdom that explains the vibrational nature of the universe, connecting sound healing with universal laws.
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <Card className="border-blue-100">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center">
-                    <Info className="h-5 w-5 mr-2 text-blue-500" />
-                    The Principle of Vibration
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600">
-                    "Nothing rests; everything moves; everything vibrates." The entire universe is in constant motion and vibration, including our bodies, thoughts, and emotions.
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-blue-100">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center">
-                    <BookOpen className="h-5 w-5 mr-2 text-blue-500" />
-                    Sound as Medicine
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600">
-                    By applying specific sound frequencies, we can influence our own vibrational state, promoting healing and alignment with higher frequencies of consciousness.
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-blue-100">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center">
-                    <Sparkles className="h-5 w-5 mr-2 text-blue-500" />
-                    Vibrational Alignment
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600">
-                    When we align our personal vibration with healing frequencies, we can shift our state of being, overcome blockages, and manifest our intentions more effectively.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-            
-            <Link to="/hermetic-wisdom">
-              <Button 
-                variant="outline" 
-                className="mx-auto block border-blue-200 text-blue-600 hover:bg-blue-50"
-              >
-                <BookOpen className="mr-2 h-4 w-4" />
-                Explore Hermetic Wisdom
-              </Button>
-            </Link>
-          </motion.div>
-          
-          {/* Sound Library Preview */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="mt-12"
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="mb-16"
           >
             <SoundLibraryPreview />
           </motion.div>
+
+          {/* Feature Sections Grid - Reorganized into a grid for better scan ability */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+            {/* Heart Center Feature */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.25 }}
+            >
+              <Card className="h-full border-pink-100 hover:border-pink-200 transition-all">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Heart className="h-5 w-5 mr-2 text-pink-500" />
+                    Heart Center Expansion
+                  </CardTitle>
+                  <CardDescription>
+                    Access, cultivate, and radiate love through sacred frequencies and heart-centered practices.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4 mb-6">
+                    <div className="flex items-start">
+                      <Sparkles className="h-4 w-4 mr-2 text-pink-500 mt-1" />
+                      <div>
+                        <p className="font-medium">Mirror Portal</p>
+                        <p className="text-sm text-gray-600">Experience a reflective affirmation journey with real-time guidance.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <Heart className="h-4 w-4 mr-2 text-pink-500 mt-1" />
+                      <div>
+                        <p className="font-medium">Soul Hugs</p>
+                        <p className="text-sm text-gray-600">Share and receive love through community-powered messages.</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <Link to="/heart-center">
+                    <Button 
+                      variant="default" 
+                      className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700"
+                    >
+                      <Heart className="mr-2 h-4 w-4" />
+                      Enter Heart Center
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </motion.div>
+            
+            {/* Sound Healing Section */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+            >
+              <Card className="h-full border-purple-100 hover:border-purple-200 transition-all">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Music className="h-5 w-5 mr-2 text-purple-500" />
+                    Sound Healing
+                  </CardTitle>
+                  <CardDescription>
+                    Experience ancient sound healing practices with modern frequency technology.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4 mb-6">
+                    <div className="flex items-start">
+                      <Music className="h-4 w-4 mr-2 text-purple-500 mt-1" />
+                      <div>
+                        <p className="font-medium">Solfeggio Frequencies</p>
+                        <p className="text-sm text-gray-600">Ancient sacred tones for spiritual and physical healing.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <Sparkles className="h-4 w-4 mr-2 text-purple-500 mt-1" />
+                      <div>
+                        <p className="font-medium">Sound and Chakras</p>
+                        <p className="text-sm text-gray-600">Specific frequencies to restore harmony to your energy centers.</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <Link to="/frequency-library">
+                    <Button 
+                      variant="default" 
+                      className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                    >
+                      <Music className="mr-2 h-4 w-4" />
+                      Explore Healing Frequencies
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Hermetic Wisdom Section */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.35 }}
+            >
+              <Card className="h-full border-blue-100 hover:border-blue-200 transition-all">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <BookOpen className="h-5 w-5 mr-2 text-blue-500" />
+                    Hermetic Principles
+                  </CardTitle>
+                  <CardDescription>
+                    Ancient wisdom explaining the vibrational nature of the universe.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4 mb-6">
+                    <div className="flex items-start">
+                      <Info className="h-4 w-4 mr-2 text-blue-500 mt-1" />
+                      <div>
+                        <p className="font-medium">Principle of Vibration</p>
+                        <p className="text-sm text-gray-600">"Nothing rests; everything moves; everything vibrates."</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <Sparkles className="h-4 w-4 mr-2 text-blue-500 mt-1" />
+                      <div>
+                        <p className="font-medium">Vibrational Alignment</p>
+                        <p className="text-sm text-gray-600">Shift your state of being by aligning with healing frequencies.</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <Link to="/hermetic-wisdom">
+                    <Button 
+                      variant="outline" 
+                      className="w-full border-blue-200 text-blue-600 hover:bg-blue-50"
+                    >
+                      <BookOpen className="mr-2 h-4 w-4" />
+                      Explore Hermetic Wisdom
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </motion.div>
+            
+            {/* Energy Check Section */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+            >
+              <Card className="h-full border-indigo-100 hover:border-indigo-200 transition-all">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Sparkles className="h-5 w-5 mr-2 text-indigo-500" />
+                    Energy Alignment
+                  </CardTitle>
+                  <CardDescription>
+                    Check in with your energy and receive personalized frequency recommendations.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4 mb-6">
+                    <div className="flex items-start">
+                      <Sparkles className="h-4 w-4 mr-2 text-indigo-500 mt-1" />
+                      <div>
+                        <p className="font-medium">Energy Check</p>
+                        <p className="text-sm text-gray-600">Assess your current energy state and discover frequencies for your needs.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <Music className="h-4 w-4 mr-2 text-indigo-500 mt-1" />
+                      <div>
+                        <p className="font-medium">Personalized Journey</p>
+                        <p className="text-sm text-gray-600">Get a tailored sound healing experience based on your current energy.</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <Link to="/energy-check">
+                    <Button 
+                      variant="default" 
+                      className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700"
+                    >
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Start Energy Check
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
         </div>
       </div>
+      
+      {/* Fixed Consciousness Mode Toggle */}
+      <ConsciousnessToggle />
       
       {/* Background decorative elements */}
       <div className="fixed inset-0 -z-10 pointer-events-none">
         <div className="absolute top-1/3 left-1/4 w-48 h-48 bg-purple-300/10 rounded-full filter blur-3xl"></div>
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-blue-300/10 rounded-full filter blur-3xl"></div>
       </div>
-
-      {/* Global Watermark */}
-      <GlobalWatermark />
-    </div>
+    </Layout>
   );
 };
 

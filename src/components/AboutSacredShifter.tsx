@@ -2,8 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 
 type Quote = {
   text: string;
@@ -22,20 +20,16 @@ const kentQuotes: Quote[] = [
   { text: "You are not here by accident. You're here because the Universe can't do this shift without you.", author: "Sacred Shifter" },
   { text: "Your frequency is not negotiable. Neither is your magic.", author: "Sacred Shifter" },
   { text: "Honey, you didn't come this far to only come this far.", author: "Sacred Shifter" },
-  { text: "Alignment isn't just a yoga pose—it's the frequency you're serving today.", author: "Sacred Shifter" },
+  { text: "Alignment isn't just a yoga pose it's the frequency you're serving today.", author: "Sacred Shifter" },
   { text: "Your aura is giving 'main character energy' today. Keep it that way.", author: "Sacred Shifter" }
 ];
 
 const AboutSacredShifter: React.FC = () => {
-  const { preferences, saveUserPreferences, loading } = useUserPreferences();
+  const { preferences, loading } = useUserPreferences();
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
   const [isShimmering, setIsShimmering] = useState(false);
-  const [manualModeOverride, setManualModeOverride] = useState<boolean | null>(null);
   
-  const consciousnessMode = manualModeOverride !== null 
-    ? (manualModeOverride ? "kent" : "standard") 
-    : (preferences.consciousness_mode || "standard");
-  
+  const consciousnessMode = preferences.consciousness_mode || "standard";
   const quotes = consciousnessMode === "kent" ? kentQuotes : standardQuotes;
 
   // Rotate quotes every 10 seconds
@@ -55,39 +49,13 @@ const AboutSacredShifter: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleModeToggle = async (checked: boolean) => {
-    setManualModeOverride(checked);
-    
-    if (!loading) {
-      await saveUserPreferences({
-        ...preferences,
-        consciousness_mode: checked ? "kent" : "standard"
-      });
-    }
-  };
-
   const shimmeryTextStyle = isShimmering 
     ? "animate-pulse bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-500" 
     : "bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-400";
 
   return (
-    <section className="py-16 px-4 sm:px-6 relative overflow-hidden">
+    <section className="py-10 px-4 sm:px-6 relative overflow-hidden">
       <div className="max-w-4xl mx-auto">
-        {/* Mode Toggle */}
-        <div className="flex justify-end mb-8">
-          <div className="flex items-center space-x-2">
-            <Label htmlFor="vibe-shift" className="text-sm text-gray-600">Standard</Label>
-            <Switch 
-              id="vibe-shift" 
-              checked={consciousnessMode === "kent"}
-              onCheckedChange={handleModeToggle}
-            />
-            <Label htmlFor="vibe-shift" className="text-sm font-medium bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500">
-              Kent Mode ✨
-            </Label>
-          </div>
-        </div>
-        
         {/* Dynamic About Content */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -98,24 +66,20 @@ const AboutSacredShifter: React.FC = () => {
         >
           {consciousnessMode === "standard" ? (
             <>
-              <h2 className={`text-3xl md:text-4xl font-light tracking-tight ${shimmeryTextStyle} mb-6`}>
-                ✨ About Sacred Shifter
-              </h2>
-              
               <p className="text-gray-700 leading-relaxed">
-                <strong>Sacred Shifter</strong> is more than an app—it's your portal to vibrational transformation.
+                <strong>Sacred Shifter</strong> is more than an app it's your portal to vibrational transformation.
               </p>
               
               <p className="text-gray-700 leading-relaxed">
                 Crafted at the crossroads of ancient wisdom and next-gen tech, Sacred Shifter weaves healing frequencies, 
-                fractal visuals, and personalized cosmic insights into a one-of-a-kind experience. Whether you're aligning 
+                fractal visuals, and personalised cosmic insights into a one-of-a-kind experience. Whether you're aligning 
                 your chakras, syncing with the moon, or just trying to shake off yesterday's energetic gunk, this is your 
                 sacred space to shift.
               </p>
               
               <p className="text-gray-700 leading-relaxed">
                 Dive into your personal soundscape, guided by real-time resonance, sacred geometry, and the whispers of 
-                your star chart. Customize your vibe, tune into your essence, and let every frequency move you closer to 
+                your star chart. Customise your vibe, tune into your essence, and let every frequency move you closer to 
                 who you truly are.
               </p>
               
@@ -125,16 +89,14 @@ const AboutSacredShifter: React.FC = () => {
                 You're rewriting your frequency.<br />
                 You're becoming your own sacred shift.</p>
               </div>
+              
+              <p className="mt-6 text-right text-sm text-gray-600">Kent Burchard - Sacred Shifter Founder</p>
             </>
           ) : (
             <>
-              <h2 className={`text-3xl md:text-4xl font-bold tracking-tight ${shimmeryTextStyle} mb-6`}>
-                🪬 About Sacred Shifter – The Frequency is You
-              </h2>
-              
               <p className="text-gray-800 font-medium leading-relaxed">
                 Welcome, seeker.<br />
-                You didn't stumble here by accident—this was a soul appointment booked lifetimes ago.
+                You didn't stumble here by accident this was a soul appointment booked lifetimes ago.
               </p>
               
               <p className="text-gray-800 font-medium leading-relaxed">
@@ -145,7 +107,7 @@ const AboutSacredShifter: React.FC = () => {
               </p>
               
               <p className="text-gray-800 leading-relaxed">
-                We blend ancient vibrational medicine, personalized astrology, fractal-coded visuals, and next-gen AI to give 
+                We blend ancient vibrational medicine, personalised astrology, fractal-coded visuals, and next-gen AI to give 
                 your aura the glow-up it deserves. Every tone, every pulse, every shimmering sacred pixel is calibrated to 
                 <strong> shift you</strong> into alignment with your higher timeline.
               </p>
@@ -188,21 +150,23 @@ const AboutSacredShifter: React.FC = () => {
               <p className="mt-6 text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500">
                 <strong>Sacred Shifter</strong>: Where your essence meets its echo.
               </p>
+              
+              <p className="mt-4 text-right text-sm text-gray-600">Kent Burchard - Sacred Shifter Founder</p>
             </>
           )}
         </motion.div>
         
-        {/* Animated Quote Rotator */}
+        {/* Animated Quote Rotator - Made more prominent */}
         <motion.div 
           key={currentQuoteIndex}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mt-12 p-6 bg-opacity-5 backdrop-blur-sm bg-purple-200 rounded-lg border border-purple-100"
+          className="mt-10 p-8 bg-opacity-10 backdrop-blur-sm bg-purple-200 rounded-lg border border-purple-100 shadow-md"
         >
-          <p className="italic text-center text-gray-700">"{quotes[currentQuoteIndex].text}"</p>
+          <p className="italic text-center text-gray-700 text-xl md:text-2xl font-light">"{quotes[currentQuoteIndex].text}"</p>
           {quotes[currentQuoteIndex].author && (
-            <p className="text-center text-sm text-gray-500 mt-2">— {quotes[currentQuoteIndex].author}</p>
+            <p className="text-center text-sm text-gray-500 mt-4">— {quotes[currentQuoteIndex].author}</p>
           )}
         </motion.div>
       </div>

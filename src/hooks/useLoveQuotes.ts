@@ -22,11 +22,11 @@ export const useLoveQuotes = () => {
     try {
       setLoading(true);
       
-      // We need to use any type here because the love_quotes table is not in the generated types yet
-      const { data, error } = await supabase
+      // Use type assertion since the love_quotes table isn't in the generated types yet
+      const { data, error } = await (supabase
         .from('love_quotes')
         .select('*')
-        .order('created_at', { ascending: false }) as any;
+        .order('created_at', { ascending: false }) as any);
         
       if (error) {
         throw error;
@@ -59,11 +59,11 @@ export const useLoveQuotes = () => {
   const addQuote = async (quote: Omit<LoveQuote, 'id' | 'created_at'>) => {
     try {
       // Need to use any type since the table isn't in the generated types
-      const { data, error } = await supabase
+      const { data, error } = await (supabase
         .from('love_quotes')
-        .insert(quote)
+        .insert(quote as any)
         .select()
-        .single() as any;
+        .single() as any);
         
       if (error) {
         throw error;

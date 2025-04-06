@@ -1,93 +1,63 @@
 
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { useAuth } from "./AuthContext";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { useLoveQuotes } from "@/hooks/useLoveQuotes";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
-import { getRandomQuote } from "@/utils/customizationOptions";
 
-interface ThemeContextType {
-  currentGradient: string;
-  currentElement: string;
-  watermarkStyle: string;
-  soundscapeMode: string;
-  zodiacSign: string;
+type ThemeContextType = {
   kentMode: boolean;
   setKentMode: (mode: boolean) => void;
   currentQuote: string;
   refreshQuote: () => void;
-}
+};
 
 const ThemeContext = createContext<ThemeContextType>({
-  currentGradient: "linear-gradient(to right, #4facfe, #00f2fe)",
-  currentElement: "water",
-  watermarkStyle: "zodiac",
-  soundscapeMode: "bubbles",
-  zodiacSign: "cancer",
   kentMode: false,
   setKentMode: () => {},
-  currentQuote: "Your vibe creates your reality.",
-  refreshQuote: () => {}
+  currentQuote: "",
+  refreshQuote: () => {},
 });
 
-export const useTheme = () => useContext(ThemeContext);
-
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
-  const { preferences, loading, saveUserPreferences } = useUserPreferences();
-  const [kentMode, setKentMode] = useState(false);
-  const [currentQuote, setCurrentQuote] = useState("Your vibe creates your reality.");
+  const { preferences, saveUserPreferences } = useUserPreferences();
+  const { randomQuote, refreshRandomQuote, getRandomQuote } = useLoveQuotes();
+  const [currentQuote, setCurrentQuote] = useState("");
 
-  // Initialize kent mode from preferences
-  useEffect(() => {
-    if (!loading && preferences) {
-      setKentMode(preferences.kent_mode || false);
-    }
-  }, [preferences, loading]);
+  const consciousnessMode = preferences.consciousness_mode || "standard";
+  const kentMode = consciousnessMode === "kent";
 
-  // Update preferences when kentMode changes
-  const handleSetKentMode = (mode: boolean) => {
-    setKentMode(mode);
-    if (preferences) {
-      saveUserPreferences({
+  const setKentMode = async (mode: boolean) => {
+    try {
+      await saveUserPreferences({
         ...preferences,
-        kent_mode: mode
+        consciousness_mode: mode ? "kent" : "standard"
       });
+    } catch (error) {
+      console.error("Error toggling Kent Mode:", error);
     }
   };
 
-  // Refresh quote function
-  const refreshQuote = () => {
-    setCurrentQuote(getRandomQuote(kentMode));
-  };
-
-  // Apply theme to root element (for global CSS variables if needed)
+  // Update current quote when randomQuote changes
   useEffect(() => {
-    if (!loading) {
-      document.documentElement.style.setProperty('--theme-gradient', preferences.theme_gradient);
-      document.documentElement.style.setProperty('--theme-element', preferences.element);
-      document.documentElement.setAttribute('data-element', preferences.element);
+    if (randomQuote) {
+      setCurrentQuote(randomQuote.text);
     }
-  }, [preferences, loading]);
+  }, [randomQuote]);
 
-  // Initialize quote based on kent mode
-  useEffect(() => {
-    refreshQuote();
-  }, [kentMode]);
+  // Refresh the quote
+  const refreshQuote = useCallback(() => {
+    const quote = getRandomQuote();
+    if (quote) {
+      setCurrentQuote(quote.text);
+    } else {
+      refreshRandomQuote();
+    }
+  }, [getRandomQuote, refreshRandomQuote]);
 
   return (
-    <ThemeContext.Provider
-      value={{
-        currentGradient: preferences.theme_gradient,
-        currentElement: preferences.element,
-        watermarkStyle: preferences.watermark_style,
-        soundscapeMode: preferences.soundscapeMode,
-        zodiacSign: preferences.zodiac_sign,
-        kentMode,
-        setKentMode: handleSetKentMode,
-        currentQuote,
-        refreshQuote
-      }}
-    >
+    <ThemeContext.Provider value={{ kentMode, setKentMode, currentQuote, refreshQuote }}>
       {children}
     </ThemeContext.Provider>
   );
 };
+
+export const useTheme = () => useContext(ThemeContext);
