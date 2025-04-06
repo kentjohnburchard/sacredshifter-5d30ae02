@@ -86,107 +86,98 @@ const ChakraAlignmentSection: React.FC = () => {
   };
 
   return (
-    <section className="py-8 sm:py-12 bg-gradient-to-b from-white to-purple-50">
+    <section className="py-4 sm:py-6">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        {/* Chakra details card - Shown first on mobile */}
-        {selectedChakra && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-8 md:mb-12"
-          >
-            {chakras.filter(chakra => chakra.id === selectedChakra).map(chakra => (
-              <Card key={chakra.id} className="border border-gray-200 overflow-hidden max-w-2xl mx-auto">
-                <div className={`h-2 ${chakra.color}`}></div>
-                <CardContent className="p-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                    <div>
-                      <h3 className="text-xl font-medium">{chakra.name}</h3>
-                      <p className="text-sm text-gray-500">{chakra.sanskrit} · {chakra.location}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className={`w-4 h-4 rounded-full ${chakra.color}`}></div>
-                      <span className="text-sm font-medium">{chakra.frequency}</span>
-                    </div>
-                  </div>
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Left side - Chakra visualization */}
+          <div className="w-full lg:w-1/3">
+            <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 shadow-sm">
+              <h3 className="text-lg font-medium mb-4 text-center">Chakra System</h3>
+              <div className="relative w-full h-[400px] flex justify-center">
+                <div className="absolute h-full w-1 bg-gradient-to-b from-purple-500 via-blue-500 to-red-500 rounded-full"></div>
+                
+                {chakras.map((chakra, index) => {
+                  // Calculate position based on index
+                  const top = 10 + index * (380 / (chakras.length - 1));
                   
-                  <p className="text-gray-700 mb-4">{chakra.description}</p>
-                  
-                  <div className="bg-gray-50 p-3 rounded-md mb-4">
-                    <p className="text-sm italic text-center">"{chakra.affirmation}"</p>
-                  </div>
-                  
-                  <div className="flex justify-center">
-                    <Button className={`${chakra.color.replace('bg-', 'bg-')} hover:opacity-90 text-white`}>
-                      <Play className="h-4 w-4 mr-2" /> 
-                      Play {chakra.name} Frequency
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </motion.div>
-        )}
-        
-        {/* Chakra selection visualization */}
-        <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12">
-          {/* Chakra points visualization */}
-          <div className="relative w-[280px] h-[500px] sm:w-[320px] sm:h-[600px] order-2 md:order-1">
-            {/* Human body silhouette */}
-            <div className="absolute inset-0 bg-gray-200/50 rounded-full w-32 h-32 mx-auto mt-12"></div>
-            
-            {/* Chakra points */}
-            {chakras.map((chakra, index) => {
-              // Calculate position based on index
-              const top = 75 + index * (450 / (chakras.length - 1));
-              
-              return (
-                <motion.button
-                  key={chakra.id}
-                  initial={{ scale: 1 }}
-                  animate={{ 
-                    scale: selectedChakra === chakra.id ? [1, 1.2, 1] : 1,
-                    boxShadow: selectedChakra === chakra.id ? "0 0 15px 5px rgba(255,255,255,0.7)" : "none"
-                  }}
-                  transition={{ duration: 2, repeat: selectedChakra === chakra.id ? Infinity : 0 }}
-                  onClick={() => handleSelectChakra(chakra.id)}
-                  className={`absolute left-1/2 transform -translate-x-1/2 w-6 h-6 rounded-full ${chakra.color} z-10`}
-                  style={{ top: `${top}px` }}
-                >
-                  <span className="sr-only">{chakra.name}</span>
-                </motion.button>
-              );
-            })}
-          </div>
-          
-          {/* Chakra list (on larger screens) */}
-          <div className="order-1 md:order-2 w-full md:w-auto">
-            <div className="grid grid-cols-2 md:grid-cols-1 gap-2 md:gap-3 max-w-xs">
-              {chakras.map((chakra) => (
-                <button
-                  key={chakra.id}
-                  onClick={() => handleSelectChakra(chakra.id)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
-                    selectedChakra === chakra.id
-                      ? `${chakra.color.replace('bg-', 'bg-')} text-white`
-                      : 'bg-white/80 hover:bg-white'
-                  }`}
-                >
-                  <div className={`w-3 h-3 rounded-full ${chakra.color}`}></div>
-                  <span className="text-sm font-medium">{chakra.name}</span>
-                </button>
-              ))}
+                  return (
+                    <motion.button
+                      key={chakra.id}
+                      initial={{ scale: 1 }}
+                      animate={{ 
+                        scale: selectedChakra === chakra.id ? [1, 1.2, 1] : 1,
+                        boxShadow: selectedChakra === chakra.id ? "0 0 15px 5px rgba(255,255,255,0.7)" : "none"
+                      }}
+                      transition={{ duration: 2, repeat: selectedChakra === chakra.id ? Infinity : 0 }}
+                      onClick={() => handleSelectChakra(chakra.id)}
+                      className={`absolute left-1/2 transform -translate-x-1/2 w-6 h-6 rounded-full ${chakra.color} z-10`}
+                      style={{ top: `${top}px` }}
+                    >
+                      <span className="sr-only">{chakra.name}</span>
+                      {/* Chakra name label */}
+                      <span className="absolute left-8 top-0 whitespace-nowrap text-sm font-medium">
+                        {chakra.name}
+                      </span>
+                      {/* Frequency label */}
+                      <span className="absolute -left-16 top-0 whitespace-nowrap text-xs text-gray-500">
+                        {chakra.frequency}
+                      </span>
+                    </motion.button>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </div>
-        
-        {/* Instructions when no chakra is selected */}
-        {!selectedChakra && (
-          <div className="text-center text-gray-500 mt-8">
-            <p>Select a chakra point to explore</p>
+          
+          {/* Right side - Chakra details */}
+          <div className="w-full lg:w-2/3">
+            {selectedChakra ? (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                {chakras.filter(chakra => chakra.id === selectedChakra).map(chakra => (
+                  <Card key={chakra.id} className="border border-gray-200 overflow-hidden">
+                    <div className={`h-2 ${chakra.color}`}></div>
+                    <CardContent className="p-6">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                        <div>
+                          <h3 className="text-xl font-medium">{chakra.name}</h3>
+                          <p className="text-sm text-gray-500">{chakra.sanskrit} · {chakra.location}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className={`w-4 h-4 rounded-full ${chakra.color}`}></div>
+                          <span className="text-sm font-medium">{chakra.frequency}</span>
+                        </div>
+                      </div>
+                      
+                      <p className="text-gray-700 mb-4">{chakra.description}</p>
+                      
+                      <div className="bg-gray-50 p-3 rounded-md mb-4">
+                        <p className="text-sm italic text-center">"{chakra.affirmation}"</p>
+                      </div>
+                      
+                      <div className="flex justify-center">
+                        <Button className={`${chakra.color.replace('bg-', 'bg-')} hover:opacity-90 text-white`}>
+                          <Play className="h-4 w-4 mr-2" /> 
+                          Play {chakra.name} Frequency
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </motion.div>
+            ) : (
+              <Card className="border border-gray-200 h-full flex items-center justify-center">
+                <CardContent className="p-6 text-center">
+                  <h3 className="text-xl font-medium mb-2 text-gray-700">Select a Chakra</h3>
+                  <p className="text-gray-500">Click on a chakra point to view details and play frequencies</p>
+                </CardContent>
+              </Card>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </section>
   );

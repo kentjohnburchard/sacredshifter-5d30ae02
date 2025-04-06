@@ -13,7 +13,7 @@ const SidebarLogo: React.FC<SidebarLogoProps> = ({ className }) => {
         <img
           src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png"
           alt="Sacred Shifter Logo"
-          className="h-16 w-16 object-contain animate-pulse-subtle transition-all hover:scale-105"
+          className="h-24 w-24 object-contain animate-pulse-subtle transition-all hover:scale-105"
         />
       </Link>
     </div>

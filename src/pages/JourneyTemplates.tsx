@@ -14,7 +14,7 @@ const JourneyTemplates = () => {
         transition={{ duration: 0.8 }}
       >
         <motion.div
-          className="text-center mb-12"
+          className="mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.6 }}

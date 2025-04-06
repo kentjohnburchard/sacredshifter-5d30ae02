@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   LayoutDashboard,
@@ -8,7 +7,6 @@ import {
   CheckSquare,
   Heart,
   Zap,
-  Clock,
   Palette,
   Stars,
 } from "lucide-react";
@@ -51,12 +49,6 @@ export const useNavItems = () => {
       icon: CheckSquare,
       href: "/intentions",
       active: pathname === "/intentions",
-    },
-    {
-      title: "Timeline",
-      icon: Clock,
-      href: "/timeline",
-      active: pathname === "/timeline",
     },
     {
       title: "Hermetic Wisdom",

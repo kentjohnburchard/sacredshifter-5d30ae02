@@ -32,9 +32,27 @@ export const useTheme = () => useContext(ThemeContext);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
-  const { preferences, loading } = useUserPreferences();
+  const { preferences, loading, saveUserPreferences } = useUserPreferences();
   const [kentMode, setKentMode] = useState(false);
   const [currentQuote, setCurrentQuote] = useState("Your vibe creates your reality.");
+
+  // Initialize kent mode from preferences
+  useEffect(() => {
+    if (!loading && preferences) {
+      setKentMode(preferences.kent_mode || false);
+    }
+  }, [preferences, loading]);
+
+  // Update preferences when kentMode changes
+  const handleSetKentMode = (mode: boolean) => {
+    setKentMode(mode);
+    if (preferences) {
+      saveUserPreferences({
+        ...preferences,
+        kent_mode: mode
+      });
+    }
+  };
 
   // Refresh quote function
   const refreshQuote = () => {
@@ -64,7 +82,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         soundscapeMode: preferences.soundscapeMode,
         zodiacSign: preferences.zodiac_sign,
         kentMode,
-        setKentMode,
+        setKentMode: handleSetKentMode,
         currentQuote,
         refreshQuote
       }}

@@ -9,7 +9,6 @@ import Dashboard from './pages/Dashboard';
 import EnergyCheck from './pages/EnergyCheck';
 import Alignment from './pages/Alignment';
 import Intentions from './pages/Intentions';
-import Timeline from './pages/Timeline';
 import Profile from './pages/Profile';
 import Focus from './pages/Focus';
 import MusicLibrary from './pages/MusicLibrary';
@@ -40,7 +39,6 @@ function App() {
       <Route path="/energy-check" element={<ProtectedRoute><EnergyCheck /></ProtectedRoute>} />
       <Route path="/alignment" element={<ProtectedRoute><Alignment /></ProtectedRoute>} />
       <Route path="/intentions" element={<ProtectedRoute><Intentions /></ProtectedRoute>} />
-      <Route path="/timeline" element={<ProtectedRoute><Timeline /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="/focus" element={<ProtectedRoute><Focus /></ProtectedRoute>} />
       <Route path="/music-library" element={<ProtectedRoute><MusicLibrary /></ProtectedRoute>} />
