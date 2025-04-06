@@ -107,7 +107,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
       icon: Palette,
       href: "/personal-vibe",
       active: pathname === "/personal-vibe",
-      highlight: true // Add highlighting to make it stand out
+      highlight: true
     },
   ];
 
