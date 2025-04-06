@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Check, Save } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
 
 // Suggested intentions for quick selection
 const suggestedIntentions = [
@@ -18,12 +20,57 @@ const suggestedIntentions = [
   "I am connected to the universal frequency of love"
 ];
 
+interface Intention {
+  id: string;
+  intention: string;
+  title: string;
+  created_at: string;
+}
+
 const IntentionSettingSection: React.FC = () => {
   const [intention, setIntention] = useState("");
-  const [savedIntentions, setSavedIntentions] = useState<string[]>([]);
+  const [savedIntentions, setSavedIntentions] = useState<Intention[]>([]);
   const [intentionTitle, setIntentionTitle] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   
-  const handleSaveIntention = () => {
+  const { user } = useAuth();
+  
+  // Fetch saved intentions when component mounts
+  useEffect(() => {
+    if (user) {
+      fetchSavedIntentions();
+    }
+  }, [user]);
+  
+  const fetchSavedIntentions = async () => {
+    if (!user) return;
+    
+    try {
+      setIsLoading(true);
+      
+      const { data, error } = await supabase
+        .from('user_intentions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error("Error fetching intentions:", error);
+        toast.error("Failed to load your intentions");
+        return;
+      }
+      
+      if (data) {
+        setSavedIntentions(data);
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const handleSaveIntention = async () => {
     if (!intention.trim()) {
       toast.error("Please enter an intention");
       return;
@@ -34,13 +81,46 @@ const IntentionSettingSection: React.FC = () => {
       return;
     }
     
-    // In a real app, we would save this to a database
-    setSavedIntentions([...savedIntentions, intention]);
-    toast.success("Your intention has been set");
+    if (!user) {
+      toast.error("You need to be signed in to save intentions");
+      return;
+    }
     
-    // Reset form
-    setIntention("");
-    setIntentionTitle("");
+    setIsLoading(true);
+    
+    try {
+      const newIntention = {
+        user_id: user.id,
+        intention: intention.trim(),
+        title: intentionTitle.trim(),
+        created_at: new Date().toISOString()
+      };
+      
+      const { data, error } = await supabase
+        .from('user_intentions')
+        .insert([newIntention])
+        .select();
+      
+      if (error) {
+        console.error("Error saving intention:", error);
+        toast.error("Failed to save your intention");
+        return;
+      }
+      
+      if (data && data.length > 0) {
+        setSavedIntentions([data[0], ...savedIntentions]);
+        toast.success("Your intention has been set");
+        
+        // Reset form
+        setIntention("");
+        setIntentionTitle("");
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      toast.error("Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   const handleSelectSuggestion = (suggestion: string) => {
@@ -109,9 +189,14 @@ const IntentionSettingSection: React.FC = () => {
                 
                 <Button 
                   onClick={handleSaveIntention}
+                  disabled={isLoading}
                   className="w-full bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600"
                 >
-                  <Save className="h-4 w-4 mr-2" /> Save Intention
+                  {isLoading ? "Saving..." : (
+                    <>
+                      <Save className="h-4 w-4 mr-2" /> Save Intention
+                    </>
+                  )}
                 </Button>
               </div>
             </CardContent>
@@ -120,16 +205,20 @@ const IntentionSettingSection: React.FC = () => {
           <div>
             <h3 className="text-lg font-medium mb-4">Your Intentions</h3>
             
-            {savedIntentions.length > 0 ? (
+            {isLoading && savedIntentions.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500">Loading intentions...</p>
+              </div>
+            ) : savedIntentions.length > 0 ? (
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
-                className="space-y-3"
+                className="space-y-3 max-h-[500px] overflow-y-auto pr-2"
               >
                 {savedIntentions.map((savedIntention, index) => (
                   <motion.div
-                    key={index}
+                    key={savedIntention.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
@@ -138,9 +227,12 @@ const IntentionSettingSection: React.FC = () => {
                     <div className="bg-white rounded-full p-1 mr-3 mt-1">
                       <Check className="h-4 w-4 text-teal-500" />
                     </div>
-                    <div>
-                      <p className="text-gray-700">{savedIntention}</p>
-                      <p className="text-xs text-gray-500 mt-1">Set on {new Date().toLocaleDateString()}</p>
+                    <div className="flex-1">
+                      <h4 className="font-medium text-teal-800">{savedIntention.title}</h4>
+                      <p className="text-gray-700 mt-1">{savedIntention.intention}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Set on {new Date(savedIntention.created_at).toLocaleDateString()}
+                      </p>
                     </div>
                   </motion.div>
                 ))}

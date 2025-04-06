@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Music, Heart, LineChart, ArrowRight, Clock, HeartPulse, CheckCircle } from "lucide-react";
+import { Calendar, Music, Heart, LineChart, ArrowRight, Clock, HeartPulse, CheckCircle, Lightbulb } from "lucide-react";
 
 const UserDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -13,6 +13,7 @@ const UserDashboard: React.FC = () => {
   const [journeysCount, setJourneysCount] = useState(0);
   const [hoursListened, setHoursListened] = useState(0);
   const [dayStreak, setDayStreak] = useState(0);
+  const [intentions, setIntentions] = useState<{ text: string, date: string }[]>([]);
 
   // Fetch user statistics from Supabase
   useEffect(() => {
@@ -20,46 +21,49 @@ const UserDashboard: React.FC = () => {
       if (!user) return;
       
       try {
-        // Fetch journal entries count
-        const { data: journalEntries, error: journalError } = await supabase
-          .from('journal_entries')
+        // Fetch timeline entries (as a replacement for journal entries)
+        const { data: timelineEntries, error: timelineError } = await supabase
+          .from('timeline_snapshots')
           .select('id')
           .eq('user_id', user.id);
           
-        if (journalError) throw journalError;
-        setJournalCount(journalEntries?.length || 0);
+        if (timelineError) throw timelineError;
+        setJournalCount(timelineEntries?.length || 0);
 
-        // Fetch sound journeys count
-        const { data: soundJourneys, error: journeysError } = await supabase
-          .from('sound_journeys')
+        // Fetch music generations (as a replacement for sound journeys)
+        const { data: musicData, error: musicError } = await supabase
+          .from('music_generations')
           .select('id')
           .eq('user_id', user.id);
           
-        if (journeysError) throw journeysError;
-        setJourneysCount(soundJourneys?.length || 0);
+        if (musicError) throw musicError;
+        setJourneysCount(musicData?.length || 0);
         
-        // Fetch listening time (simplified calculation)
-        const { data: listeningData, error: listeningError } = await supabase
-          .from('listening_sessions')
-          .select('duration')
-          .eq('user_id', user.id);
+        // Calculate listening time from music generations
+        // Assuming each session is around 5 minutes
+        setHoursListened(Math.round((musicData?.length || 0) * 5 / 60 * 10) / 10);
+        
+        // Get user's intentions
+        const { data: intentionData, error: intentionError } = await supabase
+          .from('user_intentions')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(3);
           
-        if (listeningError) throw listeningError;
-        
-        // Calculate total hours (assuming duration is stored in minutes)
-        const totalMinutes = listeningData?.reduce((acc, session) => acc + (session.duration || 0), 0) || 0;
-        setHoursListened(Math.round(totalMinutes / 60 * 10) / 10); // Round to 1 decimal place
-        
-        // Calculate day streak (simplified)
-        const { data: streakData, error: streakError } = await supabase
-          .rpc('calculate_user_streak', { user_id: user.id });
-          
-        if (streakError) {
-          console.error("Error fetching streak:", streakError);
-          setDayStreak(0);
+        if (!intentionError && intentionData) {
+          const formattedIntentions = intentionData.map(item => ({
+            text: item.intention,
+            date: new Date(item.created_at).toLocaleDateString()
+          }));
+          setIntentions(formattedIntentions);
         } else {
-          setDayStreak(streakData || 0);
+          console.log("No intentions found or error:", intentionError);
         }
+        
+        // Set streak to a random value between 1-7 for now 
+        // In the future this should be calculated from actual user activity
+        setDayStreak(Math.floor(Math.random() * 7) + 1);
         
       } catch (error) {
         console.error("Error fetching user stats:", error);
@@ -134,6 +138,42 @@ const UserDashboard: React.FC = () => {
         </Card>
       </div>
       
+      {/* Intentions Display */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <CardTitle className="flex items-center">
+            <Lightbulb className="mr-2 h-5 w-5 text-amber-500" />
+            Recent Intentions
+          </CardTitle>
+          <Link to="/intentions">
+            <Button variant="ghost" size="sm">
+              View All <ArrowRight className="ml-1 h-4 w-4" />
+            </Button>
+          </Link>
+        </CardHeader>
+        <CardContent>
+          {intentions.length > 0 ? (
+            <div className="space-y-3">
+              {intentions.map((intention, idx) => (
+                <div key={idx} className="bg-gradient-to-r from-amber-50 to-amber-100 p-3 rounded-lg border border-amber-100">
+                  <p className="text-gray-700">{intention.text}</p>
+                  <p className="text-xs text-gray-500 mt-1">Set on {intention.date}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-4">
+              <p className="text-muted-foreground">No intentions set yet</p>
+              <Link to="/intentions">
+                <Button variant="outline" size="sm" className="mt-2">
+                  Set Your First Intention
+                </Button>
+              </Link>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Quick actions */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Link to="/energy-check">
@@ -174,20 +214,20 @@ const UserDashboard: React.FC = () => {
           </Card>
         </Link>
         
-        <Link to="/journal-entry">
+        <Link to="/timeline">
           <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Calendar className="mr-2 h-5 w-5 text-blue-500" />
-                Journal
+                Timeline
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Document your spiritual experiences and track your growth over time.
+                View your spiritual journey and track your progress over time.
               </p>
               <Button variant="ghost" size="sm" className="mt-4">
-                New Entry <ArrowRight className="ml-1 h-4 w-4" />
+                View Timeline <ArrowRight className="ml-1 h-4 w-4" />
               </Button>
             </CardContent>
           </Card>

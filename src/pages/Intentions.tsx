@@ -1,10 +1,16 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import Layout from "@/components/Layout";
 import { motion } from "framer-motion";
 import IntentionSettingSection from "@/components/IntentionSettingSection";
+import { createUserIntentionsTable } from "@/utils/createUserIntentionsTable";
 
 const Intentions = () => {
+  useEffect(() => {
+    // Try to create the user_intentions table if it doesn't exist
+    createUserIntentionsTable();
+  }, []);
+  
   return (
     <Layout pageTitle="Intention Setting">
       <motion.div 
