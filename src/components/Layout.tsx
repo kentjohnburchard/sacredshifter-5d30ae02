@@ -5,13 +5,15 @@ import Footer from "./navigation/Footer";
 import Watermark from "./Watermark";
 import GlobalWatermark from "./GlobalWatermark";
 import { useTheme } from "@/context/ThemeContext";
+import { LegalFooter } from "./ip-protection";
 
 interface LayoutProps {
   children: React.ReactNode;
   pageTitle?: string;
+  hideLegalFooter?: boolean;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, pageTitle }) => {
+const Layout: React.FC<LayoutProps> = ({ children, pageTitle, hideLegalFooter = false }) => {
   const { currentQuote, refreshQuote } = useTheme();
   
   // Refresh quote on mount
@@ -56,6 +58,13 @@ const Layout: React.FC<LayoutProps> = ({ children, pageTitle }) => {
                 {currentQuote}
               </p>
             </div>
+            
+            {/* Legal Footer - Added IP protection */}
+            {!hideLegalFooter && (
+              <div className="border-t border-purple-100 py-2">
+                <LegalFooter variant="standard" />
+              </div>
+            )}
             
             {/* Footer */}
             <Footer />

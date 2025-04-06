@@ -1,6 +1,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
+import { TrademarkedName } from "@/components/ip-protection";
 
 const Footer: React.FC = () => {
   return (
@@ -9,7 +10,7 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <h3 className="text-lg font-medium mb-2 bg-clip-text text-transparent bg-gradient-to-r from-[#7510c9] to-[#4d00ff]">
-              Sacred Shifter
+              <TrademarkedName>Sacred Shifter</TrademarkedName>
             </h3>
             <p className="text-sm text-[#800080]/90">
               Elevate your consciousness through sacred sound frequencies and intentions.
@@ -36,6 +37,7 @@ const Footer: React.FC = () => {
               <li><Link to="/music-library" className="text-xs text-[#800080]/90 hover:text-[#800080]">Music Library</Link></li>
               <li><Link to="/soundscapes" className="text-xs text-[#800080]/90 hover:text-[#800080]">Soundscapes</Link></li>
               <li><Link to="/frequency-library" className="text-xs text-[#800080]/90 hover:text-[#800080]">Frequencies</Link></li>
+              <li><Link to="/sacred-blueprint" className="text-xs text-[#800080]/90 hover:text-[#800080]"><TrademarkedName showSymbol={false}>Sacred Blueprint</TrademarkedName></Link></li>
             </ul>
           </div>
           <div>
@@ -54,7 +56,7 @@ const Footer: React.FC = () => {
                 </a>
               </li>
               <li><Link to="/auth" className="text-xs text-[#800080]/90 hover:text-[#800080]">Sign In</Link></li>
-              <li><a href="#" className="text-xs text-[#800080]/90 hover:text-[#800080]">Contact Us</a></li>
+              <li><Link to="/sacred-ip" className="text-xs text-[#800080]/90 hover:text-[#800080]">Our Sacred IP</Link></li>
             </ul>
           </div>
         </div>

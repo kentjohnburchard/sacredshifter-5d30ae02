@@ -28,6 +28,7 @@ import PersonalVibeSettings from './pages/PersonalVibeSettings';
 import HeartCenter from './pages/HeartCenter';
 import HeartDashboard from './pages/HeartDashboard';
 import SacredBlueprint from './pages/SacredBlueprint';
+import IntellectualProperty from './pages/IntellectualProperty';
 
 // Define routes
 function App() {
@@ -61,6 +62,9 @@ function App() {
       <Route path="/heart-dashboard" element={<ProtectedRoute><HeartDashboard /></ProtectedRoute>} />
       {/* Sacred Blueprint Route */}
       <Route path="/sacred-blueprint" element={<ProtectedRoute><SacredBlueprint /></ProtectedRoute>} />
+      {/* Intellectual Property Page */}
+      <Route path="/sacred-ip" element={<IntellectualProperty />} />
+      <Route path="/intellectual-property" element={<Navigate to="/sacred-ip" />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

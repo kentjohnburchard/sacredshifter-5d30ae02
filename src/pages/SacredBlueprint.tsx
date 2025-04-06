@@ -3,6 +3,7 @@ import React from "react";
 import Layout from "@/components/Layout";
 import { SacredBlueprintCreator } from "@/components/sacred-blueprint";
 import { motion } from "framer-motion";
+import { TrademarkedName } from "@/components/ip-protection";
 
 const SacredBlueprintPage: React.FC = () => {
   return (
@@ -14,7 +15,7 @@ const SacredBlueprintPage: React.FC = () => {
           transition={{ duration: 0.5 }}
         >
           <h1 className="text-3xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
-            Sacred Blueprint
+            <TrademarkedName>Sacred Blueprint</TrademarkedName>
           </h1>
           
           <SacredBlueprintCreator />

@@ -11,6 +11,7 @@ import Header from "@/components/navigation/Header";
 import AboutSacredShifter from "@/components/AboutSacredShifter";
 import ConsciousnessToggle from "@/components/ConsciousnessToggle";
 import Layout from "@/components/Layout";
+import { TrademarkedName } from "@/components/ip-protection";
 
 const Home: React.FC = () => {
   return (
@@ -49,7 +50,7 @@ const Home: React.FC = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Heart className="h-5 w-5 mr-2 text-pink-500" />
-                    Heart Center Expansion
+                    <TrademarkedName>Heart Center</TrademarkedName> Expansion
                   </CardTitle>
                   <CardDescription>
                     Access, cultivate, and radiate love through sacred frequencies and heart-centered practices.
@@ -60,14 +61,14 @@ const Home: React.FC = () => {
                     <div className="flex items-start">
                       <Sparkles className="h-4 w-4 mr-2 text-pink-500 mt-1" />
                       <div>
-                        <p className="font-medium">Mirror Portal</p>
+                        <p className="font-medium"><TrademarkedName>Mirror Portal</TrademarkedName></p>
                         <p className="text-sm text-gray-600">Experience a reflective affirmation journey with real-time guidance.</p>
                       </div>
                     </div>
                     <div className="flex items-start">
                       <Heart className="h-4 w-4 mr-2 text-pink-500 mt-1" />
                       <div>
-                        <p className="font-medium">Soul Hugs</p>
+                        <p className="font-medium"><TrademarkedName>Soul Hugs</TrademarkedName></p>
                         <p className="text-sm text-gray-600">Share and receive love through community-powered messages.</p>
                       </div>
                     </div>
@@ -143,7 +144,7 @@ const Home: React.FC = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Sparkles className="h-5 w-5 mr-2 text-indigo-500" />
-                    Sacred Blueprint
+                    <TrademarkedName>Sacred Blueprint</TrademarkedName>
                   </CardTitle>
                   <CardDescription>
                     Discover your unique vibrational fingerprint and spiritual identity map.
@@ -154,7 +155,7 @@ const Home: React.FC = () => {
                     <div className="flex items-start">
                       <Sparkles className="h-4 w-4 mr-2 text-indigo-500 mt-1" />
                       <div>
-                        <p className="font-medium">Frequency Chart</p>
+                        <p className="font-medium"><TrademarkedName>Frequency Chart</TrademarkedName></p>
                         <p className="text-sm text-gray-600">Visualize your unique energetic signature and resonance patterns.</p>
                       </div>
                     </div>
