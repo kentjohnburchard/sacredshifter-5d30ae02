@@ -2,7 +2,7 @@
 import React from 'react';
 import { SacredBlueprint } from '@/types/blueprint';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BlueprintChart } from './BlueprintChart';
+import BlueprintChart from './BlueprintChart';
 import { motion } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
 import { Sparkles, Music, BarChart3, Flame, Droplet, Wind, Mountain } from 'lucide-react';

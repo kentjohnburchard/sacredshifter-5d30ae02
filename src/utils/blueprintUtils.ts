@@ -1,6 +1,6 @@
-
-import { SacredBlueprint, ChakraData, ElementMap, MusicalKeyData } from "@/types/blueprint";
+import { SacredBlueprint, ChakraData, ElementMap, MusicalKeyData, QuizResponse } from "@/types/blueprint";
 import { supabase } from "@/integrations/supabase/client";
+import { Json } from "@/integrations/supabase/types";
 
 // Frequency archetypes with their meanings
 export const frequencyArchetypes = {
@@ -163,7 +163,7 @@ export const generateBlueprint = async (
     r.response_type === 'chakra' || r.question_id.includes('chakra'));
   
   // Start with balanced chakras
-  const chakraSignature: Record<string, ChakraData> = {
+  const chakraSignature = {
     root: {
       name: "Root Chakra",
       strength: 50,
@@ -368,9 +368,15 @@ Remember: This is your now—not your forever. You are the artist of your freque
 
 // Save blueprint to Supabase
 export const saveBlueprint = async (blueprint: SacredBlueprint): Promise<{ data: any, error: any }> => {
+  // Convert chakra_signature to JSON-compatible format before inserting
+  const blueprintForDB = {
+    ...blueprint,
+    chakra_signature: blueprint.chakra_signature as unknown as Json
+  };
+  
   const { data, error } = await supabase
     .from('sacred_blueprints')
-    .insert(blueprint)
+    .insert(blueprintForDB)
     .select('id');
   
   return { data, error };
@@ -386,7 +392,13 @@ export const fetchUserBlueprint = async (userId: string): Promise<{ data: Sacred
     .limit(1)
     .maybeSingle();
   
-  return { data, error };
+  // Convert the data back to the expected SacredBlueprint type
+  const typedData = data ? {
+    ...data,
+    chakra_signature: data.chakra_signature as unknown as SacredBlueprint['chakra_signature']
+  } : null;
+  
+  return { data: typedData, error };
 };
 
 // Save quiz response to Supabase
