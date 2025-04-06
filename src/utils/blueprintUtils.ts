@@ -368,20 +368,30 @@ Remember: This is your now—not your forever. You are the artist of your freque
 
 // Save blueprint to Supabase
 export const saveBlueprint = async (blueprint: SacredBlueprint): Promise<{ data: any, error: any }> => {
-  // Convert chakra_signature to JSON-compatible format before inserting
-  const blueprintForDB = {
-    ...blueprint,
-    chakra_signature: blueprint.chakra_signature as unknown as Json
-  };
-  
   // Ensure user_id is not optional for database insertion
-  if (!blueprintForDB.user_id) {
+  if (!blueprint.user_id) {
     throw new Error("User ID is required to save blueprint");
   }
   
+  // Convert chakra_signature to JSON-compatible format before inserting
+  const blueprintForDB = {
+    user_id: blueprint.user_id,
+    core_frequency: blueprint.core_frequency,
+    frequency_value: blueprint.frequency_value,
+    elemental_resonance: blueprint.elemental_resonance,
+    chakra_signature: blueprint.chakra_signature as unknown as Json,
+    emotional_profile: blueprint.emotional_profile,
+    energetic_archetype: blueprint.energetic_archetype,
+    musical_key: blueprint.musical_key,
+    shadow_frequencies: blueprint.shadow_frequencies,
+    blueprint_text: blueprint.blueprint_text,
+    version: blueprint.version || 1,
+    name: blueprint.name
+  };
+  
   const { data, error } = await supabase
     .from('sacred_blueprints')
-    .insert([blueprintForDB])
+    .insert(blueprintForDB)
     .select('id');
   
   return { data, error };
