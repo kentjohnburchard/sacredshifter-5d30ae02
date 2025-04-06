@@ -8,7 +8,7 @@ interface BlueprintChartProps {
   className?: string;
 }
 
-export const BlueprintChart: React.FC<BlueprintChartProps> = ({ blueprint, className = "" }) => {
+const BlueprintChart: React.FC<BlueprintChartProps> = ({ blueprint, className = "" }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Draw the blueprint visualization
@@ -201,3 +201,5 @@ export const BlueprintChart: React.FC<BlueprintChartProps> = ({ blueprint, class
     </motion.div>
   );
 };
+
+export default BlueprintChart;

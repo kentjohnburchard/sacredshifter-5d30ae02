@@ -370,7 +370,7 @@ Remember: This is your now—not your forever. You are the artist of your freque
 export const saveBlueprint = async (blueprint: SacredBlueprint): Promise<{ data: any, error: any }> => {
   const { data, error } = await supabase
     .from('sacred_blueprints')
-    .insert([blueprint])
+    .insert(blueprint)
     .select('id');
   
   return { data, error };
