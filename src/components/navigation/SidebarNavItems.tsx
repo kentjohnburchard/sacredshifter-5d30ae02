@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   LayoutDashboard,
@@ -9,6 +10,7 @@ import {
   Zap,
   Palette,
   Stars,
+  Eye,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -49,6 +51,12 @@ export const useNavItems = () => {
       icon: CheckSquare,
       href: "/intentions",
       active: pathname === "/intentions",
+    },
+    {
+      title: "Focus",
+      icon: Eye,
+      href: "/focus",
+      active: pathname === "/focus",
     },
     {
       title: "Hermetic Wisdom",

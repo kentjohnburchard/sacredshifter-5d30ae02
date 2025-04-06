@@ -138,7 +138,7 @@ const VibeCustomizer: React.FC = () => {
     setKentMode(checked);
     setPreferences({
       ...preferences,
-      kentMode: checked
+      kent_mode: checked // Fixed property name to match database schema
     });
     refreshQuote();
   };

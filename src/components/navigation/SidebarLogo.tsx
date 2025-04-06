@@ -8,12 +8,12 @@ interface SidebarLogoProps {
 
 const SidebarLogo: React.FC<SidebarLogoProps> = ({ className }) => {
   return (
-    <div className={`flex justify-center items-center px-4 py-3 ${className}`}>
+    <div className={`flex justify-center items-center px-4 py-6 ${className}`}>
       <Link to="/" className="flex justify-center items-center">
         <img
           src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png"
           alt="Sacred Shifter Logo"
-          className="h-24 w-24 object-contain animate-pulse-subtle transition-all hover:scale-105"
+          className="h-32 w-32 object-contain animate-pulse-subtle transition-all hover:scale-105"
         />
       </Link>
     </div>

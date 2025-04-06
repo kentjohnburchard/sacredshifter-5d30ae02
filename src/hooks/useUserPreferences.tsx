@@ -102,20 +102,27 @@ export const useUserPreferences = () => {
     try {
       if (!user?.id) {
         toast.error("You need to be logged in to save preferences");
-        return;
+        return false;
       }
 
+      console.log("Saving user preferences:", newPreferences);
+
       const prefsToSave = {
-        ...newPreferences,
         user_id: user.id,
-        updated_at: new Date().toISOString(),
+        theme_gradient: newPreferences.theme_gradient,
+        element: newPreferences.element,
+        zodiac_sign: newPreferences.zodiac_sign,
+        watermark_style: newPreferences.watermark_style,
         soundscape_mode: newPreferences.soundscapeMode,
-        kent_mode: newPreferences.kent_mode
+        kent_mode: newPreferences.kent_mode || false,
+        updated_at: new Date().toISOString()
       };
 
       const { error } = await supabase
         .from('user_preferences')
-        .upsert(prefsToSave);
+        .upsert(prefsToSave, {
+          onConflict: 'user_id'
+        });
 
       if (error) {
         console.error("Error saving preferences:", error);
