@@ -381,7 +381,7 @@ export const saveBlueprint = async (blueprint: SacredBlueprint): Promise<{ data:
   
   const { data, error } = await supabase
     .from('sacred_blueprints')
-    .insert(blueprintForDB)
+    .insert([blueprintForDB])
     .select('id');
   
   return { data, error };
