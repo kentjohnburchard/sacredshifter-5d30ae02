@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
@@ -11,7 +10,7 @@ const AboutFounder: React.FC = () => {
 
   return (
     <Layout pageTitle="The Founder's Journey">
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden bg-gradient-to-b from-cosmic-indigo to-cosmic-blue min-h-screen">
         {/* Animated background */}
         <div className="absolute inset-0 -z-10">
           <AnimatedBackground colorScheme="purple" isActive={true} />
@@ -42,7 +41,7 @@ const AboutFounder: React.FC = () => {
           </div>
           
           {/* Main content wrapper */}
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 md:p-12 border border-purple-200/20 shadow-mystic">
+          <div className="bg-cosmic-indigo/50 backdrop-blur-md rounded-2xl p-6 md:p-12 border border-purple-200/20 shadow-mystic">
             {/* Portrait and title section */}
             <div className="flex flex-col md:flex-row items-center justify-center gap-8 mb-12">
               <div className="relative">
@@ -79,7 +78,7 @@ const AboutFounder: React.FC = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.8 }}
-                  className="text-gray-50 leading-relaxed mb-6 font-semibold text-lg text-white"
+                  className="text-white leading-relaxed mb-6 font-semibold text-lg"
                 >
                   <strong className="text-white">Kent Burchard</strong> is a Information Governance and Knowledge Manager, 
                   Healer and founder of <TrademarkedName>Sacred Shifter</TrademarkedName>. With a background in therapeutic 
