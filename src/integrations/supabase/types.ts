@@ -274,6 +274,33 @@ export type Database = {
         }
         Relationships: []
       }
+      love_quotes: {
+        Row: {
+          created_at: string | null
+          frequency_level: number | null
+          id: string
+          mood: string | null
+          text: string
+          topic: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          frequency_level?: number | null
+          id?: string
+          mood?: string | null
+          text: string
+          topic?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          frequency_level?: number | null
+          id?: string
+          mood?: string | null
+          text?: string
+          topic?: string | null
+        }
+        Relationships: []
+      }
       meditation_music: {
         Row: {
           audio_url: string
@@ -301,6 +328,33 @@ export type Database = {
           id?: string
           title?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      mirror_moments: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string
+          return_date: string
+          user_id: string
+          viewed_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message: string
+          return_date: string
+          user_id: string
+          viewed_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string
+          return_date?: string
+          user_id?: string
+          viewed_at?: string | null
         }
         Relationships: []
       }
@@ -463,6 +517,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      soul_hugs: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_anonymous: boolean
+          message: string
+          recipient_id: string | null
+          sender_id: string
+          tag: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_anonymous?: boolean
+          message: string
+          recipient_id?: string | null
+          sender_id: string
+          tag: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_anonymous?: boolean
+          message?: string
+          recipient_id?: string | null
+          sender_id?: string
+          tag?: string
+        }
+        Relationships: []
       }
       subscription_plans: {
         Row: {

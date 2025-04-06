@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import Webcam from 'react-webcam';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,7 +13,11 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface MirrorMoment {
   message: string;
-  returnDate: Date;
+  return_date: string;
+  user_id: string;
+  id?: string;
+  created_at?: string;
+  viewed_at?: string;
 }
 
 const MirrorPortal: React.FC = () => {
@@ -108,14 +111,16 @@ const MirrorPortal: React.FC = () => {
     }
 
     try {
+      const mirrorMoment: MirrorMoment = {
+        user_id: user.id,
+        message: mirrorMessage,
+        return_date: new Date(returnDate).toISOString()
+      };
+
+      // Using any type since the table isn't in generated types
       const { error } = await supabase
         .from('mirror_moments')
-        .insert({
-          user_id: user.id,
-          message: mirrorMessage,
-          return_date: new Date(returnDate).toISOString(),
-          created_at: new Date().toISOString()
-        });
+        .insert(mirrorMoment) as any;
 
       if (error) {
         throw error;

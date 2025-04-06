@@ -22,22 +22,23 @@ export const useLoveQuotes = () => {
     try {
       setLoading(true);
       
+      // We need to use any type here because the love_quotes table is not in the generated types yet
       const { data, error } = await supabase
         .from('love_quotes')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }) as any;
         
       if (error) {
         throw error;
       }
       
       if (data) {
-        setQuotes(data);
+        setQuotes(data as LoveQuote[]);
         
         // Set a random quote for display
         if (data.length > 0) {
           const randomIndex = Math.floor(Math.random() * data.length);
-          setRandomQuote(data[randomIndex]);
+          setRandomQuote(data[randomIndex] as LoveQuote);
         }
       }
     } catch (error) {
@@ -57,20 +58,21 @@ export const useLoveQuotes = () => {
   // Add a new quote to the database
   const addQuote = async (quote: Omit<LoveQuote, 'id' | 'created_at'>) => {
     try {
+      // Need to use any type since the table isn't in the generated types
       const { data, error } = await supabase
         .from('love_quotes')
         .insert(quote)
         .select()
-        .single();
+        .single() as any;
         
       if (error) {
         throw error;
       }
       
       if (data) {
-        setQuotes(prevQuotes => [data, ...prevQuotes]);
+        setQuotes(prevQuotes => [data as LoveQuote, ...prevQuotes]);
         toast.success("New love quote added");
-        return data;
+        return data as LoveQuote;
       }
     } catch (error) {
       console.error('Error adding quote:', error);

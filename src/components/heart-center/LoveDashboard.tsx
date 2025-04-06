@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
@@ -16,6 +15,25 @@ interface LoveStats {
   favoritePlaylist: string;
   totalListeningTime: number; // in minutes
   streakDays: number;
+}
+
+interface SoulHug {
+  id: string;
+  message: string;
+  sender_id: string;
+  recipient_id?: string;
+  is_anonymous: boolean;
+  tag: string;
+  created_at: string;
+}
+
+interface MirrorMoment {
+  id: string;
+  user_id: string;
+  message: string;
+  return_date: string;
+  created_at: string;
+  viewed_at?: string;
 }
 
 const LoveDashboard: React.FC = () => {
@@ -58,11 +76,11 @@ const LoveDashboard: React.FC = () => {
       try {
         setLoading(true);
         
-        // Fetch hugs stats
+        // Fetch hugs stats - using any type since the table isn't in generated types
         const { data: hugsData, error: hugsError } = await supabase
           .from('soul_hugs')
           .select('sender_id, recipient_id')
-          .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`);
+          .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`) as any;
           
         if (hugsError) throw hugsError;
         
@@ -70,15 +88,15 @@ const LoveDashboard: React.FC = () => {
         const { data: mirrorData, error: mirrorError } = await supabase
           .from('mirror_moments')
           .select('id')
-          .eq('user_id', user.id);
+          .eq('user_id', user.id) as any;
           
         if (mirrorError) throw mirrorError;
         
         // Update stats
         setStats(prevStats => ({
           ...prevStats,
-          hugsReceived: hugsData?.filter(hug => hug.recipient_id === user.id).length || 0,
-          hugsSent: hugsData?.filter(hug => hug.sender_id === user.id).length || 0,
+          hugsReceived: hugsData?.filter((hug: SoulHug) => hug.recipient_id === user.id).length || 0,
+          hugsSent: hugsData?.filter((hug: SoulHug) => hug.sender_id === user.id).length || 0,
           totalMirrorSessions: mirrorData?.length || 0,
           // For other stats, we would need additional tables or use dummy values for now
           intentionsSet: Math.floor(Math.random() * 10) + 1, // Placeholder

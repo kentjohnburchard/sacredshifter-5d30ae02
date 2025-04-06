@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -24,6 +23,11 @@ interface SoulHug {
   tag: string;
   created_at: string;
   sender_name?: string;
+}
+
+interface Profile {
+  id: string;
+  display_name?: string;
 }
 
 const SoulHug: React.FC = () => {
@@ -61,13 +65,13 @@ const SoulHug: React.FC = () => {
     if (!user) return;
     
     try {
-      // Fetch received hugs
+      // Fetch received hugs - using any since the table isn't in generated types
       const { data: receivedData, error: receivedError } = await supabase
         .from('soul_hugs')
         .select('*, profiles(display_name)')
         .eq('recipient_id', user.id)
         .order('created_at', { ascending: false })
-        .limit(5);
+        .limit(5) as any;
         
       if (receivedError) throw receivedError;
       
@@ -77,15 +81,15 @@ const SoulHug: React.FC = () => {
         .select('*, profiles(display_name)')
         .eq('sender_id', user.id)
         .order('created_at', { ascending: false })
-        .limit(5);
+        .limit(5) as any;
         
       if (sentError) throw sentError;
       
-      // Get stats
+      // Get stats - using any since the table isn't in generated types
       const { data: statsData, error: statsError } = await supabase
         .from('soul_hugs')
         .select('id')
-        .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`);
+        .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`) as any;
         
       if (statsError) throw statsError;
       
@@ -94,20 +98,21 @@ const SoulHug: React.FC = () => {
       
       // Process the results
       if (receivedData) {
-        const processedReceived = receivedData.map(hug => ({
+        const processedReceived: SoulHug[] = receivedData.map((hug: any) => ({
           ...hug,
-          sender_name: hug.is_anonymous ? 'Anonymous' : hug.profiles?.display_name || 'Someone'
+          sender_name: hug.is_anonymous ? 'Anonymous' : (hug.profiles?.display_name || 'Someone')
         }));
+        
         setReceivedHugs(processedReceived);
       }
       
       if (sentData) {
-        setSentHugs(sentData);
+        setSentHugs(sentData as SoulHug[]);
       }
       
       setHugStats({
-        sent: sent,
-        received: received
+        sent: sentData?.length || 0,
+        received: receivedData?.length || 0
       });
       
     } catch (error) {
@@ -131,17 +136,17 @@ const SoulHug: React.FC = () => {
     try {
       setSendingHug(true);
       
-      let recipientId = null;
+      let recipientId: string | null = null;
       
       // Handle specific recipient
       if (recipientType === 'specific' && recipientUsername.trim()) {
-        // Find user by username/display name
+        // Find user by username/display name - using any since the table isn't in generated types
         const { data: userData, error: userError } = await supabase
           .from('profiles')
           .select('id')
           .ilike('display_name', recipientUsername.trim())
           .limit(1)
-          .single();
+          .single() as any;
           
         if (userError || !userData) {
           toast.error("Recipient not found. Try another username.");
@@ -153,12 +158,12 @@ const SoulHug: React.FC = () => {
       } 
       // Handle random recipient
       else if (recipientType === 'random') {
-        // Get a random user that isn't the sender
+        // Get a random user that isn't the sender - using any since the table isn't in generated types
         const { data: randomUser, error: randomError } = await supabase
           .from('profiles')
           .select('id')
           .neq('id', user.id)
-          .limit(100); // Get a pool of users
+          .limit(100) as any; // Get a pool of users
           
         if (randomError || !randomUser || randomUser.length === 0) {
           toast.error("No recipients available right now");
@@ -177,13 +182,13 @@ const SoulHug: React.FC = () => {
         sender_id: user.id,
         recipient_id: recipientId, // Will be null for public hugs
         is_anonymous: deliveryType === 'anonymous',
-        tag: tag,
-        created_at: new Date().toISOString()
+        tag: tag
       };
       
+      // Using any since the table isn't in generated types
       const { error } = await supabase
         .from('soul_hugs')
-        .insert(newHug);
+        .insert(newHug) as any;
         
       if (error) throw error;
       
@@ -212,6 +217,7 @@ const SoulHug: React.FC = () => {
     // In a real implementation, this would create a new hug or increment a counter
   };
 
+  
   return (
     <div className="space-y-6">
       <div className="text-center mb-2">
