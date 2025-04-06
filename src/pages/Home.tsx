@@ -2,7 +2,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Waveform } from "lucide-react";
+import { Music } from "lucide-react";
 import HealingFeaturesLayout from "@/components/HealingFeaturesLayout";
 
 const Home: React.FC = () => {
@@ -57,7 +57,7 @@ const Home: React.FC = () => {
           <Button
             className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-none px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all"
           >
-            <Waveform className="mr-2 h-5 w-5" />
+            <Music className="mr-2 h-5 w-5" />
             Begin Your Healing Journey
           </Button>
         </div>
