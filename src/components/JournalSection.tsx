@@ -39,6 +39,7 @@ const JournalSection: React.FC = () => {
   
   const fetchJournalEntries = async () => {
     try {
+      console.log("Fetching journal entries for user:", user?.id);
       const { data, error } = await supabase
         .from('timeline_snapshots')
         .select('*')
@@ -51,6 +52,7 @@ const JournalSection: React.FC = () => {
         return;
       }
       
+      console.log("Journal entries fetched:", data?.length || 0, data);
       setEntries(data || []);
     } catch (error) {
       console.error("Unexpected error:", error);
@@ -73,6 +75,9 @@ const JournalSection: React.FC = () => {
     setIsSubmitting(true);
     
     try {
+      // Add tags array to make filtering easier
+      const tags = tag.trim() ? [tag.trim()] : [];
+      
       const { error } = await supabase
         .from('timeline_snapshots')
         .insert([
@@ -80,7 +85,8 @@ const JournalSection: React.FC = () => {
             user_id: user.id,
             title: title.trim(),
             notes: notes.trim() || null,
-            tag: tag.trim() || null
+            tag: tag.trim() || null,
+            tags: tags
           }
         ]) as { error: any };
         

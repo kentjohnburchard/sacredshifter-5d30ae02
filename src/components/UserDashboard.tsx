@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { BookOpen, Clock, Music, PlayCircle, Calendar, BarChart2, Headphones } from "lucide-react";
+import { BookOpen, Clock, Music, PlayCircle, Calendar, BarChart2, Headphones, RefreshCcw } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -23,8 +23,8 @@ type MusicGeneration = {
   title: string | null;
   intention: string;
   frequency: number;
-  audio_url?: string | null; // Changed from audio_url to make it optional
-  music_url?: string | null; // Added this optional property
+  audio_url?: string | null; 
+  music_url?: string | null; 
   created_at: string | null;
 };
 
@@ -171,6 +171,7 @@ const UserDashboard: React.FC = () => {
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
   const [soundJourneys, setSoundJourneys] = useState<MusicGeneration[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0); // Add refresh key for manual refreshing
 
   useEffect(() => {
     if (user) {
@@ -178,11 +179,13 @@ const UserDashboard: React.FC = () => {
     } else {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, refreshKey]); // Adding refreshKey to dependencies
 
   const fetchUserContent = async () => {
     try {
       setLoading(true);
+      
+      console.log("Fetching dashboard data for user:", user?.id);
       
       // Explicitly add user_id to the query to ensure we only get entries for the current user
       const { data: journalData, error: journalError } = await supabase
@@ -231,6 +234,11 @@ const UserDashboard: React.FC = () => {
       setLoading(false);
     }
   };
+  
+  // Add a function to manually refresh the data
+  const handleRefresh = () => {
+    setRefreshKey(prev => prev + 1);
+  };
 
   if (!user) {
     return (
@@ -275,9 +283,21 @@ const UserDashboard: React.FC = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
-          Soul Journey Dashboard
-        </h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+            Soul Journey Dashboard
+          </h2>
+          
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleRefresh} 
+            className="flex items-center gap-2"
+          >
+            <RefreshCcw className="h-4 w-4" />
+            <span>Refresh</span>
+          </Button>
+        </div>
         
         <motion.div
           variants={containerAnimation}

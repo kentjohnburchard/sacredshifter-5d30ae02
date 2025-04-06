@@ -78,6 +78,24 @@ const JourneyPlayer = () => {
         setSessionId(sessionData[0].id);
         setIntention(userIntention);
         toast.success("Journey session started");
+        
+        // Create an initial timeline entry for this session
+        const { error: timelineError } = await supabase
+          .from('timeline_snapshots')
+          .insert([{
+            user_id: user.id,
+            title: `${frequency.frequency}Hz Journey`,
+            notes: `Started a frequency journey with ${frequency.frequency}Hz`,
+            tag: "journey_start",
+            intention: userIntention,
+            frequency: frequency.frequency,
+            chakra: frequency.chakra || null,
+            tags: ["journey", frequency.chakra || "frequency"]
+          }]);
+          
+        if (timelineError) {
+          console.error("Error creating timeline entry:", timelineError);
+        }
       }
     } catch (error) {
       console.error("Failed to create session:", error);
@@ -102,6 +120,26 @@ const JourneyPlayer = () => {
       
       if (error) {
         throw error;
+      }
+      
+      // Also save the reflection to the timeline
+      if (frequency) {
+        const { error: timelineError } = await supabase
+          .from('timeline_snapshots')
+          .insert([{
+            user_id: user.id,
+            title: `${frequency.frequency}Hz Journey Reflection`,
+            notes: reflectionText,
+            tag: "reflection",
+            intention: intention,
+            frequency: frequency.frequency,
+            chakra: frequency.chakra || null,
+            tags: ["reflection", frequency.chakra || "frequency"]
+          }]);
+          
+        if (timelineError) {
+          console.error("Error saving reflection to timeline:", timelineError);
+        }
       }
       
       toast.success("Reflection saved");

@@ -15,6 +15,8 @@ export const useFrequencyShift = () => {
   const [showIntentionInput, setShowIntentionInput] = useState(false);
   const [selectedVisual, setSelectedVisual] = useState<string | null>(null);
   const [showVisualSelector, setShowVisualSelector] = useState(false);
+  const [showTimezoneConfirmation, setShowTimezoneConfirmation] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const navigate = useNavigate();
   
   const getCurrentPrompt = () => {
@@ -180,8 +182,22 @@ export const useFrequencyShift = () => {
   };
   
   const handleSaveToTimeline = async () => {
-    toast.success("Your frequency journey has been saved to your timeline");
-    handleBeginJourney();
+    console.log("Saving to timeline, currentStep:", currentStep);
+    
+    if (showTimezoneConfirmation) {
+      console.log("Timezone save completion");
+      setCurrentStep(5);
+      setShowTimezoneConfirmation(false);
+      return;
+    }
+    
+    setIsProcessing(true);
+    
+    setTimeout(() => {
+      setCurrentStep(4);
+      setShowJournalForm(false);
+      setIsProcessing(false);
+    }, 800);
   };
   
   const handleStartOver = () => {

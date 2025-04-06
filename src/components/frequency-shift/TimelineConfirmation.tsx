@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Check, Clock } from "lucide-react";
+import { Check, Clock, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface TimelineConfirmationProps {
@@ -14,7 +14,8 @@ const TimelineConfirmation: React.FC<TimelineConfirmationProps> = ({
   const navigate = useNavigate();
 
   const handleViewTimeline = () => {
-    navigate("/timeline"); // Updated to use the new Timeline route
+    // Redirect to dashboard instead of timeline since timeline is now part of dashboard
+    navigate("/dashboard"); 
   };
 
   return (
@@ -30,7 +31,7 @@ const TimelineConfirmation: React.FC<TimelineConfirmationProps> = ({
           Timeline Updated
         </h3>
         <p className="text-gray-600">
-          ✨ Your moment has been saved to your Timeline.
+          ✨ Your moment has been saved to your Dashboard Timeline.
           <br />
           You can return to it anytime to reconnect with this vibration.
         </p>
@@ -43,13 +44,14 @@ const TimelineConfirmation: React.FC<TimelineConfirmationProps> = ({
           onClick={handleViewTimeline}
         >
           <Clock className="mr-2 h-4 w-4" />
-          View My Timeline
+          View Dashboard
         </Button>
 
         <Button
           className="bg-gradient-to-r from-purple-500 to-blue-500 text-white"
           onClick={onBackToHome}
         >
+          <Home className="mr-2 h-4 w-4" />
           Back to Home
         </Button>
       </div>
