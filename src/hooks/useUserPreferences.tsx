@@ -12,7 +12,8 @@ export interface UserPreferences {
   element: string;
   zodiac_sign: string;
   watermark_style: string;
-  soundscape_mode: string;
+  soundscapeMode: string;
+  kentMode?: boolean;
 }
 
 export const useUserPreferences = () => {
@@ -22,7 +23,8 @@ export const useUserPreferences = () => {
     element: "water",
     zodiac_sign: "cancer",
     watermark_style: "zodiac",
-    soundscape_mode: "bubbles"
+    soundscapeMode: "bubbles",
+    kentMode: false
   });
   const [loading, setLoading] = useState(true);
 
@@ -56,7 +58,11 @@ export const useUserPreferences = () => {
       }
 
       if (data) {
-        setPreferences(data as UserPreferences);
+        setPreferences({
+          ...data,
+          kentMode: data.kent_mode || false,
+          soundscapeMode: data.soundscape_mode
+        });
       } else {
         // User doesn't have preferences yet, we can try to use astrology data
         const { data: astrologyData } = await supabase
@@ -81,7 +87,8 @@ export const useUserPreferences = () => {
             element,
             zodiac_sign: sunSign,
             watermark_style: "zodiac",
-            soundscape_mode: soundscape
+            soundscapeMode: soundscape,
+            kentMode: false
           });
         }
       }
@@ -102,7 +109,9 @@ export const useUserPreferences = () => {
       const prefsToSave = {
         ...newPreferences,
         user_id: user.id,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        soundscape_mode: newPreferences.soundscapeMode,
+        kent_mode: newPreferences.kentMode
       };
 
       // Use the generic query approach to avoid type errors with table names
@@ -116,7 +125,7 @@ export const useUserPreferences = () => {
         return false;
       }
 
-      setPreferences(prefsToSave as UserPreferences);
+      setPreferences(newPreferences);
       toast.success("Your cosmic vibe has been saved!");
       return true;
     } catch (err) {

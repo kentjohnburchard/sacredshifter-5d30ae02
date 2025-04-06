@@ -1,7 +1,8 @@
 
-import React, { createContext, useContext, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { getRandomQuote } from "@/utils/customizationOptions";
 
 interface ThemeContextType {
   currentGradient: string;
@@ -9,6 +10,10 @@ interface ThemeContextType {
   watermarkStyle: string;
   soundscapeMode: string;
   zodiacSign: string;
+  kentMode: boolean;
+  setKentMode: (mode: boolean) => void;
+  currentQuote: string;
+  refreshQuote: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextType>({
@@ -16,7 +21,11 @@ const ThemeContext = createContext<ThemeContextType>({
   currentElement: "water",
   watermarkStyle: "zodiac",
   soundscapeMode: "bubbles",
-  zodiacSign: "cancer"
+  zodiacSign: "cancer",
+  kentMode: false,
+  setKentMode: () => {},
+  currentQuote: "Your vibe creates your reality.",
+  refreshQuote: () => {}
 });
 
 export const useTheme = () => useContext(ThemeContext);
@@ -24,6 +33,13 @@ export const useTheme = () => useContext(ThemeContext);
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
   const { preferences, loading } = useUserPreferences();
+  const [kentMode, setKentMode] = useState(false);
+  const [currentQuote, setCurrentQuote] = useState("Your vibe creates your reality.");
+
+  // Refresh quote function
+  const refreshQuote = () => {
+    setCurrentQuote(getRandomQuote(kentMode));
+  };
 
   // Apply theme to root element (for global CSS variables if needed)
   useEffect(() => {
@@ -34,6 +50,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [preferences, loading]);
 
+  // Initialize quote based on kent mode
+  useEffect(() => {
+    refreshQuote();
+  }, [kentMode]);
+
   return (
     <ThemeContext.Provider
       value={{
@@ -41,7 +62,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         currentElement: preferences.element,
         watermarkStyle: preferences.watermark_style,
         soundscapeMode: preferences.soundscape_mode,
-        zodiacSign: preferences.zodiac_sign
+        zodiacSign: preferences.zodiac_sign,
+        kentMode,
+        setKentMode,
+        currentQuote,
+        refreshQuote
       }}
     >
       {children}

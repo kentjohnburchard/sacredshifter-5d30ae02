@@ -2,11 +2,13 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from '@/context/AuthContext';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
+import { useTheme } from '@/context/ThemeContext';
 import { 
   themeOptions, 
   watermarkOptions, 
   elementOptions, 
   zodiacSigns,
+  soundscapeOptions,
   ThemeOption
 } from '@/utils/customizationOptions';
 import { Button } from "@/components/ui/button";
@@ -24,13 +26,27 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { Palette, Star, ZoomIn, Check, Sparkles, Volume2 } from "lucide-react";
+import { 
+  Palette, 
+  Star, 
+  ZoomIn, 
+  Check, 
+  Sparkles, 
+  Volume2, 
+  Wand2, 
+  ToggleLeft,
+  ToggleRight
+} from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { getRandomQuote } from "@/utils/customizationOptions";
 
 const VibeCustomizer: React.FC = () => {
   const { user } = useAuth();
   const { preferences, setPreferences, saveUserPreferences, loading } = useUserPreferences();
+  const { kentMode, setKentMode, refreshQuote } = useTheme();
   const [customGradient, setCustomGradient] = useState("");
   const [activeTab, setActiveTab] = useState("theme");
   const [selectedTheme, setSelectedTheme] = useState<ThemeOption | null>(null);
@@ -74,7 +90,7 @@ const VibeCustomizer: React.FC = () => {
       setPreferences({
         ...preferences,
         element: elementId,
-        soundscape_mode: element.soundEffect || "bubbles"
+        soundscapeMode: element.soundEffect || "bubbles"
       });
     }
   };
@@ -89,7 +105,7 @@ const VibeCustomizer: React.FC = () => {
         ...preferences,
         zodiac_sign: signId,
         element: elementId,
-        soundscape_mode: element?.soundEffect || "bubbles"
+        soundscapeMode: element?.soundEffect || "bubbles"
       });
     }
   };
@@ -114,7 +130,41 @@ const VibeCustomizer: React.FC = () => {
   const handleSoundscapeChange = (mode: string) => {
     setPreferences({
       ...preferences,
-      soundscape_mode: mode
+      soundscapeMode: mode
+    });
+  };
+
+  const handleKentModeChange = (checked: boolean) => {
+    setKentMode(checked);
+    setPreferences({
+      ...preferences,
+      kentMode: checked
+    });
+    refreshQuote();
+  };
+
+  const randomizeVibe = () => {
+    // Generate random selections
+    const randomTheme = themeOptions[Math.floor(Math.random() * (themeOptions.length - 1))]; // Exclude custom
+    const randomWatermark = watermarkOptions[Math.floor(Math.random() * watermarkOptions.length)];
+    const randomSign = zodiacSigns[Math.floor(Math.random() * zodiacSigns.length)];
+    const elementForSign = elementOptions.find(e => e.id === randomSign.element);
+    const randomSoundscape = soundscapeOptions[Math.floor(Math.random() * soundscapeOptions.length)];
+    
+    // Update preferences
+    setSelectedTheme(randomTheme);
+    
+    setPreferences({
+      ...preferences,
+      theme_gradient: randomTheme.gradient,
+      element: elementForSign?.id || "water",
+      zodiac_sign: randomSign.id,
+      watermark_style: randomWatermark.id,
+      soundscapeMode: randomSoundscape.id
+    });
+    
+    toast.success("Your vibe has been cosmically randomized!", {
+      icon: <Wand2 className="text-purple-500" />
     });
   };
 
@@ -153,7 +203,7 @@ const VibeCustomizer: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {/* Left side: Preview */}
+        {/* Left side: Preview and Controls */}
         <div className="col-span-2">
           <div className="sticky top-10">
             <h3 className="text-lg font-medium mb-3">Your Vibe Preview</h3>
@@ -220,13 +270,56 @@ const VibeCustomizer: React.FC = () => {
                 </div>
               </div>
             </Card>
+
+            {/* Quote Preview */}
+            <Card className="mt-4 p-4 border border-purple-100">
+              <div className="text-center">
+                <p className="text-sm text-gray-500 mb-2">Current Quote</p>
+                <p className="italic text-gray-700">
+                  "{getRandomQuote(kentMode)}"
+                </p>
+              </div>
+            </Card>
             
-            <Button 
-              onClick={handleSave} 
-              className="mt-4 w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
-            >
-              <Check className="mr-2 h-4 w-4" /> Save My Cosmic Settings
-            </Button>
+            {/* Action buttons */}
+            <div className="mt-4 space-y-2">
+              <Button 
+                onClick={randomizeVibe}
+                className="w-full bg-gradient-to-r from-purple-400 to-indigo-500 hover:from-purple-500 hover:to-indigo-600 text-white"
+              >
+                <Wand2 className="mr-2 h-4 w-4" /> Shift My Vibe
+              </Button>
+              
+              <Button 
+                onClick={handleSave} 
+                className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
+              >
+                <Check className="mr-2 h-4 w-4" /> Save My Cosmic Settings
+              </Button>
+            </div>
+
+            {/* Kent Mode Toggle */}
+            <div className="mt-6 p-4 border border-purple-100 rounded-lg bg-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-md font-medium">Consciousness Mode</h3>
+                  <p className="text-sm text-gray-500">
+                    {kentMode ? "Kent Mode: Cosmic sass activated" : "Standard Mode: Peaceful wisdom"}
+                  </p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch 
+                    checked={kentMode} 
+                    onCheckedChange={handleKentModeChange} 
+                    className={kentMode ? "bg-brand-aurapink" : ""}
+                  />
+                  {kentMode ? 
+                    <ToggleRight className="h-4 w-4 text-brand-aurapink" /> : 
+                    <ToggleLeft className="h-4 w-4 text-gray-400" />
+                  }
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         
@@ -368,28 +461,52 @@ const VibeCustomizer: React.FC = () => {
               </div>
               
               <div className="pt-4">
-                <h3 className="text-lg font-medium mb-3">Sound Effects</h3>
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600 mb-4">
-                    Choose sound effects that match your element and vibe:
-                  </p>
+                <h3 className="text-lg font-medium mb-3">Soundscape Mode</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {soundscapeOptions.map((option) => (
+                    <div
+                      key={option.id}
+                      className={`cursor-pointer rounded-lg p-4 border transition-all hover:shadow-md ${
+                        preferences.soundscapeMode === option.id
+                          ? "border-purple-500 bg-purple-50"
+                          : "border-gray-200"
+                      }`}
+                      onClick={() => handleSoundscapeChange(option.id)}
+                    >
+                      <div className="flex items-center">
+                        <div className="bg-purple-100 rounded-full p-3 mr-3">
+                          <Volume2 className="h-4 w-4 text-purple-600" />
+                        </div>
+                        <div>
+                          <span className="font-medium block">{option.name}</span>
+                          <span className="text-xs text-gray-500">
+                            {option.description}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                   
-                  <Select 
-                    value={preferences.soundscape_mode}
-                    onValueChange={handleSoundscapeChange}
+                  <div
+                    className={`cursor-pointer rounded-lg p-4 border transition-all hover:shadow-md ${
+                      preferences.soundscapeMode === "none"
+                        ? "border-purple-500 bg-purple-50"
+                        : "border-gray-200"
+                    }`}
+                    onClick={() => handleSoundscapeChange("none")}
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select soundscape" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="bubbles">Water Bubbles</SelectItem>
-                      <SelectItem value="fire_crackle">Fire Crackle</SelectItem>
-                      <SelectItem value="wind_chimes">Wind Chimes</SelectItem>
-                      <SelectItem value="earth_hum">Earth Hum</SelectItem>
-                      <SelectItem value="crystal_tones">Crystal Tones</SelectItem>
-                      <SelectItem value="none">No Sound Effects</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <div className="flex items-center">
+                      <div className="bg-gray-100 rounded-full p-3 mr-3">
+                        <Volume2 className="h-4 w-4 text-gray-400" />
+                      </div>
+                      <div>
+                        <span className="font-medium block">No Soundscape</span>
+                        <span className="text-xs text-gray-500">
+                          Disable ambient sound effects
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </TabsContent>

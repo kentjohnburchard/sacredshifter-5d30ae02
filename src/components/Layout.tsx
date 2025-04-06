@@ -1,44 +1,29 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import Sidebar from "./Sidebar";
 import Footer from "./navigation/Footer";
 import Watermark from "./Watermark";
 import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { useTheme } from "@/context/ThemeContext";
 
 interface LayoutProps {
   children: React.ReactNode;
   pageTitle?: string;
 }
 
-// Sacred messages for the easter egg footer
-const sacredMessages = [
-  "As above, so below. Also, hydrate.",
-  "The universe speaks through frequency. Listen closely.",
-  "Your chakras called. They want quality time with you.",
-  "Mercury isn't in retrograde. You're just having feelings.",
-  "Remember: you are stardust with a credit card.",
-  "The veil is thin, but your patience shouldn't be.",
-  "Manifest wisely. The universe has limited bandwidth.",
-  "Align your energy. And maybe your spine.",
-  "Your third eye can't see if it's scrolling Instagram.",
-  "This frequency is raising your vibration and your standards.",
-];
-
 const Layout: React.FC<LayoutProps> = ({ children, pageTitle }) => {
-  const [kentMode, setKentMode] = useState<boolean>(false);
-  const [sacredMessage, setSacredMessage] = useState<string>("");
+  const { kentMode, setKentMode, currentQuote, refreshQuote } = useTheme();
   
-  // Set a random sacred message on mount
+  // Refresh quote on mount
   useEffect(() => {
-    const randomIndex = Math.floor(Math.random() * sacredMessages.length);
-    setSacredMessage(sacredMessages[randomIndex]);
+    refreshQuote();
   }, []);
   
   // Toggle Kent Mode
   const toggleKentMode = () => {
-    setKentMode(prev => !prev);
-    toast.success(kentMode ? "Returning to normal consciousness" : "Kent Mode activated! Cosmic sass unlocked.", {
+    setKentMode(!kentMode);
+    toast.success(kentMode ? "Returning to standard consciousness" : "Kent Mode activated! Cosmic sass unlocked.", {
       icon: <Sparkles className={`${kentMode ? "text-purple-400" : "text-brand-aurapink"}`} />,
       position: "bottom-center"
     });
@@ -75,10 +60,10 @@ const Layout: React.FC<LayoutProps> = ({ children, pageTitle }) => {
               {children}
             </main>
             
-            {/* Sacred Message Easter Egg */}
+            {/* Sacred Message - Cosmic Quote */}
             <div className="w-full text-center mb-4">
               <p className="sacred-footer-message">
-                {kentMode ? <span className="kent-mode">Kent says: {sacredMessage}</span> : sacredMessage}
+                {kentMode ? <span className="kent-mode">{currentQuote}</span> : currentQuote}
               </p>
             </div>
             

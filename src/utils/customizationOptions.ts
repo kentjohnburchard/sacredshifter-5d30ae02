@@ -46,6 +46,56 @@ export interface ZodiacSign {
   symbol: string;
 }
 
+export interface SoundscapeOption {
+  id: string;
+  name: string;
+  description: string;
+  element: string;
+}
+
+// Quotes for standard mode
+const standardQuotes = [
+  "Your vibe creates your reality.",
+  "Sound heals what words cannot.",
+  "Tune in, turn up, and transcend.",
+  "Breath connects body, mind, and spirit.",
+  "Energy flows where intention goes.",
+  "You are a spiritual being having a human experience.",
+  "Every sound carries a vibration that echoes through eternity.",
+  "Let your inner light guide the way.",
+  "Align your energy with your aspirations.",
+  "In stillness, find your true vibration.",
+  "Every sound is a doorway to deeper consciousness.",
+  "When frequency aligns with intention, manifestation follows.",
+  "Your energy doesn't lie - listen to what it tells you.",
+  "The frequency of gratitude attracts more to be grateful for.",
+  "Trust the wisdom of your highest self."
+];
+
+// Quotes for Kent mode
+const kentQuotes = [
+  "Choose a chakra and make your ancestors vibrate in awe.",
+  "Draggy aura? Shift it like you own the damn multiverse.",
+  "You're not just picking a frequency. You're picking your timeline, darling.",
+  "That's not Mercury retrograde, honey. It's your vibe on airplane mode.",
+  "Your third eye isn't blind, it's just waiting for better content.",
+  "If your chakras were any more aligned, the universe would give you a medal.",
+  "Manifest like everyone's watching, because the cosmos definitely is.",
+  "Your frequency is so high right now, even angels are getting FOMO.",
+  "Crown chakra so lit, your past lives are jealous.",
+  "That's not anxiety, sweetie. That's your kundalini saying 'let's party!'",
+  "Vibrate higher than your ex's expectations.",
+  "If your aura was any cleaner, it'd squeak.",
+  "Raising my vibration and the cosmic bar, simultaneously.",
+  "Your energy field is serving main character energy today.",
+  "This isn't just a meditation, it's a cosmic revolution in your DNA."
+];
+
+export const getRandomQuote = (kentMode: boolean): string => {
+  const quotes = kentMode ? kentQuotes : standardQuotes;
+  return quotes[Math.floor(Math.random() * quotes.length)];
+};
+
 export const themeOptions: ThemeOption[] = [
   { 
     name: "Root Chakra", 
@@ -205,6 +255,39 @@ export const elementOptions: ElementOption[] = [
     gradient: "linear-gradient(to right, #e0eafc, #cfdef3)",
     icon: Brain,
     soundEffect: "wind_chimes"
+  }
+];
+
+export const soundscapeOptions: SoundscapeOption[] = [
+  {
+    id: "bubbles",
+    name: "Oceanic Bliss",
+    description: "Gentle water sounds to soothe and calm",
+    element: "water"
+  },
+  {
+    id: "fire_crackle",
+    name: "Hearth Flame",
+    description: "Warm crackling sounds for transformation",
+    element: "fire"
+  },
+  {
+    id: "wind_chimes",
+    name: "Ethereal Winds",
+    description: "Delicate chimes carried on the breeze",
+    element: "air"
+  },
+  {
+    id: "earth_hum",
+    name: "Terra Resonance",
+    description: "Deep grounding tones from the earth",
+    element: "earth"
+  },
+  {
+    id: "crystal_tones",
+    name: "Crystal Symphony",
+    description: "Pure harmonic frequencies from crystal bowls",
+    element: "all"
   }
 ];
 
