@@ -29,44 +29,48 @@ import HeartCenter from './pages/HeartCenter';
 import HeartDashboard from './pages/HeartDashboard';
 import SacredBlueprint from './pages/SacredBlueprint';
 import IntellectualProperty from './pages/IntellectualProperty';
+import ScrollToTop from './components/ScrollToTop';
 
 // Define routes
 function App() {
   return (
-    <Routes>
-      {/* Set Home as the default route */}
-      <Route path="/" element={<Home />} />
-      <Route path="/welcome" element={<LandingPrompt />} />
-      <Route path="/home" element={<Home />} />
-      <Route path="/auth" element={<Auth />} />
-      <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
-      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/energy-check" element={<ProtectedRoute><EnergyCheck /></ProtectedRoute>} />
-      <Route path="/alignment" element={<ProtectedRoute><Alignment /></ProtectedRoute>} />
-      <Route path="/intentions" element={<ProtectedRoute><Intentions /></ProtectedRoute>} />
-      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-      <Route path="/focus" element={<ProtectedRoute><Focus /></ProtectedRoute>} />
-      <Route path="/music-library" element={<ProtectedRoute><MusicLibrary /></ProtectedRoute>} />
-      <Route path="/music-generation" element={<ProtectedRoute><MusicGeneration /></ProtectedRoute>} />
-      <Route path="/hermetic-wisdom" element={<ProtectedRoute><HermeticWisdom /></ProtectedRoute>} />
-      <Route path="/astrology" element={<ProtectedRoute><Astrology /></ProtectedRoute>} />
-      <Route path="/meditation" element={<ProtectedRoute><Meditation /></ProtectedRoute>} />
-      <Route path="/subscription" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
-      <Route path="/frequencies/:frequencyId" element={<FrequencyDetailPage />} />
-      <Route path="/frequency-library" element={<FrequencyLibraryPage />} />
-      <Route path="/journey-templates" element={<ProtectedRoute><JourneyTemplates /></ProtectedRoute>} />
-      <Route path="/soundscapes" element={<ProtectedRoute><Soundscapes /></ProtectedRoute>} />
-      <Route path="/personal-vibe" element={<ProtectedRoute><PersonalVibeSettings /></ProtectedRoute>} />
-      {/* Heart Center Routes */}
-      <Route path="/heart-center" element={<ProtectedRoute><HeartCenter /></ProtectedRoute>} />
-      <Route path="/heart-dashboard" element={<ProtectedRoute><HeartDashboard /></ProtectedRoute>} />
-      {/* Sacred Blueprint Route */}
-      <Route path="/sacred-blueprint" element={<ProtectedRoute><SacredBlueprint /></ProtectedRoute>} />
-      {/* Intellectual Property Page */}
-      <Route path="/sacred-ip" element={<IntellectualProperty />} />
-      <Route path="/intellectual-property" element={<Navigate to="/sacred-ip" />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <>
+      <ScrollToTop />
+      <Routes>
+        {/* Set Home as the default route */}
+        <Route path="/" element={<Index />} />
+        <Route path="/welcome" element={<LandingPrompt />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/energy-check" element={<ProtectedRoute><EnergyCheck /></ProtectedRoute>} />
+        <Route path="/alignment" element={<ProtectedRoute><Alignment /></ProtectedRoute>} />
+        <Route path="/intentions" element={<ProtectedRoute><Intentions /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/focus" element={<ProtectedRoute><Focus /></ProtectedRoute>} />
+        <Route path="/music-library" element={<ProtectedRoute><MusicLibrary /></ProtectedRoute>} />
+        <Route path="/music-generation" element={<ProtectedRoute><MusicGeneration /></ProtectedRoute>} />
+        <Route path="/hermetic-wisdom" element={<ProtectedRoute><HermeticWisdom /></ProtectedRoute>} />
+        <Route path="/astrology" element={<ProtectedRoute><Astrology /></ProtectedRoute>} />
+        <Route path="/meditation" element={<ProtectedRoute><Meditation /></ProtectedRoute>} />
+        <Route path="/subscription" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
+        <Route path="/frequencies/:frequencyId" element={<FrequencyDetailPage />} />
+        <Route path="/frequency-library" element={<FrequencyLibraryPage />} />
+        <Route path="/journey-templates" element={<ProtectedRoute><JourneyTemplates /></ProtectedRoute>} />
+        <Route path="/soundscapes" element={<ProtectedRoute><Soundscapes /></ProtectedRoute>} />
+        <Route path="/personal-vibe" element={<ProtectedRoute><PersonalVibeSettings /></ProtectedRoute>} />
+        {/* Heart Center Routes */}
+        <Route path="/heart-center" element={<ProtectedRoute><HeartCenter /></ProtectedRoute>} />
+        <Route path="/heart-dashboard" element={<ProtectedRoute><HeartDashboard /></ProtectedRoute>} />
+        {/* Sacred Blueprint Route */}
+        <Route path="/sacred-blueprint" element={<ProtectedRoute><SacredBlueprint /></ProtectedRoute>} />
+        {/* Intellectual Property Page */}
+        <Route path="/sacred-ip" element={<IntellectualProperty />} />
+        <Route path="/intellectual-property" element={<Navigate to="/sacred-ip" />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </>
   );
 }
 
