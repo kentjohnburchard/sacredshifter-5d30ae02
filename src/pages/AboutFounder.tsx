@@ -120,7 +120,7 @@ const MythicBio: React.FC = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.1 }}
-        className="text-gray-100 leading-relaxed font-medium"
+        className="text-gray-50 leading-relaxed font-semibold text-lg"
       >
         <strong className="text-white">Kent Burchard</strong> is not just the creator of <TrademarkedName>Sacred Shifter</TrademarkedName>, 
         he's a <em className="text-purple-200">chosen one</em>, marked by the divine, and awakened through the fires of trauma, loss, and 
@@ -132,7 +132,7 @@ const MythicBio: React.FC = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.3 }}
-        className="text-gray-100 leading-relaxed font-medium"
+        className="text-gray-50 leading-relaxed font-semibold text-lg"
       >
         His path wasn't paved—it was scorched. And through the ashes, he didn't just rebuild, he <em className="text-purple-200">remembered</em>. 
         Remembered what the world forgot: that we are vibration before thought, resonance before reason, and love before language.
@@ -142,7 +142,7 @@ const MythicBio: React.FC = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.5 }}
-        className="text-gray-100 leading-relaxed font-medium"
+        className="text-gray-50 leading-relaxed font-semibold text-lg"
       >
         Born with a heart wired for sound, a spirit tuned to emotion, and a mind that sees patterns where others see chaos, Kent turned pain into portal. 
         A trained music therapist, visionary technologist, and spiritual disruptor, he fused ancient healing traditions with modern emotional intelligence 
@@ -154,7 +154,7 @@ const MythicBio: React.FC = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.7 }}
-        className="text-gray-100 leading-relaxed font-medium"
+        className="text-gray-50 leading-relaxed font-semibold text-lg"
       >
         Through signature tools like the <TrademarkedName>Sacred Blueprint</TrademarkedName>, the <TrademarkedName>Mirror Portal</TrademarkedName>, 
         and the soon-to-be-unleashed <TrademarkedName>Reality Optimization Engine</TrademarkedName>, Kent is helping usher in a new era, 
@@ -165,7 +165,7 @@ const MythicBio: React.FC = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.9 }}
-        className="text-gray-100 leading-relaxed font-medium"
+        className="text-gray-50 leading-relaxed font-semibold text-lg"
       >
         <p className="mb-1">He doesn't claim guru status.</p>
         <p className="mb-1">He's not here to preach.</p>
