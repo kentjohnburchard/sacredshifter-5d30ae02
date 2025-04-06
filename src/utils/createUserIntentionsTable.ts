@@ -9,7 +9,7 @@ export const createUserIntentionsTable = async () => {
   try {
     // First check if the table exists
     const { data, error } = await supabase
-      .from('user_intentions')
+      .from('user_intentions' as any)
       .select('id')
       .limit(1);
     
@@ -19,7 +19,7 @@ export const createUserIntentionsTable = async () => {
     }
     
     // Table doesn't exist, try to create it using RPC
-    const { error: createError } = await supabase.rpc('create_user_intentions_table');
+    const { error: createError } = await supabase.rpc('create_user_intentions_table' as any);
     
     if (createError) {
       console.error("Error creating user_intentions table:", createError);

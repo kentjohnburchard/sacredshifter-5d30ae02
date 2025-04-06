@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -54,7 +53,7 @@ const UserDashboard: React.FC = () => {
         
         // Get user's intentions
         const { data: intentionData, error: intentionError } = await supabase
-          .from('user_intentions')
+          .from('user_intentions' as any)
           .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
@@ -67,7 +66,7 @@ const UserDashboard: React.FC = () => {
         
         if (intentionData && intentionData.length > 0) {
           // Transform the data to match our display format
-          const formattedIntentions = intentionData.map(item => ({
+          const formattedIntentions = intentionData.map((item: any) => ({
             text: item.intention,
             date: new Date(item.created_at).toLocaleDateString()
           }));

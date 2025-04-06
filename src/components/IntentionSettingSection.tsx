@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -52,7 +51,7 @@ const IntentionSettingSection: React.FC = () => {
       setIsLoading(true);
       
       const { data, error } = await supabase
-        .from('user_intentions')
+        .from('user_intentions' as any)
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
@@ -65,7 +64,7 @@ const IntentionSettingSection: React.FC = () => {
       
       if (data) {
         // Type casting to ensure the data matches our intention type
-        setSavedIntentions(data as Intention[]);
+        setSavedIntentions(data as unknown as Intention[]);
       }
     } catch (err) {
       console.error("Unexpected error:", err);
@@ -100,7 +99,7 @@ const IntentionSettingSection: React.FC = () => {
       };
       
       const { data, error } = await supabase
-        .from('user_intentions')
+        .from('user_intentions' as any)
         .insert([newIntention])
         .select();
       
@@ -112,7 +111,7 @@ const IntentionSettingSection: React.FC = () => {
       
       if (data && data.length > 0) {
         // Type cast to ensure we're handling the correct type
-        setSavedIntentions([data[0] as Intention, ...savedIntentions]);
+        setSavedIntentions([data[0] as unknown as Intention, ...savedIntentions]);
         toast.success("Your intention has been set");
         
         // Reset form
