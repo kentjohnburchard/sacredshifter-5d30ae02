@@ -17,6 +17,7 @@ export const useFrequencyShift = () => {
   const [showVisualSelector, setShowVisualSelector] = useState(false);
   const [showTimezoneConfirmation, setShowTimezoneConfirmation] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showJournalForm, setShowJournalForm] = useState(false);
   const navigate = useNavigate();
   
   const getCurrentPrompt = () => {
@@ -230,6 +231,8 @@ export const useFrequencyShift = () => {
     handleBeginJourney,
     handleSaveToTimeline,
     handleStartOver,
-    getCurrentPrompt
+    getCurrentPrompt,
+    showJournalForm,
+    setShowJournalForm
   };
 };
