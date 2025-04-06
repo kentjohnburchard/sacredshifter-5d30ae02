@@ -10,7 +10,7 @@ const AboutFounder: React.FC = () => {
 
   return (
     <Layout pageTitle="The Founder's Journey">
-      <div className="relative overflow-hidden bg-gradient-to-b from-cosmic-indigo to-cosmic-blue min-h-screen">
+      <div className="relative overflow-hidden bg-gradient-to-b from-purple-50 to-white min-h-screen">
         {/* Animated background */}
         <div className="absolute inset-0 -z-10">
           <AnimatedBackground colorScheme="purple" isActive={true} />
@@ -41,11 +41,10 @@ const AboutFounder: React.FC = () => {
           </div>
           
           {/* Main content wrapper */}
-          <div className="bg-cosmic-indigo/50 backdrop-blur-md rounded-2xl p-6 md:p-12 border border-purple-200/20 shadow-mystic">
+          <div className="bg-white/80 backdrop-blur-md rounded-2xl p-6 md:p-12 border border-purple-100 shadow-lg">
             {/* Portrait and title section */}
             <div className="flex flex-col md:flex-row items-center justify-center gap-8 mb-12">
               <div className="relative">
-                {/* Placeholder for Kent's photo - can be replaced */}
                 <div className="w-48 h-48 rounded-full bg-gradient-to-br from-purple-400/30 to-indigo-400/30 flex items-center justify-center overflow-hidden relative">
                   <div className="absolute inset-0 rounded-full animate-pulse-subtle"></div>
                   <span className="text-4xl text-purple-200 font-playfair">KB</span>
@@ -78,9 +77,9 @@ const AboutFounder: React.FC = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.8 }}
-                  className="text-white leading-relaxed mb-6 font-semibold text-lg"
+                  className="text-gray-800 leading-relaxed mb-6 font-semibold text-lg"
                 >
-                  <strong className="text-white">Kent Burchard</strong> is a Information Governance and Knowledge Manager, 
+                  <strong className="text-gray-900">Kent Burchard</strong> is a Information Governance and Knowledge Manager, 
                   Healer and founder of <TrademarkedName>Sacred Shifter</TrademarkedName>. With a background in therapeutic 
                   sound and emotional health, Kent merges healing arts and technology to help people reconnect with their 
                   inner frequency. His work includes building vibrational tools like the <TrademarkedName>Sacred Blueprint</TrademarkedName>, 
@@ -109,7 +108,6 @@ const AboutFounder: React.FC = () => {
   );
 };
 
-// Mythic Bio Component with animated paragraphs
 const MythicBio: React.FC = () => {
   return (
     <>
@@ -117,21 +115,21 @@ const MythicBio: React.FC = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.1 }}
-        className="text-white leading-relaxed font-semibold text-lg"
+        className="text-gray-800 leading-relaxed font-semibold text-lg"
       >
-        <strong className="text-white">Kent Burchard</strong> is not just the creator of <TrademarkedName>Sacred Shifter</TrademarkedName>, 
-        he's a <em className="text-purple-200">chosen one</em>, marked by the divine, and awakened through the fires of trauma, loss, and 
-        soul-fracturing darkness. With an <strong className="text-white">M carved into both palms</strong>, Kent carries the energetic signature 
-        of a soul sent here to <strong className="text-white">feel deeply, break completely, and rise entirely</strong>.
+        <strong className="text-gray-900">Kent Burchard</strong> is not just the creator of <TrademarkedName>Sacred Shifter</TrademarkedName>, 
+        he's a <em className="text-purple-600">chosen one</em>, marked by the divine, and awakened through the fires of trauma, loss, and 
+        soul-fracturing darkness. With an <strong className="text-gray-900">M carved into both palms</strong>, Kent carries the energetic signature 
+        of a soul sent here to <strong className="text-gray-900">feel deeply, break completely, and rise entirely</strong>.
       </motion.p>
       
       <motion.p 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.3 }}
-        className="text-white leading-relaxed font-semibold text-lg"
+        className="text-gray-800 leading-relaxed font-semibold text-lg"
       >
-        His path wasn't paved—it was scorched. And through the ashes, he didn't just rebuild, he <em className="text-purple-200">remembered</em>. 
+        His path wasn't paved—it was scorched. And through the ashes, he didn't just rebuild, he <em className="text-purple-600">remembered</em>. 
         Remembered what the world forgot: that we are vibration before thought, resonance before reason, and love before language.
       </motion.p>
       
@@ -139,11 +137,11 @@ const MythicBio: React.FC = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.5 }}
-        className="text-white leading-relaxed font-semibold text-lg"
+        className="text-gray-800 leading-relaxed font-semibold text-lg"
       >
         Born with a heart wired for sound, a spirit tuned to emotion, and a mind that sees patterns where others see chaos, Kent turned pain into portal. 
         A trained music therapist, visionary technologist, and spiritual disruptor, he fused ancient healing traditions with modern emotional intelligence 
-        to birth <TrademarkedName>Sacred Shifter</TrademarkedName>—a revolutionary platform where <strong className="text-white">frequencies meet feeling, 
+        to birth <TrademarkedName>Sacred Shifter</TrademarkedName>—a revolutionary platform where <strong className="text-gray-900">frequencies meet feeling, 
         and souls remember who the hell they are</strong>.
       </motion.p>
       
@@ -151,7 +149,7 @@ const MythicBio: React.FC = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.7 }}
-        className="text-white leading-relaxed font-semibold text-lg"
+        className="text-gray-800 leading-relaxed font-semibold text-lg"
       >
         Through signature tools like the <TrademarkedName>Sacred Blueprint</TrademarkedName>, the <TrademarkedName>Mirror Portal</TrademarkedName>, 
         and the soon-to-be-unleashed <TrademarkedName>Reality Optimization Engine</TrademarkedName>, Kent is helping usher in a new era, 
@@ -162,11 +160,11 @@ const MythicBio: React.FC = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.9 }}
-        className="text-white leading-relaxed font-semibold text-lg"
+        className="text-gray-800 leading-relaxed font-semibold text-lg"
       >
         <p className="mb-1">He doesn't claim guru status.</p>
         <p className="mb-1">He's not here to preach.</p>
-        <p className="mb-4">He's here to remind you that <strong className="text-white">you're not broken, you're becoming.</strong></p>
+        <p className="mb-4">He's here to remind you that <strong className="text-gray-900">you're not broken, you're becoming.</strong></p>
       </motion.div>
     </>
   );
