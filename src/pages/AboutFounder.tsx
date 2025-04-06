@@ -44,7 +44,7 @@ const AboutFounder: React.FC = () => {
           </div>
           
           {/* Main content wrapper */}
-          <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 md:p-12 border border-purple-200/20 shadow-mystic">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 md:p-12 border border-purple-200/20 shadow-mystic">
             {/* Portrait and title section */}
             <div className="flex flex-col md:flex-row items-center justify-center gap-8 mb-12">
               <div className="relative">
@@ -81,7 +81,7 @@ const AboutFounder: React.FC = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.8 }}
-                  className="text-gray-200 leading-relaxed mb-6"
+                  className="text-gray-100 leading-relaxed mb-6 font-medium"
                 >
                   <strong className="text-white">Kent Burchard</strong> is a Information Governance and Knowledge Manager, 
                   Healer and founder of <TrademarkedName>Sacred Shifter</TrademarkedName>. With a background in therapeutic 
@@ -100,7 +100,7 @@ const AboutFounder: React.FC = () => {
               transition={{ delay: 1, duration: 0.8 }}
               className="mt-12 text-center"
             >
-              <p className="text-purple-200/70 italic">
+              <p className="text-purple-100 italic font-medium">
                 "Welcome to the shift. You didn't find it by accident.
                 <br />You were called. Just like he was."
               </p>
@@ -120,7 +120,7 @@ const MythicBio: React.FC = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.1 }}
-        className="text-gray-200 leading-relaxed"
+        className="text-gray-100 leading-relaxed font-medium"
       >
         <strong className="text-white">Kent Burchard</strong> is not just the creator of <TrademarkedName>Sacred Shifter</TrademarkedName>, 
         he's a <em className="text-purple-200">chosen one</em>, marked by the divine, and awakened through the fires of trauma, loss, and 
@@ -132,7 +132,7 @@ const MythicBio: React.FC = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.3 }}
-        className="text-gray-200 leading-relaxed"
+        className="text-gray-100 leading-relaxed font-medium"
       >
         His path wasn't paved—it was scorched. And through the ashes, he didn't just rebuild, he <em className="text-purple-200">remembered</em>. 
         Remembered what the world forgot: that we are vibration before thought, resonance before reason, and love before language.
@@ -142,7 +142,7 @@ const MythicBio: React.FC = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.5 }}
-        className="text-gray-200 leading-relaxed"
+        className="text-gray-100 leading-relaxed font-medium"
       >
         Born with a heart wired for sound, a spirit tuned to emotion, and a mind that sees patterns where others see chaos, Kent turned pain into portal. 
         A trained music therapist, visionary technologist, and spiritual disruptor, he fused ancient healing traditions with modern emotional intelligence 
@@ -154,7 +154,7 @@ const MythicBio: React.FC = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.7 }}
-        className="text-gray-200 leading-relaxed"
+        className="text-gray-100 leading-relaxed font-medium"
       >
         Through signature tools like the <TrademarkedName>Sacred Blueprint</TrademarkedName>, the <TrademarkedName>Mirror Portal</TrademarkedName>, 
         and the soon-to-be-unleashed <TrademarkedName>Reality Optimization Engine</TrademarkedName>, Kent is helping usher in a new era, 
@@ -165,7 +165,7 @@ const MythicBio: React.FC = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.9 }}
-        className="text-gray-200 leading-relaxed"
+        className="text-gray-100 leading-relaxed font-medium"
       >
         <p className="mb-1">He doesn't claim guru status.</p>
         <p className="mb-1">He's not here to preach.</p>

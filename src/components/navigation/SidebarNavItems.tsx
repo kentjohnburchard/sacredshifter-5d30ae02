@@ -51,13 +51,13 @@ const SidebarNavItems = () => {
       <Link
         key={item.path}
         to={item.path}
-        className={`flex items-center px-4 py-3 text-base transition-colors rounded-lg ${
+        className={`flex items-center px-3 py-2 text-sm transition-colors rounded-lg ${
           active
             ? "text-primary-foreground bg-primary/90"
             : "text-muted-foreground hover:text-primary hover:bg-primary/10"
         }`}
       >
-        <span className={`mr-3 ${active ? "text-primary-foreground" : ""}`}>
+        <span className={`mr-2 ${active ? "text-primary-foreground" : ""}`}>
           {item.icon}
         </span>
         {item.name}
@@ -66,8 +66,8 @@ const SidebarNavItems = () => {
   };
   
   return (
-    <div className="space-y-4 py-4">
-      <div className="px-3 py-2">
+    <div className="space-y-3 py-2">
+      <div className="px-2 py-1">
         <div className="space-y-1">
           {navItems.map((item) => (
             <div key={item.path}>{renderLink(item)}</div>
@@ -75,8 +75,8 @@ const SidebarNavItems = () => {
         </div>
       </div>
       
-      <div className="px-3 py-2">
-        <h2 className="mb-2 px-4 text-xs font-semibold text-muted-foreground tracking-wider">
+      <div className="px-2 py-1">
+        <h2 className="mb-1 px-3 text-xs font-semibold text-muted-foreground tracking-wider">
           Settings & Tools
         </h2>
         <div className="space-y-1">
