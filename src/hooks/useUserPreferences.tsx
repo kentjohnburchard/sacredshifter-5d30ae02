@@ -14,6 +14,7 @@ export interface UserPreferences {
   watermark_style: string;
   soundscapeMode: string;
   kent_mode?: boolean;
+  consciousness_mode?: "standard" | "kent";
 }
 
 export const useUserPreferences = () => {
@@ -24,7 +25,8 @@ export const useUserPreferences = () => {
     zodiac_sign: "cancer",
     watermark_style: "zodiac",
     soundscapeMode: "bubbles",
-    kent_mode: false
+    kent_mode: false,
+    consciousness_mode: "standard"
   });
   const [loading, setLoading] = useState(true);
 
@@ -65,7 +67,8 @@ export const useUserPreferences = () => {
         setPreferences({
           ...latestPrefs,
           soundscapeMode: latestPrefs.soundscape_mode,
-          kent_mode: latestPrefs.kent_mode || false
+          kent_mode: latestPrefs.kent_mode || false,
+          consciousness_mode: latestPrefs.consciousness_mode || "standard"
         });
       } else {
         // User doesn't have preferences yet, we can try to use astrology data
@@ -92,7 +95,8 @@ export const useUserPreferences = () => {
             zodiac_sign: sunSign,
             watermark_style: "zodiac",
             soundscapeMode: soundscape,
-            kent_mode: false
+            kent_mode: false,
+            consciousness_mode: "standard"
           });
         }
       }
@@ -126,6 +130,7 @@ export const useUserPreferences = () => {
         watermark_style: newPreferences.watermark_style,
         soundscape_mode: newPreferences.soundscapeMode,
         kent_mode: newPreferences.kent_mode || false,
+        consciousness_mode: newPreferences.consciousness_mode || "standard",
         updated_at: new Date().toISOString()
       };
 

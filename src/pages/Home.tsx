@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import SoundLibraryPreview from "@/components/landing/SoundLibraryPreview";
 import GlobalWatermark from "@/components/GlobalWatermark";
 import Header from "@/components/navigation/Header";
+import AboutSacredShifter from "@/components/AboutSacredShifter";
 
 const Home: React.FC = () => {
   return (
@@ -27,11 +28,20 @@ const Home: React.FC = () => {
             <HealingFeatures />
           </motion.div>
           
+          {/* About Sacred Shifter Section - New Addition */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.15 }}
+          >
+            <AboutSacredShifter />
+          </motion.div>
+          
           {/* Sound Healing Sections */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
             className="mb-12"
           >
             <div className="text-center mb-8">
