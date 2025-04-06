@@ -610,6 +610,7 @@ export type Database = {
           created_at: string | null
           element: string | null
           id: string
+          kent_mode: boolean | null
           soundscape_mode: string | null
           theme_gradient: string | null
           updated_at: string | null
@@ -621,6 +622,7 @@ export type Database = {
           created_at?: string | null
           element?: string | null
           id?: string
+          kent_mode?: boolean | null
           soundscape_mode?: string | null
           theme_gradient?: string | null
           updated_at?: string | null
@@ -632,6 +634,7 @@ export type Database = {
           created_at?: string | null
           element?: string | null
           id?: string
+          kent_mode?: boolean | null
           soundscape_mode?: string | null
           theme_gradient?: string | null
           updated_at?: string | null

@@ -13,7 +13,7 @@ export interface UserPreferences {
   zodiac_sign: string;
   watermark_style: string;
   soundscapeMode: string;
-  kentMode?: boolean;
+  kent_mode?: boolean;
 }
 
 export const useUserPreferences = () => {
@@ -24,7 +24,7 @@ export const useUserPreferences = () => {
     zodiac_sign: "cancer",
     watermark_style: "zodiac",
     soundscapeMode: "bubbles",
-    kentMode: false
+    kent_mode: false
   });
   const [loading, setLoading] = useState(true);
 
@@ -44,7 +44,6 @@ export const useUserPreferences = () => {
         return;
       }
 
-      // Use the generic query approach to avoid type errors with table names
       const { data, error } = await supabase
         .from('user_preferences')
         .select('*')
@@ -60,8 +59,8 @@ export const useUserPreferences = () => {
       if (data) {
         setPreferences({
           ...data,
-          kentMode: data.kent_mode || false,
-          soundscapeMode: data.soundscape_mode
+          soundscapeMode: data.soundscape_mode,
+          kent_mode: data.kent_mode || false
         });
       } else {
         // User doesn't have preferences yet, we can try to use astrology data
@@ -88,7 +87,7 @@ export const useUserPreferences = () => {
             zodiac_sign: sunSign,
             watermark_style: "zodiac",
             soundscapeMode: soundscape,
-            kentMode: false
+            kent_mode: false
           });
         }
       }
@@ -111,10 +110,9 @@ export const useUserPreferences = () => {
         user_id: user.id,
         updated_at: new Date().toISOString(),
         soundscape_mode: newPreferences.soundscapeMode,
-        kent_mode: newPreferences.kentMode
+        kent_mode: newPreferences.kent_mode
       };
 
-      // Use the generic query approach to avoid type errors with table names
       const { error } = await supabase
         .from('user_preferences')
         .upsert(prefsToSave);
