@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,6 +26,13 @@ type MusicGeneration = {
   music_url?: string | null; 
   created_at: string | null;
 };
+
+type DashboardStats = {
+  journalCount: number;
+  musicCount: number;
+  hoursListened: number;
+  dayStreak: number;
+}
 
 const JournalCard: React.FC<{ entry: JournalEntry }> = ({ entry }) => {
   return (
@@ -84,7 +90,6 @@ const SoundJourneyCard: React.FC<{ generation: MusicGeneration }> = ({ generatio
     };
   }, []);
 
-  // Get the appropriate audio URL (handle both audio_url and music_url properties)
   const audioUrl = generation.audio_url || generation.music_url;
 
   return (
@@ -131,34 +136,34 @@ const SoundJourneyCard: React.FC<{ generation: MusicGeneration }> = ({ generatio
   );
 };
 
-const UserStats: React.FC = () => {
+const UserStats: React.FC<{ stats: DashboardStats }> = ({ stats }) => {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
       <Card className="border border-purple-100 dark:border-purple-900/50">
         <CardContent className="p-4 flex flex-col items-center justify-center text-center">
           <BookOpen className="h-8 w-8 text-purple-600 mb-2" />
-          <p className="text-2xl font-bold">12</p>
+          <p className="text-2xl font-bold">{stats.journalCount}</p>
           <p className="text-xs text-muted-foreground">Journal Entries</p>
         </CardContent>
       </Card>
       <Card className="border border-indigo-100 dark:border-indigo-900/50">
         <CardContent className="p-4 flex flex-col items-center justify-center text-center">
           <Music className="h-8 w-8 text-indigo-600 mb-2" />
-          <p className="text-2xl font-bold">8</p>
+          <p className="text-2xl font-bold">{stats.musicCount}</p>
           <p className="text-xs text-muted-foreground">Sound Journeys</p>
         </CardContent>
       </Card>
       <Card className="border border-violet-100 dark:border-violet-900/50">
         <CardContent className="p-4 flex flex-col items-center justify-center text-center">
           <Clock className="h-8 w-8 text-violet-600 mb-2" />
-          <p className="text-2xl font-bold">5.2</p>
+          <p className="text-2xl font-bold">{stats.hoursListened.toFixed(1)}</p>
           <p className="text-xs text-muted-foreground">Hours Listened</p>
         </CardContent>
       </Card>
       <Card className="border border-blue-100 dark:border-blue-900/50">
         <CardContent className="p-4 flex flex-col items-center justify-center text-center">
           <Calendar className="h-8 w-8 text-blue-600 mb-2" />
-          <p className="text-2xl font-bold">28</p>
+          <p className="text-2xl font-bold">{stats.dayStreak}</p>
           <p className="text-xs text-muted-foreground">Day Streak</p>
         </CardContent>
       </Card>
@@ -171,15 +176,46 @@ const UserDashboard: React.FC = () => {
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
   const [soundJourneys, setSoundJourneys] = useState<MusicGeneration[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshKey, setRefreshKey] = useState(0); // Add refresh key for manual refreshing
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [stats, setStats] = useState<DashboardStats>({
+    journalCount: 0,
+    musicCount: 0,
+    hoursListened: 0,
+    dayStreak: 0
+  });
 
   useEffect(() => {
     if (user) {
       fetchUserContent();
+      
+      const journalChannel = supabase
+        .channel('public:timeline_snapshots')
+        .on('postgres_changes', 
+          { event: '*', schema: 'public', table: 'timeline_snapshots', filter: `user_id=eq.${user.id}` },
+          () => {
+            fetchUserContent();
+          }
+        )
+        .subscribe();
+        
+      const musicChannel = supabase
+        .channel('public:music_generations')
+        .on('postgres_changes', 
+          { event: '*', schema: 'public', table: 'music_generations', filter: `user_id=eq.${user.id}` },
+          () => {
+            fetchUserContent();
+          }
+        )
+        .subscribe();
+        
+      return () => {
+        supabase.removeChannel(journalChannel);
+        supabase.removeChannel(musicChannel);
+      };
     } else {
       setLoading(false);
     }
-  }, [user, refreshKey]); // Adding refreshKey to dependencies
+  }, [user, refreshKey]);
 
   const fetchUserContent = async () => {
     try {
@@ -187,7 +223,6 @@ const UserDashboard: React.FC = () => {
       
       console.log("Fetching dashboard data for user:", user?.id);
       
-      // Explicitly add user_id to the query to ensure we only get entries for the current user
       const { data: journalData, error: journalError } = await supabase
         .from('timeline_snapshots')
         .select('*')
@@ -212,10 +247,69 @@ const UserDashboard: React.FC = () => {
         throw musicError;
       }
       
-      console.log("Journal entries fetched:", journalData?.length || 0, journalData);
+      const { data: journalCountData, error: journalCountError } = await supabase
+        .from('timeline_snapshots')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user?.id);
+        
+      if (journalCountError) {
+        console.error("Error fetching journal count:", journalCountError);
+      }
+      
+      const { data: musicCountData, error: musicCountError } = await supabase
+        .from('music_generations')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user?.id);
+        
+      if (musicCountError) {
+        console.error("Error fetching music count:", musicCountError);
+      }
+      
+      const hoursListened = ((musicCountData?.count || 0) * 5) / 60;
+      
+      const { data: recentActivity, error: recentError } = await supabase
+        .from('timeline_snapshots')
+        .select('created_at')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false })
+        .limit(30);
+        
+      let dayStreak = 0;
+      if (!recentError && recentActivity && recentActivity.length > 0) {
+        const dates = recentActivity.map(entry => 
+          new Date(entry.created_at).toLocaleDateString()
+        );
+        
+        const uniqueDates = [...new Set(dates)];
+        const today = new Date().toLocaleDateString();
+        
+        if (uniqueDates[0] === today) {
+          dayStreak = 1;
+          
+          for (let i = 1; i < 30; i++) {
+            const checkDate = new Date();
+            checkDate.setDate(checkDate.getDate() - i);
+            const checkDateStr = checkDate.toLocaleDateString();
+            
+            if (uniqueDates.includes(checkDateStr)) {
+              dayStreak++;
+            } else {
+              break;
+            }
+          }
+        }
+      }
+      
+      setStats({
+        journalCount: journalCountData?.count || 0,
+        musicCount: musicCountData?.count || 0,
+        hoursListened,
+        dayStreak
+      });
+      
+      console.log("Journal entries fetched:", journalData?.length || 0);
       setJournalEntries(journalData || []);
       
-      // Map the music_generations data to MusicGeneration type
       const formattedMusicData = (musicData || []).map(item => ({
         id: item.id,
         title: item.title,
@@ -235,7 +329,6 @@ const UserDashboard: React.FC = () => {
     }
   };
   
-  // Add a function to manually refresh the data
   const handleRefresh = () => {
     setRefreshKey(prev => prev + 1);
   };
@@ -305,7 +398,7 @@ const UserDashboard: React.FC = () => {
           animate="visible"
         >
           <motion.div variants={itemAnimation}>
-            <UserStats />
+            <UserStats stats={stats} />
           </motion.div>
         </motion.div>
       </div>

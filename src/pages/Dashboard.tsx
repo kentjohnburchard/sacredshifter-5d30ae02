@@ -5,7 +5,7 @@ import Layout from "@/components/Layout";
 
 const Dashboard: React.FC = () => {
   return (
-    <Layout pageTitle="Soul Journey Dashboard">
+    <Layout>
       <UserDashboard />
     </Layout>
   );

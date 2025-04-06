@@ -12,7 +12,17 @@ const Home: React.FC = () => {
       <Header />
       <div className="container mx-auto px-4 py-6">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center space-y-4 mb-8">
+          {/* HealingFeatures moved to the top */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1 }}
+          >
+            <HealingFeatures />
+          </motion.div>
+          
+          {/* Understanding Sound Healing moved below features */}
+          <div className="text-center space-y-4 mt-8 mb-8">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -61,14 +71,6 @@ const Home: React.FC = () => {
               </Button>
             </motion.div>
           </div>
-          
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.7 }}
-          >
-            <HealingFeatures />
-          </motion.div>
         </div>
       </div>
       

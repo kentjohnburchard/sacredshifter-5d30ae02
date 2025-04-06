@@ -14,8 +14,12 @@ const Header: React.FC = () => {
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Link to="/" className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-500">
-              Sacred Shifter
+            <Link to="/" className="flex items-center">
+              <img 
+                src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
+                alt="Sacred Shifter Logo" 
+                className="h-12 w-auto object-contain"
+              />
             </Link>
             <nav className="hidden md:flex space-x-4">
               <Link to="/home" className="text-gray-600 hover:text-purple-600 transition-colors">

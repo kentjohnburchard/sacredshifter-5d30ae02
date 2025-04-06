@@ -30,10 +30,10 @@ import PersonalVibeSettings from './pages/PersonalVibeSettings';
 function App() {
   return (
     <Routes>
-      {/* Redirect root to /home */}
-      <Route path="/" element={<Navigate replace to="/home" />} />
-      <Route path="/home" element={<Home />} />
+      {/* Set Home as the default route */}
+      <Route path="/" element={<Home />} />
       <Route path="/welcome" element={<LandingPrompt />} />
+      <Route path="/home" element={<Home />} />
       <Route path="/auth" element={<Auth />} />
       <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
