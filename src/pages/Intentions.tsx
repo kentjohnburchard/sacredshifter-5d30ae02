@@ -4,11 +4,19 @@ import Layout from "@/components/Layout";
 import { motion } from "framer-motion";
 import IntentionSettingSection from "@/components/IntentionSettingSection";
 import { createUserIntentionsTable } from "@/utils/createUserIntentionsTable";
+import { toast } from "sonner";
 
 const Intentions = () => {
   useEffect(() => {
     // Try to create the user_intentions table if it doesn't exist
-    createUserIntentionsTable();
+    const initTable = async () => {
+      const result = await createUserIntentionsTable();
+      if (!result) {
+        toast.error("Could not set up intentions feature. Please try again later.");
+      }
+    };
+    
+    initTable();
   }, []);
   
   return (

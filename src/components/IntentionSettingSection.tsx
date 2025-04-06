@@ -20,11 +20,14 @@ const suggestedIntentions = [
   "I am connected to the universal frequency of love"
 ];
 
+// Define the Intention type that matches our database schema
 interface Intention {
   id: string;
+  user_id?: string;
   intention: string;
   title: string;
   created_at: string;
+  updated_at?: string;
 }
 
 const IntentionSettingSection: React.FC = () => {
@@ -61,7 +64,8 @@ const IntentionSettingSection: React.FC = () => {
       }
       
       if (data) {
-        setSavedIntentions(data);
+        // Type casting to ensure the data matches our intention type
+        setSavedIntentions(data as Intention[]);
       }
     } catch (err) {
       console.error("Unexpected error:", err);
@@ -93,7 +97,6 @@ const IntentionSettingSection: React.FC = () => {
         user_id: user.id,
         intention: intention.trim(),
         title: intentionTitle.trim(),
-        created_at: new Date().toISOString()
       };
       
       const { data, error } = await supabase
@@ -108,7 +111,8 @@ const IntentionSettingSection: React.FC = () => {
       }
       
       if (data && data.length > 0) {
-        setSavedIntentions([data[0], ...savedIntentions]);
+        // Type cast to ensure we're handling the correct type
+        setSavedIntentions([data[0] as Intention, ...savedIntentions]);
         toast.success("Your intention has been set");
         
         // Reset form

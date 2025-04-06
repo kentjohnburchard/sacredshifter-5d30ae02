@@ -605,6 +605,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_intentions: {
+        Row: {
+          created_at: string | null
+          id: string
+          intention: string
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          intention: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          intention?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           created_at: string | null
@@ -719,6 +746,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_user_intentions_table: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       get_audio_url: {
         Args: {
           filename: string

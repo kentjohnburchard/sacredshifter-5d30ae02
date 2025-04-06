@@ -23,6 +23,7 @@ export const createUserIntentionsTable = async () => {
     
     if (createError) {
       console.error("Error creating user_intentions table:", createError);
+      toast.error("Failed to set up intentions feature");
       return false;
     }
     

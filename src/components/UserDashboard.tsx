@@ -6,6 +6,15 @@ import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, Music, Heart, LineChart, ArrowRight, Clock, HeartPulse, CheckCircle, Lightbulb } from "lucide-react";
+import { toast } from "sonner";
+
+// Define the Intention interface to match our database schema
+interface Intention {
+  id: string;
+  intention: string;
+  title: string;
+  created_at: string;
+}
 
 const UserDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -51,14 +60,18 @@ const UserDashboard: React.FC = () => {
           .order('created_at', { ascending: false })
           .limit(3);
           
-        if (!intentionError && intentionData) {
+        if (intentionError) {
+          console.error("Error fetching intentions:", intentionError);
+          return;
+        }
+        
+        if (intentionData && intentionData.length > 0) {
+          // Transform the data to match our display format
           const formattedIntentions = intentionData.map(item => ({
             text: item.intention,
             date: new Date(item.created_at).toLocaleDateString()
           }));
           setIntentions(formattedIntentions);
-        } else {
-          console.log("No intentions found or error:", intentionError);
         }
         
         // Set streak to a random value between 1-7 for now 
@@ -67,6 +80,7 @@ const UserDashboard: React.FC = () => {
         
       } catch (error) {
         console.error("Error fetching user stats:", error);
+        toast.error("Error loading dashboard data");
       }
     };
 
