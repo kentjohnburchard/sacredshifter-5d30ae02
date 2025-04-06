@@ -19,9 +19,6 @@ const JourneyTemplates = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.6 }}
         >
-          <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-indigo-700 dark:text-indigo-400">
-            Sacred Healing Journeys
-          </h2>
           <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
             Explore our curated journeys designed to address specific healing needs. Each journey combines frequencies, 
             soundscapes, and guidance to support your path to wellness.

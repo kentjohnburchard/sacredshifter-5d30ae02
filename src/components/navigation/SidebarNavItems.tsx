@@ -10,6 +10,7 @@ import {
   Zap,
   Clock,
   Palette,
+  Stars,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -68,6 +69,12 @@ export const useNavItems = () => {
       icon: Music,
       href: "/music-library",
       active: pathname === "/music-library",
+    },
+    {
+      title: "Astrology",
+      icon: Stars,
+      href: "/astrology",
+      active: pathname === "/astrology",
     },
     {
       title: "Journey Templates",

@@ -61,7 +61,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         currentGradient: preferences.theme_gradient,
         currentElement: preferences.element,
         watermarkStyle: preferences.watermark_style,
-        soundscapeMode: preferences.soundscape_mode,
+        soundscapeMode: preferences.soundscapeMode,
         zodiacSign: preferences.zodiac_sign,
         kentMode,
         setKentMode,
