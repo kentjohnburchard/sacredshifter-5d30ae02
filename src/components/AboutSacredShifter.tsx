@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useUserPreferences } from '@/hooks/useUserPreferences';
+import { useTheme } from '@/context/ThemeContext';
 
 type Quote = {
   text: string;
@@ -25,12 +25,11 @@ const kentQuotes: Quote[] = [
 ];
 
 const AboutSacredShifter: React.FC = () => {
-  const { preferences, loading } = useUserPreferences();
+  const { kentMode } = useTheme();
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
   const [isShimmering, setIsShimmering] = useState(false);
   
-  const consciousnessMode = preferences.consciousness_mode || "standard";
-  const quotes = consciousnessMode === "kent" ? kentQuotes : standardQuotes;
+  const quotes = kentMode ? kentQuotes : standardQuotes;
 
   // Rotate quotes every 10 seconds
   useEffect(() => {
@@ -61,10 +60,10 @@ const AboutSacredShifter: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
-          key={consciousnessMode} // This forces re-render animation when mode changes
+          key={kentMode ? "kent" : "standard"} // This forces re-render animation when mode changes
           className="prose prose-lg max-w-none"
         >
-          {consciousnessMode === "standard" ? (
+          {!kentMode ? (
             <>
               <p className="text-gray-700 leading-relaxed">
                 <strong>Sacred Shifter</strong> is more than an app it's your portal to vibrational transformation.
