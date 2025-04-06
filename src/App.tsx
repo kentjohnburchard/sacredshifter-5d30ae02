@@ -29,6 +29,7 @@ import HeartCenter from './pages/HeartCenter';
 import HeartDashboard from './pages/HeartDashboard';
 import SacredBlueprint from './pages/SacredBlueprint';
 import IntellectualProperty from './pages/IntellectualProperty';
+import AboutFounder from './pages/AboutFounder';
 import ScrollToTop from './components/ScrollToTop';
 
 // Define routes
@@ -68,6 +69,8 @@ function App() {
         {/* Intellectual Property Page */}
         <Route path="/sacred-ip" element={<IntellectualProperty />} />
         <Route path="/intellectual-property" element={<Navigate to="/sacred-ip" />} />
+        {/* About the Founder Page */}
+        <Route path="/about-founder" element={<AboutFounder />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

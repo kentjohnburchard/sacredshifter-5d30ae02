@@ -1,134 +1,90 @@
+
 import React from "react";
-import {
-  LayoutDashboard,
-  BookOpen,
-  Music,
-  Compass,
-  CheckSquare,
-  Heart,
-  Zap,
-  Palette,
-  Stars,
-  Eye,
-  HeartPulse,
-  Sparkles
-} from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import {
+  Music,
+  UserRound,
+  Home,
+  Activity,
+  Sparkles,
+  ArrowUpRight,
+  Compass,
+  Heart,
+  BookOpen,
+  Stars,
+  Clock,
+  Settings,
+  Headphones,
+  PenTool,
+  Wand2,
+} from "lucide-react";
 
-interface NavItem {
-  title: string;
-  icon: React.ComponentType<any>;
-  href: string;
-  active: boolean;
-  highlight?: boolean;
-}
-
-export const useNavItems = () => {
+const SidebarNavItems = () => {
   const location = useLocation();
-  const pathname = location.pathname;
-
-  const navItems: NavItem[] = [
-    {
-      title: "Dashboard",
-      icon: LayoutDashboard,
-      href: "/dashboard",
-      active: pathname === "/dashboard",
-    },
-    {
-      title: "Energy Check",
-      icon: Zap,
-      href: "/energy-check",
-      active: pathname === "/energy-check",
-    },
-    {
-      title: "Heart Center",
-      icon: HeartPulse,
-      href: "/heart-center",
-      active: pathname === "/heart-center",
-      highlight: true,
-    },
-    {
-      title: "Alignment",
-      icon: Heart,
-      href: "/alignment",
-      active: pathname === "/alignment",
-    },
-    {
-      title: "Intentions",
-      icon: CheckSquare,
-      href: "/intentions",
-      active: pathname === "/intentions",
-    },
-    {
-      title: "Focus",
-      icon: Eye,
-      href: "/focus",
-      active: pathname === "/focus",
-    },
-    {
-      title: "Hermetic Wisdom",
-      icon: BookOpen,
-      href: "/hermetic-wisdom",
-      active: pathname === "/hermetic-wisdom",
-    },
-    {
-      title: "Music Library",
-      icon: Music,
-      href: "/music-library",
-      active: pathname === "/music-library",
-    },
-    {
-      title: "Astrology",
-      icon: Stars,
-      href: "/astrology",
-      active: pathname === "/astrology",
-    },
-    {
-      title: "Journey Templates",
-      icon: Compass,
-      href: "/journey-templates",
-      active: pathname === "/journey-templates",
-    },
-    {
-      title: "My Vibe",
-      icon: Palette,
-      href: "/personal-vibe",
-      active: pathname === "/personal-vibe",
-      highlight: true
-    },
-    {
-      title: "Sacred Blueprint",
-      icon: Sparkles,
-      href: "/sacred-blueprint",
-      active: pathname === "/sacred-blueprint",
-      highlight: true
-    },
+  const isActive = (path: string) => location.pathname === path;
+  
+  const navItems = [
+    { name: "Home", path: "/home", icon: <Home className="h-5 w-5" /> },
+    { name: "Energy Check", path: "/energy-check", icon: <Activity className="h-5 w-5" /> },
+    { name: "Sacred Blueprint", path: "/sacred-blueprint", icon: <Sparkles className="h-5 w-5" /> },
+    { name: "Heart Center", path: "/heart-center", icon: <Heart className="h-5 w-5" /> },
+    { name: "Frequency Library", path: "/frequency-library", icon: <Music className="h-5 w-5" /> },
+    { name: "Intention Setting", path: "/intentions", icon: <PenTool className="h-5 w-5" /> },
+    { name: "Hermetic Wisdom", path: "/hermetic-wisdom", icon: <BookOpen className="h-5 w-5" /> },
+    { name: "Astrology", path: "/astrology", icon: <Stars className="h-5 w-5" /> },
+    { name: "Journey Templates", path: "/journey-templates", icon: <Compass className="h-5 w-5" /> },
+    { name: "Music Library", path: "/music-library", icon: <Headphones className="h-5 w-5" /> },
+    { name: "About The Founder", path: "/about-founder", icon: <UserRound className="h-5 w-5" /> },
   ];
-
-  return navItems;
-};
-
-interface SidebarNavItemsProps {
-  className?: string;
-}
-
-const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({ className }) => {
-  const navItems = useNavItems();
+  
+  const secondaryNavItems = [
+    { name: "Focus", path: "/focus", icon: <Clock className="h-5 w-5" /> },
+    { name: "Personal Vibe", path: "/personal-vibe", icon: <Wand2 className="h-5 w-5" /> },
+    { name: "Subscription", path: "/subscription", icon: <ArrowUpRight className="h-5 w-5" /> },
+    { name: "Profile", path: "/profile", icon: <UserRound className="h-5 w-5" /> },
+    { name: "Settings", path: "/settings", icon: <Settings className="h-5 w-5" /> },
+  ];
+  
+  const renderLink = (item: { name: string; path: string; icon: JSX.Element }) => {
+    const active = isActive(item.path);
+    return (
+      <Link
+        key={item.path}
+        to={item.path}
+        className={`flex items-center px-4 py-3 text-base transition-colors rounded-lg ${
+          active
+            ? "text-primary-foreground bg-primary/90"
+            : "text-muted-foreground hover:text-primary hover:bg-primary/10"
+        }`}
+      >
+        <span className={`mr-3 ${active ? "text-primary-foreground" : ""}`}>
+          {item.icon}
+        </span>
+        {item.name}
+      </Link>
+    );
+  };
   
   return (
-    <div className={`space-y-1 ${className}`}>
-      {navItems.map((item) => (
-        <Link key={item.title} to={item.href}>
-          <Button
-            variant="ghost"
-            className={`w-full justify-start ${item.active ? 'bg-secondary text-secondary-foreground hover:bg-secondary/80' : ''} ${item.highlight ? 'font-semibold text-brand-iridescent' : ''}`}
-          >
-            <item.icon className="mr-2 h-4 w-4" />
-            <span>{item.title}</span>
-          </Button>
-        </Link>
-      ))}
+    <div className="space-y-4 py-4">
+      <div className="px-3 py-2">
+        <div className="space-y-1">
+          {navItems.map((item) => (
+            <div key={item.path}>{renderLink(item)}</div>
+          ))}
+        </div>
+      </div>
+      
+      <div className="px-3 py-2">
+        <h2 className="mb-2 px-4 text-xs font-semibold text-muted-foreground tracking-wider">
+          Settings & Tools
+        </h2>
+        <div className="space-y-1">
+          {secondaryNavItems.map((item) => (
+            <div key={item.path}>{renderLink(item)}</div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
