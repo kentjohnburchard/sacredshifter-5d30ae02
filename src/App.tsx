@@ -3,6 +3,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
 import Index from './pages/Index';
+import Home from './pages/Home';
 import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
 import EnergyCheck from './pages/EnergyCheck';
@@ -23,12 +24,15 @@ import FrequencyDetailPage from './pages/FrequencyDetailPage';
 import Onboarding from './pages/Onboarding';
 import JourneyTemplates from './pages/JourneyTemplates';
 import Soundscapes from './pages/Soundscapes';
+import LandingPrompt from './components/LandingPrompt';
 
 // Define routes
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Index />} />
+      <Route path="/home" element={<Home />} />
+      <Route path="/welcome" element={<LandingPrompt />} />
       <Route path="/auth" element={<Auth />} />
       <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

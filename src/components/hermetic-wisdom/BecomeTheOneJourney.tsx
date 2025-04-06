@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -89,14 +90,14 @@ const BecomeTheOneJourney: React.FC<BecomeTheOneJourneyProps> = ({ onStartJourne
   const totalDuration = becomeTheOnePhases.reduce((sum, phase) => sum + (phase.duration || 0), 0);
   const formattedTotalDuration = `${Math.floor(totalDuration / 60)} minutes`;
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchQuote = async () => {
       try {
         const { data, error } = await supabase
-          .from('journey_quotes')
-          .select('quote')
-          .eq('journey_slug', 'become-the-one')
-          .eq('mode', consciousnessMode)
+          .from("journey_quotes")
+          .select("quote")
+          .eq("journey_slug", "become-the-one")
+          .eq("mode", consciousnessMode)
           .or(`phase.eq.${currentPhase.title.toLowerCase().split('–')[0].trim()},phase.eq.general`)
           .limit(1)
           .single();
@@ -115,7 +116,7 @@ const BecomeTheOneJourney: React.FC<BecomeTheOneJourneyProps> = ({ onStartJourne
     };
 
     fetchQuote();
-  }, [activePhase, consciousnessMode]);
+  }, [activePhase, consciousnessMode, currentPhase.title]);
 
   const handleNextPhase = () => {
     if (activePhase < becomeTheOnePhases.length - 1) {
@@ -185,7 +186,22 @@ const BecomeTheOneJourney: React.FC<BecomeTheOneJourneyProps> = ({ onStartJourne
           }}
         />
         <div className="relative z-10">
-          <Badge className="mb-2 bg-purple-500/80">Hermetic Journey Template</Badge>
+          <div className="flex justify-between items-center mb-2">
+            <Badge className="bg-purple-500/80">Hermetic Journey Template</Badge>
+            <ToggleGroup 
+              type="single" 
+              value={consciousnessMode}
+              onValueChange={(value) => value && setConsciousnessMode(value as "normal" | "kent")}
+              className="bg-black/30 rounded-lg p-1"
+            >
+              <ToggleGroupItem value="normal" className="data-[state=on]:bg-purple-500/50 data-[state=on]:text-white rounded text-xs px-2 py-1">
+                🧘 Normal
+              </ToggleGroupItem>
+              <ToggleGroupItem value="kent" className="data-[state=on]:bg-purple-500/50 data-[state=on]:text-white rounded text-xs px-2 py-1">
+                ⚡ Kent Mode
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
           <CardTitle className="text-2xl font-light">
             <span className="font-medium">Become the One</span>
           </CardTitle>
@@ -206,6 +222,14 @@ const BecomeTheOneJourney: React.FC<BecomeTheOneJourneyProps> = ({ onStartJourne
               Transformation
             </Badge>
           </div>
+          
+          {currentQuote && (
+            <div className={`mt-3 p-3 rounded-md ${consciousnessMode === 'kent' ? 'bg-pink-500/20 border border-pink-500/30' : 'bg-purple-500/20 border border-purple-500/30'}`}>
+              <p className={`text-sm italic ${consciousnessMode === 'kent' ? 'kent-mode' : ''}`}>
+                "{currentQuote}"
+              </p>
+            </div>
+          )}
         </div>
       </CardHeader>
       
