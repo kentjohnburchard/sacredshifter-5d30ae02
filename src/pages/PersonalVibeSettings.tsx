@@ -1,11 +1,22 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import Layout from "@/components/Layout";
 import VibeCustomizer from "@/components/personalization/VibeCustomizer";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { cleanupUserPreferencesData } from "@/utils/cleanupPreferencesData";
 
 const PersonalVibeSettings: React.FC = () => {
+  const { user } = useAuth();
+  
+  // Run the cleanup function once when this page loads
+  useEffect(() => {
+    if (user?.id) {
+      cleanupUserPreferencesData(user.id);
+    }
+  }, [user]);
+  
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">

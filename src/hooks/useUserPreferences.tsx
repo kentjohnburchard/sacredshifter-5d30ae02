@@ -44,11 +44,11 @@ export const useUserPreferences = () => {
         return;
       }
 
+      // Use select instead of maybeSingle to handle multiple records case
       const { data, error } = await supabase
         .from('user_preferences')
         .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
+        .eq('user_id', user.id);
 
       if (error) {
         console.error("Error fetching user preferences:", error);
@@ -56,11 +56,16 @@ export const useUserPreferences = () => {
         return;
       }
 
-      if (data) {
+      if (data && data.length > 0) {
+        // Use the most recent preference record
+        const latestPrefs = data.sort((a, b) => 
+          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+        )[0];
+        
         setPreferences({
-          ...data,
-          soundscapeMode: data.soundscape_mode,
-          kent_mode: data.kent_mode || false
+          ...latestPrefs,
+          soundscapeMode: latestPrefs.soundscape_mode,
+          kent_mode: latestPrefs.kent_mode || false
         });
       } else {
         // User doesn't have preferences yet, we can try to use astrology data
@@ -107,6 +112,12 @@ export const useUserPreferences = () => {
 
       console.log("Saving user preferences:", newPreferences);
 
+      // First, check if the user already has preferences
+      const { data: existingPrefs } = await supabase
+        .from('user_preferences')
+        .select('id')
+        .eq('user_id', user.id);
+      
       const prefsToSave = {
         user_id: user.id,
         theme_gradient: newPreferences.theme_gradient,
@@ -118,11 +129,25 @@ export const useUserPreferences = () => {
         updated_at: new Date().toISOString()
       };
 
-      const { error } = await supabase
-        .from('user_preferences')
-        .upsert(prefsToSave, {
-          onConflict: 'user_id'
-        });
+      let error;
+      
+      if (existingPrefs && existingPrefs.length > 0) {
+        // Update the most recently updated record
+        const latestPref = existingPrefs[0];
+        const { error: updateError } = await supabase
+          .from('user_preferences')
+          .update(prefsToSave)
+          .eq('id', latestPref.id);
+          
+        error = updateError;
+      } else {
+        // Insert a new record
+        const { error: insertError } = await supabase
+          .from('user_preferences')
+          .insert(prefsToSave);
+          
+        error = insertError;
+      }
 
       if (error) {
         console.error("Error saving preferences:", error);
