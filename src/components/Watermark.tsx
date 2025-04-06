@@ -1,6 +1,8 @@
 
 import React from "react";
 import { useTheme } from "@/context/ThemeContext";
+import { toast } from "sonner";
+import { Sparkles } from "lucide-react";
 
 const Watermark: React.FC = () => {
   const { kentMode, setKentMode } = useTheme();
@@ -8,9 +10,17 @@ const Watermark: React.FC = () => {
   // Apply styling based on kent mode
   const watermarkStyle = kentMode ? "text-pink-500" : "text-indigo-500";
   
-  // Function to toggle kent mode
+  // Function to toggle kent mode with toast notification
   const toggleKentMode = () => {
-    setKentMode(!kentMode);
+    const newMode = !kentMode;
+    setKentMode(newMode);
+    
+    // Show a small toast to indicate the mode change
+    toast.success(newMode ? "Kent Mode activated!" : "Standard Mode activated", {
+      icon: <Sparkles className={newMode ? "text-pink-500" : "text-indigo-500"} />,
+      duration: 2000,
+      position: "top-right"
+    });
   };
 
   return (

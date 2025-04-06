@@ -12,11 +12,15 @@ const ConsciousnessToggle: React.FC = () => {
   const toggleConsciousnessMode = async () => {
     try {
       if (!loading) {
-        // Use the theme context function to toggle the mode
-        setKentMode(!kentMode);
+        // Toggle the mode
+        const newMode = !kentMode;
         
-        toast.success(kentMode ? "Returning to standard consciousness" : "Kent Mode activated! Cosmic sass unlocked.", {
-          icon: <Sparkles className={`${kentMode ? "text-purple-400" : "text-brand-aurapink"}`} />,
+        // Use the theme context function to update the mode
+        setKentMode(newMode);
+        
+        // Show success toast
+        toast.success(newMode ? "Kent Mode activated! Cosmic sass unlocked." : "Returning to standard consciousness", {
+          icon: <Sparkles className={newMode ? "text-brand-aurapink" : "text-purple-400"} />,
           position: "bottom-center"
         });
       }

@@ -21,18 +21,30 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const { preferences, saveUserPreferences } = useUserPreferences();
   const { randomQuote, refreshRandomQuote, getRandomQuote } = useLoveQuotes();
   const [currentQuote, setCurrentQuote] = useState("");
+  const [kentMode, setKentModeState] = useState(false);
 
-  const consciousnessMode = preferences.consciousness_mode || "standard";
-  const kentMode = consciousnessMode === "kent";
+  // Initialize kent mode from preferences
+  useEffect(() => {
+    if (preferences) {
+      const consciousnessMode = preferences.consciousness_mode || "standard";
+      setKentModeState(consciousnessMode === "kent");
+    }
+  }, [preferences]);
 
   const setKentMode = async (mode: boolean) => {
     try {
+      // Update local state immediately for responsive UI
+      setKentModeState(mode);
+      
+      // Then update in database
       await saveUserPreferences({
         ...preferences,
         consciousness_mode: mode ? "kent" : "standard"
       });
     } catch (error) {
       console.error("Error toggling Kent Mode:", error);
+      // Revert state if save failed
+      setKentModeState(!mode);
     }
   };
 
