@@ -10,7 +10,7 @@ const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   return (
-    <header className="border-b border-gray-200 bg-white shadow-sm">
+    <header className="border-b border-gray-200 bg-white shadow-sm fixed w-full top-0 z-50">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
@@ -18,7 +18,7 @@ const Header: React.FC = () => {
               <img 
                 src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
                 alt="Sacred Shifter Logo" 
-                className="h-12 w-auto object-contain"
+                className="h-10 w-auto object-contain"
               />
             </Link>
             <nav className="hidden md:flex space-x-4">

@@ -3,17 +3,19 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Music, Info, BookOpen, Sparkles } from "lucide-react";
-import Header from "@/components/Header";
 import HealingFeatures from "@/components/HealingFeatures";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import SoundLibraryPreview from "@/components/landing/SoundLibraryPreview";
+import GlobalWatermark from "@/components/GlobalWatermark";
+import Header from "@/components/navigation/Header";
 
 const Home: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-purple-50">
       <Header />
-      <div className="container mx-auto px-4 py-24">
+      
+      <div className="container mx-auto px-4 py-12 pt-24">
         <div className="max-w-5xl mx-auto">
           {/* Feature cards at the top */}
           <motion.div
@@ -176,6 +178,9 @@ const Home: React.FC = () => {
         <div className="absolute top-1/3 left-1/4 w-48 h-48 bg-purple-300/10 rounded-full filter blur-3xl"></div>
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-blue-300/10 rounded-full filter blur-3xl"></div>
       </div>
+
+      {/* Global Watermark */}
+      <GlobalWatermark />
     </div>
   );
 };

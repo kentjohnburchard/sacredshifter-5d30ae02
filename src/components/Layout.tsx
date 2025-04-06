@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import Sidebar from "./Sidebar";
 import Footer from "./navigation/Footer";
 import Watermark from "./Watermark";
+import GlobalWatermark from "./GlobalWatermark";
 import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "@/context/ThemeContext";
@@ -90,6 +91,9 @@ const Layout: React.FC<LayoutProps> = ({ children, pageTitle }) => {
       <div className="md:hidden">
         <div className="h-16"></div> {/* Adjusted height for the header on mobile */}
       </div>
+      
+      {/* Global Watermark */}
+      <GlobalWatermark />
     </div>
   );
 };

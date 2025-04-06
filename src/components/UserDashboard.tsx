@@ -1,512 +1,213 @@
-import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import { BookOpen, Clock, Music, PlayCircle, Calendar, BarChart2, Headphones, RefreshCcw } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { motion } from "framer-motion";
-
-type JournalEntry = {
-  id: string;
-  title: string;
-  notes: string | null;
-  tag: string | null;
-  created_at: string;
-};
-
-type MusicGeneration = {
-  id: string;
-  title: string | null;
-  intention: string;
-  frequency: number;
-  audio_url?: string | null; 
-  music_url?: string | null; 
-  created_at: string | null;
-};
-
-type DashboardStats = {
-  journalCount: number;
-  musicCount: number;
-  hoursListened: number;
-  dayStreak: number;
-}
-
-const JournalCard: React.FC<{ entry: JournalEntry }> = ({ entry }) => {
-  return (
-    <Card className="overflow-hidden h-full border border-purple-100 dark:border-purple-900/50 transition-shadow hover:shadow-md">
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <CardTitle className="text-base">{entry.title}</CardTitle>
-          <span className="text-xs text-muted-foreground">
-            {new Date(entry.created_at).toLocaleDateString()}
-          </span>
-        </div>
-        {entry.tag && (
-          <span className="inline-block px-2 py-0.5 text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 rounded-full">
-            {entry.tag}
-          </span>
-        )}
-      </CardHeader>
-      <CardContent className="text-sm text-muted-foreground">
-        {entry.notes ? (
-          entry.notes.length > 100 ? `${entry.notes.substring(0, 100)}...` : entry.notes
-        ) : (
-          <span className="italic">No content</span>
-        )}
-      </CardContent>
-      <CardFooter className="pt-0">
-        <Button variant="ghost" size="sm" className="text-xs p-0 h-auto">
-          Read more
-        </Button>
-      </CardFooter>
-    </Card>
-  );
-};
-
-const SoundJourneyCard: React.FC<{ generation: MusicGeneration }> = ({ generation }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = React.useRef<HTMLAudioElement | null>(null);
-
-  const togglePlay = () => {
-    if (!audioRef.current) return;
-    
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play();
-    }
-    
-    setIsPlaying(!isPlaying);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-    };
-  }, []);
-
-  const audioUrl = generation.audio_url || generation.music_url;
-
-  return (
-    <Card className="overflow-hidden h-full border border-indigo-100 dark:border-indigo-900/50 transition-shadow hover:shadow-md">
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <CardTitle className="text-base">{generation.title || "Untitled Journey"}</CardTitle>
-          <span className="text-xs text-muted-foreground">
-            {generation.created_at ? new Date(generation.created_at).toLocaleDateString() : "Date unknown"}
-          </span>
-        </div>
-        <CardDescription className="text-xs">
-          Frequency: {generation.frequency} Hz - {generation.intention}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="pt-0">
-        {audioUrl ? (
-          <div className="mt-2">
-            <audio ref={audioRef} src={audioUrl} onEnded={() => setIsPlaying(false)} />
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full flex items-center justify-center gap-2"
-              onClick={togglePlay}
-            >
-              {isPlaying ? (
-                <>
-                  <span className="h-2 w-2 bg-indigo-600 rounded-full animate-pulse"></span>
-                  <span>Pause</span>
-                </>
-              ) : (
-                <>
-                  <PlayCircle className="h-4 w-4" />
-                  <span>Play</span>
-                </>
-              )}
-            </Button>
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground italic">Audio not available</p>
-        )}
-      </CardContent>
-    </Card>
-  );
-};
-
-const UserStats: React.FC<{ stats: DashboardStats }> = ({ stats }) => {
-  return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-      <Card className="border border-purple-100 dark:border-purple-900/50">
-        <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-          <BookOpen className="h-8 w-8 text-purple-600 mb-2" />
-          <p className="text-2xl font-bold">{stats.journalCount}</p>
-          <p className="text-xs text-muted-foreground">Journal Entries</p>
-        </CardContent>
-      </Card>
-      <Card className="border border-indigo-100 dark:border-indigo-900/50">
-        <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-          <Music className="h-8 w-8 text-indigo-600 mb-2" />
-          <p className="text-2xl font-bold">{stats.musicCount}</p>
-          <p className="text-xs text-muted-foreground">Sound Journeys</p>
-        </CardContent>
-      </Card>
-      <Card className="border border-violet-100 dark:border-violet-900/50">
-        <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-          <Clock className="h-8 w-8 text-violet-600 mb-2" />
-          <p className="text-2xl font-bold">{stats.hoursListened.toFixed(1)}</p>
-          <p className="text-xs text-muted-foreground">Hours Listened</p>
-        </CardContent>
-      </Card>
-      <Card className="border border-blue-100 dark:border-blue-900/50">
-        <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-          <Calendar className="h-8 w-8 text-blue-600 mb-2" />
-          <p className="text-2xl font-bold">{stats.dayStreak}</p>
-          <p className="text-xs text-muted-foreground">Day Streak</p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
+import { useAuth } from "@/context/AuthContext";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Calendar, Music, Heart, LineChart, ArrowRight, Clock, HeartPulse, CheckCircle } from "lucide-react";
 
 const UserDashboard: React.FC = () => {
   const { user } = useAuth();
-  const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
-  const [soundJourneys, setSoundJourneys] = useState<MusicGeneration[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshKey, setRefreshKey] = useState(0);
-  const [stats, setStats] = useState<DashboardStats>({
-    journalCount: 0,
-    musicCount: 0,
-    hoursListened: 0,
-    dayStreak: 0
-  });
+  const [journalCount, setJournalCount] = useState(0);
+  const [journeysCount, setJourneysCount] = useState(0);
+  const [hoursListened, setHoursListened] = useState(0);
+  const [dayStreak, setDayStreak] = useState(0);
 
+  // Fetch user statistics from Supabase
   useEffect(() => {
-    if (user) {
-      fetchUserContent();
+    const fetchUserStats = async () => {
+      if (!user) return;
       
-      const journalChannel = supabase
-        .channel('public:timeline_snapshots')
-        .on('postgres_changes', 
-          { event: '*', schema: 'public', table: 'timeline_snapshots', filter: `user_id=eq.${user.id}` },
-          () => {
-            fetchUserContent();
-          }
-        )
-        .subscribe();
-        
-      const musicChannel = supabase
-        .channel('public:music_generations')
-        .on('postgres_changes', 
-          { event: '*', schema: 'public', table: 'music_generations', filter: `user_id=eq.${user.id}` },
-          () => {
-            fetchUserContent();
-          }
-        )
-        .subscribe();
-        
-      return () => {
-        supabase.removeChannel(journalChannel);
-        supabase.removeChannel(musicChannel);
-      };
-    } else {
-      setLoading(false);
-    }
-  }, [user, refreshKey]);
-
-  const fetchUserContent = async () => {
-    try {
-      setLoading(true);
-      
-      console.log("Fetching dashboard data for user:", user?.id);
-      
-      const { data: journalData, error: journalError } = await supabase
-        .from('timeline_snapshots')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false })
-        .limit(6);
-      
-      if (journalError) {
-        console.error("Error fetching journal entries:", journalError);
-        throw journalError;
-      }
-      
-      const { data: musicData, error: musicError } = await supabase
-        .from('music_generations')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false })
-        .limit(6);
-      
-      if (musicError) {
-        console.error("Error fetching music data:", musicError);
-        throw musicError;
-      }
-      
-      const { data: journalCountData, error: journalCountError } = await supabase
-        .from('timeline_snapshots')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', user?.id);
-        
-      if (journalCountError) {
-        console.error("Error fetching journal count:", journalCountError);
-      }
-      
-      const { data: musicCountData, error: musicCountError } = await supabase
-        .from('music_generations')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', user?.id);
-        
-      if (musicCountError) {
-        console.error("Error fetching music count:", musicCountError);
-      }
-      
-      const hoursListened = ((musicCountData?.count || 0) * 5) / 60;
-      
-      const { data: recentActivity, error: recentError } = await supabase
-        .from('timeline_snapshots')
-        .select('created_at')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false })
-        .limit(30);
-        
-      let dayStreak = 0;
-      if (!recentError && recentActivity && recentActivity.length > 0) {
-        const dates = recentActivity.map(entry => 
-          new Date(entry.created_at).toLocaleDateString()
-        );
-        
-        const uniqueDates = [...new Set(dates)];
-        const today = new Date().toLocaleDateString();
-        
-        if (uniqueDates[0] === today) {
-          dayStreak = 1;
+      try {
+        // Fetch journal entries count
+        const { data: journalEntries, error: journalError } = await supabase
+          .from('journal_entries')
+          .select('id')
+          .eq('user_id', user.id);
           
-          for (let i = 1; i < 30; i++) {
-            const checkDate = new Date();
-            checkDate.setDate(checkDate.getDate() - i);
-            const checkDateStr = checkDate.toLocaleDateString();
-            
-            if (uniqueDates.includes(checkDateStr)) {
-              dayStreak++;
-            } else {
-              break;
-            }
-          }
+        if (journalError) throw journalError;
+        setJournalCount(journalEntries?.length || 0);
+
+        // Fetch sound journeys count
+        const { data: soundJourneys, error: journeysError } = await supabase
+          .from('sound_journeys')
+          .select('id')
+          .eq('user_id', user.id);
+          
+        if (journeysError) throw journeysError;
+        setJourneysCount(soundJourneys?.length || 0);
+        
+        // Fetch listening time (simplified calculation)
+        const { data: listeningData, error: listeningError } = await supabase
+          .from('listening_sessions')
+          .select('duration')
+          .eq('user_id', user.id);
+          
+        if (listeningError) throw listeningError;
+        
+        // Calculate total hours (assuming duration is stored in minutes)
+        const totalMinutes = listeningData?.reduce((acc, session) => acc + (session.duration || 0), 0) || 0;
+        setHoursListened(Math.round(totalMinutes / 60 * 10) / 10); // Round to 1 decimal place
+        
+        // Calculate day streak (simplified)
+        const { data: streakData, error: streakError } = await supabase
+          .rpc('calculate_user_streak', { user_id: user.id });
+          
+        if (streakError) {
+          console.error("Error fetching streak:", streakError);
+          setDayStreak(0);
+        } else {
+          setDayStreak(streakData || 0);
         }
+        
+      } catch (error) {
+        console.error("Error fetching user stats:", error);
       }
-      
-      setStats({
-        journalCount: journalCountData?.count || 0,
-        musicCount: musicCountData?.count || 0,
-        hoursListened,
-        dayStreak
-      });
-      
-      console.log("Journal entries fetched:", journalData?.length || 0);
-      setJournalEntries(journalData || []);
-      
-      const formattedMusicData = (musicData || []).map(item => ({
-        id: item.id,
-        title: item.title,
-        intention: item.intention || "",
-        frequency: item.frequency || 0,
-        music_url: item.music_url,
-        created_at: item.created_at
-      }));
-      
-      setSoundJourneys(formattedMusicData);
-      console.log("Music generations fetched:", formattedMusicData.length || 0);
-    } catch (error: any) {
-      console.error("Error fetching user content:", error.message);
-      toast.error("Failed to load your content");
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  const handleRefresh = () => {
-    setRefreshKey(prev => prev + 1);
-  };
+    };
 
-  if (!user) {
-    return (
-      <Card className="w-full max-w-md mx-auto">
-        <CardHeader>
-          <CardTitle>Login Required</CardTitle>
-          <CardDescription>
-            Please sign in to view your dashboard
-          </CardDescription>
-        </CardHeader>
-        <CardFooter>
-          <Button 
-            onClick={() => window.location.href = "/auth"}
-            className="w-full"
-          >
-            Sign In
-          </Button>
-        </CardFooter>
-      </Card>
-    );
-  }
-
-  const containerAnimation = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemAnimation = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5 },
-    },
-  };
+    fetchUserStats();
+  }, [user]);
 
   return (
     <div className="space-y-8">
-      <div>
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
-            Soul Journey Dashboard
-          </h2>
-          
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleRefresh} 
-            className="flex items-center gap-2"
-          >
-            <RefreshCcw className="h-4 w-4" />
-            <span>Refresh</span>
-          </Button>
-        </div>
+      {/* Dashboard header */}
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight">Soul Journey Dashboard</h1>
+        <p className="text-muted-foreground">
+          Welcome back to your spiritual home. Track your journey and continue your practice.
+        </p>
+      </div>
+      
+      {/* Stats Overview */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Journal Entries</CardTitle>
+            <CheckCircle className="h-4 w-4 text-purple-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{journalCount}</div>
+            <p className="text-xs text-muted-foreground">
+              Reflections of your inner journey
+            </p>
+          </CardContent>
+        </Card>
         
-        <motion.div
-          variants={containerAnimation}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.div variants={itemAnimation}>
-            <UserStats stats={stats} />
-          </motion.div>
-        </motion.div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Sound Journeys</CardTitle>
+            <Music className="h-4 w-4 text-indigo-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{journeysCount}</div>
+            <p className="text-xs text-muted-foreground">
+              Vibrational experiences completed
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Hours Listened</CardTitle>
+            <Clock className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{hoursListened}</div>
+            <p className="text-xs text-muted-foreground">
+              Time in sacred sound space
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Day Streak</CardTitle>
+            <HeartPulse className="h-4 w-4 text-rose-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{dayStreak}</div>
+            <p className="text-xs text-muted-foreground">
+              Consistent spiritual practice
+            </p>
+          </CardContent>
+        </Card>
       </div>
       
-      <Separator />
-      
-      <div>
-        <Tabs defaultValue="journal">
-          <div className="flex justify-between items-center mb-4">
-            <TabsList>
-              <TabsTrigger value="journal" className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4" />
-                <span>Frequency Journal</span>
-              </TabsTrigger>
-              <TabsTrigger value="music" className="flex items-center gap-2">
-                <Headphones className="h-4 w-4" />
-                <span>Sound Journeys</span>
-              </TabsTrigger>
-              <TabsTrigger value="analytics" className="flex items-center gap-2">
-                <BarChart2 className="h-4 w-4" />
-                <span>Analytics</span>
-              </TabsTrigger>
-            </TabsList>
-          </div>
-          
-          <TabsContent value="journal">
-            {loading ? (
-              <div className="flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-600"></div>
-              </div>
-            ) : journalEntries.length > 0 ? (
-              <motion.div 
-                variants={containerAnimation}
-                initial="hidden"
-                animate="visible"
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-              >
-                {journalEntries.map((entry) => (
-                  <motion.div key={entry.id} variants={itemAnimation}>
-                    <JournalCard entry={entry} />
-                  </motion.div>
-                ))}
-              </motion.div>
-            ) : (
-              <div className="text-center py-12">
-                <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">No Journal Entries Yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  Start your spiritual journey by recording your thoughts and experiences.
-                </p>
-                <Button>Create Journal Entry</Button>
-              </div>
-            )}
-            
-            {journalEntries.length > 0 && (
-              <div className="flex justify-center mt-6">
-                <Button variant="outline">View All Journal Entries</Button>
-              </div>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="music">
-            {loading ? (
-              <div className="flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-600"></div>
-              </div>
-            ) : soundJourneys.length > 0 ? (
-              <motion.div 
-                variants={containerAnimation}
-                initial="hidden"
-                animate="visible"
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-              >
-                {soundJourneys.map((journey) => (
-                  <motion.div key={journey.id} variants={itemAnimation}>
-                    <SoundJourneyCard generation={journey} />
-                  </motion.div>
-                ))}
-              </motion.div>
-            ) : (
-              <div className="text-center py-12">
-                <Music className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">No Sound Journeys Yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  Generate your first sound journey to start your healing experience.
-                </p>
-                <Button>Create Sound Journey</Button>
-              </div>
-            )}
-            
-            {soundJourneys.length > 0 && (
-              <div className="flex justify-center mt-6">
-                <Button variant="outline">View All Sound Journeys</Button>
-              </div>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="analytics">
-            <div className="text-center py-12">
-              <BarChart2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">Analytics Coming Soon</h3>
-              <p className="text-muted-foreground mb-4">
-                We're working on providing insights and analytics for your spiritual journey.
+      {/* Quick actions */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Link to="/energy-check">
+          <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Heart className="mr-2 h-5 w-5 text-purple-500" />
+                Energy Check
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Check in with your vibrational state and receive a personalized frequency match.
               </p>
-            </div>
-          </TabsContent>
-        </Tabs>
+              <Button variant="ghost" size="sm" className="mt-4">
+                Start Check <ArrowRight className="ml-1 h-4 w-4" />
+              </Button>
+            </CardContent>
+          </Card>
+        </Link>
+        
+        <Link to="/frequency-library">
+          <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Music className="mr-2 h-5 w-5 text-indigo-500" />
+                Frequency Library
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Explore healing frequencies for different purposes and intentions.
+              </p>
+              <Button variant="ghost" size="sm" className="mt-4">
+                Browse Library <ArrowRight className="ml-1 h-4 w-4" />
+              </Button>
+            </CardContent>
+          </Card>
+        </Link>
+        
+        <Link to="/journal-entry">
+          <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Calendar className="mr-2 h-5 w-5 text-blue-500" />
+                Journal
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Document your spiritual experiences and track your growth over time.
+              </p>
+              <Button variant="ghost" size="sm" className="mt-4">
+                New Entry <ArrowRight className="ml-1 h-4 w-4" />
+              </Button>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
+      
+      {/* Vibrational chart placeholder */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <LineChart className="mr-2 h-5 w-5 text-green-500" />
+            Your Vibrational Journey
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="h-80 flex items-center justify-center bg-muted/20">
+          <p className="text-center text-muted-foreground">
+            Vibrational patterns visualization coming soon...
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 };
