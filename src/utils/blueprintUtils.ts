@@ -374,9 +374,14 @@ export const saveBlueprint = async (blueprint: SacredBlueprint): Promise<{ data:
     chakra_signature: blueprint.chakra_signature as unknown as Json
   };
   
+  // Ensure user_id is not optional for database insertion
+  if (!blueprintForDB.user_id) {
+    throw new Error("User ID is required to save blueprint");
+  }
+  
   const { data, error } = await supabase
     .from('sacred_blueprints')
-    .insert([blueprintForDB])
+    .insert(blueprintForDB)
     .select('id');
   
   return { data, error };
