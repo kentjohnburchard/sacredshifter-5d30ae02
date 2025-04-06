@@ -1,175 +1,202 @@
-import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { useSession } from '@supabase/auth-helpers-react';
-import { 
-  Music, 
-  BookOpen, 
-  Moon, 
-  Users, 
-  BarChart2, 
-  Calendar,
-  Clock, 
-  Zap, 
-  Heart, 
-  FileText, 
+import React from "react";
+import {
+  LayoutDashboard,
   Settings,
-  Menu,
-  X,
-  LifeBuoy,
-  Sparkles,
-  Compass
+  BookOpen,
+  Music,
+  Compass,
+  CheckSquare,
+  Heart,
+  Zap,
+  Clock,
+  Palette,
 } from "lucide-react";
-import Logo from "@/components/landing/Logo";
+import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { cn } from "@/lib/utils";
-import { NavigationMenu, 
-  NavigationMenuContent, 
-  NavigationMenuItem, 
-  NavigationMenuLink, 
-  NavigationMenuList, 
-  NavigationMenuTrigger
-} from "@/components/ui/navigation-menu";
-import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-interface SidebarLinkProps {
-  to: string;
-  icon: React.ElementType;
-  label: string;
-  isActive: boolean;
-  isPro?: boolean;
-  isNew?: boolean;
+interface SidebarProps {
+  className?: string;
 }
 
-const SidebarLink: React.FC<SidebarLinkProps> = ({ to, icon: Icon, label, isActive, isPro = false, isNew = false }) => {
-  return (
-    <Link
-      to={to}
-      className={`relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:text-purple-600 ${
-        isActive
-          ? "bg-purple-50 font-medium text-purple-600"
-          : "text-muted-foreground hover:bg-purple-50"
-      }`}
-    >
-      <Icon className="h-4 w-4" />
-      <span>{label}</span>
-      {isPro && (
-        <Badge variant="outline" className="ml-auto bg-gradient-to-r from-purple-400 to-pink-500 text-white border-0">
-          PRO
-        </Badge>
-      )}
-      {isNew && (
-        <Badge variant="outline" className="ml-auto bg-gradient-to-r from-emerald-400 to-teal-500 text-white border-0">
-          NEW
-        </Badge>
-      )}
-    </Link>
-  );
-};
+interface NavItem {
+  title: string;
+  icon: React.ComponentType<any>;
+  href: string;
+  active: boolean;
+  highlight?: boolean;
+}
 
-const Sidebar = () => {
+const Sidebar: React.FC<SidebarProps> = ({ className }) => {
   const location = useLocation();
-  const session = useSession();
-  const [opened, setOpened] = useState(false);
-  const { toast } = useToast();
+  const { user, signOut } = useAuth();
+  const pathname = location.pathname;
 
-  const isActive = (path) => location.pathname === path;
-  
-  const closeSheet = () => {
-    setOpened(false);
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast.success("Signed out successfully");
+    } catch (error) {
+      toast.error("Error signing out");
+    }
   };
 
-  const sidebarContent = (
-    <div className="flex h-full flex-col overflow-hidden py-2">
-      <div className="flex items-center justify-center mb-4">
-        <Link to="/" className="flex items-center gap-2 px-4 py-2">
-          <Logo />
-          {/* Sacred Shifter text removed */}
-        </Link>
-      </div>
-      
-      <div className="flex-1 space-y-1 px-4">
-        <div className="py-2">
-          <h3 className="mb-2 px-3 text-xs font-medium text-muted-foreground">
-            SOUND EXPERIENCES
-          </h3>
-          <div className="space-y-1">
-            <SidebarLink to="/journey-templates" icon={BookOpen} label="Sacred Healing Journeys" isActive={isActive("/journey-templates")} />
-            <SidebarLink to="/meditation" icon={Moon} label="Frequency Meditation" isActive={isActive("/meditation")} />
-            <SidebarLink to="/focus" icon={Zap} label="Focus Flow" isActive={isActive("/focus")} />
-            <SidebarLink to="/soundscapes" icon={Music} label="Sonic Alchemy" isActive={isActive("/soundscapes")} isNew={true} />
-          </div>
-        </div>
-        
-        <div className="py-2">
-          <h3 className="mb-2 px-3 text-xs font-medium text-muted-foreground">
-            VIBRATIONAL TOOLS
-          </h3>
-          <div className="space-y-1">
-            <SidebarLink to="/energy-check" icon={BarChart2} label="Energy Check-in" isActive={isActive("/energy-check")} />
-            <SidebarLink to="/alignment" icon={Heart} label="Chakra Alignment" isActive={isActive("/alignment")} />
-            <SidebarLink to="/intentions" icon={FileText} label="Intention Setting" isActive={isActive("/intentions")} />
-            <SidebarLink to="/hermetic-wisdom" icon={Sparkles} label="Hermetic Wisdom" isActive={isActive("/hermetic-wisdom")} isNew={true} />
-            <SidebarLink to="/astrology" icon={Compass} label="Frequency Astrology" isActive={isActive("/astrology")} isPro={true} />
-          </div>
-        </div>
-        
-        <div className="py-2">
-          <h3 className="mb-2 px-3 text-xs font-medium text-muted-foreground">
-            YOUR JOURNEY
-          </h3>
-          <div className="space-y-1">
-            <SidebarLink to="/timeline" icon={Clock} label="Frequency Timeline" isActive={isActive("/timeline")} />
-          </div>
-        </div>
-      </div>
-      
-      <div className="px-4 pb-4">
-        {session ? (
-          <Link
-            to="/account"
-            className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:text-primary hover:bg-accent ${
-              isActive("/account") ? "bg-accent font-medium text-primary" : ""
-            }`}
-          >
-            <Settings className="h-4 w-4" />
-            <span>Account Settings</span>
-          </Link>
-        ) : (
-          <Link
-            to="/auth"
-            className="flex items-center justify-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-700"
-          >
-            <Users className="h-4 w-4" />
-            <span>Sign In</span>
-          </Link>
-        )}
-      </div>
-    </div>
-  );
+  const navItems: NavItem[] = [
+    {
+      title: "Dashboard",
+      icon: LayoutDashboard,
+      href: "/dashboard",
+      active: pathname === "/dashboard",
+    },
+    {
+      title: "Energy Check",
+      icon: Zap,
+      href: "/energy-check",
+      active: pathname === "/energy-check",
+    },
+    {
+      title: "Alignment",
+      icon: Heart,
+      href: "/alignment",
+      active: pathname === "/alignment",
+    },
+    {
+      title: "Intentions",
+      icon: CheckSquare,
+      href: "/intentions",
+      active: pathname === "/intentions",
+    },
+    {
+      title: "Timeline",
+      icon: Clock,
+      href: "/timeline",
+      active: pathname === "/timeline",
+    },
+    {
+      title: "Hermetic Wisdom",
+      icon: BookOpen,
+      href: "/hermetic-wisdom",
+      active: pathname === "/hermetic-wisdom",
+    },
+    {
+      title: "Music Library",
+      icon: Music,
+      href: "/music-library",
+      active: pathname === "/music-library",
+    },
+    {
+      title: "Journey Templates",
+      icon: Compass,
+      href: "/journey-templates",
+      active: pathname === "/journey-templates",
+    },
+    {
+      title: "My Vibe",
+      icon: Palette,
+      href: "/personal-vibe",
+      active: pathname === "/personal-vibe",
+      highlight: true // Add highlighting to make it stand out
+    },
+  ];
 
   return (
-    <>
-      {/* Desktop Sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-10 hidden w-64 border-r border-border bg-background md:flex md:flex-col">
-        {sidebarContent}
-      </aside>
-      
-      {/* Mobile Menu Button */}
-      <div className="fixed bottom-4 left-4 z-40 md:hidden">
-        <Sheet open={opened} onOpenChange={setOpened}>
-          <SheetTrigger asChild>
-            <Button size="icon" className="rounded-full shadow-md bg-purple-600 hover:bg-purple-700 text-white">
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-64 p-0" onInteractOutside={closeSheet}>
-            {sidebarContent}
-          </SheetContent>
-        </Sheet>
+    <aside className="fixed left-0 top-0 z-40 flex h-full w-64 flex-col border-r bg-white/80 backdrop-blur-sm shadow-sm dark:bg-gray-900/80">
+      {/* Logo and App Title */}
+      <div className="flex items-center gap-2 px-4 py-3">
+        <Link to="/" className="flex items-center">
+          <img
+            src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png"
+            alt="Sacred Shifter Logo"
+            className="h-10 animate-pulse-subtle transition-all hover:scale-105"
+          />
+          <span className="ml-2 hidden text-lg font-semibold sm:block">
+            Sacred Shifter
+          </span>
+        </Link>
       </div>
-    </>
+
+      {/* Scrollable Navigation Items */}
+      <ScrollArea className="flex-1 space-y-1 px-4 py-3">
+        <div className="space-y-1">
+          {navItems.map((item) => (
+            <Link key={item.title} to={item.href}>
+              <Button
+                variant="ghost"
+                className={`w-full justify-start ${item.active ? 'bg-secondary text-secondary-foreground hover:bg-secondary/80' : ''} ${item.highlight ? 'font-semibold text-brand-iridescent' : ''}`}
+              >
+                <item.icon className="mr-2 h-4 w-4" />
+                <span>{item.title}</span>
+              </Button>
+            </Link>
+          ))}
+        </div>
+      </ScrollArea>
+
+      {/* Mobile Navigation (Visible on smaller screens) */}
+      <div className="sm:hidden">
+        <div className="border-t px-4 py-2">
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src="" alt={user.email || "User"} />
+                    <AvatarFallback className="bg-gradient-to-br from-indigo-400 to-purple-600 text-white">
+                      {user.email?.charAt(0).toUpperCase() || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 bg-white dark:bg-gray-900" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">Account</p>
+                    <p className="text-xs leading-none text-muted-foreground truncate">
+                      {user.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <Link to="/dashboard" className="flex items-center w-full">
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    <span>Dashboard</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link to="/profile" className="flex items-center w-full">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link to="/auth">
+              <Button variant="outline" size="sm" className="bg-[#9b87f5]/5 border-[#9b87f5]/10 hover:bg-[#9b87f5]/10 text-[#9b87f5]">
+                Sign In
+              </Button>
+            </Link>
+          )}
+        </div>
+      </div>
+    </aside>
   );
 };
 
