@@ -1,4 +1,3 @@
-
 import React from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,6 @@ import { Music, Info, BookOpen, Sparkles, Heart } from "lucide-react";
 import HealingFeatures from "@/components/HealingFeatures";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import SoundLibraryPreview from "@/components/landing/SoundLibraryPreview";
 import GlobalWatermark from "@/components/GlobalWatermark";
 import Header from "@/components/navigation/Header";
 import AboutSacredShifter from "@/components/AboutSacredShifter";
@@ -36,16 +34,6 @@ const Home: React.FC = () => {
             className="mb-12"
           >
             <AboutSacredShifter />
-          </motion.div>
-
-          {/* Sound Library Preview - Moved up for better flow */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="mb-16"
-          >
-            <SoundLibraryPreview />
           </motion.div>
 
           {/* Feature Sections Grid - Reorganized into a grid for better scan ability */}
