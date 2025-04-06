@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
 import Index from './pages/Index';
 import Home from './pages/Home';
@@ -30,7 +30,8 @@ import PersonalVibeSettings from './pages/PersonalVibeSettings';
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Index />} />
+      {/* Redirect root to /home */}
+      <Route path="/" element={<Navigate replace to="/home" />} />
       <Route path="/home" element={<Home />} />
       <Route path="/welcome" element={<LandingPrompt />} />
       <Route path="/auth" element={<Auth />} />
