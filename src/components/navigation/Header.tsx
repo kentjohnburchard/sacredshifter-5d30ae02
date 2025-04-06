@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Home, Menu, User, X } from 'lucide-react';
+import { Home, Menu, User, X, Palette } from 'lucide-react';
 
 const Header: React.FC = () => {
   const { user } = useAuth();
@@ -34,6 +34,12 @@ const Header: React.FC = () => {
           <div className="flex items-center space-x-3">
             {user ? (
               <>
+                <Link to="/personal-vibe" className="hidden md:flex">
+                  <Button variant="outline" size="sm" className="mr-2">
+                    <Palette className="h-4 w-4 mr-2" />
+                    My Vibe
+                  </Button>
+                </Link>
                 <Link to="/profile">
                   <Button variant="outline" size="sm" className="hidden md:flex">
                     <User className="h-4 w-4 mr-2" />
@@ -71,6 +77,7 @@ const Header: React.FC = () => {
                   <Link to="/dashboard" className="text-gray-600 hover:text-purple-600 transition-colors py-1">Dashboard</Link>
                   <Link to="/energy-check" className="text-gray-600 hover:text-purple-600 transition-colors py-1">Energy Check</Link>
                   <Link to="/frequency-library" className="text-gray-600 hover:text-purple-600 transition-colors py-1">Frequencies</Link>
+                  <Link to="/personal-vibe" className="text-gray-600 hover:text-purple-600 transition-colors py-1">My Vibe</Link>
                   <Link to="/profile" className="text-gray-600 hover:text-purple-600 transition-colors py-1">Profile</Link>
                 </>
               ) : (

@@ -25,6 +25,7 @@ import Onboarding from './pages/Onboarding';
 import JourneyTemplates from './pages/JourneyTemplates';
 import Soundscapes from './pages/Soundscapes';
 import LandingPrompt from './components/LandingPrompt';
+import PersonalVibeSettings from './pages/PersonalVibeSettings';
 
 // Define routes
 function App() {
@@ -52,6 +53,7 @@ function App() {
       <Route path="/frequency-library" element={<FrequencyLibraryPage />} />
       <Route path="/journey-templates" element={<ProtectedRoute><JourneyTemplates /></ProtectedRoute>} />
       <Route path="/soundscapes" element={<ProtectedRoute><Soundscapes /></ProtectedRoute>} />
+      <Route path="/personal-vibe" element={<ProtectedRoute><PersonalVibeSettings /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
