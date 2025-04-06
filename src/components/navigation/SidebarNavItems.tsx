@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   LayoutDashboard,
@@ -12,6 +11,7 @@ import {
   Stars,
   Eye,
   HeartPulse,
+  Sparkles
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -95,6 +95,13 @@ export const useNavItems = () => {
       icon: Palette,
       href: "/personal-vibe",
       active: pathname === "/personal-vibe",
+      highlight: true
+    },
+    {
+      title: "Sacred Blueprint",
+      icon: Sparkles,
+      href: "/sacred-blueprint",
+      active: pathname === "/sacred-blueprint",
       highlight: true
     },
   ];

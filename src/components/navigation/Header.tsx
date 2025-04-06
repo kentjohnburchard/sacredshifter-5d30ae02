@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Home, Menu, User, X, Palette, Heart } from 'lucide-react';
+import { Home, Menu, User, X, Palette, Heart, Sparkles } from 'lucide-react';
 
 const Header: React.FC = () => {
   const { user } = useAuth();
@@ -32,6 +31,9 @@ const Header: React.FC = () => {
                   <Link to="/frequency-library" className="text-gray-600 hover:text-purple-600 transition-colors">Frequencies</Link>
                   <Link to="/heart-center" className="text-gray-600 hover:text-pink-600 transition-colors">
                     <Heart className="h-4 w-4 inline mr-1" /> Heart Center
+                  </Link>
+                  <Link to="/sacred-blueprint" className="text-gray-600 hover:text-purple-600 transition-colors">
+                    <Sparkles className="h-4 w-4 inline mr-1" /> Sacred Blueprint
                   </Link>
                 </>
               )}
@@ -65,17 +67,22 @@ const Header: React.FC = () => {
               </>
             )}
             
-            {/* Mobile menu button */}
             <Button variant="ghost" size="sm" className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
           </div>
         </div>
         
-        {/* Mobile menu */}
         {isMenuOpen && (
           <div className="md:hidden pt-4 pb-2">
             <nav className="flex flex-col space-y-3">
+              {user && (
+                <>
+                  <Link to="/sacred-blueprint" className="text-gray-600 hover:text-purple-600 transition-colors py-1">
+                    <Sparkles className="h-4 w-4 inline mr-1" /> Sacred Blueprint
+                  </Link>
+                </>
+              )}
               <Link to="/home" className="text-gray-600 hover:text-purple-600 transition-colors py-1">
                 Home
               </Link>
