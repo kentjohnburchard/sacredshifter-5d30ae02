@@ -20,6 +20,7 @@ const Footer: React.FC = () => {
             <ul className="space-y-2">
               <li><Link to="/dashboard" className="text-xs text-[#800080]/90 hover:text-[#800080]">Dashboard</Link></li>
               <li><Link to="/energy-check" className="text-xs text-[#800080]/90 hover:text-[#800080]">Energy Check</Link></li>
+              <li><Link to="/heart-center" className="text-xs text-[#800080]/90 hover:text-[#800080]">Heart Center</Link></li>
               <li><Link to="/alignment" className="text-xs text-[#800080]/90 hover:text-[#800080]">Chakra Alignment</Link></li>
               <li><Link to="/intentions" className="text-xs text-[#800080]/90 hover:text-[#800080]">Set Intentions</Link></li>
               <li><Link to="/focus" className="text-xs text-[#800080]/90 hover:text-[#800080]">Focus</Link></li>

@@ -8,7 +8,8 @@ import {
   Heart, 
   Brain, 
   Moon, 
-  Flame
+  Flame,
+  HeartPulse
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";
@@ -53,6 +54,13 @@ const HealingFeature: React.FC<HealingFeatureProps> = ({
 
 const HealingFeatures: React.FC = () => {
   const features: HealingFeatureProps[] = [
+    {
+      title: "Heart Center",
+      description: "Cultivate & radiate love energy",
+      icon: <HeartPulse className="h-4 w-4" />,
+      link: "/heart-center",
+      color: "bg-gradient-to-br from-pink-500/70 to-pink-600/70"
+    },
     {
       title: "Healing Journeys",
       description: "Curated sound experiences for healing",

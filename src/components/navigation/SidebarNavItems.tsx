@@ -11,6 +11,7 @@ import {
   Palette,
   Stars,
   Eye,
+  HeartPulse,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,13 @@ export const useNavItems = () => {
       icon: Zap,
       href: "/energy-check",
       active: pathname === "/energy-check",
+    },
+    {
+      title: "Heart Center",
+      icon: HeartPulse,
+      href: "/heart-center",
+      active: pathname === "/heart-center",
+      highlight: true,
     },
     {
       title: "Alignment",
