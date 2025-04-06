@@ -2,7 +2,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Music, Info, BookOpen, Sparkles } from "lucide-react";
+import { Music, Info, BookOpen, Sparkles, Heart } from "lucide-react";
 import HealingFeatures from "@/components/HealingFeatures";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,6 +35,79 @@ const Home: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.15 }}
           >
             <AboutSacredShifter />
+          </motion.div>
+
+          {/* Heart Center Feature - New Addition */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.25 }}
+            className="mb-12"
+          >
+            <div className="text-center mb-8">
+              <h2 className="text-3xl md:text-4xl font-light">
+                <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-500">
+                  Heart Center Expansion
+                </span>
+              </h2>
+              <p className="text-gray-600 mt-2 max-w-2xl mx-auto">
+                Access, cultivate, and radiate love through sacred frequencies and heart-centered practices.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <Card className="border-pink-100">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center">
+                    <Heart className="h-5 w-5 mr-2 text-pink-500" />
+                    Mirror Portal
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600">
+                    Experience a reflective affirmation journey with the Mirror Portal. See yourself through the lens of love and receive real-time affirmations tuned to your emotional state.
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-pink-100">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center">
+                    <Sparkles className="h-5 w-5 mr-2 text-pink-500" />
+                    Soul Hugs
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600">
+                    Share and receive love through the community-powered Soul Hug feature. Send anonymous messages of love, forgiveness, and encouragement to others on their healing journey.
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-pink-100">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center">
+                    <Music className="h-5 w-5 mr-2 text-pink-500" />
+                    Heart Frequencies
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600">
+                    Immerse yourself in specially tuned frequencies that resonate with the heart chakra. Set loving intentions before listening to deepen your connection to self and others.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <Link to="/heart-center">
+              <Button 
+                variant="default" 
+                className="mx-auto block bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700"
+              >
+                <Heart className="mr-2 h-4 w-4" />
+                Enter Heart Center
+              </Button>
+            </Link>
           </motion.div>
           
           {/* Sound Healing Sections */}

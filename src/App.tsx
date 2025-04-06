@@ -25,6 +25,8 @@ import JourneyTemplates from './pages/JourneyTemplates';
 import Soundscapes from './pages/Soundscapes';
 import LandingPrompt from './components/LandingPrompt';
 import PersonalVibeSettings from './pages/PersonalVibeSettings';
+import HeartCenter from './pages/HeartCenter';
+import HeartDashboard from './pages/HeartDashboard';
 
 // Define routes
 function App() {
@@ -53,6 +55,9 @@ function App() {
       <Route path="/journey-templates" element={<ProtectedRoute><JourneyTemplates /></ProtectedRoute>} />
       <Route path="/soundscapes" element={<ProtectedRoute><Soundscapes /></ProtectedRoute>} />
       <Route path="/personal-vibe" element={<ProtectedRoute><PersonalVibeSettings /></ProtectedRoute>} />
+      {/* Heart Center Routes */}
+      <Route path="/heart-center" element={<ProtectedRoute><HeartCenter /></ProtectedRoute>} />
+      <Route path="/heart-dashboard" element={<ProtectedRoute><HeartDashboard /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
