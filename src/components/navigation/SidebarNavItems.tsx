@@ -17,6 +17,7 @@ import {
   Headphones,
   PenTool,
   Wand2,
+  Zap,
 } from "lucide-react";
 
 const SidebarNavItems = () => {
@@ -28,6 +29,7 @@ const SidebarNavItems = () => {
     { name: "Energy Check", path: "/energy-check", icon: <Activity className="h-5 w-5" /> },
     { name: "Sacred Blueprint", path: "/sacred-blueprint", icon: <Sparkles className="h-5 w-5" /> },
     { name: "Heart Center", path: "/heart-center", icon: <Heart className="h-5 w-5" /> },
+    { name: "Shift Your Perception", path: "/shift-perception", icon: <Zap className="h-5 w-5" /> },
     { name: "Frequency Library", path: "/frequency-library", icon: <Music className="h-5 w-5" /> },
     { name: "Intention Setting", path: "/intentions", icon: <PenTool className="h-5 w-5" /> },
     { name: "Hermetic Wisdom", path: "/hermetic-wisdom", icon: <BookOpen className="h-5 w-5" /> },

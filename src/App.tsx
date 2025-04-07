@@ -30,6 +30,7 @@ import HeartDashboard from './pages/HeartDashboard';
 import SacredBlueprint from './pages/SacredBlueprint';
 import IntellectualProperty from './pages/IntellectualProperty';
 import AboutFounder from './pages/AboutFounder';
+import ShiftPerception from './pages/ShiftPerception';
 import ScrollToTop from './components/ScrollToTop';
 
 // Define routes
@@ -66,6 +67,8 @@ function App() {
         <Route path="/heart-dashboard" element={<ProtectedRoute><HeartDashboard /></ProtectedRoute>} />
         {/* Sacred Blueprint Route */}
         <Route path="/sacred-blueprint" element={<ProtectedRoute><SacredBlueprint /></ProtectedRoute>} />
+        {/* Shift Your Perception Route */}
+        <Route path="/shift-perception" element={<ShiftPerception />} />
         {/* Intellectual Property Page */}
         <Route path="/sacred-ip" element={<IntellectualProperty />} />
         <Route path="/intellectual-property" element={<Navigate to="/sacred-ip" />} />
