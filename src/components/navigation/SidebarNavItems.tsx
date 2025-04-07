@@ -21,11 +21,19 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
+// Define the nav item type to enforce "free" | "premium"
+type NavItem = {
+  name: string;
+  path: string;
+  icon: JSX.Element;
+  access: "free" | "premium";
+};
+
 const SidebarNavItems = () => {
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path;
   
-  const navItems = [
+  const navItems: NavItem[] = [
     { name: "Home", path: "/home", icon: <Home className="h-5 w-5" />, access: "free" },
     { name: "Energy Check", path: "/energy-check", icon: <Activity className="h-5 w-5" />, access: "premium" },
     { name: "Sacred Blueprint", path: "/sacred-blueprint", icon: <Sparkles className="h-5 w-5" />, access: "premium" },
@@ -40,7 +48,7 @@ const SidebarNavItems = () => {
     { name: "About The Founder", path: "/about-founder", icon: <UserRound className="h-5 w-5" />, access: "free" },
   ];
   
-  const secondaryNavItems = [
+  const secondaryNavItems: NavItem[] = [
     { name: "Focus", path: "/focus", icon: <Clock className="h-5 w-5" />, access: "free" },
     { name: "Personal Vibe", path: "/personal-vibe", icon: <Wand2 className="h-5 w-5" />, access: "premium" },
     { name: "Subscription", path: "/subscription", icon: <ArrowUpRight className="h-5 w-5" />, access: "free" },
@@ -48,7 +56,7 @@ const SidebarNavItems = () => {
     { name: "Settings", path: "/settings", icon: <Settings className="h-5 w-5" />, access: "free" },
   ];
   
-  const renderLink = (item: { name: string; path: string; icon: JSX.Element; access: "free" | "premium" }) => {
+  const renderLink = (item: NavItem) => {
     const active = isActive(item.path);
     return (
       <Link
