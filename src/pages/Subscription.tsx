@@ -1,12 +1,12 @@
 
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "@/components/Header";
+import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Check, Music, Zap, CreditCard, PiggyBank, Shield, Award, Clock3, Key } from "lucide-react";
+import { Check, Shield, Award, Key } from "lucide-react";
 import { SubscriptionPlan, useUserSubscription } from "@/hooks/useUserSubscription";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
@@ -19,7 +19,6 @@ const Subscription = () => {
     loading, 
     plans, 
     userSubscription, 
-    userCredits, 
     billingCycle, 
     toggleBillingCycle, 
     subscribeToPlan 
@@ -32,9 +31,7 @@ const Subscription = () => {
       name: "Free",
       tier_name: "Awaken",
       price: 0,
-      credits_per_period: 2,
       period: "month",
-      songs_equivalent: 1,
       features: [
         "Shift Your Perception content",
         "Heart Frequency Playlist access",
@@ -50,10 +47,8 @@ const Subscription = () => {
       id: "premium-monthly",
       name: "Premium",
       tier_name: "Align",
-      price: 12.99,
-      credits_per_period: 25,
+      price: 9.99,
       period: "month",
-      songs_equivalent: 5,
       features: [
         "All Free Tier features",
         "Sacred Blueprint™ access",
@@ -64,20 +59,17 @@ const Subscription = () => {
       is_popular: true,
       is_best_value: false,
       is_lifetime: false,
-      yearly_discount: 17
+      yearly_discount: 30
     },
     {
       id: "premium-lifetime",
       name: "Lifetime Access",
       tier_name: "Ascend",
-      price: 399.99,
-      credits_per_period: 1000,
+      price: 363.99,
       period: "lifetime",
-      songs_equivalent: 200,
       features: [
         "All Premium features",
         "Lifetime platform access",
-        "Unlimited music downloads",
         "Early access to new features",
         "Premium customer support"
       ],
@@ -115,8 +107,7 @@ const Subscription = () => {
     // If it's yearly with a discount
     if (billingCycle === 'yearly' && plan.yearly_discount > 0) {
       const monthlyPrice = plan.price;
-      const discountMultiplier = (100 - plan.yearly_discount) / 100;
-      const yearlyPrice = monthlyPrice * 12 * discountMultiplier;
+      const yearlyPrice = 69.99; // Fixed yearly price as per requirements
       return {
         original: monthlyPrice * 12,
         discounted: yearlyPrice,
@@ -146,13 +137,8 @@ const Subscription = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[url('/lovable-uploads/03d64fc7-3a06-4a05-bb16-d5f23d3983f5.png')] bg-cover bg-center bg-fixed">
-      {/* Darker overlay for better readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-indigo-950/95 via-purple-950/95 to-black/95 backdrop-blur-sm -z-10"></div>
-      
-      <Header />
-      
-      <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-8 sm:px-6 space-y-8">
+    <Layout pageTitle="Subscription Plans">
+      <div className="space-y-8">
         <div className="text-center space-y-3 mb-8 animate-fade-in">
           <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-shadow-lg">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-purple-200 to-blue-200">
@@ -171,25 +157,6 @@ const Subscription = () => {
           </div>
         ) : (
           <>
-            {/* User's current credits display */}
-            {user && userCredits && (
-              <Card className="border-none shadow-xl bg-black/70 backdrop-blur-md border border-white/10 overflow-hidden mb-10">
-                <CardContent className="p-6 text-white text-center">
-                  <h3 className="text-xl font-semibold mb-2">Your Credit Balance</h3>
-                  <div className="flex items-center justify-center gap-2">
-                    <PiggyBank className="h-6 w-6 text-accent" />
-                    <span className="text-3xl font-bold text-white">
-                      {userCredits.balance}
-                    </span>
-                    <span className="text-slate-300">credits</span>
-                  </div>
-                  <p className="text-xs text-slate-400 mt-2">
-                    Last updated: {new Date(userCredits.last_updated).toLocaleDateString()}
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-            
             {/* Billing cycle toggle */}
             <div className="flex justify-center mb-8">
               <div className="bg-black/70 backdrop-blur-md border border-white/10 rounded-full p-1 flex items-center gap-2 shadow-lg">
@@ -220,7 +187,7 @@ const Subscription = () => {
                   Yearly
                   <span className="absolute -top-2 -right-2">
                     <Badge className="bg-green-500 text-white text-[10px] px-1 rounded-full">
-                      Save 17%
+                      Save 30%
                     </Badge>
                   </span>
                 </Button>
@@ -281,9 +248,7 @@ const Subscription = () => {
                         {plan.price === 0 ? (
                           "Basic access to essential features"
                         ) : (
-                          plan.songs_equivalent 
-                            ? `${plan.songs_equivalent} songs per ${plan.period}`
-                            : ""
+                          "Full access to premium features"
                         )}
                       </CardDescription>
                     </CardHeader>
@@ -295,7 +260,9 @@ const Subscription = () => {
                             <span className="text-4xl font-bold text-white">Free</span>
                           ) : (
                             <>
-                              <span className="text-4xl font-bold text-white">${plan.is_lifetime ? plan.price.toFixed(2) : price.discounted.toFixed(2)}</span>
+                              <span className="text-4xl font-bold text-white">
+                                ${plan.is_lifetime ? "363.99" : billingCycle === 'yearly' ? "69.99" : "9.99"}
+                              </span>
                               {plan.is_lifetime ? (
                                 <span className="text-sm text-slate-300 ml-1">one-time</span>
                               ) : (
@@ -320,18 +287,6 @@ const Subscription = () => {
                             </>
                           )}
                         </div>
-                        
-                        {plan.credits_per_period > 0 && (
-                          <div className="mt-4 flex items-center justify-center gap-2">
-                            <PiggyBank className="h-4 w-4 text-accent" />
-                            <span className="text-lg font-semibold text-white">
-                              {plan.credits_per_period} credits
-                            </span>
-                            <span className="text-xs text-slate-300">
-                              {plan.is_lifetime ? "total" : `per ${plan.period}`}
-                            </span>
-                          </div>
-                        )}
                       </div>
                       
                       <Separator className="my-4 bg-white/10" />
@@ -367,7 +322,6 @@ const Subscription = () => {
                           )}
                           onClick={() => handleSubscribe(plan)}
                         >
-                          <CreditCard className="h-4 w-4" />
                           {userSubscription?.plan_id === plan.id
                             ? "Current Plan"
                             : `Subscribe ${plan.is_lifetime ? "Once" : "Now"}`
@@ -392,7 +346,7 @@ const Subscription = () => {
                 <Card className="border-none bg-black/50 backdrop-blur-md border border-white/10 shadow-lg">
                   <CardHeader className="text-center">
                     <div className="mx-auto mb-4 bg-purple-900/40 p-3 rounded-full w-16 h-16 flex items-center justify-center">
-                      <Music className="h-8 w-8 text-accent" />
+                      <Shield className="h-8 w-8 text-accent" />
                     </div>
                     <CardTitle className="text-xl text-white">Sacred Blueprint™</CardTitle>
                   </CardHeader>
@@ -450,7 +404,7 @@ const Subscription = () => {
                     <CardTitle className="text-lg text-white">What's the difference between monthly and yearly billing?</CardTitle>
                   </CardHeader>
                   <CardContent className="text-slate-300">
-                    With yearly billing on our "Align" tier, you save approximately 17% compared to monthly billing. The yearly subscription is $129.99 instead of $155.88 when paying monthly.
+                    With yearly billing, you save approximately 30% compared to monthly billing. The yearly subscription is $69.99 instead of $119.88 when paying monthly ($9.99 × 12).
                   </CardContent>
                 </Card>
                 
@@ -459,19 +413,15 @@ const Subscription = () => {
                     <CardTitle className="text-lg text-white">What is the Lifetime Access option?</CardTitle>
                   </CardHeader>
                   <CardContent className="text-slate-300">
-                    Our "Ascend" Lifetime Access tier provides permanent access to all premium features with a one-time payment of $399.99, offering significant savings for those committed to their spiritual journey long-term.
+                    Our "Ascend" Lifetime Access tier provides permanent access to all premium features with a one-time payment of $363.99, offering significant savings for those committed to their spiritual journey long-term.
                   </CardContent>
                 </Card>
               </div>
             </div>
           </>
         )}
-      </main>
-      
-      <footer className="w-full py-6 text-center text-sm text-slate-300">
-        <p>Sacred Shifter - Generate music and heal with sound.</p>
-      </footer>
-    </div>
+      </div>
+    </Layout>
   );
 };
 

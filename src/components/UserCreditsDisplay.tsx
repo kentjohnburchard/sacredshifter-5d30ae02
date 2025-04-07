@@ -3,14 +3,13 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PiggyBank, CreditCard } from "lucide-react";
+import { CreditCard } from "lucide-react";
 
 interface UserCreditsDisplayProps {
-  credits: number | null;
   isLoading?: boolean;
 }
 
-const UserCreditsDisplay: React.FC<UserCreditsDisplayProps> = ({ credits, isLoading = false }) => {
+const UserCreditsDisplay: React.FC<UserCreditsDisplayProps> = ({ isLoading = false }) => {
   if (isLoading) {
     return (
       <Card className="border-none shadow-md bg-black/70 backdrop-blur-md border border-white/10">
@@ -25,23 +24,16 @@ const UserCreditsDisplay: React.FC<UserCreditsDisplayProps> = ({ credits, isLoad
     );
   }
 
-  // Format the credits with commas for thousands
-  const formattedCredits = credits !== null ? credits.toLocaleString() : '–';
-
   return (
     <Card className="border-none shadow-md bg-black/70 backdrop-blur-md border border-white/10">
       <CardContent className="p-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <PiggyBank className="h-5 w-5 text-accent" />
-          <div>
-            <span className="text-sm text-slate-300">Your credits:</span>
-            <span className="ml-2 font-bold text-white">{formattedCredits}</span>
-          </div>
+          <span className="text-sm text-slate-300">Unlock premium features</span>
         </div>
         <Link to="/subscription">
           <Button variant="outline" size="sm" className="bg-white/5 border-white/10 hover:bg-white/10 text-white">
             <CreditCard className="h-4 w-4 mr-2" />
-            Get More Credits
+            Subscribe Now
           </Button>
         </Link>
       </CardContent>

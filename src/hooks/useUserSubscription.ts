@@ -3,15 +3,12 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Json } from "@/integrations/supabase/types";
 
 export interface SubscriptionPlan {
   id: string;
   name: string;
   price: number;
-  credits_per_period: number;
   period: string;
-  songs_equivalent: number;
   features: string[];
   is_popular: boolean;
   is_best_value: boolean;
@@ -30,17 +27,11 @@ export interface UserSubscription {
   expires_at: string | null;
 }
 
-export interface UserCredits {
-  balance: number;
-  last_updated: string;
-}
-
 export const useUserSubscription = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [userSubscription, setUserSubscription] = useState<UserSubscription | null>(null);
-  const [userCredits, setUserCredits] = useState<UserCredits | null>(null);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly' | 'lifetime'>('monthly');
 
   // Load subscription plans
@@ -61,7 +52,7 @@ export const useUserSubscription = () => {
             : [],
           is_popular: Boolean(plan.is_popular),
           is_best_value: Boolean(plan.is_best_value),
-          is_lifetime: Boolean(plan.is_lifetime),
+          is_lifetime: Boolean(plan.is_lifetime || false),
           yearly_discount: Number(plan.yearly_discount || 0),
           tier_name: String(plan.tier_name || '')
         })) as SubscriptionPlan[];
@@ -76,12 +67,11 @@ export const useUserSubscription = () => {
     fetchPlans();
   }, []);
   
-  // Load user subscription and credits if logged in
+  // Load user subscription if logged in
   useEffect(() => {
     if (!user) {
       setLoading(false);
       setUserSubscription(null);
-      setUserCredits(null);
       return;
     }
     
@@ -104,21 +94,15 @@ export const useUserSubscription = () => {
           activeSubscription = subscriptionData.sort((a, b) => 
             new Date(b.started_at).getTime() - new Date(a.started_at).getTime()
           )[0];
+          
+          // Add is_lifetime field if not present
+          activeSubscription = {
+            ...activeSubscription,
+            is_lifetime: activeSubscription.is_lifetime || false
+          };
         }
         
-        // Fetch user credits
-        const { data: creditsData, error: creditsError } = await supabase
-          .from('user_credits')
-          .select('balance, last_updated')
-          .eq('user_id', user.id);
-          
-        if (creditsError) throw creditsError;
-        
-        // Handle potential multiple credit records by taking the first one
-        const userCreditData = creditsData && creditsData.length > 0 ? creditsData[0] : null;
-        
         setUserSubscription(activeSubscription);
-        setUserCredits(userCreditData);
       } catch (error) {
         console.error("Error fetching user subscription data:", error);
         toast.error("Could not load your subscription information");
@@ -170,49 +154,13 @@ export const useUserSubscription = () => {
         
       if (error) throw error;
       
-      setUserSubscription(data);
+      // Add is_lifetime field if not present
+      const subscription = {
+        ...data,
+        is_lifetime: data.is_lifetime || false
+      };
       
-      // Fetch the plan to get credits
-      const { data: planData, error: planError } = await supabase
-        .from('subscription_plans')
-        .select('credits_per_period')
-        .eq('id', planId)
-        .single();
-        
-      if (planError) throw planError;
-      
-      // Add credits to user balance
-      const creditAmount = planData.credits_per_period;
-      const { error: creditError } = await supabase
-        .from('user_credits')
-        .upsert({
-          user_id: user.id,
-          balance: creditAmount,
-          last_updated: new Date().toISOString()
-        });
-        
-      if (creditError) throw creditError;
-      
-      // Record credit transaction
-      await supabase
-        .from('credit_transactions')
-        .insert({
-          user_id: user.id,
-          amount: creditAmount,
-          description: `Credits from ${isLifetime ? 'lifetime' : isYearly ? 'yearly' : 'monthly'} subscription`,
-          transaction_type: 'subscription'
-        });
-      
-      // Fetch updated credits
-      const { data: updatedCredits, error: updatedCreditsError } = await supabase
-        .from('user_credits')
-        .select('balance, last_updated')
-        .eq('user_id', user.id)
-        .single();
-        
-      if (updatedCreditsError) throw updatedCreditsError;
-      
-      setUserCredits(updatedCredits);
+      setUserSubscription(subscription);
       
       toast.success("Successfully subscribed to plan!");
     } catch (error) {
@@ -225,7 +173,6 @@ export const useUserSubscription = () => {
     loading,
     plans,
     userSubscription,
-    userCredits,
     billingCycle,
     toggleBillingCycle,
     subscribeToPlan
