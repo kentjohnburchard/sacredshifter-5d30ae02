@@ -1,106 +1,121 @@
-
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import {
+  HomeIcon,
+  LayoutTemplate,
   Music,
-  UserRound,
-  Home,
-  Activity,
-  Sparkles,
-  ArrowUpRight,
-  Compass,
   Heart,
-  BookOpen,
-  Stars,
-  Clock,
-  Settings,
-  Headphones,
-  PenTool,
-  Wand2,
+  User2,
+  Star,
+  Sparkles,
   Zap,
+  Flame,
+  Brain,
+  Activity,
+  Music4,
+  Triangle
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 
-// Define the nav item type to enforce "free" | "premium"
-type NavItem = {
-  name: string;
-  path: string;
-  icon: JSX.Element;
-  access: "free" | "premium";
-};
+interface SidebarNavItemsProps {
+  isCollapsed: boolean;
+}
+
+const navItems = [
+  {
+    path: "/",
+    icon: HomeIcon,
+    label: "Home",
+  },
+  {
+    path: "/sacred-blueprint",
+    icon: LayoutTemplate,
+    label: "Sacred Blueprint™",
+  },
+  {
+    path: "/mirror-portal",
+    icon: Music,
+    label: "Mirror Portal™",
+  },
+  {
+    path: "/emotion-engine",
+    icon: Heart,
+    label: "Emotion Engine™",
+  },
+  {
+    path: "/timeline",
+    icon: Activity,
+    label: "Timeline",
+  },
+  {
+    path: "/music-generator",
+    icon: Music4,
+    label: "Music Generator",
+  },
+  {
+    path: "/frequency-shift",
+    icon: Zap,
+    label: "Frequency Shift™",
+  },
+  {
+    path: "/soul-scribe",
+    icon: Brain,
+    label: "Soul Scribe™",
+  },
+  {
+    path: "/deity-oracle",
+    icon: Flame,
+    label: "Deity Oracle™",
+  },
+  {
+    path: "/astral-attunement",
+    icon: Star,
+    label: "Astral Attunement™",
+  },
+  {
+    path: "/subscription",
+    icon: User2,
+    label: "Subscription",
+  },
+  {
+    path: "/referral",
+    icon: Sparkles,
+    label: "Referral Program",
+  },
+];
 
 const SidebarNavItems = () => {
-  const location = useLocation();
-  const isActive = (path: string) => location.pathname === path;
-  
-  const navItems: NavItem[] = [
-    { name: "Home", path: "/home", icon: <Home className="h-5 w-5" />, access: "free" },
-    { name: "Energy Check", path: "/energy-check", icon: <Activity className="h-5 w-5" />, access: "premium" },
-    { name: "Sacred Blueprint", path: "/sacred-blueprint", icon: <Sparkles className="h-5 w-5" />, access: "premium" },
-    { name: "Heart Center", path: "/heart-center", icon: <Heart className="h-5 w-5" />, access: "free" },
-    { name: "Shift Your Perception", path: "/shift-perception", icon: <Zap className="h-5 w-5" />, access: "free" },
-    { name: "Frequency Library", path: "/frequency-library", icon: <Music className="h-5 w-5" />, access: "premium" },
-    { name: "Intention Setting", path: "/intentions", icon: <PenTool className="h-5 w-5" />, access: "premium" },
-    { name: "Hermetic Wisdom", path: "/hermetic-wisdom", icon: <BookOpen className="h-5 w-5" />, access: "premium" },
-    { name: "Astrology", path: "/astrology", icon: <Stars className="h-5 w-5" />, access: "premium" },
-    { name: "Journey Templates", path: "/journey-templates", icon: <Compass className="h-5 w-5" />, access: "premium" },
-    { name: "Music Library", path: "/music-library", icon: <Headphones className="h-5 w-5" />, access: "premium" },
-    { name: "About The Founder", path: "/about-founder", icon: <UserRound className="h-5 w-5" />, access: "free" },
-  ];
-  
-  const secondaryNavItems: NavItem[] = [
-    { name: "Focus", path: "/focus", icon: <Clock className="h-5 w-5" />, access: "free" },
-    { name: "Personal Vibe", path: "/personal-vibe", icon: <Wand2 className="h-5 w-5" />, access: "premium" },
-    { name: "Subscription", path: "/subscription", icon: <ArrowUpRight className="h-5 w-5" />, access: "free" },
-    { name: "Profile", path: "/profile", icon: <UserRound className="h-5 w-5" />, access: "free" },
-    { name: "Settings", path: "/settings", icon: <Settings className="h-5 w-5" />, access: "free" },
-  ];
-  
-  const renderLink = (item: NavItem) => {
-    const active = isActive(item.path);
-    return (
-      <Link
-        key={item.path}
-        to={item.access === "premium" ? "/subscription" : item.path}
-        className={`flex items-center px-3 py-1.5 text-sm transition-colors rounded-lg ${
-          active
-            ? "text-primary-foreground bg-primary/90"
-            : "text-muted-foreground hover:text-primary hover:bg-primary/10"
-        }`}
-      >
-        <span className={`mr-2 ${active ? "text-primary-foreground" : ""}`}>
-          {item.icon}
-        </span>
-        <span className="flex-1">{item.name}</span>
-        {item.access === "premium" && (
-          <Badge variant="outline" className="ml-2 bg-purple-100/30 text-purple-600 text-[10px] px-1 border-purple-200">
-            Premium
-          </Badge>
-        )}
-      </Link>
-    );
-  };
-  
   return (
-    <div className="space-y-2 py-1">
-      <div className="px-2">
-        <div className="space-y-1">
-          {navItems.map((item) => (
-            <div key={item.path}>{renderLink(item)}</div>
-          ))}
-        </div>
-      </div>
+    <div className="space-y-1 py-2">
+      {navItems.map((item) => (
+        <NavLink
+          key={item.path}
+          to={item.path}
+          className={({ isActive }) =>
+            `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
+              isActive
+                ? "bg-gradient-to-r from-purple-900/70 to-indigo-900/70 text-white"
+                : "text-gray-400 hover:text-gray-100 hover:bg-gray-900/50"
+            }`
+          }
+        >
+          <item.icon size={18} />
+          <span>{item.label}</span>
+        </NavLink>
+      ))}
       
-      <div className="px-2">
-        <h2 className="mb-1 px-3 text-xs font-semibold text-muted-foreground tracking-wider">
-          Settings & Tools
-        </h2>
-        <div className="space-y-1">
-          {secondaryNavItems.map((item) => (
-            <div key={item.path}>{renderLink(item)}</div>
-          ))}
-        </div>
-      </div>
+      <NavLink
+        to="/trinity-gateway"
+        className={({ isActive }) =>
+          `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
+            isActive
+              ? "bg-gradient-to-r from-purple-900/70 to-indigo-900/70 text-white"
+              : "text-gray-400 hover:text-gray-100 hover:bg-gray-900/50"
+          }`
+        }
+      >
+        <Triangle size={18} />
+        <span>Trinity Gateway™</span>
+      </NavLink>
     </div>
   );
 };

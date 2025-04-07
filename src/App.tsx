@@ -1,81 +1,99 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "sonner";
 
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import ProtectedRoute from './components/ProtectedRoute';
-import Index from './pages/Index';
-import Home from './pages/Home';
-import Auth from './pages/Auth';
-import Dashboard from './pages/Dashboard';
-import EnergyCheck from './pages/EnergyCheck';
-import Alignment from './pages/Alignment';
-import Intentions from './pages/Intentions';
-import Profile from './pages/Profile';
-import Focus from './pages/Focus';
-import MusicLibrary from './pages/MusicLibrary';
-import MusicGeneration from './pages/MusicGeneration';
-import HermeticWisdom from './pages/HermeticWisdom';
-import Astrology from './pages/Astrology';
-import Meditation from './pages/Meditation';
-import Subscription from './pages/Subscription';
-import NotFound from './pages/NotFound';
-import FrequencyLibraryPage from './pages/FrequencyLibrary';
-import FrequencyDetailPage from './pages/FrequencyDetailPage';
-import Onboarding from './pages/Onboarding';
-import JourneyTemplates from './pages/JourneyTemplates';
-import Soundscapes from './pages/Soundscapes';
-import LandingPrompt from './components/LandingPrompt';
-import PersonalVibeSettings from './pages/PersonalVibeSettings';
-import HeartCenter from './pages/HeartCenter';
-import HeartDashboard from './pages/HeartDashboard';
-import SacredBlueprint from './pages/SacredBlueprint';
-import IntellectualProperty from './pages/IntellectualProperty';
-import AboutFounder from './pages/AboutFounder';
-import ShiftPerception from './pages/ShiftPerception';
-import ScrollToTop from './components/ScrollToTop';
+import { AuthProvider } from "@/context/AuthContext";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { Home } from "@/pages/Home";
+import { Dashboard } from "@/pages/Dashboard";
+import { Profile } from "@/pages/Profile";
+import { Subscription } from "@/pages/Subscription";
+import { Focus } from "@/pages/Focus";
+import { Timeline } from "@/pages/Timeline";
+import { MusicGenerator } from "@/pages/MusicGenerator";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ScrollToTop } from "@/components/ScrollToTop";
+import { GlobalWatermark } from "@/components/GlobalWatermark";
+// Import our new Trinity Gateway page
+import TrinityGateway from "./pages/TrinityGateway";
 
-// Define routes
 function App() {
+  const queryClient = new QueryClient();
+
   return (
     <>
-      <ScrollToTop />
-      <Routes>
-        {/* Set Home as the default route */}
-        <Route path="/" element={<Index />} />
-        <Route path="/welcome" element={<LandingPrompt />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/energy-check" element={<ProtectedRoute><EnergyCheck /></ProtectedRoute>} />
-        <Route path="/alignment" element={<ProtectedRoute><Alignment /></ProtectedRoute>} />
-        <Route path="/intentions" element={<ProtectedRoute><Intentions /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-        <Route path="/focus" element={<ProtectedRoute><Focus /></ProtectedRoute>} />
-        <Route path="/music-library" element={<ProtectedRoute><MusicLibrary /></ProtectedRoute>} />
-        <Route path="/music-generation" element={<ProtectedRoute><MusicGeneration /></ProtectedRoute>} />
-        <Route path="/hermetic-wisdom" element={<ProtectedRoute><HermeticWisdom /></ProtectedRoute>} />
-        <Route path="/astrology" element={<ProtectedRoute><Astrology /></ProtectedRoute>} />
-        <Route path="/meditation" element={<ProtectedRoute><Meditation /></ProtectedRoute>} />
-        <Route path="/subscription" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
-        <Route path="/frequencies/:frequencyId" element={<FrequencyDetailPage />} />
-        <Route path="/frequency-library" element={<FrequencyLibraryPage />} />
-        <Route path="/journey-templates" element={<ProtectedRoute><JourneyTemplates /></ProtectedRoute>} />
-        <Route path="/soundscapes" element={<ProtectedRoute><Soundscapes /></ProtectedRoute>} />
-        <Route path="/personal-vibe" element={<ProtectedRoute><PersonalVibeSettings /></ProtectedRoute>} />
-        {/* Heart Center Routes */}
-        <Route path="/heart-center" element={<ProtectedRoute><HeartCenter /></ProtectedRoute>} />
-        <Route path="/heart-dashboard" element={<ProtectedRoute><HeartDashboard /></ProtectedRoute>} />
-        {/* Sacred Blueprint Route */}
-        <Route path="/sacred-blueprint" element={<ProtectedRoute><SacredBlueprint /></ProtectedRoute>} />
-        {/* Shift Your Perception Route */}
-        <Route path="/shift-perception" element={<ShiftPerception />} />
-        {/* Intellectual Property Page */}
-        <Route path="/sacred-ip" element={<IntellectualProperty />} />
-        <Route path="/intellectual-property" element={<Navigate to="/sacred-ip" />} />
-        {/* About the Founder Page */}
-        <Route path="/about-founder" element={<AboutFounder />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <ThemeProvider>
+        <BrowserRouter>
+          <AuthProvider>
+            <QueryClientProvider client={queryClient}>
+              <Toaster closeButton position="top-center" />
+              <ScrollToTop />
+              <div className="flex flex-col min-h-screen">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <ProtectedRoute>
+                        <Dashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/profile"
+                    element={
+                      <ProtectedRoute>
+                        <Profile />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/subscription"
+                    element={
+                      <ProtectedRoute>
+                        <Subscription />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/focus"
+                    element={
+                      <ProtectedRoute>
+                        <Focus />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/timeline"
+                    element={
+                      <ProtectedRoute>
+                        <Timeline />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/music-generator"
+                    element={
+                      <ProtectedRoute>
+                        <MusicGenerator />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/trinity-gateway"
+                    element={
+                      <ProtectedRoute>
+                        <TrinityGateway />
+                      </ProtectedRoute>
+                    }
+                  />
+                </Routes>
+              </div>
+              <GlobalWatermark />
+            </QueryClientProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </ThemeProvider>
     </>
   );
 }
