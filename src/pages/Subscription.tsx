@@ -5,10 +5,8 @@ import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Check, Music, Zap, CreditCard, PiggyBank, Shield, Award } from "lucide-react";
+import { Check, Music, Zap, CreditCard, PiggyBank, Shield, Award, Clock3, Key } from "lucide-react";
 import { SubscriptionPlan, useUserSubscription } from "@/hooks/useUserSubscription";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
@@ -27,17 +25,94 @@ const Subscription = () => {
     subscribeToPlan 
   } = useUserSubscription();
 
+  // If no plans from API, use default plans based on requirements
+  const defaultPlans: SubscriptionPlan[] = [
+    {
+      id: "free-tier",
+      name: "Free",
+      tier_name: "Awaken",
+      price: 0,
+      credits_per_period: 2,
+      period: "month",
+      songs_equivalent: 1,
+      features: [
+        "Shift Your Perception content",
+        "Heart Frequency Playlist access",
+        "Soul Hug feature",
+        "Community access"
+      ],
+      is_popular: false,
+      is_best_value: false,
+      is_lifetime: false,
+      yearly_discount: 0
+    },
+    {
+      id: "premium-monthly",
+      name: "Premium",
+      tier_name: "Align",
+      price: 12.99,
+      credits_per_period: 25,
+      period: "month",
+      songs_equivalent: 5,
+      features: [
+        "All Free Tier features",
+        "Sacred Blueprint™ access",
+        "Mirror Portal™ interactive tools",
+        "Emotion Engine™ advanced tracking",
+        "Priority customer support"
+      ],
+      is_popular: true,
+      is_best_value: false,
+      is_lifetime: false,
+      yearly_discount: 17
+    },
+    {
+      id: "premium-lifetime",
+      name: "Lifetime Access",
+      tier_name: "Ascend",
+      price: 399.99,
+      credits_per_period: 1000,
+      period: "lifetime",
+      songs_equivalent: 200,
+      features: [
+        "All Premium features",
+        "Lifetime platform access",
+        "Unlimited music downloads",
+        "Early access to new features",
+        "Premium customer support"
+      ],
+      is_popular: false,
+      is_best_value: true,
+      is_lifetime: true,
+      yearly_discount: 0
+    }
+  ];
+
+  const displayPlans = plans.length > 0 ? plans : defaultPlans;
+
   const handleSubscribe = (plan: SubscriptionPlan) => {
     if (!user) {
       toast.error("Please log in to subscribe");
       navigate("/auth");
       return;
     }
-    subscribeToPlan(plan.id, billingCycle === 'yearly');
+    subscribeToPlan(plan.id, billingCycle);
   };
 
   // Calculate actual price with yearly discount
   const calculatePrice = (plan: SubscriptionPlan) => {
+    // If it's a lifetime plan, simply return the price
+    if (plan.is_lifetime) {
+      return {
+        original: plan.price,
+        discounted: plan.price,
+        monthly: null, // Not applicable for lifetime
+        saveAmount: 0, 
+        savePercentage: 0
+      };
+    }
+    
+    // If it's yearly with a discount
     if (billingCycle === 'yearly' && plan.yearly_discount > 0) {
       const monthlyPrice = plan.price;
       const discountMultiplier = (100 - plan.yearly_discount) / 100;
@@ -51,6 +126,7 @@ const Subscription = () => {
       };
     }
     
+    // Regular monthly price
     return {
       original: plan.price,
       discounted: plan.price,
@@ -58,6 +134,15 @@ const Subscription = () => {
       saveAmount: 0,
       savePercentage: 0
     };
+  };
+
+  // Filter plans based on the currently selected billing cycle
+  const getFilteredPlans = () => {
+    if (billingCycle === 'lifetime') {
+      return displayPlans.filter(plan => plan.is_lifetime || plan.id === "free-tier");
+    } else {
+      return displayPlans.filter(plan => !plan.is_lifetime);
+    }
   };
 
   return (
@@ -75,7 +160,7 @@ const Subscription = () => {
             </span>
           </h2>
           <p className="text-slate-100 max-w-2xl mx-auto text-lg text-shadow-sm">
-            Unlock sacred frequencies and create unlimited healing music
+            Begin your journey from human consciousness to spirit consciousness
           </p>
         </div>
         
@@ -111,7 +196,7 @@ const Subscription = () => {
                 <Button 
                   variant={billingCycle === 'monthly' ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => billingCycle !== 'monthly' && toggleBillingCycle()}
+                  onClick={() => toggleBillingCycle('monthly')}
                   className={cn(
                     "rounded-full font-medium", 
                     billingCycle === 'monthly' 
@@ -124,7 +209,7 @@ const Subscription = () => {
                 <Button 
                   variant={billingCycle === 'yearly' ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => billingCycle !== 'yearly' && toggleBillingCycle()}
+                  onClick={() => toggleBillingCycle('yearly')}
                   className={cn(
                     "rounded-full font-medium relative", 
                     billingCycle === 'yearly' 
@@ -135,16 +220,29 @@ const Subscription = () => {
                   Yearly
                   <span className="absolute -top-2 -right-2">
                     <Badge className="bg-green-500 text-white text-[10px] px-1 rounded-full">
-                      Save
+                      Save 17%
                     </Badge>
                   </span>
+                </Button>
+                <Button 
+                  variant={billingCycle === 'lifetime' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => toggleBillingCycle('lifetime')}
+                  className={cn(
+                    "rounded-full font-medium", 
+                    billingCycle === 'lifetime' 
+                      ? "bg-accent text-white" 
+                      : "text-slate-300 hover:text-white hover:bg-white/10"
+                  )}
+                >
+                  Lifetime
                 </Button>
               </div>
             </div>
             
             {/* Subscription plans */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {plans.map((plan) => {
+              {getFilteredPlans().map((plan) => {
                 const price = calculatePrice(plan);
                 return (
                   <Card 
@@ -163,7 +261,7 @@ const Subscription = () => {
                         "absolute top-0 right-0 left-0 text-center py-1 text-xs font-semibold text-white",
                         plan.is_popular ? "bg-purple-600" : "bg-blue-600"
                       )}>
-                        {plan.is_popular ? "Most Popular" : "Best Value"}
+                        {plan.is_popular ? "Most Popular" : plan.is_best_value ? "Best Value" : ""}
                       </div>
                     )}
                     
@@ -171,45 +269,69 @@ const Subscription = () => {
                       "text-center pt-8",
                       (plan.is_popular || plan.is_best_value) ? "pt-12" : ""
                     )}>
+                      <div className="flex items-center justify-center mb-2">
+                        {plan.tier_name && (
+                          <Badge className="bg-white/20 text-white px-2 py-1">
+                            {plan.tier_name}
+                          </Badge>
+                        )}
+                      </div>
                       <CardTitle className="text-2xl font-bold text-white">{plan.name}</CardTitle>
                       <CardDescription className="text-slate-300">
-                        {plan.songs_equivalent} songs per {plan.period}
+                        {plan.price === 0 ? (
+                          "Basic access to essential features"
+                        ) : (
+                          plan.songs_equivalent 
+                            ? `${plan.songs_equivalent} songs per ${plan.period}`
+                            : ""
+                        )}
                       </CardDescription>
                     </CardHeader>
                     
                     <CardContent className="text-center">
                       <div className="mb-4">
                         <div className="relative">
-                          <span className="text-4xl font-bold text-white">${price.discounted.toFixed(2)}</span>
-                          {billingCycle === 'yearly' && (
-                            <span className="text-sm text-slate-300 ml-1">/ year</span>
-                          )}
-                          {billingCycle === 'monthly' && (
-                            <span className="text-sm text-slate-300 ml-1">/ {plan.period}</span>
-                          )}
-                          
-                          {billingCycle === 'yearly' && price.savePercentage > 0 && (
-                            <div className="mt-1">
-                              <span className="text-sm text-green-400">Save ${price.saveAmount.toFixed(2)} ({price.savePercentage}%)</span>
-                            </div>
-                          )}
-                          
-                          {billingCycle === 'yearly' && (
-                            <div className="mt-1 text-xs text-slate-300">
-                              ${price.monthly.toFixed(2)} / month
-                            </div>
+                          {plan.price === 0 ? (
+                            <span className="text-4xl font-bold text-white">Free</span>
+                          ) : (
+                            <>
+                              <span className="text-4xl font-bold text-white">${plan.is_lifetime ? plan.price.toFixed(2) : price.discounted.toFixed(2)}</span>
+                              {plan.is_lifetime ? (
+                                <span className="text-sm text-slate-300 ml-1">one-time</span>
+                              ) : (
+                                billingCycle === 'yearly' ? (
+                                  <span className="text-sm text-slate-300 ml-1">/ year</span>
+                                ) : (
+                                  <span className="text-sm text-slate-300 ml-1">/ month</span>
+                                )
+                              )}
+                              
+                              {billingCycle === 'yearly' && price.savePercentage > 0 && (
+                                <div className="mt-1">
+                                  <span className="text-sm text-green-400">Save ${price.saveAmount.toFixed(2)} ({price.savePercentage}%)</span>
+                                </div>
+                              )}
+                              
+                              {billingCycle === 'yearly' && price.monthly && (
+                                <div className="mt-1 text-xs text-slate-300">
+                                  ${price.monthly.toFixed(2)} / month
+                                </div>
+                              )}
+                            </>
                           )}
                         </div>
                         
-                        <div className="mt-4 flex items-center justify-center gap-2">
-                          <PiggyBank className="h-4 w-4 text-accent" />
-                          <span className="text-lg font-semibold text-white">
-                            {plan.credits_per_period} credits
-                          </span>
-                          <span className="text-xs text-slate-300">
-                            per {plan.period}
-                          </span>
-                        </div>
+                        {plan.credits_per_period > 0 && (
+                          <div className="mt-4 flex items-center justify-center gap-2">
+                            <PiggyBank className="h-4 w-4 text-accent" />
+                            <span className="text-lg font-semibold text-white">
+                              {plan.credits_per_period} credits
+                            </span>
+                            <span className="text-xs text-slate-300">
+                              {plan.is_lifetime ? "total" : `per ${plan.period}`}
+                            </span>
+                          </div>
+                        )}
                       </div>
                       
                       <Separator className="my-4 bg-white/10" />
@@ -225,23 +347,33 @@ const Subscription = () => {
                     </CardContent>
                     
                     <CardFooter className="mt-auto">
-                      <Button 
-                        className={cn(
-                          "w-full font-semibold gap-2",
-                          plan.is_popular 
-                            ? "bg-purple-600 hover:bg-purple-700" 
-                            : plan.is_best_value
-                            ? "bg-blue-600 hover:bg-blue-700"
-                            : ""
-                        )}
-                        onClick={() => handleSubscribe(plan)}
-                      >
-                        <CreditCard className="h-4 w-4" />
-                        {userSubscription?.plan_id === plan.id
-                          ? "Current Plan"
-                          : "Subscribe Now"
-                        }
-                      </Button>
+                      {plan.price === 0 ? (
+                        <Button 
+                          className="w-full font-semibold gap-2 bg-white/20 hover:bg-white/30 text-white"
+                          onClick={() => navigate("/home")}
+                        >
+                          <Key className="h-4 w-4" />
+                          Get Started Free
+                        </Button>
+                      ) : (
+                        <Button 
+                          className={cn(
+                            "w-full font-semibold gap-2",
+                            plan.is_popular 
+                              ? "bg-purple-600 hover:bg-purple-700" 
+                              : plan.is_best_value
+                              ? "bg-blue-600 hover:bg-blue-700"
+                              : ""
+                          )}
+                          onClick={() => handleSubscribe(plan)}
+                        >
+                          <CreditCard className="h-4 w-4" />
+                          {userSubscription?.plan_id === plan.id
+                            ? "Current Plan"
+                            : `Subscribe ${plan.is_lifetime ? "Once" : "Now"}`
+                          }
+                        </Button>
+                      )}
                     </CardFooter>
                   </Card>
                 );
@@ -262,10 +394,10 @@ const Subscription = () => {
                     <div className="mx-auto mb-4 bg-purple-900/40 p-3 rounded-full w-16 h-16 flex items-center justify-center">
                       <Music className="h-8 w-8 text-accent" />
                     </div>
-                    <CardTitle className="text-xl text-white">Premium Music Generation</CardTitle>
+                    <CardTitle className="text-xl text-white">Sacred Blueprint™</CardTitle>
                   </CardHeader>
                   <CardContent className="text-slate-300 text-center">
-                    Generate beautiful healing music with our advanced AI models, tailored to your specific intentions and energy needs.
+                    Get your personalized vibrational identity charts and in-depth analyses tailored specifically to your energy signature.
                   </CardContent>
                 </Card>
                 
@@ -274,10 +406,10 @@ const Subscription = () => {
                     <div className="mx-auto mb-4 bg-purple-900/40 p-3 rounded-full w-16 h-16 flex items-center justify-center">
                       <Shield className="h-8 w-8 text-accent" />
                     </div>
-                    <CardTitle className="text-xl text-white">Sacred Frequency Library</CardTitle>
+                    <CardTitle className="text-xl text-white">Mirror Portal™</CardTitle>
                   </CardHeader>
                   <CardContent className="text-slate-300 text-center">
-                    Access our exclusive library of sacred frequencies, each carefully calibrated to different healing objectives and spiritual purposes.
+                    Access interactive affirmations and powerful tools aligned with your emotional and spiritual state for maximum transformation.
                   </CardContent>
                 </Card>
                 
@@ -286,10 +418,10 @@ const Subscription = () => {
                     <div className="mx-auto mb-4 bg-purple-900/40 p-3 rounded-full w-16 h-16 flex items-center justify-center">
                       <Award className="h-8 w-8 text-accent" />
                     </div>
-                    <CardTitle className="text-xl text-white">Priority Processing</CardTitle>
+                    <CardTitle className="text-xl text-white">Emotion Engine™</CardTitle>
                   </CardHeader>
                   <CardContent className="text-slate-300 text-center">
-                    Subscribers get priority in the generation queue, ensuring your healing music is created faster and with the highest quality.
+                    Utilize advanced tools for tracking and optimizing your emotional well-being and reality perception for spiritual growth.
                   </CardContent>
                 </Card>
               </div>
@@ -306,28 +438,28 @@ const Subscription = () => {
               <div className="space-y-6 max-w-3xl mx-auto">
                 <Card className="border-none bg-black/50 backdrop-blur-md border border-white/10 shadow-lg">
                   <CardHeader>
-                    <CardTitle className="text-lg text-white">How many songs can I generate?</CardTitle>
+                    <CardTitle className="text-lg text-white">What's included in the free tier?</CardTitle>
                   </CardHeader>
                   <CardContent className="text-slate-300">
-                    Each subscription plan provides a specific number of credits. Generating one song usually costs 5 credits, so you can calculate how many songs you can create based on your plan.
+                    The free "Awaken" tier includes access to Shift Your Perception content, Heart Frequency Playlist, Soul Hug feature, and Community access, perfect for starting your spiritual journey.
                   </CardContent>
                 </Card>
                 
                 <Card className="border-none bg-black/50 backdrop-blur-md border border-white/10 shadow-lg">
                   <CardHeader>
-                    <CardTitle className="text-lg text-white">Can I cancel my subscription anytime?</CardTitle>
+                    <CardTitle className="text-lg text-white">What's the difference between monthly and yearly billing?</CardTitle>
                   </CardHeader>
                   <CardContent className="text-slate-300">
-                    Yes, you can cancel your subscription at any time. Your subscription benefits will remain active until the end of your current billing period.
+                    With yearly billing on our "Align" tier, you save approximately 17% compared to monthly billing. The yearly subscription is $129.99 instead of $155.88 when paying monthly.
                   </CardContent>
                 </Card>
                 
                 <Card className="border-none bg-black/50 backdrop-blur-md border border-white/10 shadow-lg">
                   <CardHeader>
-                    <CardTitle className="text-lg text-white">What happens to unused credits?</CardTitle>
+                    <CardTitle className="text-lg text-white">What is the Lifetime Access option?</CardTitle>
                   </CardHeader>
                   <CardContent className="text-slate-300">
-                    Your credits will accumulate month to month as long as your subscription remains active. If you cancel your subscription, you'll have 30 days to use any remaining credits.
+                    Our "Ascend" Lifetime Access tier provides permanent access to all premium features with a one-time payment of $399.99, offering significant savings for those committed to their spiritual journey long-term.
                   </CardContent>
                 </Card>
               </div>

@@ -15,7 +15,9 @@ export interface SubscriptionPlan {
   features: string[];
   is_popular: boolean;
   is_best_value: boolean;
+  is_lifetime: boolean;
   yearly_discount: number;
+  tier_name: string;
 }
 
 export interface UserSubscription {
@@ -23,6 +25,7 @@ export interface UserSubscription {
   plan_id: string;
   is_active: boolean;
   is_yearly: boolean;
+  is_lifetime: boolean;
   started_at: string;
   expires_at: string | null;
 }
@@ -38,7 +41,7 @@ export const useUserSubscription = () => {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [userSubscription, setUserSubscription] = useState<UserSubscription | null>(null);
   const [userCredits, setUserCredits] = useState<UserCredits | null>(null);
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly' | 'lifetime'>('monthly');
 
   // Load subscription plans
   useEffect(() => {
@@ -58,7 +61,9 @@ export const useUserSubscription = () => {
             : [],
           is_popular: Boolean(plan.is_popular),
           is_best_value: Boolean(plan.is_best_value),
-          yearly_discount: Number(plan.yearly_discount || 0)
+          is_lifetime: Boolean(plan.is_lifetime),
+          yearly_discount: Number(plan.yearly_discount || 0),
+          tier_name: String(plan.tier_name || '')
         })) as SubscriptionPlan[];
         
         setPlans(formattedPlans);
@@ -125,13 +130,13 @@ export const useUserSubscription = () => {
     fetchUserData();
   }, [user]);
 
-  // Toggle between monthly and yearly billing
-  const toggleBillingCycle = () => {
-    setBillingCycle(prev => prev === 'monthly' ? 'yearly' : 'monthly');
+  // Toggle between monthly, yearly, and lifetime billing
+  const toggleBillingCycle = (cycle: 'monthly' | 'yearly' | 'lifetime') => {
+    setBillingCycle(cycle);
   };
   
   // Subscribe to a plan
-  const subscribeToPlan = async (planId: string, isYearly: boolean = false) => {
+  const subscribeToPlan = async (planId: string, billingType: 'monthly' | 'yearly' | 'lifetime' = 'monthly') => {
     if (!user) {
       toast.error("You need to be logged in to subscribe");
       return;
@@ -139,9 +144,15 @@ export const useUserSubscription = () => {
     
     try {
       // This would integrate with Stripe or other payment processor
-      // For now, we'll just create a subscription record directly
-      
       toast.info("Processing your subscription...");
+      
+      const isYearly = billingType === 'yearly';
+      const isLifetime = billingType === 'lifetime';
+      
+      // Calculate expiration date (null for lifetime)
+      const expiresAt = isLifetime 
+        ? null 
+        : new Date(Date.now() + (isYearly ? 365 : 30) * 24 * 60 * 60 * 1000).toISOString();
       
       // Create subscription record
       const { data, error } = await supabase
@@ -150,8 +161,9 @@ export const useUserSubscription = () => {
           user_id: user.id,
           plan_id: planId,
           is_yearly: isYearly,
+          is_lifetime: isLifetime,
           is_active: true,
-          expires_at: new Date(Date.now() + (isYearly ? 365 : 30) * 24 * 60 * 60 * 1000).toISOString(),
+          expires_at: expiresAt,
         }])
         .select()
         .single();
@@ -187,7 +199,7 @@ export const useUserSubscription = () => {
         .insert({
           user_id: user.id,
           amount: creditAmount,
-          description: `Credits from ${isYearly ? 'yearly' : 'monthly'} subscription`,
+          description: `Credits from ${isLifetime ? 'lifetime' : isYearly ? 'yearly' : 'monthly'} subscription`,
           transaction_type: 'subscription'
         });
       
