@@ -1,28 +1,10 @@
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Heart, SendHorizonal, Camera, Music } from "lucide-react";
-import MirrorPortal from "@/components/heart-center/MirrorPortal";
-import SoulHug from "@/components/heart-center/SoulHug";
-import HeartFrequencyPlaylists from "@/components/heart-center/HeartFrequencyPlaylists";
-import GlobalWatermark from "@/components/GlobalWatermark";
-import Header from "@/components/navigation/Header";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
-import { useLoveQuotes } from "@/hooks/useLoveQuotes";
-import { SectionExplanation } from "@/components/explanations";
-import Layout from "@/components/Layout";
 
 const HeartCenter: React.FC = () => {
-  const navigate = useNavigate();
   const { preferences } = useUserPreferences();
-  const { randomQuote } = useLoveQuotes();
-  const [activeTab, setActiveTab] = useState("mirror");
-
-  // Gradient based on consciousness mode
-  const bgGradient = preferences.consciousness_mode === "kent" 
+  const bgGradient = preferences.consciousness_mode === "lift-the-veil" 
     ? "bg-gradient-to-b from-rose-400 via-fuchsia-500 to-indigo-500"
     : "bg-gradient-to-b from-rose-100 via-pink-100 to-purple-100";
 
@@ -57,7 +39,6 @@ const HeartCenter: React.FC = () => {
                 Access, cultivate, and radiate love through sacred vibration
               </motion.p>
               
-              {/* Added Section Explanation */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -110,7 +91,6 @@ const HeartCenter: React.FC = () => {
                 className="bg-white/70 backdrop-blur-md rounded-xl shadow-md p-6 border border-pink-100"
               >
                 <TabsContent value="mirror" className="mt-0">
-                  {/* Section explanation for Mirror Portal */}
                   <div className="mb-4 p-3 bg-white/50 backdrop-blur-sm rounded-lg border border-pink-100">
                     <SectionExplanation section="mirrorPortal" />
                   </div>
@@ -118,7 +98,6 @@ const HeartCenter: React.FC = () => {
                 </TabsContent>
                 
                 <TabsContent value="soulhug" className="mt-0">
-                  {/* Section explanation for Soul Hug */}
                   <div className="mb-4 p-3 bg-white/50 backdrop-blur-sm rounded-lg border border-pink-100">
                     <SectionExplanation section="soulHug" />
                   </div>
@@ -126,7 +105,6 @@ const HeartCenter: React.FC = () => {
                 </TabsContent>
                 
                 <TabsContent value="playlist" className="mt-0">
-                  {/* Section explanation for Heart Frequency Playlist */}
                   <div className="mb-4 p-3 bg-white/50 backdrop-blur-sm rounded-lg border border-pink-100">
                     <SectionExplanation section="heartFrequency" />
                   </div>
@@ -135,7 +113,6 @@ const HeartCenter: React.FC = () => {
               </motion.div>
             </Tabs>
             
-            {/* Love Dashboard Preview */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

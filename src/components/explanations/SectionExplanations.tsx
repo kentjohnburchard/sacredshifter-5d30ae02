@@ -103,10 +103,10 @@ export type ExplanationProps = {
 };
 
 const SectionExplanation: React.FC<ExplanationProps> = ({ section, className = "" }) => {
-  const { kentMode } = useTheme();
+  const { liftTheVeil } = useTheme();
   
   const explanation = sectionExplanations[section];
-  const content = kentMode ? explanation.kent : explanation.standard;
+  const content = liftTheVeil ? explanation.kent : explanation.standard;
   
   return (
     <div className={`section-explanation ${className}`}>

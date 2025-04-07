@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
@@ -25,11 +24,11 @@ const kentQuotes: Quote[] = [
 ];
 
 const AboutSacredShifter: React.FC = () => {
-  const { kentMode } = useTheme();
+  const { liftTheVeil } = useTheme();
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
   const [isShimmering, setIsShimmering] = useState(false);
   
-  const quotes = kentMode ? kentQuotes : standardQuotes;
+  const quotes = liftTheVeil ? kentQuotes : standardQuotes;
 
   // Rotate quotes every 10 seconds
   useEffect(() => {
@@ -60,10 +59,10 @@ const AboutSacredShifter: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
-          key={kentMode ? "kent" : "standard"} // This forces re-render animation when mode changes
+          key={liftTheVeil ? "kent" : "standard"} // This forces re-render animation when mode changes
           className="prose prose-lg max-w-none"
         >
-          {!kentMode ? (
+          {!liftTheVeil ? (
             <>
               <p className="text-gray-700 leading-relaxed">
                 <strong>Sacred Shifter</strong> is more than an app it's your portal to vibrational transformation.

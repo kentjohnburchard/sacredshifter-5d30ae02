@@ -1,16 +1,11 @@
-
 import React from "react";
-import { motion } from "framer-motion";
-import Header from "@/components/navigation/Header";
-import GlobalWatermark from "@/components/GlobalWatermark";
-import LoveDashboard from "@/components/heart-center/LoveDashboard";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 
 const HeartDashboard: React.FC = () => {
   const { preferences } = useUserPreferences();
 
-  // Gradient based on consciousness mode
-  const bgGradient = preferences.consciousness_mode === "kent" 
+  // Update gradient logic
+  const bgGradient = preferences.consciousness_mode === "lift-the-veil" 
     ? "bg-gradient-to-b from-rose-400 via-fuchsia-500 to-indigo-500"
     : "bg-gradient-to-b from-rose-100 via-pink-100 to-purple-100";
 
