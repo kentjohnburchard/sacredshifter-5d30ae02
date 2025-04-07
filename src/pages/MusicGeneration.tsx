@@ -33,9 +33,12 @@ const MusicGeneration = () => {
             </p>
           </div>
 
-          {user && (
+          {user && userCredits && (
             <div className="mb-6">
-              <UserCreditsDisplay credits={userCredits?.balance ?? null} isLoading={loading} />
+              <UserCreditsDisplay 
+                credits={userCredits.balance} 
+                isLoading={loading} 
+              />
             </div>
           )}
 

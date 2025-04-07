@@ -1,19 +1,20 @@
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 
 import { AuthProvider } from "@/context/AuthContext";
-import { ThemeProvider } from "@/components/ThemeProvider";
-import { Home } from "@/pages/Home";
-import { Dashboard } from "@/pages/Dashboard";
-import { Profile } from "@/pages/Profile";
-import { Subscription } from "@/pages/Subscription";
-import { Focus } from "@/pages/Focus";
+import { ThemeProvider } from "@/context/ThemeContext";
+import Home from "@/pages/Home";
+import Dashboard from "@/pages/Dashboard";
+import Profile from "@/pages/Profile";
+import Subscription from "@/pages/Subscription";
+import Focus from "@/pages/Focus";
 import { Timeline } from "@/pages/Timeline";
 import { MusicGenerator } from "@/pages/MusicGenerator";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { ScrollToTop } from "@/components/ScrollToTop";
-import { GlobalWatermark } from "@/components/GlobalWatermark";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import ScrollToTop from "@/components/ScrollToTop";
+import GlobalWatermark from "@/components/GlobalWatermark";
 // Import our new Trinity Gateway page
 import TrinityGateway from "./pages/TrinityGateway";
 

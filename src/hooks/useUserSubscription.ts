@@ -12,9 +12,9 @@ export interface SubscriptionPlan {
   features: string[];
   is_popular: boolean;
   is_best_value: boolean;
-  is_lifetime: boolean;
+  is_lifetime?: boolean;
   yearly_discount: number;
-  tier_name: string;
+  tier_name?: string;
 }
 
 export interface UserSubscription {
@@ -22,9 +22,14 @@ export interface UserSubscription {
   plan_id: string;
   is_active: boolean;
   is_yearly: boolean;
-  is_lifetime: boolean;
+  is_lifetime?: boolean;
   started_at: string;
   expires_at: string | null;
+}
+
+export interface UserCredits {
+  balance: number | null;
+  user_id: string;
 }
 
 export const useUserSubscription = () => {
@@ -33,6 +38,7 @@ export const useUserSubscription = () => {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [userSubscription, setUserSubscription] = useState<UserSubscription | null>(null);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly' | 'lifetime'>('monthly');
+  const [userCredits, setUserCredits] = useState<UserCredits | null>(null);
 
   // Load subscription plans
   useEffect(() => {
@@ -67,18 +73,19 @@ export const useUserSubscription = () => {
     fetchPlans();
   }, []);
   
-  // Load user subscription if logged in
+  // Load user subscription and credits if logged in
   useEffect(() => {
     if (!user) {
       setLoading(false);
       setUserSubscription(null);
+      setUserCredits(null);
       return;
     }
     
     const fetchUserData = async () => {
       setLoading(true);
       try {
-        // Fetch user subscription - fix the maybeSingle issue by using select() and handling multiple results
+        // Fetch user subscription
         const { data: subscriptionData, error: subscriptionError } = await supabase
           .from('user_subscriptions')
           .select('*')
@@ -103,6 +110,24 @@ export const useUserSubscription = () => {
         }
         
         setUserSubscription(activeSubscription);
+        
+        // Fetch user credits
+        const { data: creditsData, error: creditsError } = await supabase
+          .from('user_credits')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+          
+        if (creditsError && creditsError.code !== 'PGRST116') {
+          // PGRST116 is "no rows returned" error, which is fine if user has no credits
+          console.error("Error fetching user credits:", creditsError);
+        } else if (creditsData) {
+          setUserCredits(creditsData as UserCredits);
+        } else {
+          // Set default credits if none found
+          setUserCredits({ balance: 0, user_id: user.id });
+        }
+        
       } catch (error) {
         console.error("Error fetching user subscription data:", error);
         toast.error("Could not load your subscription information");
@@ -173,6 +198,7 @@ export const useUserSubscription = () => {
     loading,
     plans,
     userSubscription,
+    userCredits,
     billingCycle,
     toggleBillingCycle,
     subscribeToPlan
