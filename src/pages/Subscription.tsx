@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -41,7 +40,9 @@ const Subscription = () => {
       is_popular: false,
       is_best_value: false,
       is_lifetime: false,
-      yearly_discount: 0
+      yearly_discount: 0,
+      credits_per_period: 0,
+      songs_equivalent: 0
     },
     {
       id: "premium-monthly",
@@ -59,7 +60,9 @@ const Subscription = () => {
       is_popular: true,
       is_best_value: false,
       is_lifetime: false,
-      yearly_discount: 30
+      yearly_discount: 30,
+      credits_per_period: 10,
+      songs_equivalent: 2
     },
     {
       id: "premium-lifetime",
@@ -76,7 +79,9 @@ const Subscription = () => {
       is_popular: false,
       is_best_value: true,
       is_lifetime: true,
-      yearly_discount: 0
+      yearly_discount: 0,
+      credits_per_period: 0,
+      songs_equivalent: 0
     }
   ];
 

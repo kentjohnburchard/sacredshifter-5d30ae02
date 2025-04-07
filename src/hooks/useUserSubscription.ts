@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -63,7 +64,9 @@ export const useUserSubscription = () => {
           is_best_value: Boolean(plan.is_best_value),
           yearly_discount: Number(plan.yearly_discount || 0),
           is_lifetime: Boolean(plan.is_lifetime || false),
-          tier_name: String(plan.tier_name || '')
+          tier_name: String(plan.tier_name || ''),
+          credits_per_period: Number(plan.credits_per_period || 0),
+          songs_equivalent: Number(plan.songs_equivalent || 0)
         })) as SubscriptionPlan[];
         
         setPlans(formattedPlans);
@@ -188,7 +191,7 @@ export const useUserSubscription = () => {
         is_lifetime: data.is_lifetime || false
       };
       
-      setUserSubscription(subscription);
+      setUserSubscription(subscription as UserSubscription);
       
       toast.success("Successfully subscribed to plan!");
     } catch (error) {
