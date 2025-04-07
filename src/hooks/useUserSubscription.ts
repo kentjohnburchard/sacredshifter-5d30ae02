@@ -12,8 +12,8 @@ export interface SubscriptionPlan {
   features: string[];
   is_popular: boolean;
   is_best_value: boolean;
-  is_lifetime?: boolean;
   yearly_discount: number;
+  is_lifetime?: boolean;
   tier_name?: string;
 }
 
@@ -22,9 +22,9 @@ export interface UserSubscription {
   plan_id: string;
   is_active: boolean;
   is_yearly: boolean;
-  is_lifetime?: boolean;
   started_at: string;
   expires_at: string | null;
+  is_lifetime?: boolean;
 }
 
 export interface UserCredits {
@@ -58,8 +58,8 @@ export const useUserSubscription = () => {
             : [],
           is_popular: Boolean(plan.is_popular),
           is_best_value: Boolean(plan.is_best_value),
-          is_lifetime: Boolean(plan.is_lifetime || false),
           yearly_discount: Number(plan.yearly_discount || 0),
+          is_lifetime: Boolean(plan.is_lifetime || false),
           tier_name: String(plan.tier_name || '')
         })) as SubscriptionPlan[];
         

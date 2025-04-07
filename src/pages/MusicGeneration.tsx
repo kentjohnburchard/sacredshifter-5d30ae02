@@ -33,18 +33,11 @@ const MusicGeneration = () => {
             </p>
           </div>
 
-          {user && userCredits && (
-            <div className="mb-6">
-              <UserCreditsDisplay 
-                credits={userCredits.balance} 
-                isLoading={loading} 
-              />
-            </div>
-          )}
-
-          {/* Display subscription promotion for logged-in users */}
+          {/* User subscription information is displayed only for logged-in users */}
           {user && (
-            <SubscriptionPromotion compact={true} />
+            <div className="mb-6">
+              <SubscriptionPromotion compact={true} />
+            </div>
           )}
 
           <Tabs defaultValue="create" className="w-full" onValueChange={setActiveTab}>

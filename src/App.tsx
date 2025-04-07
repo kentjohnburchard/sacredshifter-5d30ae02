@@ -1,5 +1,5 @@
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 
@@ -24,76 +24,74 @@ function App() {
   return (
     <>
       <ThemeProvider>
-        <BrowserRouter>
-          <AuthProvider>
-            <QueryClientProvider client={queryClient}>
-              <Toaster closeButton position="top-center" />
-              <ScrollToTop />
-              <div className="flex flex-col min-h-screen">
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route
-                    path="/dashboard"
-                    element={
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/profile"
-                    element={
-                      <ProtectedRoute>
-                        <Profile />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/subscription"
-                    element={
-                      <ProtectedRoute>
-                        <Subscription />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/focus"
-                    element={
-                      <ProtectedRoute>
-                        <Focus />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/timeline"
-                    element={
-                      <ProtectedRoute>
-                        <Timeline />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/music-generator"
-                    element={
-                      <ProtectedRoute>
-                        <MusicGenerator />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/trinity-gateway"
-                    element={
-                      <ProtectedRoute>
-                        <TrinityGateway />
-                      </ProtectedRoute>
-                    }
-                  />
-                </Routes>
-              </div>
-              <GlobalWatermark />
-            </QueryClientProvider>
-          </AuthProvider>
-        </BrowserRouter>
+        <AuthProvider>
+          <QueryClientProvider client={queryClient}>
+            <Toaster closeButton position="top-center" />
+            <ScrollToTop />
+            <div className="flex flex-col min-h-screen">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/subscription"
+                  element={
+                    <ProtectedRoute>
+                      <Subscription />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/focus"
+                  element={
+                    <ProtectedRoute>
+                      <Focus />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/timeline"
+                  element={
+                    <ProtectedRoute>
+                      <Timeline />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/music-generator"
+                  element={
+                    <ProtectedRoute>
+                      <MusicGenerator />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/trinity-gateway"
+                  element={
+                    <ProtectedRoute>
+                      <TrinityGateway />
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+            </div>
+            <GlobalWatermark />
+          </QueryClientProvider>
+        </AuthProvider>
       </ThemeProvider>
     </>
   );
