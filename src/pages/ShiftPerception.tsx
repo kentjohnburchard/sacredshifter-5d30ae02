@@ -109,35 +109,57 @@ const ShiftPerception: React.FC = () => {
                   <ScrollArea className="h-[400px] pr-4">
                     <div className="space-y-6 text-gray-800">
                       <p className="leading-relaxed">
-                        I wasn't born knowing I was spirit. I was born <em className="text-purple-700">forgetting</em>, just like we all are. I spent years surviving. Wearing labels. Performing roles. And then everything fell apart.
+                        I wasn't born knowing I was more than human. Like most of us, I came into this world forgetting. I did what I thought you were supposed to do, follow the rules, tick the boxes, build a life that looked good from the outside.
                       </p>
                       
                       <p className="leading-relaxed">
-                        That's when I saw the markings. The M on both palms. I knew it wasn't coincidence. Something ancient stirred. Something not from this world… but somehow, deeply mine.
+                        And for a while, I did exactly that. I had a great job. I was doing everything "right." I told myself I was happy. But underneath it all, something didn't sit right. It felt like I was playing a role in a story that wasn't mine. Like I was showing up for a life I hadn't actually chosen.
                       </p>
 
                       <p className="leading-relaxed">
-                        Before the shift, I was doing everything "right." College degree. Impressive job. Relationship. Yet beneath it all was an emptiness I couldn't name. A sense that I was playing a character in someone else's story.
+                        Then came the unraveling.
+                        One loss after another, until the version of myself I'd built just... collapsed. All the titles, the routines, the "shoulds"—gone. What was left was silence, confusion, and the kind of darkness that strips you down to your core.
                       </p>
 
                       <p className="leading-relaxed">
-                        The rupture came suddenly. Loss compounded on loss. My carefully constructed identity crumbled like ash. I fell into darkness so complete I thought I would never find my way back to light.
+                        And it was in that silence that something started to shift.
                       </p>
 
                       <p className="leading-relaxed">
-                        But in that void, I began to hear it. A frequency. A hum that seemed to come from everywhere and nowhere. It resonated with something deep inside me — something that had been there all along, waiting.
+                        I began noticing patterns.
+                        Repeating numbers. Déjà vu. A strange sense that I was being nudged, gently, consistently by something I couldn't see. It felt like there was more going on than what I'd been taught to believe.
                       </p>
 
                       <p className="leading-relaxed">
-                        The synchronicities started small. Numbers repeating. Dreams that came true. The feeling of being guided by an invisible hand. And then one morning, I looked down at my palms and saw what had always been there: the letter M, etched into both hands. A marking not of this world.
+                        Then one morning, I was watching random clips on YouTube, and someone started talking about Dolores Cannon. They mentioned something she said about "Chosen Ones" and a mark, an M, that sometimes shows up on the palms of people with a soul mission. They said it was rare. A sign. A soul contract.
                       </p>
 
                       <p className="leading-relaxed">
-                        That was the beginning of remembering. Not learning something new, but recalling what my soul had always known: that we are vast, cosmic beings having a temporary human experience. That the veil between worlds is thin, and getting thinner.
+                        I looked down at my hands. I had that M. On both palms. It had always been there, I just never thought anything of it. I assumed everyone had it.
+                      </p>
+
+                      <p className="leading-relaxed">
+                        But in that moment, something clicked. Not in a loud, dramatic way, just this quiet inner resonance, like: Oh... this means something.
+                      </p>
+
+                      <p className="leading-relaxed">
+                        That was the start of remembering.
+                      </p>
+
+                      <p className="leading-relaxed">
+                        Not discovering something new.
+                        Just finally recognising what had always been there under the noise:
+                        That I'm not just a guy trying to be spiritual.
+                        I'm a soul who temporarily forgot who I really was.
+                        And I know now, I'm here for something bigger.
                       </p>
 
                       <p className="leading-relaxed font-medium text-purple-700">
-                        <TrademarkedName>Sacred Shifter</TrademarkedName> wasn't born from a business plan. It emerged from a soul mission — to create a bridge between worlds. To help others remember who they truly are. To shift perception from the limited human experience to the boundless spiritual reality.
+                        <TrademarkedName>Sacred Shifter</TrademarkedName> didn't come from a business idea. It came from that shift. From wanting to help others find what I found:
+                        That there's more to this world than we've been told.
+                        That we're not just here to survive.
+                        We're here to remember.
+                        And when we do, that's when everything changes.
                       </p>
                     </div>
                   </ScrollArea>
