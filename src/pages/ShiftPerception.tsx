@@ -6,6 +6,7 @@ import { TrademarkedName } from "@/components/ip-protection";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 import { Sparkles, Star, Compass, BookOpen, Heart } from "lucide-react";
 import QuoteSlider from "@/components/shift-perception/QuoteSlider";
 import PerceptionChecklist from "@/components/shift-perception/PerceptionChecklist";
@@ -33,6 +34,13 @@ const ShiftPerception: React.FC = () => {
         {/* Animated background - subtle cosmic animation */}
         <div className="absolute inset-0 -z-10 overflow-hidden">
           <AnimatedBackground colorScheme="purple" isActive={true} />
+        </div>
+
+        {/* "Free access" badge */}
+        <div className="absolute top-4 right-4 z-10">
+          <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200 font-medium">
+            <Star className="w-3 h-3 mr-1 text-green-600" /> Free Access
+          </Badge>
         </div>
 
         {/* Main content container */}
@@ -261,9 +269,12 @@ const ShiftPerception: React.FC = () => {
                           Sacred Blueprint
                         </h3>
                         <p className="text-sm">Discover your unique energetic signature and learn how to align with your soul's purpose.</p>
-                        <Button variant="outline" className="mt-3 text-xs" onClick={() => window.location.href = '/sacred-blueprint'}>
-                          Explore Blueprint
-                        </Button>
+                        <div className="flex items-center mt-3">
+                          <Badge className="bg-purple-200 text-purple-800 mr-2">Premium</Badge>
+                          <Button variant="outline" className="text-xs" onClick={() => window.location.href = '/subscription'}>
+                            View Subscription
+                          </Button>
+                        </div>
                       </div>
                       
                       <div className="bg-purple-50/80 p-4 rounded-lg border border-purple-100">
@@ -274,9 +285,12 @@ const ShiftPerception: React.FC = () => {
                           Heart Center
                         </h3>
                         <p className="text-sm">Connect with your heart's wisdom and develop your emotional intelligence.</p>
-                        <Button variant="outline" className="mt-3 text-xs" onClick={() => window.location.href = '/heart-center'}>
-                          Enter Heart Center
-                        </Button>
+                        <div className="flex items-center mt-3">
+                          <Badge className="bg-green-100 text-green-800 mr-2">Free</Badge>
+                          <Button variant="outline" className="text-xs" onClick={() => window.location.href = '/heart-center'}>
+                            Enter Heart Center
+                          </Button>
+                        </div>
                       </div>
                       
                       <div className="bg-purple-50/80 p-4 rounded-lg border border-purple-100">
@@ -287,9 +301,12 @@ const ShiftPerception: React.FC = () => {
                           Hermetic Wisdom
                         </h3>
                         <p className="text-sm">Study ancient spiritual principles that reveal the interconnected nature of all things.</p>
-                        <Button variant="outline" className="mt-3 text-xs" onClick={() => window.location.href = '/hermetic-wisdom'}>
-                          Access Wisdom
-                        </Button>
+                        <div className="flex items-center mt-3">
+                          <Badge className="bg-purple-200 text-purple-800 mr-2">Premium</Badge>
+                          <Button variant="outline" className="text-xs" onClick={() => window.location.href = '/subscription'}>
+                            View Subscription
+                          </Button>
+                        </div>
                       </div>
                       
                       <div className="bg-purple-50/80 p-4 rounded-lg border border-purple-100">
@@ -300,14 +317,17 @@ const ShiftPerception: React.FC = () => {
                           Frequency Library
                         </h3>
                         <p className="text-sm">Experience sound healing that aligns your energy with specific frequencies.</p>
-                        <Button variant="outline" className="mt-3 text-xs" onClick={() => window.location.href = '/frequency-library'}>
-                          Hear Frequencies
-                        </Button>
+                        <div className="flex items-center mt-3">
+                          <Badge className="bg-purple-200 text-purple-800 mr-2">Premium</Badge>
+                          <Button variant="outline" className="text-xs" onClick={() => window.location.href = '/subscription'}>
+                            View Subscription
+                          </Button>
+                        </div>
                       </div>
                     </div>
 
                     <p className="leading-relaxed text-center mt-6 italic">
-                      These tools aren't separate from your journey—they're different facets of the same remembering. Explore them all, or follow your intuition to what calls you most.
+                      These tools aren't separate from your journey—they're different facets of the same remembering. Explore what's available or subscribe to access all features.
                     </p>
                   </div>
                 </div>
@@ -325,12 +345,21 @@ const ShiftPerception: React.FC = () => {
             <p className="text-purple-800 italic mb-4">
               "The shift isn't something you do. It's something you remember."
             </p>
-            <Button 
-              onClick={() => window.location.href = '/sacred-blueprint'}
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
-            >
-              Begin Your Sacred Journey
-            </Button>
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+              <Button 
+                onClick={() => window.location.href = '/heart-center'}
+                variant="outline"
+                className="border-purple-200 text-purple-700 hover:bg-purple-50"
+              >
+                <Heart className="mr-2 h-4 w-4" /> Explore Free Features
+              </Button>
+              <Button 
+                onClick={() => window.location.href = '/subscription'}
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+              >
+                <Sparkles className="mr-2 h-4 w-4" /> Unlock Premium Access
+              </Button>
+            </div>
           </motion.div>
         </motion.div>
       </div>

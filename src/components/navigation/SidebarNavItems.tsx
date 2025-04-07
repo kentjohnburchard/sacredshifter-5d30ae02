@@ -19,40 +19,41 @@ import {
   Wand2,
   Zap,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const SidebarNavItems = () => {
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path;
   
   const navItems = [
-    { name: "Home", path: "/home", icon: <Home className="h-5 w-5" /> },
-    { name: "Energy Check", path: "/energy-check", icon: <Activity className="h-5 w-5" /> },
-    { name: "Sacred Blueprint", path: "/sacred-blueprint", icon: <Sparkles className="h-5 w-5" /> },
-    { name: "Heart Center", path: "/heart-center", icon: <Heart className="h-5 w-5" /> },
-    { name: "Shift Your Perception", path: "/shift-perception", icon: <Zap className="h-5 w-5" /> },
-    { name: "Frequency Library", path: "/frequency-library", icon: <Music className="h-5 w-5" /> },
-    { name: "Intention Setting", path: "/intentions", icon: <PenTool className="h-5 w-5" /> },
-    { name: "Hermetic Wisdom", path: "/hermetic-wisdom", icon: <BookOpen className="h-5 w-5" /> },
-    { name: "Astrology", path: "/astrology", icon: <Stars className="h-5 w-5" /> },
-    { name: "Journey Templates", path: "/journey-templates", icon: <Compass className="h-5 w-5" /> },
-    { name: "Music Library", path: "/music-library", icon: <Headphones className="h-5 w-5" /> },
-    { name: "About The Founder", path: "/about-founder", icon: <UserRound className="h-5 w-5" /> },
+    { name: "Home", path: "/home", icon: <Home className="h-5 w-5" />, access: "free" },
+    { name: "Energy Check", path: "/energy-check", icon: <Activity className="h-5 w-5" />, access: "premium" },
+    { name: "Sacred Blueprint", path: "/sacred-blueprint", icon: <Sparkles className="h-5 w-5" />, access: "premium" },
+    { name: "Heart Center", path: "/heart-center", icon: <Heart className="h-5 w-5" />, access: "free" },
+    { name: "Shift Your Perception", path: "/shift-perception", icon: <Zap className="h-5 w-5" />, access: "free" },
+    { name: "Frequency Library", path: "/frequency-library", icon: <Music className="h-5 w-5" />, access: "premium" },
+    { name: "Intention Setting", path: "/intentions", icon: <PenTool className="h-5 w-5" />, access: "premium" },
+    { name: "Hermetic Wisdom", path: "/hermetic-wisdom", icon: <BookOpen className="h-5 w-5" />, access: "premium" },
+    { name: "Astrology", path: "/astrology", icon: <Stars className="h-5 w-5" />, access: "premium" },
+    { name: "Journey Templates", path: "/journey-templates", icon: <Compass className="h-5 w-5" />, access: "premium" },
+    { name: "Music Library", path: "/music-library", icon: <Headphones className="h-5 w-5" />, access: "premium" },
+    { name: "About The Founder", path: "/about-founder", icon: <UserRound className="h-5 w-5" />, access: "free" },
   ];
   
   const secondaryNavItems = [
-    { name: "Focus", path: "/focus", icon: <Clock className="h-5 w-5" /> },
-    { name: "Personal Vibe", path: "/personal-vibe", icon: <Wand2 className="h-5 w-5" /> },
-    { name: "Subscription", path: "/subscription", icon: <ArrowUpRight className="h-5 w-5" /> },
-    { name: "Profile", path: "/profile", icon: <UserRound className="h-5 w-5" /> },
-    { name: "Settings", path: "/settings", icon: <Settings className="h-5 w-5" /> },
+    { name: "Focus", path: "/focus", icon: <Clock className="h-5 w-5" />, access: "free" },
+    { name: "Personal Vibe", path: "/personal-vibe", icon: <Wand2 className="h-5 w-5" />, access: "premium" },
+    { name: "Subscription", path: "/subscription", icon: <ArrowUpRight className="h-5 w-5" />, access: "free" },
+    { name: "Profile", path: "/profile", icon: <UserRound className="h-5 w-5" />, access: "free" },
+    { name: "Settings", path: "/settings", icon: <Settings className="h-5 w-5" />, access: "free" },
   ];
   
-  const renderLink = (item: { name: string; path: string; icon: JSX.Element }) => {
+  const renderLink = (item: { name: string; path: string; icon: JSX.Element; access: "free" | "premium" }) => {
     const active = isActive(item.path);
     return (
       <Link
         key={item.path}
-        to={item.path}
+        to={item.access === "premium" ? "/subscription" : item.path}
         className={`flex items-center px-3 py-1.5 text-sm transition-colors rounded-lg ${
           active
             ? "text-primary-foreground bg-primary/90"
@@ -62,7 +63,12 @@ const SidebarNavItems = () => {
         <span className={`mr-2 ${active ? "text-primary-foreground" : ""}`}>
           {item.icon}
         </span>
-        {item.name}
+        <span className="flex-1">{item.name}</span>
+        {item.access === "premium" && (
+          <Badge variant="outline" className="ml-2 bg-purple-100/30 text-purple-600 text-[10px] px-1 border-purple-200">
+            Premium
+          </Badge>
+        )}
       </Link>
     );
   };
