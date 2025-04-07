@@ -12,6 +12,7 @@ import Subscription from "@/pages/Subscription";
 import Focus from "@/pages/Focus";
 import { Timeline } from "@/pages/Timeline";
 import { MusicGenerator } from "@/pages/MusicGenerator";
+import EmotionEngine from "@/pages/EmotionEngine";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ScrollToTop from "@/components/ScrollToTop";
 import GlobalWatermark from "@/components/GlobalWatermark";
@@ -76,6 +77,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <MusicGenerator />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/emotion-engine"
+                  element={
+                    <ProtectedRoute>
+                      <EmotionEngine />
                     </ProtectedRoute>
                   }
                 />
