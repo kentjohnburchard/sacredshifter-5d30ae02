@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
@@ -57,7 +58,7 @@ const AboutFounder: React.FC = () => {
                 <h1 className="text-4xl md:text-5xl font-playfair text-gradient bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-indigo-300 mb-4">
                   Kent Burchard
                 </h1>
-                <h2 className="text-xl text-purple-200/80 font-light">
+                <h2 className="text-xl text-purple-700 font-light">
                   Founder of <TrademarkedName>Sacred Shifter</TrademarkedName>
                 </h2>
               </div>
@@ -96,7 +97,7 @@ const AboutFounder: React.FC = () => {
               transition={{ delay: 1, duration: 0.8 }}
               className="mt-12 text-center"
             >
-              <p className="text-purple-100 italic font-medium">
+              <p className="text-purple-800 italic font-medium">
                 "Welcome to the shift. You didn't find it by accident.
                 <br />You were called. Just like he was."
               </p>
@@ -118,7 +119,7 @@ const MythicBio: React.FC = () => {
         className="text-gray-800 leading-relaxed font-semibold text-lg"
       >
         <strong className="text-gray-900">Kent Burchard</strong> is not just the creator of <TrademarkedName>Sacred Shifter</TrademarkedName>, 
-        he's a <em className="text-purple-600">chosen one</em>, marked by the divine, and awakened through the fires of trauma, loss, and 
+        he's a <em className="text-purple-700">chosen one</em>, marked by the divine, and awakened through the fires of trauma, loss, and 
         soul-fracturing darkness. With an <strong className="text-gray-900">M carved into both palms</strong>, Kent carries the energetic signature 
         of a soul sent here to <strong className="text-gray-900">feel deeply, break completely, and rise entirely</strong>.
       </motion.p>
@@ -129,7 +130,7 @@ const MythicBio: React.FC = () => {
         transition={{ duration: 0.8, delay: 0.3 }}
         className="text-gray-800 leading-relaxed font-semibold text-lg"
       >
-        His path wasn't paved—it was scorched. And through the ashes, he didn't just rebuild, he <em className="text-purple-600">remembered</em>. 
+        His path wasn't paved—it was scorched. And through the ashes, he didn't just rebuild, he <em className="text-purple-700">remembered</em>. 
         Remembered what the world forgot: that we are vibration before thought, resonance before reason, and love before language.
       </motion.p>
       
