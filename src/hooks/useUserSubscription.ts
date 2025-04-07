@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Json } from "@/integrations/supabase/types";
 
 export interface SubscriptionPlan {
   id: string;
@@ -15,6 +15,8 @@ export interface SubscriptionPlan {
   yearly_discount: number;
   is_lifetime?: boolean;
   tier_name?: string;
+  credits_per_period: number;
+  songs_equivalent: number;
 }
 
 export interface UserSubscription {
@@ -25,6 +27,7 @@ export interface UserSubscription {
   started_at: string;
   expires_at: string | null;
   is_lifetime?: boolean;
+  user_id: string;
 }
 
 export interface UserCredits {
