@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,7 +13,7 @@ export interface UserPreferences {
   watermark_style: string;
   soundscapeMode: string;
   kent_mode?: boolean;
-  consciousness_mode?: "standard" | "kent";
+  consciousness_mode?: "standard" | "lift-the-veil";
 }
 
 export const useUserPreferences = () => {
@@ -46,7 +45,6 @@ export const useUserPreferences = () => {
         return;
       }
 
-      // Use select instead of maybeSingle to handle multiple records case
       const { data, error } = await supabase
         .from('user_preferences')
         .select('*')
@@ -59,13 +57,10 @@ export const useUserPreferences = () => {
       }
 
       if (data && data.length > 0) {
-        // Use the most recent preference record
         const latestPrefs = data.sort((a, b) => 
           new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
         )[0];
         
-        // We need to handle the type conversion correctly here
-        // Type assert the database record to include consciousness_mode
         const dbPrefs = latestPrefs as any;
         
         setPreferences({
@@ -75,7 +70,6 @@ export const useUserPreferences = () => {
           consciousness_mode: dbPrefs.consciousness_mode || "standard"
         });
       } else {
-        // User doesn't have preferences yet, we can try to use astrology data
         const { data: astrologyData } = await supabase
           .from('user_astrology_data')
           .select('sun_sign')
@@ -120,7 +114,6 @@ export const useUserPreferences = () => {
 
       console.log("Saving user preferences:", newPreferences);
 
-      // First, check if the user already has preferences
       const { data: existingPrefs } = await supabase
         .from('user_preferences')
         .select('id')
@@ -141,7 +134,6 @@ export const useUserPreferences = () => {
       let error;
       
       if (existingPrefs && existingPrefs.length > 0) {
-        // Update the most recently updated record
         const latestPref = existingPrefs[0];
         const { error: updateError } = await supabase
           .from('user_preferences')
@@ -150,7 +142,6 @@ export const useUserPreferences = () => {
           
         error = updateError;
       } else {
-        // Insert a new record
         const { error: insertError } = await supabase
           .from('user_preferences')
           .insert(prefsToSave);

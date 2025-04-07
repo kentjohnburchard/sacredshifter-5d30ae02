@@ -4,15 +4,15 @@ import { useLoveQuotes } from "@/hooks/useLoveQuotes";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 
 type ThemeContextType = {
-  kentMode: boolean;
-  setKentMode: (mode: boolean) => void;
+  liftTheVeil: boolean;
+  setLiftTheVeil: (mode: boolean) => void;
   currentQuote: string;
   refreshQuote: () => void;
 };
 
 const ThemeContext = createContext<ThemeContextType>({
-  kentMode: false,
-  setKentMode: () => {},
+  liftTheVeil: false,
+  setLiftTheVeil: () => {},
   currentQuote: "",
   refreshQuote: () => {},
 });
@@ -21,30 +21,30 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const { preferences, saveUserPreferences } = useUserPreferences();
   const { randomQuote, refreshRandomQuote, getRandomQuote } = useLoveQuotes();
   const [currentQuote, setCurrentQuote] = useState("");
-  const [kentMode, setKentModeState] = useState(false);
+  const [liftTheVeil, setLiftTheVeilState] = useState(false);
 
-  // Initialize kent mode from preferences
+  // Initialize lift the veil mode from preferences
   useEffect(() => {
     if (preferences) {
       const consciousnessMode = preferences.consciousness_mode || "standard";
-      setKentModeState(consciousnessMode === "kent");
+      setLiftTheVeilState(consciousnessMode === "lift-the-veil");
     }
   }, [preferences]);
 
-  const setKentMode = async (mode: boolean) => {
+  const setLiftTheVeil = async (mode: boolean) => {
     try {
       // Update local state immediately for responsive UI
-      setKentModeState(mode);
+      setLiftTheVeilState(mode);
       
       // Then update in database
       await saveUserPreferences({
         ...preferences,
-        consciousness_mode: mode ? "kent" : "standard"
+        consciousness_mode: mode ? "lift-the-veil" : "standard"
       });
     } catch (error) {
-      console.error("Error toggling Kent Mode:", error);
+      console.error("Error toggling Lift the Veil Mode:", error);
       // Revert state if save failed
-      setKentModeState(!mode);
+      setLiftTheVeilState(!mode);
     }
   };
 
@@ -66,7 +66,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [getRandomQuote, refreshRandomQuote]);
 
   return (
-    <ThemeContext.Provider value={{ kentMode, setKentMode, currentQuote, refreshQuote }}>
+    <ThemeContext.Provider value={{ liftTheVeil, setLiftTheVeil, currentQuote, refreshQuote }}>
       {children}
     </ThemeContext.Provider>
   );
