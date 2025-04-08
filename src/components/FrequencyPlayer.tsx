@@ -94,17 +94,36 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       }
       
       try {
-        // Properly encode the URL to handle spaces and special characters
+        // Try different URL formats if the original one doesn't work
         let formattedUrl = effectiveAudioUrl;
         
-        // Only encode if it's not already encoded
+        // First try: Original URL
+        if (!formattedUrl.startsWith('http')) {
+          formattedUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${formattedUrl}`;
+        }
+        
+        // Handle spaces and parentheses
         if (formattedUrl.includes(' ') || formattedUrl.includes('(') || formattedUrl.includes(')')) {
-          // Replace spaces with %20 and other special characters
           formattedUrl = encodeURI(formattedUrl);
         }
         
+        console.log("Setting formatted URL:", formattedUrl);
         audioRef.current.src = formattedUrl;
         audioRef.current.load();
+        
+        // Add a fallback in case the first load fails
+        audioRef.current.onerror = () => {
+          console.log("Initial load failed, trying alternate encoding");
+          
+          // Try different encoding approach
+          const filename = effectiveAudioUrl.split('/').pop();
+          if (filename) {
+            const altUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${encodeURIComponent(filename)}`;
+            console.log("Trying alternate URL:", altUrl);
+            audioRef.current!.src = altUrl;
+            audioRef.current!.load();
+          }
+        };
       } catch (err) {
         console.error("Error setting audio source:", err);
       }
@@ -140,10 +159,15 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     if (audioError) {
       // If there was an error, try reloading before playing
       if (audioRef.current && effectiveAudioUrl) {
-        // Properly encode the URL
+        // Try different URL formats if the original one doesn't work
         let formattedUrl = effectiveAudioUrl;
         
-        // Only encode if it's not already encoded
+        // First try: Original URL
+        if (!formattedUrl.startsWith('http')) {
+          formattedUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${formattedUrl}`;
+        }
+        
+        // Handle spaces and parentheses
         if (formattedUrl.includes(' ') || formattedUrl.includes('(') || formattedUrl.includes(')')) {
           formattedUrl = encodeURI(formattedUrl);
         }

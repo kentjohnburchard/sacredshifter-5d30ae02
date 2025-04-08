@@ -45,8 +45,8 @@ const journeySongsMap: Record<string, string[]> = {
 
 // Get direct Supabase audio URL for a filename
 const getDirectAudioUrl = (filename: string): string => {
-  // Use the Supabase URL for production - don't encode the URL here
-  // The FrequencyPlayer will handle the encoding
+  // Return the Supabase URL directly without encoding
+  // FrequencyPlayer will handle the encoding
   return `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${filename}`;
 };
 
