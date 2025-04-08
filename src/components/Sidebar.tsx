@@ -38,6 +38,8 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
       className={`fixed left-0 top-0 z-40 flex h-full flex-col border-r bg-white shadow-sm transition-all duration-300 ${
         isCollapsed ? "w-20" : "w-64"
       } ${className}`}
+      onMouseEnter={() => setIsCollapsed(false)}
+      onMouseLeave={() => setIsCollapsed(true)}
     >
       {/* Collapse button */}
       <Button 

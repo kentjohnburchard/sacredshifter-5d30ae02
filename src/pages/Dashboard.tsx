@@ -16,8 +16,10 @@ const Dashboard: React.FC = () => {
   }, [user]);
   
   return (
-    <Layout>
-      <UserDashboard />
+    <Layout pageTitle="Dashboard">
+      <div className="py-4">
+        <UserDashboard />
+      </div>
     </Layout>
   );
 };
