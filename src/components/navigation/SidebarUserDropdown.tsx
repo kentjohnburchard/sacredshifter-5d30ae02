@@ -12,7 +12,7 @@ interface SidebarUserDropdownProps {
 }
 
 const SidebarUserDropdown: React.FC<SidebarUserDropdownProps> = ({ isCollapsed = false }) => {
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
   
   if (!user) {
     return (
@@ -68,7 +68,7 @@ const SidebarUserDropdown: React.FC<SidebarUserDropdownProps> = ({ isCollapsed =
           </DropdownMenuItem>
         </Link>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => logout()}>
+        <DropdownMenuItem onClick={() => signOut && signOut()}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
         </DropdownMenuItem>

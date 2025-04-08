@@ -21,6 +21,7 @@ import TrinityGateway from "./pages/TrinityGateway";
 import Contact from "./pages/Contact";
 import HeartDashboard from "./pages/HeartDashboard";
 import MusicGeneration from "@/pages/MusicGeneration";
+import SiteMap from "@/pages/SiteMap";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/site-map" element={<SiteMap />} />
             <Route
               path="/dashboard"
               element={
