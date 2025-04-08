@@ -3,10 +3,11 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Music } from "lucide-react";
+import { ArrowRight, Music, Headphones } from "lucide-react";
 import { Link } from "react-router-dom";
 import { JourneyTemplate } from "@/data/journeyTemplates";
 import { motion } from "framer-motion";
+import { useJourneySongs } from "@/hooks/useJourneySongs";
 
 interface JourneyTemplateCardProps {
   template: JourneyTemplate;
@@ -17,6 +18,9 @@ interface JourneyTemplateCardProps {
 }
 
 const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template, audioMapping }) => {
+  // Get songs for this journey
+  const { songs, loading } = useJourneySongs(template.id);
+  
   // Extract the first frequency value to use in the link if needed
   const firstFrequencyValue = template.frequencies[0]?.value.split(' ')[0] || '';
   
@@ -80,8 +84,19 @@ const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template, aud
                   transition={{ type: "spring", stiffness: 400, damping: 10 }}
                 >
                   <Badge variant="outline" className="border-white/40 text-white shimmer-hover flex items-center gap-1">
-                    <Music className="h-3 w-3" />
+                    <Headphones className="h-3 w-3" />
                     <span className="sr-only">Has Audio</span>
+                  </Badge>
+                </motion.div>
+              )}
+              {!loading && songs.length > 0 && (
+                <motion.div
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <Badge variant="outline" className="border-white/40 text-white shimmer-hover flex items-center gap-1">
+                    <Music className="h-3 w-3" />
+                    <span>{songs.length}</span>
                   </Badge>
                 </motion.div>
               )}

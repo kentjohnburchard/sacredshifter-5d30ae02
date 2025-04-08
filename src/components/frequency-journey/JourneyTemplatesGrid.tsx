@@ -1,10 +1,23 @@
 
-import React from "react";
+import React, { useState } from "react";
 import JourneyTemplateCard from "./JourneyTemplateCard";
 import { useJourneyTemplates } from "@/hooks/useJourneyTemplates";
+import JourneyDetail from "./JourneyDetail";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 export const JourneyTemplatesGrid = () => {
   const { templates, loading, error, audioMappings } = useJourneyTemplates();
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+
+  const handleTemplateClick = (templateId: string) => {
+    setSelectedTemplate(templateId);
+  };
+
+  const handleCloseDetail = () => {
+    setSelectedTemplate(null);
+  };
+
+  const selectedTemplateData = templates.find(t => t.id === selectedTemplate);
 
   if (loading) {
     return (
@@ -25,15 +38,30 @@ export const JourneyTemplatesGrid = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {templates.map((template) => (
-        <JourneyTemplateCard 
-          key={template.id} 
-          template={template} 
-          audioMapping={audioMappings[template.id]}
-        />
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {templates.map((template) => (
+          <div key={template.id} onClick={() => handleTemplateClick(template.id)} className="cursor-pointer">
+            <JourneyTemplateCard 
+              template={template} 
+              audioMapping={audioMappings[template.id]}
+            />
+          </div>
+        ))}
+      </div>
+
+      <Dialog open={!!selectedTemplate} onOpenChange={(open) => !open && handleCloseDetail()}>
+        <DialogContent className="max-w-4xl p-0 bg-transparent border-none shadow-none">
+          {selectedTemplateData && (
+            <JourneyDetail 
+              template={selectedTemplateData} 
+              audioMapping={audioMappings[selectedTemplateData.id]}
+              onBack={handleCloseDetail}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
