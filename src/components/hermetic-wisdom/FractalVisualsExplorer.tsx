@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +9,7 @@ import { Maximize2, Heart, Download } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
+import { castToFractalVisuals } from "@/utils/typeUtils";
 
 const FractalVisualsExplorer: React.FC = () => {
   const [fractals, setFractals] = useState<FractalVisual[]>([]);
@@ -33,7 +33,7 @@ const FractalVisualsExplorer: React.FC = () => {
         }
         
         if (data) {
-          setFractals(data);
+          setFractals(castToFractalVisuals(data));
         }
       } catch (err) {
         console.error("Error fetching fractal visuals:", err);

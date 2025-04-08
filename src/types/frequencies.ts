@@ -1,3 +1,4 @@
+
 export interface FractalVisual {
   id: string;
   created_at?: string;
@@ -8,7 +9,8 @@ export interface FractalVisual {
   prime_number?: number;
   principle?: string;
   formula?: string;
-  type?: 'image' | 'animation';
+  type?: string;
+  chakra?: string;
 }
 
 export interface FrequencyLibraryItem {
@@ -34,6 +36,7 @@ export interface FrequencyLibraryItem {
   group_id?: string;
   feature?: string;
   type?: string;
+  visual_url?: string;
 }
 
 export interface SavedFrequency {
@@ -41,4 +44,27 @@ export interface SavedFrequency {
   user_id: string;
   frequency_id: string;
   created_at?: string;
+  notes?: string;
+}
+
+// Adding UserSavedFrequency type for the SavedFrequenciesViewer component
+export interface UserSavedFrequency {
+  id: string;
+  user_id: string;
+  frequency_id: string;
+  frequency: FrequencyLibraryItem;
+  created_at?: string;
+  notes?: string;
+}
+
+// Adding JourneyPhase type for the BecomeTheOneJourney component
+export interface JourneyPhase {
+  id: string;
+  title: string;
+  description: string;
+  frequency?: number;
+  chakra?: string;
+  duration?: number;
+  audioUrl?: string;
+  visualUrl?: string;
 }

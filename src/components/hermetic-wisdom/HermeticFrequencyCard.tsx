@@ -11,6 +11,7 @@ import FrequencyPlayer from "@/components/FrequencyPlayer";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { castToFractalVisual } from "@/utils/typeUtils";
 
 interface HermeticFrequencyCardProps {
   frequency: FrequencyLibraryItem;
@@ -69,8 +70,9 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
 
         if (data && data.length > 0) {
           console.log("Fractal visual found:", data[0]);
-          setFractalVisual(data[0]);
-          frequency.fractal_visual = data[0];
+          const fractal = castToFractalVisual(data[0]);
+          setFractalVisual(fractal);
+          frequency.fractal_visual = fractal;
         } else {
           console.log("No fractal visual found for this frequency");
         }

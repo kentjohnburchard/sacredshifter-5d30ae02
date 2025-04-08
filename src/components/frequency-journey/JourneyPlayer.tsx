@@ -10,6 +10,7 @@ import { formatDuration } from "@/utils/formatters";
 import { supabase } from "@/integrations/supabase/client";
 import { Maximize2 } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { castToFractalVisual } from "@/utils/typeUtils";
 
 interface JourneyPlayerProps {
   frequency: FrequencyLibraryItem;
@@ -49,8 +50,9 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
         }
 
         if (data) {
-          setFractalVisual(data);
-          frequency.fractal_visual = data;
+          const fractal = castToFractalVisual(data);
+          setFractalVisual(fractal);
+          frequency.fractal_visual = fractal;
         }
       } catch (err) {
         console.error("Failed to fetch fractal visual:", err);
@@ -97,7 +99,7 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
     return '';
   };
 
-  const bgGradient = getBackgroundColor(frequency.chakra);
+  const bgGradient = getBackgroundColor(frequency.chakra || '');
 
   return (
     <div className="relative min-h-[80vh]">
