@@ -22,6 +22,8 @@ import Contact from "./pages/Contact";
 import HeartDashboard from "./pages/HeartDashboard";
 import MusicGeneration from "@/pages/MusicGeneration";
 import SiteMap from "@/pages/SiteMap";
+import EnergyCheck from "@/pages/EnergyCheck";
+import NotFound from "@/pages/NotFound";
 
 function App() {
   return (
@@ -114,7 +116,16 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/energy-check"
+              element={
+                <ProtectedRoute>
+                  <EnergyCheck />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/contact" element={<Contact />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
         <GlobalWatermark />
