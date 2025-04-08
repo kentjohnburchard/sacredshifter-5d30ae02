@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import Sidebar from "./Sidebar";
 import Footer from "./navigation/Footer";
 import Watermark from "./Watermark";
@@ -17,67 +17,46 @@ const Layout: React.FC<LayoutProps> = ({ children, pageTitle, hideLegalFooter = 
   const { currentQuote, refreshQuote } = useTheme();
   
   // Refresh quote on mount
-  useEffect(() => {
+  React.useEffect(() => {
     refreshQuote();
   }, [refreshQuote]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-purple-50 to-white relative">
-      {/* Subtle starfield background */}
-      <div className="starfield"></div>
-      
-      {/* Logo Watermark */}
-      <Watermark />
-
+    <div className="min-h-screen flex bg-gradient-to-b from-purple-50 to-white">
       {/* Sidebar Navigation */}
-      <div className="md:flex">
-        <div className="hidden md:block">
-          <Sidebar />
+      <Sidebar />
+      
+      {/* Main Content */}
+      <div className="flex-1 ml-64">
+        <main className="flex-1 p-6">
+          {pageTitle && (
+            <div className="mb-6">
+              <h1 className="text-3xl font-bold tracking-tight">{pageTitle}</h1>
+            </div>
+          )}
+          {children}
+        </main>
+        
+        {/* Sacred Message - Cosmic Quote */}
+        <div className="w-full text-center mb-4">
+          <p className="text-sm text-gray-600 italic">
+            {currentQuote}
+          </p>
         </div>
         
-        <div className="flex-1 md:ml-64">
-          {/* Adjusted top padding to align content with sidebar */}
-          <div className="pt-16">
-            {/* Page Title - Standardized styling and aligned with sidebar */}
-            {pageTitle && (
-              <div className="w-full py-6 px-4 sm:px-6 text-center">
-                <h1 className="page-title">
-                  {pageTitle}
-                </h1>
-              </div>
-            )}
-            
-            {/* Main Content */}
-            <main className="flex-1 pb-8 px-4 sm:px-6">
-              {children}
-            </main>
-            
-            {/* Sacred Message - Cosmic Quote */}
-            <div className="w-full text-center mb-4">
-              <p className="sacred-footer-message">
-                {currentQuote}
-              </p>
-            </div>
-            
-            {/* Legal Footer - Added IP protection */}
-            {!hideLegalFooter && (
-              <div className="border-t border-purple-100 py-2">
-                <LegalFooter variant="standard" />
-              </div>
-            )}
-            
-            {/* Footer */}
-            <Footer />
+        {/* Legal Footer */}
+        {!hideLegalFooter && (
+          <div className="border-t border-purple-100 py-2">
+            <LegalFooter variant="standard" />
           </div>
-        </div>
-      </div>
-
-      {/* Mobile Sidebar (empty div for offset since the sidebar component already has mobile navigation) */}
-      <div className="md:hidden">
-        <div className="h-16"></div> {/* Adjusted height for the header on mobile */}
+        )}
+        
+        {/* Footer */}
+        <Footer />
       </div>
       
-      {/* Global Watermark */}
+      {/* Watermarks */}
+      <Watermark />
       <GlobalWatermark />
     </div>
   );

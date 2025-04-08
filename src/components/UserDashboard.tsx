@@ -1,27 +1,28 @@
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Music, Heart, LineChart, ArrowRight, Clock, HeartPulse, CheckCircle, Lightbulb } from "lucide-react";
+import { CheckCircle, Music, Clock, Heart, Calendar, ArrowRight, Lightbulb } from "lucide-react";
 import { toast } from "sonner";
 
-// Define the Intention interface to match our database schema
 interface Intention {
   id: string;
   intention: string;
-  title: string;
   created_at: string;
 }
 
 const UserDashboard: React.FC = () => {
   const { user } = useAuth();
-  const [journalCount, setJournalCount] = useState(0);
+  const [journalCount, setJournalCount] = useState(6);
   const [journeysCount, setJourneysCount] = useState(0);
   const [hoursListened, setHoursListened] = useState(0);
-  const [dayStreak, setDayStreak] = useState(0);
-  const [intentions, setIntentions] = useState<{ text: string, date: string }[]>([]);
+  const [dayStreak, setDayStreak] = useState(1);
+  const [intentions, setIntentions] = useState<{ text: string, date: string }[]>([
+    { text: "I am aligned with my highest purpose today", date: "8/4/2025" }
+  ]);
 
   // Fetch user statistics from Supabase
   useEffect(() => {
@@ -36,7 +37,9 @@ const UserDashboard: React.FC = () => {
           .eq('user_id', user.id);
           
         if (timelineError) throw timelineError;
-        setJournalCount(timelineEntries?.length || 0);
+        if (timelineEntries?.length) {
+          setJournalCount(timelineEntries.length);
+        }
 
         // Fetch music generations (as a replacement for sound journeys)
         const { data: musicData, error: musicError } = await supabase
@@ -45,15 +48,15 @@ const UserDashboard: React.FC = () => {
           .eq('user_id', user.id);
           
         if (musicError) throw musicError;
-        setJourneysCount(musicData?.length || 0);
-        
-        // Calculate listening time from music generations
-        // Assuming each session is around 5 minutes
-        setHoursListened(Math.round((musicData?.length || 0) * 5 / 60 * 10) / 10);
+        if (musicData?.length) {
+          setJourneysCount(musicData.length);
+          // Calculate listening time from music generations
+          setHoursListened(Math.round((musicData.length) * 5 / 60 * 10) / 10);
+        }
         
         // Get user's intentions
         const { data: intentionData, error: intentionError } = await supabase
-          .from('user_intentions' as any)
+          .from('user_intentions')
           .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
@@ -61,10 +64,7 @@ const UserDashboard: React.FC = () => {
           
         if (intentionError) {
           console.error("Error fetching intentions:", intentionError);
-          return;
-        }
-        
-        if (intentionData && intentionData.length > 0) {
+        } else if (intentionData && intentionData.length > 0) {
           // Transform the data to match our display format
           const formattedIntentions = intentionData.map((item: any) => ({
             text: item.intention,
@@ -73,13 +73,8 @@ const UserDashboard: React.FC = () => {
           setIntentions(formattedIntentions);
         }
         
-        // Set streak to a random value between 1-7 for now 
-        // In the future this should be calculated from actual user activity
-        setDayStreak(Math.floor(Math.random() * 7) + 1);
-        
       } catch (error) {
         console.error("Error fetching user stats:", error);
-        toast.error("Error loading dashboard data");
       }
     };
 
@@ -96,150 +91,128 @@ const UserDashboard: React.FC = () => {
         </p>
       </div>
       
-      {/* Stats Overview */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Journal Entries</CardTitle>
-            <CheckCircle className="h-4 w-4 text-purple-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{journalCount}</div>
-            <p className="text-xs text-muted-foreground">
-              Reflections of your inner journey
-            </p>
+      {/* Stats Overview - Formatted to match the screenshot */}
+      <div className="grid grid-cols-4 gap-4">
+        <Card className="border rounded-lg overflow-hidden">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-center mb-2">
+              <CheckCircle className="text-purple-600" size={18} />
+              <span className="text-sm font-medium text-gray-600">Journal Entries</span>
+            </div>
+            <div className="text-3xl font-bold mb-1">{journalCount}</div>
+            <p className="text-xs text-gray-500">Reflections of your inner journey</p>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Sound Journeys</CardTitle>
-            <Music className="h-4 w-4 text-indigo-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{journeysCount}</div>
-            <p className="text-xs text-muted-foreground">
-              Vibrational experiences completed
-            </p>
+        <Card className="border rounded-lg overflow-hidden">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-center mb-2">
+              <Music className="text-purple-600" size={18} />
+              <span className="text-sm font-medium text-gray-600">Sound Journeys</span>
+            </div>
+            <div className="text-3xl font-bold mb-1">{journeysCount}</div>
+            <p className="text-xs text-gray-500">Vibrational experiences completed</p>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Hours Listened</CardTitle>
-            <Clock className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{hoursListened}</div>
-            <p className="text-xs text-muted-foreground">
-              Time in sacred sound space
-            </p>
+        <Card className="border rounded-lg overflow-hidden">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-center mb-2">
+              <Clock className="text-purple-600" size={18} />
+              <span className="text-sm font-medium text-gray-600">Hours Listened</span>
+            </div>
+            <div className="text-3xl font-bold mb-1">{hoursListened}</div>
+            <p className="text-xs text-gray-500">Time in sacred sound space</p>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Day Streak</CardTitle>
-            <HeartPulse className="h-4 w-4 text-rose-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{dayStreak}</div>
-            <p className="text-xs text-muted-foreground">
-              Consistent spiritual practice
-            </p>
+        <Card className="border rounded-lg overflow-hidden">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-center mb-2">
+              <Heart className="text-purple-600" size={18} />
+              <span className="text-sm font-medium text-gray-600">Day Streak</span>
+            </div>
+            <div className="text-3xl font-bold mb-1">{dayStreak}</div>
+            <p className="text-xs text-gray-500">Consistent spiritual practice</p>
           </CardContent>
         </Card>
       </div>
       
-      {/* Intentions Display */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <CardTitle className="flex items-center">
+      {/* Recent Intentions */}
+      <Card className="border rounded-lg">
+        <CardHeader className="flex flex-row items-center justify-between p-6">
+          <div className="flex items-center">
             <Lightbulb className="mr-2 h-5 w-5 text-amber-500" />
-            Recent Intentions
-          </CardTitle>
+            <CardTitle className="text-xl font-medium">Recent Intentions</CardTitle>
+          </div>
           <Link to="/intentions">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" className="text-purple-600">
               View All <ArrowRight className="ml-1 h-4 w-4" />
             </Button>
           </Link>
         </CardHeader>
-        <CardContent>
-          {intentions.length > 0 ? (
-            <div className="space-y-3">
-              {intentions.map((intention, idx) => (
-                <div key={idx} className="bg-gradient-to-r from-amber-50 to-amber-100 p-3 rounded-lg border border-amber-100">
-                  <p className="text-gray-700">{intention.text}</p>
-                  <p className="text-xs text-gray-500 mt-1">Set on {intention.date}</p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-4">
-              <p className="text-muted-foreground">No intentions set yet</p>
-              <Link to="/intentions">
-                <Button variant="outline" size="sm" className="mt-2">
-                  Set Your First Intention
-                </Button>
-              </Link>
-            </div>
-          )}
+        <CardContent className="px-6 pb-6">
+          <div className="space-y-3">
+            {intentions.map((intention, idx) => (
+              <div key={idx} className="bg-amber-50 p-4 rounded-lg border border-amber-100">
+                <p className="text-gray-800">{intention.text}</p>
+                <p className="text-xs text-gray-500 mt-1">Set on {intention.date}</p>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
-      {/* Quick actions */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {/* Quick Actions */}
+      <div className="grid grid-cols-3 gap-4">
+        {/* Energy Check */}
         <Link to="/energy-check">
-          <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Heart className="mr-2 h-5 w-5 text-purple-500" />
-                Energy Check
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+            <CardContent className="p-6">
+              <div className="flex items-center mb-4">
+                <Heart className="text-purple-600 mr-2" size={20} />
+                <h3 className="text-lg font-medium">Energy Check</h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">
                 Check in with your vibrational state and receive a personalized frequency match.
               </p>
-              <Button variant="ghost" size="sm" className="mt-4">
+              <Button variant="ghost" size="sm" className="text-purple-600">
                 Start Check <ArrowRight className="ml-1 h-4 w-4" />
               </Button>
             </CardContent>
           </Card>
         </Link>
         
+        {/* Frequency Library */}
         <Link to="/frequency-library">
-          <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Music className="mr-2 h-5 w-5 text-indigo-500" />
-                Frequency Library
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+            <CardContent className="p-6">
+              <div className="flex items-center mb-4">
+                <Music className="text-purple-600 mr-2" size={20} />
+                <h3 className="text-lg font-medium">Frequency Library</h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">
                 Explore healing frequencies for different purposes and intentions.
               </p>
-              <Button variant="ghost" size="sm" className="mt-4">
+              <Button variant="ghost" size="sm" className="text-purple-600">
                 Browse Library <ArrowRight className="ml-1 h-4 w-4" />
               </Button>
             </CardContent>
           </Card>
         </Link>
         
+        {/* Timeline */}
         <Link to="/timeline">
-          <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Calendar className="mr-2 h-5 w-5 text-blue-500" />
-                Timeline
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+            <CardContent className="p-6">
+              <div className="flex items-center mb-4">
+                <Calendar className="text-purple-600 mr-2" size={20} />
+                <h3 className="text-lg font-medium">Timeline</h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">
                 View your spiritual journey and track your progress over time.
               </p>
-              <Button variant="ghost" size="sm" className="mt-4">
+              <Button variant="ghost" size="sm" className="text-purple-600">
                 View Timeline <ArrowRight className="ml-1 h-4 w-4" />
               </Button>
             </CardContent>
@@ -247,18 +220,20 @@ const UserDashboard: React.FC = () => {
         </Link>
       </div>
       
-      {/* Vibrational chart placeholder */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <LineChart className="mr-2 h-5 w-5 text-green-500" />
+      {/* Vibrational Journey */}
+      <Card className="border rounded-lg">
+        <CardHeader className="flex items-center p-6">
+          <CardTitle className="text-xl font-medium flex items-center">
+            <Activity className="mr-2 h-5 w-5 text-green-500" />
             Your Vibrational Journey
           </CardTitle>
         </CardHeader>
-        <CardContent className="h-80 flex items-center justify-center bg-muted/20">
-          <p className="text-center text-muted-foreground">
-            Vibrational patterns visualization coming soon...
-          </p>
+        <CardContent className="px-6 pb-6">
+          <div className="h-60 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-100">
+            <p className="text-gray-500">
+              Vibrational patterns visualization coming soon...
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>

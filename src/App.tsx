@@ -1,6 +1,5 @@
 
 import { Routes, Route } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 
 import { AuthProvider } from "@/context/AuthContext";
@@ -16,115 +15,109 @@ import EmotionEngine from "@/pages/EmotionEngine";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ScrollToTop from "@/components/ScrollToTop";
 import GlobalWatermark from "@/components/GlobalWatermark";
-import Auth from "@/pages/Auth"; // Import the Auth page
+import Auth from "@/pages/Auth";
 // Import our pages
 import TrinityGateway from "./pages/TrinityGateway";
 import Contact from "./pages/Contact";
 import HeartDashboard from "./pages/HeartDashboard";
-import MusicGeneration from "@/pages/MusicGeneration"; // Add this import to fix the redirect issues
+import MusicGeneration from "@/pages/MusicGeneration";
 
 function App() {
-  const queryClient = new QueryClient();
-
   return (
-    <>
-      <ThemeProvider>
-        <AuthProvider>
-          <QueryClientProvider client={queryClient}>
-            <Toaster closeButton position="top-center" />
-            <ScrollToTop />
-            <div className="flex flex-col min-h-screen">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/auth" element={<Auth />} /> {/* Add the Auth route */}
-                <Route
-                  path="/dashboard"
-                  element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/profile"
-                  element={
-                    <ProtectedRoute>
-                      <Profile />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/subscription"
-                  element={
-                    <ProtectedRoute>
-                      <Subscription />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/focus"
-                  element={
-                    <ProtectedRoute>
-                      <Focus />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/timeline"
-                  element={
-                    <ProtectedRoute>
-                      <Timeline />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/music-generator"
-                  element={
-                    <ProtectedRoute>
-                      <MusicGenerator />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/music-generation"
-                  element={
-                    <ProtectedRoute>
-                      <MusicGeneration />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/emotion-engine"
-                  element={
-                    <ProtectedRoute>
-                      <EmotionEngine />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/trinity-gateway"
-                  element={
-                    <ProtectedRoute>
-                      <TrinityGateway />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/heart-dashboard"
-                  element={
-                    <ProtectedRoute>
-                      <HeartDashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="/contact" element={<Contact />} />
-              </Routes>
-            </div>
-            <GlobalWatermark />
-          </QueryClientProvider>
-        </AuthProvider>
-      </ThemeProvider>
-    </>
+    <ThemeProvider>
+      <AuthProvider>
+        <Toaster closeButton position="top-center" />
+        <ScrollToTop />
+        <div className="flex flex-col min-h-screen">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/subscription"
+              element={
+                <ProtectedRoute>
+                  <Subscription />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/focus"
+              element={
+                <ProtectedRoute>
+                  <Focus />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/timeline"
+              element={
+                <ProtectedRoute>
+                  <Timeline />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/music-generator"
+              element={
+                <ProtectedRoute>
+                  <MusicGenerator />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/music-generation"
+              element={
+                <ProtectedRoute>
+                  <MusicGeneration />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/emotion-engine"
+              element={
+                <ProtectedRoute>
+                  <EmotionEngine />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/trinity-gateway"
+              element={
+                <ProtectedRoute>
+                  <TrinityGateway />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/heart-dashboard"
+              element={
+                <ProtectedRoute>
+                  <HeartDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/contact" element={<Contact />} />
+          </Routes>
+        </div>
+        <GlobalWatermark />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
