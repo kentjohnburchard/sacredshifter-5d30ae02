@@ -6,7 +6,7 @@ import MusicLibrary from "./MusicLibrary";
 const MusicLibraryPage = () => {
   return (
     <Layout pageTitle="Sacred Sound Library">
-      <div className="pb-24">
+      <div className="pb-36">
         <MusicLibrary />
       </div>
     </Layout>

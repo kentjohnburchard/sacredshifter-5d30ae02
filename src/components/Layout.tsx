@@ -1,7 +1,7 @@
 
 import React, { ReactNode } from 'react';
 import Sidebar from '@/components/Sidebar';
-import Footer from '@/components/navigation/Footer';
+import FixedFooter from '@/components/navigation/FixedFooter';
 import { useLocation } from 'react-router-dom';
 
 interface LayoutProps {
@@ -25,12 +25,15 @@ const Layout: React.FC<LayoutProps> = ({
     <div className="flex flex-col min-h-screen">
       <div className="flex flex-1">
         {!isAuthPage && <Sidebar />}
-        <main className={`flex-1 ${!isAuthPage ? 'ml-20' : ''} pt-20 px-4 lg:px-8 pb-20 transition-all duration-300`}>
+        <main className={`flex-1 ${!isAuthPage ? 'ml-20' : ''} pt-20 px-4 lg:px-8 pb-24 transition-all duration-300`}>
           {children}
         </main>
       </div>
 
-      {showFooter && <Footer />}
+      {/* Add a spacer to prevent content from being hidden behind the fixed footer */}
+      <div className="h-16"></div>
+      
+      {showFooter && <FixedFooter />}
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import Header from '@/components/Header';
 import { Card, CardContent } from '@/components/ui/card';
@@ -23,18 +22,14 @@ const MusicLibrary: React.FC = () => {
   // Add debugging
   useEffect(() => {
     console.log('MusicLibrary page rendered');
-    setTimeout(() => {
-      const main = document.querySelector('main');
-      const footer = document.querySelector('footer');
-      if (main && footer) {
-        console.log('Main element height:', main.clientHeight);
-        console.log('Footer position relative to viewport:', footer.getBoundingClientRect());
-      }
-    }, 1000);
+    const footer = document.querySelector('[class*="fixed bottom-0"]');
+    if (footer) {
+      console.log('FixedFooter position:', footer.getBoundingClientRect());
+    }
   }, []);
 
   return (
-    <div className="flex flex-col bg-gradient-to-b from-[#f8f4ff] to-white pb-20">
+    <div className="flex flex-col bg-gradient-to-b from-[#f8f4ff] to-white pb-36">
       <Header />
       
       <main className="w-full max-w-6xl mx-auto px-4 py-4 sm:px-6">
