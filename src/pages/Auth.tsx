@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Separator } from '@/components/ui/separator';
-import { InfoCircle, Key } from 'lucide-react';
+import { Info, Key } from 'lucide-react';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -188,7 +188,7 @@ const Auth = () => {
           <TabsContent value="test">
             <div className="space-y-5">
               <div className="flex items-center gap-2">
-                <InfoCircle className="h-5 w-5 text-amber-500" />
+                <Info className="h-5 w-5 text-amber-500" />
                 <p className="text-sm text-gray-600">These accounts are for testing purposes only.</p>
               </div>
               
