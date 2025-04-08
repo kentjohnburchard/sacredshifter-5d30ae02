@@ -1,28 +1,12 @@
-import React, { useEffect } from "react";
+
+import React from "react";
 import { Link } from "react-router-dom";
 import { TrademarkedName } from "@/components/ip-protection";
 import { Map, Heart, Music, BookOpen, User, Settings, Mail, Home, Sparkles, Brain } from "lucide-react";
 
 const Footer: React.FC = () => {
-  useEffect(() => {
-    console.log('Footer component mounted');
-    const footerElement = document.querySelector('footer');
-    if (footerElement) {
-      const rect = footerElement.getBoundingClientRect();
-      console.log('Footer position:', {
-        top: rect.top,
-        left: rect.left,
-        width: rect.width,
-        right: rect.right,
-        visible: rect.top < window.innerHeight
-      });
-    } else {
-      console.log('Footer element not found in DOM');
-    }
-  }, []);
-
   return (
-    <footer className="w-full py-6 px-4 bg-gradient-to-r from-[#9966FF]/10 to-[#bf99ff]/5 border-t border-purple-100">
+    <footer className="w-full bg-gradient-to-r from-[#9966FF]/10 to-[#bf99ff]/5 border-t border-purple-100 py-6 px-4 mt-auto">
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
@@ -133,7 +117,6 @@ const Footer: React.FC = () => {
           </div>
         </div>
         
-        {/* Site Map Promotion */}
         <div className="mt-8 pt-4 border-t border-[#9966FF]/10 flex flex-col sm:flex-row justify-between items-center">
           <p className="text-xs text-[#800080]/70">
             © {new Date().getFullYear()} Sacred Shifter. All rights reserved.
