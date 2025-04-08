@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause } from "lucide-react";
 import { toast } from "sonner";
@@ -28,9 +28,18 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
 }) => {
   const effectiveAudioUrl = url || audioUrl;
   
+  useEffect(() => {
+    if (!effectiveAudioUrl) {
+      console.warn("No audio URL provided to FrequencyPlayer");
+    } else {
+      console.log("FrequencyPlayer using audio URL:", effectiveAudioUrl);
+    }
+  }, [effectiveAudioUrl]);
+  
   const handlePlayStateChange = (newPlayState: boolean) => {
     // Only call onPlayToggle if the state actually changed
     if (newPlayState !== isPlaying) {
+      console.log("Play state changed:", newPlayState, "for URL:", effectiveAudioUrl);
       onPlayToggle();
     }
   };

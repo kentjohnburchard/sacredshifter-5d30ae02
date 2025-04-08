@@ -35,6 +35,7 @@ const JourneySongList: React.FC<JourneySongListProps> = ({
     } else {
       setCurrentSong(song);
       setIsPlaying(true);
+      console.log("Playing song:", song.title, "URL:", song.audioUrl);
     }
   };
 

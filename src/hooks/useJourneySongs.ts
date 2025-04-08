@@ -52,7 +52,7 @@ const createMockSongMappings = (filenames: string[], journeyId: string): SongMap
     functionality: 'journey',
     description: `Song for ${journeyId} journey`,
     duration: 240 + Math.floor(Math.random() * 240), // Random duration between 4-8 minutes
-    audioUrl: `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${filename}`,
+    audioUrl: `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/journey/${filename}`,
     frequency: index % 2 === 0 ? 432 : 528, // Alternate between common healing frequencies
     chakra: ['Root', 'Sacral', 'Solar Plexus', 'Heart', 'Throat', 'Third Eye', 'Crown'][index % 7]
   }));
