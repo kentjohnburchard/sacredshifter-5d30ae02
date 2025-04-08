@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause } from "lucide-react";
 import { toast } from "sonner";
@@ -25,60 +25,119 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   id,
   groupId
 }) => {
-  const effectiveAudioUrl = url || audioUrl;
+  const [isAudioReady, setIsAudioReady] = useState(false);
+  const [audioError, setAudioError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const effectiveAudioUrl = url || audioUrl;
   
+  // Create audio element on mount
   useEffect(() => {
-    // Initialize audio element
-    if (!audioRef.current) {
-      audioRef.current = new Audio();
-    }
+    audioRef.current = new Audio();
+    
+    const handleCanPlay = () => {
+      console.log("Audio can play:", effectiveAudioUrl);
+      setIsAudioReady(true);
+      setAudioError(null);
+    };
+    
+    const handleError = (e: ErrorEvent) => {
+      console.error("Audio load error:", e);
+      setIsAudioReady(false);
+      setAudioError("Failed to load audio");
+      
+      if (isPlaying) {
+        // Notify parent that playback failed
+        onPlayToggle();
+        toast.error("Could not play audio. The file may be missing or in an unsupported format.");
+      }
+    };
+    
+    const handleEnded = () => {
+      console.log("Audio playback ended");
+      if (isPlaying) {
+        onPlayToggle();
+      }
+    };
+    
+    audioRef.current.addEventListener("canplay", handleCanPlay);
+    audioRef.current.addEventListener("error", handleError as EventListener);
+    audioRef.current.addEventListener("ended", handleEnded);
     
     return () => {
-      // Clean up on unmount
       if (audioRef.current) {
         audioRef.current.pause();
+        audioRef.current.removeEventListener("canplay", handleCanPlay);
+        audioRef.current.removeEventListener("error", handleError as EventListener);
+        audioRef.current.removeEventListener("ended", handleEnded);
         audioRef.current.src = "";
       }
     };
   }, []);
   
+  // Set audio source when URL changes
   useEffect(() => {
     if (!effectiveAudioUrl) {
       console.warn("No audio URL provided to FrequencyPlayer");
       return;
-    } else {
-      console.log("FrequencyPlayer using audio URL:", effectiveAudioUrl);
+    }
+    
+    console.log("Setting audio source:", effectiveAudioUrl);
+    
+    if (audioRef.current) {
+      // Reset state
+      setIsAudioReady(false);
+      setAudioError(null);
       
-      if (audioRef.current) {
+      // If currently playing, pause first
+      if (isPlaying && audioRef.current.paused === false) {
+        audioRef.current.pause();
+      }
+      
+      try {
         audioRef.current.src = effectiveAudioUrl;
         audioRef.current.load();
+      } catch (err) {
+        console.error("Error setting audio source:", err);
       }
     }
   }, [effectiveAudioUrl]);
   
+  // Handle play/pause state
   useEffect(() => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || !effectiveAudioUrl) return;
     
     if (isPlaying) {
+      console.log("Attempting to play:", effectiveAudioUrl);
+      
       const playPromise = audioRef.current.play();
       
       if (playPromise !== undefined) {
         playPromise.catch(error => {
           console.error("Error playing audio:", error);
-          toast.error("Could not play audio. Click the play button to try again.");
-          // Reset play state without triggering the callback
-          if (onPlayToggle) {
-            onPlayToggle();
-          }
+          // Reset play state
+          onPlayToggle();
+          toast.error("Could not play audio. Please try again.");
         });
       }
     } else {
-      audioRef.current.pause();
+      if (!audioRef.current.paused) {
+        console.log("Pausing audio");
+        audioRef.current.pause();
+      }
     }
-  }, [isPlaying, onPlayToggle]);
-
-  const handleButtonClick = () => {
+  }, [isPlaying, effectiveAudioUrl, onPlayToggle]);
+  
+  const handlePlayPauseClick = () => {
+    if (audioError) {
+      // If there was an error, try reloading before playing
+      if (audioRef.current && effectiveAudioUrl) {
+        audioRef.current.src = effectiveAudioUrl;
+        audioRef.current.load();
+      }
+      
+      setAudioError(null);
+    }
+    
     onPlayToggle();
   };
   
@@ -88,7 +147,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
         variant="outline"
         size="icon"
         className="h-10 w-10 rounded-full"
-        onClick={handleButtonClick}
+        onClick={handlePlayPauseClick}
         aria-label={isPlaying ? "Pause" : "Play"}
       >
         {isPlaying ? (

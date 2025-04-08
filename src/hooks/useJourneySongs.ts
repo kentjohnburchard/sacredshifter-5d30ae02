@@ -43,10 +43,14 @@ const journeySongsMap: Record<string, string[]> = {
   ]
 };
 
-// Create direct URLs to audio files to avoid CORS issues
+// For demo purposes, use local audio files instead of remote ones
+// Modify this for production
 const getDirectAudioUrl = (filename: string): string => {
-  // Using direct CDN URL to avoid CORS issues
-  return `${import.meta.env.VITE_PUBLIC_SUPABASE_URL || 'https://mikltjgbvxrxndtszorb.supabase.co'}/storage/v1/object/public/frequency-assets/journey/${encodeURIComponent(filename)}`;
+  // Use local demo audio for now
+  return `/sounds/focus-ambient.mp3`;
+  
+  // In production, would use this:
+  // return `${import.meta.env.VITE_PUBLIC_SUPABASE_URL || 'https://mikltjgbvxrxndtszorb.supabase.co'}/storage/v1/object/public/frequency-assets/journey/${encodeURIComponent(filename)}`;
 };
 
 // Convert song filenames to mock SongMapping objects
@@ -92,11 +96,6 @@ export const useJourneySongs = (journeyId?: string) => {
             const convertedSongs = journeySongs.map(song => {
               const convertedSong = convertToJourneySong(song, journeyId, false);
               console.log(`Converted song: ${convertedSong.title}, URL: ${convertedSong.audioUrl}`);
-              // Test the audio URL by creating an audio element
-              const audio = new Audio();
-              audio.src = convertedSong.audioUrl;
-              audio.preload = "metadata";
-              
               return convertedSong;
             });
             

@@ -1,9 +1,9 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Play, Pause, Heart, Music, Plus } from 'lucide-react';
+import { Heart, Music, Plus } from 'lucide-react';
 import { JourneySong } from '@/types/journeySongs';
 import { formatDuration } from '@/utils/formatters';
 import { useAuth } from '@/context/AuthContext';
@@ -28,77 +28,19 @@ const JourneySongList: React.FC<JourneySongListProps> = ({
   const [currentSong, setCurrentSong] = useState<JourneySong | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const { user } = useAuth();
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  // Initialize audio element
-  useEffect(() => {
-    audioRef.current = new Audio();
-    
-    const handleEnded = () => {
-      setIsPlaying(false);
-    };
-    
-    if (audioRef.current) {
-      audioRef.current.addEventListener('ended', handleEnded);
-    }
-    
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.removeEventListener('ended', handleEnded);
-        audioRef.current.pause();
-        audioRef.current.src = "";
-      }
-    };
-  }, []);
 
   const handlePlayPause = (song: JourneySong) => {
     if (currentSong?.id === song.id) {
+      // Toggle play/pause for current song
       console.log("Toggling play state for current song:", song.title);
       setIsPlaying(!isPlaying);
     } else {
-      // Stop current song if any
-      if (isPlaying && audioRef.current) {
-        audioRef.current.pause();
-      }
-      
-      // Set new song and start playing
-      console.log("Playing song:", song.title, "URL:", song.audioUrl);
+      // Change to new song
+      console.log("Changing to new song:", song.title, "URL:", song.audioUrl);
       setCurrentSong(song);
       setIsPlaying(true);
-      
-      // Set audio source
-      if (audioRef.current) {
-        audioRef.current.src = song.audioUrl;
-        audioRef.current.load();
-        
-        const playPromise = audioRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(error => {
-            console.error("Error playing audio:", error);
-            toast.error("Could not play audio. Click the play button to try again.");
-            setIsPlaying(false);
-          });
-        }
-      }
     }
   };
-
-  // Handle play/pause for current song
-  useEffect(() => {
-    if (!audioRef.current || !currentSong) return;
-    
-    if (isPlaying) {
-      const playPromise = audioRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(error => {
-          console.error("Error playing audio:", error);
-          setIsPlaying(false);
-        });
-      }
-    } else {
-      audioRef.current.pause();
-    }
-  }, [isPlaying, currentSong]);
 
   const handleLike = (song: JourneySong) => {
     if (!user) {
@@ -179,18 +121,13 @@ const JourneySongList: React.FC<JourneySongListProps> = ({
                 } transition-colors`}
               >
                 <div className="flex items-center">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`h-8 w-8 p-0 mr-3 ${currentSong?.id === song.id ? "bg-purple-100 text-purple-700" : "bg-gray-100"}`}
-                    onClick={() => handlePlayPause(song)}
-                  >
-                    {currentSong?.id === song.id && isPlaying ? (
-                      <Pause className="h-4 w-4" />
-                    ) : (
-                      <Play className="h-4 w-4 ml-0.5" />
-                    )}
-                  </Button>
+                  <div className="mr-3">
+                    <FrequencyPlayer
+                      audioUrl={song.audioUrl}
+                      isPlaying={currentSong?.id === song.id && isPlaying}
+                      onPlayToggle={() => handlePlayPause(song)}
+                    />
+                  </div>
                   <div>
                     <p className="font-medium text-sm">{song.title}</p>
                     <p className="text-xs text-gray-500">{song.artist}</p>
@@ -232,19 +169,11 @@ const JourneySongList: React.FC<JourneySongListProps> = ({
                 <p className="text-sm font-medium">{currentSong.title}</p>
                 <p className="text-xs text-gray-500">{currentSong.artist}</p>
               </div>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-10 w-10 rounded-full"
-                onClick={() => setIsPlaying(!isPlaying)}
-                aria-label={isPlaying ? "Pause" : "Play"}
-              >
-                {isPlaying ? (
-                  <Pause className="h-5 w-5" />
-                ) : (
-                  <Play className="h-5 w-5 ml-0.5" />
-                )}
-              </Button>
+              <FrequencyPlayer
+                audioUrl={currentSong.audioUrl}
+                isPlaying={isPlaying}
+                onPlayToggle={() => setIsPlaying(!isPlaying)}
+              />
             </div>
           </div>
         )}
