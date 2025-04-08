@@ -1,31 +1,39 @@
 
 import React from "react";
-import journeyTemplates from "@/data/journeyTemplates";
 import JourneyTemplateCard from "./JourneyTemplateCard";
-import { motion } from "framer-motion";
+import { useJourneyTemplates } from "@/hooks/useJourneyTemplates";
 
-const JourneyTemplatesGrid: React.FC = () => {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
+export const JourneyTemplatesGrid = () => {
+  const { templates, loading, error, audioMappings } = useJourneyTemplates();
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="h-96 bg-gray-100 rounded-lg"></div>
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-10">
+        <p className="text-red-500">Failed to load journey templates: {error}</p>
+      </div>
+    );
+  }
 
   return (
-    <motion.div 
-      className="flex flex-col gap-6"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      {journeyTemplates.map((template) => (
-        <JourneyTemplateCard key={template.id} template={template} />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {templates.map((template) => (
+        <JourneyTemplateCard 
+          key={template.id} 
+          template={template} 
+          audioMapping={audioMappings[template.id]}
+        />
       ))}
-    </motion.div>
+    </div>
   );
 };
 

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -19,10 +20,27 @@ const JourneyPlayer = () => {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [intention, setIntention] = useState("");
   const [audioGroupId, setAudioGroupId] = useState<string | null>(null);
+  const [directAudioUrl, setDirectAudioUrl] = useState<string | null>(null);
   const { getByFrequency } = useAudioLibrary();
   
   useEffect(() => {
     if (!frequencyId) return;
+    
+    // If the frequencyId is a URL (contains http/s), use it as direct audio
+    if (frequencyId.startsWith('http')) {
+      setDirectAudioUrl(decodeURIComponent(frequencyId));
+      
+      // Create a synthetic frequency object
+      const syntheticFrequency: FrequencyLibraryItem = {
+        id: 'direct-audio',
+        title: 'Journey Experience',
+        frequency: 528, // Default to 528Hz
+        description: 'A healing frequency journey experience.',
+        audio_url: decodeURIComponent(frequencyId)
+      };
+      setFrequency(syntheticFrequency);
+      return;
+    }
     
     const loadFrequency = async () => {
       try {
@@ -182,7 +200,7 @@ const JourneyPlayer = () => {
           </Button>
           <Card>
             <CardContent className="flex items-center justify-center p-10">
-              <p>Loading frequency information...</p>
+              <p>Loading journey experience...</p>
             </CardContent>
           </Card>
         </div>
@@ -205,6 +223,7 @@ const JourneyPlayer = () => {
           currentIntention={intention}
           sessionId={sessionId}
           audioGroupId={audioGroupId}
+          audioUrl={directAudioUrl}
         />
       </div>
     </Layout>

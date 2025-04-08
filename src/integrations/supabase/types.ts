@@ -283,6 +283,197 @@ export type Database = {
         }
         Relationships: []
       }
+      journey_template_audio_mappings: {
+        Row: {
+          audio_file_name: string
+          audio_url: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_primary: boolean | null
+          journey_template_id: string | null
+        }
+        Insert: {
+          audio_file_name: string
+          audio_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_primary?: boolean | null
+          journey_template_id?: string | null
+        }
+        Update: {
+          audio_file_name?: string
+          audio_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_primary?: boolean | null
+          journey_template_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journey_template_audio_mappings_journey_template_id_fkey"
+            columns: ["journey_template_id"]
+            isOneToOne: false
+            referencedRelation: "journey_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      journey_template_features: {
+        Row: {
+          created_at: string | null
+          feature: string
+          id: string
+          journey_template_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          feature: string
+          id?: string
+          journey_template_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          feature?: string
+          id?: string
+          journey_template_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journey_template_features_journey_template_id_fkey"
+            columns: ["journey_template_id"]
+            isOneToOne: false
+            referencedRelation: "journey_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      journey_template_frequencies: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          journey_template_id: string | null
+          name: string
+          value: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          journey_template_id?: string | null
+          name: string
+          value: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          journey_template_id?: string | null
+          name?: string
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journey_template_frequencies_journey_template_id_fkey"
+            columns: ["journey_template_id"]
+            isOneToOne: false
+            referencedRelation: "journey_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      journey_template_sound_sources: {
+        Row: {
+          created_at: string | null
+          id: string
+          journey_template_id: string | null
+          source: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          journey_template_id?: string | null
+          source: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          journey_template_id?: string | null
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journey_template_sound_sources_journey_template_id_fkey"
+            columns: ["journey_template_id"]
+            isOneToOne: false
+            referencedRelation: "journey_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      journey_templates: {
+        Row: {
+          affirmation: string | null
+          chakras: string[] | null
+          color: string | null
+          created_at: string | null
+          description: string | null
+          duration: number | null
+          emoji: string | null
+          guided_prompt: string | null
+          id: string
+          name: string | null
+          purpose: string | null
+          session_type: string | null
+          subtitle: string | null
+          title: string
+          vale_quote: string | null
+          vibe: string | null
+          visual_theme: string | null
+        }
+        Insert: {
+          affirmation?: string | null
+          chakras?: string[] | null
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          emoji?: string | null
+          guided_prompt?: string | null
+          id: string
+          name?: string | null
+          purpose?: string | null
+          session_type?: string | null
+          subtitle?: string | null
+          title: string
+          vale_quote?: string | null
+          vibe?: string | null
+          visual_theme?: string | null
+        }
+        Update: {
+          affirmation?: string | null
+          chakras?: string[] | null
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          emoji?: string | null
+          guided_prompt?: string | null
+          id?: string
+          name?: string | null
+          purpose?: string | null
+          session_type?: string | null
+          subtitle?: string | null
+          title?: string
+          vale_quote?: string | null
+          vibe?: string | null
+          visual_theme?: string | null
+        }
+        Relationships: []
+      }
       love_quotes: {
         Row: {
           created_at: string | null
@@ -942,6 +1133,15 @@ export type Database = {
       get_audio_url: {
         Args: { filename: string }
         Returns: string
+      }
+      get_journey_audio_mapping: {
+        Args: { template_id: string }
+        Returns: {
+          journey_template_id: string
+          audio_file_name: string
+          audio_url: string
+          is_primary: boolean
+        }[]
       }
       get_random_audio_from_group: {
         Args: { group_name: string }

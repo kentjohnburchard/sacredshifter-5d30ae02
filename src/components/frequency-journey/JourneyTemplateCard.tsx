@@ -3,18 +3,27 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Music } from "lucide-react";
 import { Link } from "react-router-dom";
 import { JourneyTemplate } from "@/data/journeyTemplates";
 import { motion } from "framer-motion";
 
 interface JourneyTemplateCardProps {
   template: JourneyTemplate;
+  audioMapping?: {
+    audioUrl: string;
+    audioFileName: string;
+  };
 }
 
-const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template }) => {
-  // Extract the first frequency value to use in the link
+const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template, audioMapping }) => {
+  // Extract the first frequency value to use in the link if needed
   const firstFrequencyValue = template.frequencies[0]?.value.split(' ')[0] || '';
+  
+  // Now we can use audioMapping to direct to the correct audio
+  const journeyLink = audioMapping
+    ? `/journey/${encodeURIComponent(audioMapping.audioUrl)}`
+    : `/journey/${firstFrequencyValue}`;
   
   return (
     <motion.div
@@ -65,6 +74,17 @@ const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template }) =
                   </Badge>
                 </motion.div>
               )}
+              {audioMapping && (
+                <motion.div
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <Badge variant="outline" className="border-white/40 text-white shimmer-hover flex items-center gap-1">
+                    <Music className="h-3 w-3" />
+                    <span className="sr-only">Has Audio</span>
+                  </Badge>
+                </motion.div>
+              )}
             </div>
           </CardTitle>
         </CardHeader>
@@ -110,18 +130,26 @@ const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template }) =
             
             <p className="text-sm italic text-gray-600 relative font-lora">
               <span className="text-3xl text-purple-300 absolute -top-3 -left-2">"</span>
-              {template.valeQuote.replace("Vale", "Kent")}
+              {template.vale_quote?.replace("Vale", "Kent")}
               <span className="text-3xl text-purple-300 absolute -bottom-5 -right-2">"</span>
             </p>
             <p className="text-xs text-right mt-2 text-purple-600 font-medium">— Kent</p>
           </motion.div>
           
-          <div className="pt-4 flex justify-end">
+          <div className="pt-4 flex justify-between items-center">
+            {audioMapping && (
+              <div className="text-xs text-purple-500 flex items-center">
+                <Music className="h-3 w-3 mr-1" />
+                <span className="truncate max-w-[150px]" title={audioMapping.audioFileName}>
+                  {audioMapping.audioFileName.split('/').pop()}
+                </span>
+              </div>
+            )}
             <Button 
               asChild
-              className="cosmic-button"
+              className="cosmic-button ml-auto"
             >
-              <Link to={`/journey/${firstFrequencyValue}`}>
+              <Link to={journeyLink}>
                 Begin Journey <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>

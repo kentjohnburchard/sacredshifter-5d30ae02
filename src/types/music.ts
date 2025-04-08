@@ -32,3 +32,12 @@ export interface FunctionalityDescription {
 }
 
 export type FunctionalityMap = Record<AppFunctionality, FunctionalityDescription>;
+
+export interface JourneyAudioMapping {
+  journeyId: string;
+  audioFileName: string;
+  audioUrl: string;
+  isPrimary: boolean;
+  id: string;
+  createdAt: string;
+}
