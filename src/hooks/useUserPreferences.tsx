@@ -58,7 +58,7 @@ export const useUserPreferences = () => {
       }
 
       if (data && data.length > 0) {
-        const latestPrefs = data.sort((a, b) => 
+        const latestPrefs = data.sort((a: any, b: any) => 
           new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
         )[0];
         
