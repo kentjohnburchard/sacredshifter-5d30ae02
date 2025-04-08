@@ -7,9 +7,16 @@ interface NavLinkProps {
   children: React.ReactNode;
   className?: string;
   isMobile?: boolean;
+  onClick?: () => void;
 }
 
-const NavLink: React.FC<NavLinkProps> = ({ to, children, className = "", isMobile = false }) => {
+const NavLink: React.FC<NavLinkProps> = ({ 
+  to, 
+  children, 
+  className = "", 
+  isMobile = false,
+  onClick
+}) => {
   const location = useLocation();
   const isActive = location.pathname === to;
   
@@ -30,6 +37,7 @@ const NavLink: React.FC<NavLinkProps> = ({ to, children, className = "", isMobil
     <Link 
       to={to} 
       className={`${baseClass} ${className}`}
+      onClick={onClick}
     >
       {children}
     </Link>

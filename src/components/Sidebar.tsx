@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import SidebarLogo from "@/components/navigation/SidebarLogo";
 import SidebarNavItems from "@/components/navigation/SidebarNavItems"; 
@@ -11,8 +11,27 @@ interface SidebarProps {
   className?: string;
 }
 
+const AUTO_COLLAPSE_DELAY = 4000; // 4 seconds before auto-collapse
+
 const Sidebar: React.FC<SidebarProps> = ({ className }) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  
+  // Set up auto-collapse timer
+  useEffect(() => {
+    let timer: number | undefined;
+    
+    if (!isCollapsed) {
+      timer = window.setTimeout(() => {
+        setIsCollapsed(true);
+      }, AUTO_COLLAPSE_DELAY);
+    }
+    
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [isCollapsed]);
 
   return (
     <aside 
@@ -41,7 +60,10 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
 
       {/* Scrollable Navigation Items */}
       <ScrollArea className="flex-1 px-3 py-2">
-        <SidebarNavItems isCollapsed={isCollapsed} />
+        <SidebarNavItems 
+          isCollapsed={isCollapsed}
+          onLinkClick={() => setIsCollapsed(true)} 
+        />
       </ScrollArea>
 
       {/* User section at the bottom */}

@@ -61,7 +61,15 @@ const navItems = [
   { href: '/emotion-engine', icon: HeartPulse, label: 'Emotion Engine', category: 'timeline' },
 ];
 
-const SidebarNavItems = ({ isCollapsed }: { isCollapsed?: boolean }) => {
+interface SidebarNavItemsProps {
+  isCollapsed?: boolean;
+  onLinkClick?: () => void;
+}
+
+const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({ 
+  isCollapsed, 
+  onLinkClick 
+}) => {
   const location = useLocation();
   const { liftTheVeil } = useTheme();
 
@@ -75,6 +83,7 @@ const SidebarNavItems = ({ isCollapsed }: { isCollapsed?: boolean }) => {
           key={item.href}
           to={item.href}
           isMobile={false}
+          onClick={onLinkClick}
           className={cn(
             "flex items-center py-2 px-3 text-sm rounded-md transition-colors",
             isActive
@@ -109,6 +118,7 @@ const SidebarNavItems = ({ isCollapsed }: { isCollapsed?: boolean }) => {
         <NavLink
           to="/site-map"
           isMobile={false}
+          onClick={onLinkClick}
           className="flex items-center py-2 px-3 text-sm rounded-md transition-colors text-gray-600 hover:bg-purple-50 hover:text-purple-900 mt-4 border-t border-purple-50 pt-4"
         >
           <Map className="h-5 w-5 mr-2 text-gray-500" />
