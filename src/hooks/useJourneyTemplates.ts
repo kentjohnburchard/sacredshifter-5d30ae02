@@ -30,7 +30,7 @@ export const useJourneyTemplates = ({ includeAudioMappings = true }: UseJourneyT
         }
 
         if (templates) {
-          setTemplates(templates);
+          setTemplates(templates as JourneyTemplate[]);
         }
 
         // Fetch audio mappings if requested
