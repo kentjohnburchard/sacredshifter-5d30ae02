@@ -62,12 +62,16 @@ export const useUserPreferences = () => {
           new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
         )[0];
         
-        // Map database fields to our interface
+        // Map database fields to our interface and enforce the correct type
+        const consciousnessMode = latestPrefs.consciousness_mode === "lift-the-veil" 
+          ? "lift-the-veil" 
+          : "standard";
+          
         setPreferences({
           ...latestPrefs,
           soundscapeMode: latestPrefs.soundscape_mode,
           kent_mode: latestPrefs.kent_mode || false,
-          consciousness_mode: latestPrefs.consciousness_mode || "standard"
+          consciousness_mode: consciousnessMode
         });
       } else {
         const { data: astrologyData } = await supabase
@@ -119,6 +123,11 @@ export const useUserPreferences = () => {
         .select('id')
         .eq('user_id', user.id);
       
+      // Ensure the consciousness_mode is of the correct type
+      const consciousnessMode = newPreferences.consciousness_mode === "lift-the-veil" 
+        ? "lift-the-veil" 
+        : "standard";
+      
       const prefsToSave = {
         user_id: user.id,
         theme_gradient: newPreferences.theme_gradient,
@@ -127,7 +136,7 @@ export const useUserPreferences = () => {
         watermark_style: newPreferences.watermark_style,
         soundscape_mode: newPreferences.soundscapeMode,
         kent_mode: newPreferences.kent_mode || false,
-        consciousness_mode: newPreferences.consciousness_mode || "standard",
+        consciousness_mode: consciousnessMode,
         updated_at: new Date().toISOString()
       };
 
@@ -156,7 +165,8 @@ export const useUserPreferences = () => {
       }
 
       setPreferences({
-        ...newPreferences
+        ...newPreferences,
+        consciousness_mode: consciousnessMode
       });
       toast.success("Your cosmic vibe has been saved!");
       return true;
