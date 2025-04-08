@@ -2,6 +2,7 @@
 import React from 'react';
 import Layout from '@/components/Layout';
 import HarmonicMapViewer from '@/components/harmonic-map/HarmonicMapViewer';
+import SongMappingViewer from '@/components/harmonic-map/SongMappingViewer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Info, Sparkles, Compass, Music as MusicIcon } from 'lucide-react';
 import { teslaThreeSixNine } from '@/data/harmonicSequence';
@@ -25,15 +26,19 @@ const HarmonicMapPage: React.FC = () => {
 
           <Tabs defaultValue="map" className="w-full mb-12">
             <TabsList className="mb-6 w-full max-w-md mx-auto">
-              <TabsTrigger value="map" className="w-1/3">
+              <TabsTrigger value="map" className="w-1/4">
                 <Compass className="h-4 w-4 mr-2" />
                 Interactive Map
               </TabsTrigger>
-              <TabsTrigger value="tesla" className="w-1/3">
+              <TabsTrigger value="songs" className="w-1/4">
+                <MusicIcon className="h-4 w-4 mr-2" />
+                Song Mappings
+              </TabsTrigger>
+              <TabsTrigger value="tesla" className="w-1/4">
                 <Sparkles className="h-4 w-4 mr-2" />
                 Tesla's 3-6-9
               </TabsTrigger>
-              <TabsTrigger value="about" className="w-1/3">
+              <TabsTrigger value="about" className="w-1/4">
                 <Info className="h-4 w-4 mr-2" />
                 About Harmonics
               </TabsTrigger>
@@ -41,6 +46,10 @@ const HarmonicMapPage: React.FC = () => {
             
             <TabsContent value="map">
               <HarmonicMapViewer />
+            </TabsContent>
+            
+            <TabsContent value="songs">
+              <SongMappingViewer />
             </TabsContent>
             
             <TabsContent value="tesla">
