@@ -799,6 +799,7 @@ export type Database = {
       }
       user_preferences: {
         Row: {
+          consciousness_mode: string | null
           created_at: string | null
           element: string | null
           id: string
@@ -811,6 +812,7 @@ export type Database = {
           zodiac_sign: string | null
         }
         Insert: {
+          consciousness_mode?: string | null
           created_at?: string | null
           element?: string | null
           id?: string
@@ -823,6 +825,7 @@ export type Database = {
           zodiac_sign?: string | null
         }
         Update: {
+          consciousness_mode?: string | null
           created_at?: string | null
           element?: string | null
           id?: string
