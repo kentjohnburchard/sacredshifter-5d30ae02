@@ -167,7 +167,9 @@ const JourneyAudioManager: React.FC = () => {
         title: newTrackTitle,
         audio_url: `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${filename}`,
         feature: "journey",
-        type: "journey-audio"
+        type: "journey-audio",
+        frequency: 432, // Adding a default frequency value (432 Hz is a common healing frequency)
+        description: "Journey audio track"
       });
       
       if (insertError) throw insertError;
