@@ -11,7 +11,6 @@ interface NavLinkProps {
 
 const NavLink: React.FC<NavLinkProps> = ({ to, children, className = "", isMobile = false }) => {
   const location = useLocation();
-  
   const isActive = location.pathname === to;
   
   // Mobile styles are different from desktop styles

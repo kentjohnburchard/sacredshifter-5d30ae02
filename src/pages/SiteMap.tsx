@@ -2,13 +2,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { getActiveNavItems } from "@/config/navigation";
 import { Separator } from "@/components/ui/separator";
 import { Map } from "lucide-react";
 
 const SiteMap = () => {
-  const activeNavItems = getActiveNavItems();
-  
   // Group pages by category
   const categories = {
     "Main Pages": [
@@ -21,7 +18,6 @@ const SiteMap = () => {
     ],
     "Personal Growth": [
       { path: "/heart-center", label: "Heart Center" },
-      { path: "/heart-dashboard", label: "Heart Dashboard" },
       { path: "/alignment", label: "Alignment" },
       { path: "/intentions", label: "Intentions" },
       { path: "/focus", label: "Focus" },

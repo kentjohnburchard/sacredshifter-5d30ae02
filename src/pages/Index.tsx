@@ -10,8 +10,8 @@ const Index: React.FC = () => {
     return <Navigate to="/welcome" replace />;
   }
   
-  // Otherwise, redirect to the home page
-  return <Navigate to="/" replace />;
+  // Otherwise, redirect to the dashboard
+  return <Navigate to="/dashboard" replace />;
 };
 
 export default Index;

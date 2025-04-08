@@ -1,3 +1,4 @@
+
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 
@@ -16,7 +17,6 @@ import GlobalWatermark from "@/components/GlobalWatermark";
 import Auth from "@/pages/Auth";
 import TrinityGateway from "./pages/TrinityGateway";
 import Contact from "./pages/Contact";
-import HeartDashboard from "./pages/HeartDashboard";
 import Welcome from "./pages/Welcome";
 import SiteMap from "@/pages/SiteMap";
 import EnergyCheck from "@/pages/EnergyCheck";
@@ -33,6 +33,7 @@ import Astrology from "@/pages/Astrology";
 import AboutFounder from "@/pages/AboutFounder";
 import PersonalVibeSettings from "@/pages/PersonalVibeSettings";
 import HarmonicMapPage from "@/pages/HarmonicMap";
+import Index from "@/pages/Index";
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/welcome" element={<Welcome />} />
+          <Route path="/index" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/site-map" element={<SiteMap />} />
           <Route
@@ -131,14 +133,6 @@ function App() {
             element={
               <ProtectedRoute>
                 <HeartCenter />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/heart-dashboard"
-            element={
-              <ProtectedRoute>
-                <HeartDashboard />
               </ProtectedRoute>
             }
           />

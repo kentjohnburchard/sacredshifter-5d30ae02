@@ -2,12 +2,8 @@
 import React from "react";
 import FrequencyShiftPrompt from "@/components/FrequencyShiftPrompt";
 
-const FrequencyShiftTab: React.FC = () => {
-  return (
-    <div className="space-y-8">
-      <FrequencyShiftPrompt />
-    </div>
-  );
+const FrequencyShiftTab = () => {
+  return <FrequencyShiftPrompt />;
 };
 
 export default FrequencyShiftTab;

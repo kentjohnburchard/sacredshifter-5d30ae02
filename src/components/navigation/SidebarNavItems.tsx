@@ -22,6 +22,7 @@ import {
   Map,
   Brain,
   BarChart3,
+  Star,
 } from 'lucide-react';
 
 // Group navigation items by category to match site map structure
@@ -34,7 +35,6 @@ const navItems = [
   
   // Personal Growth
   { href: '/heart-center', icon: Heart, label: 'Heart Center', category: 'growth' },
-  { href: '/heart-dashboard', icon: HeartPulse, label: 'Heart Dashboard', category: 'growth' },
   { href: '/alignment', icon: BarChart3, label: 'Alignment', category: 'growth' },
   { href: '/intentions', icon: Lightbulb, label: 'Intentions', category: 'growth' },
   { href: '/focus', icon: Brain, label: 'Focus', category: 'growth' },
@@ -42,7 +42,7 @@ const navItems = [
   // Sacred Knowledge
   { href: '/hermetic-wisdom', icon: BookOpen, label: 'Hermetic Wisdom', category: 'knowledge' },
   { href: '/harmonic-map', icon: Compass, label: 'Harmonic Map', category: 'knowledge' },
-  { href: '/astrology', icon: Lightbulb, label: 'Astrology', category: 'knowledge' },
+  { href: '/astrology', icon: Star, label: 'Astrology', category: 'knowledge' },
   { href: '/trinity-gateway', icon: Flame, label: 'Trinity Gateway', category: 'knowledge' },
   
   // Music & Frequencies
