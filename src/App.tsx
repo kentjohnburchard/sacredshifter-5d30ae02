@@ -16,10 +16,12 @@ import EmotionEngine from "@/pages/EmotionEngine";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ScrollToTop from "@/components/ScrollToTop";
 import GlobalWatermark from "@/components/GlobalWatermark";
+import Auth from "@/pages/Auth"; // Import the Auth page
 // Import our pages
 import TrinityGateway from "./pages/TrinityGateway";
 import Contact from "./pages/Contact";
 import HeartDashboard from "./pages/HeartDashboard";
+import MusicGeneration from "@/pages/MusicGeneration"; // Add this import to fix the redirect issues
 
 function App() {
   const queryClient = new QueryClient();
@@ -34,6 +36,7 @@ function App() {
             <div className="flex flex-col min-h-screen">
               <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/auth" element={<Auth />} /> {/* Add the Auth route */}
                 <Route
                   path="/dashboard"
                   element={
@@ -79,6 +82,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <MusicGenerator />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/music-generation"
+                  element={
+                    <ProtectedRoute>
+                      <MusicGeneration />
                     </ProtectedRoute>
                   }
                 />
