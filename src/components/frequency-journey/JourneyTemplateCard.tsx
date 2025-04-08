@@ -130,7 +130,7 @@ const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template, aud
             
             <p className="text-sm italic text-gray-600 relative font-lora">
               <span className="text-3xl text-purple-300 absolute -top-3 -left-2">"</span>
-              {template.vale_quote?.replace("Vale", "Kent")}
+              {template.valeQuote?.replace("Vale", "Kent")}
               <span className="text-3xl text-purple-300 absolute -bottom-5 -right-2">"</span>
             </p>
             <p className="text-xs text-right mt-2 text-purple-600 font-medium">— Kent</p>

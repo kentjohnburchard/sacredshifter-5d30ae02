@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { JourneyTemplate } from '@/data/journeyTemplates';
 import { toast } from 'sonner';
+import { JourneyAudioMapping } from '@/types/music';
 
 interface UseJourneyTemplatesProps {
   includeAudioMappings?: boolean;
@@ -19,55 +20,23 @@ export const useJourneyTemplates = ({ includeAudioMappings = true }: UseJourneyT
       try {
         setLoading(true);
         
-        // Fetch templates from database
-        const { data: templatesData, error: templatesError } = await supabase
-          .from('journey_templates')
-          .select('*');
+        // Use the rpc function to get templates with all their related data
+        // This avoids type issues with accessing tables directly
+        const { data: templates, error: templatesError } = await supabase
+          .rpc('get_journey_templates_with_details');
 
         if (templatesError) {
           throw templatesError;
         }
 
-        // For each template, fetch its frequencies, features, and sound sources
-        const templatesWithDetails = await Promise.all(
-          templatesData.map(async (template) => {
-            // Fetch frequencies
-            const { data: frequenciesData } = await supabase
-              .from('journey_template_frequencies')
-              .select('name, value, description')
-              .eq('journey_template_id', template.id);
-
-            // Fetch features
-            const { data: featuresData } = await supabase
-              .from('journey_template_features')
-              .select('feature')
-              .eq('journey_template_id', template.id);
-
-            // Fetch sound sources
-            const { data: soundSourcesData } = await supabase
-              .from('journey_template_sound_sources')
-              .select('source')
-              .eq('journey_template_id', template.id);
-
-            // Convert to expected format
-            return {
-              ...template,
-              frequencies: frequenciesData || [],
-              features: featuresData?.map(item => item.feature) || [],
-              soundSources: soundSourcesData?.map(item => item.source) || [],
-              tags: [], // Default empty tags
-            } as JourneyTemplate;
-          })
-        );
-
-        setTemplates(templatesWithDetails);
+        if (templates) {
+          setTemplates(templates);
+        }
 
         // Fetch audio mappings if requested
         if (includeAudioMappings) {
           const { data: mappingsData, error: mappingsError } = await supabase
-            .from('journey_template_audio_mappings')
-            .select('*')
-            .eq('is_primary', true);
+            .rpc('get_journey_audio_mappings');
 
           if (mappingsError) {
             console.error('Error fetching audio mappings:', mappingsError);
@@ -75,7 +44,7 @@ export const useJourneyTemplates = ({ includeAudioMappings = true }: UseJourneyT
             // Create a mapping from template ID to audio URL
             const mappings: Record<string, { audioUrl: string, audioFileName: string }> = {};
             
-            mappingsData.forEach(mapping => {
+            mappingsData.forEach((mapping: any) => {
               const audioUrl = mapping.audio_url || 
                 `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${mapping.audio_file_name}`;
               
@@ -92,6 +61,10 @@ export const useJourneyTemplates = ({ includeAudioMappings = true }: UseJourneyT
         console.error('Error fetching journey templates:', err);
         setError(err.message || 'Failed to load journey templates');
         toast.error('Failed to load journey templates');
+        
+        // Fallback to local data
+        const { default: localTemplates } = await import('@/data/journeyTemplates');
+        setTemplates(localTemplates);
       } finally {
         setLoading(false);
       }
@@ -103,18 +76,14 @@ export const useJourneyTemplates = ({ includeAudioMappings = true }: UseJourneyT
   // Function to add an audio mapping to a journey template
   const addAudioMapping = async (journeyId: string, audioFileName: string, audioUrl?: string, isPrimary: boolean = true) => {
     try {
-      const mappingData = {
-        journey_template_id: journeyId,
-        audio_file_name: audioFileName,
-        audio_url: audioUrl,
-        is_primary: isPrimary
-      };
-
+      // Use stored procedure to insert audio mapping
       const { data, error } = await supabase
-        .from('journey_template_audio_mappings')
-        .insert([mappingData])
-        .select('*')
-        .single();
+        .rpc('insert_journey_audio_mapping', {
+          template_id: journeyId,
+          file_name: audioFileName,
+          url: audioUrl,
+          is_primary: isPrimary
+        });
 
       if (error) {
         throw error;
