@@ -10,6 +10,7 @@ import { ChakraData } from "@/data/chakraData";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter, DrawerClose } from "@/components/ui/drawer";
 import { useMediaQuery } from "@/hooks/use-mobile";
+import ChakraTonePlayer from "./ChakraTonePlayer";
 
 interface ChakraDetailModalProps {
   chakra: ChakraData | null;
@@ -80,25 +81,10 @@ const ChakraDetailModal: React.FC<ChakraDetailModalProps> = ({ chakra, isOpen, o
           <div className="bg-gray-50 p-4 rounded-md border border-gray-100">
             <h3 className="font-medium text-gray-700 flex items-center">
               <span className={`inline-block w-3 h-3 rounded-full mr-2 ${chakra.color}`}></span>
-              Frequency: {chakra.frequency} Hz
+              Chakra Frequency
             </h3>
-            <div className="mt-3 flex items-center gap-3">
-              <Button 
-                onClick={togglePlayPause} 
-                className={`${chakra.gradient} text-white hover:opacity-90`}
-                size="sm"
-              >
-                {isAudioPlaying ? <Pause className="h-4 w-4 mr-2" /> : <Play className="h-4 w-4 mr-2" />}
-                {isAudioPlaying ? "Pause" : "Play"} Tone
-              </Button>
-              <Button
-                onClick={toggleAudio}
-                variant="outline"
-                size="icon"
-                className="h-8 w-8"
-              >
-                {audioEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-              </Button>
+            <div className="mt-3">
+              <ChakraTonePlayer chakra={chakra} />
             </div>
           </div>
         </TabsContent>
