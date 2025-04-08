@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,6 +17,7 @@ interface JourneyPlayerProps {
   onReflectionSubmit: (reflection: string) => void;
   currentIntention: string;
   sessionId: string | null;
+  audioGroupId?: string | null;
 }
 
 export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
@@ -25,7 +25,8 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
   onSessionStart,
   onReflectionSubmit,
   currentIntention,
-  sessionId
+  sessionId,
+  audioGroupId
 }) => {
   const [intention, setIntention] = useState("");
   const [reflection, setReflection] = useState("");
@@ -36,7 +37,6 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
   useEffect(() => {
     const fetchFractalVisual = async () => {
       try {
-        // Query the fractal_visuals table to find matching fractal by frequency
         const { data, error } = await supabase
           .from("fractal_visuals")
           .select("*")
@@ -50,7 +50,6 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
 
         if (data) {
           setFractalVisual(data);
-          // Update the frequency object with the fractal visual
           frequency.fractal_visual = data;
         }
       } catch (err) {
@@ -78,7 +77,6 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
     setIsPlaying(!isPlaying);
   };
 
-  // Determine background color based on chakra
   const getBackgroundColor = (chakra: string) => {
     switch (chakra.toLowerCase()) {
       case 'root': return 'from-red-900 to-red-600';
@@ -103,7 +101,6 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
 
   return (
     <div className="relative min-h-[80vh]">
-      {/* Fractal Visual Background */}
       {fractalVisual?.visual_url ? (
         <div 
           className={`absolute inset-0 z-0 bg-cover bg-center ${getFractalAnimationClass(fractalVisual.type)}`}
@@ -112,7 +109,6 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
           <div className={`absolute inset-0 bg-gradient-to-b from-black/30 to-black/70`}></div>
         </div>
       ) : (
-        /* Fallback to AnimatedBackground */
         <div className="absolute inset-0 z-0">
           <AnimatedBackground 
             colorScheme={bgGradient.split(' ')[1]} 
@@ -167,6 +163,9 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
                     audioUrl={frequency.audio_url}
                     isPlaying={isPlaying}
                     onPlayToggle={handlePlayToggle}
+                    frequency={frequency.frequency}
+                    frequencyId={frequency.id}
+                    groupId={audioGroupId}
                   />
                 )}
               </div>
@@ -237,7 +236,6 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
           )}
         </Card>
         
-        {/* Full Screen Fractal Dialog */}
         {fractalVisual && (
           <Dialog open={showFractalDialog} onOpenChange={setShowFractalDialog}>
             <DialogContent className="max-w-5xl h-full max-h-[90vh] p-0 overflow-hidden">

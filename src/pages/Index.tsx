@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { Navigate } from "react-router-dom";
 
@@ -16,8 +15,8 @@ const Index: React.FC = () => {
     return <Navigate to="/welcome" replace />;
   }
   
-  // Otherwise, redirect to the dashboard
-  return <Navigate to="/dashboard" replace />;
+  // Otherwise, redirect to the home page (instead of dashboard)
+  return <Navigate to="/home" replace />;
 };
 
 export default Index;
