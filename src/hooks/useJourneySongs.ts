@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -43,14 +42,10 @@ const journeySongsMap: Record<string, string[]> = {
   ]
 };
 
-// For demo purposes, use local audio files instead of remote ones
-// Modify this for production
+// Get direct Supabase audio URL for a filename
 const getDirectAudioUrl = (filename: string): string => {
-  // Use local demo audio for now
-  return `/sounds/focus-ambient.mp3`;
-  
-  // In production, would use this:
-  // return `${import.meta.env.VITE_PUBLIC_SUPABASE_URL || 'https://mikltjgbvxrxndtszorb.supabase.co'}/storage/v1/object/public/frequency-assets/journey/${encodeURIComponent(filename)}`;
+  // Use the Supabase URL for production
+  return `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${encodeURIComponent(filename)}`;
 };
 
 // Convert song filenames to mock SongMapping objects

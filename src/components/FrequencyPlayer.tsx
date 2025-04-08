@@ -94,7 +94,10 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       }
       
       try {
-        audioRef.current.src = effectiveAudioUrl;
+        // Make sure to properly encode spaces in URLs if needed
+        const formattedUrl = effectiveAudioUrl.includes(' ') ? 
+          effectiveAudioUrl.replace(/ /g, '%20') : effectiveAudioUrl;
+        audioRef.current.src = formattedUrl;
         audioRef.current.load();
       } catch (err) {
         console.error("Error setting audio source:", err);
@@ -131,7 +134,9 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     if (audioError) {
       // If there was an error, try reloading before playing
       if (audioRef.current && effectiveAudioUrl) {
-        audioRef.current.src = effectiveAudioUrl;
+        const formattedUrl = effectiveAudioUrl.includes(' ') ? 
+          effectiveAudioUrl.replace(/ /g, '%20') : effectiveAudioUrl;
+        audioRef.current.src = formattedUrl;
         audioRef.current.load();
       }
       
