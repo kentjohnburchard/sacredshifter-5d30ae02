@@ -67,7 +67,7 @@ export const useUserPreferences = () => {
           ...latestPrefs,
           soundscapeMode: latestPrefs.soundscape_mode,
           kent_mode: latestPrefs.kent_mode || false,
-          consciousness_mode: dbPrefs.consciousness_mode || "standard"
+          consciousness_mode: "standard"
         });
       } else {
         const { data: astrologyData } = await supabase
@@ -127,7 +127,6 @@ export const useUserPreferences = () => {
         watermark_style: newPreferences.watermark_style,
         soundscape_mode: newPreferences.soundscapeMode,
         kent_mode: newPreferences.kent_mode || false,
-        consciousness_mode: newPreferences.consciousness_mode || "standard",
         updated_at: new Date().toISOString()
       };
 
@@ -155,7 +154,9 @@ export const useUserPreferences = () => {
         return false;
       }
 
-      setPreferences(newPreferences);
+      setPreferences({
+        ...newPreferences
+      });
       toast.success("Your cosmic vibe has been saved!");
       return true;
     } catch (err) {
