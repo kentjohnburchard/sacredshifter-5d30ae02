@@ -4,7 +4,7 @@ import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { motion } from "framer-motion";
 import Header from "@/components/navigation/Header";
 import GlobalWatermark from "@/components/GlobalWatermark";
-import { LoveDashboard } from "@/components/heart-center/LoveDashboard";
+import LoveDashboard from "@/components/heart-center/LoveDashboard";
 
 const HeartDashboard: React.FC = () => {
   const { preferences } = useUserPreferences();

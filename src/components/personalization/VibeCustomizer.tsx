@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useAuth } from '@/context/AuthContext';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
@@ -46,7 +45,7 @@ import { getRandomQuote } from "@/utils/customizationOptions";
 const VibeCustomizer: React.FC = () => {
   const { user } = useAuth();
   const { preferences, setPreferences, saveUserPreferences, loading } = useUserPreferences();
-  const { kentMode, setKentMode, refreshQuote } = useTheme();
+  const { kentMode, setKentMode, refreshQuote, liftTheVeil, setLiftTheVeil } = useTheme();
   const [customGradient, setCustomGradient] = useState("");
   const [activeTab, setActiveTab] = useState("theme");
   const [selectedTheme, setSelectedTheme] = useState<ThemeOption | null>(null);
@@ -141,6 +140,14 @@ const VibeCustomizer: React.FC = () => {
       kent_mode: checked // Fixed property name to match database schema
     });
     refreshQuote();
+  };
+
+  const handleLiftTheVeilChange = (checked: boolean) => {
+    setLiftTheVeil(checked);
+    setPreferences({
+      ...preferences,
+      lift_the_veil: checked
+    });
   };
 
   const randomizeVibe = () => {
@@ -314,6 +321,29 @@ const VibeCustomizer: React.FC = () => {
                     className={kentMode ? "bg-brand-aurapink" : ""}
                   />
                   {kentMode ? 
+                    <ToggleRight className="h-4 w-4 text-brand-aurapink" /> : 
+                    <ToggleLeft className="h-4 w-4 text-gray-400" />
+                  }
+                </div>
+              </div>
+            </div>
+
+            {/* Lift the Veil Toggle */}
+            <div className="mt-6 p-4 border border-purple-100 rounded-lg bg-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-md font-medium">Lift the Veil</h3>
+                  <p className="text-sm text-gray-500">
+                    {liftTheVeil ? "Lift the Veil: Show your true self" : "Standard Mode: Hide your true self"}
+                  </p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch 
+                    checked={liftTheVeil} 
+                    onCheckedChange={handleLiftTheVeilChange} 
+                    className={liftTheVeil ? "bg-brand-aurapink" : ""}
+                  />
+                  {liftTheVeil ? 
                     <ToggleRight className="h-4 w-4 text-brand-aurapink" /> : 
                     <ToggleLeft className="h-4 w-4 text-gray-400" />
                   }

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import ExplanationCard from './ExplanationCard';
 import { sectionExplanations, SectionKey } from './SectionExplanations';
@@ -6,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from '@/context/ThemeContext';
 import { Sparkles } from 'lucide-react';
 
-const ExplanationShowcase: React.FC = () => {
-  const { kentMode, setKentMode } = useTheme();
+export const ExplanationShowcase = () => {
+  const { liftTheVeil, setLiftTheVeil } = useTheme();
   
   // Get all section keys
   const sections = Object.keys(sectionExplanations) as SectionKey[];
@@ -20,13 +19,13 @@ const ExplanationShowcase: React.FC = () => {
         </h2>
         
         <Button 
-          onClick={() => setKentMode(!kentMode)}
+          onClick={() => setLiftTheVeil(!liftTheVeil)}
           variant="outline" 
           size="sm"
-          className={`flex items-center gap-2 ${kentMode ? 'border-pink-200 text-pink-700' : 'border-purple-200 text-purple-700'}`}
+          className={`flex items-center gap-2 ${liftTheVeil ? 'border-pink-200 text-pink-700' : 'border-purple-200 text-purple-700'}`}
         >
-          <Sparkles className={`h-4 w-4 ${kentMode ? 'text-pink-500' : 'text-purple-500'}`} />
-          {kentMode ? 'Switch to Standard Mode' : 'Switch to Kent Mode'}
+          <Sparkles className={`h-4 w-4 ${liftTheVeil ? 'text-pink-500' : 'text-purple-500'}`} />
+          {liftTheVeil ? 'Switch to Standard Mode' : 'Switch to Lift The Veil Mode'}
         </Button>
       </div>
       
