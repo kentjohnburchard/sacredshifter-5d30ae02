@@ -17,15 +17,23 @@ import {
   Triangle,
   Mail,
   Clock,
-  BookOpen
+  BookOpen,
+  CreditCard,
+  UserCircle,
+  Settings,
+  Contact
 } from "lucide-react";
+import { getActiveNavItems } from "@/config/navigation";
 
 interface SidebarNavItemsProps {
   isCollapsed?: boolean;
 }
 
 const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({ isCollapsed = false }) => {
-  // Navigation items based on the screenshot
+  // Get only active navigation items from config
+  const activeNavItems = getActiveNavItems();
+  
+  // Additional important pages that should always be in the sidebar
   const navItems = [
     { path: "/dashboard", icon: <HomeIcon size={20} />, label: "Dashboard" },
     { path: "/energy-check", icon: <Zap size={20} />, label: "Energy Check" },
@@ -37,8 +45,11 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({ isCollapsed = false }
     { path: "/music-library", icon: <Music size={20} />, label: "Music Library" },
     { path: "/astrology", icon: <Star size={20} />, label: "Astrology" },
     { path: "/journey-templates", icon: <LayoutTemplate size={20} />, label: "Journey Templates" },
+    { path: "/about-founder", icon: <UserCircle size={20} />, label: "About Founder" },
+    { path: "/subscription", icon: <CreditCard size={20} />, label: "Subscription" },
     { path: "/personal-vibe", icon: <User2 size={20} />, label: "My Vibe" },
-    { path: "/trinity-gateway", icon: <Triangle size={20} />, label: "Trinity Gateway" }
+    { path: "/trinity-gateway", icon: <Triangle size={20} />, label: "Trinity Gateway" },
+    { path: "/contact", icon: <Mail size={20} />, label: "Contact" }
   ];
   
   return (
