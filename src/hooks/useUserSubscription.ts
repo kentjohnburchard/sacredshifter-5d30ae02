@@ -13,6 +13,21 @@ export interface UserSubscription {
   tier_name: string;
 }
 
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  tier_name: string;
+  price: number;
+  period: "month" | "year" | "lifetime";
+  features: string[];
+  is_popular: boolean;
+  is_best_value: boolean;
+  is_lifetime: boolean;
+  yearly_discount: number;
+  credits_per_period: number;
+  songs_equivalent: number;
+}
+
 const DEFAULT_SUBSCRIPTION: UserSubscription = {
   tier: "free",
   is_active: true,
@@ -24,6 +39,8 @@ const DEFAULT_SUBSCRIPTION: UserSubscription = {
 export const useUserSubscription = () => {
   const { user } = useAuth();
   const [subscription, setSubscription] = useState<UserSubscription>(DEFAULT_SUBSCRIPTION);
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly" | "lifetime">("monthly");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -78,6 +95,60 @@ export const useUserSubscription = () => {
     fetchSubscription();
   }, [user]);
 
+  // Fetch subscription plans
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("subscription_plans")
+          .select("*");
+
+        if (error) {
+          console.error("Error fetching plans:", error);
+        } else if (data) {
+          setPlans(data as SubscriptionPlan[]);
+        }
+      } catch (err) {
+        console.error("Error fetching plans:", err);
+      }
+    };
+
+    fetchPlans();
+  }, []);
+
+  // Toggle billing cycle
+  const toggleBillingCycle = (cycle: "monthly" | "yearly" | "lifetime") => {
+    setBillingCycle(cycle);
+  };
+
+  // Subscribe to a plan
+  const subscribeToPlan = async (planId: string, billingCycle: "monthly" | "yearly" | "lifetime") => {
+    if (!user) return;
+    
+    try {
+      // This would typically call a Supabase Edge Function to create a checkout session
+      const response = await fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabase.auth.getSession()}`
+        },
+        body: JSON.stringify({
+          plan_id: planId,
+          is_yearly: billingCycle === 'yearly',
+          price: plans.find(p => p.id === planId)?.price || 0
+        })
+      });
+
+      const { url } = await response.json();
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (err) {
+      console.error("Error creating subscription:", err);
+    }
+  };
+
   const hasActiveSubscription = (): boolean => {
     return subscription.is_active;
   };
@@ -95,6 +166,11 @@ export const useUserSubscription = () => {
 
   return {
     subscription,
+    userSubscription: subscription, // Alias for backward compatibility
+    plans,
+    billingCycle,
+    toggleBillingCycle,
+    subscribeToPlan,
     loading,
     error,
     hasActiveSubscription,

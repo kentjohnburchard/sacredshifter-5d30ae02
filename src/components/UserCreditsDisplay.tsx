@@ -7,9 +7,10 @@ import { CreditCard } from "lucide-react";
 
 interface UserCreditsDisplayProps {
   isLoading?: boolean;
+  credits?: number;
 }
 
-const UserCreditsDisplay: React.FC<UserCreditsDisplayProps> = ({ isLoading = false }) => {
+const UserCreditsDisplay: React.FC<UserCreditsDisplayProps> = ({ isLoading = false, credits }) => {
   if (isLoading) {
     return (
       <Card className="border-none shadow-md bg-black/70 backdrop-blur-md border border-white/10">
@@ -28,7 +29,11 @@ const UserCreditsDisplay: React.FC<UserCreditsDisplayProps> = ({ isLoading = fal
     <Card className="border-none shadow-md bg-black/70 backdrop-blur-md border border-white/10">
       <CardContent className="p-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-slate-300">Unlock premium features</span>
+          {credits !== undefined ? (
+            <span className="text-sm text-slate-300">Credits: {credits}</span>
+          ) : (
+            <span className="text-sm text-slate-300">Unlock premium features</span>
+          )}
         </div>
         <Link to="/subscription">
           <Button variant="outline" size="sm" className="bg-white/5 border-white/10 hover:bg-white/10 text-white">
