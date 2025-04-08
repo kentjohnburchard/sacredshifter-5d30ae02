@@ -9,7 +9,8 @@ import {
   HarmonicInterval 
 } from '@/data/harmonicSequence';
 import { hermeticPrinciples } from '@/data/hermeticPrinciples';
-import { HelpCircle, Info, Music } from 'lucide-react';
+import { HelpCircle, Info } from 'lucide-react';
+import HarmonicIntervalTonePlayer from './HarmonicIntervalTonePlayer';
 
 export const HarmonicMapViewer: React.FC = () => {
   const [selectedInterval, setSelectedInterval] = useState<HarmonicInterval | null>(null);
@@ -283,6 +284,17 @@ export const HarmonicMapViewer: React.FC = () => {
                     ))}
                   </ul>
                 </div>
+
+                <div className="bg-gray-50 p-3 rounded-md border border-gray-100">
+                  <h3 className="text-sm font-medium text-gray-500 mb-2">Listen to Frequency</h3>
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm">
+                      <span className="font-medium">{selectedInterval.hertz} Hz</span>
+                      <span className="text-gray-500 text-xs ml-1">Pure Tone</span>
+                    </div>
+                    <HarmonicIntervalTonePlayer interval={selectedInterval} />
+                  </div>
+                </div>
               </CardContent>
               <CardFooter className="bg-gray-50 flex justify-between">
                 <button 
@@ -290,10 +302,6 @@ export const HarmonicMapViewer: React.FC = () => {
                   className="text-sm text-gray-600 hover:text-gray-900"
                 >
                   Close
-                </button>
-                <button className="flex items-center text-sm text-purple-600 hover:text-purple-800">
-                  <Music size={16} className="mr-1" />
-                  Listen to Frequency
                 </button>
               </CardFooter>
             </Card>

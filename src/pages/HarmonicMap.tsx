@@ -1,9 +1,8 @@
-
 import React from 'react';
 import Layout from '@/components/Layout';
 import HarmonicMapViewer from '@/components/harmonic-map/HarmonicMapViewer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Info, Music, Sparkles, Compass } from 'lucide-react';
+import { Info, Sparkles, Compass } from 'lucide-react';
 import { teslaThreeSixNine } from '@/data/harmonicSequence';
 
 const HarmonicMapPage: React.FC = () => {
