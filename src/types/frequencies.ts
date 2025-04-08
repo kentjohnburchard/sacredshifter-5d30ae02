@@ -62,9 +62,15 @@ export interface JourneyPhase {
   id: string;
   title: string;
   description: string;
-  frequency?: number;
+  frequency?: number | number[];
   chakra?: string;
   duration?: number;
   audioUrl?: string;
   visualUrl?: string;
+  message?: string;
+  affirmation?: string;
+  visual_type?: string;
+  activity?: string;
+  chakras?: string[];
+  principles?: string[];
 }

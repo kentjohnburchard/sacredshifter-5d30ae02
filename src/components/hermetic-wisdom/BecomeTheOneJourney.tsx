@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,6 +21,7 @@ interface BecomeTheOneJourneyProps {
 
 const becomeTheOnePhases: JourneyPhase[] = [
   {
+    id: "phase1",
     title: "Initiation – The Spark",
     description: "A visual + audio sequence showing that the spark of light is within.",
     frequency: 528,
@@ -33,6 +33,7 @@ const becomeTheOnePhases: JourneyPhase[] = [
     principles: ["Vibration"]
   },
   {
+    id: "phase2",
     title: "Illumination – Let There Be Light",
     description: "Chakra alignment meditation with fractal visuals synced to Crown and Heart chakras.",
     frequency: [639, 963],
@@ -44,6 +45,7 @@ const becomeTheOnePhases: JourneyPhase[] = [
     principles: ["Mentalism", "Polarity"]
   },
   {
+    id: "phase3",
     title: "Declaration – I Choose Me",
     description: "Record or write an 'I Am' statement to claim your power.",
     frequency: 741,
@@ -55,6 +57,7 @@ const becomeTheOnePhases: JourneyPhase[] = [
     principles: ["Cause & Effect"]
   },
   {
+    id: "phase4",
     title: "Embodiment – Walking the Path",
     description: "Motion-based affirmation overlay with pulsing golden fractals.",
     frequency: [528, 963],
@@ -66,6 +69,7 @@ const becomeTheOnePhases: JourneyPhase[] = [
     principles: ["Vibration", "Mentalism"]
   },
   {
+    id: "phase5",
     title: "Transmission – Radiate the Shift",
     description: "Send out a pulse — vibrational ripple effect (symbolic).",
     frequency: 852,
