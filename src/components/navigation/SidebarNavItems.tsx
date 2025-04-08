@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
@@ -47,8 +46,6 @@ const navItems = [
   
   // Music & Frequencies
   { href: '/music-library', icon: Music, label: 'Music Library', category: 'music' },
-  { href: '/music-generation', icon: Music, label: 'Music Generation', category: 'music' },
-  { href: '/music-generator', icon: Music, label: 'Music Generator', category: 'music' },
   { href: '/journey-templates', icon: Map, label: 'Journey Templates', category: 'music' },
   
   // Account & Information

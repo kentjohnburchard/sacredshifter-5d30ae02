@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -27,13 +26,12 @@ const SiteMap = () => {
     ],
     "Sacred Knowledge": [
       { path: "/hermetic-wisdom", label: "Hermetic Wisdom" },
+      { path: "/harmonic-map", label: "Harmonic Map" },
       { path: "/astrology", label: "Astrology" },
       { path: "/trinity-gateway", label: "Trinity Gateway™" },
     ],
     "Music & Frequencies": [
       { path: "/music-library", label: "Music Library" },
-      { path: "/music-generation", label: "Music Generation" },
-      { path: "/music-generator", label: "Music Generator" },
       { path: "/journey-templates", label: "Journey Templates" },
     ],
     "Account & Information": [
