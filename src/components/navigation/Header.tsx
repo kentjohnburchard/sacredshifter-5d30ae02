@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Home, Menu, User, X, Palette, Heart, Sparkles } from 'lucide-react';
+import { Home, Menu, User, X, Palette, Heart, Sparkles, Mail } from 'lucide-react';
+import { activePages } from '@/config/navigation';
 
 const Header: React.FC = () => {
   const { user } = useAuth();
@@ -21,20 +23,37 @@ const Header: React.FC = () => {
               />
             </Link>
             <nav className="hidden md:flex space-x-4">
-              <Link to="/home" className="text-gray-600 hover:text-purple-600 transition-colors">
-                <Home className="h-4 w-4 inline mr-1" /> Home
-              </Link>
+              {activePages.home && (
+                <Link to="/home" className="text-gray-600 hover:text-purple-600 transition-colors">
+                  <Home className="h-4 w-4 inline mr-1" /> Home
+                </Link>
+              )}
               {user && (
                 <>
-                  <Link to="/dashboard" className="text-gray-600 hover:text-purple-600 transition-colors">Dashboard</Link>
-                  <Link to="/energy-check" className="text-gray-600 hover:text-purple-600 transition-colors">Energy Check</Link>
-                  <Link to="/frequency-library" className="text-gray-600 hover:text-purple-600 transition-colors">Frequencies</Link>
-                  <Link to="/heart-center" className="text-gray-600 hover:text-pink-600 transition-colors">
-                    <Heart className="h-4 w-4 inline mr-1" /> Heart Center
-                  </Link>
-                  <Link to="/sacred-blueprint" className="text-gray-600 hover:text-purple-600 transition-colors">
-                    <Sparkles className="h-4 w-4 inline mr-1" /> Sacred Blueprint
-                  </Link>
+                  {activePages.sacredBlueprint && (
+                    <Link to="/sacred-blueprint" className="text-gray-600 hover:text-purple-600 transition-colors">
+                      <Sparkles className="h-4 w-4 inline mr-1" /> Sacred Blueprint
+                    </Link>
+                  )}
+                  {activePages.frequencyLibrary && (
+                    <Link to="/frequency-library" className="text-gray-600 hover:text-purple-600 transition-colors">Frequencies</Link>
+                  )}
+                  {activePages.heartCenter && (
+                    <Link to="/heart-center" className="text-gray-600 hover:text-pink-600 transition-colors">
+                      <Heart className="h-4 w-4 inline mr-1" /> Heart Center
+                    </Link>
+                  )}
+                  {activePages.trinityGateway && (
+                    <Link to="/trinity-gateway" className="text-gray-600 hover:text-purple-600 transition-colors">Trinity Gateway</Link>
+                  )}
+                  {activePages.aboutFounder && (
+                    <Link to="/about-founder" className="text-gray-600 hover:text-purple-600 transition-colors">About</Link>
+                  )}
+                  {activePages.contact && (
+                    <Link to="/contact" className="text-gray-600 hover:text-purple-600 transition-colors">
+                      <Mail className="h-4 w-4 inline mr-1" /> Contact
+                    </Link>
+                  )}
                 </>
               )}
             </nav>
@@ -76,28 +95,43 @@ const Header: React.FC = () => {
         {isMenuOpen && (
           <div className="md:hidden pt-4 pb-2">
             <nav className="flex flex-col space-y-3">
+              {activePages.home && (
+                <Link to="/home" className="text-gray-600 hover:text-purple-600 transition-colors py-1">
+                  Home
+                </Link>
+              )}
               {user && (
                 <>
-                  <Link to="/sacred-blueprint" className="text-gray-600 hover:text-purple-600 transition-colors py-1">
-                    <Sparkles className="h-4 w-4 inline mr-1" /> Sacred Blueprint
-                  </Link>
+                  {activePages.sacredBlueprint && (
+                    <Link to="/sacred-blueprint" className="text-gray-600 hover:text-purple-600 transition-colors py-1">
+                      <Sparkles className="h-4 w-4 inline mr-1" /> Sacred Blueprint
+                    </Link>
+                  )}
+                  {activePages.frequencyLibrary && (
+                    <Link to="/frequency-library" className="text-gray-600 hover:text-purple-600 transition-colors py-1">Frequencies</Link>
+                  )}
+                  {activePages.heartCenter && (
+                    <Link to="/heart-center" className="text-gray-600 hover:text-pink-600 transition-colors py-1">
+                      <Heart className="h-4 w-4 inline mr-1" /> Heart Center
+                    </Link>
+                  )}
+                  {activePages.trinityGateway && (
+                    <Link to="/trinity-gateway" className="text-gray-600 hover:text-purple-600 transition-colors py-1">Trinity Gateway</Link>
+                  )}
+                  {activePages.profile && (
+                    <Link to="/profile" className="text-gray-600 hover:text-purple-600 transition-colors py-1">Profile</Link>
+                  )}
+                  {activePages.aboutFounder && (
+                    <Link to="/about-founder" className="text-gray-600 hover:text-purple-600 transition-colors py-1">About</Link>
+                  )}
+                  {activePages.contact && (
+                    <Link to="/contact" className="text-gray-600 hover:text-purple-600 transition-colors py-1">
+                      <Mail className="h-4 w-4 inline mr-1" /> Contact
+                    </Link>
+                  )}
                 </>
               )}
-              <Link to="/home" className="text-gray-600 hover:text-purple-600 transition-colors py-1">
-                Home
-              </Link>
-              {user ? (
-                <>
-                  <Link to="/dashboard" className="text-gray-600 hover:text-purple-600 transition-colors py-1">Dashboard</Link>
-                  <Link to="/energy-check" className="text-gray-600 hover:text-purple-600 transition-colors py-1">Energy Check</Link>
-                  <Link to="/frequency-library" className="text-gray-600 hover:text-purple-600 transition-colors py-1">Frequencies</Link>
-                  <Link to="/heart-center" className="text-gray-600 hover:text-pink-600 transition-colors py-1">
-                    <Heart className="h-4 w-4 inline mr-1" /> Heart Center
-                  </Link>
-                  <Link to="/personal-vibe" className="text-gray-600 hover:text-purple-600 transition-colors py-1">My Vibe</Link>
-                  <Link to="/profile" className="text-gray-600 hover:text-purple-600 transition-colors py-1">Profile</Link>
-                </>
-              ) : (
+              {!user && (
                 <>
                   <Link to="/auth" className="text-gray-600 hover:text-purple-600 transition-colors py-1">Login</Link>
                   <Link to="/auth?signup=true" className="text-gray-600 hover:text-purple-600 transition-colors py-1">Sign Up</Link>

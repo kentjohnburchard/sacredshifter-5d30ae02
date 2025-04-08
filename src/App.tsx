@@ -16,8 +16,10 @@ import EmotionEngine from "@/pages/EmotionEngine";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ScrollToTop from "@/components/ScrollToTop";
 import GlobalWatermark from "@/components/GlobalWatermark";
-// Import our new Trinity Gateway page
+// Import our pages
 import TrinityGateway from "./pages/TrinityGateway";
+import Contact from "./pages/Contact";
+import HeartDashboard from "./pages/HeartDashboard";
 
 function App() {
   const queryClient = new QueryClient();
@@ -96,6 +98,15 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="/heart-dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <HeartDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/contact" element={<Contact />} />
               </Routes>
             </div>
             <GlobalWatermark />
