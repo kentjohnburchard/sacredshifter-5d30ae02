@@ -51,7 +51,7 @@ export const JourneyTemplatesGrid = () => {
       </div>
 
       <Dialog open={!!selectedTemplate} onOpenChange={(open) => !open && handleCloseDetail()}>
-        <DialogContent className="max-w-4xl p-0 bg-transparent border-none shadow-none">
+        <DialogContent className="max-w-4xl p-0 bg-transparent border-none shadow-none max-h-[90vh] overflow-y-auto">
           {selectedTemplateData && (
             <JourneyDetail 
               template={selectedTemplateData} 

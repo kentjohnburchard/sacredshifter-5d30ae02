@@ -2,12 +2,14 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Play, Info } from 'lucide-react';
+import { ArrowLeft, Play, Info, Timer, Headphones, HeadphonesOff, Volume2 } from 'lucide-react';
 import { JourneyTemplate } from '@/data/journeyTemplates';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useJourneySongs } from '@/hooks/useJourneySongs';
 import JourneySongList from './JourneySongList';
+import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
 
 interface JourneyDetailProps {
   template: JourneyTemplate;
@@ -26,11 +28,28 @@ const JourneyDetail: React.FC<JourneyDetailProps> = ({
   const navigate = useNavigate();
   const { songs, loading } = useJourneySongs(template.id);
   
+  // Feature states
+  const [lowSensitivityMode, setLowSensitivityMode] = useState(false);
+  const [useHeadphones, setUseHeadphones] = useState(true);
+  const [sleepTimer, setSleepTimer] = useState(0);
+  const [saveToTimeline, setSaveToTimeline] = useState(true);
+  
   const handleStartJourney = () => {
+    // Store feature settings in sessionStorage
+    const settings = {
+      lowSensitivityMode,
+      useHeadphones,
+      sleepTimer,
+      saveToTimeline
+    };
+    sessionStorage.setItem('journeySettings', JSON.stringify(settings));
+    
+    // Determine journey URL
     const journeyUrl = audioMapping
       ? `/journey/${encodeURIComponent(audioMapping.audioUrl)}`
       : `/journey/${template.frequencies[0]?.value.split(' ')[0] || ''}`;
       
+    // Navigate to the journey page
     navigate(journeyUrl);
     toast.success(`Starting ${template.title} journey`);
   };
@@ -38,6 +57,15 @@ const JourneyDetail: React.FC<JourneyDetailProps> = ({
   const handleAddSong = () => {
     toast.info('Song upload functionality coming soon');
   };
+
+  // Format the timers for display
+  const formatTimer = (minutes: number) => {
+    if (minutes === 0) return "No timer";
+    return `${minutes} minute${minutes > 1 ? 's' : ''}`;
+  };
+
+  // Clean guided prompt text by removing \n characters
+  const cleanGuidedPrompt = template.guidedPrompt?.replace(/\\n/g, ' ') || '';
 
   return (
     <Card className="w-full max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
@@ -110,7 +138,79 @@ const JourneyDetail: React.FC<JourneyDetailProps> = ({
         
         <div className="bg-gray-50 p-4 rounded-md mb-6">
           <h3 className="text-lg font-medium mb-2 text-purple-700">Guided Prompt</h3>
-          <p className="text-gray-700 whitespace-pre-line">{template.guidedPrompt}</p>
+          <p className="text-gray-700 whitespace-pre-line">{cleanGuidedPrompt}</p>
+        </div>
+        
+        {/* Journey Settings */}
+        <div className="mb-6">
+          <h3 className="text-lg font-medium mb-3 text-purple-700">Journey Settings</h3>
+          <div className="space-y-4 bg-gray-50 p-4 rounded-md">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Volume2 className="h-4 w-4 text-purple-600" />
+                <span className="text-sm font-medium">Low Sensitivity Mode</span>
+              </div>
+              <Switch 
+                checked={lowSensitivityMode}
+                onCheckedChange={setLowSensitivityMode}
+              />
+              <span className="text-xs text-gray-500 ml-2 w-20">
+                {lowSensitivityMode ? 'Enabled' : 'Disabled'}
+              </span>
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {useHeadphones ? (
+                  <Headphones className="h-4 w-4 text-purple-600" />
+                ) : (
+                  <HeadphonesOff className="h-4 w-4 text-purple-600" />
+                )}
+                <span className="text-sm font-medium">Use Headphones</span>
+              </div>
+              <Switch 
+                checked={useHeadphones}
+                onCheckedChange={setUseHeadphones}
+              />
+              <span className="text-xs text-gray-500 ml-2 w-20">
+                {useHeadphones ? 'Headphones' : 'Speakers'}
+              </span>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Timer className="h-4 w-4 text-purple-600" />
+                <span className="text-sm font-medium">Sleep Timer: {formatTimer(sleepTimer)}</span>
+              </div>
+              <Slider
+                min={0}
+                max={60}
+                step={5}
+                value={[sleepTimer]}
+                onValueChange={(value) => setSleepTimer(value[0])}
+                className="w-full"
+              />
+              <div className="flex justify-between text-xs text-gray-500">
+                <span>Off</span>
+                <span>30 min</span>
+                <span>60 min</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Info className="h-4 w-4 text-purple-600" />
+                <span className="text-sm font-medium">Save to Timeline</span>
+              </div>
+              <Switch 
+                checked={saveToTimeline}
+                onCheckedChange={setSaveToTimeline}
+              />
+              <span className="text-xs text-gray-500 ml-2 w-20">
+                {saveToTimeline ? 'Enabled' : 'Disabled'}
+              </span>
+            </div>
+          </div>
         </div>
         
         <div className="mb-6">

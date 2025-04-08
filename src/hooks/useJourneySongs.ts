@@ -50,14 +50,19 @@ const getDirectAudioUrl = (filename: string): string => {
   return `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${filename}`;
 };
 
+// Clean text by removing \n characters
+const cleanText = (text: string): string => {
+  return text.replace(/\\n/g, ' ');
+};
+
 // Convert song filenames to mock SongMapping objects
 const createMockSongMappings = (filenames: string[], journeyId: string): SongMapping[] => {
   return filenames.map((filename, index) => ({
     id: `song-${journeyId}-${index}`,
-    title: filename.replace('.mp3', ''),
+    title: cleanText(filename.replace('.mp3', '')),
     artist: 'Sacred Soundscapes',
     functionality: 'journey',
-    description: `Song for ${journeyId} journey`,
+    description: cleanText(`Song for ${journeyId} journey`),
     duration: 240 + Math.floor(Math.random() * 240), // Random duration between 4-8 minutes
     audioUrl: getDirectAudioUrl(filename),
     frequency: index % 2 === 0 ? 432 : 528, // Alternate between common healing frequencies
@@ -101,7 +106,7 @@ export const useJourneySongs = (journeyId?: string) => {
             // Fetch all songs grouped by journey
             const groups: JourneySongGroup[] = Object.entries(mockSongs).map(([id, songs]) => ({
               journeyId: id,
-              title: id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+              title: cleanText(id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')),
               songs: songs.map(song => convertToJourneySong(song, id))
             }));
             setSongGroups(groups);
