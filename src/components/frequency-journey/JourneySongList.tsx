@@ -31,11 +31,18 @@ const JourneySongList: React.FC<JourneySongListProps> = ({
 
   const handlePlayPause = (song: JourneySong) => {
     if (currentSong?.id === song.id) {
+      console.log("Toggling play state for current song:", song.title);
       setIsPlaying(!isPlaying);
     } else {
+      // Stop current song if any
+      if (isPlaying) {
+        setIsPlaying(false);
+      }
+      
+      // Set new song and start playing
+      console.log("Playing song:", song.title, "URL:", song.audioUrl);
       setCurrentSong(song);
       setIsPlaying(true);
-      console.log("Playing song:", song.title, "URL:", song.audioUrl);
     }
   };
 

@@ -44,6 +44,7 @@ const RandomizingAudioPlayer: React.FC<RandomizingAudioPlayerProps> = ({
         
         // Direct audio URL has highest priority
         if (audioUrl) {
+          console.log("Using direct audio URL:", audioUrl);
           setCurrentTrack({
             id: "direct-url",
             title: "Audio Track",
@@ -89,30 +90,36 @@ const RandomizingAudioPlayer: React.FC<RandomizingAudioPlayerProps> = ({
   useEffect(() => {
     if (!currentTrack?.audioUrl) return;
     
+    console.log("Setting up audio with URL:", currentTrack.audioUrl);
+    
     if (!audioRef.current) {
-      audioRef.current = new Audio(currentTrack.audioUrl);
-    } else {
-      audioRef.current.src = currentTrack.audioUrl;
+      audioRef.current = new Audio();
     }
     
+    audioRef.current.src = currentTrack.audioUrl;
     audioRef.current.volume = isMuted ? 0 : volume;
+    audioRef.current.load();
     
     const handleEnded = () => {
       setIsPlaying(false);
       if (onPlayStateChange) onPlayStateChange(false);
+      console.log("Audio playback ended");
     };
     
     audioRef.current.addEventListener('ended', handleEnded);
     
     // Auto-play if requested
     if (autoPlay && !isPlaying) {
+      console.log("Auto-playing audio");
       audioRef.current.play()
         .then(() => {
           setIsPlaying(true);
           if (onPlayStateChange) onPlayStateChange(true);
+          console.log("Auto-play started successfully");
         })
         .catch(err => {
           console.error("Failed to auto-play audio:", err);
+          toast.error("Could not auto-play. Please click the play button.");
         });
     }
     
@@ -123,6 +130,28 @@ const RandomizingAudioPlayer: React.FC<RandomizingAudioPlayerProps> = ({
     };
   }, [currentTrack, autoPlay, volume, isMuted, onPlayStateChange]);
   
+  // Update playback state when autoPlay prop changes
+  useEffect(() => {
+    if (audioRef.current) {
+      if (autoPlay && !isPlaying) {
+        console.log("Auto-play prop changed to true, starting playback");
+        audioRef.current.play()
+          .then(() => {
+            setIsPlaying(true);
+            if (onPlayStateChange) onPlayStateChange(true);
+          })
+          .catch(err => {
+            console.error("Failed to start playback on autoPlay change:", err);
+          });
+      } else if (!autoPlay && isPlaying) {
+        console.log("Auto-play prop changed to false, pausing playback");
+        audioRef.current.pause();
+        setIsPlaying(false);
+        if (onPlayStateChange) onPlayStateChange(false);
+      }
+    }
+  }, [autoPlay, isPlaying, onPlayStateChange]);
+  
   // Handle volume changes
   useEffect(() => {
     if (audioRef.current) {
@@ -132,22 +161,30 @@ const RandomizingAudioPlayer: React.FC<RandomizingAudioPlayerProps> = ({
   
   // Toggle play/pause
   const togglePlay = () => {
-    if (!audioRef.current || !currentTrack) return;
+    const audio = audioRef.current;
+    if (!audio || !currentTrack) return;
     
     if (isPlaying) {
-      audioRef.current.pause();
+      console.log("Pausing audio:", audio.src);
+      audio.pause();
       setIsPlaying(false);
       if (onPlayStateChange) onPlayStateChange(false);
     } else {
-      audioRef.current.play()
-        .then(() => {
-          setIsPlaying(true);
-          if (onPlayStateChange) onPlayStateChange(true);
-        })
-        .catch(err => {
-          console.error("Failed to play audio:", err);
-          toast.error("Failed to play audio");
-        });
+      console.log("Playing audio:", audio.src);
+      const playPromise = audio.play();
+      
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsPlaying(true);
+            if (onPlayStateChange) onPlayStateChange(true);
+            console.log("Audio playback started successfully");
+          })
+          .catch(err => {
+            console.error("Error playing audio:", err);
+            toast.error("Failed to play audio. Please try again.");
+          });
+      }
     }
   };
   

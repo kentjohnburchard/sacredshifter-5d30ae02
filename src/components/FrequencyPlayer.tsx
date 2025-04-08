@@ -46,11 +46,27 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
 
   return (
     <div className="flex items-center gap-2">
+      <Button
+        variant="outline"
+        size="icon"
+        className="h-10 w-10 rounded-full"
+        onClick={onPlayToggle}
+        aria-label={isPlaying ? "Pause" : "Play"}
+      >
+        {isPlaying ? (
+          <Pause className="h-5 w-5" />
+        ) : (
+          <Play className="h-5 w-5 ml-0.5" />
+        )}
+      </Button>
+      
       <RandomizingAudioPlayer
         audioUrl={effectiveAudioUrl}
         frequency={frequency}
         groupId={groupId}
         onPlayStateChange={handlePlayStateChange}
+        autoPlay={isPlaying}
+        showControls={false}
       />
     </div>
   );

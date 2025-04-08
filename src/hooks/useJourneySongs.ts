@@ -74,15 +74,22 @@ export const useJourneySongs = (journeyId?: string) => {
     const fetchSongs = async () => {
       try {
         setLoading(true);
+        
         // In a real implementation, we would fetch from Supabase
         // For now, use the mock data
         setTimeout(() => {
           if (journeyId) {
             // Fetch songs for a specific journey
             const journeySongs = mockSongs[journeyId] || [];
-            setSongs(journeySongs.map(song => 
-              convertToJourneySong(song, journeyId, false)
-            ));
+            console.log(`Fetching songs for journey: ${journeyId}, found ${journeySongs.length} songs`);
+            
+            const convertedSongs = journeySongs.map(song => {
+              const convertedSong = convertToJourneySong(song, journeyId, false);
+              console.log(`Converted song: ${convertedSong.title}, URL: ${convertedSong.audioUrl}`);
+              return convertedSong;
+            });
+            
+            setSongs(convertedSongs);
           } else {
             // Fetch all songs grouped by journey
             const groups: JourneySongGroup[] = Object.entries(mockSongs).map(([id, songs]) => ({
