@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 
 import { ThemeProvider } from "@/context/ThemeContext";
+import ConsciousnessToggle from "@/components/ConsciousnessToggle";
 import Home from "@/pages/Home";
 import Dashboard from "@/pages/Dashboard";
 import Profile from "@/pages/Profile";
@@ -41,6 +42,7 @@ function App() {
     <ThemeProvider>
       <Toaster closeButton position="top-center" />
       <ScrollToTop />
+      <ConsciousnessToggle />
       <div className="flex flex-col min-h-screen">
         <Routes>
           <Route path="/" element={<Home />} />
