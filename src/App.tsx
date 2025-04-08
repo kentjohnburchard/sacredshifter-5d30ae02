@@ -30,6 +30,10 @@ import HeartCenter from "@/pages/HeartCenter";
 import HermeticWisdom from "@/pages/HermeticWisdom";
 import Alignment from "@/pages/Alignment";
 import Intentions from "@/pages/Intentions";
+import MusicLibraryPage from "@/pages/MusicLibraryPage";
+import JourneyTemplates from "@/pages/JourneyTemplates";
+import Astrology from "@/pages/Astrology";
+import AboutFounder from "@/pages/AboutFounder";
 
 function App() {
   return (
@@ -95,6 +99,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <MusicGeneration />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/music-library"
+              element={
+                <ProtectedRoute>
+                  <MusicLibraryPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/journey-templates"
+              element={
+                <ProtectedRoute>
+                  <JourneyTemplates />
                 </ProtectedRoute>
               }
             />
@@ -175,6 +195,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Intentions />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/astrology"
+              element={
+                <ProtectedRoute>
+                  <Astrology />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/about-founder"
+              element={
+                <ProtectedRoute>
+                  <AboutFounder />
                 </ProtectedRoute>
               }
             />

@@ -1,55 +1,46 @@
 
-import React from 'react';
+import React from "react";
 import Layout from "@/components/Layout";
-import { motion } from "framer-motion";
-import { AstrologyDashboard, UserBirthDataForm, ZodiacSignCard, DailyHoroscope, CosmicProfile } from '@/components/astrology';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuth } from "@/context/AuthContext";
-import { useState } from "react";
-import AnimatedBackground from "@/components/AnimatedBackground";
+import ComingSoonBanner from "@/components/ComingSoonBanner";
+import { Star } from "lucide-react";
 
-const Astrology: React.FC = () => {
-  const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState("cosmic-profile");
-
+const Astrology = () => {
   return (
-    <Layout pageTitle="The Sacred Signature">
-      {/* Animated Background */}
-      <AnimatedBackground colorScheme="cosmic" />
-      
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-6"
-        >
-          <p className="text-center text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Discover how the celestial bodies influence your energy and receive daily cosmic guidance 
-            personalized to your unique astrological profile.
-          </p>
-        </motion.div>
-
-        <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-2 sm:grid-cols-3 mb-8 mx-auto max-w-2xl">
-            <TabsTrigger value="cosmic-profile">Daily Insights</TabsTrigger>
-            <TabsTrigger value="astro-profile">Astro Profile</TabsTrigger>
-            <TabsTrigger value="horoscope">Your Horoscope</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="cosmic-profile" className="mt-0">
-            <CosmicProfile />
-          </TabsContent>
-          
-          <TabsContent value="astro-profile" className="mt-0">
-            <AstrologyDashboard />
-          </TabsContent>
-          
-          <TabsContent value="horoscope" className="mt-0">
-            <DailyHoroscope />
-          </TabsContent>
-        </Tabs>
+    <Layout pageTitle="Astrology">
+      <div className="container mx-auto px-4 py-8">
+        <ComingSoonBanner message="Our Astrology features are coming soon. Track planetary influences on your energy." />
+        
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white/20 backdrop-blur-md shadow-xl rounded-xl p-8 border border-purple-200/20">
+            <div className="flex justify-center mb-6">
+              <Star className="h-16 w-16 text-purple-400" />
+            </div>
+            
+            <h2 className="text-2xl font-bold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
+              Cosmic Alignment & Astrological Insights
+            </h2>
+            
+            <p className="text-white/80 mb-6 text-center">
+              Discover how celestial bodies influence your energy and learn to harness their power for personal growth.
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+              <div className="bg-black/30 p-6 rounded-lg border border-purple-300/10">
+                <h3 className="text-xl font-semibold mb-4 text-purple-300">Natal Chart Analysis</h3>
+                <p className="text-white/70">
+                  Gain insights into your unique cosmic blueprint and understand how it shapes your life path.
+                </p>
+              </div>
+              
+              <div className="bg-black/30 p-6 rounded-lg border border-purple-300/10">
+                <h3 className="text-xl font-semibold mb-4 text-purple-300">Planetary Transits</h3>
+                <p className="text-white/70">
+                  Track how current planetary movements affect your energy and consciousness.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </Layout>
   );
