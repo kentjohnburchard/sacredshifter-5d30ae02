@@ -1,11 +1,13 @@
 
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import LandingPrompt from "@/components/LandingPrompt";
 
 const Welcome: React.FC = () => {
-  // Mark that the user has seen the intro
+  // This will allow us to debug welcome page functionality
   useEffect(() => {
-    localStorage.setItem('hasSeenIntro', 'true');
+    console.log('Welcome page loaded');
+    // We'll only set hasSeenIntro to true after the welcome animation completes
+    // This is now handled in LandingPrompt component
   }, []);
   
   return <LandingPrompt />;

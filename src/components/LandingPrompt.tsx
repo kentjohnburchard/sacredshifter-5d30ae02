@@ -14,21 +14,24 @@ const LandingPrompt: React.FC = () => {
   ];
 
   useEffect(() => {
+    console.log('LandingPrompt loaded, currentLine:', currentLine, 'of', lines.length);
+    
     if (currentLine < lines.length - 1) {
       const timer = setTimeout(() => {
         setCurrentLine(currentLine + 1);
       }, 3000);
       return () => clearTimeout(timer);
-    } else {
-      // After showing the last line, wait a moment and then navigate to index
+    } else if (currentLine === lines.length - 1) {
+      // After showing the last line, wait a moment and then navigate to dashboard
       const redirectTimer = setTimeout(() => {
-        navigate("/", { replace: true });
         // Set localStorage to remember user has seen intro
         localStorage.setItem('hasSeenIntro', 'true');
+        console.log('Setting hasSeenIntro to true and redirecting to dashboard');
+        navigate("/dashboard", { replace: true });
       }, 4000); // Wait 4 seconds after showing the last line
       return () => clearTimeout(redirectTimer);
     }
-  }, [currentLine, navigate]);
+  }, [currentLine, navigate, lines.length]);
 
   return (
     <motion.div 

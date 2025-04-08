@@ -43,7 +43,7 @@ function App() {
       <ConsciousnessToggle />
       <div className="flex flex-col min-h-screen">
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Index />} />
           <Route path="/welcome" element={<Welcome />} />
           <Route path="/index" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
