@@ -1,85 +1,79 @@
 
-import React from "react";
-import { NavLink } from "react-router-dom";
+import React from 'react';
+import { NavLink } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { cn } from '@/lib/utils';
+import { useTheme } from '@/context/ThemeContext';
 import {
-  HomeIcon,
-  LayoutTemplate,
+  Home,
   Music,
+  BarChart3,
   Heart,
-  User2,
-  Star,
-  Sparkles,
-  Zap,
-  Flame,
-  Brain,
-  Activity,
-  Music4,
-  Triangle,
-  Mail,
   Clock,
+  HeartPulse,
+  Sparkles,
+  Activity,
   BookOpen,
-  CreditCard,
-  UserCircle,
-  Settings,
   Contact,
-  Map,
-  Palette
-} from "lucide-react";
-import { getActiveNavItems } from "@/config/navigation";
+  User,
+  Settings,
+  Lightbulb,
+  Flame,
+  Compass,
+} from 'lucide-react';
 
-interface SidebarNavItemsProps {
-  isCollapsed?: boolean;
-}
+const navItems = [
+  { href: '/dashboard', icon: Home, label: 'Dashboard' },
+  { href: '/heart-center', icon: Heart, label: 'Heart Center' },
+  { href: '/hermetic-wisdom', icon: BookOpen, label: 'Hermetic Wisdom' },
+  { href: '/harmonic-map', icon: Compass, label: 'Harmonic Map' },
+  { href: '/sacred-blueprint', icon: Sparkles, label: 'Sacred Blueprint' },
+  { href: '/trinity-gateway', icon: Flame, label: 'Trinity Gateway' },
+  { href: '/energy-check', icon: Activity, label: 'Energy Check' },
+  { href: '/music-library', icon: Music, label: 'Music Library' },
+  { href: '/astrology', icon: Lightbulb, label: 'Astrology' },
+  { href: '/timeline', icon: Clock, label: 'Timeline' },
+  { href: '/profile', icon: User, label: 'Profile' },
+  { href: '/personal-vibe', icon: Settings, label: 'Vibe Settings' },
+  { href: '/contact', icon: Contact, label: 'Contact' },
+];
 
-const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({ isCollapsed = false }) => {
-  // Get only active navigation items from config
-  const activeNavItems = getActiveNavItems();
-  
-  // Navigation items that should always be in the sidebar
-  const navItems = [
-    { path: "/dashboard", icon: <HomeIcon size={20} />, label: "Dashboard" },
-    { path: "/sacred-blueprint", icon: <Sparkles size={20} />, label: "Sacred Blueprint" },
-    { path: "/shift-perception", icon: <Brain size={20} />, label: "Shift Perception" },
-    { path: "/energy-check", icon: <Zap size={20} />, label: "Energy Check" },
-    { path: "/heart-center", icon: <Heart size={20} />, label: "Heart Center" },
-    { path: "/alignment", icon: <Activity size={20} />, label: "Alignment" },
-    { path: "/intentions", icon: <Sparkles size={20} />, label: "Intentions" },
-    { path: "/focus", icon: <Clock size={20} />, label: "Focus" },
-    { path: "/hermetic-wisdom", icon: <BookOpen size={20} />, label: "Hermetic Wisdom" },
-    { path: "/music-library", icon: <Music size={20} />, label: "Music Library" },
-    { path: "/astrology", icon: <Star size={20} />, label: "Astrology" },
-    { path: "/journey-templates", icon: <LayoutTemplate size={20} />, label: "Journey Templates" },
-    { path: "/about-founder", icon: <UserCircle size={20} />, label: "About Founder" },
-    { path: "/subscription", icon: <CreditCard size={20} />, label: "Subscription" },
-    { path: "/personal-vibe", icon: <Palette size={20} />, label: "My Vibe" },
-    { path: "/profile", icon: <User2 size={20} />, label: "Profile" },
-    { path: "/trinity-gateway", icon: <Triangle size={20} />, label: "Trinity Gateway" },
-    { path: "/contact", icon: <Mail size={20} />, label: "Contact" },
-    { path: "/site-map", icon: <Map size={20} />, label: "Site Map" }
-  ];
-  
+export function SidebarNavItems() {
+  const location = useLocation();
+  const { liftTheVeil } = useTheme();
+
   return (
-    <div className="space-y-1 py-2">
-      {navItems.map((item) => (
-        <NavLink
-          key={item.path}
-          to={item.path}
-          className={({ isActive }) =>
-            `flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+    <div className="space-y-1">
+      {navItems.map((item) => {
+        const isActive = location.pathname === item.href;
+        
+        return (
+          <NavLink
+            key={item.href}
+            to={item.href}
+            className={cn(
+              "flex items-center py-2 px-3 text-sm rounded-md transition-colors",
               isActive
                 ? "bg-purple-100 text-purple-900"
-                : "text-gray-700 hover:bg-purple-50 hover:text-purple-900"
-            }`
-          }
-        >
-          <span className={`mr-3 text-purple-600 ${isCollapsed ? "mx-auto" : ""}`}>
-            {item.icon}
-          </span>
-          {!isCollapsed && <span>{item.label}</span>}
-        </NavLink>
-      ))}
+                : "text-gray-600 hover:bg-purple-50 hover:text-purple-900",
+              liftTheVeil && isActive && "bg-pink-100 text-pink-900",
+              liftTheVeil && !isActive && "hover:bg-pink-50 hover:text-pink-900"
+            )}
+          >
+            <item.icon
+              className={cn(
+                "h-5 w-5 mr-2",
+                isActive
+                  ? liftTheVeil
+                    ? "text-pink-800"
+                    : "text-purple-800"
+                  : "text-gray-500"
+              )}
+            />
+            <span>{item.label}</span>
+          </NavLink>
+        );
+      })}
     </div>
   );
-};
-
-export default SidebarNavItems;
+}

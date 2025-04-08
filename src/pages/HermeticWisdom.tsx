@@ -11,6 +11,8 @@ import {
 } from "@/components/hermetic-wisdom";
 import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
+import { Compass } from "lucide-react";
 
 const HermeticWisdom: React.FC = () => {
   const location = useLocation();
@@ -58,6 +60,17 @@ const HermeticWisdom: React.FC = () => {
             Experience the vibrational essence of the Seven Hermetic Principles through sound frequencies 
             and fractal visuals aligned with chakra energy centers.
           </p>
+
+          {/* Link to Harmonic Map */}
+          <div className="mt-4">
+            <Link 
+              to="/harmonic-map" 
+              className="inline-flex items-center px-4 py-2 rounded-md bg-purple-100 text-purple-800 hover:bg-purple-200 transition-colors"
+            >
+              <Compass className="w-4 h-4 mr-2" />
+              Explore the Harmonic Sequence Map
+            </Link>
+          </div>
         </motion.div>
         
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">

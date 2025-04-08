@@ -34,6 +34,7 @@ import JourneyTemplates from "@/pages/JourneyTemplates";
 import Astrology from "@/pages/Astrology";
 import AboutFounder from "@/pages/AboutFounder";
 import PersonalVibeSettings from "@/pages/PersonalVibeSettings";
+import HarmonicMapPage from "@/pages/HarmonicMap"; // Add this import
 
 function App() {
   return (
@@ -218,6 +219,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <AboutFounder />
+              </ProtectedRoute>
+            }
+          />
+          {/* Add the Harmonic Map route */}
+          <Route
+            path="/harmonic-map"
+            element={
+              <ProtectedRoute>
+                <HarmonicMapPage />
               </ProtectedRoute>
             }
           />
