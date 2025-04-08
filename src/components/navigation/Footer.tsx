@@ -3,7 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { TrademarkedName } from "@/components/ip-protection";
 import { activePages } from "@/config/navigation";
-import { Map, Heart, Music, BookOpen, User, Settings, Mail, Home } from "lucide-react";
+import { Map, Heart, Music, BookOpen, User, Settings, Mail, Home, Sparkles, Brain } from "lucide-react";
 
 const Footer: React.FC = () => {
   return (
@@ -34,21 +34,21 @@ const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/sacred-blueprint" className="text-xs text-[#800080]/90 hover:text-[#800080] flex items-center gap-1">
+                  <Sparkles className="h-3 w-3" />
+                  <span>Sacred Blueprint</span>
+                </Link>
+              </li>
+              <li>
+                <Link to="/shift-perception" className="text-xs text-[#800080]/90 hover:text-[#800080] flex items-center gap-1">
+                  <Brain className="h-3 w-3" />
+                  <span>Shift Perception</span>
+                </Link>
+              </li>
+              <li>
                 <Link to="/heart-center" className="text-xs text-[#800080]/90 hover:text-[#800080] flex items-center gap-1">
                   <Heart className="h-3 w-3" />
                   <span>Heart Center</span>
-                </Link>
-              </li>
-              <li>
-                <Link to="/music-library" className="text-xs text-[#800080]/90 hover:text-[#800080] flex items-center gap-1">
-                  <Music className="h-3 w-3" />
-                  <span>Frequency Library</span>
-                </Link>
-              </li>
-              <li>
-                <Link to="/hermetic-wisdom" className="text-xs text-[#800080]/90 hover:text-[#800080] flex items-center gap-1">
-                  <BookOpen className="h-3 w-3" />
-                  <span>Hermetic Wisdom</span>
                 </Link>
               </li>
             </ul>

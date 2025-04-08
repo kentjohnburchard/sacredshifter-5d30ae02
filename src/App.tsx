@@ -24,6 +24,8 @@ import MusicGeneration from "@/pages/MusicGeneration";
 import SiteMap from "@/pages/SiteMap";
 import EnergyCheck from "@/pages/EnergyCheck";
 import NotFound from "@/pages/NotFound";
+import SacredBlueprintPage from "@/pages/SacredBlueprint";
+import ShiftPerception from "@/pages/ShiftPerception";
 
 function App() {
   return (
@@ -121,6 +123,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <EnergyCheck />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/sacred-blueprint"
+              element={
+                <ProtectedRoute>
+                  <SacredBlueprintPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/shift-perception"
+              element={
+                <ProtectedRoute>
+                  <ShiftPerception />
                 </ProtectedRoute>
               }
             />

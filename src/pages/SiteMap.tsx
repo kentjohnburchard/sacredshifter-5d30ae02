@@ -15,9 +15,12 @@ const SiteMap = () => {
       { path: "/", label: "Home" },
       { path: "/dashboard", label: "Dashboard" },
       { path: "/energy-check", label: "Energy Check" },
+      { path: "/sacred-blueprint", label: "Sacred Blueprint" },
+      { path: "/shift-perception", label: "Shift Your Perception" },
     ],
     "Personal Growth": [
       { path: "/heart-center", label: "Heart Center" },
+      { path: "/heart-dashboard", label: "Heart Dashboard" },
       { path: "/alignment", label: "Alignment" },
       { path: "/intentions", label: "Intentions" },
       { path: "/focus", label: "Focus" },
@@ -30,6 +33,7 @@ const SiteMap = () => {
     "Music & Frequencies": [
       { path: "/music-library", label: "Music Library" },
       { path: "/music-generation", label: "Music Generation" },
+      { path: "/music-generator", label: "Music Generator" },
       { path: "/journey-templates", label: "Journey Templates" },
     ],
     "Account & Information": [
@@ -38,6 +42,10 @@ const SiteMap = () => {
       { path: "/subscription", label: "Subscription" },
       { path: "/about-founder", label: "About Founder" },
       { path: "/contact", label: "Contact" },
+    ],
+    "Timeline & Experience": [
+      { path: "/timeline", label: "Timeline" },
+      { path: "/emotion-engine", label: "Emotion Engine™" },
     ]
   };
 
@@ -102,6 +110,12 @@ const SiteMap = () => {
                 <div className="font-medium text-purple-700">Account Area</div>
                 <div className="pl-4 mt-1 text-sm text-gray-600">
                   Profile settings, subscription management, and personal preferences.
+                </div>
+              </li>
+              <li>
+                <div className="font-medium text-purple-700">Featured Content</div>
+                <div className="pl-4 mt-1 text-sm text-gray-600">
+                  Sacred Blueprint and Shift Your Perception pages offer core guidance for your spiritual journey.
                 </div>
               </li>
             </ul>

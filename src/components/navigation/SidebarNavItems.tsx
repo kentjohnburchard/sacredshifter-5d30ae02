@@ -21,7 +21,8 @@ import {
   CreditCard,
   UserCircle,
   Settings,
-  Contact
+  Contact,
+  Map
 } from "lucide-react";
 import { getActiveNavItems } from "@/config/navigation";
 
@@ -36,6 +37,8 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({ isCollapsed = false }
   // Additional important pages that should always be in the sidebar
   const navItems = [
     { path: "/dashboard", icon: <HomeIcon size={20} />, label: "Dashboard" },
+    { path: "/sacred-blueprint", icon: <Sparkles size={20} />, label: "Sacred Blueprint" },
+    { path: "/shift-perception", icon: <Brain size={20} />, label: "Shift Perception" },
     { path: "/energy-check", icon: <Zap size={20} />, label: "Energy Check" },
     { path: "/heart-center", icon: <Heart size={20} />, label: "Heart Center" },
     { path: "/alignment", icon: <Activity size={20} />, label: "Alignment" },
@@ -49,7 +52,8 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({ isCollapsed = false }
     { path: "/subscription", icon: <CreditCard size={20} />, label: "Subscription" },
     { path: "/personal-vibe", icon: <User2 size={20} />, label: "My Vibe" },
     { path: "/trinity-gateway", icon: <Triangle size={20} />, label: "Trinity Gateway" },
-    { path: "/contact", icon: <Mail size={20} />, label: "Contact" }
+    { path: "/contact", icon: <Mail size={20} />, label: "Contact" },
+    { path: "/site-map", icon: <Map size={20} />, label: "Site Map" }
   ];
   
   return (
