@@ -1,16 +1,14 @@
 
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, X, Volume2, VolumeX, Edit3 } from "lucide-react";
+import React, { useState } from "react";
+import { X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChakraData } from "@/data/chakraData";
-import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter, DrawerClose } from "@/components/ui/drawer";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import ChakraTonePlayer from "./ChakraTonePlayer";
+import { Button } from "@/components/ui/button";
 
 interface ChakraDetailModalProps {
   chakra: ChakraData | null;
@@ -19,29 +17,10 @@ interface ChakraDetailModalProps {
 }
 
 const ChakraDetailModal: React.FC<ChakraDetailModalProps> = ({ chakra, isOpen, onClose }) => {
-  const [audioEnabled, setAudioEnabled] = useState(true);
-  const { isAudioPlaying, togglePlayPause, setAudioSource } = useAudioPlayer();
   const isMobile = useMediaQuery("(max-width: 640px)");
   const [activeTab, setActiveTab] = useState("overview");
 
-  useEffect(() => {
-    // When chakra changes, setup audio if enabled
-    if (chakra && isOpen && audioEnabled) {
-      // Here we would ideally load from a Supabase URL based on the frequency
-      // For now we'll use a placeholder based on the frequency
-      setAudioSource(`https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${chakra.frequency}Hz_pure_tone.mp3`);
-    }
-  }, [chakra, isOpen, audioEnabled, setAudioSource]);
-
   if (!chakra) return null;
-
-  const toggleAudio = () => {
-    setAudioEnabled(!audioEnabled);
-    if (!audioEnabled) {
-      // Re-enable audio and load the source
-      setAudioSource(`https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${chakra.frequency}Hz_pure_tone.mp3`);
-    }
-  };
 
   const chakraContent = (
     <div className="flex flex-col space-y-5">
@@ -119,7 +98,7 @@ const ChakraDetailModal: React.FC<ChakraDetailModalProps> = ({ chakra, isOpen, o
             <div className="flex justify-between items-start">
               <h3 className="font-medium text-gray-700">Journal Prompt</h3>
               <Button variant="ghost" size="icon" className="h-8 w-8">
-                <Edit3 className="h-4 w-4" />
+                <X className="h-4 w-4" />
               </Button>
             </div>
             <p className="italic text-gray-700 mt-3">{chakra.journalPrompt}</p>
