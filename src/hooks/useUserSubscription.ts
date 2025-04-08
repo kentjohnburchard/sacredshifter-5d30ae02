@@ -11,6 +11,7 @@ export interface UserSubscription {
   expires_at: string | null;
   is_lifetime: boolean;
   tier_name: string;
+  plan_id?: string; // Add plan_id property
 }
 
 export interface SubscriptionPlan {
@@ -77,7 +78,8 @@ export const useUserSubscription = () => {
             expires_at: data.expires_at || null,
             is_lifetime: tier === 'lifetime',
             tier_name: tier === 'premium' ? 'Premium Plan' : 
-                      tier === 'lifetime' ? 'Lifetime Membership' : 'Free Tier'
+                      tier === 'lifetime' ? 'Lifetime Membership' : 'Free Tier',
+            plan_id: data.plan_id || undefined // Add plan_id to the subscription object
           });
         } else {
           // No subscription found, use default
