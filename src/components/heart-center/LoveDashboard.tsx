@@ -76,7 +76,7 @@ const LoveDashboard: React.FC = () => {
       try {
         setLoading(true);
         
-        // Fetch hugs stats - using any type since the table isn't in generated types
+        // Fetch hugs stats
         const { data: hugsData, error: hugsError } = await supabase
           .from('soul_hugs')
           .select('sender_id, recipient_id')
@@ -92,21 +92,70 @@ const LoveDashboard: React.FC = () => {
           
         if (mirrorError) throw mirrorError;
         
-        // Update stats
-        setStats(prevStats => ({
-          ...prevStats,
+        // Fetch intentions
+        const { data: intentionsData, error: intentionsError } = await supabase
+          .from('user_intentions')
+          .select('id')
+          .eq('user_id', user.id) as any;
+          
+        if (intentionsError) throw intentionsError;
+        
+        // Fetch music listening data (from music_generations or similar table)
+        const { data: musicData, error: musicError } = await supabase
+          .from('music_generations')
+          .select('id, duration')
+          .eq('user_id', user.id) as any;
+          
+        if (musicError) throw musicError;
+        
+        // Calculate total listening time from available music data
+        let totalMinutes = 0;
+        if (musicData && musicData.length > 0) {
+          totalMinutes = musicData.reduce((total: number, item: any) => {
+            // If duration is available in minutes, add it to total
+            return total + (item.duration || 0);
+          }, 0);
+        }
+        
+        // Calculate streak days based on recent activity
+        // For now, we'll use a simple calculation based on user's intentions
+        const { data: recentActivity, error: recentError } = await supabase
+          .from('user_intentions')
+          .select('created_at')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(10) as any;
+          
+        let streakCount = 0;
+        if (recentActivity && recentActivity.length > 0) {
+          // Simple streak calculation - count consecutive days with activity
+          // This is a placeholder implementation - real implementation would be more sophisticated
+          streakCount = Math.min(recentActivity.length, 7); // Cap at 7 days for display
+        }
+        
+        // Update stats with real data
+        setStats({
           hugsReceived: hugsData?.filter((hug: SoulHug) => hug.recipient_id === user.id).length || 0,
           hugsSent: hugsData?.filter((hug: SoulHug) => hug.sender_id === user.id).length || 0,
           totalMirrorSessions: mirrorData?.length || 0,
-          // For other stats, we would need additional tables or use dummy values for now
-          intentionsSet: Math.floor(Math.random() * 10) + 1, // Placeholder
-          totalListeningTime: Math.floor(Math.random() * 300) + 30, // Placeholder in minutes
-          streakDays: Math.floor(Math.random() * 7) + 1 // Placeholder
-        }));
+          intentionsSet: intentionsData?.length || 0,
+          favoritePlaylist: "Love Codes", // Default until we have real playlist data
+          totalListeningTime: totalMinutes,
+          streakDays: streakCount
+        });
         
       } catch (error) {
         console.error("Error fetching love stats:", error);
-        // Use sample data as fallback
+        // Use zeroed data as fallback
+        setStats({
+          hugsReceived: 0,
+          hugsSent: 0,
+          totalMirrorSessions: 0,
+          intentionsSet: 0,
+          favoritePlaylist: "Love Codes",
+          totalListeningTime: 0,
+          streakDays: 0
+        });
       } finally {
         setLoading(false);
       }

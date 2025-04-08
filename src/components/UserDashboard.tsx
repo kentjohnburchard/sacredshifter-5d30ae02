@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,46 +17,49 @@ interface Intention {
 
 const UserDashboard: React.FC = () => {
   const { user } = useAuth();
-  const [journalCount, setJournalCount] = useState(6);
+  const [journalCount, setJournalCount] = useState(0);
   const [journeysCount, setJourneysCount] = useState(0);
   const [hoursListened, setHoursListened] = useState(0);
-  const [dayStreak, setDayStreak] = useState(1);
+  const [dayStreak, setDayStreak] = useState(0);
   const [activeTab, setActiveTab] = useState("main");
-  const [intentions, setIntentions] = useState<{ text: string, date: string }[]>([
-    { text: "I am aligned with my highest purpose today", date: "8/4/2025" }
-  ]);
+  const [intentions, setIntentions] = useState<{ text: string, date: string }[]>([]);
 
-  // Fetch user statistics from Supabase
   useEffect(() => {
     const fetchUserStats = async () => {
       if (!user) return;
       
       try {
-        // Fetch timeline entries (as a replacement for journal entries)
         const { data: timelineEntries, error: timelineError } = await supabase
           .from('timeline_snapshots')
           .select('id')
           .eq('user_id', user.id);
           
         if (timelineError) throw timelineError;
-        if (timelineEntries?.length) {
+        if (timelineEntries) {
           setJournalCount(timelineEntries.length);
         }
 
-        // Fetch music generations (as a replacement for sound journeys)
         const { data: musicData, error: musicError } = await supabase
           .from('music_generations')
-          .select('id')
+          .select('id, duration')
           .eq('user_id', user.id);
           
         if (musicError) throw musicError;
-        if (musicData?.length) {
+        if (musicData) {
           setJourneysCount(musicData.length);
-          // Calculate listening time from music generations
-          setHoursListened(Math.round((musicData.length) * 5 / 60 * 10) / 10);
+          
+          let totalMinutes = 0;
+          musicData.forEach((item: any) => {
+            if (item.duration) {
+              totalMinutes += item.duration;
+            } else {
+              totalMinutes += 5;
+            }
+          });
+          
+          setHoursListened(Math.round(totalMinutes / 60 * 10) / 10);
         }
         
-        // Get user's intentions
         const { data: intentionData, error: intentionError } = await supabase
           .from('user_intentions')
           .select('*')
@@ -68,7 +70,6 @@ const UserDashboard: React.FC = () => {
         if (intentionError) {
           console.error("Error fetching intentions:", intentionError);
         } else if (intentionData && intentionData.length > 0) {
-          // Transform the data to match our display format
           const formattedIntentions = intentionData.map((item: any) => ({
             text: item.intention,
             date: new Date(item.created_at).toLocaleDateString()
@@ -76,8 +77,33 @@ const UserDashboard: React.FC = () => {
           setIntentions(formattedIntentions);
         }
         
+        const { data: activityData, error: activityError } = await supabase
+          .from('timeline_snapshots')
+          .select('created_at')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+          
+        if (!activityError && activityData && activityData.length > 0) {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          
+          const activityDays = new Set();
+          activityData.forEach((item: any) => {
+            const activityDate = new Date(item.created_at);
+            activityDate.setHours(0, 0, 0, 0);
+            
+            const daysDiff = Math.floor((today.getTime() - activityDate.getTime()) / (1000 * 3600 * 24));
+            if (daysDiff >= 0 && daysDiff < 7) {
+              activityDays.add(daysDiff);
+            }
+          });
+          
+          setDayStreak(activityDays.size);
+        }
+        
       } catch (error) {
         console.error("Error fetching user stats:", error);
+        toast.error("Failed to load user statistics");
       }
     };
 
@@ -86,7 +112,6 @@ const UserDashboard: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      {/* Dashboard header */}
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Soul Journey Dashboard</h1>
         <p className="text-muted-foreground">
@@ -94,7 +119,6 @@ const UserDashboard: React.FC = () => {
         </p>
       </div>
 
-      {/* Dashboard Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="main">Main Dashboard</TabsTrigger>
@@ -102,7 +126,6 @@ const UserDashboard: React.FC = () => {
         </TabsList>
         
         <TabsContent value="main" className="mt-0 space-y-8">
-          {/* Stats Overview - Formatted to match the screenshot */}
           <div className="grid grid-cols-4 gap-4">
             <Card className="border rounded-lg overflow-hidden">
               <CardContent className="p-6">
@@ -149,7 +172,6 @@ const UserDashboard: React.FC = () => {
             </Card>
           </div>
           
-          {/* Recent Intentions */}
           <Card className="border rounded-lg">
             <CardHeader className="flex flex-row items-center justify-between p-6">
               <div className="flex items-center">
@@ -164,19 +186,28 @@ const UserDashboard: React.FC = () => {
             </CardHeader>
             <CardContent className="px-6 pb-6">
               <div className="space-y-3">
-                {intentions.map((intention, idx) => (
-                  <div key={idx} className="bg-amber-50 p-4 rounded-lg border border-amber-100">
-                    <p className="text-gray-800">{intention.text}</p>
-                    <p className="text-xs text-gray-500 mt-1">Set on {intention.date}</p>
+                {intentions.length > 0 ? (
+                  intentions.map((intention, idx) => (
+                    <div key={idx} className="bg-amber-50 p-4 rounded-lg border border-amber-100">
+                      <p className="text-gray-800">{intention.text}</p>
+                      <p className="text-xs text-gray-500 mt-1">Set on {intention.date}</p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-6 text-gray-500">
+                    <p>No intentions set yet</p>
+                    <Link to="/intentions">
+                      <Button variant="outline" size="sm" className="mt-2">
+                        Set Your First Intention
+                      </Button>
+                    </Link>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
 
-          {/* Quick Actions */}
           <div className="grid grid-cols-3 gap-4">
-            {/* Energy Check */}
             <Link to="/energy-check">
               <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
                 <CardContent className="p-6">
@@ -194,7 +225,6 @@ const UserDashboard: React.FC = () => {
               </Card>
             </Link>
             
-            {/* Frequency Library */}
             <Link to="/music-library">
               <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
                 <CardContent className="p-6">
@@ -212,7 +242,6 @@ const UserDashboard: React.FC = () => {
               </Card>
             </Link>
             
-            {/* Timeline */}
             <Link to="/timeline">
               <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
                 <CardContent className="p-6">
@@ -231,7 +260,6 @@ const UserDashboard: React.FC = () => {
             </Link>
           </div>
           
-          {/* Vibrational Journey */}
           <Card className="border rounded-lg">
             <CardHeader className="flex items-center p-6">
               <CardTitle className="text-xl font-medium flex items-center">
