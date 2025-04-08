@@ -1,5 +1,6 @@
+
 import React from 'react';
-import ExplanationCard from './ExplanationCard';
+import { ExplanationCard } from './ExplanationCard';
 import { sectionExplanations, SectionKey } from './SectionExplanations';
 import { Button } from "@/components/ui/button";
 import { useTheme } from '@/context/ThemeContext';

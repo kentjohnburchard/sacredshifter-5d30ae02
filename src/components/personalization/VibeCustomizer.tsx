@@ -146,7 +146,7 @@ const VibeCustomizer: React.FC = () => {
     setLiftTheVeil(checked);
     setPreferences({
       ...preferences,
-      lift_the_veil: checked
+      consciousness_mode: checked ? "lift-the-veil" : "standard"
     });
   };
 

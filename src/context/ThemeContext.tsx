@@ -6,6 +6,8 @@ import { useUserPreferences } from "@/hooks/useUserPreferences";
 type ThemeContextType = {
   liftTheVeil: boolean;
   setLiftTheVeil: (mode: boolean) => void;
+  kentMode: boolean; // Keep for backward compatibility
+  setKentMode: (mode: boolean) => void; // Keep for backward compatibility
   currentQuote: string;
   refreshQuote: () => void;
 };
@@ -13,6 +15,8 @@ type ThemeContextType = {
 const ThemeContext = createContext<ThemeContextType>({
   liftTheVeil: false,
   setLiftTheVeil: () => {},
+  kentMode: false,
+  setKentMode: () => {},
   currentQuote: "",
   refreshQuote: () => {},
 });
@@ -31,6 +35,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [preferences]);
 
+  // Set lift the veil mode
   const setLiftTheVeil = async (mode: boolean) => {
     try {
       // Update local state immediately for responsive UI
@@ -47,6 +52,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setLiftTheVeilState(!mode);
     }
   };
+
+  // For backward compatibility, alias kentMode to liftTheVeil
+  const kentMode = liftTheVeil;
+  const setKentMode = setLiftTheVeil;
 
   // Update current quote when randomQuote changes
   useEffect(() => {
@@ -66,7 +75,14 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [getRandomQuote, refreshRandomQuote]);
 
   return (
-    <ThemeContext.Provider value={{ liftTheVeil, setLiftTheVeil, currentQuote, refreshQuote }}>
+    <ThemeContext.Provider value={{ 
+      liftTheVeil, 
+      setLiftTheVeil, 
+      kentMode, 
+      setKentMode,
+      currentQuote, 
+      refreshQuote 
+    }}>
       {children}
     </ThemeContext.Provider>
   );

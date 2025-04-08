@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const MusicGeneration = () => {
   const [activeTab, setActiveTab] = useState<string>("create");
   const { user } = useAuth();
-  const { userCredits, loading } = useUserSubscription();
+  const { loading } = useUserSubscription();
   const { isGenerating, generatedTracks, startGeneration, deleteTrack } = useMusicGeneration();
 
   return (

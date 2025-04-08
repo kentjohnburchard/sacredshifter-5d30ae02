@@ -51,12 +51,16 @@ export const useUserSubscription = () => {
           setSubscription(DEFAULT_SUBSCRIPTION);
         } else if (data) {
           // Transform the database data into our UserSubscription type
+          const tier = data.plan_id?.includes('premium') ? 'premium' : 
+                      data.plan_id?.includes('lifetime') ? 'lifetime' : 'free';
+                      
           setSubscription({
-            tier: data.tier || "free",
+            tier: tier,
             is_active: data.is_active || false,
             expires_at: data.expires_at || null,
-            is_lifetime: data.is_lifetime || false,
-            tier_name: data.tier_name || "Free Tier"
+            is_lifetime: tier === 'lifetime',
+            tier_name: tier === 'premium' ? 'Premium Plan' : 
+                      tier === 'lifetime' ? 'Lifetime Membership' : 'Free Tier'
           });
         } else {
           // No subscription found, use default

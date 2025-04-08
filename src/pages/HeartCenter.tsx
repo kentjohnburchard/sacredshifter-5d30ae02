@@ -1,9 +1,31 @@
+
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
+import Layout from "@/components/Layout";
+import Header from "@/components/navigation/Header";
+import GlobalWatermark from "@/components/GlobalWatermark";
+import { useNavigate } from "react-router-dom";
+import { ExplanationCard } from "@/components/explanations/ExplanationCard";
+import { Camera, SendHorizontal, Music, Heart } from "lucide-react";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { useLoveQuotes } from "@/hooks/useLoveQuotes";
+import MirrorPortal from "@/components/heart-center/MirrorPortal";
+import SoulHug from "@/components/heart-center/SoulHug";
+import HeartFrequencyPlaylists from "@/components/heart-center/HeartFrequencyPlaylists";
 
 const HeartCenter: React.FC = () => {
   const { preferences } = useUserPreferences();
+  const [activeTab, setActiveTab] = useState<string>("mirror");
+  const { randomQuote } = useLoveQuotes();
+  const navigate = useNavigate();
+  
   const bgGradient = preferences.consciousness_mode === "lift-the-veil" 
     ? "bg-gradient-to-b from-rose-400 via-fuchsia-500 to-indigo-500"
     : "bg-gradient-to-b from-rose-100 via-pink-100 to-purple-100";
@@ -45,7 +67,7 @@ const HeartCenter: React.FC = () => {
                 transition={{ delay: 0.5, duration: 0.8 }}
                 className="mt-4 max-w-2xl mx-auto p-4 bg-white/30 backdrop-blur-sm rounded-lg border border-pink-100"
               >
-                <SectionExplanation section="loveDashboard" />
+                <ExplanationCard section="loveDashboard" />
               </motion.div>
               
               {randomQuote && (
@@ -75,7 +97,7 @@ const HeartCenter: React.FC = () => {
                   Mirror Portal
                 </TabsTrigger>
                 <TabsTrigger value="soulhug" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
-                  <SendHorizonal className="h-4 w-4 mr-2" />
+                  <SendHorizontal className="h-4 w-4 mr-2" />
                   Soul Hug
                 </TabsTrigger>
                 <TabsTrigger value="playlist" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-purple-500 data-[state=active]:text-white rounded-r-lg">
@@ -92,21 +114,21 @@ const HeartCenter: React.FC = () => {
               >
                 <TabsContent value="mirror" className="mt-0">
                   <div className="mb-4 p-3 bg-white/50 backdrop-blur-sm rounded-lg border border-pink-100">
-                    <SectionExplanation section="mirrorPortal" />
+                    <ExplanationCard section="mirrorPortal" />
                   </div>
                   <MirrorPortal />
                 </TabsContent>
                 
                 <TabsContent value="soulhug" className="mt-0">
                   <div className="mb-4 p-3 bg-white/50 backdrop-blur-sm rounded-lg border border-pink-100">
-                    <SectionExplanation section="soulHug" />
+                    <ExplanationCard section="soulHug" />
                   </div>
                   <SoulHug />
                 </TabsContent>
                 
                 <TabsContent value="playlist" className="mt-0">
                   <div className="mb-4 p-3 bg-white/50 backdrop-blur-sm rounded-lg border border-pink-100">
-                    <SectionExplanation section="heartFrequency" />
+                    <ExplanationCard section="heartFrequency" />
                   </div>
                   <HeartFrequencyPlaylists />
                 </TabsContent>
