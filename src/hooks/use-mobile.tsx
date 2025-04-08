@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 
 export function useMediaQuery(query: string): boolean {
@@ -24,4 +23,8 @@ export function useMediaQuery(query: string): boolean {
   }, [query]);
 
   return matches;
+}
+
+export function useIsMobile(): boolean {
+  return useMediaQuery("(max-width: 768px)");
 }
