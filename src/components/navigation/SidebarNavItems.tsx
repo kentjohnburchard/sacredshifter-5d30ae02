@@ -34,7 +34,7 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({ isCollapsed = false }
   // Get only active navigation items from config
   const activeNavItems = getActiveNavItems();
   
-  // Additional important pages that should always be in the sidebar
+  // Navigation items that should always be in the sidebar
   const navItems = [
     { path: "/dashboard", icon: <HomeIcon size={20} />, label: "Dashboard" },
     { path: "/sacred-blueprint", icon: <Sparkles size={20} />, label: "Sacred Blueprint" },

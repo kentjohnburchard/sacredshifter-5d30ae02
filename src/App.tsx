@@ -26,6 +26,10 @@ import EnergyCheck from "@/pages/EnergyCheck";
 import NotFound from "@/pages/NotFound";
 import SacredBlueprintPage from "@/pages/SacredBlueprint";
 import ShiftPerception from "@/pages/ShiftPerception";
+import HeartCenter from "@/pages/HeartCenter";
+import HermeticWisdom from "@/pages/HermeticWisdom";
+import Alignment from "@/pages/Alignment";
+import Intentions from "@/pages/Intentions";
 
 function App() {
   return (
@@ -111,6 +115,14 @@ function App() {
               }
             />
             <Route
+              path="/heart-center"
+              element={
+                <ProtectedRoute>
+                  <HeartCenter />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/heart-dashboard"
               element={
                 <ProtectedRoute>
@@ -139,6 +151,30 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ShiftPerception />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hermetic-wisdom"
+              element={
+                <ProtectedRoute>
+                  <HermeticWisdom />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/alignment"
+              element={
+                <ProtectedRoute>
+                  <Alignment />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/intentions"
+              element={
+                <ProtectedRoute>
+                  <Intentions />
                 </ProtectedRoute>
               }
             />
