@@ -118,9 +118,13 @@ const Header: React.FC = () => {
                   {activePages.trinityGateway && (
                     <Link to="/trinity-gateway" className="text-gray-600 hover:text-purple-600 transition-colors py-1">Trinity Gateway</Link>
                   )}
-                  {activePages.profile && (
-                    <Link to="/profile" className="text-gray-600 hover:text-purple-600 transition-colors py-1">Profile</Link>
-                  )}
+                  {/* Add My Vibe link to mobile menu */}
+                  <Link to="/personal-vibe" className="text-gray-600 hover:text-purple-600 transition-colors py-1">
+                    <Palette className="h-4 w-4 inline mr-1" /> My Vibe
+                  </Link>
+                  <Link to="/profile" className="text-gray-600 hover:text-purple-600 transition-colors py-1">
+                    <User className="h-4 w-4 inline mr-1" /> Profile
+                  </Link>
                   {activePages.aboutFounder && (
                     <Link to="/about-founder" className="text-gray-600 hover:text-purple-600 transition-colors py-1">About</Link>
                   )}

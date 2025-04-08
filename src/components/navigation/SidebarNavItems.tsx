@@ -22,7 +22,8 @@ import {
   UserCircle,
   Settings,
   Contact,
-  Map
+  Map,
+  Palette
 } from "lucide-react";
 import { getActiveNavItems } from "@/config/navigation";
 
@@ -50,7 +51,8 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({ isCollapsed = false }
     { path: "/journey-templates", icon: <LayoutTemplate size={20} />, label: "Journey Templates" },
     { path: "/about-founder", icon: <UserCircle size={20} />, label: "About Founder" },
     { path: "/subscription", icon: <CreditCard size={20} />, label: "Subscription" },
-    { path: "/profile", icon: <User2 size={20} />, label: "My Vibe" },
+    { path: "/personal-vibe", icon: <Palette size={20} />, label: "My Vibe" },
+    { path: "/profile", icon: <User2 size={20} />, label: "Profile" },
     { path: "/trinity-gateway", icon: <Triangle size={20} />, label: "Trinity Gateway" },
     { path: "/contact", icon: <Mail size={20} />, label: "Contact" },
     { path: "/site-map", icon: <Map size={20} />, label: "Site Map" }

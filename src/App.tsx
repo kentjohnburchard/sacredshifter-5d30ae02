@@ -33,6 +33,7 @@ import MusicLibraryPage from "@/pages/MusicLibraryPage";
 import JourneyTemplates from "@/pages/JourneyTemplates";
 import Astrology from "@/pages/Astrology";
 import AboutFounder from "@/pages/AboutFounder";
+import PersonalVibeSettings from "@/pages/PersonalVibeSettings";
 
 function App() {
   return (
@@ -57,6 +58,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/personal-vibe"
+            element={
+              <ProtectedRoute>
+                <PersonalVibeSettings />
               </ProtectedRoute>
             }
           />
