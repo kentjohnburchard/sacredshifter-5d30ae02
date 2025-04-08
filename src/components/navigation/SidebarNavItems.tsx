@@ -38,7 +38,7 @@ const navItems = [
   { href: '/contact', icon: Contact, label: 'Contact' },
 ];
 
-export function SidebarNavItems({ isCollapsed }: { isCollapsed?: boolean }) {
+const SidebarNavItems = ({ isCollapsed }: { isCollapsed?: boolean }) => {
   const location = useLocation();
   const { liftTheVeil } = useTheme();
 
@@ -76,4 +76,6 @@ export function SidebarNavItems({ isCollapsed }: { isCollapsed?: boolean }) {
       })}
     </div>
   );
-}
+};
+
+export default SidebarNavItems;

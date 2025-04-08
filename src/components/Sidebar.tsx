@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import SidebarLogo from "@/components/navigation/SidebarLogo";
-import { SidebarNavItems } from "@/components/navigation/SidebarNavItems"; 
+import SidebarNavItems from "@/components/navigation/SidebarNavItems"; 
 import SidebarUserDropdown from "@/components/navigation/SidebarUserDropdown";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
