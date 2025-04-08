@@ -75,8 +75,11 @@ export const useJourneyTemplates = ({ includeAudioMappings = true }: UseJourneyT
                 features: featData ? featData.map(f => f.feature) : [],
                 soundSources: soundData ? soundData.map(s => s.source) : [],
                 tags: [],
-                // Convert vale_quote to valeQuote for proper property naming
-                valeQuote: template.vale_quote
+                // Convert snake_case to camelCase for property naming consistency
+                valeQuote: template.vale_quote,
+                guidedPrompt: template.guided_prompt,
+                visualTheme: template.visual_theme,
+                sessionType: template.session_type
               } as JourneyTemplate;
             })
           );
