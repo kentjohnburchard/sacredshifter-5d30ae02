@@ -36,7 +36,7 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({ isCollapsed = false }
     { path: "/hermetic-wisdom", icon: <BookOpen size={20} />, label: "Hermetic Wisdom" },
     { path: "/music-library", icon: <Music size={20} />, label: "Music Library" },
     { path: "/astrology", icon: <Star size={20} />, label: "Astrology" },
-    { path: "/journey-templates", icon: <Triangle size={20} />, label: "Journey Templates" },
+    { path: "/journey-templates", icon: <LayoutTemplate size={20} />, label: "Journey Templates" },
     { path: "/personal-vibe", icon: <User2 size={20} />, label: "My Vibe" },
     { path: "/trinity-gateway", icon: <Triangle size={20} />, label: "Trinity Gateway" }
   ];

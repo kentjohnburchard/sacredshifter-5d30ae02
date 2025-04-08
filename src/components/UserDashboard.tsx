@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Music, Clock, Heart, Calendar, ArrowRight, Lightbulb } from "lucide-react";
+import { CheckCircle, Music, Clock, Heart, Calendar, ArrowRight, Lightbulb, Activity } from "lucide-react";
 import { toast } from "sonner";
 
 interface Intention {
