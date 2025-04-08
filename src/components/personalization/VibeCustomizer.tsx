@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Switch } from "@/components/ui/switch";
 import { ToggleLeft, ToggleRight, Sparkles, Palette, Droplet } from "lucide-react";
@@ -78,6 +79,9 @@ const VibeCustomizer = () => {
     
     setSaving(true);
     try {
+      // Apply theme changes immediately for better user experience
+      form.reset(data);
+      
       await saveUserPreferences({
         ...preferences,
         ...data
@@ -92,6 +96,21 @@ const VibeCustomizer = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  // Handle real-time preview of theme changes
+  const handleThemePreview = (themeValue: string) => {
+    form.setValue("theme_gradient", themeValue);
+  };
+
+  // Handle real-time preview of element changes
+  const handleElementPreview = (elementValue: string) => {
+    form.setValue("element", elementValue);
+  };
+
+  // Handle real-time preview of watermark style changes
+  const handleWatermarkPreview = (watermarkValue: string) => {
+    form.setValue("watermark_style", watermarkValue);
   };
 
   return (
@@ -137,13 +156,19 @@ const VibeCustomizer = () => {
                           type="radio"
                           className="sr-only"
                           checked={field.value === theme.gradient}
-                          onChange={() => field.onChange(theme.gradient)}
+                          onChange={() => {
+                            field.onChange(theme.gradient);
+                            handleThemePreview(theme.gradient);
+                          }}
                         />
                       </FormControl>
                       <div 
                         className={`h-10 w-full rounded-md cursor-pointer transition-all ${field.value === theme.gradient ? 'ring-2 ring-purple-500' : 'hover:ring-1 hover:ring-purple-200'}`}
                         style={{ background: theme.gradient }}
-                        onClick={() => field.onChange(theme.gradient)}
+                        onClick={() => {
+                          field.onChange(theme.gradient);
+                          handleThemePreview(theme.gradient);
+                        }}
                       />
                       <FormLabel className="cursor-pointer text-sm">{theme.name}</FormLabel>
                     </FormItem>
@@ -160,7 +185,10 @@ const VibeCustomizer = () => {
               name="element"
               render={({ field }) => (
                 <RadioGroup 
-                  onValueChange={field.onChange} 
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    handleElementPreview(value);
+                  }} 
                   defaultValue={field.value}
                   value={field.value}
                   className="grid grid-cols-2 md:grid-cols-4 gap-4"
@@ -219,7 +247,10 @@ const VibeCustomizer = () => {
               name="watermark_style"
               render={({ field }) => (
                 <RadioGroup 
-                  onValueChange={field.onChange} 
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    handleWatermarkPreview(value);
+                  }} 
                   defaultValue={field.value}
                   value={field.value}
                   className="grid grid-cols-2 gap-4"

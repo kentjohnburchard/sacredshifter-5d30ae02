@@ -14,15 +14,37 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, pageTitle, hideLegalFooter = false }) => {
-  const { currentQuote, refreshQuote } = useTheme();
+  const { currentQuote, refreshQuote, currentTheme, currentElement } = useTheme();
   
   // Refresh quote on mount
   React.useEffect(() => {
     refreshQuote();
   }, [refreshQuote]);
 
+  // Create dynamic style based on the current theme
+  const dynamicBackgroundStyle = {
+    background: currentTheme || "linear-gradient(to right, #4facfe, #00f2fe)",
+  };
+
+  // Additional class based on element
+  const getElementClass = () => {
+    switch(currentElement) {
+      case "fire": return "from-red-50 to-white";
+      case "water": return "from-blue-50 to-white";
+      case "earth": return "from-green-50 to-white";
+      case "air": return "from-purple-50 to-white";
+      default: return "from-purple-50 to-white";
+    }
+  };
+
   return (
-    <div className="min-h-screen flex bg-gradient-to-b from-purple-50 to-white">
+    <div className={`min-h-screen flex bg-gradient-to-b ${getElementClass()}`}>
+      {/* Theme Influence - Apply as a subtle overlay */}
+      <div 
+        className="fixed inset-0 opacity-10 -z-10" 
+        style={dynamicBackgroundStyle}
+      />
+      
       {/* Sidebar Navigation */}
       <Sidebar />
       
