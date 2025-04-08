@@ -1,11 +1,26 @@
-
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { TrademarkedName } from "@/components/ip-protection";
-import { activePages } from "@/config/navigation";
 import { Map, Heart, Music, BookOpen, User, Settings, Mail, Home, Sparkles, Brain } from "lucide-react";
 
 const Footer: React.FC = () => {
+  useEffect(() => {
+    console.log('Footer component mounted');
+    const footerElement = document.querySelector('footer');
+    if (footerElement) {
+      const rect = footerElement.getBoundingClientRect();
+      console.log('Footer position:', {
+        top: rect.top,
+        left: rect.left,
+        width: rect.width,
+        right: rect.right,
+        visible: rect.top < window.innerHeight
+      });
+    } else {
+      console.log('Footer element not found in DOM');
+    }
+  }, []);
+
   return (
     <footer className="w-full py-6 px-4 bg-gradient-to-r from-[#9966FF]/10 to-[#bf99ff]/5 border-t border-purple-100">
       <div className="max-w-6xl mx-auto">

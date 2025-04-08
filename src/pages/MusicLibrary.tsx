@@ -1,10 +1,10 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Header from '@/components/Header';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Library, Upload, Youtube, Music } from 'lucide-react';
+import { Library, Upload, Youtube } from 'lucide-react';
 import { useMusicLibrary } from '@/hooks/useMusicLibrary';
 import MusicUploadForm from '@/components/MusicUploadForm';
 import MusicLibraryList from '@/components/MusicLibraryList';
@@ -20,8 +20,21 @@ const MusicLibrary: React.FC = () => {
     getFrequencyName
   } = useMusicLibrary();
 
+  // Add debugging
+  useEffect(() => {
+    console.log('MusicLibrary page rendered');
+    setTimeout(() => {
+      const main = document.querySelector('main');
+      const footer = document.querySelector('footer');
+      if (main && footer) {
+        console.log('Main element height:', main.clientHeight);
+        console.log('Footer position relative to viewport:', footer.getBoundingClientRect());
+      }
+    }, 1000);
+  }, []);
+
   return (
-    <div className="flex flex-col bg-gradient-to-b from-[#f8f4ff] to-white">
+    <div className="flex flex-col bg-gradient-to-b from-[#f8f4ff] to-white pb-20">
       <Header />
       
       <main className="w-full max-w-6xl mx-auto px-4 py-4 sm:px-6">
@@ -55,7 +68,7 @@ const MusicLibrary: React.FC = () => {
           <TabsContent value="library">
             <Card className="border border-purple-200 shadow-md overflow-hidden rounded-xl bg-white/80 backdrop-blur-sm">
               <CardContent className="p-4">
-                <ScrollArea className="h-[calc(100vh-350px)] pr-4">
+                <ScrollArea className="h-[calc(100vh-450px)] pr-4">
                   <MusicLibraryList
                     musicList={meditationMusic}
                     isLoading={isLoading}
