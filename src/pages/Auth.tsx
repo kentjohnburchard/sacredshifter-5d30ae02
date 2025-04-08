@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -81,14 +80,22 @@ const Auth = () => {
   const loginWithTestUser = async (testEmail: string, testPassword: string) => {
     setLoading(true);
     try {
-      const { error } = await signIn({ email: testEmail, password: testPassword });
+      console.log(`Attempting to login with test account: ${testEmail}`);
+      const { error } = await signIn({ 
+        email: testEmail, 
+        password: testPassword 
+      });
+      
       if (error) {
+        console.error("Test login error:", error);
         toast.error(`Test login failed: ${error.message}`);
       } else {
+        console.log("Test login successful");
         toast.success(`Logged in as test user: ${testEmail}`);
         navigate('/dashboard');
       }
     } catch (error: any) {
+      console.error("Test login exception:", error);
       toast.error(error.message || 'Failed to sign in with test account');
     } finally {
       setLoading(false);
