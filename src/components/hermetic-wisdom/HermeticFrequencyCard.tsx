@@ -25,6 +25,7 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
   const navigate = useNavigate();
 
   const audioUrl = frequency.audio_url || frequency.url || "";
+  const frequencyGroupId = frequency.group_id;
 
   useEffect(() => {
     const fetchFractalVisual = async () => {
@@ -117,7 +118,7 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
   };
 
   const handlePlayToggle = () => {
-    if (!audioUrl) {
+    if (!audioUrl && !frequencyGroupId) {
       toast.error("No audio available for this frequency");
       return;
     }
@@ -332,6 +333,8 @@ const HermeticFrequencyCard: React.FC<HermeticFrequencyCardProps> = ({ frequency
                 isPlaying={isPlaying}
                 onPlayToggle={handlePlayToggle}
                 frequencyId={frequency.id}
+                groupId={frequencyGroupId}
+                frequency={frequency.frequency}
               />
             </div>
           )}

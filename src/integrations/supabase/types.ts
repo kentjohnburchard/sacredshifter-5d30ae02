@@ -157,13 +157,16 @@ export type Database = {
           created_at: string | null
           description: string | null
           duration: number | null
+          feature: string | null
           frequency: number
+          group_id: string | null
           id: string
           length: number | null
           principle: string | null
           session_type: string | null
           tags: string[] | null
           title: string
+          type: string | null
           updated_at: string | null
           url: string | null
           vibe_profile: string | null
@@ -177,13 +180,16 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           duration?: number | null
+          feature?: string | null
           frequency: number
+          group_id?: string | null
           id?: string
           length?: number | null
           principle?: string | null
           session_type?: string | null
           tags?: string[] | null
           title: string
+          type?: string | null
           updated_at?: string | null
           url?: string | null
           vibe_profile?: string | null
@@ -197,13 +203,16 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           duration?: number | null
+          feature?: string | null
           frequency?: number
+          group_id?: string | null
           id?: string
           length?: number | null
           principle?: string | null
           session_type?: string | null
           tags?: string[] | null
           title?: string
+          type?: string | null
           updated_at?: string | null
           url?: string | null
           vibe_profile?: string | null
@@ -918,9 +927,32 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      get_audio_by_feature: {
+        Args: { feature_name: string }
+        Returns: {
+          id: string
+          title: string
+          audio_url: string
+          frequency: number
+          chakra: string
+          description: string
+          group_id: string
+        }[]
+      }
       get_audio_url: {
         Args: { filename: string }
         Returns: string
+      }
+      get_random_audio_from_group: {
+        Args: { group_name: string }
+        Returns: {
+          id: string
+          title: string
+          audio_url: string
+          frequency: number
+          chakra: string
+          description: string
+        }[]
       }
       use_generation_credit: {
         Args: { user_id: string; credit_cost?: number }

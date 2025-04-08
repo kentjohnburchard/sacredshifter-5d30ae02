@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import { healingFrequencies } from '@/data/frequencies';
+import { useAudioLibrary } from '@/hooks/useAudioLibrary';
 
 export interface MeditationMusic {
   id: string;
@@ -13,6 +14,7 @@ export interface MeditationMusic {
   audio_url: string;
   created_at: string;
   updated_at: string;
+  group_id?: string;
 }
 
 export const useMusicLibrary = () => {
@@ -20,6 +22,7 @@ export const useMusicLibrary = () => {
   const [meditationMusic, setMeditationMusic] = useState<MeditationMusic[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const { user } = useAuth();
+  const { getAllTracks } = useAudioLibrary();
 
   useEffect(() => {
     fetchMeditationMusic();
@@ -28,18 +31,49 @@ export const useMusicLibrary = () => {
   const fetchMeditationMusic = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
+      
+      // First try to get meditation music from the meditation_music table
+      const { data: meditationData, error: meditationError } = await supabase
         .from('meditation_music')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        throw error;
+      if (meditationError) {
+        throw meditationError;
       }
-
-      if (data) {
-        setMeditationMusic(data as MeditationMusic[]);
-      }
+      
+      // Now get frequency library tracks that are marked as meditation or focus
+      const allTracks = await getAllTracks();
+      const meditationTracks = allTracks.filter(track => 
+        track.type === 'Meditation' || track.type === 'Focus'
+      ).map(track => ({
+        id: track.id,
+        title: track.title,
+        description: track.description || null,
+        frequency_id: track.frequency ? track.frequency.toString() : '',
+        audio_url: track.audioUrl,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        group_id: track.groupId
+      }));
+      
+      // Combine both sources
+      const combinedData = [
+        ...(meditationData as MeditationMusic[] || []),
+        ...meditationTracks
+      ];
+      
+      // Remove duplicates based on title
+      const uniqueTitles = new Set();
+      const uniqueData = combinedData.filter(item => {
+        if (uniqueTitles.has(item.title)) {
+          return false;
+        }
+        uniqueTitles.add(item.title);
+        return true;
+      });
+      
+      setMeditationMusic(uniqueData);
     } catch (error) {
       console.error('Error fetching meditation music:', error);
       toast.error('Failed to load meditation music');

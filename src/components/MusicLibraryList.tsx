@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Play, Pause, Download, Trash2, Music } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import RandomizingAudioPlayer from '@/components/audio/RandomizingAudioPlayer';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,31 +31,14 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
   getFrequencyName,
 }) => {
   const [playingId, setPlayingId] = useState<string | null>(null);
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deletingUrl, setDeletingUrl] = useState<string>('');
 
-  const handlePlay = (id: string, url: string) => {
+  const handlePlay = (id: string) => {
     if (playingId === id) {
-      // Pause if already playing this track
-      audioElement?.pause();
       setPlayingId(null);
-      setAudioElement(null);
     } else {
-      // Stop any currently playing audio
-      if (audioElement) {
-        audioElement.pause();
-      }
-      
-      // Play the new track
-      const audio = new Audio(url);
-      audio.addEventListener('ended', () => {
-        setPlayingId(null);
-        setAudioElement(null);
-      });
-      audio.play();
       setPlayingId(id);
-      setAudioElement(audio);
     }
   };
 
@@ -75,10 +59,8 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
   const confirmDelete = async () => {
     if (deletingId) {
       // If the track being deleted is currently playing, stop it
-      if (playingId === deletingId && audioElement) {
-        audioElement.pause();
+      if (playingId === deletingId) {
         setPlayingId(null);
-        setAudioElement(null);
       }
       
       await onDelete(deletingId, deletingUrl);
@@ -132,7 +114,7 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
                   variant="ghost"
                   size="icon"
                   className="h-7 w-7 rounded-full bg-brand-purple/10 text-brand-purple hover:bg-brand-purple/20"
-                  onClick={() => handlePlay(music.id, music.audio_url)}
+                  onClick={() => handlePlay(music.id)}
                 >
                   {playingId === music.id ? (
                     <Pause className="h-3 w-3" />
@@ -160,6 +142,20 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
                 </Button>
               </div>
             </div>
+            
+            {playingId === music.id && (
+              <div className="mt-2 pt-2 border-t border-gray-100">
+                <RandomizingAudioPlayer
+                  audioUrl={music.audio_url}
+                  groupId={music.group_id}
+                  onPlayStateChange={(isPlaying) => {
+                    if (!isPlaying) {
+                      setPlayingId(null);
+                    }
+                  }}
+                />
+              </div>
+            )}
           </CardContent>
         </Card>
       ))}

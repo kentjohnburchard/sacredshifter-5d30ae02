@@ -4,7 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Music, Clock, Heart, Calendar, ArrowRight, Lightbulb, Activity } from "lucide-react";
+import { 
+  CheckCircle, Music, Clock, Heart, Calendar, ArrowRight, Lightbulb, Activity 
+} from "lucide-react";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LoveDashboard from "@/components/heart-center/LoveDashboard";
@@ -39,26 +41,56 @@ const UserDashboard: React.FC = () => {
           setJournalCount(timelineEntries.length);
         }
 
+        const { data: musicJourneyData, error: journeyError } = await supabase
+          .from('sessions')
+          .select('id')
+          .eq('user_id', user.id);
+          
+        if (journeyError) throw journeyError;
+        if (musicJourneyData) {
+          const journeysCount = musicJourneyData.length;
+          setJourneysCount(journeysCount);
+        }
+
         const { data: musicData, error: musicError } = await supabase
           .from('music_generations')
-          .select('id, duration')
+          .select('id')
           .eq('user_id', user.id);
           
         if (musicError) throw musicError;
-        if (musicData) {
-          setJourneysCount(musicData.length);
+        
+        const { data: sessionData, error: sessionError } = await supabase
+          .from('sessions')
+          .select('id, created_at, updated_at')
+          .eq('user_id', user.id);
           
-          let totalMinutes = 0;
-          musicData.forEach((item: any) => {
-            if (item.duration) {
-              totalMinutes += item.duration;
+        if (sessionError) throw sessionError;
+        
+        let totalListeningMinutes = 0;
+        
+        if (musicData) {
+          totalListeningMinutes += musicData.length * 5;
+        }
+        
+        if (sessionData) {
+          sessionData.forEach((session: any) => {
+            if (session.created_at && session.updated_at) {
+              const startTime = new Date(session.created_at).getTime();
+              const endTime = new Date(session.updated_at).getTime();
+              const durationMinutes = (endTime - startTime) / (1000 * 60);
+              
+              if (durationMinutes >= 1 && durationMinutes <= 120) {
+                totalListeningMinutes += durationMinutes;
+              } else {
+                totalListeningMinutes += 10;
+              }
             } else {
-              totalMinutes += 5;
+              totalListeningMinutes += 10;
             }
           });
-          
-          setHoursListened(Math.round(totalMinutes / 60 * 10) / 10);
         }
+        
+        setHoursListened(Math.round(totalListeningMinutes / 60 * 10) / 10);
         
         const { data: intentionData, error: intentionError } = await supabase
           .from('user_intentions')

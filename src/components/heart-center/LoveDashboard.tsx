@@ -17,25 +17,6 @@ interface LoveStats {
   streakDays: number;
 }
 
-interface SoulHug {
-  id: string;
-  message: string;
-  sender_id: string;
-  recipient_id?: string;
-  is_anonymous: boolean;
-  tag: string;
-  created_at: string;
-}
-
-interface MirrorMoment {
-  id: string;
-  user_id: string;
-  message: string;
-  return_date: string;
-  created_at: string;
-  viewed_at?: string;
-}
-
 const LoveDashboard: React.FC = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState<LoveStats>({
@@ -49,7 +30,6 @@ const LoveDashboard: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
   
-  // Calculate love level based on activity
   const calculateLoveLevel = () => {
     const totalActions = 
       stats.hugsReceived + 
@@ -68,7 +48,6 @@ const LoveDashboard: React.FC = () => {
   const loveLevel = calculateLoveLevel();
   const progressPercent = (loveLevel.level / 5) * 100;
   
-  // Fetch stats from Supabase
   useEffect(() => {
     const fetchStats = async () => {
       if (!user) return;
@@ -76,77 +55,129 @@ const LoveDashboard: React.FC = () => {
       try {
         setLoading(true);
         
-        // Fetch hugs stats
         const { data: hugsData, error: hugsError } = await supabase
           .from('soul_hugs')
           .select('sender_id, recipient_id')
-          .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`) as any;
+          .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`);
           
         if (hugsError) throw hugsError;
         
-        // Fetch mirror sessions
         const { data: mirrorData, error: mirrorError } = await supabase
           .from('mirror_moments')
           .select('id')
-          .eq('user_id', user.id) as any;
+          .eq('user_id', user.id);
           
         if (mirrorError) throw mirrorError;
         
-        // Fetch intentions
         const { data: intentionsData, error: intentionsError } = await supabase
           .from('user_intentions')
           .select('id')
-          .eq('user_id', user.id) as any;
+          .eq('user_id', user.id);
           
         if (intentionsError) throw intentionsError;
         
-        // Fetch music listening data (from music_generations or similar table)
-        const { data: musicData, error: musicError } = await supabase
-          .from('music_generations')
-          .select('id, duration')
-          .eq('user_id', user.id) as any;
+        const { data: sessionData, error: sessionError } = await supabase
+          .from('sessions')
+          .select('id, created_at, updated_at')
+          .eq('user_id', user.id);
           
-        if (musicError) throw musicError;
+        if (sessionError) throw sessionError;
         
-        // Calculate total listening time from available music data
         let totalMinutes = 0;
-        if (musicData && musicData.length > 0) {
-          totalMinutes = musicData.reduce((total: number, item: any) => {
-            // If duration is available in minutes, add it to total
-            return total + (item.duration || 0);
-          }, 0);
+        
+        if (sessionData && sessionData.length > 0) {
+          sessionData.forEach((session: any) => {
+            if (session.created_at && session.updated_at) {
+              const startTime = new Date(session.created_at).getTime();
+              const endTime = new Date(session.updated_at).getTime();
+              const durationMinutes = (endTime - startTime) / (1000 * 60);
+              
+              if (durationMinutes >= 1 && durationMinutes <= 120) {
+                totalMinutes += durationMinutes;
+              } else {
+                totalMinutes += 5;
+              }
+            } else {
+              totalMinutes += 5;
+            }
+          });
         }
         
-        // Calculate streak days based on recent activity
-        // For now, we'll use a simple calculation based on user's intentions
         const { data: recentActivity, error: recentError } = await supabase
-          .from('user_intentions')
+          .from('timeline_snapshots')
           .select('created_at')
           .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(10) as any;
+          .order('created_at', { ascending: false });
           
         let streakCount = 0;
-        if (recentActivity && recentActivity.length > 0) {
-          // Simple streak calculation - count consecutive days with activity
-          // This is a placeholder implementation - real implementation would be more sophisticated
-          streakCount = Math.min(recentActivity.length, 7); // Cap at 7 days for display
+        if (!recentError && recentActivity && recentActivity.length > 0) {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          
+          const activityDays = new Set();
+          recentActivity.forEach((item: any) => {
+            const activityDate = new Date(item.created_at);
+            activityDate.setHours(0, 0, 0, 0);
+            
+            const daysDiff = Math.floor((today.getTime() - activityDate.getTime()) / (1000 * 3600 * 24));
+            if (daysDiff >= 0 && daysDiff < 7) {
+              activityDays.add(daysDiff);
+            }
+          });
+          
+          streakCount = activityDays.size;
         }
         
-        // Update stats with real data
+        const { data: frequencyData, error: frequencyError } = await supabase
+          .from('sessions')
+          .select('frequency_id')
+          .eq('user_id', user.id);
+          
+        let favoritePlaylist = "Love Codes";
+        
+        if (!frequencyError && frequencyData && frequencyData.length > 0) {
+          const frequencyCounts = frequencyData.reduce((acc: any, item: any) => {
+            if (item.frequency_id) {
+              acc[item.frequency_id] = (acc[item.frequency_id] || 0) + 1;
+            }
+            return acc;
+          }, {});
+          
+          let maxCount = 0;
+          let mostUsedFrequencyId = null;
+          
+          for (const [freqId, count] of Object.entries(frequencyCounts)) {
+            if (Number(count) > maxCount) {
+              maxCount = Number(count);
+              mostUsedFrequencyId = freqId;
+            }
+          }
+          
+          if (mostUsedFrequencyId) {
+            const { data: freqData } = await supabase
+              .from('frequency_library')
+              .select('title')
+              .eq('id', mostUsedFrequencyId)
+              .single();
+              
+            if (freqData) {
+              favoritePlaylist = freqData.title;
+            }
+          }
+        }
+        
         setStats({
-          hugsReceived: hugsData?.filter((hug: SoulHug) => hug.recipient_id === user.id).length || 0,
-          hugsSent: hugsData?.filter((hug: SoulHug) => hug.sender_id === user.id).length || 0,
+          hugsReceived: hugsData?.filter((hug: any) => hug.recipient_id === user.id).length || 0,
+          hugsSent: hugsData?.filter((hug: any) => hug.sender_id === user.id).length || 0,
           totalMirrorSessions: mirrorData?.length || 0,
           intentionsSet: intentionsData?.length || 0,
-          favoritePlaylist: "Love Codes", // Default until we have real playlist data
+          favoritePlaylist: favoritePlaylist,
           totalListeningTime: totalMinutes,
           streakDays: streakCount
         });
         
       } catch (error) {
         console.error("Error fetching love stats:", error);
-        // Use zeroed data as fallback
         setStats({
           hugsReceived: 0,
           hugsSent: 0,
@@ -170,7 +201,6 @@ const LoveDashboard: React.FC = () => {
       animate={{ opacity: 1 }}
       className="space-y-6"
     >
-      {/* Love Level Card */}
       <Card className="bg-white/70 backdrop-blur-sm border-pink-200 overflow-hidden">
         <div className="bg-gradient-to-r from-pink-500 to-purple-600 h-3" />
         <CardContent className="pt-6">
@@ -200,7 +230,6 @@ const LoveDashboard: React.FC = () => {
         </CardContent>
       </Card>
       
-      {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="bg-white/50 backdrop-blur-sm border-pink-100">
           <CardContent className="p-4 flex flex-col items-center justify-center text-center">
@@ -243,7 +272,6 @@ const LoveDashboard: React.FC = () => {
         </Card>
       </div>
       
-      {/* Additional Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="bg-white/50 backdrop-blur-sm border-pink-100">
           <CardContent className="p-4">
@@ -292,7 +320,6 @@ const LoveDashboard: React.FC = () => {
         </Card>
       </div>
       
-      {/* Share Love Card */}
       <Card className="bg-gradient-to-r from-pink-100/80 to-purple-100/80 backdrop-blur-sm border-pink-200 p-6">
         <div className="flex flex-col md:flex-row items-center justify-between">
           <div className="text-center md:text-left mb-4 md:mb-0">
@@ -304,7 +331,6 @@ const LoveDashboard: React.FC = () => {
             variant="default"
             className="bg-gradient-to-r from-pink-500 to-purple-600"
             onClick={() => {
-              // Implementation would use a sharing API
               navigator.clipboard.writeText("https://sacredshifter.app/heart");
               alert("Link copied to clipboard!");
             }}

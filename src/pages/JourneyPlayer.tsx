@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -10,6 +9,7 @@ import { FrequencyLibraryItem } from "@/types/frequencies";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { useAudioLibrary } from "@/hooks/useAudioLibrary";
 
 const JourneyPlayer = () => {
   const { frequencyId } = useParams();
@@ -18,7 +18,9 @@ const JourneyPlayer = () => {
   const [frequency, setFrequency] = useState<FrequencyLibraryItem | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [intention, setIntention] = useState("");
-
+  const [audioGroupId, setAudioGroupId] = useState<string | null>(null);
+  const { getByFrequency } = useAudioLibrary();
+  
   useEffect(() => {
     if (!frequencyId) return;
     
@@ -39,10 +41,31 @@ const JourneyPlayer = () => {
         
         if (frequencyData) {
           setFrequency(frequencyData);
+          if (frequencyData.group_id) {
+            setAudioGroupId(frequencyData.group_id);
+          }
         } else {
           // If not found by exact match, try to find nearest frequency
-          toast.error("Specific frequency not found in library");
-          navigate("/frequency-library");
+          // This is now handled by our useAudioLibrary hook
+          const audioTrack = await getByFrequency(Number(frequencyId));
+          if (audioTrack) {
+            // Create a synthetic frequency item from the audio track
+            const syntheticFrequency: FrequencyLibraryItem = {
+              id: audioTrack.id,
+              title: audioTrack.title,
+              frequency: audioTrack.frequency,
+              chakra: audioTrack.chakra || "",
+              audio_url: audioTrack.audioUrl,
+              description: audioTrack.description || "",
+            };
+            setFrequency(syntheticFrequency);
+            if (audioTrack.groupId) {
+              setAudioGroupId(audioTrack.groupId);
+            }
+          } else {
+            toast.error("Specific frequency not found in library");
+            navigate("/frequency-library");
+          }
         }
       } catch (err) {
         console.error("Error in frequency lookup:", err);
@@ -51,7 +74,7 @@ const JourneyPlayer = () => {
     };
     
     loadFrequency();
-  }, [frequencyId, navigate]);
+  }, [frequencyId, navigate, getByFrequency]);
 
   const startSession = async (userIntention: string) => {
     if (!user || !frequency) return;
@@ -181,6 +204,7 @@ const JourneyPlayer = () => {
           onReflectionSubmit={logReflection}
           currentIntention={intention}
           sessionId={sessionId}
+          audioGroupId={audioGroupId}
         />
       </div>
     </Layout>
