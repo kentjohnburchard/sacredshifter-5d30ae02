@@ -3,7 +3,7 @@ import React from 'react';
 import Layout from '@/components/Layout';
 import HarmonicMapViewer from '@/components/harmonic-map/HarmonicMapViewer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Info, Music, Sparkles, Compass } from 'lucide-react'; // Removed CircleInfo, using Info instead
+import { Info, Music, Sparkles, Compass } from 'lucide-react';
 import { teslaThreeSixNine } from '@/data/harmonicSequence';
 
 const HarmonicMapPage: React.FC = () => {
@@ -34,7 +34,7 @@ const HarmonicMapPage: React.FC = () => {
                 Tesla's 3-6-9
               </TabsTrigger>
               <TabsTrigger value="about" className="w-1/3">
-                <Info className="h-4 w-4 mr-2" /> {/* Changed from CircleInfo to Info */}
+                <Info className="h-4 w-4 mr-2" />
                 About Harmonics
               </TabsTrigger>
             </TabsList>

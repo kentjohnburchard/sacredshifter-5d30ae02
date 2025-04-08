@@ -38,7 +38,7 @@ const navItems = [
   { href: '/contact', icon: Contact, label: 'Contact' },
 ];
 
-export function SidebarNavItems({ isCollapsed }: { isCollapsed?: boolean }) {  // Add isCollapsed prop
+export function SidebarNavItems({ isCollapsed }: { isCollapsed?: boolean }) {
   const location = useLocation();
   const { liftTheVeil } = useTheme();
 
@@ -70,7 +70,7 @@ export function SidebarNavItems({ isCollapsed }: { isCollapsed?: boolean }) {  /
                   : "text-gray-500"
               )}
             />
-            {!isCollapsed && <span>{item.label}</span>}  {/* Conditionally render text based on collapsed state */}
+            {!isCollapsed && <span>{item.label}</span>}
           </NavLink>
         );
       })}
