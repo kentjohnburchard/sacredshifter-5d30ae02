@@ -6,7 +6,9 @@ import MusicLibrary from "./MusicLibrary";
 const MusicLibraryPage = () => {
   return (
     <Layout pageTitle="Sacred Sound Library">
-      <MusicLibrary />
+      <div className="pb-8">
+        <MusicLibrary />
+      </div>
     </Layout>
   );
 };

@@ -39,9 +39,9 @@ const Layout: React.FC<LayoutProps> = ({
       )}
 
       {showFooter && (
-        <div className="w-full ml-0 mt-auto">
+        <footer className="w-full mt-auto">
           <Footer />
-        </div>
+        </footer>
       )}
     </div>
   );
