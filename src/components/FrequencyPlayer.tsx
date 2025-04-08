@@ -1,9 +1,8 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause } from "lucide-react";
 import { toast } from "sonner";
-import RandomizingAudioPlayer from "@/components/audio/RandomizingAudioPlayer";
 
 interface FrequencyPlayerProps {
   audioUrl?: string;
@@ -27,30 +26,69 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   groupId
 }) => {
   const effectiveAudioUrl = url || audioUrl;
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  
+  useEffect(() => {
+    // Initialize audio element
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+    }
+    
+    return () => {
+      // Clean up on unmount
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = "";
+      }
+    };
+  }, []);
   
   useEffect(() => {
     if (!effectiveAudioUrl) {
       console.warn("No audio URL provided to FrequencyPlayer");
+      return;
     } else {
       console.log("FrequencyPlayer using audio URL:", effectiveAudioUrl);
+      
+      if (audioRef.current) {
+        audioRef.current.src = effectiveAudioUrl;
+        audioRef.current.load();
+      }
     }
   }, [effectiveAudioUrl]);
   
-  const handlePlayStateChange = (newPlayState: boolean) => {
-    // Only call onPlayToggle if the state actually changed
-    if (newPlayState !== isPlaying) {
-      console.log("Play state changed:", newPlayState, "for URL:", effectiveAudioUrl);
-      onPlayToggle();
+  useEffect(() => {
+    if (!audioRef.current) return;
+    
+    if (isPlaying) {
+      const playPromise = audioRef.current.play();
+      
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.error("Error playing audio:", error);
+          toast.error("Could not play audio. Click the play button to try again.");
+          // Reset play state without triggering the callback
+          if (onPlayToggle) {
+            onPlayToggle();
+          }
+        });
+      }
+    } else {
+      audioRef.current.pause();
     }
-  };
+  }, [isPlaying, onPlayToggle]);
 
+  const handleButtonClick = () => {
+    onPlayToggle();
+  };
+  
   return (
     <div className="flex items-center gap-2">
       <Button
         variant="outline"
         size="icon"
         className="h-10 w-10 rounded-full"
-        onClick={onPlayToggle}
+        onClick={handleButtonClick}
         aria-label={isPlaying ? "Pause" : "Play"}
       >
         {isPlaying ? (
@@ -59,15 +97,6 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
           <Play className="h-5 w-5 ml-0.5" />
         )}
       </Button>
-      
-      <RandomizingAudioPlayer
-        audioUrl={effectiveAudioUrl}
-        frequency={frequency}
-        groupId={groupId}
-        onPlayStateChange={handlePlayStateChange}
-        autoPlay={isPlaying}
-        showControls={false}
-      />
     </div>
   );
 };

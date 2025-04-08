@@ -43,6 +43,12 @@ const journeySongsMap: Record<string, string[]> = {
   ]
 };
 
+// Create direct URLs to audio files to avoid CORS issues
+const getDirectAudioUrl = (filename: string): string => {
+  // Using direct CDN URL to avoid CORS issues
+  return `${import.meta.env.VITE_PUBLIC_SUPABASE_URL || 'https://mikltjgbvxrxndtszorb.supabase.co'}/storage/v1/object/public/frequency-assets/journey/${encodeURIComponent(filename)}`;
+};
+
 // Convert song filenames to mock SongMapping objects
 const createMockSongMappings = (filenames: string[], journeyId: string): SongMapping[] => {
   return filenames.map((filename, index) => ({
@@ -52,7 +58,7 @@ const createMockSongMappings = (filenames: string[], journeyId: string): SongMap
     functionality: 'journey',
     description: `Song for ${journeyId} journey`,
     duration: 240 + Math.floor(Math.random() * 240), // Random duration between 4-8 minutes
-    audioUrl: `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/journey/${filename}`,
+    audioUrl: getDirectAudioUrl(filename),
     frequency: index % 2 === 0 ? 432 : 528, // Alternate between common healing frequencies
     chakra: ['Root', 'Sacral', 'Solar Plexus', 'Heart', 'Throat', 'Third Eye', 'Crown'][index % 7]
   }));
@@ -86,6 +92,11 @@ export const useJourneySongs = (journeyId?: string) => {
             const convertedSongs = journeySongs.map(song => {
               const convertedSong = convertToJourneySong(song, journeyId, false);
               console.log(`Converted song: ${convertedSong.title}, URL: ${convertedSong.audioUrl}`);
+              // Test the audio URL by creating an audio element
+              const audio = new Audio();
+              audio.src = convertedSong.audioUrl;
+              audio.preload = "metadata";
+              
               return convertedSong;
             });
             
