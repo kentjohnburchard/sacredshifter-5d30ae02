@@ -1,8 +1,9 @@
+
 import React from 'react';
 import Layout from '@/components/Layout';
 import HarmonicMapViewer from '@/components/harmonic-map/HarmonicMapViewer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Info, Sparkles, Compass } from 'lucide-react';
+import { Info, Sparkles, Compass, Music as MusicIcon } from 'lucide-react';
 import { teslaThreeSixNine } from '@/data/harmonicSequence';
 
 const HarmonicMapPage: React.FC = () => {
@@ -72,7 +73,7 @@ const HarmonicMapPage: React.FC = () => {
                       </div>
                       <div className="mt-4 text-center">
                         <button className="inline-flex items-center text-sm text-purple-600 hover:text-purple-800">
-                          <Music size={16} className="mr-1" />
+                          <MusicIcon size={16} className="mr-1" />
                           Listen to {principle.frequencies[0]}Hz
                         </button>
                       </div>
