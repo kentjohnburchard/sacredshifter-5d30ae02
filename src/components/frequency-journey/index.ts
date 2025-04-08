@@ -5,4 +5,4 @@ export { default as JourneyPlayer } from './JourneyPlayer';
 export { default as JourneyAudioMapper } from './JourneyAudioMapper';
 export { default as JourneyDetail } from './JourneyDetail';
 export { default as JourneySongList } from './JourneySongList';
-
+export { default as JourneySongsManager } from '../admin/JourneyAudioManager';

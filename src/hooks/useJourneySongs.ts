@@ -2,60 +2,67 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { JourneySong, JourneySongGroup } from '@/types/journeySongs';
+import { JourneySong, JourneySongGroup, convertToJourneySong } from '@/types/journeySongs';
 import { SongMapping } from '@/types/music';
 
-// Mock data for initial development
-const mockSongs: Record<string, SongMapping[]> = {
+// Map of journey IDs to their audio filenames
+const journeySongsMap: Record<string, string[]> = {
+  'silent-tune': [
+    "Whispers on the Breeze.mp3",
+    "Whispers on the Breeze (1).mp3"
+  ],
   'chakra-harmony': [
-    {
-      id: 'song-1',
-      title: 'Root Chakra Activation',
-      artist: 'Sacred Soundscapes',
-      frequency: 396,
-      chakra: 'Root',
-      functionality: 'chakra-healing',
-      description: 'Grounding vibrations to activate the root chakra',
-      duration: 360,
-      audioUrl: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8e7a2a85d.mp3'
-    },
-    {
-      id: 'song-2',
-      title: 'Heart Center Harmony',
-      artist: 'Healing Vibrations',
-      frequency: 639,
-      chakra: 'Heart',
-      functionality: 'chakra-healing',
-      description: 'Opening the heart chakra with loving vibrations',
-      duration: 420,
-      audioUrl: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3'
-    }
+    "Whispering Waters.mp3",
+    "Whispering Waters (1).mp3",
+    "Rise in Gold.mp3",
+    "Rise in Gold (1).mp3"
   ],
   'deep-sleep': [
-    {
-      id: 'song-3',
-      title: 'Delta Waves Dreamscape',
-      artist: 'Sleep Soundscapes',
-      frequency: 4,
-      functionality: 'sleep',
-      description: 'Deep delta wave patterns for restorative sleep',
-      duration: 1800,
-      audioUrl: 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3'
-    }
+    "Celestial Calling.mp3",
+    "Celestial Calling (1).mp3",
+    "Through the Veil.mp3",
+    "Through the Veil (1).mp3"
   ],
-  'silent-tune': [
-    {
-      id: 'song-4',
-      title: 'Inner Silence',
-      artist: 'Frequency Healers',
-      frequency: 528,
-      functionality: 'meditation',
-      description: 'Tune into the silence within',
-      duration: 600,
-      audioUrl: 'https://cdn.pixabay.com/download/audio/2021/11/25/audio_cb7cc40662.mp3'
-    }
+  'focus-flow': [
+    "Ignite the Flame.mp3",
+    "Ignite the Flame (1).mp3",
+    "Calm Horizons.mp3",
+    "Calm Horizons (1).mp3"
+  ],
+  'anxiety-release': [
+    "Heart Strings.mp3",
+    "Heart Strings (1).mp3",
+    "Mending the Echoes.mp3",
+    "Mending the Echoes (1).mp3"
+  ],
+  'creativity-boost': [
+    "Inner Glow.mp3",
+    "Inner Glow (1).mp3",
+    "Echoes of Eternity.mp3",
+    "Echoes of Eternity (1).mp3"
   ]
 };
+
+// Convert song filenames to mock SongMapping objects
+const createMockSongMappings = (filenames: string[], journeyId: string): SongMapping[] => {
+  return filenames.map((filename, index) => ({
+    id: `song-${journeyId}-${index}`,
+    title: filename.replace('.mp3', ''),
+    artist: 'Sacred Soundscapes',
+    functionality: 'journey',
+    description: `Song for ${journeyId} journey`,
+    duration: 240 + Math.floor(Math.random() * 240), // Random duration between 4-8 minutes
+    audioUrl: `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${filename}`,
+    frequency: index % 2 === 0 ? 432 : 528, // Alternate between common healing frequencies
+    chakra: ['Root', 'Sacral', 'Solar Plexus', 'Heart', 'Throat', 'Third Eye', 'Crown'][index % 7]
+  }));
+};
+
+// Convert the journeySongsMap to mockSongs format
+const mockSongs: Record<string, SongMapping[]> = {};
+Object.entries(journeySongsMap).forEach(([journeyId, filenames]) => {
+  mockSongs[journeyId] = createMockSongMappings(filenames, journeyId);
+});
 
 export const useJourneySongs = (journeyId?: string) => {
   const [songs, setSongs] = useState<JourneySong[]>([]);
@@ -133,24 +140,5 @@ export const useJourneySongs = (journeyId?: string) => {
     loading,
     error,
     addSongToJourney
-  };
-};
-
-// Helper function to convert SongMapping to JourneySong
-const convertToJourneySong = (
-  song: SongMapping, 
-  journeyId: string,
-  isPrimary: boolean = false
-): JourneySong => {
-  return {
-    id: song.id,
-    title: song.title,
-    artist: song.artist || 'Unknown Artist',
-    audioUrl: song.audioUrl || '',
-    duration: song.duration || 180,
-    journeyId: journeyId,
-    isPrimary: isPrimary,
-    chakra: song.chakra,
-    frequency: song.frequency
   };
 };
