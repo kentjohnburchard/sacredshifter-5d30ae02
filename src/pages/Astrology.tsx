@@ -6,7 +6,7 @@ import AstrologyPage from "@/components/astrology/AstrologyPage";
 const Astrology = () => {
   return (
     <Layout pageTitle="Astrology">
-      <div className="py-4">
+      <div className="py-4 pb-8">
         <AstrologyPage />
       </div>
     </Layout>

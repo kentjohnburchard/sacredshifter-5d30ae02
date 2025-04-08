@@ -6,7 +6,7 @@ import { JourneyTemplatesGrid } from "@/components/frequency-journey";
 const JourneyTemplates = () => {
   return (
     <Layout pageTitle="Sacred Healing Journeys">
-      <div className="max-w-5xl mx-auto py-4">
+      <div className="max-w-5xl mx-auto py-4 pb-8">
         <div className="mb-4">
           <h1 className="text-3xl font-bold tracking-tight mb-2">Sacred Healing Journeys</h1>
           <p className="text-base text-gray-700 dark:text-gray-300">

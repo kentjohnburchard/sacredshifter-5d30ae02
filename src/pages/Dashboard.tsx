@@ -17,7 +17,7 @@ const Dashboard: React.FC = () => {
   
   return (
     <Layout pageTitle="Dashboard">
-      <div className="py-4">
+      <div className="py-4 pb-8">
         <UserDashboard />
       </div>
     </Layout>

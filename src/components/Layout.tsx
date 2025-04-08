@@ -26,7 +26,7 @@ const Layout: React.FC<LayoutProps> = ({
       {!isAuthPage && (
         <div className="flex flex-1">
           <Sidebar />
-          <main className="flex-1 pt-20 px-4 lg:px-8 pb-8 ml-20 transition-all duration-300">
+          <main className="flex-1 pt-20 px-4 lg:px-8 pb-24 ml-20 transition-all duration-300 w-full">
             {children}
           </main>
         </div>
@@ -38,7 +38,11 @@ const Layout: React.FC<LayoutProps> = ({
         </main>
       )}
 
-      {showFooter && <Footer />}
+      {showFooter && (
+        <div className="w-full ml-0 mt-auto">
+          <Footer />
+        </div>
+      )}
     </div>
   );
 };
