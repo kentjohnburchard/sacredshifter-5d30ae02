@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -44,8 +45,9 @@ const journeySongsMap: Record<string, string[]> = {
 
 // Get direct Supabase audio URL for a filename
 const getDirectAudioUrl = (filename: string): string => {
-  // Use the Supabase URL for production
-  return `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${encodeURIComponent(filename)}`;
+  // Use the Supabase URL for production - don't encode the URL here
+  // The FrequencyPlayer will handle the encoding
+  return `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${filename}`;
 };
 
 // Convert song filenames to mock SongMapping objects

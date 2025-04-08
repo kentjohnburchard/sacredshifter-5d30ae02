@@ -94,9 +94,15 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       }
       
       try {
-        // Make sure to properly encode spaces in URLs if needed
-        const formattedUrl = effectiveAudioUrl.includes(' ') ? 
-          effectiveAudioUrl.replace(/ /g, '%20') : effectiveAudioUrl;
+        // Properly encode the URL to handle spaces and special characters
+        let formattedUrl = effectiveAudioUrl;
+        
+        // Only encode if it's not already encoded
+        if (formattedUrl.includes(' ') || formattedUrl.includes('(') || formattedUrl.includes(')')) {
+          // Replace spaces with %20 and other special characters
+          formattedUrl = encodeURI(formattedUrl);
+        }
+        
         audioRef.current.src = formattedUrl;
         audioRef.current.load();
       } catch (err) {
@@ -134,8 +140,14 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     if (audioError) {
       // If there was an error, try reloading before playing
       if (audioRef.current && effectiveAudioUrl) {
-        const formattedUrl = effectiveAudioUrl.includes(' ') ? 
-          effectiveAudioUrl.replace(/ /g, '%20') : effectiveAudioUrl;
+        // Properly encode the URL
+        let formattedUrl = effectiveAudioUrl;
+        
+        // Only encode if it's not already encoded
+        if (formattedUrl.includes(' ') || formattedUrl.includes('(') || formattedUrl.includes(')')) {
+          formattedUrl = encodeURI(formattedUrl);
+        }
+        
         audioRef.current.src = formattedUrl;
         audioRef.current.load();
       }
