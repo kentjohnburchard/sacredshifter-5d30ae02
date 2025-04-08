@@ -23,20 +23,12 @@ const Layout: React.FC<LayoutProps> = ({
 
   return (
     <div className="flex flex-col min-h-screen">
-      {!isAuthPage && (
-        <div className="flex flex-1">
-          <Sidebar />
-          <main className="flex-1 pt-20 px-4 lg:px-8 pb-24 ml-20 transition-all duration-300 w-full">
-            {children}
-          </main>
-        </div>
-      )}
-
-      {isAuthPage && (
-        <main className="flex-1">
+      <div className="flex flex-1">
+        {!isAuthPage && <Sidebar />}
+        <main className={`flex-1 ${!isAuthPage ? 'ml-20' : ''} pt-20 px-4 lg:px-8 pb-24 transition-all duration-300 w-full`}>
           {children}
         </main>
-      )}
+      </div>
 
       {showFooter && (
         <footer className="w-full mt-auto">
