@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import NavLink from './NavLink';
 import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/context/ThemeContext';
@@ -73,6 +74,7 @@ const SidebarNavItems = ({ isCollapsed }: { isCollapsed?: boolean }) => {
         <NavLink
           key={item.href}
           to={item.href}
+          isMobile={false}
           className={cn(
             "flex items-center py-2 px-3 text-sm rounded-md transition-colors",
             isActive
@@ -106,6 +108,7 @@ const SidebarNavItems = ({ isCollapsed }: { isCollapsed?: boolean }) => {
       {!isCollapsed && (
         <NavLink
           to="/site-map"
+          isMobile={false}
           className="flex items-center py-2 px-3 text-sm rounded-md transition-colors text-gray-600 hover:bg-purple-50 hover:text-purple-900 mt-4 border-t border-purple-50 pt-4"
         >
           <Map className="h-5 w-5 mr-2 text-gray-500" />

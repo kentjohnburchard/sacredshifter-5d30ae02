@@ -1,38 +1,43 @@
 
-import React, { useState } from "react";
+import React from "react";
 import Layout from "@/components/Layout";
-import { EnergyCheckTabs } from "@/components/energy-check";
-import { Link } from "react-router-dom";
-import { BookOpen, Stars } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import FrequencyShiftPrompt from "@/components/FrequencyShiftPrompt";
+import { MoodCheckTab } from "@/components/energy-check";
+import { JournalTab } from "@/components/energy-check";
 
 const EnergyCheck = () => {
-  const [activeTab, setActiveTab] = useState("frequency");
-  
   return (
-    <Layout pageTitle="Energy Check-In">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
-        <p className="text-base text-gray-600 max-w-2xl mx-auto text-center mb-2">
-          Align your energy and set sacred intentions for your journey.
-        </p>
-        
-        <div className="flex justify-center gap-4 mb-6">
-          <Link to="/hermetic-wisdom">
-            <Button variant="outline" className="gap-2 text-purple-600 border-purple-200 hover:bg-purple-50">
-              <BookOpen className="h-4 w-4" />
-              <span>Explore Hermetic Wisdom</span>
-            </Button>
-          </Link>
-          
-          <Link to="/astrology">
-            <Button variant="outline" className="gap-2 text-indigo-600 border-indigo-200 hover:bg-indigo-50">
-              <Stars className="h-4 w-4" />
-              <span>Cosmic Insights</span>
-            </Button>
-          </Link>
+    <Layout pageTitle="Energy Check">
+      <div className="container mx-auto">
+        <div className="max-w-3xl mx-auto">
+          <h1 className="text-3xl font-semibold text-center mb-6">
+            Energy Check-In
+          </h1>
+          <p className="text-gray-600 text-center mb-8">
+            Assess your current energy and find tools to recalibrate your frequency.
+          </p>
+
+          <Tabs defaultValue="frequency" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 mb-8">
+              <TabsTrigger value="frequency">Frequency Shift</TabsTrigger>
+              <TabsTrigger value="mood">Mood Check</TabsTrigger>
+              <TabsTrigger value="journal">Journal</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="frequency">
+              <FrequencyShiftPrompt />
+            </TabsContent>
+            
+            <TabsContent value="mood">
+              <MoodCheckTab />
+            </TabsContent>
+            
+            <TabsContent value="journal">
+              <JournalTab />
+            </TabsContent>
+          </Tabs>
         </div>
-        
-        <EnergyCheckTabs activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>
     </Layout>
   );

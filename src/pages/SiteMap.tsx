@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -12,6 +13,7 @@ const SiteMap = () => {
   const categories = {
     "Main Pages": [
       { path: "/", label: "Home" },
+      { path: "/welcome", label: "Welcome" },
       { path: "/dashboard", label: "Dashboard" },
       { path: "/energy-check", label: "Energy Check" },
       { path: "/sacred-blueprint", label: "Sacred Blueprint" },

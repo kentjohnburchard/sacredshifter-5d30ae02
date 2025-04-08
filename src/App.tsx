@@ -1,4 +1,3 @@
-
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 
@@ -10,17 +9,15 @@ import Profile from "@/pages/Profile";
 import Subscription from "@/pages/Subscription";
 import Focus from "@/pages/Focus";
 import { Timeline } from "@/pages/Timeline";
-import { MusicGenerator } from "@/pages/MusicGenerator";
 import EmotionEngine from "@/pages/EmotionEngine";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ScrollToTop from "@/components/ScrollToTop";
 import GlobalWatermark from "@/components/GlobalWatermark";
 import Auth from "@/pages/Auth";
-// Import our pages
 import TrinityGateway from "./pages/TrinityGateway";
 import Contact from "./pages/Contact";
 import HeartDashboard from "./pages/HeartDashboard";
-import MusicGeneration from "@/pages/MusicGeneration";
+import Welcome from "./pages/Welcome";
 import SiteMap from "@/pages/SiteMap";
 import EnergyCheck from "@/pages/EnergyCheck";
 import NotFound from "@/pages/NotFound";
@@ -35,7 +32,7 @@ import JourneyTemplates from "@/pages/JourneyTemplates";
 import Astrology from "@/pages/Astrology";
 import AboutFounder from "@/pages/AboutFounder";
 import PersonalVibeSettings from "@/pages/PersonalVibeSettings";
-import HarmonicMapPage from "@/pages/HarmonicMap"; // Add this import
+import HarmonicMapPage from "@/pages/HarmonicMap";
 
 function App() {
   return (
@@ -46,6 +43,7 @@ function App() {
       <div className="flex flex-col min-h-screen">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/welcome" element={<Welcome />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/site-map" element={<SiteMap />} />
           <Route
@@ -93,22 +91,6 @@ function App() {
             element={
               <ProtectedRoute>
                 <Timeline />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/music-generator"
-            element={
-              <ProtectedRoute>
-                <MusicGenerator />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/music-generation"
-            element={
-              <ProtectedRoute>
-                <MusicGeneration />
               </ProtectedRoute>
             }
           />
@@ -224,7 +206,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-          {/* Add the Harmonic Map route */}
           <Route
             path="/harmonic-map"
             element={
