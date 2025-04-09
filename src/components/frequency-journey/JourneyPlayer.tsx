@@ -21,6 +21,14 @@ import {
 import RandomizingAudioPlayer from '@/components/audio/RandomizingAudioPlayer';
 import { toast } from 'sonner';
 
+// Add JourneySettings interface to match what's used in JourneyPlayer.tsx
+interface JourneySettings {
+  lowSensitivityMode: boolean;
+  useHeadphones: boolean;
+  sleepTimer: number;
+  saveToTimeline: boolean;
+}
+
 interface JourneyPlayerProps {
   frequency: FrequencyLibraryItem;
   onSessionStart?: (intention: string) => void;
@@ -28,7 +36,8 @@ interface JourneyPlayerProps {
   currentIntention?: string;
   sessionId?: string | null;
   audioGroupId?: string | null;
-  audioUrl?: string;
+  audioUrl?: string | null;
+  journeySettings?: JourneySettings;
 }
 
 export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
@@ -38,7 +47,8 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
   currentIntention = '',
   sessionId = null,
   audioGroupId = null,
-  audioUrl = null
+  audioUrl = null,
+  journeySettings
 }) => {
   const [intention, setIntention] = useState<string>(currentIntention);
   const [reflection, setReflection] = useState<string>('');
@@ -94,6 +104,9 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
   const frequencyTitle = frequency?.title || `${frequencyValue}Hz Journey`;
   const chakraName = frequency?.chakra || '';
   const description = frequency?.description || `Experience the healing vibrations of ${frequencyValue}Hz frequency.`;
+
+  // Check journey settings for low sensitivity mode
+  const isLowSensitivityMode = journeySettings?.lowSensitivityMode || false;
 
   return (
     <div className="max-w-4xl mx-auto">

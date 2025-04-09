@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { FrequencyLibraryItem } from "@/types/frequencies";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Timer, Headphones, HeadphonesOff, Volume2 } from "lucide-react";
+import { ArrowLeft, Timer, Headphones, HeadphoneOff, Volume2 } from "lucide-react";
 import { useAudioLibrary } from "@/hooks/useAudioLibrary";
 
 // Journey settings interface

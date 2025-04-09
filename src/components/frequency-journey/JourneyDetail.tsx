@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Play, Info, Timer, Headphones, HeadphonesOff, Volume2 } from 'lucide-react';
+import { ArrowLeft, Play, Info, Timer, Headphones, HeadphoneOff, Volume2 } from 'lucide-react';
 import { JourneyTemplate } from '@/data/journeyTemplates';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
