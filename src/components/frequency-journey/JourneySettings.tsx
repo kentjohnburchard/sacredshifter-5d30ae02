@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -12,7 +11,7 @@ import {
 import { 
   Headphones, 
   Volume2, 
-  WaveformIcon, 
+  Waves, 
   Timer
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -99,7 +98,7 @@ const JourneySettings: React.FC<JourneySettingsProps> = ({
           {/* Pink Noise Toggle */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <WaveformIcon className="h-4 w-4 text-purple-600" />
+              <Waves className="h-4 w-4 text-purple-600" />
               <Label htmlFor="pink-noise" className="text-sm text-gray-700">
                 Add Pink Noise
               </Label>

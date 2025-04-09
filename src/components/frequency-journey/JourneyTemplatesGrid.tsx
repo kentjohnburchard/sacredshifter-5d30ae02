@@ -13,7 +13,7 @@ import {
 import { 
   Filter, 
   SlidersHorizontal,
-  WaveformIcon, 
+  Waves, 
   Music, 
   Headphones, 
   Clock
