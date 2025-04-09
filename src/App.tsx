@@ -25,36 +25,39 @@ import HermeticWisdom from './pages/HermeticWisdom';
 import JourneyPlayer from './pages/JourneyPlayer';
 import JourneyTemplates from './pages/JourneyTemplates';
 import Astrology from './pages/Astrology';
+import { JourneySettingsProvider } from './context/JourneySettingsContext';
 
 function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-      <ScrollToTop />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/about-founder" element={<AboutFounder />} />
-        <Route path="/contact" element={<Contact />} />
-        
-        {/* Frequency Routes */}
-        <Route path="/frequency-library" element={<FrequencyLibraryPage />} />
-        <Route path="/frequency/:id" element={<FrequencyDetailPage />} />
-        
-        {/* Feature Routes */}
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/harmonic-map" element={<HarmonicMap />} />
-        <Route path="/heart-center" element={<HeartCenter />} />
-        <Route path="/heart-dashboard" element={<HeartDashboard />} />
-        <Route path="/alignment" element={<Alignment />} />
-        <Route path="/energy-check" element={<EnergyCheck />} />
-        <Route path="/focus" element={<Focus />} />
-        <Route path="/emotion-engine" element={<EmotionEngine />} />
-        <Route path="/hermetic-wisdom" element={<HermeticWisdom />} />
-        <Route path="/journey-templates" element={<JourneyTemplates />} />
-        <Route path="/journey/:frequencyId" element={<JourneyPlayer />} />
-        <Route path="/astrology" element={<Astrology />} />
-      </Routes>
-      <Toaster />
+      <JourneySettingsProvider>
+        <ScrollToTop />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/about-founder" element={<AboutFounder />} />
+          <Route path="/contact" element={<Contact />} />
+          
+          {/* Frequency Routes */}
+          <Route path="/frequency-library" element={<FrequencyLibraryPage />} />
+          <Route path="/frequency/:id" element={<FrequencyDetailPage />} />
+          
+          {/* Feature Routes */}
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/harmonic-map" element={<HarmonicMap />} />
+          <Route path="/heart-center" element={<HeartCenter />} />
+          <Route path="/heart-dashboard" element={<HeartDashboard />} />
+          <Route path="/alignment" element={<Alignment />} />
+          <Route path="/energy-check" element={<EnergyCheck />} />
+          <Route path="/focus" element={<Focus />} />
+          <Route path="/emotion-engine" element={<EmotionEngine />} />
+          <Route path="/hermetic-wisdom" element={<HermeticWisdom />} />
+          <Route path="/journey-templates" element={<JourneyTemplates />} />
+          <Route path="/journey/:frequencyId" element={<JourneyPlayer />} />
+          <Route path="/astrology" element={<Astrology />} />
+        </Routes>
+        <Toaster />
+      </JourneySettingsProvider>
     </ThemeProvider>
   );
 }
