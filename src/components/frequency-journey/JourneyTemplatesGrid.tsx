@@ -13,7 +13,7 @@ import {
 import { 
   Filter, 
   SlidersHorizontal,
-  Waveform, 
+  WaveformIcon, 
   Music, 
   Headphones, 
   Clock
@@ -166,7 +166,7 @@ export const JourneyTemplatesGrid = () => {
               <Clock className="w-3 h-3 mr-1" /> Sleep Timer
             </Badge>
             <Badge variant="outline" className="bg-white/80 text-purple-600 border-purple-200">
-              <Waveform className="w-3 h-3 mr-1" /> Pink Noise
+              <WaveformIcon className="w-3 h-3 mr-1" /> Pink Noise
             </Badge>
             <Badge variant="outline" className="bg-white/80 text-purple-600 border-purple-200">
               <Music className="w-3 h-3 mr-1" /> Multiple Tracks
