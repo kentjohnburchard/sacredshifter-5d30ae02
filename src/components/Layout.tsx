@@ -25,7 +25,16 @@ const Layout: React.FC<LayoutProps> = ({
     <div className="flex flex-col min-h-screen">
       <div className="flex flex-1">
         {!isAuthPage && <Sidebar />}
-        <main className={`flex-1 ${!isAuthPage ? 'ml-20' : ''} pt-20 px-4 lg:px-8 pb-24 transition-all duration-300`}>
+        <main className={`flex-1 ${!isAuthPage ? 'ml-20' : ''} pt-20 px-4 lg:px-8 pb-24 transition-all duration-300 relative`}>
+          {/* Top Logo Watermark */}
+          <div className="fixed top-0 left-0 right-0 pointer-events-none z-0 flex justify-center items-start">
+            <img 
+              src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
+              alt="Sacred Shifter Top Watermark" 
+              className="max-w-[70%] max-h-[20%] object-contain opacity-[0.04] mt-4" 
+            />
+          </div>
+          
           {children}
         </main>
       </div>

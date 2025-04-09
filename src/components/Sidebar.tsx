@@ -41,6 +41,17 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
       onMouseEnter={() => setIsCollapsed(false)}
       onMouseLeave={() => setIsCollapsed(true)}
     >
+      {/* Overlay logo that shows when sidebar is collapsed */}
+      {isCollapsed && (
+        <div className="absolute left-[-20px] top-16 rotate-90 transform origin-right">
+          <img 
+            src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
+            alt="Sacred Shifter Logo" 
+            className="h-20 object-contain"
+          />
+        </div>
+      )}
+      
       {/* Collapse button */}
       <Button 
         variant="ghost" 

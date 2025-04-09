@@ -9,6 +9,19 @@ import { JourneyTemplate } from "@/data/journeyTemplates";
 import { motion } from "framer-motion";
 import { useJourneySongs } from "@/hooks/useJourneySongs";
 
+// Chakra color mapping
+const chakraColors: { [key: string]: string } = {
+  "Root": "from-red-600 to-red-700",
+  "Sacral": "from-orange-500 to-orange-600",
+  "Solar Plexus": "from-yellow-500 to-yellow-600",
+  "Heart": "from-green-500 to-green-600",
+  "Throat": "from-blue-400 to-blue-500",
+  "Third Eye": "from-indigo-500 to-indigo-600",
+  "Crown": "from-purple-500 to-violet-700",
+  // Default color for non-chakra templates
+  "default": "from-purple-600 to-indigo-600"
+};
+
 interface JourneyTemplateCardProps {
   template: JourneyTemplate;
   audioMapping?: {
@@ -29,6 +42,18 @@ const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template, aud
     ? `/journey/${encodeURIComponent(audioMapping.audioUrl)}`
     : `/journey/${firstFrequencyValue}`;
   
+  // Determine header gradient based on chakras
+  const getHeaderGradient = () => {
+    if (template.chakras && template.chakras.length > 0) {
+      // Use the first chakra for the header color
+      const primaryChakra = template.chakras[0];
+      return chakraColors[primaryChakra] || chakraColors.default;
+    }
+    return chakraColors.default;
+  };
+  
+  const headerGradient = getHeaderGradient();
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -40,7 +65,7 @@ const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template, aud
         className="cosmic-card"
         style={{ borderTopColor: template.color || '#6b46c1' }}
       >
-        <CardHeader className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white relative overflow-hidden">
+        <CardHeader className={`bg-gradient-to-r ${headerGradient} text-white relative overflow-hidden`}>
           {/* Subtle cosmic shimmer overlay */}
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxyYWRpYWxHcmFkaWVudCBpZD0ic3RhciIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNTAlIiBmeD0iNTAlIiBmeT0iNTAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSJ3aGl0ZSIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IndoaXRlIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI3N0YXIpIi8+PC9zdmc+')]
                 opacity-30 mix-blend-overlay"></div>
@@ -162,7 +187,7 @@ const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template, aud
             )}
             <Button 
               asChild
-              className="cosmic-button ml-auto"
+              className={`cosmic-button ml-auto bg-gradient-to-r ${headerGradient} text-white hover:opacity-90`}
             >
               <Link to={journeyLink}>
                 Begin Journey <ArrowRight className="ml-2 h-4 w-4" />
