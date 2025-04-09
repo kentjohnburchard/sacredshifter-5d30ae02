@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -85,18 +86,28 @@ const JourneyPlayer = () => {
   useEffect(() => {
     if (!frequencyId) return;
     
-    if (frequencyId.startsWith('http')) {
-      setDirectAudioUrl(decodeURIComponent(frequencyId));
-      
-      const syntheticFrequency: FrequencyLibraryItem = {
-        id: 'direct-audio',
-        title: 'Journey Experience',
-        frequency: 528,
-        description: 'A healing frequency journey experience.',
-        audio_url: decodeURIComponent(frequencyId)
-      };
-      setFrequency(syntheticFrequency);
-      return;
+    // Check if the frequencyId is a URL (direct audio path)
+    if (frequencyId.includes('http') || frequencyId.includes('supabase')) {
+      try {
+        const decodedUrl = decodeURIComponent(frequencyId);
+        setDirectAudioUrl(decodedUrl);
+        console.log("Setting direct audio URL:", decodedUrl);
+        
+        const syntheticFrequency: FrequencyLibraryItem = {
+          id: 'direct-audio',
+          title: 'Journey Experience',
+          frequency: 528,
+          description: 'A healing frequency journey experience.',
+          audio_url: decodedUrl
+        };
+        setFrequency(syntheticFrequency);
+        return;
+      } catch (error) {
+        console.error("Error decoding URL:", error);
+        toast.error("Invalid audio URL");
+        navigate("/journey-templates");
+        return;
+      }
     }
     
     const loadFrequency = async () => {
