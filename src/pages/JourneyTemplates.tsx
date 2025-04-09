@@ -12,7 +12,10 @@ const JourneyTemplates = () => {
   const isAdmin = user && user.email === "admin@example.com"; // You can adjust the admin check based on your auth logic
   
   return (
-    <Layout pageTitle="Sacred Healing Journeys">
+    <Layout 
+      pageTitle="Sacred Healing Journeys" 
+      useBlueWaveBackground={true}
+    >
       <div className="max-w-5xl mx-auto py-4 pb-8">
         <div className="mb-4 flex justify-between items-center">
           <div>

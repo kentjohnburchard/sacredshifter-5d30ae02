@@ -1,233 +1,199 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+ 
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 224 71.4% 4.1%;
+    --foreground: 222.2 84% 4.9%;
+
     --card: 0 0% 100%;
-    --card-foreground: 224 71.4% 4.1%;
+    --card-foreground: 222.2 84% 4.9%;
+ 
     --popover: 0 0% 100%;
-    --popover-foreground: 224 71.4% 4.1%;
-    --primary: 262.1 83.3% 57.8%;
-    --primary-foreground: 210 20% 98%;
-    --secondary: 220 14.3% 95.9%;
-    --secondary-foreground: 220.9 39.3% 11%;
-    --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 46.1%;
-    --accent: 220 14.3% 95.9%;
-    --accent-foreground: 220.9 39.3% 11%;
+    --popover-foreground: 222.2 84% 4.9%;
+ 
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+ 
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+ 
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+ 
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+ 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 20% 98%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 262.1 83.3% 57.8%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+ 
     --radius: 0.5rem;
-
-    /* Custom Colors */
-    --brand-purple: 262 83% 58%;
-    --brand-blue: 215 100% 50%;
-    --brand-aurapink: 328 86% 78%;
-    --cosmic-indigo: 242 83% 7%;
-    --cosmic-blue: 217 91% 60%;
-    --cosmic-violet: 270 86% 40%;
   }
-
+ 
   .dark {
-    --background: 224 71.4% 4.1%;
-    --foreground: 210 20% 98%;
-    --card: 224 71.4% 4.1%;
-    --card-foreground: 210 20% 98%;
-    --popover: 224 71.4% 4.1%;
-    --popover-foreground: 210 20% 98%;
-    --primary: 263.4 70% 50.4%;
-    --primary-foreground: 210 20% 98%;
-    --secondary: 215 27.9% 16.9%;
-    --secondary-foreground: 210 20% 98%;
-    --muted: 215 27.9% 16.9%;
-    --muted-foreground: 217.9 10.6% 64.9%;
-    --accent: 215 27.9% 16.9%;
-    --accent-foreground: 210 20% 98%;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+ 
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+ 
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+ 
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+ 
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+ 
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+ 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 20% 98%;
-    --border: 215 27.9% 16.9%;
-    --input: 215 27.9% 16.9%;
-    --ring: 263.4 70% 50.4%;
+    --destructive-foreground: 210 40% 98%;
+ 
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
   }
 }
-
+ 
 @layer base {
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-/* Global Typography */
-body {
-  font-family: 'Inter', sans-serif;
+/* Custom animations */
+@keyframes pulse-slow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.6;
+  }
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Playfair Display', serif;
+@keyframes pulse-medium {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.7;
+  }
 }
 
-/* Standard page title styles */
-.page-title {
-  @apply text-3xl sm:text-4xl font-playfair font-semibold text-center;
-  background: linear-gradient(to right, rgb(125, 80, 230), rgb(50, 130, 250));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  margin-bottom: 1.5rem;
-  line-height: 1.2;
-  padding: 0 1rem;
+@keyframes pulse-fast {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.8;
+  }
 }
 
-/* Common subtitle styling */
-.page-subtitle {
-  @apply text-lg text-gray-600 text-center max-w-3xl mx-auto mb-8 leading-relaxed;
+.animate-pulse-slow {
+  animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Font utility classes */
+.animate-pulse-medium {
+  animation: pulse-medium 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-pulse-fast {
+  animation: pulse-fast 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.cosmic-card {
+  border-top-width: 3px;
+  transition: all 0.3s ease;
+}
+
+.cosmic-card:hover {
+  box-shadow: 0 10px 25px rgba(124, 58, 237, 0.1);
+  transform: translateY(-2px);
+}
+
+.cosmic-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.cosmic-button::after {
+  content: "";
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: -50%;
+  left: -50%;
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(45deg);
+  transition: all 0.5s;
+}
+
+.cosmic-button:hover::after {
+  left: 100%;
+}
+
+.shimmer-hover {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-hover::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(45deg);
+  transition: all 0.5s;
+  opacity: 0;
+}
+
+.shimmer-hover:hover::after {
+  opacity: 1;
+}
+
+/* Font styling */
 .font-playfair {
   font-family: 'Playfair Display', serif;
 }
 
-.font-inter {
-  font-family: 'Inter', sans-serif;
+.font-modern {
+  font-family: 'Inter', 'Roboto', sans-serif;
 }
 
-/* Animation utilities */
-.animate-float {
-  animation: floating 6s ease-in-out infinite;
-}
-
-.animate-pulse-subtle {
-  animation: pulse-subtle 2s infinite;
-}
-
-.animate-spin-slow {
-  animation: spin 8s linear infinite;
-}
-
-.animate-shimmer {
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0.1) 0%,
-    rgba(255, 255, 255, 0.2) 20%,
-    rgba(255, 255, 255, 0.1) 40%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
-}
-
-/* Sacred footer message styling */
-.sacred-footer-message {
-  @apply text-sm text-gray-500 italic font-light;
-}
-
-@layer components {
-  .kent-mode {
-    @apply text-[#f391c5] font-medium;
-  }
-}
-
-/* Starfield effect */
-.starfield {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: -1;
-  background-image: 
-    radial-gradient(1px 1px at 25px 5px, white 50%, transparent 100%),
-    radial-gradient(1px 1px at 50px 25px, white 50%, transparent 100%),
-    radial-gradient(1px 1px at 125px 20px, white 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 50px 75px, white 50%, transparent 100%),
-    radial-gradient(2px 2px at 175px 175px, white 50%, transparent 100%),
-    radial-gradient(2px 2px at 20px 216px, white 50%, transparent 100%),
-    radial-gradient(2px 2px at 250px 350px, white 50%, transparent 100%),
-    radial-gradient(1px 1px at 300px 120px, white 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 350px 275px, white 50%, transparent 100%),
-    radial-gradient(1px 1px at 150px 318px, white 50%, transparent 100%);
-  background-repeat: repeat;
-  background-size: 400px 400px;
-  opacity: 0.15;
-}
-
-/* Special shadows */
-.shadow-cosmic {
-  box-shadow: 0 0 15px rgba(168, 85, 247, 0.15), 0 0 3px rgba(168, 85, 247, 0.1);
-}
-
-.shadow-mystic {
-  box-shadow: 0 8px 25px rgba(91, 33, 182, 0.1), 0 4px 12px rgba(91, 33, 182, 0.05);
-}
-
-/* Animations keyframes */
-@keyframes floating {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
-  100% { transform: translateY(0px); }
-}
-
-@keyframes pulse-subtle {
-  0% { opacity: 0.7; }
-  50% { opacity: 1; }
-  100% { opacity: 0.7; }
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-@layer utilities {
-  .animate-fractal-pulse {
-    animation: fractalPulse 15s ease-in-out infinite alternate;
-  }
-  
-  .animate-fractal-zoom {
-    animation: fractalZoom 30s ease-in-out infinite alternate;
-  }
-}
-
-@keyframes fractalPulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes fractalZoom {
-  0% {
-    transform: scale(1) rotate(0deg);
-  }
-  50% {
-    transform: scale(1.1) rotate(1deg);
-  }
-  100% {
-    transform: scale(1) rotate(0deg);
-  }
+.font-lora {
+  font-family: 'Lora', serif;
 }
