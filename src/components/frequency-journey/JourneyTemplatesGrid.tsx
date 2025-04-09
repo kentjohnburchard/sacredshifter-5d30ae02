@@ -20,7 +20,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { JourneyTemplate } from "@/data/journeyTemplates";
-import TinnitusSupportJourney from "./TinnitusSupportJourney";
 
 export const JourneyTemplatesGrid = () => {
   const { templates, loading, error, audioMappings } = useJourneyTemplates();
@@ -168,11 +167,6 @@ export const JourneyTemplatesGrid = () => {
           </div>
           
           <TabsContent value="all" className="pt-4">
-            <div className="mb-8">
-              <h2 className="text-lg font-semibold text-purple-800 mb-3">Featured Journey</h2>
-              <TinnitusSupportJourney />
-            </div>
-            
             <h2 className="text-lg font-semibold text-purple-800 mb-3">All Journeys</h2>
             <div className="flex flex-col gap-6">
               {filteredTemplates.map((template) => (
