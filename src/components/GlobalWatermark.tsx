@@ -7,7 +7,7 @@ const GlobalWatermark: React.FC = () => {
       <img 
         src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
         alt="Sacred Shifter Watermark" 
-        className="max-w-[70%] max-h-[35%] object-contain opacity-[0.15]" 
+        className="max-w-[70%] max-h-[35%] object-contain opacity-[0.10]" 
       />
     </div>
   );
