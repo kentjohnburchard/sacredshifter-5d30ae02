@@ -35,7 +35,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
 
   return (
     <aside 
-      className={`fixed left-0 top-0 z-40 flex h-full flex-col border-r bg-white shadow-sm transition-all duration-300 ${
+      className={`fixed left-0 top-0 z-40 flex h-full flex-col border-r bg-gradient-to-b from-purple-50 via-white to-purple-50 shadow-sm transition-all duration-300 ${
         isCollapsed ? "w-20" : "w-64"
       } ${className}`}
       onMouseEnter={() => setIsCollapsed(false)}
@@ -43,12 +43,14 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
     >
       {/* Overlay logo that shows when sidebar is collapsed */}
       {isCollapsed && (
-        <div className="absolute left-[-20px] top-16 rotate-90 transform origin-right">
-          <img 
-            src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
-            alt="Sacred Shifter Logo" 
-            className="h-20 object-contain"
-          />
+        <div className="absolute left-0 top-20 w-20 flex justify-center items-center">
+          <div className="rotate-90 transform origin-center h-40">
+            <img 
+              src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
+              alt="Sacred Shifter Logo" 
+              className="h-32 w-auto object-contain"
+            />
+          </div>
         </div>
       )}
       

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -11,7 +10,7 @@ const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   return (
-    <header className="border-b border-gray-200 bg-white shadow-sm fixed w-full top-0 z-30 left-20">
+    <header className="border-b border-gray-200 bg-gradient-to-r from-purple-50 via-white to-purple-50 shadow-sm fixed w-full top-0 z-30 left-20">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
@@ -118,7 +117,6 @@ const Header: React.FC = () => {
                   {activePages.trinityGateway && (
                     <Link to="/trinity-gateway" className="text-gray-600 hover:text-purple-600 transition-colors py-1">Trinity Gateway</Link>
                   )}
-                  {/* Add My Vibe link to mobile menu */}
                   <Link to="/personal-vibe" className="text-gray-600 hover:text-purple-600 transition-colors py-1">
                     <Palette className="h-4 w-4 inline mr-1" /> My Vibe
                   </Link>
