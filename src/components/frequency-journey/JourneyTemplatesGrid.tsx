@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import JourneyTemplateCard from "./JourneyTemplateCard";
 import { useJourneyTemplates } from "@/hooks/useJourneyTemplates";
@@ -20,6 +21,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { JourneyTemplate } from "@/data/journeyTemplates";
+import { meditationTypes } from "@/data/meditationTypes";
+import MeditationTypeCard from "@/components/meditation/MeditationTypeCard";
+import { MeditationType } from "@/types/meditation";
 
 export const JourneyTemplatesGrid = () => {
   const { templates, loading, error, audioMappings } = useJourneyTemplates();
@@ -27,6 +31,7 @@ export const JourneyTemplatesGrid = () => {
   const [activeTab, setActiveTab] = useState<string>("all");
   const [selectedChakra, setSelectedChakra] = useState<string | null>(null);
   const [selectedVibe, setSelectedVibe] = useState<string | null>(null);
+  const [selectedMeditation, setSelectedMeditation] = useState<MeditationType | null>(null);
 
   const handleTemplateClick = (templateId: string) => {
     setSelectedTemplate(templateId);
@@ -34,6 +39,10 @@ export const JourneyTemplatesGrid = () => {
 
   const handleCloseDetail = () => {
     setSelectedTemplate(null);
+  };
+
+  const handleSelectMeditation = (meditation: MeditationType) => {
+    setSelectedMeditation(meditation);
   };
 
   const selectedTemplateData = templates.find(t => t.id === selectedTemplate);
@@ -204,7 +213,86 @@ export const JourneyTemplatesGrid = () => {
           </TabsContent>
           
           <TabsContent value="meditation" className="pt-4">
-            <div className="flex flex-col gap-6">
+            {/* Meditation content from the Meditation page */}
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold text-purple-800 mb-2">Sacred Meditation Experiences</h2>
+              <p className="text-gray-600">
+                Find peace and elevate your consciousness through guided meditations enhanced with sacred frequencies.
+              </p>
+            </div>
+            
+            {selectedMeditation ? (
+              <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-medium text-purple-800">{selectedMeditation.title}</h3>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => setSelectedMeditation(null)}
+                  >
+                    Back to Library
+                  </Button>
+                </div>
+                
+                <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-md mb-4">
+                  <h4 className="text-purple-900 font-medium mb-2">About this Meditation</h4>
+                  <p className="text-gray-700">{selectedMeditation.longDescription}</p>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div className="border border-purple-100 rounded-md p-3">
+                    <p className="text-sm text-gray-500">Frequency</p>
+                    <p className="font-medium">{selectedMeditation.frequency} Hz</p>
+                  </div>
+                  <div className="border border-purple-100 rounded-md p-3">
+                    <p className="text-sm text-gray-500">Duration</p>
+                    <p className="font-medium">{selectedMeditation.duration} minutes</p>
+                  </div>
+                  <div className="border border-purple-100 rounded-md p-3">
+                    <p className="text-sm text-gray-500">Chakra</p>
+                    <p className="font-medium">{selectedMeditation.chakra}</p>
+                  </div>
+                  <div className="border border-purple-100 rounded-md p-3">
+                    <p className="text-sm text-gray-500">Level</p>
+                    <p className="font-medium">{selectedMeditation.level}</p>
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-r from-purple-100 to-indigo-100 p-4 rounded-md">
+                  <h4 className="text-purple-900 font-medium mb-2">Begin Your Practice</h4>
+                  {selectedMeditation.audioUrl && (
+                    <div className="mb-4">
+                      <p className="text-sm text-purple-800 mb-2">Meditation Audio:</p>
+                      <audio controls className="w-full" src={selectedMeditation.audioUrl}>
+                        Your browser does not support the audio element.
+                      </audio>
+                    </div>
+                  )}
+                  
+                  {selectedMeditation.guidanceUrl && (
+                    <div>
+                      <p className="text-sm text-purple-800 mb-2">Guided Instructions:</p>
+                      <audio controls className="w-full" src={selectedMeditation.guidanceUrl}>
+                        Your browser does not support the audio element.
+                      </audio>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {meditationTypes.map((meditation) => (
+                  <MeditationTypeCard
+                    key={meditation.id}
+                    meditation={meditation}
+                    onSelect={() => handleSelectMeditation(meditation)}
+                  />
+                ))}
+              </div>
+            )}
+            
+            <div className="flex flex-col gap-6 mt-8">
+              <h2 className="text-lg font-semibold text-purple-800 mb-3">Meditation Journeys</h2>
               {filteredTemplates.map((template) => (
                 <div key={template.id} onClick={() => handleTemplateClick(template.id)} className="cursor-pointer">
                   <JourneyTemplateCard 
