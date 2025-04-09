@@ -43,12 +43,12 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
     >
       {/* Overlay logo that shows when sidebar is collapsed */}
       {isCollapsed && (
-        <div className="absolute left-0 top-20 w-20 flex justify-center items-center">
-          <div className="rotate-90 transform origin-center h-40">
+        <div className="absolute inset-x-0 top-0 h-48 flex justify-center items-center">
+          <div className="rotate-90 transform origin-center h-48 flex items-center justify-center">
             <img 
               src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
               alt="Sacred Shifter Logo" 
-              className="h-32 w-auto object-contain"
+              className="h-40 w-auto object-contain"
             />
           </div>
         </div>

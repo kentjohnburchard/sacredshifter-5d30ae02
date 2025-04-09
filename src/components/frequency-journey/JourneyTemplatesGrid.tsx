@@ -23,7 +23,7 @@ export const JourneyTemplatesGrid = () => {
     return (
       <div className="flex flex-col gap-6 animate-pulse">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="h-96 bg-gray-100 rounded-lg"></div>
+          <div key={i} className="h-40 bg-gray-100 rounded-lg"></div>
         ))}
       </div>
     );
@@ -39,7 +39,7 @@ export const JourneyTemplatesGrid = () => {
 
   return (
     <>
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-6">
         {templates.map((template) => (
           <div key={template.id} onClick={() => handleTemplateClick(template.id)} className="cursor-pointer">
             <JourneyTemplateCard 

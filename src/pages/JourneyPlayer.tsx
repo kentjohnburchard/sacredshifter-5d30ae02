@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -28,6 +27,8 @@ const JourneyPlayer = () => {
   const [intention, setIntention] = useState("");
   const [audioGroupId, setAudioGroupId] = useState<string | null>(null);
   const [directAudioUrl, setDirectAudioUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { getByFrequency } = useAudioLibrary();
   
   const [settings, setSettings] = useState<JourneySettings>({
@@ -85,6 +86,7 @@ const JourneyPlayer = () => {
   
   useEffect(() => {
     if (!frequencyId) return;
+    setLoading(true);
     
     // Check if the frequencyId is a URL (direct audio path)
     if (frequencyId.includes('http') || frequencyId.includes('supabase')) {
@@ -101,9 +103,11 @@ const JourneyPlayer = () => {
           audio_url: decodedUrl
         };
         setFrequency(syntheticFrequency);
+        setLoading(false);
         return;
       } catch (error) {
         console.error("Error decoding URL:", error);
+        setError("Invalid audio URL");
         toast.error("Invalid audio URL");
         navigate("/journey-templates");
         return;
@@ -112,6 +116,7 @@ const JourneyPlayer = () => {
     
     const loadFrequency = async () => {
       try {
+        // First try direct frequency lookup
         const { data: frequencyData, error } = await supabase
           .from("frequency_library")
           .select("*")
@@ -120,18 +125,22 @@ const JourneyPlayer = () => {
         
         if (error) {
           console.error("Error fetching frequency:", error);
-          toast.error("Error loading frequency data");
-          return;
+          throw new Error("Error loading frequency data");
         }
         
         if (frequencyData) {
+          console.log("Found frequency in library:", frequencyData);
           setFrequency(frequencyData);
           if (frequencyData.group_id) {
             setAudioGroupId(frequencyData.group_id);
           }
         } else {
+          // If not found in frequency_library, try getting from audioLibrary hook
+          console.log("Trying to get frequency from audio library hook:", frequencyId);
           const audioTrack = await getByFrequency(Number(frequencyId));
+          
           if (audioTrack) {
+            console.log("Found frequency in audio library:", audioTrack);
             const syntheticFrequency: FrequencyLibraryItem = {
               id: audioTrack.id,
               title: audioTrack.title,
@@ -145,13 +154,29 @@ const JourneyPlayer = () => {
               setAudioGroupId(audioTrack.groupId);
             }
           } else {
-            toast.error("Specific frequency not found in library");
-            navigate("/frequency-library");
+            // As a fallback, create a default frequency object
+            console.log("Creating synthetic frequency:", frequencyId);
+            const numericFrequency = Number(frequencyId);
+            if (!isNaN(numericFrequency)) {
+              const syntheticFrequency: FrequencyLibraryItem = {
+                id: `synthetic-${frequencyId}`,
+                title: `${numericFrequency}Hz Journey`,
+                frequency: numericFrequency,
+                description: `Experience the healing vibrations of ${numericFrequency}Hz frequency.`,
+                audio_url: null
+              };
+              setFrequency(syntheticFrequency);
+            } else {
+              throw new Error("Invalid frequency value");
+            }
           }
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("Error in frequency lookup:", err);
+        setError(err.message || "Failed to load frequency data");
         toast.error("Failed to load frequency data");
+      } finally {
+        setLoading(false);
       }
     };
     
@@ -254,7 +279,7 @@ const JourneyPlayer = () => {
     }
   };
 
-  if (!frequency) {
+  if (loading) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-10">
@@ -264,7 +289,31 @@ const JourneyPlayer = () => {
           </Button>
           <Card>
             <CardContent className="flex items-center justify-center p-10">
-              <p>Loading journey experience...</p>
+              <div className="text-center">
+                <div className="w-16 h-16 border-4 border-t-purple-500 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p>Loading journey experience...</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error || !frequency) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-10">
+          <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center p-10 space-y-4">
+              <p className="text-red-500">Failed to load journey: {error || "Frequency not found"}</p>
+              <Button onClick={() => navigate("/journey-templates")}>
+                Back to Journey Templates
+              </Button>
             </CardContent>
           </Card>
         </div>
