@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -164,7 +163,7 @@ const JourneyDetail: React.FC<JourneyDetailProps> = ({
                 {useHeadphones ? (
                   <Headphones className="h-4 w-4 text-purple-600" />
                 ) : (
-                  <HeadphonesOff className="h-4 w-4 text-purple-600" />
+                  <HeadphoneOff className="h-4 w-4 text-purple-600" />
                 )}
                 <span className="text-sm font-medium">Use Headphones</span>
               </div>

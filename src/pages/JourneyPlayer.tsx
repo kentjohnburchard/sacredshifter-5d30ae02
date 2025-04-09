@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -12,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Timer, Headphones, HeadphoneOff, Volume2 } from "lucide-react";
 import { useAudioLibrary } from "@/hooks/useAudioLibrary";
 
-// Journey settings interface
 interface JourneySettings {
   lowSensitivityMode: boolean;
   useHeadphones: boolean;
@@ -31,7 +29,6 @@ const JourneyPlayer = () => {
   const [directAudioUrl, setDirectAudioUrl] = useState<string | null>(null);
   const { getByFrequency } = useAudioLibrary();
   
-  // Journey settings
   const [settings, setSettings] = useState<JourneySettings>({
     lowSensitivityMode: false,
     useHeadphones: true,
@@ -39,10 +36,8 @@ const JourneyPlayer = () => {
     saveToTimeline: true
   });
   
-  // Timer state
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   
-  // Load settings from sessionStorage
   useEffect(() => {
     const savedSettings = sessionStorage.getItem('journeySettings');
     if (savedSettings) {
@@ -50,9 +45,8 @@ const JourneyPlayer = () => {
         const parsedSettings = JSON.parse(savedSettings);
         setSettings(parsedSettings);
         
-        // Initialize timer if needed
         if (parsedSettings.sleepTimer > 0) {
-          setTimeRemaining(parsedSettings.sleepTimer * 60); // Convert to seconds
+          setTimeRemaining(parsedSettings.sleepTimer * 60);
         }
       } catch (err) {
         console.error("Error parsing journey settings:", err);
@@ -60,7 +54,6 @@ const JourneyPlayer = () => {
     }
   }, []);
   
-  // Sleep timer functionality
   useEffect(() => {
     let interval: NodeJS.Timeout;
     
@@ -68,7 +61,6 @@ const JourneyPlayer = () => {
       interval = setInterval(() => {
         setTimeRemaining(prev => {
           if (prev === null || prev <= 1) {
-            // End the journey when timer reaches 0
             toast.info("Sleep timer completed");
             navigate(-1);
             return 0;
@@ -83,7 +75,6 @@ const JourneyPlayer = () => {
     };
   }, [timeRemaining, navigate]);
   
-  // Format time for display
   const formatTime = (seconds: number | null): string => {
     if (seconds === null) return "";
     const minutes = Math.floor(seconds / 60);
@@ -94,15 +85,13 @@ const JourneyPlayer = () => {
   useEffect(() => {
     if (!frequencyId) return;
     
-    // If the frequencyId is a URL (contains http/s), use it as direct audio
     if (frequencyId.startsWith('http')) {
       setDirectAudioUrl(decodeURIComponent(frequencyId));
       
-      // Create a synthetic frequency object
       const syntheticFrequency: FrequencyLibraryItem = {
         id: 'direct-audio',
         title: 'Journey Experience',
-        frequency: 528, // Default to 528Hz
+        frequency: 528,
         description: 'A healing frequency journey experience.',
         audio_url: decodeURIComponent(frequencyId)
       };
@@ -112,7 +101,6 @@ const JourneyPlayer = () => {
     
     const loadFrequency = async () => {
       try {
-        // First try to find by exact frequency value
         const { data: frequencyData, error } = await supabase
           .from("frequency_library")
           .select("*")
@@ -131,11 +119,8 @@ const JourneyPlayer = () => {
             setAudioGroupId(frequencyData.group_id);
           }
         } else {
-          // If not found by exact match, try to find nearest frequency
-          // This is now handled by our useAudioLibrary hook
           const audioTrack = await getByFrequency(Number(frequencyId));
           if (audioTrack) {
-            // Create a synthetic frequency item from the audio track
             const syntheticFrequency: FrequencyLibraryItem = {
               id: audioTrack.id,
               title: audioTrack.title,
@@ -166,7 +151,6 @@ const JourneyPlayer = () => {
     if (!user || !frequency) return;
     
     try {
-      // Create a session record
       const { data: sessionData, error } = await supabase
         .from("sessions")
         .insert([
@@ -174,8 +158,8 @@ const JourneyPlayer = () => {
             user_id: user.id,
             frequency_id: frequency.id,
             intention: userIntention,
-            initial_mood: "neutral", // Default value
-            settings: settings // Save our settings with the session
+            initial_mood: "neutral",
+            settings: settings
           }
         ])
         .select();
@@ -189,9 +173,7 @@ const JourneyPlayer = () => {
         setIntention(userIntention);
         toast.success("Journey session started");
         
-        // Only create timeline entry if saveToTimeline is enabled
         if (settings.saveToTimeline) {
-          // Create an initial timeline entry for this session
           const { error: timelineError } = await supabase
             .from('timeline_snapshots')
             .insert([{
@@ -235,7 +217,6 @@ const JourneyPlayer = () => {
         throw error;
       }
       
-      // Only save to timeline if saveToTimeline is enabled
       if (settings.saveToTimeline && frequency) {
         const { error: timelineError } = await supabase
           .from('timeline_snapshots')
@@ -289,7 +270,6 @@ const JourneyPlayer = () => {
             Back
           </Button>
           
-          {/* Settings indicators */}
           <div className="flex items-center gap-3">
             {settings.lowSensitivityMode && (
               <div className="flex items-center gap-1 bg-purple-100 px-2 py-1 rounded-full">
@@ -300,7 +280,7 @@ const JourneyPlayer = () => {
             
             {!settings.useHeadphones && (
               <div className="flex items-center gap-1 bg-blue-100 px-2 py-1 rounded-full">
-                <HeadphonesOff className="h-4 w-4 text-blue-600" />
+                <HeadphoneOff className="h-4 w-4 text-blue-600" />
                 <span className="text-xs text-blue-700">Speaker Mode</span>
               </div>
             )}
