@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import JourneyTemplateCard from "./JourneyTemplateCard";
 import { useJourneyTemplates } from "@/hooks/useJourneyTemplates";
@@ -40,10 +39,8 @@ export const JourneyTemplatesGrid = () => {
 
   const selectedTemplateData = templates.find(t => t.id === selectedTemplate);
   
-  // Filter templates based on active filters
   const filteredTemplates = templates.filter(template => {
     if (activeTab === "all") {
-      // Apply chakra and vibe filters if they are selected
       if (selectedChakra && (!template.chakras || !template.chakras.includes(selectedChakra))) {
         return false;
       }
@@ -65,7 +62,6 @@ export const JourneyTemplatesGrid = () => {
     return true;
   });
   
-  // Get unique chakras and vibes for filters
   const uniqueChakras = Array.from(
     new Set(templates.flatMap(t => t.chakras || []))
   );
@@ -120,7 +116,6 @@ export const JourneyTemplatesGrid = () => {
             </div>
           </div>
           
-          {/* Chakra Filter */}
           {uniqueChakras.length > 0 && (
             <div className="mb-4">
               <p className="text-sm text-gray-500 mb-2">Chakra Filter:</p>
@@ -139,7 +134,6 @@ export const JourneyTemplatesGrid = () => {
             </div>
           )}
           
-          {/* Vibe Filter */}
           {uniqueVibes.length > 0 && (
             <div className="mb-4">
               <p className="text-sm text-gray-500 mb-2">Vibe Filter:</p>
@@ -166,14 +160,13 @@ export const JourneyTemplatesGrid = () => {
               <Clock className="w-3 h-3 mr-1" /> Sleep Timer
             </Badge>
             <Badge variant="outline" className="bg-white/80 text-purple-600 border-purple-200">
-              <WaveformIcon className="w-3 h-3 mr-1" /> Pink Noise
+              <Waves className="w-3 h-3 mr-1" /> Pink Noise
             </Badge>
             <Badge variant="outline" className="bg-white/80 text-purple-600 border-purple-200">
               <Music className="w-3 h-3 mr-1" /> Multiple Tracks
             </Badge>
           </div>
           
-          {/* Featured Content */}
           <TabsContent value="all" className="pt-4">
             <div className="mb-8">
               <h2 className="text-lg font-semibold text-purple-800 mb-3">Featured Journey</h2>
