@@ -31,7 +31,7 @@ const Layout: React.FC<LayoutProps> = ({
             <img 
               src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
               alt="Sacred Shifter Top Watermark" 
-              className="max-w-[70%] max-h-[20%] object-contain opacity-[0.04] mt-12" 
+              className="max-w-[70%] max-h-[20%] object-contain opacity-[0.15] mt-12" 
             />
           </div>
           
