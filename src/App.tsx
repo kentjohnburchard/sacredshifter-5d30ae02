@@ -29,6 +29,8 @@ import Alignment from "@/pages/Alignment";
 import Intentions from "@/pages/Intentions";
 import MusicLibraryPage from "@/pages/MusicLibraryPage";
 import JourneyTemplates from "@/pages/JourneyTemplates";
+import JourneyPlayer from "@/pages/JourneyPlayer";
+import Meditation from "@/pages/Meditation";
 import Astrology from "@/pages/Astrology";
 import AboutFounder from "@/pages/AboutFounder";
 import PersonalVibeSettings from "@/pages/PersonalVibeSettings";
@@ -110,6 +112,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <JourneyTemplates />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/journey/:frequencyId"
+            element={
+              <ProtectedRoute>
+                <JourneyPlayer />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/meditation"
+            element={
+              <ProtectedRoute>
+                <Meditation />
               </ProtectedRoute>
             }
           />

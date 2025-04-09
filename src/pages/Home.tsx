@@ -185,15 +185,27 @@ const Home: React.FC = () => {
                     </div>
                   </div>
                   
-                  <Link to="/frequency-library">
-                    <Button 
-                      variant="default" 
-                      className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-                    >
-                      <Music className="mr-2 h-4 w-4" />
-                      Explore Healing Frequencies
-                    </Button>
-                  </Link>
+                  <div className="flex flex-col space-y-2">
+                    <Link to="/frequency-library">
+                      <Button 
+                        variant="default" 
+                        className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                      >
+                        <Music className="mr-2 h-4 w-4" />
+                        Explore Healing Frequencies
+                      </Button>
+                    </Link>
+                    
+                    <Link to="/meditation">
+                      <Button 
+                        variant="outline" 
+                        className="w-full border-purple-200 text-purple-600 hover:bg-purple-50"
+                      >
+                        <Music className="mr-2 h-4 w-4" />
+                        Guided Meditations
+                      </Button>
+                    </Link>
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>
