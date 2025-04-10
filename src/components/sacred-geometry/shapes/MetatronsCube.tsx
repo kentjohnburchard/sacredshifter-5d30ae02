@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 
@@ -34,7 +35,7 @@ const MetatronsCube: React.FC = () => {
     const material = new THREE.LineBasicMaterial({ 
       color: 0x9f7aea,
       transparent: true,
-      opacity: 0.2 // Slightly more transparent
+      opacity: 0.15 // Increased transparency (was 0.2)
     });
     
     // Create 13 spheres at Fibonacci points
@@ -53,7 +54,7 @@ const MetatronsCube: React.FC = () => {
     const pointsMaterial = new THREE.MeshBasicMaterial({ 
       color: 0xffffff,
       transparent: true,
-      opacity: 0.4 // Slightly more transparent vertices
+      opacity: 0.3 // Increased transparency (was 0.4)
     });
     
     const vertices: THREE.Vector3[] = [];
@@ -69,7 +70,7 @@ const MetatronsCube: React.FC = () => {
     const thickerLineMaterial = new THREE.LineBasicMaterial({ 
       color: 0xb794f6, // Slightly lighter purple
       transparent: true,
-      opacity: 0.2, // Slightly more transparent lines
+      opacity: 0.15, // Increased transparency (was 0.2)
       linewidth: 1.5 
     });
     

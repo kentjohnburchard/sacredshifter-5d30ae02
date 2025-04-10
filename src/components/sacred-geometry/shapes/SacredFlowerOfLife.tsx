@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 
@@ -36,7 +37,7 @@ const SacredFlowerOfLife: React.FC = () => {
     const material = new THREE.LineBasicMaterial({ 
       color: 0x9f7aea,
       transparent: true,
-      opacity: 0.2 // Slightly more transparent
+      opacity: 0.15 // Increased transparency (was 0.2)
     });
 
     // Create overlapping circles in a hex grid pattern

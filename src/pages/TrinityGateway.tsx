@@ -1,98 +1,38 @@
 
-import React, { useState } from "react";
-import { AnimatePresence } from "framer-motion";
+import React from "react";
 import Layout from "@/components/Layout";
-import TrinityIntro from "@/components/trinity-gateway/TrinityIntro";
-import TrinityJourney from "@/components/trinity-gateway/TrinityJourney";
-import TrinityPhase1 from "@/components/trinity-gateway/TrinityPhase1";
-import TrinityPhase2 from "@/components/trinity-gateway/TrinityPhase2";
-import TrinityPhase3 from "@/components/trinity-gateway/TrinityPhase3";
-import TrinityActivation from "@/components/trinity-gateway/TrinityActivation";
-
-export type JourneyStage = "intro" | "phase1" | "phase2" | "phase3" | "activation";
+import { CosmicContainer } from "@/components/sacred-geometry";
+import MetatronsCube from "@/components/sacred-geometry/shapes/MetatronsCube";
 
 const TrinityGateway = () => {
-  const [currentStage, setCurrentStage] = useState<JourneyStage>("intro");
-  const [userIntention, setUserIntention] = useState<string>("");
-  const [selectedElements, setSelectedElements] = useState<string[]>([]);
-  
-  // Navigation functions
-  const startJourney = () => {
-    setCurrentStage("phase1");
-  };
-  
-  const moveToPhase2 = () => {
-    setCurrentStage("phase2");
-  };
-  
-  const moveToPhase3 = () => {
-    setCurrentStage("phase3");
-  };
-  
-  const completeJourney = () => {
-    setCurrentStage("activation");
-  };
-  
-  const restartJourney = () => {
-    setCurrentStage("intro");
-    setUserIntention("");
-    setSelectedElements([]);
-  };
-  
-  // Handle intention setting (for Phase 2)
-  const handleSetIntention = (intention: string) => {
-    setUserIntention(intention);
-  };
-  
-  // Handle element selection (for Phase 2)
-  const handleSelectElements = (elements: string[]) => {
-    setSelectedElements(elements);
-  };
-
   return (
-    <Layout>
-      <div className="min-h-screen bg-gradient-to-b from-black via-purple-950/30 to-black text-white">
-        <div className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400 mb-6">
+    <Layout pageTitle="Trinity Gateway™" theme="cosmic">
+      <div className="container max-w-6xl mx-auto px-4 py-8">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-playfair mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-600">
             Trinity Gateway™
           </h1>
-          
-          <div className="text-center mb-8">
-            <p className="text-lg text-gray-300">
-              Unlock the code behind creation. Three frequencies. One path. Infinite transformation.
+          <p className="text-lg text-gray-200 max-w-2xl mx-auto">
+            Access the sacred trinity of mind, body, and spirit to unlock your highest potential
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+          <div className="flex flex-col justify-center">
+            <h2 className="text-2xl font-playfair mb-4 text-purple-300">The Sacred Trinity</h2>
+            <p className="text-gray-300 mb-4">
+              The trinity represents the threefold nature of consciousness - mind, body, and spirit.
+              When these aspects are in harmony, you can access higher states of awareness and spiritual growth.
+            </p>
+            <p className="text-gray-300">
+              The Trinity Gateway™ provides tools and practices to balance these aspects and
+              open the gateway to your highest potential.
             </p>
           </div>
           
-          <AnimatePresence mode="wait">
-            {currentStage === "intro" && (
-              <TrinityIntro onStart={startJourney} />
-            )}
-            
-            {currentStage === "phase1" && (
-              <TrinityPhase1 onComplete={moveToPhase2} />
-            )}
-            
-            {currentStage === "phase2" && (
-              <TrinityPhase2 
-                onSetIntention={handleSetIntention}
-                onSelectElements={handleSelectElements}
-                onComplete={moveToPhase3}
-                skipPhase={moveToPhase3}
-              />
-            )}
-            
-            {currentStage === "phase3" && (
-              <TrinityPhase3 onComplete={completeJourney} />
-            )}
-            
-            {currentStage === "activation" && (
-              <TrinityActivation 
-                intention={userIntention}
-                selectedElements={selectedElements}
-                onRestart={restartJourney}
-              />
-            )}
-          </AnimatePresence>
+          <div className="h-96">
+            <MetatronsCube />
+          </div>
         </div>
       </div>
     </Layout>

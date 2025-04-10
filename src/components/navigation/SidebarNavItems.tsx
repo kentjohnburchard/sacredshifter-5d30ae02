@@ -4,6 +4,7 @@ import NavLink from './NavLink';
 import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/context/ThemeContext';
+import { getActiveNavItems } from '@/config/navigation';
 import {
   Home,
   Music,
@@ -12,10 +13,10 @@ import {
   Sparkles,
   Activity,
   BookOpen,
-  Contact,
+  Mail,
   User,
   Settings,
-  Lightbulb,
+  Triangle,
   Flame,
   Compass,
   Clock,
@@ -23,43 +24,42 @@ import {
   Brain,
   BarChart3,
   Star,
+  LayoutTemplate,
 } from 'lucide-react';
 
-// Group navigation items by category to match site map structure
-const navItems = [
-  // Main Pages
-  { href: '/dashboard', icon: Home, label: 'Dashboard', category: 'main' },
-  { href: '/energy-check', icon: Activity, label: 'Energy Check', category: 'main' },
-  { href: '/sacred-blueprint', icon: Sparkles, label: 'Sacred Blueprint', category: 'main' },
-  { href: '/shift-perception', icon: Brain, label: 'Shift Perception', category: 'main' },
-  
-  // Personal Growth
-  { href: '/heart-center', icon: Heart, label: 'Heart Center', category: 'growth' },
-  { href: '/alignment', icon: BarChart3, label: 'Alignment', category: 'growth' },
-  { href: '/intentions', icon: Lightbulb, label: 'Intentions', category: 'growth' },
-  { href: '/focus', icon: Brain, label: 'Focus', category: 'growth' },
-  
-  // Sacred Knowledge
-  { href: '/hermetic-wisdom', icon: BookOpen, label: 'Hermetic Wisdom', category: 'knowledge' },
-  { href: '/harmonic-map', icon: Compass, label: 'Harmonic Map', category: 'knowledge' },
-  { href: '/astrology', icon: Star, label: 'Astrology', category: 'knowledge' },
-  { href: '/trinity-gateway', icon: Flame, label: 'Trinity Gateway', category: 'knowledge' },
-  
-  // Music & Frequencies
-  { href: '/music-library', icon: Music, label: 'Music Library', category: 'music' },
-  { href: '/journey-templates', icon: Map, label: 'Journey Templates', category: 'music' },
-  
-  // Account & Information
-  { href: '/profile', icon: User, label: 'Profile', category: 'account' },
-  { href: '/personal-vibe', icon: Settings, label: 'My Vibe', category: 'account' },
-  { href: '/subscription', icon: User, label: 'Subscription', category: 'account' },
-  { href: '/about-founder', icon: User, label: 'About Founder', category: 'account' },
-  { href: '/contact', icon: Contact, label: 'Contact', category: 'account' },
-  
-  // Timeline & Experience
-  { href: '/timeline', icon: Clock, label: 'Timeline', category: 'timeline' },
-  { href: '/emotion-engine', icon: HeartPulse, label: 'Emotion Engine', category: 'timeline' },
-];
+// Map of route paths to their corresponding icons
+const iconMap: Record<string, React.FC<any>> = {
+  '/': Home,
+  '/dashboard': Home,
+  '/sacred-blueprint': LayoutTemplate,
+  '/frequency-library': Music,
+  '/heart-center': Heart,
+  '/emotion-engine': HeartPulse,
+  '/timeline': Activity,
+  '/music-generator': Music,
+  '/mirror-portal': Compass,
+  '/frequency-shift': Sparkles,
+  '/shift-perception': Brain,
+  '/soul-scribe': BookOpen,
+  '/deity-oracle': Flame,
+  '/astral-attunement': Star,
+  '/subscription': User,
+  '/referral': Sparkles,
+  '/trinity-gateway': Triangle,
+  '/about-founder': User,
+  '/contact': Mail,
+  '/hermetic-wisdom': BookOpen,
+  '/alignment': BarChart3,
+  '/focus': Brain,
+  '/energy-check': Activity,
+  '/astrology': Star,
+  '/heart-dashboard': Heart,
+  '/harmonic-map': Map,
+  '/journey-templates': Map,
+  '/personal-vibe': Settings,
+  '/site-map': Map,
+  '/profile': User,
+};
 
 interface SidebarNavItemsProps {
   isCollapsed?: boolean;
@@ -72,46 +72,43 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
 }) => {
   const location = useLocation();
   const { liftTheVeil } = useTheme();
-
-  // Filter out navigation items if needed based on categories
-  const renderNavItems = () => {
-    return navItems.map((item) => {
-      const isActive = location.pathname === item.href;
-      
-      return (
-        <NavLink
-          key={item.href}
-          to={item.href}
-          isMobile={false}
-          onClick={onLinkClick}
-          className={cn(
-            "flex items-center py-2 px-3 text-sm rounded-md transition-colors",
-            isActive
-              ? "bg-purple-100 text-purple-900"
-              : "text-gray-600 hover:bg-purple-50 hover:text-purple-900",
-            liftTheVeil && isActive && "bg-pink-100 text-pink-900",
-            liftTheVeil && !isActive && "hover:bg-pink-50 hover:text-pink-900"
-          )}
-        >
-          <item.icon
-            className={cn(
-              "h-5 w-5 mr-2",
-              isActive
-                ? liftTheVeil
-                  ? "text-pink-800"
-                  : "text-purple-800"
-                : "text-gray-500"
-            )}
-          />
-          {!isCollapsed && <span>{item.label}</span>}
-        </NavLink>
-      );
-    });
-  };
+  const activeNavItems = getActiveNavItems();
 
   return (
     <div className="space-y-1">
-      {renderNavItems()}
+      {activeNavItems.map((item) => {
+        const isActive = location.pathname === item.path;
+        const IconComponent = iconMap[item.path] || Home;
+        
+        return (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            isMobile={false}
+            onClick={onLinkClick}
+            className={cn(
+              "flex items-center py-2 px-3 text-sm rounded-md transition-colors",
+              isActive
+                ? "bg-purple-100 text-purple-900"
+                : "text-gray-600 hover:bg-purple-50 hover:text-purple-900",
+              liftTheVeil && isActive && "bg-pink-100 text-pink-900",
+              liftTheVeil && !isActive && "hover:bg-pink-50 hover:text-pink-900"
+            )}
+          >
+            <IconComponent
+              className={cn(
+                "h-5 w-5 mr-2",
+                isActive
+                  ? liftTheVeil
+                    ? "text-pink-800"
+                    : "text-purple-800"
+                  : "text-gray-500"
+              )}
+            />
+            {!isCollapsed && <span>{item.label}</span>}
+          </NavLink>
+        );
+      })}
       
       {/* Site Map Link for easy access */}
       {!isCollapsed && (

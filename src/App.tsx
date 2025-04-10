@@ -30,6 +30,19 @@ import CosmicDashboard from './pages/CosmicDashboard';
 import { JourneySettingsProvider } from './context/JourneySettingsContext';
 import { ThemeProvider as SacredThemeProvider } from './context/ThemeContext';
 import SacredShifterLanding from './pages/SacredShifterLanding';
+import ShiftPerception from './pages/ShiftPerception';
+import SacredBlueprint from './pages/SacredBlueprint';
+import MirrorPortal from './pages/MirrorPortal';
+import FrequencyShift from './pages/FrequencyShift';
+import SoulScribe from './pages/SoulScribe';
+import DeityOracle from './pages/DeityOracle';
+import AstralAttunement from './pages/AstralAttunement';
+import Subscription from './pages/Subscription';
+import ReferralProgram from './pages/ReferralProgram';
+import TrinityGateway from './pages/TrinityGateway';
+import Profile from './pages/Profile';
+import SiteMap from './pages/SiteMap';
+import MusicGenerator from './pages/MusicGenerator';
 
 function App() {
   return (
@@ -45,19 +58,37 @@ function App() {
             <Route path="/about-founder" element={<AboutFounder />} />
             <Route path="/contact" element={<Contact />} />
             
-            {/* Frequency Routes */}
+            {/* Main Feature Routes */}
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/sacred-blueprint" element={<SacredBlueprint />} />
             <Route path="/frequency-library" element={<FrequencyLibraryPage />} />
+            <Route path="/heart-center" element={<HeartCenter />} />
+            <Route path="/emotion-engine" element={<EmotionEngine />} />
+            <Route path="/timeline" element={<Dashboard />} />
+            <Route path="/shift-perception" element={<ShiftPerception />} />
+            <Route path="/trinity-gateway" element={<TrinityGateway />} />
+            
+            {/* Additional Feature Routes */}
+            <Route path="/music-generator" element={<MusicGenerator />} />
+            <Route path="/mirror-portal" element={<MirrorPortal />} />
+            <Route path="/frequency-shift" element={<FrequencyShift />} />
+            <Route path="/soul-scribe" element={<SoulScribe />} />
+            <Route path="/deity-oracle" element={<DeityOracle />} />
+            <Route path="/astral-attunement" element={<AstralAttunement />} />
+            <Route path="/subscription" element={<Subscription />} />
+            <Route path="/referral" element={<ReferralProgram />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/site-map" element={<SiteMap />} />
+            
+            {/* Frequency Detail Route */}
             <Route path="/frequency/:id" element={<FrequencyDetailPage />} />
             
-            {/* Feature Routes */}
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            {/* Additional Features */}
             <Route path="/harmonic-map" element={<HarmonicMap />} />
-            <Route path="/heart-center" element={<HeartCenter />} />
             <Route path="/heart-dashboard" element={<HeartDashboard />} />
             <Route path="/alignment" element={<Alignment />} />
             <Route path="/energy-check" element={<EnergyCheck />} />
             <Route path="/focus" element={<Focus />} />
-            <Route path="/emotion-engine" element={<EmotionEngine />} />
             <Route path="/hermetic-wisdom" element={<HermeticWisdom />} />
             <Route path="/journey-templates" element={<JourneyTemplates />} />
             <Route path="/journey/:frequencyId" element={<JourneyPlayer />} />
