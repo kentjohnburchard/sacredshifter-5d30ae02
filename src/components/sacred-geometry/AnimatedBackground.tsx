@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 interface AnimatedBackgroundProps {
   theme?: 'cosmic' | 'ethereal' | 'temple';
@@ -8,14 +8,25 @@ interface AnimatedBackgroundProps {
 }
 
 /**
- * Completely static background with no animations or heavy elements
- * Replaces all motion elements with simple static divs
+ * Optimized animated background with performance improvements
+ * Uses CSS animations instead of heavy JS animations
  */
 const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ 
   theme = 'cosmic',
   children
 }) => {
-  // Apply different color schemes based on theme but with no animations
+  const [isVisible, setIsVisible] = useState(false);
+  
+  useEffect(() => {
+    // Delayed activation for smoother page load
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 300);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
+  // Apply different color schemes based on theme
   const getBackgroundClass = () => {
     switch (theme) {
       case 'cosmic':
@@ -32,10 +43,16 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
       {/* Static background */}
-      <div className={`absolute inset-0 ${getBackgroundClass()}`}></div>
+      <div className={`absolute inset-0 ${getBackgroundClass()} transition-opacity duration-700 ${isVisible ? 'opacity-100' : 'opacity-0'}`}></div>
       
-      {/* Single static glow instead of animated waves */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vh] rounded-full bg-purple-900/5 filter blur-[100px]"></div>
+      {/* Animated elements with CSS animations instead of JS */}
+      {isVisible && (
+        <>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vh] rounded-full bg-purple-900/5 filter blur-[100px] animate-pulse-slow"></div>
+          <div className="absolute top-1/3 left-1/3 w-[40vw] h-[40vh] rounded-full bg-blue-900/5 filter blur-[70px] animate-pulse-medium"></div>
+          <div className="absolute bottom-1/3 right-1/3 w-[60vw] h-[60vh] rounded-full bg-indigo-900/5 filter blur-[85px] animate-pulse-fast"></div>
+        </>
+      )}
       
       {children}
     </div>
