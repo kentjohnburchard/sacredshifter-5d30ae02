@@ -1,4 +1,3 @@
-
 import * as THREE from 'three';
 
 // Create Flower of Life
@@ -283,49 +282,29 @@ export const createVesicaPiscis = () => {
   return group;
 };
 
-// Create Merkaba (Star Tetrahedron)
-export const createMerkaba = () => {
+// Enhanced implementation for the Merkaba (Star Tetrahedron)
+export function createMerkaba() {
   const group = new THREE.Group();
   
-  // Create material with metallic property
+  // Create material with metallic appearance
   const material = new THREE.MeshStandardMaterial({ 
     color: 0x9f7aea, 
     metalness: 0.6, 
     roughness: 0.4,
-    emissive: 0x400080,
-    emissiveIntensity: 0.2
+    emissive: 0x3a1b8c,
+    emissiveIntensity: 0.3,
   });
   
   // Create top tetrahedron
-  const topTetra = new THREE.Mesh(new THREE.TetrahedronGeometry(1), material.clone());
-  // Create bottom tetrahedron
-  const bottomTetra = new THREE.Mesh(new THREE.TetrahedronGeometry(1), material.clone());
+  const topTetra = new THREE.Mesh(new THREE.TetrahedronGeometry(1), material);
   
-  // Rotate the bottom tetrahedron to form the star tetrahedron (merkaba)
+  // Create bottom tetrahedron
+  const bottomTetra = new THREE.Mesh(new THREE.TetrahedronGeometry(1), material);
   bottomTetra.rotation.x = Math.PI; // Flip it upside down
   
-  // Add tetrahedrons to group
+  // Add both tetrahedrons to the group
   group.add(topTetra);
   group.add(bottomTetra);
   
-  // Add wireframe to make the edges more visible
-  const wireframeGeometry1 = new THREE.TetrahedronGeometry(1.01);
-  const wireframe1 = new THREE.LineSegments(
-    new THREE.WireframeGeometry(wireframeGeometry1),
-    new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 })
-  );
-  const wireframeGeometry2 = new THREE.TetrahedronGeometry(1.01);
-  const wireframe2 = new THREE.LineSegments(
-    new THREE.WireframeGeometry(wireframeGeometry2),
-    new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 })
-  );
-  
-  wireframe2.rotation.x = Math.PI;
-  group.add(wireframe1);
-  group.add(wireframe2);
-  
-  // Scale the entire group to match other shapes
-  group.scale.set(0.7, 0.7, 0.7);
-  
   return group;
-};
+}

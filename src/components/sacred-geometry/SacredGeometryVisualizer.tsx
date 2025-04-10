@@ -67,11 +67,7 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
         transition={{ duration: 1 }}
         className="w-full h-full relative"
       >
-        <CosmicContainer
-          className="overflow-hidden"
-          glowColor="purple"
-          animate={true}
-        >
+        <div className="w-full h-full overflow-hidden">
           <SacredVisualizer 
             shape={currentShape} 
             size={size} 
@@ -83,7 +79,7 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
             mode={mode}
             sensitivity={sensitivity}
           />
-        </CosmicContainer>
+        </div>
         
         {showControls && (
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">

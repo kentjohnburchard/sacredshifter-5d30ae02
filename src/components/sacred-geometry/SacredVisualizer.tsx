@@ -81,7 +81,7 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     // Set up renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
-    renderer.setClearColor(0x000000, 0.95); // Almost black background
+    renderer.setClearColor(0x000000, 0.6); // Transparent background
     rendererRef.current = renderer;
     mountRef.current.appendChild(renderer.domElement);
 
@@ -240,7 +240,7 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     xl: 'h-screen',
   }[size];
 
-  return <div ref={mountRef} className={`w-full ${sizeClass}`} />;
+  return <div ref={mountRef} className={`w-full ${sizeClass} absolute inset-0`} />;
 };
 
 export default SacredVisualizer;
