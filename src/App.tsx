@@ -46,6 +46,7 @@ import Index from './pages/Index';
 import Welcome from './pages/Welcome';
 import StarfieldBackground from './components/sacred-geometry/StarfieldBackground';
 import MainLayout from './components/MainLayout';
+import { safeFetchLegacy } from './utils/safeFetch';
 
 function App() {
   // Apply global fetch timeout to prevent UI freezes
@@ -55,25 +56,9 @@ function App() {
     // Store the original fetch function
     const originalFetch = window.fetch;
     
-    // Override fetch with timeout protection
+    // Override fetch with timeout protection using our safeFetch utility
     window.fetch = function(resource, options) {
-      // Create a timeout promise that will reject after 5 seconds
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Request timed out')), 5000);
-      });
-      
-      // Race between the original fetch and the timeout
-      return Promise.race([
-        originalFetch.apply(this, [resource, options]),
-        timeoutPromise
-      ]).catch(error => {
-        console.error(`Global fetch error for ${resource}:`, error);
-        // Return a valid but empty response to prevent UI freezes
-        return new Response(JSON.stringify({ error: 'Failed to load resource' }), { 
-          status: 200,
-          headers: { 'Content-Type': 'application/json' } 
-        });
-      });
+      return safeFetchLegacy(resource, options);
     };
     
     // Add global error handling for better debugging

