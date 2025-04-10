@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
@@ -63,7 +64,21 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
     
     if (!canvasRef.current || !isVisible) return;
     
+    // Set canvas size to match its display size
+    const setCanvasSize = () => {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const { width, height } = canvas.getBoundingClientRect();
+        if (canvas.width !== width || canvas.height !== height) {
+          canvas.width = width;
+          canvas.height = height;
+        }
+      }
+    };
+    
+    setCanvasSize();
     setIsPlaying(true);
+    
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d')!;
     let dataArray: Uint8Array | null = null;
@@ -73,14 +88,9 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
     }
     
     const resizeCanvas = () => {
-      const { width, height } = canvas.getBoundingClientRect();
-      if (canvas.width !== width || canvas.height !== height) {
-        canvas.width = width;
-        canvas.height = height;
-      }
+      setCanvasSize();
     };
     
-    resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
     
     const drawFractal = () => {
@@ -309,14 +319,15 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
 
   return (
     <motion.div 
-      className={`sacred-geometry-container ${isPlaying ? 'is-playing' : ''} ${!size ? 'w-full h-full' : ''}`}
+      className={`sacred-geometry-container relative ${isPlaying ? 'is-playing' : ''} ${!size ? 'w-full h-full' : ''}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: isVisible ? 1 : 0 }}
       transition={{ duration: 0.5 }}
+      style={{ zIndex: 10 }} // Ensure it floats above other content
     >
       <canvas
         ref={canvasRef}
-        className={`sacred-geometry-canvas absolute inset-0 ${size ? getSizeClasses() : 'w-full h-full'} z-0 pointer-events-none`}
+        className={`sacred-geometry-canvas ${size ? getSizeClasses() : 'w-full h-full'} z-10 pointer-events-none`}
       />
       <div className="sacred-geometry-overlay absolute inset-0 z-0 pointer-events-none" />
     </motion.div>
