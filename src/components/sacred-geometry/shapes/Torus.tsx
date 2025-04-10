@@ -8,7 +8,7 @@ const Torus: React.FC = () => {
   useEffect(() => {
     if (!containerRef.current) return;
     
-    // Create scene
+    // Create scene with transparent background
     const scene = new THREE.Scene();
     scene.background = null; // Make background fully transparent
     
@@ -19,7 +19,7 @@ const Torus: React.FC = () => {
       0.1, 
       1000
     );
-    camera.position.z = 5; // Position further back to see more of the torus
+    camera.position.z = 4.5; // Position further back to see the whole torus
     
     // Create renderer with transparency
     const renderer = new THREE.WebGLRenderer({ 
@@ -42,7 +42,7 @@ const Torus: React.FC = () => {
       metalness: 0.8,
       wireframe: false,
       transparent: true,
-      opacity: 0.5, // Increased transparency
+      opacity: 0.4, // Increased transparency
     });
     
     const torus = new THREE.Mesh(geometry, material);
@@ -52,7 +52,7 @@ const Torus: React.FC = () => {
     const wireframeMaterial = new THREE.LineBasicMaterial({
       color: 0xb794f6,
       transparent: true,
-      opacity: 0.3, // More transparent wireframe
+      opacity: 0.2, // More transparent wireframe
     });
     const wireframeGeo = new THREE.EdgesGeometry(geometry);
     const wireframe = new THREE.LineSegments(wireframeGeo, wireframeMaterial);
@@ -65,14 +65,15 @@ const Torus: React.FC = () => {
       emissive: new THREE.Color('#9f7aea'),
       emissiveIntensity: 0.5,
       transparent: true,
-      opacity: 0.4, // More transparent inner torus
+      opacity: 0.3, // More transparent inner torus
     });
     
     const innerTorus = new THREE.Mesh(innerGeometry, innerMaterial);
     innerTorus.rotation.x = Math.PI / 2;
     torusGroup.add(innerTorus);
 
-    // Scale the group to fit better in the container
+    // Center and scale the group to fit better
+    torusGroup.position.set(0, 0, 0);
     torusGroup.scale.set(0.8, 0.8, 0.8);
     scene.add(torusGroup);
 
@@ -117,10 +118,18 @@ const Torus: React.FC = () => {
       if (containerRef.current && containerRef.current.contains(renderer.domElement)) {
         containerRef.current.removeChild(renderer.domElement);
       }
+      
+      // Dispose of resources
+      geometry.dispose();
+      material.dispose();
+      innerGeometry.dispose();
+      innerMaterial.dispose();
+      wireframeGeo.dispose();
+      wireframeMaterial.dispose();
     };
   }, []);
 
-  return <div ref={containerRef} className="w-full h-full"></div>;
+  return <div ref={containerRef} className="w-full h-full flex items-center justify-center"></div>;
 };
 
 export default Torus;

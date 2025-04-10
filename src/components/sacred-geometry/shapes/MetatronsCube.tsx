@@ -8,18 +8,18 @@ const MetatronsCube: React.FC = () => {
   useEffect(() => {
     if (!containerRef.current) return;
     
-    // Create scene
+    // Create scene with transparent background
     const scene = new THREE.Scene();
     scene.background = null; // Make background fully transparent
     
-    // Create camera with wider view
+    // Create camera
     const camera = new THREE.PerspectiveCamera(
       75, 
       containerRef.current.clientWidth / containerRef.current.clientHeight, 
       0.1, 
       1000
     );
-    camera.position.z = 4.5; // Positioned closer to see more detail
+    camera.position.z = 4.5; // Positioned to see the whole cube
     
     // Create renderer with transparency
     const renderer = new THREE.WebGLRenderer({ 
@@ -35,10 +35,10 @@ const MetatronsCube: React.FC = () => {
     const material = new THREE.LineBasicMaterial({ 
       color: 0x9f7aea,
       transparent: true,
-      opacity: 0.5 // Increased transparency
+      opacity: 0.3 // More transparent lines
     });
     
-    // Create 13 spheres at Fibonacci points with slightly larger sphere size for visibility
+    // Create 13 spheres at Fibonacci points
     const spherePositions = [
       [0, 0, 0], // Center
       [1, 0, 0], [-1, 0, 0], 
@@ -49,12 +49,12 @@ const MetatronsCube: React.FC = () => {
       [0.5, -0.289, 0.816], [-0.5, -0.289, 0.816]
     ];
     
-    // Add vertices (small spheres) - increased size to 0.08
+    // Add vertices (small spheres)
     const pointsGeometry = new THREE.SphereGeometry(0.08, 12, 12);
     const pointsMaterial = new THREE.MeshBasicMaterial({ 
       color: 0xffffff,
       transparent: true,
-      opacity: 0.7
+      opacity: 0.6 // More transparent vertices
     });
     
     const vertices: THREE.Vector3[] = [];
@@ -66,12 +66,12 @@ const MetatronsCube: React.FC = () => {
       vertices.push(new THREE.Vector3(pos[0], pos[1], pos[2]));
     });
     
-    // Connect all vertices with lines - make lines slightly thicker
+    // Connect all vertices with lines
     const thickerLineMaterial = new THREE.LineBasicMaterial({ 
       color: 0xb794f6, // Slightly lighter purple
       transparent: true,
-      opacity: 0.4, // Make more transparent
-      linewidth: 2 // Note: WebGL has limitations on line thickness
+      opacity: 0.3, // More transparent lines
+      linewidth: 1.5 
     });
     
     for (let i = 0; i < vertices.length; i++) {
@@ -85,8 +85,9 @@ const MetatronsCube: React.FC = () => {
       }
     }
     
-    // Make the cube slightly larger
-    group.scale.set(1.0, 1.0, 1.0);
+    // Center the cube in the container
+    group.position.set(0, 0, 0);
+    group.scale.set(1.2, 1.2, 1.2); // Slightly larger
     scene.add(group);
 
     // Add ambient light
@@ -128,10 +129,16 @@ const MetatronsCube: React.FC = () => {
       if (containerRef.current && containerRef.current.contains(renderer.domElement)) {
         containerRef.current.removeChild(renderer.domElement);
       }
+      
+      // Dispose of resources
+      pointsGeometry.dispose();
+      pointsMaterial.dispose();
+      material.dispose();
+      thickerLineMaterial.dispose();
     };
   }, []);
 
-  return <div ref={containerRef} className="w-full h-full"></div>;
+  return <div ref={containerRef} className="w-full h-full flex items-center justify-center"></div>;
 };
 
 export default MetatronsCube;

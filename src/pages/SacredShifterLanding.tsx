@@ -37,33 +37,35 @@ const SacredShifterLanding = () => {
       <StarfieldBackground />
 
       {/* Top right floating area with Nav and Geometry Viewer */}
-      <div className="fixed right-4 top-6 z-50 flex items-start gap-3">
-        {/* Geometry Visualizer - Now floating beside the nav */}
+      <div className="fixed right-4 top-4 z-50 flex items-start gap-4">
+        {/* Geometry Visualizer - Floating next to nav */}
         <motion.div 
-          className="w-64 h-64 z-10" // Made container larger 
+          className="w-64 h-64 flex items-center justify-center" 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3, duration: 0.8 }}
         >
-          <div className="rounded-2xl overflow-hidden border border-purple-600/20 shadow-2xl shadow-purple-900/20 backdrop-blur-sm bg-black/10 h-full flex items-center justify-center">
-            <div className="h-60 w-60"> {/* Fixed size for the geometry */}
+          <div className="rounded-2xl overflow-hidden border border-purple-600/20 shadow-2xl shadow-purple-900/20 backdrop-blur-sm bg-black/5 h-full w-full flex items-center justify-center">
+            <div className="flex items-center justify-center h-full w-full">
               {geometryComponents[selectedShape]}
             </div>
           </div>
         </motion.div>
         
-        {/* Floating Navigation with Main Nav Options */}
-        <nav className="bg-black/20 backdrop-blur-sm p-3 rounded-xl border border-purple-900/20">
-          <div className="flex flex-col space-y-4">
-            {['Home', 'Sound Journeys', 'Experiences', 'Frequencies', 'My Journey'].map((item) => (
-              <Link
-                key={item}
-                to={`${item === 'Home' ? '/' : `/${item.toLowerCase().replace(/ /g, '-')}`}`}
-                className="text-sm whitespace-nowrap text-white hover:text-purple-300 transition-all duration-300 flex items-center gap-2"
+        {/* Floating Navigation with shape selector */}
+        <nav className="bg-black/10 backdrop-blur-sm p-3 rounded-xl border border-purple-900/20">
+          <div className="flex flex-col space-y-2">
+            {Object.keys(geometryComponents).map((shape) => (
+              <button
+                key={shape}
+                onClick={() => setSelectedShape(shape)}
+                className={`text-sm whitespace-nowrap text-white hover:text-purple-300 transition-all duration-300 flex items-center gap-2
+                  ${selectedShape === shape ? 'text-purple-300' : ''}
+                `}
               >
-                <span className="h-1.5 w-1.5 rounded-full bg-purple-900 opacity-70"></span>
-                {item}
-              </Link>
+                <span className={`h-1.5 w-1.5 rounded-full ${selectedShape === shape ? 'bg-purple-500' : 'bg-purple-900'} opacity-70`}></span>
+                {shape}
+              </button>
             ))}
           </div>
         </nav>
@@ -74,17 +76,18 @@ const SacredShifterLanding = () => {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2 }}
+          className="mb-6"
         >
-          {/* Logo that blends better with the theme */}
+          {/* More transparent logo that blends better with the theme */}
           <img 
             src="/lovable-uploads/d1dc7000-c2c4-4d7f-8e17-6702ea255abe.png" 
             alt="Sacred Shifter Logo" 
-            className="mx-auto w-48 opacity-30 drop-shadow-[0_0_15px_rgba(138,43,226,0.5)]" 
+            className="mx-auto w-48 opacity-20 drop-shadow-[0_0_15px_rgba(138,43,226,0.5)]" 
           />
         </motion.div>
         <h1 className="sr-only">Sacred Shifter</h1>
         <motion.p 
-          className="text-xl mt-6 max-w-2xl mx-auto text-purple-100 font-light tracking-wide"
+          className="text-xl mt-6 max-w-2xl mx-auto text-purple-100/80 font-light tracking-wide"
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.9 }}
           transition={{ delay: 0.6, duration: 1.5 }}
@@ -93,28 +96,27 @@ const SacredShifterLanding = () => {
         </motion.p>
       </header>
 
-      {/* Shape Selector Nav - Now in center */}
+      {/* Main Navigation Links - Now in center */}
       <motion.div 
-        className="flex justify-center gap-2 mt-12 flex-wrap z-10 relative px-4"
+        className="flex justify-center gap-4 mt-12 flex-wrap z-10 relative px-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8, duration: 0.7 }}
       >
-        {Object.keys(geometryComponents).map((shape) => (
-          <button
-            key={shape}
-            onClick={() => setSelectedShape(shape)}
-            className={`px-5 py-2 rounded-full font-medium border transition-all duration-300
-              bg-black/30 backdrop-blur-sm hover:bg-purple-900/20 border-purple-900/30 text-gray-300
-              hover:text-white ${selectedShape === shape ? 'bg-purple-900/30 text-white' : ''}
-            `}
+        {['Home', 'Sound Journeys', 'Experiences', 'Frequencies', 'My Journey'].map((item) => (
+          <Link
+            key={item}
+            to={`${item === 'Home' ? '/' : `/${item.toLowerCase().replace(/ /g, '-')}`}`}
+            className="px-5 py-2 rounded-full font-medium border transition-all duration-300
+              bg-black/20 backdrop-blur-sm hover:bg-purple-900/20 border-purple-900/30 text-gray-300
+              hover:text-white"
           >
-            {shape}
-          </button>
+            {item}
+          </Link>
         ))}
       </motion.div>
 
-      {/* Experience Grid - Made more transparent */}
+      {/* Experience Grid - More transparent */}
       <motion.section 
         id="experiences" 
         className="mt-20 px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl mx-auto z-10 relative"
@@ -169,15 +171,15 @@ const SacredShifterLanding = () => {
           <motion.div
             key={title}
             whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
-            className={`bg-gradient-to-br ${color} rounded-2xl p-6 text-white border backdrop-blur-md bg-opacity-30 shadow-lg hover:shadow-xl transition-all`}
+            className={`bg-gradient-to-br ${color} rounded-2xl p-6 text-white border backdrop-blur-md bg-opacity-5 shadow-lg hover:shadow-xl transition-all`}
           >
             <div className="flex flex-col items-center md:items-start">
-              <div className="p-3 mb-3 rounded-full bg-black/10 backdrop-blur-sm border border-purple-500/10">
+              <div className="p-3 mb-3 rounded-full bg-black/5 backdrop-blur-sm border border-purple-500/10">
                 {icon}
               </div>
               <h3 className="text-xl font-semibold mb-2">{title}</h3>
             </div>
-            <p className="text-sm text-gray-200">{description}</p>
+            <p className="text-sm text-gray-200/90">{description}</p>
             <Link to={path} className="mt-4 inline-flex items-center gap-1 text-purple-300 hover:text-purple-200 transition-colors font-medium">
               Explore <span aria-hidden="true">→</span>
             </Link>
@@ -185,21 +187,21 @@ const SacredShifterLanding = () => {
         ))}
       </motion.section>
 
-      {/* Footer Player - Made more transparent */}
+      {/* Footer Player - More transparent */}
       <motion.footer 
         className="mt-24 pb-24 text-center z-10 relative"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5, duration: 1 }}
       >
-        <div className="bg-black/10 backdrop-blur-md rounded-full py-3 px-6 inline-flex items-center gap-3 border border-purple-500/10">
+        <div className="bg-black/5 backdrop-blur-md rounded-full py-3 px-6 inline-flex items-center gap-3 border border-purple-500/10">
           <div className="h-2 w-2 rounded-full bg-purple-500 animate-pulse"></div>
           <audio autoPlay loop className="mx-auto">
             <source src="/audio/528hz-heart.mp3" type="audio/mpeg" />
           </audio>
           <p className="text-sm font-medium text-purple-300">528Hz - Heart Chakra</p>
         </div>
-        <div className="mt-6 text-sm text-gray-400 font-light tracking-wide">
+        <div className="mt-6 text-sm text-gray-400/70 font-light tracking-wide">
           Sound Journeys • Experiences • Frequencies • My Journey
         </div>
       </motion.footer>

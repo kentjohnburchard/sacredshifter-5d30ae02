@@ -19,7 +19,7 @@ const StarfieldBackground: React.FC = () => {
     };
 
     // Create more stars for a denser starfield
-    const stars = Array.from({ length: 600 }, () => ({
+    const stars = Array.from({ length: 800 }, () => ({
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
       radius: Math.random() * 2.5, // Slightly larger stars for more visibility
@@ -36,12 +36,8 @@ const StarfieldBackground: React.FC = () => {
       if (!context) return;
       context.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Create subtle gradient background for more depth
-      const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, 'rgba(10, 1, 24, 1)');
-      gradient.addColorStop(0.5, 'rgba(0, 0, 0, 1)');
-      gradient.addColorStop(1, 'rgba(15, 0, 30, 1)');
-      context.fillStyle = gradient;
+      // Make background fully transparent to show through all layers
+      context.fillStyle = 'rgba(0, 0, 0, 0)';
       context.fillRect(0, 0, canvas.width, canvas.height);
 
       // Draw each star with enhanced twinkling effect
@@ -88,7 +84,6 @@ const StarfieldBackground: React.FC = () => {
         zIndex: -1,
         width: '100%',
         height: '100%',
-        opacity: 1, // Full opacity for stars
       }}
     />
   );
