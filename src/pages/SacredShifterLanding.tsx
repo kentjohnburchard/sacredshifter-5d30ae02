@@ -108,7 +108,7 @@ const SacredShifterLanding = () => {
                 className="w-full flex justify-center"
               >
                 <img 
-                  src="/lovable-uploads/d1dc7000-c2c4-4d7f-8e17-6702ea255abe.png" 
+                  src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
                   alt="Sacred Shifter Logo" 
                   className="mx-auto mix-blend-screen opacity-70 w-48 md:w-64 drop-shadow-xl" 
                 />
