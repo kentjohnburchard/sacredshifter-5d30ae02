@@ -8,9 +8,9 @@ const TreeOfLife: React.FC = () => {
   useEffect(() => {
     if (!containerRef.current) return;
     
-    // Create scene
+    // Create scene with transparent background
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
+    scene.background = null; // Make background fully transparent
     
     // Create camera
     const camera = new THREE.PerspectiveCamera(
@@ -19,16 +19,24 @@ const TreeOfLife: React.FC = () => {
       0.1, 
       1000
     );
-    camera.position.z = 5;
+    camera.position.z = 4.5; // Positioned to see the whole structure
     
-    // Create renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    // Create renderer with transparency
+    const renderer = new THREE.WebGLRenderer({ 
+      antialias: true,
+      alpha: true // Enable transparency
+    });
     renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
+    renderer.setClearColor(0x000000, 0); // Set clear color to transparent
     containerRef.current.appendChild(renderer.domElement);
 
     // Create Tree of Life
     const group = new THREE.Group();
-    const material = new THREE.LineBasicMaterial({ color: 0x9f7aea });
+    const material = new THREE.LineBasicMaterial({ 
+      color: 0x9f7aea,
+      transparent: true,
+      opacity: 0.3 // More transparent lines
+    });
     
     // Define the 10 Sephiroth positions
     const positions = [
@@ -45,11 +53,13 @@ const TreeOfLife: React.FC = () => {
     ];
     
     // Create spheres for each Sephirah
-    const sphereGeometry = new THREE.SphereGeometry(0.08, 16, 16);
+    const sphereGeometry = new THREE.SphereGeometry(0.08, 12, 12);
     const sphereMaterial = new THREE.MeshStandardMaterial({ 
       color: 0xffffff,
       emissive: 0x9f7aea,
-      emissiveIntensity: 0.5
+      emissiveIntensity: 0.5,
+      transparent: true,
+      opacity: 0.6
     });
     
     const vertices: THREE.Vector3[] = [];
@@ -79,8 +89,9 @@ const TreeOfLife: React.FC = () => {
       group.add(line);
     });
     
-    // Scale the whole structure
-    group.scale.set(0.8, 0.8, 0.8);
+    // Scale the whole structure to match MetatronsCube
+    group.position.set(0, 0, 0);
+    group.scale.set(1.2, 1.2, 1.2);
     scene.add(group);
 
     // Add ambient light
@@ -122,10 +133,15 @@ const TreeOfLife: React.FC = () => {
       if (containerRef.current && containerRef.current.contains(renderer.domElement)) {
         containerRef.current.removeChild(renderer.domElement);
       }
+      
+      // Dispose of resources
+      sphereGeometry.dispose();
+      sphereMaterial.dispose();
+      material.dispose();
     };
   }, []);
 
-  return <div ref={containerRef} className="w-full h-96"></div>;
+  return <div ref={containerRef} className="w-full h-full flex items-center justify-center"></div>;
 };
 
 export default TreeOfLife;

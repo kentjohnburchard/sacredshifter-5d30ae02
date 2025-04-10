@@ -8,9 +8,9 @@ const SriYantra: React.FC = () => {
   useEffect(() => {
     if (!containerRef.current) return;
     
-    // Create scene
+    // Create scene with transparent background
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
+    scene.background = null; // Make background fully transparent
     
     // Create camera
     const camera = new THREE.PerspectiveCamera(
@@ -19,16 +19,24 @@ const SriYantra: React.FC = () => {
       0.1, 
       1000
     );
-    camera.position.z = 5;
+    camera.position.z = 4.5; // Positioned to see the whole structure
     
-    // Create renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    // Create renderer with transparency
+    const renderer = new THREE.WebGLRenderer({ 
+      antialias: true,
+      alpha: true // Enable transparency
+    });
     renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
+    renderer.setClearColor(0x000000, 0); // Set clear color to transparent
     containerRef.current.appendChild(renderer.domElement);
 
     // Create Sri Yantra
     const group = new THREE.Group();
-    const material = new THREE.LineBasicMaterial({ color: 0x9f7aea });
+    const material = new THREE.LineBasicMaterial({ 
+      color: 0x9f7aea,
+      transparent: true,
+      opacity: 0.3 // More transparent lines
+    });
     
     // Create the nine interlocking triangles
     const outerRadius = 1;
@@ -71,7 +79,11 @@ const SriYantra: React.FC = () => {
     
     // Add central dot (bindu)
     const binduGeometry = new THREE.CircleGeometry(0.05, 32);
-    const binduMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const binduMaterial = new THREE.MeshBasicMaterial({ 
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.7
+    });
     const bindu = new THREE.Mesh(binduGeometry, binduMaterial);
     bindu.position.z = 0.1;
     group.add(bindu);
@@ -83,6 +95,9 @@ const SriYantra: React.FC = () => {
     circle.position.z = -0.01;
     group.add(circle);
 
+    // Center and scale the group to match MetatronsCube
+    group.position.set(0, 0, 0);
+    group.scale.set(1.2, 1.2, 1.2);
     scene.add(group);
 
     // Add ambient light
@@ -124,10 +139,16 @@ const SriYantra: React.FC = () => {
       if (containerRef.current && containerRef.current.contains(renderer.domElement)) {
         containerRef.current.removeChild(renderer.domElement);
       }
+      
+      // Dispose of resources
+      binduGeometry.dispose();
+      binduMaterial.dispose();
+      material.dispose();
+      circleGeometry.dispose();
     };
   }, []);
 
-  return <div ref={containerRef} className="w-full h-96"></div>;
+  return <div ref={containerRef} className="w-full h-full flex items-center justify-center"></div>;
 };
 
 export default SriYantra;

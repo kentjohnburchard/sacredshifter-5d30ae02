@@ -8,9 +8,9 @@ const SacredFlowerOfLife: React.FC = () => {
   useEffect(() => {
     if (!containerRef.current) return;
     
-    // Create scene
+    // Create scene with transparent background
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
+    scene.background = null; // Make background fully transparent
     
     // Create camera
     const camera = new THREE.PerspectiveCamera(
@@ -21,16 +21,24 @@ const SacredFlowerOfLife: React.FC = () => {
     );
     camera.position.z = 5;
     
-    // Create renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    // Create renderer with transparency
+    const renderer = new THREE.WebGLRenderer({ 
+      antialias: true,
+      alpha: true // Enable transparency
+    });
     renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
+    renderer.setClearColor(0x000000, 0); // Set clear color to transparent
     containerRef.current.appendChild(renderer.domElement);
     
     // Create flower of life
     const group = new THREE.Group();
     const radius = 0.4;
     const layers = 3;
-    const material = new THREE.LineBasicMaterial({ color: 0x9f7aea });
+    const material = new THREE.LineBasicMaterial({ 
+      color: 0x9f7aea,
+      transparent: true,
+      opacity: 0.3 // More transparent lines
+    });
 
     // Create overlapping circles in a hex grid pattern
     for (let i = -layers; i <= layers; i++) {
@@ -50,6 +58,9 @@ const SacredFlowerOfLife: React.FC = () => {
       }
     }
     
+    // Center and scale the group
+    group.position.set(0, 0, 0);
+    group.scale.set(1.2, 1.2, 1.2); // Slightly larger
     scene.add(group);
 
     // Add ambient light
@@ -91,10 +102,13 @@ const SacredFlowerOfLife: React.FC = () => {
       if (containerRef.current && containerRef.current.contains(renderer.domElement)) {
         containerRef.current.removeChild(renderer.domElement);
       }
+      
+      // Dispose of resources
+      material.dispose();
     };
   }, []);
 
-  return <div ref={containerRef} className="w-full h-96"></div>;
+  return <div ref={containerRef} className="w-full h-full flex items-center justify-center"></div>;
 };
 
 export default SacredFlowerOfLife;
