@@ -74,9 +74,14 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
   const { liftTheVeil } = useTheme();
   const activeNavItems = getActiveNavItems();
 
+  // Filter out duplicate paths to prevent showing the same link twice
+  const uniqueNavItems = activeNavItems.filter((item, index, self) => 
+    index === self.findIndex((t) => t.path === item.path)
+  );
+
   return (
     <div className="space-y-1">
-      {activeNavItems.map((item) => {
+      {uniqueNavItems.map((item) => {
         const isActive = location.pathname === item.path;
         const IconComponent = iconMap[item.path] || Home;
         
@@ -110,8 +115,8 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
         );
       })}
       
-      {/* Site Map Link for easy access */}
-      {!isCollapsed && (
+      {/* Site Map is now only shown when sidebar is expanded and only once */}
+      {!isCollapsed && !uniqueNavItems.some(item => item.path === "/site-map") && (
         <NavLink
           to="/site-map"
           isMobile={false}

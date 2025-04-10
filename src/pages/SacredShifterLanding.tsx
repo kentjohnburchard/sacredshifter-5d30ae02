@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import SacredFlowerOfLife from '@/components/sacred-geometry/shapes/SacredFlowerOfLife';
 import MetatronsCube from '@/components/sacred-geometry/shapes/MetatronsCube';
 import Merkaba from '@/components/sacred-geometry/shapes/Merkaba';
@@ -26,6 +25,7 @@ const geometryComponents = {
 
 const SacredShifterLanding = () => {
   const [selectedShape, setSelectedShape] = useState("Flower of Life");
+  const navigate = useNavigate();
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -33,6 +33,13 @@ const SacredShifterLanding = () => {
       element.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  const navigationLinks = [
+    { label: 'Sound Journeys', path: '/journey-templates' },
+    { label: 'Experiences', path: '/sacred-blueprint' },
+    { label: 'Frequencies', path: '/frequency-library' },
+    { label: 'My Journey', path: '/profile' }
+  ];
 
   return (
     <div className="relative min-h-screen w-full bg-gradient-to-b from-black via-[#0a0118] to-black text-white font-sans overflow-hidden">
@@ -43,7 +50,7 @@ const SacredShifterLanding = () => {
       <Sidebar />
 
       <div className="ml-20">
-        <div className="fixed inset-0 z-1 pointer-events-none opacity-30 flex items-center justify-center">
+        <div className="fixed inset-0 z-1 pointer-events-none opacity-50 flex items-center justify-center">
           <div className="w-[80vw] h-[80vh] max-w-4xl">
             {geometryComponents[selectedShape]}
           </div>
@@ -102,15 +109,15 @@ const SacredShifterLanding = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 0.7 }}
           >
-            {['Home', 'Sound Journeys', 'Experiences', 'Frequencies', 'My Journey'].map((item) => (
+            {navigationLinks.map((item) => (
               <Link
-                key={item}
-                to={`${item === 'Home' ? '/' : `/${item.toLowerCase().replace(/ /g, '-')}`}`}
+                key={item.label}
+                to={item.path}
                 className="px-5 py-2 rounded-full font-medium border transition-all duration-300
                   bg-black/20 backdrop-blur-sm hover:bg-purple-900/20 border-purple-900/30 text-gray-300
                   hover:text-white"
               >
-                {item}
+                {item.label}
               </Link>
             ))}
           </motion.div>
