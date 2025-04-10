@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import SacredFlowerOfLife from '@/components/sacred-geometry/shapes/SacredFlowerOfLife';
 import MetatronsCube from '@/components/sacred-geometry/shapes/MetatronsCube';
 import Merkaba from '@/components/sacred-geometry/shapes/Merkaba';
@@ -8,6 +9,12 @@ import TreeOfLife from '@/components/sacred-geometry/shapes/TreeOfLife';
 import SriYantra from '@/components/sacred-geometry/shapes/SriYantra';
 import VesicaPiscis from '@/components/sacred-geometry/shapes/VesicaPiscis';
 import StarfieldBackground from '@/components/sacred-geometry/StarfieldBackground';
+import Layout from '@/components/Layout';
+import Sidebar from '@/components/Sidebar';
+import Footer from '@/components/navigation/Footer';
+import FixedFooter from '@/components/navigation/FixedFooter';
+import { useNavigate } from 'react-router-dom';
+import { Heart, Music, Sparkles, BookOpen, Brain } from 'lucide-react';
 
 const geometryComponents = {
   'Flower of Life': <SacredFlowerOfLife />,
@@ -21,6 +28,7 @@ const geometryComponents = {
 
 const SacredShifterLanding = () => {
   const [selectedShape, setSelectedShape] = useState("Flower of Life");
+  const navigate = useNavigate();
 
   return (
     <div className="relative min-h-screen bg-black text-white font-sans overflow-x-hidden">
@@ -70,20 +78,23 @@ const SacredShifterLanding = () => {
       {/* Experience Grid */}
       <section id="experiences" className="mt-16 px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl mx-auto z-10 relative">
         {[
-          { title: 'Sound Healing', description: 'Frequency-based sound healing journeys' },
-          { title: 'Meditation', description: 'Guided meditations with sacred frequencies' },
-          { title: 'Heart Center', description: 'Open and balance your heart chakra' },
-          { title: 'Manifestation', description: 'Focus your energy to manifest intentions' },
-          { title: 'Astrology', description: 'Discover your cosmic blueprint' },
-          { title: 'Hermetic Wisdom', description: 'Ancient wisdom for modern consciousness' },
-        ].map(({ title, description }) => (
+          { title: 'Sound Healing', description: 'Frequency-based sound healing journeys', path: '/journey-templates', icon: <Music className="h-5 w-5 mb-2" /> },
+          { title: 'Meditation', description: 'Guided meditations with sacred frequencies', path: '/meditation', icon: <BookOpen className="h-5 w-5 mb-2" /> },
+          { title: 'Heart Center', description: 'Open and balance your heart chakra', path: '/heart-center', icon: <Heart className="h-5 w-5 mb-2" /> },
+          { title: 'Manifestation', description: 'Focus your energy to manifest intentions', path: '/focus', icon: <Brain className="h-5 w-5 mb-2" /> },
+          { title: 'Astrology', description: 'Discover your cosmic blueprint', path: '/astrology', icon: <Sparkles className="h-5 w-5 mb-2" /> },
+          { title: 'Hermetic Wisdom', description: 'Ancient wisdom for modern consciousness', path: '/hermetic-wisdom', icon: <BookOpen className="h-5 w-5 mb-2" /> },
+        ].map(({ title, description, path, icon }) => (
           <div
             key={title}
             className="bg-gradient-to-br from-black via-gray-900 to-gray-800 rounded-2xl p-6 text-white border border-purple-600 shadow-md hover:shadow-2xl transition"
           >
-            <h3 className="text-xl font-semibold mb-2">{title}</h3>
+            <div className="flex flex-col items-center md:items-start">
+              {icon}
+              <h3 className="text-xl font-semibold mb-2">{title}</h3>
+            </div>
             <p className="text-sm text-gray-300">{description}</p>
-            <a href={`#${title.toLowerCase().replace(/ /g, '-')}`} className="mt-4 block text-indigo-300 hover:text-indigo-400 transition">Explore →</a>
+            <Link to={path} className="mt-4 block text-indigo-300 hover:text-indigo-400 transition">Explore →</Link>
           </div>
         ))}
       </section>
@@ -98,6 +109,16 @@ const SacredShifterLanding = () => {
           Sound Journeys • Experiences • Frequencies • My Journey
         </div>
       </footer>
+
+      {/* Add the main site navigation components */}
+      <div className="fixed bottom-0 left-0 right-0 z-50">
+        <FixedFooter />
+      </div>
+      
+      {/* Add the Sidebar to ensure navigation works */}
+      <div className="fixed left-0 top-0 h-screen z-40 pointer-events-auto">
+        <Sidebar />
+      </div>
     </div>
   );
 };
