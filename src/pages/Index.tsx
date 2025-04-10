@@ -4,10 +4,9 @@ import { Navigate } from "react-router-dom";
 
 const Index: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [route, setRoute] = useState<string>('/welcome');
+  const [route, setRoute] = useState<string>('/dashboard'); // Default to dashboard
   
   useEffect(() => {
-    // For debugging
     console.log('Index component loaded, checking application state...');
     
     try {
@@ -15,13 +14,8 @@ const Index: React.FC = () => {
       const hasSeenIntro = localStorage.getItem('hasSeenIntro') === 'true';
       console.log('Index component loaded, hasSeenIntro:', hasSeenIntro);
       
-      // Determine the route based on intro status
-      // Direct to dashboard instead of home for clarity in routing
-      if (hasSeenIntro) {
-        setRoute('/dashboard');
-      } else {
-        setRoute('/welcome');
-      }
+      // Always go to dashboard if they've seen intro, otherwise welcome
+      setRoute(hasSeenIntro ? '/dashboard' : '/welcome');
     } catch (error) {
       console.error('Error checking intro status:', error);
       // Default to welcome if there's an error

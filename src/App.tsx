@@ -1,10 +1,9 @@
 
 import React, { useEffect } from 'react';
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import './App.css';
 import './styles/sacred-geometry.css';
 import Onboarding from './components/Onboarding';
-import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import Auth from './pages/Auth';
 import FrequencyLibraryPage from './pages/FrequencyLibraryPage';
@@ -76,10 +75,24 @@ function App() {
       });
     };
     
-    // Clean up the fetch override when component unmounts
+    // Add global error handling for better debugging
+    const errorHandler = (event) => {
+      console.error('Global error caught:', event.error || event);
+    };
+    
+    const rejectionHandler = (event) => {
+      console.error('Unhandled promise rejection:', event.reason);
+    };
+    
+    window.addEventListener('error', errorHandler);
+    window.addEventListener('unhandledrejection', rejectionHandler);
+    
+    // Clean up the fetch override and event listeners when component unmounts
     return () => {
       window.fetch = originalFetch;
-      console.log('Restored original fetch function');
+      window.removeEventListener('error', errorHandler);
+      window.removeEventListener('unhandledrejection', rejectionHandler);
+      console.log('Restored original fetch function and removed error handlers');
     };
   }, []);
 
@@ -91,16 +104,22 @@ function App() {
           {/* Global starfield background that appears on all pages */}
           <StarfieldBackground />
           <Routes>
+            {/* Entry and Auth Routes (no layout wrapper) */}
             <Route path="/" element={<Index />} />
             <Route path="/welcome" element={<Welcome />} />
-            <Route path="/home" element={<Dashboard />} />
-            <Route path="/cosmic" element={<CosmicDashboard />} />
             <Route path="/auth" element={<Auth />} />
+            
+            {/* Redirect /home to dashboard for clarity */}
+            <Route path="/home" element={<Navigate to="/dashboard" replace />} />
+            
+            {/* Journey templates aliases */}
+            <Route path="/journeys" element={<Navigate to="/journey-templates" replace />} />
+            
+            {/* Main Feature Routes (all with consistent layout) */}
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/cosmic" element={<CosmicDashboard />} />
             <Route path="/about-founder" element={<AboutFounder />} />
             <Route path="/contact" element={<Contact />} />
-            
-            {/* Main Feature Routes */}
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/sacred-blueprint" element={<SacredBlueprint />} />
             <Route path="/frequency-library" element={<FrequencyLibraryPage />} />
             <Route path="/heart-center" element={<HeartCenter />} />
@@ -134,7 +153,6 @@ function App() {
             <Route path="/journey-templates" element={<JourneyTemplates />} />
             <Route path="/journey/:frequencyId" element={<JourneyPlayer />} />
             <Route path="/astrology" element={<Astrology />} />
-            <Route path="/journeys" element={<JourneyTemplates />} />
           </Routes>
           <Toaster />
         </JourneySettingsProvider>
