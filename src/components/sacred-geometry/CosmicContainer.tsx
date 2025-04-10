@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 interface CosmicContainerProps {
   children: ReactNode;
   className?: string;
-  glowColor?: string; // Added the missing prop
+  glowColor?: string; 
 }
 
 export const CosmicContainer: React.FC<CosmicContainerProps> = ({ 
@@ -16,11 +16,11 @@ export const CosmicContainer: React.FC<CosmicContainerProps> = ({
   // Determine glow color class based on the prop
   const getGlowClass = () => {
     switch (glowColor) {
-      case "pink": return "from-pink-500/30 to-pink-700/10";
-      case "blue": return "from-blue-500/30 to-blue-700/10";
-      case "gold": return "from-amber-500/30 to-amber-700/10";
+      case "pink": return "from-pink-500/40 to-pink-700/20";
+      case "blue": return "from-blue-500/40 to-blue-700/20";
+      case "gold": return "from-amber-500/40 to-amber-700/20";
       case "purple": 
-      default: return "from-purple-500/30 to-purple-700/10";
+      default: return "from-purple-500/40 to-purple-700/20";
     }
   };
 
@@ -33,10 +33,10 @@ export const CosmicContainer: React.FC<CosmicContainerProps> = ({
       transition={{ duration: 0.5 }}
     >
       {/* Glow effect based on glowColor */}
-      <div className={`absolute inset-0 rounded-lg bg-gradient-to-b ${getGlowClass()} opacity-30 z-0`}></div>
+      <div className={`absolute inset-0 rounded-lg bg-gradient-to-b ${getGlowClass()} opacity-40 z-0`}></div>
       
-      {/* Increased opacity from 0.7 to 0.8 for better visibility */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-80 z-0">
+      {/* Increased opacity for better visibility */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-90 z-0">
         {children}
       </div>
     </motion.div>

@@ -30,9 +30,9 @@ const DeityOracle = () => {
             </p>
           </div>
           
-          <div className="h-96">
+          <CosmicContainer>
             <SacredFlowerOfLife />
-          </div>
+          </CosmicContainer>
         </div>
       </div>
     </Layout>
