@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { memo, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 interface AnimatedBackgroundProps {
@@ -56,79 +56,112 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
   const colors = getColors();
   const opacity = getOpacity();
   
-  // Create array of objects for the wave elements - increased number for more visual interest
-  const waves = Array.from({ length: 8 }).map((_, i) => ({
+  // Performance optimization: limit the number of wave elements and particles
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Only render animations after component is mounted to prevent initial lag
+  useEffect(() => {
+    // Small delay to ensure the page has time to render static content first
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+  
+  // Reduce waves to 5 for better performance
+  const waves = Array.from({ length: 5 }).map((_, i) => ({
     id: `wave-${i}`,
     delay: i * 0.5,
     duration: 15 + i * 3,
-    opacity: opacity.base + (i * 0.04), // Increased multiplier for better visibility
+    opacity: opacity.base - (i * 0.01), // Decrease opacity for distant waves
     size: 800 + (i * 50), // Varied sizes
   }));
 
+  // Reduce particles to 20 for better performance
+  const particles = Array.from({ length: 20 }).map((_, i) => {
+    const size = Math.random() * 6 + 2;
+    const x = Math.random() * 100;
+    const y = Math.random() * 100;
+    const duration = Math.random() * 20 + 15;
+    
+    return {
+      id: `particle-${i}`,
+      size,
+      x,
+      y,
+      duration,
+      delay: Math.random() * 5
+    };
+  });
+
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden bg-gradient-to-br from-black via-[#0a0118] to-black">
-      {waves.map((wave) => (
-        <motion.div
-          key={wave.id}
-          className="absolute inset-0 flex items-center justify-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: wave.opacity }}
-          transition={{ duration: 2 }}
-        >
-          <motion.div
-            className={`w-[${wave.size}px] h-[${wave.size}px] rounded-full bg-gradient-to-br from-${colors.primary}-500/70 to-${colors.secondary}-500/70 filter blur-3xl`}
-            animate={{
-              scale: [1, 1.1, 1],
-              opacity: [wave.opacity, wave.opacity + 0.20, wave.opacity], // Increased opacity change
-            }}
-            transition={{
-              duration: wave.duration,
-              repeat: Infinity,
-              repeatType: "reverse",
-              ease: "easeInOut",
-              delay: wave.delay,
-            }}
-          />
-        </motion.div>
-      ))}
+      {isVisible && (
+        <>
+          {/* Reduce the number of animated elements to improve performance */}
+          {waves.map((wave) => (
+            <motion.div
+              key={wave.id}
+              className="absolute inset-0 flex items-center justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: wave.opacity }}
+              transition={{ duration: 2 }}
+            >
+              <motion.div
+                className={`rounded-full bg-gradient-to-br from-${colors.primary}-500/70 to-${colors.secondary}-500/70 filter blur-3xl`}
+                style={{
+                  width: wave.size,
+                  height: wave.size
+                }}
+                animate={{
+                  scale: [1, 1.1, 1],
+                  opacity: [wave.opacity, wave.opacity + 0.10, wave.opacity], // Reduced opacity change
+                }}
+                transition={{
+                  duration: wave.duration,
+                  repeat: Infinity,
+                  repeatType: "reverse",
+                  ease: "easeInOut",
+                  delay: wave.delay,
+                }}
+              />
+            </motion.div>
+          ))}
 
-      {/* Increased number and visibility of floating particles */}
-      {Array.from({ length: 50 }).map((_, i) => {
-        const size = Math.random() * 10 + 2; // Larger particles
-        const x = Math.random() * 100;
-        const y = Math.random() * 100;
-        const duration = Math.random() * 20 + 15;
-        
-        return (
-          <motion.div
-            key={`particle-${i}`}
-            className={`absolute rounded-full bg-white/80`} // Increased opacity
-            style={{
-              width: size,
-              height: size,
-              left: `${x}%`,
-              top: `${y}%`,
-              boxShadow: '0 0 10px rgba(255, 255, 255, 0.8)' // Enhanced glow
-            }}
-            animate={{
-              y: [0, -30, 0],
-              x: [0, Math.random() * 20 - 10, 0],
-              opacity: [0.7, 1, 0.7], // Increased opacity values
-            }}
-            transition={{
-              duration,
-              repeat: Infinity,
-              repeatType: "reverse",
-              ease: "easeInOut",
-              delay: Math.random() * 5,
-            }}
-          />
-        );
-      })}
+          {/* Reduced number of particles */}
+          {particles.map((particle) => (
+            <motion.div
+              key={particle.id}
+              className="absolute rounded-full bg-white/80" 
+              style={{
+                width: particle.size,
+                height: particle.size,
+                left: `${particle.x}%`,
+                top: `${particle.y}%`,
+                boxShadow: '0 0 10px rgba(255, 255, 255, 0.8)'
+              }}
+              animate={{
+                y: [0, -20, 0],
+                x: [0, Math.random() * 10 - 5, 0],
+                opacity: [0.7, 1, 0.7],
+              }}
+              transition={{
+                duration: particle.duration,
+                repeat: Infinity,
+                repeatType: "reverse",
+                ease: "easeInOut",
+                delay: particle.delay,
+              }}
+            />
+          ))}
+        </>
+      )}
       
       {children}
     </div>
   );
 };
 
-export default AnimatedBackground;
+// Memoize the component to prevent unnecessary re-renders
+export default memo(AnimatedBackground);

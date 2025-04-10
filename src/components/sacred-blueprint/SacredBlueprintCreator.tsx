@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { SacredBlueprint } from '@/types/blueprint';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from "@/components/ui/button";
@@ -16,8 +16,9 @@ export const SacredBlueprintCreator: React.FC = () => {
   const [blueprint, setBlueprint] = useState<SacredBlueprint | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Check if the user already has a blueprint
+  // Performance optimized - use lazy loading and memoization
   useEffect(() => {
+    // When component mounts, check for existing blueprint
     const checkExistingBlueprint = async () => {
       if (!user) {
         setLoading(false);
@@ -89,16 +90,16 @@ export const SacredBlueprintCreator: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-400" />
+      <div className="flex justify-center items-center h-48">
+        <Loader2 className="h-7 w-7 animate-spin text-indigo-400" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto text-white">
+    <div className="w-full mx-auto text-white">
       {stage === 'intro' && (
-        <Card className="p-8 text-center bg-gradient-to-br from-indigo-900/40 to-purple-900/40 backdrop-blur-md border border-purple-500/20">
+        <Card className="p-6 text-center bg-gradient-to-br from-indigo-900/40 to-purple-900/40 backdrop-blur-md border border-purple-500/20">
           <h2 className="text-2xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-200 to-purple-200">
             Discover Your Sacred Blueprint
           </h2>
@@ -124,8 +125,8 @@ export const SacredBlueprintCreator: React.FC = () => {
       )}
 
       {stage === 'generating' && (
-        <div className="text-center py-12">
-          <Loader2 className="h-12 w-12 mx-auto mb-4 animate-spin text-indigo-400" />
+        <div className="text-center py-10">
+          <Loader2 className="h-10 w-10 mx-auto mb-4 animate-spin text-indigo-400" />
           <h3 className="text-xl font-medium mb-2 text-white">Generating Your Sacred Blueprint</h3>
           <p className="text-gray-300">We are connecting with your unique frequency...</p>
         </div>
@@ -135,7 +136,7 @@ export const SacredBlueprintCreator: React.FC = () => {
         <div className="space-y-6">
           <BlueprintDisplay blueprint={blueprint} />
           
-          <div className="flex justify-center">
+          <div className="flex justify-center mt-4">
             <Button 
               onClick={createNewBlueprint} 
               variant="outline"
@@ -150,4 +151,5 @@ export const SacredBlueprintCreator: React.FC = () => {
   );
 };
 
-export default SacredBlueprintCreator;
+// Memoize the component to prevent unnecessary re-renders
+export default memo(SacredBlueprintCreator);
