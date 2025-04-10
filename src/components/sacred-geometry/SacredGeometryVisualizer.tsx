@@ -15,6 +15,14 @@ interface SacredGeometryVisualizerProps {
   showControls?: boolean;
   isAudioReactive?: boolean;
   className?: string;
+  // Add audio analysis props
+  audioContext?: AudioContext;
+  analyser?: AnalyserNode;
+  isVisible?: boolean;
+  chakra?: string;
+  frequency?: number;
+  mode?: 'fractal' | 'spiral' | 'mandala';
+  sensitivity?: number;
 }
 
 const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
@@ -23,8 +31,18 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
   showControls = true,
   isAudioReactive = false,
   className = '',
+  audioContext,
+  analyser,
+  isVisible = true,
+  chakra,
+  frequency,
+  mode,
+  sensitivity = 1,
 }) => {
   const [currentShape, setCurrentShape] = useState<GeometryShape>(defaultShape);
+
+  // Only show visualizer if explicitly visible
+  const shouldShow = isVisible !== false;
 
   const shapeOptions: { value: GeometryShape; label: string }[] = [
     { value: 'flower-of-life', label: 'Flower of Life' },
@@ -36,6 +54,10 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
     { value: 'sri-yantra', label: 'Sri Yantra' },
     { value: 'vesica-piscis', label: 'Vesica Piscis' },
   ];
+
+  if (!shouldShow) {
+    return null;
+  }
 
   return (
     <div className={`sacred-geometry-container ${className}`}>
@@ -54,6 +76,12 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
             shape={currentShape} 
             size={size} 
             isAudioReactive={isAudioReactive}
+            audioContext={audioContext}
+            analyser={analyser}
+            chakra={chakra}
+            frequency={frequency}
+            mode={mode}
+            sensitivity={sensitivity}
           />
         </CosmicContainer>
         

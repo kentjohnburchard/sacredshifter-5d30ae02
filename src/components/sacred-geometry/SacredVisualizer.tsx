@@ -2,18 +2,30 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { createFlowerOfLife, createSeedOfLife, createMetatronsCube, createSriYantra, 
-         createTreeOfLife, createVesicaPiscis } from './sacredGeometryUtils';
+         createTreeOfLife, createVesicaPiscis, createMerkaba } from './sacredGeometryUtils';
 
 interface SacredVisualizerProps {
   shape: 'flower-of-life' | 'seed-of-life' | 'metatrons-cube' | 'merkaba' | 'torus' | 'tree-of-life' | 'sri-yantra' | 'vesica-piscis' | 'sphere';
   size?: 'sm' | 'md' | 'lg' | 'xl';
   isAudioReactive?: boolean;
+  audioContext?: AudioContext;
+  analyser?: AnalyserNode;
+  chakra?: string;
+  frequency?: number;
+  mode?: 'fractal' | 'spiral' | 'mandala';
+  sensitivity?: number;
 }
 
 const SacredVisualizer: React.FC<SacredVisualizerProps> = ({ 
   shape, 
   size = 'md',
-  isAudioReactive = false 
+  isAudioReactive = false,
+  audioContext,
+  analyser,
+  chakra,
+  frequency,
+  mode,
+  sensitivity = 1
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene>();
@@ -23,6 +35,31 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
 
   // State for audio reactivity (to be implemented)
   const [audioData, setAudioData] = useState<number[]>([]);
+
+  // Handle audio reactivity
+  useEffect(() => {
+    if (!isAudioReactive || !audioContext || !analyser) return;
+    
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+    
+    const updateAudioData = () => {
+      analyser.getByteFrequencyData(dataArray);
+      
+      // Convert to normalized array (0-1 values)
+      const normalizedData = Array.from(dataArray).map(value => value / 255);
+      setAudioData(normalizedData);
+      
+      frameIdRef.current = requestAnimationFrame(updateAudioData);
+    };
+    
+    updateAudioData();
+    
+    return () => {
+      if (frameIdRef.current) {
+        cancelAnimationFrame(frameIdRef.current);
+      }
+    };
+  }, [isAudioReactive, audioContext, analyser]);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -69,10 +106,11 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
         // Apply audio reactivity if enabled
         if (isAudioReactive && audioData.length > 0) {
           const averageAmplitude = audioData.reduce((sum, val) => sum + val, 0) / audioData.length;
+          const scaleFactor = 1 + (averageAmplitude * 0.2 * (sensitivity || 1));
           shapeRef.current.scale.set(
-            1 + averageAmplitude * 0.2,
-            1 + averageAmplitude * 0.2,
-            1 + averageAmplitude * 0.2
+            scaleFactor,
+            scaleFactor,
+            scaleFactor
           );
         }
       }
@@ -161,7 +199,7 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
         object = createMetatronsCube();
         break;
       case 'merkaba':
-        geometry = new THREE.OctahedronGeometry(1, 1);
+        object = createMerkaba();
         break;
       case 'torus':
         geometry = new THREE.TorusGeometry(1, 0.4, 16, 100);
