@@ -30,7 +30,7 @@ const MetatronsCube: React.FC = () => {
     const group = new THREE.Group();
     const material = new THREE.LineBasicMaterial({ color: 0x9f7aea });
     
-    // Create 13 spheres at Fibonacci points
+    // Create 13 spheres at Fibonacci points with slightly larger sphere size for visibility
     const spherePositions = [
       [0, 0, 0], // Center
       [1, 0, 0], [-1, 0, 0], 
@@ -41,8 +41,8 @@ const MetatronsCube: React.FC = () => {
       [0.5, -0.289, 0.816], [-0.5, -0.289, 0.816]
     ];
     
-    // Add vertices (small spheres)
-    const pointsGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+    // Add vertices (small spheres) - increased size to 0.07
+    const pointsGeometry = new THREE.SphereGeometry(0.07, 12, 12);
     const pointsMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
     
     const vertices: THREE.Vector3[] = [];
@@ -54,19 +54,25 @@ const MetatronsCube: React.FC = () => {
       vertices.push(new THREE.Vector3(pos[0], pos[1], pos[2]));
     });
     
-    // Connect all vertices with lines
+    // Connect all vertices with lines - make lines slightly thicker
+    const thickerLineMaterial = new THREE.LineBasicMaterial({ 
+      color: 0x9f7aea,
+      linewidth: 2 // Note: WebGL has limitations on line thickness
+    });
+    
     for (let i = 0; i < vertices.length; i++) {
       for (let j = i + 1; j < vertices.length; j++) {
         const lineGeometry = new THREE.BufferGeometry().setFromPoints([
           vertices[i],
           vertices[j]
         ]);
-        const line = new THREE.Line(lineGeometry, material);
+        const line = new THREE.Line(lineGeometry, thickerLineMaterial);
         group.add(line);
       }
     }
     
-    group.scale.set(0.5, 0.5, 0.5);
+    // Enlarge the cube slightly (from 0.5 to 0.65)
+    group.scale.set(0.65, 0.65, 0.65);
     scene.add(group);
 
     // Add ambient light
@@ -111,7 +117,7 @@ const MetatronsCube: React.FC = () => {
     };
   }, []);
 
-  return <div ref={containerRef} className="w-full h-96"></div>;
+  return <div ref={containerRef} className="w-full h-full"></div>;
 };
 
 export default MetatronsCube;

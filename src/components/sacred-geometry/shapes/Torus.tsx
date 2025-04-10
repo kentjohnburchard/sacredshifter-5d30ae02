@@ -112,7 +112,7 @@ const Torus: React.FC = () => {
     };
   }, []);
 
-  return <div ref={containerRef} className="w-full h-96"></div>;
+  return <div ref={containerRef} className="w-full h-full"></div>;
 };
 
 export default Torus;

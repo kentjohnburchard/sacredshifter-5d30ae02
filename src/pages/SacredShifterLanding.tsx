@@ -35,18 +35,22 @@ const SacredShifterLanding = () => {
     <div className="relative min-h-screen bg-gradient-to-b from-black via-[#0a0118] to-black text-white font-sans overflow-x-hidden">
       <StarfieldBackground />
 
-      {/* Top Navigation */}
-      <nav className="fixed left-4 top-1/2 transform -translate-y-1/2 z-50 space-y-4 bg-black/30 backdrop-blur-sm p-3 rounded-xl border border-purple-900/30">
-        {['Home', 'Sound Journeys', 'Experiences', 'Frequencies', 'My Journey'].map((label) => (
-          <a 
-            key={label} 
-            href={`#${label.toLowerCase().replace(/ /g, '-')}`} 
-            className="block text-sm text-white hover:text-purple-300 transition-all duration-300 flex items-center gap-2"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-purple-500 opacity-70"></span>
-            {label}
-          </a>
-        ))}
+      {/* Floating Navigation with Shape Options - Now at top right */}
+      <nav className="fixed right-4 top-6 z-50 bg-black/30 backdrop-blur-sm p-3 rounded-xl border border-purple-900/30">
+        <div className="flex flex-col space-y-4">
+          {Object.keys(geometryComponents).map((shape) => (
+            <button
+              key={shape}
+              onClick={() => setSelectedShape(shape)}
+              className={`text-sm whitespace-nowrap text-white hover:text-purple-300 transition-all duration-300 flex items-center gap-2 ${
+                selectedShape === shape ? 'text-purple-300 font-medium' : ''
+              }`}
+            >
+              <span className={`h-1.5 w-1.5 rounded-full ${selectedShape === shape ? 'bg-purple-500' : 'bg-purple-900'} opacity-70`}></span>
+              {shape}
+            </button>
+          ))}
+        </div>
       </nav>
 
       <header className="text-center pt-32 relative z-10">
@@ -58,7 +62,7 @@ const SacredShifterLanding = () => {
           <img 
             src="/lovable-uploads/b9b4b625-472c-484e-a49a-41aaf4f604a5.png" 
             alt="Sacred Shifter Logo" 
-            className="mx-auto w-48 opacity-90 drop-shadow-[0_0_15px_rgba(138,43,226,0.4)]" 
+            className="mx-auto w-48 opacity-70 drop-shadow-[0_0_15px_rgba(138,43,226,0.4)]" 
           />
         </motion.div>
         <h1 className="sr-only">Sacred Shifter</h1>
@@ -72,29 +76,28 @@ const SacredShifterLanding = () => {
         </motion.p>
       </header>
 
-      {/* Shape Selector */}
+      {/* Main Navigation Links (formerly in floating nav) */}
       <motion.div 
         className="flex justify-center gap-2 mt-12 flex-wrap z-10 relative px-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8, duration: 0.7 }}
       >
-        {Object.keys(geometryComponents).map((shape) => (
-          <button
-            key={shape}
-            onClick={() => setSelectedShape(shape)}
-            className={`px-5 py-2 rounded-full font-medium border transition-all duration-300 ${
-              selectedShape === shape
-                ? 'bg-gradient-to-r from-purple-700 to-indigo-600 border-purple-400 text-white shadow-lg shadow-purple-900/30'
-                : 'bg-black/50 backdrop-blur-sm hover:bg-purple-900/20 border-purple-900/50 text-gray-300'
-            }`}
+        {['Home', 'Sound Journeys', 'Experiences', 'Frequencies', 'My Journey'].map((label) => (
+          <Link
+            key={label}
+            to={`${label === 'Home' ? '/' : `/${label.toLowerCase().replace(/ /g, '-')}`}`}
+            className={`px-5 py-2 rounded-full font-medium border transition-all duration-300
+              bg-black/50 backdrop-blur-sm hover:bg-purple-900/20 border-purple-900/50 text-gray-300
+              hover:text-white
+            `}
           >
-            {shape}
-          </button>
+            {label}
+          </Link>
         ))}
       </motion.div>
 
-      {/* Geometry Visualizer */}
+      {/* Geometry Visualizer - Increased size */}
       <motion.div 
         className="mt-8 px-4 z-10 relative"
         initial={{ opacity: 0, scale: 0.95 }}
@@ -102,7 +105,9 @@ const SacredShifterLanding = () => {
         transition={{ delay: 1, duration: 0.8 }}
       >
         <div className="rounded-2xl overflow-hidden border border-purple-600/50 shadow-2xl shadow-purple-900/20 backdrop-blur-sm bg-black/30">
-          {geometryComponents[selectedShape]}
+          <div className="h-[500px]">
+            {geometryComponents[selectedShape]}
+          </div>
         </div>
       </motion.div>
 
