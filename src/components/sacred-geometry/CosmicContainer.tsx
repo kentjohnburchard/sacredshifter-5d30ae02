@@ -16,11 +16,11 @@ export const CosmicContainer: React.FC<CosmicContainerProps> = ({
   // Determine glow color class based on the prop
   const getGlowClass = () => {
     switch (glowColor) {
-      case "pink": return "from-pink-500/80 to-pink-700/60";
-      case "blue": return "from-blue-500/80 to-blue-700/60";
-      case "gold": return "from-amber-500/80 to-amber-700/60";
+      case "pink": return "from-pink-500/50 to-pink-700/30";
+      case "blue": return "from-blue-500/50 to-blue-700/30";
+      case "gold": return "from-amber-500/50 to-amber-700/30";
       case "purple": 
-      default: return "from-purple-500/80 to-purple-700/60";
+      default: return "from-purple-500/50 to-purple-700/30";
     }
   };
 
@@ -32,14 +32,14 @@ export const CosmicContainer: React.FC<CosmicContainerProps> = ({
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Enhanced glow effect based on glowColor */}
-      <div className={`absolute inset-0 rounded-lg bg-gradient-to-b ${getGlowClass()} opacity-90 z-0`}></div>
+      {/* Glow effect based on glowColor */}
+      <div className={`absolute inset-0 rounded-lg bg-gradient-to-b ${getGlowClass()} opacity-60 z-0`}></div>
       
-      {/* Stronger box shadow for extra glow */}
-      <div className="absolute inset-0 rounded-lg shadow-[0_0_45px_rgba(139,92,246,0.6)] z-0"></div>
+      {/* Box shadow for extra glow */}
+      <div className="absolute inset-0 rounded-lg shadow-[0_0_25px_rgba(139,92,246,0.3)] z-0"></div>
       
-      {/* Content container */}
-      <div className="relative w-full h-full flex items-center justify-center z-10">
+      {/* Content container with increased opacity */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-100 z-0">
         {children}
       </div>
     </motion.div>
