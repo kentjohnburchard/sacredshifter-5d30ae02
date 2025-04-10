@@ -6,6 +6,8 @@ import SidebarNavItems from "@/components/navigation/SidebarNavItems";
 import SidebarUserDropdown from "@/components/navigation/SidebarUserDropdown";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTheme } from "@/context/ThemeContext";
+import { cn } from "@/lib/utils";
 
 interface SidebarProps {
   className?: string;
@@ -15,6 +17,7 @@ const AUTO_COLLAPSE_DELAY = 4000; // 4 seconds before auto-collapse
 
 const Sidebar: React.FC<SidebarProps> = ({ className }) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const { liftTheVeil } = useTheme();
   
   // Set up auto-collapse timer
   useEffect(() => {
@@ -35,9 +38,14 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
 
   return (
     <aside 
-      className={`fixed left-0 top-0 z-40 flex h-full flex-col border-r bg-gradient-to-b from-purple-50 via-white to-purple-50 shadow-sm transition-all duration-300 ${
-        isCollapsed ? "w-20" : "w-64"
-      } ${className}`}
+      className={cn(
+        "fixed left-0 top-0 z-40 flex h-full flex-col border-r shadow-sm transition-all duration-300",
+        isCollapsed ? "w-20" : "w-64",
+        liftTheVeil 
+          ? "bg-gradient-to-b from-pink-50 via-white to-pink-50 border-pink-100" 
+          : "bg-gradient-to-b from-purple-50 via-white to-purple-50 border-purple-100",
+        className
+      )}
       onMouseEnter={() => setIsCollapsed(false)}
       onMouseLeave={() => setIsCollapsed(true)}
     >
@@ -46,12 +54,15 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         variant="ghost" 
         size="sm" 
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-6 h-6 w-6 rounded-full border bg-white p-0 shadow-md"
+        className={cn(
+          "absolute -right-3 top-6 h-6 w-6 rounded-full border bg-white p-0 shadow-md",
+          liftTheVeil ? "border-pink-200" : "border-purple-200"
+        )}
       >
         {isCollapsed ? (
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className={cn("h-4 w-4", liftTheVeil ? "text-pink-500" : "text-purple-500")} />
         ) : (
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className={cn("h-4 w-4", liftTheVeil ? "text-pink-500" : "text-purple-500")} />
         )}
       </Button>
 
@@ -69,7 +80,10 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
       </ScrollArea>
 
       {/* User section at the bottom */}
-      <div className="border-t px-3 py-4">
+      <div className={cn(
+        "border-t px-3 py-4", 
+        liftTheVeil ? "border-pink-100" : "border-purple-100"
+      )}>
         <SidebarUserDropdown isCollapsed={isCollapsed} />
       </div>
     </aside>

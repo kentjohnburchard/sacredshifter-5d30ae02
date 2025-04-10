@@ -25,12 +25,13 @@ import {
   BarChart3,
   Star,
   LayoutTemplate,
+  LayoutDashboard,
 } from 'lucide-react';
 
 // Map of route paths to their corresponding icons
 const iconMap: Record<string, React.FC<any>> = {
   '/': Home,
-  '/dashboard': Home,
+  '/dashboard': LayoutDashboard, // Changed from Home to LayoutDashboard
   '/sacred-blueprint': LayoutTemplate,
   '/frequency-library': Music,
   '/heart-center': Heart,
