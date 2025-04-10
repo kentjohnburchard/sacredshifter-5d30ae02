@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SacredFlowerOfLife from '@/components/sacred-geometry/shapes/SacredFlowerOfLife';
@@ -54,14 +53,14 @@ const SacredShifterLanding = () => {
         </div>
 
         {/* Shape selector placed as a floating menu */}
-        <div className="fixed right-4 top-4 z-10">
+        <div className="fixed right-4 top-4 z-20">
           <nav className="bg-black/20 backdrop-blur-sm p-3 rounded-xl border border-purple-900/20">
             <div className="flex flex-col space-y-2">
               {Object.keys(geometryComponents).map((shape) => (
                 <button
                   key={shape}
                   onClick={() => setSelectedShape(shape)}
-                  className={`text-sm whitespace-nowrap text-white hover:text-purple-300 transition-all duration-300 flex items-center gap-2 pointer-events-auto
+                  className={`text-sm whitespace-nowrap text-white hover:text-purple-300 transition-all duration-300 flex items-center gap-2
                     ${selectedShape === shape ? 'text-purple-300' : ''}
                   `}
                 >
