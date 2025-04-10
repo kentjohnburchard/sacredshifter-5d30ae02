@@ -13,6 +13,8 @@ import { Music, Heart, Sparkles, BookOpen, Brain, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import FixedFooter from '@/components/navigation/FixedFooter';
 import Sidebar from '@/components/Sidebar';
+import ConsciousnessToggle from '@/components/ConsciousnessToggle';
+import Watermark from '@/components/Watermark';
 
 const geometryComponents = {
   'Flower of Life': <SacredFlowerOfLife />,
@@ -41,6 +43,7 @@ const SacredShifterLanding = () => {
       </div>
 
       <Sidebar />
+      <Watermark />
 
       <div className="ml-20">
         <div className="fixed inset-0 z-1 pointer-events-none opacity-30 flex items-center justify-center">
@@ -256,6 +259,9 @@ const SacredShifterLanding = () => {
       <div className="fixed bottom-0 left-0 right-0 z-10">
         <FixedFooter />
       </div>
+      
+      {/* Add the ConsciousnessToggle back */}
+      <ConsciousnessToggle />
     </div>
   );
 };
