@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 
@@ -39,13 +38,13 @@ const Merkaba: React.FC = () => {
       emissiveIntensity: 0.3,
       wireframe: true,
       transparent: true,
-      opacity: 0.3 // More transparent
+      opacity: 0.2 // Slightly more transparent
     });
 
     const lineMaterial = new THREE.LineBasicMaterial({
       color: 0xb794f6,
       transparent: true,
-      opacity: 0.3, // More transparent lines
+      opacity: 0.2, // Slightly more transparent lines
     });
 
     // Create group to hold both tetrahedrons
@@ -73,7 +72,7 @@ const Merkaba: React.FC = () => {
     const sphereMaterial = new THREE.MeshBasicMaterial({
       color: 0x9f7aea,
       transparent: true,
-      opacity: 0.1,
+      opacity: 0.05, // Even more transparent energy sphere
       wireframe: true,
     });
     const energySphere = new THREE.Mesh(sphereGeometry, sphereMaterial);

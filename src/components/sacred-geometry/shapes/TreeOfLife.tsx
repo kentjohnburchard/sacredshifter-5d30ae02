@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 
@@ -35,7 +34,7 @@ const TreeOfLife: React.FC = () => {
     const material = new THREE.LineBasicMaterial({ 
       color: 0x9f7aea,
       transparent: true,
-      opacity: 0.3 // More transparent lines
+      opacity: 0.2 // Slightly more transparent
     });
     
     // Define the 10 Sephiroth positions
@@ -59,7 +58,7 @@ const TreeOfLife: React.FC = () => {
       emissive: 0x9f7aea,
       emissiveIntensity: 0.5,
       transparent: true,
-      opacity: 0.6
+      opacity: 0.4 // Slightly more transparent
     });
     
     const vertices: THREE.Vector3[] = [];

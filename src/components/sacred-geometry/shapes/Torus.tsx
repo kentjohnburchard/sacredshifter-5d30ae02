@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 
@@ -42,7 +41,7 @@ const Torus: React.FC = () => {
       metalness: 0.8,
       wireframe: false,
       transparent: true,
-      opacity: 0.4, // Increased transparency
+      opacity: 0.2, // Slightly more transparent
     });
     
     const torus = new THREE.Mesh(geometry, material);
@@ -52,7 +51,7 @@ const Torus: React.FC = () => {
     const wireframeMaterial = new THREE.LineBasicMaterial({
       color: 0xb794f6,
       transparent: true,
-      opacity: 0.2, // More transparent wireframe
+      opacity: 0.1, // Even more transparent wireframe
     });
     const wireframeGeo = new THREE.EdgesGeometry(geometry);
     const wireframe = new THREE.LineSegments(wireframeGeo, wireframeMaterial);
@@ -65,7 +64,7 @@ const Torus: React.FC = () => {
       emissive: new THREE.Color('#9f7aea'),
       emissiveIntensity: 0.5,
       transparent: true,
-      opacity: 0.3, // More transparent inner torus
+      opacity: 0.2, // Slightly more transparent inner torus
     });
     
     const innerTorus = new THREE.Mesh(innerGeometry, innerMaterial);

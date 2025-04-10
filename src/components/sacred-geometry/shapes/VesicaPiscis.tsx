@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 
@@ -35,7 +34,7 @@ const VesicaPiscis: React.FC = () => {
     const material = new THREE.LineBasicMaterial({ 
       color: 0x9f7aea,
       transparent: true,
-      opacity: 0.3 // More transparent lines
+      opacity: 0.2 // Slightly more transparent
     });
     
     const radius = 0.6;
@@ -82,7 +81,7 @@ const VesicaPiscis: React.FC = () => {
     const vesicaLine = new THREE.Line(vesicaGeometry, new THREE.LineBasicMaterial({ 
       color: 0xffffff,
       transparent: true,
-      opacity: 0.3
+      opacity: 0.2
     }));
     
     group.add(vesicaLine);
