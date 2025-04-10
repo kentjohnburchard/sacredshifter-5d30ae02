@@ -95,10 +95,10 @@ function App() {
             <Route path="/welcome" element={<Welcome />} />
             <Route path="/auth" element={<Auth />} />
             
-            {/* Redirect /home to dashboard */}
+            {/* Redirect any /home requests to dashboard */}
             <Route path="/home" element={<Navigate to="/dashboard" replace />} />
             
-            {/* Journey aliases */}
+            {/* Journey aliases with consistent redirects */}
             <Route path="/journeys" element={<Navigate to="/journey-templates" replace />} />
             
             {/* Main Feature Routes (all with consistent layout) */}
@@ -139,6 +139,9 @@ function App() {
             <Route path="/journey-templates" element={<MainLayout><JourneyTemplates /></MainLayout>} />
             <Route path="/journey/:frequencyId" element={<MainLayout><JourneyPlayer /></MainLayout>} />
             <Route path="/astrology" element={<MainLayout><Astrology /></MainLayout>} />
+            
+            {/* Catch-all route for 404 - redirect to dashboard */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
           <Toaster />
         </JourneySettingsProvider>
