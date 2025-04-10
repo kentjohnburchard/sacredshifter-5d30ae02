@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -120,7 +121,7 @@ const CosmicDashboard = () => {
               type: "spring",
               stiffness: 100
             }}
-            className="w-48 h-48 flex-shrink-0 relative"
+            className="w-64 h-64 flex-shrink-0 relative"
           >
             <div className="cursor-pointer w-full h-full" onClick={() => setIsPlaying(!isPlaying)}>
               <SacredGeometryVisualizer 
@@ -131,12 +132,12 @@ const CosmicDashboard = () => {
               />
             </div>
             
-            <div className="mt-3 flex justify-center gap-2 relative z-20">
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 mt-3 flex justify-center gap-2 z-30">
               <Button 
                 size="sm" 
                 variant="outline"
                 onClick={() => setSelectedGeometry("flowerOfLife")}
-                className={selectedGeometry === "flowerOfLife" ? "bg-purple-500/20" : ""}
+                className={`${selectedGeometry === "flowerOfLife" ? "bg-purple-500/20" : "bg-black/50"} backdrop-blur-sm`}
               >
                 Flower
               </Button>
@@ -144,7 +145,7 @@ const CosmicDashboard = () => {
                 size="sm" 
                 variant="outline"
                 onClick={() => setSelectedGeometry("metatronsCube")}
-                className={selectedGeometry === "metatronsCube" ? "bg-purple-500/20" : ""}
+                className={`${selectedGeometry === "metatronsCube" ? "bg-purple-500/20" : "bg-black/50"} backdrop-blur-sm`}
               >
                 Cube
               </Button>
@@ -152,7 +153,7 @@ const CosmicDashboard = () => {
                 size="sm" 
                 variant="outline"
                 onClick={() => setSelectedGeometry("merkaba")}
-                className={selectedGeometry === "merkaba" ? "bg-purple-500/20" : ""}
+                className={`${selectedGeometry === "merkaba" ? "bg-purple-500/20" : "bg-black/50"} backdrop-blur-sm`}
               >
                 Merkaba
               </Button>

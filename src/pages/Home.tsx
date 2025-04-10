@@ -1,4 +1,3 @@
-
 import React from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -28,11 +27,21 @@ const Home: React.FC = () => {
             <HealingFeatures />
           </motion.div>
           
-          {/* Sacred Blueprint Hero Section - NEW */}
+          {/* About Sacred Shifter - Now prominently displayed under features */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.05 }}
+            className="mb-12"
+          >
+            <AboutSacredShifter />
+          </motion.div>
+          
+          {/* Sacred Blueprint Hero Section */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
             className="mb-12"
           >
             <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 shadow-lg">
@@ -91,18 +100,8 @@ const Home: React.FC = () => {
               </div>
             </div>
           </motion.div>
-          
-          {/* Quote Component */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="mb-12"
-          >
-            <AboutSacredShifter />
-          </motion.div>
 
-          {/* Feature Sections Grid - Reorganized into a grid for better scan ability */}
+          {/* Feature Sections Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
             {/* Heart Center Feature */}
             <motion.div
