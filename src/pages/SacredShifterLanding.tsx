@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SacredFlowerOfLife from '@/components/sacred-geometry/shapes/SacredFlowerOfLife';
@@ -9,12 +8,6 @@ import TreeOfLife from '@/components/sacred-geometry/shapes/TreeOfLife';
 import SriYantra from '@/components/sacred-geometry/shapes/SriYantra';
 import VesicaPiscis from '@/components/sacred-geometry/shapes/VesicaPiscis';
 import StarfieldBackground from '@/components/sacred-geometry/StarfieldBackground';
-import Layout from '@/components/Layout';
-import Sidebar from '@/components/Sidebar';
-import Footer from '@/components/navigation/Footer';
-import FixedFooter from '@/components/navigation/FixedFooter';
-import { useNavigate } from 'react-router-dom';
-import { Heart, Music, Sparkles, BookOpen, Brain, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const geometryComponents = {
@@ -29,16 +22,12 @@ const geometryComponents = {
 
 const SacredShifterLanding = () => {
   const [selectedShape, setSelectedShape] = useState("Flower of Life");
-  const navigate = useNavigate();
 
   return (
     <div className="relative min-h-screen w-full bg-gradient-to-b from-black via-[#0a0118] to-black text-white font-sans overflow-hidden">
-      {/* Full screen starfield that shows through all elements */}
       <StarfieldBackground />
 
-      {/* Top right floating area with Nav and Geometry Viewer */}
       <div className="fixed right-4 top-4 z-50 flex items-start gap-4">
-        {/* Geometry Visualizer - Floating next to nav */}
         <motion.div 
           className="w-64 h-64 flex items-center justify-center" 
           initial={{ opacity: 0, scale: 0.95 }}
@@ -52,7 +41,6 @@ const SacredShifterLanding = () => {
           </div>
         </motion.div>
         
-        {/* Floating Navigation with shape selector */}
         <nav className="bg-black/10 backdrop-blur-sm p-3 rounded-xl border border-purple-900/20">
           <div className="flex flex-col space-y-2">
             {Object.keys(geometryComponents).map((shape) => (
@@ -78,7 +66,6 @@ const SacredShifterLanding = () => {
           transition={{ duration: 1.2 }}
           className="mb-6"
         >
-          {/* More transparent logo that blends better with the theme */}
           <img 
             src="/lovable-uploads/d1dc7000-c2c4-4d7f-8e17-6702ea255abe.png" 
             alt="Sacred Shifter Logo" 
@@ -96,7 +83,6 @@ const SacredShifterLanding = () => {
         </motion.p>
       </header>
 
-      {/* Main Navigation Links - Now in center */}
       <motion.div 
         className="flex justify-center gap-4 mt-12 flex-wrap z-10 relative px-4"
         initial={{ opacity: 0, y: 20 }}
@@ -116,7 +102,6 @@ const SacredShifterLanding = () => {
         ))}
       </motion.div>
 
-      {/* Experience Grid - More transparent */}
       <motion.section 
         id="experiences" 
         className="mt-20 px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl mx-auto z-10 relative"
@@ -187,7 +172,6 @@ const SacredShifterLanding = () => {
         ))}
       </motion.section>
 
-      {/* Footer Player - More transparent */}
       <motion.footer 
         className="mt-24 pb-24 text-center z-10 relative"
         initial={{ opacity: 0 }}
@@ -206,7 +190,6 @@ const SacredShifterLanding = () => {
         </div>
       </motion.footer>
 
-      {/* Add the main site navigation components */}
       <div className="fixed bottom-0 left-0 right-0 z-50">
         <FixedFooter />
       </div>
