@@ -17,22 +17,6 @@ const LandingPrompt: React.FC = () => {
   useEffect(() => {
     console.log('LandingPrompt loaded, currentLine:', currentLine, 'of', lines.length);
     
-    const handleErrors = () => {
-      window.addEventListener('error', (event) => {
-        console.error('Global error caught:', event.error);
-        // Continue app flow despite errors
-        event.preventDefault();
-      });
-      
-      window.addEventListener('unhandledrejection', (event) => {
-        console.error('Unhandled promise rejection:', event.reason);
-        // Continue app flow despite promise rejections
-        event.preventDefault();
-      });
-    };
-    
-    handleErrors();
-    
     if (currentLine < lines.length - 1) {
       const timer = setTimeout(() => {
         setCurrentLine(currentLine + 1);
@@ -44,12 +28,12 @@ const LandingPrompt: React.FC = () => {
         try {
           // Set localStorage to remember user has seen intro
           localStorage.setItem('hasSeenIntro', 'true');
-          console.log('Setting hasSeenIntro to true and redirecting to home');
-          navigate("/home", { replace: true });
+          console.log('Setting hasSeenIntro to true and redirecting to dashboard');
+          navigate("/dashboard", { replace: true }); // Changed from /home to /dashboard
         } catch (error) {
           console.error('Navigation error:', error);
           // Fallback if navigation fails
-          window.location.href = '/home';
+          window.location.href = '/dashboard'; // Changed from /home to /dashboard
         }
       }, 4000); // Wait 4 seconds after showing the last line
       return () => clearTimeout(redirectTimer);

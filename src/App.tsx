@@ -45,6 +45,7 @@ import MusicGenerator from './pages/MusicGenerator';
 import Index from './pages/Index';
 import Welcome from './pages/Welcome';
 import StarfieldBackground from './components/sacred-geometry/StarfieldBackground';
+import MainLayout from './components/MainLayout';
 
 function App() {
   // Apply global fetch timeout to prevent UI freezes
@@ -109,50 +110,50 @@ function App() {
             <Route path="/welcome" element={<Welcome />} />
             <Route path="/auth" element={<Auth />} />
             
-            {/* Redirect /home to dashboard for clarity */}
+            {/* Redirect /home to dashboard */}
             <Route path="/home" element={<Navigate to="/dashboard" replace />} />
             
-            {/* Journey templates aliases */}
+            {/* Journey aliases */}
             <Route path="/journeys" element={<Navigate to="/journey-templates" replace />} />
             
             {/* Main Feature Routes (all with consistent layout) */}
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/cosmic" element={<CosmicDashboard />} />
-            <Route path="/about-founder" element={<AboutFounder />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/sacred-blueprint" element={<SacredBlueprint />} />
-            <Route path="/frequency-library" element={<FrequencyLibraryPage />} />
-            <Route path="/heart-center" element={<HeartCenter />} />
-            <Route path="/emotion-engine" element={<EmotionEngine />} />
-            <Route path="/timeline" element={<Dashboard />} />
-            <Route path="/shift-perception" element={<ShiftPerception />} />
-            <Route path="/trinity-gateway" element={<TrinityGateway />} />
+            <Route path="/dashboard" element={<MainLayout><Dashboard /></MainLayout>} />
+            <Route path="/cosmic" element={<MainLayout><CosmicDashboard /></MainLayout>} />
+            <Route path="/about-founder" element={<MainLayout><AboutFounder /></MainLayout>} />
+            <Route path="/contact" element={<MainLayout><Contact /></MainLayout>} />
+            <Route path="/sacred-blueprint" element={<MainLayout><SacredBlueprint /></MainLayout>} />
+            <Route path="/frequency-library" element={<MainLayout><FrequencyLibraryPage /></MainLayout>} />
+            <Route path="/heart-center" element={<MainLayout><HeartCenter /></MainLayout>} />
+            <Route path="/emotion-engine" element={<MainLayout><EmotionEngine /></MainLayout>} />
+            <Route path="/timeline" element={<MainLayout><Dashboard /></MainLayout>} />
+            <Route path="/shift-perception" element={<MainLayout><ShiftPerception /></MainLayout>} />
+            <Route path="/trinity-gateway" element={<MainLayout><TrinityGateway /></MainLayout>} />
             
             {/* Additional Feature Routes */}
-            <Route path="/music-generator" element={<MusicGenerator />} />
-            <Route path="/mirror-portal" element={<MirrorPortal />} />
-            <Route path="/frequency-shift" element={<FrequencyShift />} />
-            <Route path="/soul-scribe" element={<SoulScribe />} />
-            <Route path="/deity-oracle" element={<DeityOracle />} />
-            <Route path="/astral-attunement" element={<AstralAttunement />} />
-            <Route path="/subscription" element={<Subscription />} />
-            <Route path="/referral" element={<ReferralProgram />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/site-map" element={<SiteMap />} />
+            <Route path="/music-generator" element={<MainLayout><MusicGenerator /></MainLayout>} />
+            <Route path="/mirror-portal" element={<MainLayout><MirrorPortal /></MainLayout>} />
+            <Route path="/frequency-shift" element={<MainLayout><FrequencyShift /></MainLayout>} />
+            <Route path="/soul-scribe" element={<MainLayout><SoulScribe /></MainLayout>} />
+            <Route path="/deity-oracle" element={<MainLayout><DeityOracle /></MainLayout>} />
+            <Route path="/astral-attunement" element={<MainLayout><AstralAttunement /></MainLayout>} />
+            <Route path="/subscription" element={<MainLayout><Subscription /></MainLayout>} />
+            <Route path="/referral" element={<MainLayout><ReferralProgram /></MainLayout>} />
+            <Route path="/profile" element={<MainLayout><Profile /></MainLayout>} />
+            <Route path="/site-map" element={<MainLayout><SiteMap /></MainLayout>} />
             
             {/* Frequency Detail Route */}
-            <Route path="/frequency/:id" element={<FrequencyDetailPage />} />
+            <Route path="/frequency/:id" element={<MainLayout><FrequencyDetailPage /></MainLayout>} />
             
             {/* Additional Features */}
-            <Route path="/harmonic-map" element={<HarmonicMap />} />
-            <Route path="/heart-dashboard" element={<HeartDashboard />} />
-            <Route path="/alignment" element={<Alignment />} />
-            <Route path="/energy-check" element={<EnergyCheck />} />
-            <Route path="/focus" element={<Focus />} />
-            <Route path="/hermetic-wisdom" element={<HermeticWisdom />} />
-            <Route path="/journey-templates" element={<JourneyTemplates />} />
-            <Route path="/journey/:frequencyId" element={<JourneyPlayer />} />
-            <Route path="/astrology" element={<Astrology />} />
+            <Route path="/harmonic-map" element={<MainLayout><HarmonicMap /></MainLayout>} />
+            <Route path="/heart-dashboard" element={<MainLayout><HeartDashboard /></MainLayout>} />
+            <Route path="/alignment" element={<MainLayout><Alignment /></MainLayout>} />
+            <Route path="/energy-check" element={<MainLayout><EnergyCheck /></MainLayout>} />
+            <Route path="/focus" element={<MainLayout><Focus /></MainLayout>} />
+            <Route path="/hermetic-wisdom" element={<MainLayout><HermeticWisdom /></MainLayout>} />
+            <Route path="/journey-templates" element={<MainLayout><JourneyTemplates /></MainLayout>} />
+            <Route path="/journey/:frequencyId" element={<MainLayout><JourneyPlayer /></MainLayout>} />
+            <Route path="/astrology" element={<MainLayout><Astrology /></MainLayout>} />
           </Routes>
           <Toaster />
         </JourneySettingsProvider>

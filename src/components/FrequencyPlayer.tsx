@@ -1,9 +1,11 @@
+
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import useAudioAnalyzer from "@/hooks/useAudioAnalyzer";
 import { SacredGeometryVisualizer } from "@/components/sacred-geometry";
+import { createTone } from "@/utils/audioUtils";
 
 interface FrequencyPlayerProps {
   audioUrl?: string;
@@ -22,7 +24,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   url,
   isPlaying,
   onPlayToggle,
-  frequency,
+  frequency = 528,
   frequencyId,
   id,
   groupId,
@@ -31,7 +33,10 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   const [isAudioReady, setIsAudioReady] = useState(false);
   const [audioError, setAudioError] = useState<string | null>(null);
   const [showVisualizer, setShowVisualizer] = useState(true);
+  const [usingFallbackTone, setUsingFallbackTone] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const bufferSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const effectiveAudioUrl = url || audioUrl;
   const { audioContext, analyser } = useAudioAnalyzer(audioRef);
   
@@ -50,9 +55,13 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       setAudioError("Failed to load audio");
       
       if (isPlaying) {
-        // Notify parent that playback failed
-        onPlayToggle();
-        toast.error("Could not play audio. The file may be missing or in an unsupported format.");
+        // Try to generate a fallback tone if frequency is available
+        if (frequency) {
+          playFallbackTone(frequency);
+        } else {
+          onPlayToggle();
+          toast.error("Could not play audio. The file may be missing or in an unsupported format.");
+        }
       }
     };
     
@@ -75,6 +84,9 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
         audioRef.current.removeEventListener("ended", handleEnded);
         audioRef.current.src = "";
       }
+      
+      // Also stop any fallback tone
+      stopFallbackTone();
     };
   }, []);
   
@@ -92,17 +104,27 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       setAudioError(null);
       
       // If currently playing, pause first
-      if (isPlaying && audioRef.current.paused === false) {
+      if (isPlaying) {
         audioRef.current.pause();
+        stopFallbackTone();
+        setIsPlaying(false);
       }
       
       try {
-        // Try different URL formats if the original one doesn't work
+        // Try to load from local audio path first if it's a relative path
         let formattedUrl = effectiveAudioUrl;
         
-        // First try: Original URL
+        // If the URL doesn't begin with http/https, try local path
         if (!formattedUrl.startsWith('http')) {
-          formattedUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${formattedUrl}`;
+          // Check if it's a local audio file path
+          if (formattedUrl.includes('/audio/') || formattedUrl.includes('audio/')) {
+            const path = formattedUrl.startsWith('/') ? formattedUrl : `/${formattedUrl}`;
+            formattedUrl = `${window.location.origin}${path}`;
+          } else {
+            // For other URLs that might be Supabase paths
+            console.log("Converting relative path to full URL");
+            formattedUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${formattedUrl}`;
+          }
         }
         
         // Handle spaces and parentheses
@@ -114,26 +136,21 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
         audioRef.current.src = formattedUrl;
         audioRef.current.load();
         
-        // Add a fallback in case the first load fails
-        audioRef.current.onerror = () => {
-          console.log("Initial load failed, trying alternate encoding");
-          
-          // Try different encoding approach
-          const filename = effectiveAudioUrl.split('/').pop();
-          if (filename) {
-            const altUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${encodeURIComponent(filename)}`;
-            console.log("Trying alternate URL:", altUrl);
-            audioRef.current!.src = altUrl;
-            audioRef.current!.load();
-          }
-        };
       } catch (err) {
         console.error("Error setting audio source:", err);
+        setAudioError(`Error setting audio source: ${err}`);
       }
+    } else {
+      console.error("Audio element not initialized");
     }
   }, [effectiveAudioUrl]);
   
   useEffect(() => {
+    if (usingFallbackTone) {
+      // For fallback tone, just update state
+      return;
+    }
+    
     if (!audioRef.current || !effectiveAudioUrl) return;
     
     if (isPlaying) {
@@ -144,9 +161,15 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       if (playPromise !== undefined) {
         playPromise.catch(error => {
           console.error("Error playing audio:", error);
-          // Reset play state
-          onPlayToggle();
-          toast.error("Could not play audio. Please try again.");
+          
+          // Try to use fallback tone
+          if (frequency) {
+            playFallbackTone(frequency);
+          } else {
+            // Reset play state if no fallback is possible
+            onPlayToggle();
+            toast.error("Could not play audio. Please try again.");
+          }
         });
       }
     } else {
@@ -154,31 +177,63 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
         console.log("Pausing audio");
         audioRef.current.pause();
       }
+      
+      // Also stop any fallback tone
+      stopFallbackTone();
     }
   }, [isPlaying, effectiveAudioUrl, onPlayToggle]);
   
-  const handlePlayPauseClick = () => {
-    if (audioError) {
-      // If there was an error, try reloading before playing
-      if (audioRef.current && effectiveAudioUrl) {
-        // Try different URL formats if the original one doesn't work
-        let formattedUrl = effectiveAudioUrl;
-        
-        // First try: Original URL
-        if (!formattedUrl.startsWith('http')) {
-          formattedUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${formattedUrl}`;
-        }
-        
-        // Handle spaces and parentheses
-        if (formattedUrl.includes(' ') || formattedUrl.includes('(') || formattedUrl.includes(')')) {
-          formattedUrl = encodeURI(formattedUrl);
-        }
-        
-        audioRef.current.src = formattedUrl;
-        audioRef.current.load();
+  // Play a fallback tone using Web Audio API when the audio file fails to load
+  const playFallbackTone = (frequency: number) => {
+    try {
+      stopFallbackTone(); // Stop any currently playing tone
+      
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       }
       
-      setAudioError(null);
+      if (audioContextRef.current) {
+        const buffer = createTone(audioContextRef.current, frequency, 30, 0.5);
+        bufferSourceRef.current = audioContextRef.current.createBufferSource();
+        bufferSourceRef.current.buffer = buffer;
+        bufferSourceRef.current.connect(audioContextRef.current.destination);
+        bufferSourceRef.current.start();
+        setUsingFallbackTone(true);
+        console.log(`Playing fallback tone at ${frequency}Hz`);
+        toast.info(`Using generated ${frequency}Hz tone`);
+      }
+    } catch (error) {
+      console.error("Error playing fallback tone:", error);
+      toast.error("Unable to generate audio fallback");
+      
+      // Reset play state if fallback fails
+      if (isPlaying) {
+        onPlayToggle();
+      }
+    }
+  };
+  
+  const stopFallbackTone = () => {
+    if (bufferSourceRef.current) {
+      try {
+        bufferSourceRef.current.stop();
+        bufferSourceRef.current.disconnect();
+        bufferSourceRef.current = null;
+        setUsingFallbackTone(false);
+      } catch (error) {
+        console.error("Error stopping fallback tone:", error);
+      }
+    }
+  };
+  
+  const handlePlayPauseClick = () => {
+    if (audioError && !usingFallbackTone) {
+      // If there was an error, try using fallback tone
+      if (frequency) {
+        playFallbackTone(frequency);
+        onPlayToggle();
+        return;
+      }
     }
     
     onPlayToggle();

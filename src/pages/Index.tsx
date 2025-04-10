@@ -14,7 +14,7 @@ const Index: React.FC = () => {
       const hasSeenIntro = localStorage.getItem('hasSeenIntro') === 'true';
       console.log('Index component loaded, hasSeenIntro:', hasSeenIntro);
       
-      // Always go to dashboard if they've seen intro, otherwise welcome
+      // Go to welcome for new users, dashboard for returning users
       setRoute(hasSeenIntro ? '/dashboard' : '/welcome');
     } catch (error) {
       console.error('Error checking intro status:', error);
