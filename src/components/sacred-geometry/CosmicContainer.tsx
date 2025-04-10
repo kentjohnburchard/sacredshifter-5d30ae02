@@ -16,12 +16,12 @@ const CosmicContainer: React.FC<CosmicContainerProps> = ({ children, className =
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Increased opacity from 0.3 to 0.5 for better visibility */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-50 z-0">
+      {/* Increased opacity from 0.5 to 0.7 for better visibility */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-70 z-0">
         {children}
       </div>
     </motion.div>
   );
 };
 
-export { CosmicContainer };
+export default CosmicContainer;
