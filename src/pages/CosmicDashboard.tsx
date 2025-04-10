@@ -132,7 +132,7 @@ const CosmicDashboard = () => {
               />
             </div>
             
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 mt-3 flex justify-center gap-2 z-30">
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 z-30 flex justify-center gap-2">
               <Button 
                 size="sm" 
                 variant="outline"
