@@ -38,42 +38,52 @@ const RandomizingAudioPlayer: React.FC<RandomizingAudioPlayerProps> = ({
   // Initialize audio element
   useEffect(() => {
     if (!audioRef.current) {
-      audioRef.current = new Audio();
+      if (internalAudioRef.current === null) {
+        internalAudioRef.current = new Audio();
+      }
+      // For the provided ref, we can't modify it directly
+      if (providedAudioRef && !providedAudioRef.current) {
+        console.warn("Provided audioRef is null, using internal audio element");
+      }
     }
 
-    const audio = audioRef.current;
+    const audio = audioRef.current || internalAudioRef.current;
     
-    audio.volume = volume;
-    audio.muted = isMuted;
+    if (audio) {
+      audio.volume = volume;
+      audio.muted = isMuted;
 
-    const handleEnded = () => {
-      if (tracks.length > 1) {
-        skipToNextTrack();
-      } else {
-        setIsPlaying(false);
-        if (onPlayStateChange) onPlayStateChange(false);
-      }
-    };
+      const handleEnded = () => {
+        if (tracks.length > 1) {
+          skipToNextTrack();
+        } else {
+          setIsPlaying(false);
+          if (onPlayStateChange) onPlayStateChange(false);
+        }
+      };
 
-    audio.addEventListener('ended', handleEnded);
-    
-    return () => {
-      audio.removeEventListener('ended', handleEnded);
-      audio.pause();
-    };
+      audio.addEventListener('ended', handleEnded);
+      
+      return () => {
+        audio.removeEventListener('ended', handleEnded);
+        audio.pause();
+      };
+    }
   }, [audioRef, tracks]);
   
   // Handle volume changes
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume;
+    const audio = audioRef.current || internalAudioRef.current;
+    if (audio) {
+      audio.volume = volume;
     }
   }, [volume, audioRef]);
   
   // Handle mute/unmute
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.muted = isMuted;
+    const audio = audioRef.current || internalAudioRef.current;
+    if (audio) {
+      audio.muted = isMuted;
     }
   }, [isMuted, audioRef]);
   
@@ -90,9 +100,9 @@ const RandomizingAudioPlayer: React.FC<RandomizingAudioPlayerProps> = ({
       try {
         setIsLoading(true);
         const { data, error } = await supabase
-          .from('journey_audio_mappings')
+          .from('journey_template_audio_mappings')
           .select('*')
-          .eq('journeyId', groupId);
+          .eq('journey_template_id', groupId);
           
         if (error) {
           throw error;
@@ -101,26 +111,24 @@ const RandomizingAudioPlayer: React.FC<RandomizingAudioPlayerProps> = ({
         if (data && data.length > 0) {
           const formattedTracks = data.map(track => ({
             id: track.id,
-            audioUrl: track.audioUrl
+            audioUrl: track.audio_url || ''
           }));
           
-          // Sort by isPrimary if possible
           const sortedTracks = [...formattedTracks].sort((a, b) => {
-            // @ts-ignore - isPrimary might exist on the data
-            if (data.find(t => t.id === a.id)?.isPrimary) return -1;
-            // @ts-ignore - isPrimary might exist on the data
-            if (data.find(t => t.id === b.id)?.isPrimary) return 1;
+            const trackA = data.find(t => t.id === a.id);
+            const trackB = data.find(t => t.id === b.id);
+            if (trackA && trackB && 'is_primary' in trackA && 'is_primary' in trackB) {
+              return trackA.is_primary ? -1 : trackB.is_primary ? 1 : 0;
+            }
             return 0;
           });
           
           setTracks(sortedTracks);
         } else if (audioUrl) {
-          // Fallback to direct audio URL if no tracks from group
           setTracks([{id: 'single', audioUrl}]);
         }
       } catch (error) {
         console.error("Error fetching tracks:", error);
-        // Fallback to direct audio URL if fetch fails
         if (audioUrl) {
           setTracks([{id: 'single', audioUrl}]);
         }
@@ -135,25 +143,24 @@ const RandomizingAudioPlayer: React.FC<RandomizingAudioPlayerProps> = ({
   // Set audio source when tracks/currentTrackIndex change
   useEffect(() => {
     const setAudioSource = () => {
-      if (!audioRef.current || tracks.length === 0) return;
+      const audio = audioRef.current || internalAudioRef.current;
+      if (!audio || tracks.length === 0) return;
       
       const currentTrack = tracks[currentTrackIndex];
       if (!currentTrack) return;
       
       let url = currentTrack.audioUrl;
       
-      // Format URL if needed
       if (!url.startsWith('http')) {
         url = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${url}`;
       }
       
-      // Handle spaces and parentheses
       if (url.includes(' ') || url.includes('(') || url.includes(')')) {
         url = encodeURI(url);
       }
       
-      audioRef.current.src = url;
-      audioRef.current.load();
+      audio.src = url;
+      audio.load();
     };
     
     setAudioSource();
@@ -166,16 +173,18 @@ const RandomizingAudioPlayer: React.FC<RandomizingAudioPlayerProps> = ({
       setIsPlaying(autoPlay);
       
       if (autoPlay) {
-        if (audioRef.current) {
-          audioRef.current.play().catch(err => {
+        const audio = audioRef.current || internalAudioRef.current;
+        if (audio) {
+          audio.play().catch(err => {
             console.error("Failed to autoplay:", err);
             setIsPlaying(false);
             if (onPlayStateChange) onPlayStateChange(false);
           });
         }
       } else {
-        if (audioRef.current) {
-          audioRef.current.pause();
+        const audio = audioRef.current || internalAudioRef.current;
+        if (audio) {
+          audio.pause();
         }
       }
     }
@@ -183,10 +192,11 @@ const RandomizingAudioPlayer: React.FC<RandomizingAudioPlayerProps> = ({
   
   // Handle play state changes
   useEffect(() => {
-    if (!audioRef.current || tracks.length === 0) return;
+    const audio = audioRef.current || internalAudioRef.current;
+    if (!audio || tracks.length === 0) return;
     
     if (isPlaying) {
-      const playPromise = audioRef.current.play();
+      const playPromise = audio.play();
       
       if (playPromise !== undefined) {
         playPromise.catch(error => {
@@ -197,7 +207,7 @@ const RandomizingAudioPlayer: React.FC<RandomizingAudioPlayerProps> = ({
         });
       }
     } else {
-      audioRef.current.pause();
+      audio.pause();
     }
     
     if (onPlayStateChange) {
@@ -228,14 +238,16 @@ const RandomizingAudioPlayer: React.FC<RandomizingAudioPlayerProps> = ({
       return nextIndex;
     });
     
-    // If already playing, keep playing the next track
-    if (isPlaying && audioRef.current) {
-      const playPromise = audioRef.current.play();
-      
-      if (playPromise !== undefined) {
-        playPromise.catch(error => {
-          console.error("Error playing next track:", error);
-        });
+    if (isPlaying) {
+      const audio = audioRef.current || internalAudioRef.current;
+      if (audio) {
+        const playPromise = audio.play();
+        
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.error("Error playing next track:", error);
+          });
+        }
       }
     }
   };

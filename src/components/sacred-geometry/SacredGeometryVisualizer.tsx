@@ -1,15 +1,17 @@
-
 import React, { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
 interface SacredGeometryVisualizerProps {
-  audioContext: AudioContext | null;
-  analyser: AnalyserNode | null;
+  audioContext?: AudioContext | null;
+  analyser?: AnalyserNode | null;
   chakra?: string;
   frequency?: number;
   isVisible?: boolean;
   mode?: 'fractal' | 'spiral' | 'mandala';
   sensitivity?: number;
+  geometryType?: 'flowerOfLife' | 'metatronsCube' | 'merkaba' | 'sriYantra';
+  isPlaying?: boolean;
+  size?: 'sm' | 'md' | 'lg';
 }
 
 const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
@@ -19,13 +21,21 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
   frequency = 528,
   isVisible = true,
   mode = 'fractal',
-  sensitivity = 1.0
+  sensitivity = 1.0,
+  geometryType,
+  isPlaying: isPlayingProp,
+  size = 'md'
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const animationRef = useRef<number>(0);
   
-  // Get chakra color based on chakra name
+  useEffect(() => {
+    if (isPlayingProp !== undefined) {
+      setIsPlaying(isPlayingProp);
+    }
+  }, [isPlayingProp]);
+
   const getChakraColor = (chakraName?: string): { main: string, shadow: string, glow: string } => {
     switch(chakraName?.toLowerCase()) {
       case 'root':
@@ -47,14 +57,21 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
   };
 
   useEffect(() => {
-    if (!audioContext || !analyser || !canvasRef.current || !isVisible) return;
+    if ((!audioContext || !analyser) && (!isPlayingProp && !geometryType)) {
+      return;
+    }
+    
+    if (!canvasRef.current || !isVisible) return;
     
     setIsPlaying(true);
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d')!;
-    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+    let dataArray: Uint8Array | null = null;
     
-    // Resize canvas to match its display size
+    if (analyser) {
+      dataArray = new Uint8Array(analyser.frequencyBinCount);
+    }
+    
     const resizeCanvas = () => {
       const { width, height } = canvas.getBoundingClientRect();
       if (canvas.width !== width || canvas.height !== height) {
@@ -66,36 +83,41 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
     
-    // Define the drawing function based on selected mode
     const drawFractal = () => {
-      analyser.getByteFrequencyData(dataArray);
+      if (analyser && dataArray) {
+        analyser.getByteFrequencyData(dataArray);
+      }
       
       const chakraColors = getChakraColor(chakra);
       const centerX = canvas.width / 2;
       const centerY = canvas.height / 2;
       const minDimension = Math.min(canvas.width, canvas.height);
       
-      // Clear canvas with fade effect
       ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // Calculate average frequency value for pulsation
-      let sum = 0;
-      for (let i = 0; i < dataArray.length; i++) {
-        sum += dataArray[i];
-      }
-      const average = sum / dataArray.length;
+      let average = 50;
       
-      // Draw outer circle (frequency response)
+      if (dataArray) {
+        let sum = 0;
+        for (let i = 0; i < dataArray.length; i++) {
+          sum += dataArray[i];
+        }
+        average = sum / dataArray.length;
+      } else if (geometryType) {
+        average = 50 + 30 * Math.sin(Date.now() / 1000);
+      }
+      
       ctx.beginPath();
       const points = [];
-      for (let i = 0; i < dataArray.length; i++) {
-        const value = dataArray[i] * sensitivity;
-        const percent = i / dataArray.length;
+      const numPoints = dataArray ? dataArray.length : 32;
+      
+      for (let i = 0; i < numPoints; i++) {
+        const value = dataArray ? dataArray[i] * sensitivity : 30 + 20 * Math.sin(i / 5 + Date.now() / 1000);
+        const percent = i / numPoints;
         const angle = percent * Math.PI * 2;
         
-        // Calculate radius with frequency response
-        const radiusBase = minDimension * 0.3;
+        const radiusBase = minDimension * (size === 'sm' ? 0.15 : size === 'lg' ? 0.4 : 0.3);
         const radius = radiusBase + (value * 0.5);
         
         const x = centerX + Math.cos(angle) * radius;
@@ -111,17 +133,17 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
       }
       ctx.closePath();
       
-      // Apply glow effect
       ctx.strokeStyle = chakraColors.main;
       ctx.lineWidth = 2;
       ctx.shadowBlur = 15 + (average * 0.1);
       ctx.shadowColor = chakraColors.shadow;
       ctx.stroke();
       
-      // Draw sacred geometry inner patterns based on mode
-      if (mode === 'fractal') {
+      const selectedMode = geometryType ? mapGeometryTypeToMode(geometryType) : mode;
+      
+      if (selectedMode === 'fractal') {
         drawFractalPattern(ctx, centerX, centerY, minDimension * 0.25, average, chakraColors);
-      } else if (mode === 'spiral') {
+      } else if (selectedMode === 'spiral') {
         drawSpiralPattern(ctx, centerX, centerY, minDimension * 0.25, average, chakraColors);
       } else {
         drawMandalaPattern(ctx, centerX, centerY, minDimension * 0.25, average, chakraColors);
@@ -129,19 +151,30 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
       
       animationRef.current = requestAnimationFrame(drawFractal);
     };
+
+    const mapGeometryTypeToMode = (type: string): 'fractal' | 'spiral' | 'mandala' => {
+      switch (type) {
+        case 'flowerOfLife':
+          return 'fractal';
+        case 'merkaba':
+          return 'spiral';
+        case 'metatronsCube':
+        case 'sriYantra':
+          return 'mandala';
+        default:
+          return 'fractal';
+      }
+    };
     
-    // Start the animation
     drawFractal();
     
-    // Clean up
     return () => {
       window.removeEventListener('resize', resizeCanvas);
       cancelAnimationFrame(animationRef.current);
       setIsPlaying(false);
     };
-  }, [audioContext, analyser, isVisible, chakra, mode, sensitivity]);
+  }, [audioContext, analyser, isVisible, chakra, mode, sensitivity, geometryType, isPlayingProp, size]);
   
-  // Helper function to draw fractal patterns
   const drawFractalPattern = (
     ctx: CanvasRenderingContext2D, 
     centerX: number, 
@@ -153,10 +186,8 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
     const numShapes = 6;
     const angleStep = (Math.PI * 2) / numShapes;
     
-    // Draw flower of life pattern
     ctx.lineWidth = 1.5;
     
-    // Inner circles
     for (let i = 0; i < numShapes; i++) {
       const angle = i * angleStep;
       const x = centerX + Math.cos(angle) * (size * 0.5);
@@ -172,7 +203,6 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
       ctx.stroke();
     }
     
-    // Center circle
     ctx.beginPath();
     ctx.arc(centerX, centerY, size * 0.3 + (intensity * 0.02), 0, Math.PI * 2);
     ctx.strokeStyle = colors.main;
@@ -180,7 +210,6 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
     ctx.shadowColor = colors.shadow;
     ctx.stroke();
     
-    // Connecting lines
     ctx.beginPath();
     for (let i = 0; i < numShapes; i++) {
       const angle = i * angleStep;
@@ -197,7 +226,6 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
     ctx.stroke();
   };
   
-  // Helper function to draw spiral patterns
   const drawSpiralPattern = (
     ctx: CanvasRenderingContext2D, 
     centerX: number, 
@@ -229,7 +257,6 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
     ctx.stroke();
   };
   
-  // Helper function to draw mandala patterns
   const drawMandalaPattern = (
     ctx: CanvasRenderingContext2D, 
     centerX: number, 
@@ -243,7 +270,6 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
     const outerRadius = size + (intensity * 0.3);
     const angleStep = (Math.PI * 2) / numPetals;
     
-    // Draw petals
     ctx.beginPath();
     for (let i = 0; i < numPetals; i++) {
       const angle1 = i * angleStep;
@@ -268,22 +294,29 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
     ctx.shadowColor = colors.shadow;
     ctx.stroke();
     
-    // Draw inner circle
     ctx.beginPath();
     ctx.arc(centerX, centerY, innerRadius, 0, Math.PI * 2);
     ctx.stroke();
   };
 
+  const getSizeClasses = () => {
+    switch (size) {
+      case 'sm': return 'w-16 h-16';
+      case 'lg': return 'w-full h-full';
+      default: return 'w-32 h-32';
+    }
+  };
+
   return (
     <motion.div 
-      className={`sacred-geometry-container ${isPlaying ? 'is-playing' : ''}`}
+      className={`sacred-geometry-container ${isPlaying ? 'is-playing' : ''} ${!size ? 'w-full h-full' : ''}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: isVisible ? 1 : 0 }}
       transition={{ duration: 0.5 }}
     >
       <canvas
         ref={canvasRef}
-        className="sacred-geometry-canvas absolute inset-0 w-full h-full z-0 pointer-events-none"
+        className={`sacred-geometry-canvas absolute inset-0 ${size ? getSizeClasses() : 'w-full h-full'} z-0 pointer-events-none`}
       />
       <div className="sacred-geometry-overlay absolute inset-0 z-0 pointer-events-none" />
     </motion.div>
