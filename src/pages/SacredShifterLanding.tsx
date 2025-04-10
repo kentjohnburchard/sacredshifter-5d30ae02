@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SacredFlowerOfLife from '@/components/sacred-geometry/shapes/SacredFlowerOfLife';
@@ -27,7 +26,6 @@ const geometryComponents = {
 const SacredShifterLanding = () => {
   const [selectedShape, setSelectedShape] = useState("Flower of Life");
 
-  // Function for smooth scrolling to sections
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -36,24 +34,20 @@ const SacredShifterLanding = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-gradient-to-b from-black via-[#0a0118] to-black text-white font-sans overflow-hidden">
-      {/* Starfield background with proper z-index and positioning */}
+    <div className="relative min-h-screen w-full bg-gradient-to-b from-[#0a0118]/90 via-[#120024]/80 to-black/90 text-white font-sans overflow-hidden">
       <div className="fixed inset-0 z-0 pointer-events-none">
         <StarfieldBackground />
       </div>
 
-      {/* Side Navigation - use the site-wide Sidebar component */}
       <Sidebar />
 
-      <div className="ml-20"> {/* Offset content to account for sidebar */}
-        {/* Sacred Geometry Background Watermark - fixed position with z-index to be behind content */}
+      <div className="ml-20">
         <div className="fixed inset-0 z-1 pointer-events-none opacity-30 flex items-center justify-center">
           <div className="w-[80vw] h-[80vh] max-w-4xl">
             {geometryComponents[selectedShape]}
           </div>
         </div>
 
-        {/* Shape selector placed as a floating menu */}
         <div className="fixed right-4 top-4 z-20">
           <nav className="bg-black/20 backdrop-blur-sm p-3 rounded-xl border border-purple-900/20">
             <div className="flex flex-col space-y-2">
@@ -73,9 +67,7 @@ const SacredShifterLanding = () => {
           </nav>
         </div>
 
-        {/* Main Content */}
         <div className="container mx-auto px-4 z-10 relative">
-          {/* Header section with proper logo styling */}
           <header id="home" className="text-center pt-32 pb-16 relative z-10">
             <div className="flex justify-center items-center mb-8">
               <motion.div
@@ -102,7 +94,6 @@ const SacredShifterLanding = () => {
             </motion.p>
           </header>
 
-          {/* Navigation Links */}
           <motion.div 
             id="journeys"
             className="flex justify-center gap-4 mt-12 flex-wrap z-10 relative px-4"
@@ -123,7 +114,6 @@ const SacredShifterLanding = () => {
             ))}
           </motion.div>
 
-          {/* Experience Grid - Cards section */}
           <motion.section 
             id="experiences" 
             className="mt-20 px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl mx-auto z-10 relative"
@@ -194,7 +184,6 @@ const SacredShifterLanding = () => {
             ))}
           </motion.section>
 
-          {/* Frequencies section */}
           <motion.section 
             id="frequencies" 
             className="mt-24 py-16 px-6 max-w-5xl mx-auto z-10 relative"
@@ -218,7 +207,6 @@ const SacredShifterLanding = () => {
             </div>
           </motion.section>
 
-          {/* My Journey section */}
           <motion.section 
             id="my-journey" 
             className="mt-24 py-16 px-6 max-w-5xl mx-auto z-10 relative"
@@ -238,7 +226,6 @@ const SacredShifterLanding = () => {
             </div>
           </motion.section>
 
-          {/* Footer with audio player and links */}
           <motion.footer 
             className="mt-24 pb-24 text-center z-10 relative"
             initial={{ opacity: 0 }}
@@ -262,7 +249,6 @@ const SacredShifterLanding = () => {
         </div>
       </div>
 
-      {/* Fixed footer navigation */}
       <div className="fixed bottom-0 left-0 right-0 z-10">
         <FixedFooter />
       </div>
