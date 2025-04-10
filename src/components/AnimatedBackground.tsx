@@ -1,40 +1,82 @@
-
 import React from "react";
+import { motion } from "framer-motion";
 
 interface AnimatedBackgroundProps {
-  colorScheme?: string;
+  colorScheme: string;
   isActive?: boolean;
 }
 
-/**
- * Animated background component with improved performance
- * Using optimized animation techniques to prevent browser lockups
- */
-const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
-  colorScheme = "purple",
-  isActive = true
+const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ 
+  colorScheme,
+  isActive = false
 }) => {
-  // Dynamic color based on scheme
-  const getGradientColors = () => {
-    switch (colorScheme) {
-      case "blue": return "from-blue-900/10 via-indigo-900/5 to-blue-900/10";
-      case "green": return "from-green-900/10 via-teal-900/5 to-green-900/10";
-      case "gold": return "from-amber-900/10 via-yellow-900/5 to-amber-900/10";
-      case "purple":
-      default: return "from-purple-900/10 via-indigo-900/5 to-blue-900/10";
-    }
-  };
+  // Create array of objects for the wave elements
+  const waves = Array.from({ length: 5 }).map((_, i) => ({
+    id: `wave-${i}`,
+    delay: i * 0.7,
+    duration: 15 + i * 3,
+    opacity: 0.03 + (i * 0.01),
+  }));
 
   return (
-    <div className={`fixed inset-0 pointer-events-none z-0 bg-gradient-to-br ${getGradientColors()} transition-opacity duration-700 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
-      {/* Animated orbs with requestAnimationFrame for better performance */}
-      {isActive && (
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/2 left-1/4 w-64 h-64 rounded-full bg-purple-500/5 animate-pulse-slow"></div>
-          <div className="absolute top-1/3 right-1/4 w-48 h-48 rounded-full bg-blue-500/5 animate-pulse-medium"></div>
-          <div className="absolute bottom-1/3 left-1/3 w-56 h-56 rounded-full bg-indigo-500/5 animate-pulse-fast"></div>
-        </div>
-      )}
+    <div className="fixed inset-0 pointer-events-none overflow-hidden">
+      {waves.map((wave) => (
+        <motion.div
+          key={wave.id}
+          className="absolute inset-0 flex items-center justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: wave.opacity }}
+          transition={{ duration: 2 }}
+        >
+          <motion.div
+            className="w-[800px] h-[800px] rounded-full bg-gradient-to-br from-purple-500/10 to-blue-500/10 filter blur-3xl"
+            animate={{
+              scale: [1, 1.1, 1],
+              opacity: [wave.opacity, wave.opacity + 0.02, wave.opacity],
+            }}
+            transition={{
+              duration: wave.duration,
+              repeat: Infinity,
+              repeatType: "reverse",
+              ease: "easeInOut",
+              delay: wave.delay,
+            }}
+          />
+        </motion.div>
+      ))}
+
+      {/* Floating particles */}
+      {Array.from({ length: 15 }).map((_, i) => {
+        const size = Math.random() * 6 + 2;
+        const x = Math.random() * 100;
+        const y = Math.random() * 100;
+        const duration = Math.random() * 20 + 15;
+        
+        return (
+          <motion.div
+            key={`particle-${i}`}
+            className="absolute rounded-full bg-white/20"
+            style={{
+              width: size,
+              height: size,
+              left: `${x}%`,
+              top: `${y}%`,
+            }}
+            animate={{
+              y: [0, -30, 0],
+              x: [0, Math.random() * 20 - 10, 0],
+              opacity: [0.3, 0.7, 0.3],
+            }}
+            transition={{
+              duration,
+              repeat: Infinity,
+              repeatType: "reverse",
+              ease: "easeInOut",
+              delay: Math.random() * 5,
+            }}
+          />
+        );
+      })}
     </div>
   );
 };

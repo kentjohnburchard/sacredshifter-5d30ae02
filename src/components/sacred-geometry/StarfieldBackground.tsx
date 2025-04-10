@@ -1,64 +1,92 @@
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from 'react';
 
-/**
- * Optimized starfield background with performance improvements
- * Uses static elements with minimal animations to prevent browser lockups
- */
-const StarfieldBackground = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  
+const StarfieldBackground: React.FC = () => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const context = canvas.getContext('2d');
+    if (!context) return;
     
-    // Set canvas size
+    let animationFrameId: number;
+
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
-    
-    // Create stars (static, no animation)
-    const createStars = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = 'white';
+
+    // Create more stars for a denser starfield
+    const stars = Array.from({ length: 800 }, () => ({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      radius: Math.random() * 2.5, // Slightly larger stars for more visibility
+      alpha: Math.random(),
+      delta: Math.random() * 0.005 + 0.002,
+      color: Math.random() > 0.8 ? 
+        `rgba(${155 + Math.random() * 100}, ${155 + Math.random() * 100}, 255, ` : // Bluish stars
+        Math.random() > 0.6 ? 
+          `rgba(255, ${155 + Math.random() * 100}, ${155 + Math.random() * 100}, ` : // Reddish stars
+          `rgba(255, 255, 255, ` // White stars
+    }));
+
+    const draw = () => {
+      if (!context) return;
+      context.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Create fewer stars (200 instead of 1000+) for better performance
-      for (let i = 0; i < 200; i++) {
-        const x = Math.random() * canvas.width;
-        const y = Math.random() * canvas.height;
-        const size = Math.random() * 1.5;
+      // Make background fully transparent to show through all layers
+      context.fillStyle = 'rgba(0, 0, 0, 0)';
+      context.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw each star with enhanced twinkling effect
+      stars.forEach((star) => {
+        // Update star opacity for twinkling effect
+        star.alpha += star.delta;
+        if (star.alpha > 1 || star.alpha < 0.1) star.delta *= -1;
         
-        ctx.beginPath();
-        ctx.arc(x, y, size, 0, Math.PI * 2);
-        ctx.fill();
-      }
+        // Draw the star with enhanced brightness
+        context.beginPath();
+        context.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        context.fillStyle = `${star.color}${star.alpha * 1.2})`;  // Increased brightness
+        context.fill();
+        
+        // Add larger glow for brighter stars
+        if (star.radius > 1.2) {
+          context.beginPath();
+          context.arc(star.x, star.y, star.radius * 4, 0, Math.PI * 2);
+          context.fillStyle = `${star.color}${star.alpha * 0.15})`;
+          context.fill();
+        }
+      });
+
+      animationFrameId = requestAnimationFrame(draw);
     };
-    
-    window.addEventListener('resize', () => {
-      resizeCanvas();
-      createStars();
-    });
-    
+
     resizeCanvas();
-    createStars();
-    
+    window.addEventListener('resize', resizeCanvas);
+    draw();
+
     return () => {
       window.removeEventListener('resize', resizeCanvas);
+      cancelAnimationFrame(animationFrameId);
     };
   }, []);
-  
+
   return (
-    <div className="fixed inset-0 pointer-events-none z-0">
-      {/* Static gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#050014] via-[#0a0118] to-[#050014]"></div>
-      
-      {/* Canvas for stars (static, rendered once) */}
-      <canvas ref={canvasRef} className="absolute inset-0"></canvas>
-    </div>
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: 0,
+        pointerEvents: 'none',
+      }}
+    />
   );
 };
 

@@ -132,129 +132,22 @@ export async function createFrequencyBlobUrl(
   withAmbient: boolean = true
 ): Promise<string> {
   return new Promise((resolve) => {
-    // Instead of using external URLs that may time out, generate tones locally
-    try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const audioBuffer = createTone(audioContext, frequency, duration);
-      
-      const audioBufferSource = audioContext.createBufferSource();
-      audioBufferSource.buffer = audioBuffer;
-      
-      const offlineContext = new OfflineAudioContext(2, audioBuffer.length, audioBuffer.sampleRate);
-      const offlineSource = offlineContext.createBufferSource();
-      offlineSource.buffer = audioBuffer;
-      offlineSource.connect(offlineContext.destination);
-      offlineSource.start();
-      
-      offlineContext.startRendering().then(renderedBuffer => {
-        const wavBlob = bufferToWave(renderedBuffer, renderedBuffer.length);
-        const blobUrl = URL.createObjectURL(wavBlob);
-        resolve(blobUrl);
-      }).catch(err => {
-        console.error("Error rendering audio:", err);
-        // Fallback to a simple oscillator tone
-        const oscillator = audioContext.createOscillator();
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-        resolve(`data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAAAAAABq`);
-      });
-    } catch (err) {
-      console.error("Audio generation error:", err);
-      // Return a simple placeholder if WebAudio API fails
-      resolve(`data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAAAAAABq`);
+    // This would normally generate real audio, but for now we'll use 
+    // placeholder URLs based on frequency to avoid heavy browser computation
+    
+    // For frequencies in the Solfeggio range (396-963 Hz)
+    if (frequency >= 396 && frequency <= 963) {
+      resolve(`/sounds/frequency-${Math.round(frequency)}hz.mp3`);
+    }
+    // For Earth frequency (7.83 Hz Schumann resonance)
+    else if (frequency < 20) {
+      resolve("/sounds/schumann-resonance.mp3");
+    }
+    // Default placeholder
+    else {
+      resolve("/sounds/focus-ambient.mp3");
     }
   });
-}
-
-// Helper function to convert AudioBuffer to WAV blob
-function bufferToWave(audioBuffer: AudioBuffer, len: number): Blob {
-  const numChannels = audioBuffer.numberOfChannels;
-  const sampleRate = audioBuffer.sampleRate;
-  const format = 1; // PCM
-  const bitDepth = 16;
-  
-  const result = new Uint8Array(44 + len * numChannels * 2);
-  
-  // RIFF identifier
-  setUint8String(result, 0, 'RIFF');
-  // File length
-  setUint32(result, 4, 36 + len * numChannels * 2, true);
-  // RIFF type
-  setUint8String(result, 8, 'WAVE');
-  // Format chunk identifier
-  setUint8String(result, 12, 'fmt ');
-  // Format chunk length
-  setUint32(result, 16, 16, true);
-  // Sample format (raw)
-  setUint16(result, 20, format, true);
-  // Channel count
-  setUint16(result, 22, numChannels, true);
-  // Sample rate
-  setUint32(result, 24, sampleRate, true);
-  // Byte rate (sample rate * block align)
-  setUint32(result, 28, sampleRate * numChannels * 2, true);
-  // Block align (channel count * bytes per sample)
-  setUint16(result, 32, numChannels * 2, true);
-  // Bits per sample
-  setUint16(result, 34, bitDepth, true);
-  // Data chunk identifier
-  setUint8String(result, 36, 'data');
-  // Data chunk length
-  setUint32(result, 40, len * numChannels * 2, true);
-  
-  // Write interleaved audio data
-  let offset = 44;
-  for (let i = 0; i < len; i++) {
-    for (let channel = 0; channel < numChannels; channel++) {
-      const sample = audioBuffer.getChannelData(channel)[i];
-      const value = Math.max(-1, Math.min(1, sample));
-      const val = value < 0 ? value * 0x8000 : value * 0x7FFF;
-      setInt16(result, offset, val, true);
-      offset += 2;
-    }
-  }
-  
-  return new Blob([result], { type: 'audio/wav' });
-}
-
-function setUint8String(data: Uint8Array, offset: number, str: string): void {
-  for (let i = 0; i < str.length; i++) {
-    data[offset + i] = str.charCodeAt(i);
-  }
-}
-
-function setUint16(data: Uint8Array, offset: number, value: number, littleEndian: boolean): void {
-  if (littleEndian) {
-    data[offset] = value & 0xFF;
-    data[offset + 1] = (value >> 8) & 0xFF;
-  } else {
-    data[offset] = (value >> 8) & 0xFF;
-    data[offset + 1] = value & 0xFF;
-  }
-}
-
-function setUint32(data: Uint8Array, offset: number, value: number, littleEndian: boolean): void {
-  if (littleEndian) {
-    data[offset] = value & 0xFF;
-    data[offset + 1] = (value >> 8) & 0xFF;
-    data[offset + 2] = (value >> 16) & 0xFF;
-    data[offset + 3] = (value >> 24) & 0xFF;
-  } else {
-    data[offset] = (value >> 24) & 0xFF;
-    data[offset + 1] = (value >> 16) & 0xFF;
-    data[offset + 2] = (value >> 8) & 0xFF;
-    data[offset + 3] = value & 0xFF;
-  }
-}
-
-function setInt16(data: Uint8Array, offset: number, value: number, littleEndian: boolean): void {
-  if (littleEndian) {
-    data[offset] = value & 0xFF;
-    data[offset + 1] = (value >> 8) & 0xFF;
-  } else {
-    data[offset] = (value >> 8) & 0xFF;
-    data[offset + 1] = value & 0xFF;
-  }
 }
 
 /**

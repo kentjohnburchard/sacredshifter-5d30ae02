@@ -1,58 +1,130 @@
 
-import React, { useEffect, useState, useRef } from "react";
+import React from "react";
+import { motion } from "framer-motion";
 
 interface AnimatedBackgroundProps {
-  theme?: 'cosmic' | 'ethereal' | 'temple';
+  theme: 'cosmic' | 'ethereal' | 'temple';
   intensity?: 'low' | 'medium' | 'high';
-  children?: React.ReactNode;
+  children: React.ReactNode;
 }
 
-/**
- * Optimized animated background with performance improvements
- * Uses CSS animations instead of heavy JS animations
- */
 const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ 
-  theme = 'cosmic',
+  theme,
+  intensity = 'medium',
   children
 }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  
-  useEffect(() => {
-    // Delayed activation for smoother page load
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, 300);
-    
-    return () => clearTimeout(timer);
-  }, []);
-  
   // Apply different color schemes based on theme
-  const getBackgroundClass = () => {
+  const getColors = () => {
     switch (theme) {
       case 'cosmic':
-        return 'bg-gradient-to-br from-black via-[#0a0118] to-black';
+        return {
+          primary: 'purple',
+          secondary: 'blue',
+          accent: 'indigo'
+        };
       case 'ethereal':
-        return 'bg-gradient-to-br from-black via-[#0a1818] to-black';
+        return {
+          primary: 'teal',
+          secondary: 'cyan',
+          accent: 'emerald'
+        };
       case 'temple':
-        return 'bg-gradient-to-br from-black via-[#181000] to-black';
+        return {
+          primary: 'amber',
+          secondary: 'orange',
+          accent: 'yellow'
+        };
       default:
-        return 'bg-gradient-to-br from-black via-[#0a0118] to-black';
+        return {
+          primary: 'purple',
+          secondary: 'blue',
+          accent: 'indigo'
+        };
     }
   };
   
+  // Higher opacity values for better visibility
+  const getOpacity = () => {
+    switch (intensity) {
+      case 'low': return { base: 0.35, hover: 0.40 };
+      case 'medium': return { base: 0.45, hover: 0.55 };
+      case 'high': return { base: 0.60, hover: 0.70 };
+      default: return { base: 0.45, hover: 0.55 };
+    }
+  };
+
+  const colors = getColors();
+  const opacity = getOpacity();
+  
+  // Create array of objects for the wave elements - increased number for more visual interest
+  const waves = Array.from({ length: 8 }).map((_, i) => ({
+    id: `wave-${i}`,
+    delay: i * 0.5,
+    duration: 15 + i * 3,
+    opacity: opacity.base + (i * 0.04), // Increased multiplier for better visibility
+    size: 800 + (i * 50), // Varied sizes
+  }));
+
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-      {/* Static background */}
-      <div className={`absolute inset-0 ${getBackgroundClass()} transition-opacity duration-700 ${isVisible ? 'opacity-100' : 'opacity-0'}`}></div>
-      
-      {/* Animated elements with CSS animations instead of JS */}
-      {isVisible && (
-        <>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vh] rounded-full bg-purple-900/5 filter blur-[100px] animate-pulse-slow"></div>
-          <div className="absolute top-1/3 left-1/3 w-[40vw] h-[40vh] rounded-full bg-blue-900/5 filter blur-[70px] animate-pulse-medium"></div>
-          <div className="absolute bottom-1/3 right-1/3 w-[60vw] h-[60vh] rounded-full bg-indigo-900/5 filter blur-[85px] animate-pulse-fast"></div>
-        </>
-      )}
+    <div className="fixed inset-0 pointer-events-none overflow-hidden bg-gradient-to-br from-black via-[#0a0118] to-black">
+      {waves.map((wave) => (
+        <motion.div
+          key={wave.id}
+          className="absolute inset-0 flex items-center justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: wave.opacity }}
+          transition={{ duration: 2 }}
+        >
+          <motion.div
+            className={`w-[${wave.size}px] h-[${wave.size}px] rounded-full bg-gradient-to-br from-${colors.primary}-500/70 to-${colors.secondary}-500/70 filter blur-3xl`}
+            animate={{
+              scale: [1, 1.1, 1],
+              opacity: [wave.opacity, wave.opacity + 0.20, wave.opacity], // Increased opacity change
+            }}
+            transition={{
+              duration: wave.duration,
+              repeat: Infinity,
+              repeatType: "reverse",
+              ease: "easeInOut",
+              delay: wave.delay,
+            }}
+          />
+        </motion.div>
+      ))}
+
+      {/* Increased number and visibility of floating particles */}
+      {Array.from({ length: 50 }).map((_, i) => {
+        const size = Math.random() * 10 + 2; // Larger particles
+        const x = Math.random() * 100;
+        const y = Math.random() * 100;
+        const duration = Math.random() * 20 + 15;
+        
+        return (
+          <motion.div
+            key={`particle-${i}`}
+            className={`absolute rounded-full bg-white/80`} // Increased opacity
+            style={{
+              width: size,
+              height: size,
+              left: `${x}%`,
+              top: `${y}%`,
+              boxShadow: '0 0 10px rgba(255, 255, 255, 0.8)' // Enhanced glow
+            }}
+            animate={{
+              y: [0, -30, 0],
+              x: [0, Math.random() * 20 - 10, 0],
+              opacity: [0.7, 1, 0.7], // Increased opacity values
+            }}
+            transition={{
+              duration,
+              repeat: Infinity,
+              repeatType: "reverse",
+              ease: "easeInOut",
+              delay: Math.random() * 5,
+            }}
+          />
+        );
+      })}
       
       {children}
     </div>
