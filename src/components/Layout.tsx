@@ -24,6 +24,7 @@ const Layout: React.FC<LayoutProps> = ({
   const location = useLocation();
   const isAuthPage = location.pathname === '/auth';
   const isJourneyPage = location.pathname.includes('/journey/');
+  const useCosmicTheme = !useBlueWaveBackground;
 
   // Set the page title
   document.title = `${pageTitle} | Sacred Shifter`;
@@ -38,7 +39,7 @@ const Layout: React.FC<LayoutProps> = ({
             <img 
               src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
               alt="Sacred Shifter Top Watermark" 
-              className="max-w-[70%] max-h-[20%] object-contain opacity-[0.15] mt-12" 
+              className="max-w-[70%] max-h-[20%] object-contain opacity-[0.10] mt-12" 
             />
           </div>
           
@@ -56,7 +57,6 @@ const Layout: React.FC<LayoutProps> = ({
     </div>
   );
 
-  // Use blue wave background for specific pages that need it (like JourneyTemplates)
   if (useBlueWaveBackground) {
     return (
       <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
@@ -66,7 +66,6 @@ const Layout: React.FC<LayoutProps> = ({
     );
   }
 
-  // For all other pages, use the consistent cosmic theme with AnimatedBackground
   return (
     <AnimatedBackground theme={theme} intensity="medium">
       {renderContent()}

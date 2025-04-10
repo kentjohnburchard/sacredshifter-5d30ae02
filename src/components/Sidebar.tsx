@@ -35,21 +35,18 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
 
   return (
     <aside 
-      className={`fixed left-0 top-0 z-40 flex h-full flex-col bg-gradient-to-b from-purple-900/70 via-indigo-900/60 to-purple-900/70 backdrop-blur-md border-r border-purple-500/20 shadow-lg transition-all duration-300 ${
+      className={`fixed left-0 top-0 z-40 flex h-full flex-col border-r bg-gradient-to-b from-purple-50 via-white to-purple-50 shadow-sm transition-all duration-300 ${
         isCollapsed ? "w-20" : "w-64"
       } ${className}`}
       onMouseEnter={() => setIsCollapsed(false)}
       onMouseLeave={() => setIsCollapsed(true)}
     >
-      {/* Cosmic glow effect */}
-      <div className="absolute inset-0 bg-purple-500/5 rounded-r-lg"></div>
-      
       {/* Collapse button */}
       <Button 
         variant="ghost" 
         size="sm" 
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-6 h-6 w-6 rounded-full border bg-purple-900 text-white p-0 shadow-md hover:bg-purple-800"
+        className="absolute -right-3 top-6 h-6 w-6 rounded-full border bg-white p-0 shadow-md"
       >
         {isCollapsed ? (
           <ChevronRight className="h-4 w-4" />
@@ -59,12 +56,12 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
       </Button>
 
       {/* Logo and App Title */}
-      <div className={`flex items-center justify-center py-5 ${isCollapsed ? "px-2" : "px-4"} relative z-10`}>
+      <div className={`flex items-center justify-center py-5 ${isCollapsed ? "px-2" : "px-4"}`}>
         <SidebarLogo className={isCollapsed ? "scale-75" : ""} />
       </div>
 
       {/* Scrollable Navigation Items */}
-      <ScrollArea className="flex-1 px-3 py-2 relative z-10">
+      <ScrollArea className="flex-1 px-3 py-2">
         <SidebarNavItems 
           isCollapsed={isCollapsed}
           onLinkClick={() => setIsCollapsed(true)} 
@@ -72,7 +69,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
       </ScrollArea>
 
       {/* User section at the bottom */}
-      <div className="border-t border-purple-500/20 px-3 py-4 relative z-10">
+      <div className="border-t px-3 py-4">
         <SidebarUserDropdown isCollapsed={isCollapsed} />
       </div>
     </aside>

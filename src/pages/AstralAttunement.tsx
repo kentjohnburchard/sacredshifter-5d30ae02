@@ -30,9 +30,9 @@ const AstralAttunement = () => {
             </p>
           </div>
           
-          <CosmicContainer>
+          <div className="h-96">
             <Torus />
-          </CosmicContainer>
+          </div>
         </div>
       </div>
     </Layout>

@@ -74,14 +74,9 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
   const { liftTheVeil } = useTheme();
   const activeNavItems = getActiveNavItems();
 
-  // Filter out duplicate paths to prevent showing the same link twice
-  const uniqueNavItems = activeNavItems.filter((item, index, self) => 
-    index === self.findIndex((t) => t.path === item.path)
-  );
-
   return (
     <div className="space-y-1">
-      {uniqueNavItems.map((item) => {
+      {activeNavItems.map((item) => {
         const isActive = location.pathname === item.path;
         const IconComponent = iconMap[item.path] || Home;
         
@@ -92,12 +87,12 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
             isMobile={false}
             onClick={onLinkClick}
             className={cn(
-              "flex items-center py-2 px-3 text-sm rounded-md transition-all duration-200",
+              "flex items-center py-2 px-3 text-sm rounded-md transition-colors",
               isActive
-                ? "bg-purple-600/30 text-white shadow-md"
-                : "text-white/80 hover:bg-purple-500/20 hover:text-white",
-              liftTheVeil && isActive && "bg-pink-500/30 text-white",
-              liftTheVeil && !isActive && "hover:bg-pink-500/20 hover:text-white"
+                ? "bg-purple-100 text-purple-900"
+                : "text-gray-600 hover:bg-purple-50 hover:text-purple-900",
+              liftTheVeil && isActive && "bg-pink-100 text-pink-900",
+              liftTheVeil && !isActive && "hover:bg-pink-50 hover:text-pink-900"
             )}
           >
             <IconComponent
@@ -105,26 +100,26 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
                 "h-5 w-5 mr-2",
                 isActive
                   ? liftTheVeil
-                    ? "text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.7)]"
-                    : "text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.7)]"
-                  : "text-white/70"
+                    ? "text-pink-800"
+                    : "text-purple-800"
+                  : "text-gray-500"
               )}
             />
-            {!isCollapsed && <span className="drop-shadow-sm">{item.label}</span>}
+            {!isCollapsed && <span>{item.label}</span>}
           </NavLink>
         );
       })}
       
-      {/* Site Map is now only shown when sidebar is expanded and only once */}
-      {!isCollapsed && !uniqueNavItems.some(item => item.path === "/site-map") && (
+      {/* Site Map Link for easy access */}
+      {!isCollapsed && (
         <NavLink
           to="/site-map"
           isMobile={false}
           onClick={onLinkClick}
-          className="flex items-center py-2 px-3 text-sm rounded-md transition-all duration-200 text-white/70 hover:bg-purple-500/20 hover:text-white mt-4 border-t border-purple-500/20 pt-4"
+          className="flex items-center py-2 px-3 text-sm rounded-md transition-colors text-gray-600 hover:bg-purple-50 hover:text-purple-900 mt-4 border-t border-purple-50 pt-4"
         >
-          <Map className="h-5 w-5 mr-2 text-white/70" />
-          <span className="drop-shadow-sm">Site Map</span>
+          <Map className="h-5 w-5 mr-2 text-gray-500" />
+          <span>Site Map</span>
         </NavLink>
       )}
     </div>
