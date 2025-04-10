@@ -304,8 +304,8 @@ const SacredShifterLanding = () => {
               liftTheVeil ? "text-pink-100/90" : "text-purple-100/90"
             )}>
               {liftTheVeil 
-                ? ""The universe is not outside of you. Look inside yourself; everything that you seek is already there.""
-                : ""The universe is not outside of you. Look inside yourself; everything that you want, you already are.""
+                ? "\"The universe is not outside of you. Look inside yourself; everything that you seek is already there.\""
+                : "\"The universe is not outside of you. Look inside yourself; everything that you want, you already are.\""
               }
               <footer className={cn(
                 "mt-2 text-sm",
