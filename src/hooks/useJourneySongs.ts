@@ -1,45 +1,41 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { JourneySong, JourneySongGroup, convertToJourneySong } from '@/types/journeySongs';
 import { SongMapping } from '@/types/music';
 
-// Map of journey IDs to their audio filenames
+// Map of journey IDs to their audio filenames - Fixed mapping based on the correct journey templates
 const journeySongsMap: Record<string, string[]> = {
   'silent-tune': [
-    "Whispers on the Breeze.mp3",
-    "Whispers on the Breeze (1).mp3"
+    "Silent Tune - Realigning Inner Ear.mp3",
+    "Gentle Waves for Tinnitus Relief.mp3",
+    "Delta Waves Healing Tone.mp3"
   ],
   'chakra-harmony': [
-    "Whispering Waters.mp3",
-    "Whispering Waters (1).mp3",
-    "Rise in Gold.mp3",
-    "Rise in Gold (1).mp3"
+    "Chakra Harmony - Root to Crown.mp3",
+    "Seven Centers Alignment.mp3",
+    "Complete Energy System Balance.mp3"
   ],
   'deep-sleep': [
-    "Celestial Calling.mp3",
-    "Celestial Calling (1).mp3",
-    "Through the Veil.mp3",
-    "Through the Veil (1).mp3"
+    "Theta Wave Immersion.mp3",
+    "Deep Sleep Journey.mp3",
+    "Delta Dreamtime.mp3",
+    "Restorative Night Sounds.mp3"
   ],
   'focus-flow': [
-    "Ignite the Flame.mp3",
-    "Ignite the Flame (1).mp3",
-    "Calm Horizons.mp3",
-    "Calm Horizons (1).mp3"
+    "Alpha Wave Activation.mp3",
+    "Focus Flow Enhancer.mp3",
+    "Mental Clarity Session.mp3"
   ],
   'anxiety-release': [
-    "Heart Strings.mp3",
-    "Heart Strings (1).mp3",
-    "Mending the Echoes.mp3",
-    "Mending the Echoes (1).mp3"
+    "Anxiety Release - Theta-Alpha Blend.mp3",
+    "Calm Waters Meditation.mp3",
+    "Heart Center Healing.mp3"
   ],
   'creativity-boost': [
-    "Inner Glow.mp3",
-    "Inner Glow (1).mp3",
-    "Echoes of Eternity.mp3",
-    "Echoes of Eternity (1).mp3"
+    "Creativity Boost - Gamma Theta Combination.mp3",
+    "Artistic Flow Enhancer.mp3",
+    "Inspiration Frequency.mp3"
   ]
 };
 
@@ -62,12 +58,52 @@ const createMockSongMappings = (filenames: string[], journeyId: string): SongMap
     title: cleanText(filename.replace('.mp3', '')),
     artist: 'Sacred Soundscapes',
     functionality: 'journey',
-    description: cleanText(`Song for ${journeyId} journey`),
+    description: cleanText(`Frequency healing for ${journeyId.replace('-', ' ')} journey`),
     duration: 240 + Math.floor(Math.random() * 240), // Random duration between 4-8 minutes
     audioUrl: getDirectAudioUrl(filename),
-    frequency: index % 2 === 0 ? 432 : 528, // Alternate between common healing frequencies
-    chakra: ['Root', 'Sacral', 'Solar Plexus', 'Heart', 'Throat', 'Third Eye', 'Crown'][index % 7]
+    frequency: getFrequencyForJourney(journeyId, index),
+    chakra: getChakraForJourney(journeyId, index)
   }));
+};
+
+// Helper function to assign appropriate frequencies to each journey type
+const getFrequencyForJourney = (journeyId: string, index: number): number => {
+  switch (journeyId) {
+    case 'silent-tune':
+      return [528, 741, 963][index % 3]; // Frequencies mentioned in the journey template
+    case 'chakra-harmony':
+      return [396, 417, 528, 639, 741, 852, 963][index % 7]; // All chakra frequencies
+    case 'deep-sleep':
+      return [396, 528][index % 2]; // Sleep frequencies
+    case 'focus-flow':
+      return [417][index % 1]; // Focus frequency
+    case 'anxiety-release':
+      return [396, 639][index % 2]; // Anxiety release frequencies
+    case 'creativity-boost':
+      return [417, 528][index % 2]; // Creativity frequencies
+    default:
+      return 432; // Default healing frequency
+  }
+};
+
+// Helper function to assign appropriate chakras to each journey type
+const getChakraForJourney = (journeyId: string, index: number): string => {
+  switch (journeyId) {
+    case 'silent-tune':
+      return ['Crown', 'Third Eye', 'Throat'][index % 3]; // From journey template
+    case 'chakra-harmony':
+      return ['Root', 'Sacral', 'Solar Plexus', 'Heart', 'Throat', 'Third Eye', 'Crown'][index % 7];
+    case 'deep-sleep':
+      return ['Root', 'Third Eye'][index % 2]; // From journey template
+    case 'focus-flow':
+      return ['Solar Plexus', 'Third Eye'][index % 2]; // From journey template
+    case 'anxiety-release':
+      return ['Heart', 'Solar Plexus', 'Root'][index % 3]; // From journey template
+    case 'creativity-boost':
+      return ['Sacral', 'Third Eye', 'Crown'][index % 3]; // From journey template
+    default:
+      return 'Heart'; // Default chakra
+  }
 };
 
 // Convert the journeySongsMap to mockSongs format

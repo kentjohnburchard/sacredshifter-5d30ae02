@@ -121,9 +121,9 @@ const CosmicDashboard = () => {
               type: "spring",
               stiffness: 100
             }}
-            className="w-64 h-64 flex-shrink-0 relative"
+            className="w-full md:w-96 h-96 flex-shrink-0 relative"
           >
-            <div className="cursor-pointer w-full h-full" onClick={() => setIsPlaying(!isPlaying)}>
+            <div className="w-full h-full" onClick={() => setIsPlaying(!isPlaying)}>
               <SacredGeometryVisualizer 
                 geometryType={selectedGeometry}
                 isPlaying={isPlaying}
@@ -132,7 +132,7 @@ const CosmicDashboard = () => {
               />
             </div>
             
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 z-30 flex justify-center gap-2">
+            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex justify-center gap-2">
               <Button 
                 size="sm" 
                 variant="outline"
