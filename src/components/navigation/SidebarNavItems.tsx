@@ -92,12 +92,12 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
             isMobile={false}
             onClick={onLinkClick}
             className={cn(
-              "flex items-center py-2 px-3 text-sm rounded-md transition-colors",
+              "flex items-center py-2 px-3 text-sm rounded-md transition-all duration-200",
               isActive
-                ? "bg-purple-100 text-purple-900"
-                : "text-gray-600 hover:bg-purple-50 hover:text-purple-900",
-              liftTheVeil && isActive && "bg-pink-100 text-pink-900",
-              liftTheVeil && !isActive && "hover:bg-pink-50 hover:text-pink-900"
+                ? "bg-purple-600/30 text-white shadow-md"
+                : "text-white/80 hover:bg-purple-500/20 hover:text-white",
+              liftTheVeil && isActive && "bg-pink-500/30 text-white",
+              liftTheVeil && !isActive && "hover:bg-pink-500/20 hover:text-white"
             )}
           >
             <IconComponent
@@ -105,12 +105,12 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
                 "h-5 w-5 mr-2",
                 isActive
                   ? liftTheVeil
-                    ? "text-pink-800"
-                    : "text-purple-800"
-                  : "text-gray-500"
+                    ? "text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.7)]"
+                    : "text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.7)]"
+                  : "text-white/70"
               )}
             />
-            {!isCollapsed && <span>{item.label}</span>}
+            {!isCollapsed && <span className="drop-shadow-sm">{item.label}</span>}
           </NavLink>
         );
       })}
@@ -121,10 +121,10 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
           to="/site-map"
           isMobile={false}
           onClick={onLinkClick}
-          className="flex items-center py-2 px-3 text-sm rounded-md transition-colors text-gray-600 hover:bg-purple-50 hover:text-purple-900 mt-4 border-t border-purple-50 pt-4"
+          className="flex items-center py-2 px-3 text-sm rounded-md transition-all duration-200 text-white/70 hover:bg-purple-500/20 hover:text-white mt-4 border-t border-purple-500/20 pt-4"
         >
-          <Map className="h-5 w-5 mr-2 text-gray-500" />
-          <span>Site Map</span>
+          <Map className="h-5 w-5 mr-2 text-white/70" />
+          <span className="drop-shadow-sm">Site Map</span>
         </NavLink>
       )}
     </div>
