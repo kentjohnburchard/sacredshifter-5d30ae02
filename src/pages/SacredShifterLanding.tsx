@@ -96,23 +96,36 @@ const SacredShifterLanding = () => {
           </header>
 
           <motion.div 
-            id="journeys"
-            className="flex justify-center gap-4 mt-12 flex-wrap z-10 relative px-4"
+            className="mt-12 max-w-4xl mx-auto text-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 0.7 }}
           >
-            {['Home', 'Sound Journeys', 'Experiences', 'Frequencies', 'My Journey'].map((item) => (
-              <Link
-                key={item}
-                to={`${item === 'Home' ? '/' : `/${item.toLowerCase().replace(/ /g, '-')}`}`}
-                className="px-5 py-2 rounded-full font-medium border transition-all duration-300
-                  bg-black/20 backdrop-blur-sm hover:bg-purple-900/20 border-purple-900/30 text-gray-300
-                  hover:text-white"
-              >
-                {item}
-              </Link>
-            ))}
+            <div className="bg-black/30 backdrop-blur-sm p-8 rounded-xl border border-purple-900/30">
+              <h2 className="text-2xl font-medium mb-6 text-purple-200">About Sacred Shifter</h2>
+              <div className="text-gray-300 space-y-4">
+                <p>
+                  <strong>Sacred Shifter</strong> is more than an app—it's your portal to vibrational transformation.
+                </p>
+                <p>
+                  Crafted at the crossroads of ancient wisdom and next-gen tech, Sacred Shifter weaves healing frequencies, 
+                  fractal visuals, and personalised cosmic insights into a one-of-a-kind experience. Whether you're aligning 
+                  your chakras, syncing with the moon, or just trying to shake off yesterday's energetic gunk, this is your 
+                  sacred space to shift.
+                </p>
+                <p>
+                  Dive into your personal soundscape, guided by real-time resonance, sacred geometry, and the whispers of 
+                  your star chart. Customise your vibe, tune into your essence, and let every frequency move you closer to 
+                  who you truly are.
+                </p>
+                <div className="mt-6 font-light italic">
+                  <p>You're not just listening to music.<br />
+                  You're remembering your power.<br />
+                  You're rewriting your frequency.<br />
+                  You're becoming your own sacred shift.</p>
+                </div>
+              </div>
+            </div>
           </motion.div>
 
           <motion.section 
@@ -208,24 +221,17 @@ const SacredShifterLanding = () => {
             </div>
           </motion.section>
 
-          <motion.section 
-            id="my-journey" 
-            className="mt-24 py-16 px-6 max-w-5xl mx-auto z-10 relative"
-            initial={{ opacity: 0, y: 30 }}
+          <motion.div
+            className="mt-16 mb-10 max-w-2xl mx-auto bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-purple-500/20"
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.2, duration: 0.8 }}
+            transition={{ delay: 1.5, duration: 0.7 }}
           >
-            <h2 className="text-2xl font-semibold text-center mb-8">My Journey</h2>
-            <div className="text-center max-w-2xl mx-auto">
-              <p className="text-gray-300/90">Track your frequency shifts, consciousness expansion, and healing progress.</p>
-              <Link 
-                to="/timeline"
-                className="mt-6 inline-block px-6 py-2 rounded-full border border-purple-500/30 bg-purple-900/20 hover:bg-purple-800/30 transition-all"
-              >
-                View My Timeline
-              </Link>
-            </div>
-          </motion.section>
+            <blockquote className="italic text-center text-purple-100/90 font-light">
+              "The universe is not outside of you. Look inside yourself; everything that you want, you already are."
+              <footer className="mt-2 text-sm text-purple-300/70">— Rumi</footer>
+            </blockquote>
+          </motion.div>
 
           <motion.footer 
             className="mt-24 pb-24 text-center z-10 relative"
@@ -239,9 +245,6 @@ const SacredShifterLanding = () => {
                 <source src="/audio/528hz-heart.mp3" type="audio/mpeg" />
               </audio>
               <p className="text-sm font-medium text-purple-300">528Hz - Heart Chakra</p>
-            </div>
-            <div className="mt-6 text-sm text-gray-400/70 font-light tracking-wide">
-              Sound Journeys • Experiences • Frequencies • My Journey
             </div>
             <div className="mt-4 text-xs text-gray-500/60">
               © {new Date().getFullYear()} Sacred Shifter. All rights reserved.
