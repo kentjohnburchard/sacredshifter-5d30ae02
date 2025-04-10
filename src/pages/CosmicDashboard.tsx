@@ -1,7 +1,8 @@
+
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CosmicContainer, SacredVisualizer, CosmicFooter } from "@/components/sacred-geometry";
+import { CosmicContainer, SacredVisualizer, CosmicFooter, SacredGeometryVisualizer } from "@/components/sacred-geometry";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -13,8 +14,8 @@ import {
 
 const CosmicDashboard = () => {
   const [selectedShape, setSelectedShape] = useState<
-    "flower" | "cube" | "merkaba" | "torus" | "sphere"
-  >("cube");
+    "flower-of-life" | "cube" | "merkaba" | "torus" | "sphere"
+  >("flower-of-life");
   
   const [isPlaying, setIsPlaying] = useState(false);
   
@@ -123,36 +124,10 @@ const CosmicDashboard = () => {
             className="w-full md:w-96 h-96 flex-shrink-0 relative"
           >
             <div className="w-full h-full" onClick={() => setIsPlaying(!isPlaying)}>
-              <SacredVisualizer 
-                shape={selectedShape}
+              <SacredGeometryVisualizer 
+                defaultShape={selectedShape as any}
+                size="lg"
               />
-            </div>
-            
-            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex justify-center gap-2">
-              <Button 
-                size="sm" 
-                variant="outline"
-                onClick={() => setSelectedShape("flower")}
-                className={`${selectedShape === "flower" ? "bg-purple-500/20" : "bg-black/50"} backdrop-blur-sm`}
-              >
-                Flower
-              </Button>
-              <Button 
-                size="sm" 
-                variant="outline"
-                onClick={() => setSelectedShape("cube")}
-                className={`${selectedShape === "cube" ? "bg-purple-500/20" : "bg-black/50"} backdrop-blur-sm`}
-              >
-                Cube
-              </Button>
-              <Button 
-                size="sm" 
-                variant="outline"
-                onClick={() => setSelectedShape("merkaba")}
-                className={`${selectedShape === "merkaba" ? "bg-purple-500/20" : "bg-black/50"} backdrop-blur-sm`}
-              >
-                Merkaba
-              </Button>
             </div>
           </motion.div>
         </div>
@@ -265,13 +240,11 @@ const CosmicDashboard = () => {
                         animate="visible"
                         className="bg-black/30 rounded-lg p-4 border border-purple-500/20 flex items-center"
                       >
-                        <div className="mr-4 relative">
-                          <SacredVisualizer 
-                            frequency={freq.value}
+                        <div className="mr-4 relative w-16 h-16">
+                          <SacredGeometryVisualizer 
+                            defaultShape="flower-of-life"
                             size="sm"
-                            chakra={freq.chakra.toLowerCase()}
-                            isPlaying={false}
-                            shape="flower"
+                            showControls={false}
                           />
                         </div>
                         <div>
