@@ -16,8 +16,9 @@ const Index: React.FC = () => {
       console.log('Index component loaded, hasSeenIntro:', hasSeenIntro);
       
       // Determine the route based on intro status
+      // Direct to dashboard instead of home for clarity in routing
       if (hasSeenIntro) {
-        setRoute('/home');
+        setRoute('/dashboard');
       } else {
         setRoute('/welcome');
       }
@@ -28,18 +29,6 @@ const Index: React.FC = () => {
     } finally {
       setIsLoaded(true);
     }
-    
-    // Add global error handler for network requests
-    const handleNetworkError = () => {
-      console.warn('Network connection issue detected');
-      // We could show a toast notification here
-    };
-    
-    window.addEventListener('offline', handleNetworkError);
-    
-    return () => {
-      window.removeEventListener('offline', handleNetworkError);
-    };
   }, []);
   
   if (!isLoaded) {

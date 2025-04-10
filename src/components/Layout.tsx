@@ -56,17 +56,7 @@ const Layout: React.FC<LayoutProps> = ({
     </div>
   );
 
-  // Use blue wave background for specific pages that need it (like JourneyTemplates)
-  if (useBlueWaveBackground) {
-    return (
-      <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
-        <div className="fixed inset-0 pointer-events-none z-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJ3YXZlIiB4PSIwIiB5PSIwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDY1LDEyNSwyNTUsMC4xKSIgc3Ryb2tlLXdpZHRoPSIyIiBkPSJNMCwyNSBDNTAsMCAxNTAsMCAxODAsMjUgQzIxMCw1MCAzMDAsMzAgMzQwLDUwIEMzODAsNzAgNDIwLDI1IDUwMCw1MCBMNTAwLDIwMCBMMCwyMDAiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjd2F2ZSkiPjxhbmltYXRlVHJhbnNmb3JtIGF0dHJpYnV0ZU5hbWU9InBhdHRlcm5UcmFuc2Zvcm0iIHR5cGU9InRyYW5zbGF0ZSIgZnJvbT0iMCAwIiB0bz0iMjAwIDAiIGJlZ2luPSIwcyIgZHVyPSIyMHMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIi8+PC9yZWN0Pjwvc3ZnPg==')]"></div>
-        {renderContent()}
-      </div>
-    );
-  }
-
-  // For all other pages, use the consistent cosmic theme with AnimatedBackground
+  // Always apply the cosmic theme with AnimatedBackground for consistent visuals
   return (
     <AnimatedBackground theme={theme} intensity="high">
       {renderContent()}

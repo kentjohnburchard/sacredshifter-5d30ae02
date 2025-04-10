@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route } from "react-router-dom";
 import './App.css';
 import './styles/sacred-geometry.css';
@@ -43,16 +43,57 @@ import TrinityGateway from './pages/TrinityGateway';
 import Profile from './pages/Profile';
 import SiteMap from './pages/SiteMap';
 import MusicGenerator from './pages/MusicGenerator';
+import Index from './pages/Index';
+import Welcome from './pages/Welcome';
+import StarfieldBackground from './components/sacred-geometry/StarfieldBackground';
 
 function App() {
+  // Apply global fetch timeout to prevent UI freezes
+  useEffect(() => {
+    console.log('Setting up global fetch timeout protection');
+    
+    // Store the original fetch function
+    const originalFetch = window.fetch;
+    
+    // Override fetch with timeout protection
+    window.fetch = function(resource, options) {
+      // Create a timeout promise that will reject after 5 seconds
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timed out')), 5000);
+      });
+      
+      // Race between the original fetch and the timeout
+      return Promise.race([
+        originalFetch.apply(this, [resource, options]),
+        timeoutPromise
+      ]).catch(error => {
+        console.error(`Global fetch error for ${resource}:`, error);
+        // Return a valid but empty response to prevent UI freezes
+        return new Response(JSON.stringify({ error: 'Failed to load resource' }), { 
+          status: 200,
+          headers: { 'Content-Type': 'application/json' } 
+        });
+      });
+    };
+    
+    // Clean up the fetch override when component unmounts
+    return () => {
+      window.fetch = originalFetch;
+      console.log('Restored original fetch function');
+    };
+  }, []);
+
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <SacredThemeProvider>
         <JourneySettingsProvider>
           <ScrollToTop />
+          {/* Global starfield background that appears on all pages */}
+          <StarfieldBackground />
           <Routes>
-            <Route path="/" element={<SacredShifterLanding />} />
-            <Route path="/home" element={<Home />} />
+            <Route path="/" element={<Index />} />
+            <Route path="/welcome" element={<Welcome />} />
+            <Route path="/home" element={<Dashboard />} />
             <Route path="/cosmic" element={<CosmicDashboard />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/about-founder" element={<AboutFounder />} />
