@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SacredFlowerOfLife from '@/components/sacred-geometry/shapes/SacredFlowerOfLife';
@@ -34,7 +35,7 @@ const SacredShifterLanding = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-gradient-to-b from-[#0a0118]/90 via-[#120024]/80 to-black/90 text-white font-sans overflow-hidden">
+    <div className="relative min-h-screen w-full bg-gradient-to-b from-black via-[#0a0118] to-black text-white font-sans overflow-hidden">
       <div className="fixed inset-0 z-0 pointer-events-none">
         <StarfieldBackground />
       </div>
@@ -77,7 +78,7 @@ const SacredShifterLanding = () => {
                 className="w-full flex justify-center"
               >
                 <img 
-                  src="/lovable-uploads/31e2a863-17fa-464a-83c9-f46baefb690c.png" 
+                  src="/lovable-uploads/55c4de0c-9d48-42df-a6a2-1bb6520acb46.png" 
                   alt="Sacred Shifter Logo" 
                   className="mx-auto w-64 md:w-80 drop-shadow-xl" 
                 />
