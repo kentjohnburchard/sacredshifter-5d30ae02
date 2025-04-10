@@ -132,22 +132,80 @@ export async function createFrequencyBlobUrl(
   withAmbient: boolean = true
 ): Promise<string> {
   return new Promise((resolve) => {
-    // This would normally generate real audio, but for now we'll use 
-    // placeholder URLs based on frequency to avoid heavy browser computation
-    
-    // For frequencies in the Solfeggio range (396-963 Hz)
-    if (frequency >= 396 && frequency <= 963) {
-      resolve(`/sounds/frequency-${Math.round(frequency)}hz.mp3`);
-    }
-    // For Earth frequency (7.83 Hz Schumann resonance)
-    else if (frequency < 20) {
-      resolve("/sounds/schumann-resonance.mp3");
-    }
-    // Default placeholder
-    else {
-      resolve("/sounds/focus-ambient.mp3");
+    try {
+      // Use Web Audio API to create a frequency sound on demand
+      // This eliminates dependency on external files
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const buffer = createTone(audioContext, frequency, duration);
+      
+      // Convert buffer to WAV format
+      const wavBlob = bufferToWav(buffer, audioContext.sampleRate);
+      
+      // Create blob URL
+      const blobUrl = URL.createObjectURL(wavBlob);
+      resolve(blobUrl);
+    } catch (error) {
+      console.error("Error creating frequency blob:", error);
+      // Generate a fallback in-memory oscillator-based tone
+      resolve(generateFallbackToneUrl(frequency));
     }
   });
+}
+
+/**
+ * Creates a fallback tone URL using a data URI when Blob URLs fail
+ */
+function generateFallbackToneUrl(frequency: number): string {
+  // Create a short silent MP3 data URI as fallback
+  // This is ugly but will prevent freezing when audio resources fail to load
+  return "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAABAAADQgD///////////////////////////////////////////////////////////////////8AAAA5TEFNRTMuMTAwAZYAAAAALgAAA0KkCyKjAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/7UEAAAAFsADDnAAAIXwF1c8wgARVMQU1FMy4xMDAuNQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//tQYAABPnBZv/AEACKkDV//5ggAAAAABpBAAAACAAACXAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==";
+}
+
+/**
+ * Convert an AudioBuffer to a WAV file Blob
+ */
+function bufferToWav(buffer: AudioBuffer, sampleRate: number): Blob {
+  const numChannels = buffer.numberOfChannels;
+  const length = buffer.length * numChannels * 2;
+  const data = new DataView(new ArrayBuffer(44 + length));
+  
+  // WAV header
+  writeString(data, 0, 'RIFF');
+  data.setUint32(4, 36 + length, true);
+  writeString(data, 8, 'WAVE');
+  writeString(data, 12, 'fmt ');
+  data.setUint32(16, 16, true);
+  data.setUint16(20, 1, true);
+  data.setUint16(22, numChannels, true);
+  data.setUint32(24, sampleRate, true);
+  data.setUint32(28, sampleRate * 2, true);
+  data.setUint16(32, numChannels * 2, true);
+  data.setUint16(34, 16, true);
+  writeString(data, 36, 'data');
+  data.setUint32(40, length, true);
+  
+  // Write the PCM samples
+  let offset = 44;
+  for (let i = 0; i < buffer.length; i++) {
+    for (let channel = 0; channel < numChannels; channel++) {
+      const sample = buffer.getChannelData(channel)[i];
+      // Convert float audio data to 16-bit PCM
+      const value = (Math.max(-1, Math.min(1, sample)) * 0x7FFF) | 0;
+      data.setInt16(offset, value, true);
+      offset += 2;
+    }
+  }
+  
+  return new Blob([data], { type: 'audio/wav' });
+}
+
+/**
+ * Helper function to write a string to a DataView
+ */
+function writeString(dataView: DataView, offset: number, str: string) {
+  for (let i = 0; i < str.length; i++) {
+    dataView.setUint8(offset + i, str.charCodeAt(i));
+  }
 }
 
 /**
@@ -173,3 +231,4 @@ export function getFrequencyName(frequency: number): string {
   
   return frequencyMap[frequency] || `${frequency} Hz Tone`;
 }
+

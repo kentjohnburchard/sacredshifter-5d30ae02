@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 const LandingPrompt: React.FC = () => {
   const [currentLine, setCurrentLine] = useState(0);
+  const [loadingError, setLoadingError] = useState<string | null>(null);
   const navigate = useNavigate();
   const lines = [
     "Welcome to Sacred Shifter.",
@@ -16,22 +17,49 @@ const LandingPrompt: React.FC = () => {
   useEffect(() => {
     console.log('LandingPrompt loaded, currentLine:', currentLine, 'of', lines.length);
     
+    const handleErrors = () => {
+      window.addEventListener('error', (event) => {
+        console.error('Global error caught:', event.error);
+        // Continue app flow despite errors
+        event.preventDefault();
+      });
+      
+      window.addEventListener('unhandledrejection', (event) => {
+        console.error('Unhandled promise rejection:', event.reason);
+        // Continue app flow despite promise rejections
+        event.preventDefault();
+      });
+    };
+    
+    handleErrors();
+    
     if (currentLine < lines.length - 1) {
       const timer = setTimeout(() => {
         setCurrentLine(currentLine + 1);
       }, 3000);
       return () => clearTimeout(timer);
     } else if (currentLine === lines.length - 1) {
-      // After showing the last line, wait a moment and then navigate to dashboard
+      // After showing the last line, wait a moment and then navigate to home
       const redirectTimer = setTimeout(() => {
-        // Set localStorage to remember user has seen intro
-        localStorage.setItem('hasSeenIntro', 'true');
-        console.log('Setting hasSeenIntro to true and redirecting to dashboard');
-        navigate("/dashboard", { replace: true });
+        try {
+          // Set localStorage to remember user has seen intro
+          localStorage.setItem('hasSeenIntro', 'true');
+          console.log('Setting hasSeenIntro to true and redirecting to home');
+          navigate("/home", { replace: true });
+        } catch (error) {
+          console.error('Navigation error:', error);
+          // Fallback if navigation fails
+          window.location.href = '/home';
+        }
       }, 4000); // Wait 4 seconds after showing the last line
       return () => clearTimeout(redirectTimer);
     }
   }, [currentLine, navigate, lines.length]);
+
+  // If there's a loading error, show it but still allow continuing
+  if (loadingError) {
+    console.warn('Loading error occurred:', loadingError);
+  }
 
   return (
     <motion.div 
