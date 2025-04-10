@@ -43,6 +43,7 @@ import TrinityGateway from './pages/TrinityGateway';
 import Profile from './pages/Profile';
 import SiteMap from './pages/SiteMap';
 import MusicGenerator from './pages/MusicGenerator';
+import LandingPrompt from './components/LandingPrompt';
 
 function App() {
   return (
@@ -51,7 +52,9 @@ function App() {
         <JourneySettingsProvider>
           <ScrollToTop />
           <Routes>
+            {/* Landing and Welcome Routes */}
             <Route path="/" element={<SacredShifterLanding />} />
+            <Route path="/welcome" element={<LandingPrompt />} />
             <Route path="/home" element={<Home />} />
             <Route path="/cosmic" element={<CosmicDashboard />} />
             <Route path="/auth" element={<Auth />} />
