@@ -29,6 +29,7 @@ import Astrology from './pages/Astrology';
 import CosmicDashboard from './pages/CosmicDashboard';
 import { JourneySettingsProvider } from './context/JourneySettingsContext';
 import { ThemeProvider as SacredThemeProvider } from './context/ThemeContext';
+import SacredShifterLanding from './pages/SacredShifterLanding';
 
 function App() {
   return (
@@ -37,8 +38,9 @@ function App() {
         <JourneySettingsProvider>
           <ScrollToTop />
           <Routes>
-            <Route path="/" element={<CosmicDashboard />} />
+            <Route path="/" element={<SacredShifterLanding />} />
             <Route path="/home" element={<Home />} />
+            <Route path="/cosmic" element={<CosmicDashboard />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/about-founder" element={<AboutFounder />} />
             <Route path="/contact" element={<Contact />} />
