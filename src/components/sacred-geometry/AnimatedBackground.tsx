@@ -43,13 +43,13 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
     }
   };
   
-  // Apply different opacity based on intensity
+  // Increased opacity values for better visibility
   const getOpacity = () => {
     switch (intensity) {
-      case 'low': return { base: 0.05, hover: 0.08 };
-      case 'medium': return { base: 0.15, hover: 0.20 };
-      case 'high': return { base: 0.25, hover: 0.30 };
-      default: return { base: 0.15, hover: 0.20 };
+      case 'low': return { base: 0.15, hover: 0.20 };
+      case 'medium': return { base: 0.25, hover: 0.35 };
+      case 'high': return { base: 0.40, hover: 0.50 };
+      default: return { base: 0.25, hover: 0.35 };
     }
   };
 
@@ -61,7 +61,7 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
     id: `wave-${i}`,
     delay: i * 0.7,
     duration: 15 + i * 3,
-    opacity: opacity.base + (i * 0.01),
+    opacity: opacity.base + (i * 0.02), // Increased multiplier for better visibility
   }));
 
   return (
@@ -75,10 +75,10 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
           transition={{ duration: 2 }}
         >
           <motion.div
-            className={`w-[800px] h-[800px] rounded-full bg-gradient-to-br from-${colors.primary}-500/30 to-${colors.secondary}-500/30 filter blur-3xl`}
+            className={`w-[800px] h-[800px] rounded-full bg-gradient-to-br from-${colors.primary}-500/50 to-${colors.secondary}-500/50 filter blur-3xl`}
             animate={{
               scale: [1, 1.1, 1],
-              opacity: [wave.opacity, wave.opacity + 0.05, wave.opacity],
+              opacity: [wave.opacity, wave.opacity + 0.1, wave.opacity], // Increased opacity change
             }}
             transition={{
               duration: wave.duration,
@@ -101,7 +101,7 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
         return (
           <motion.div
             key={`particle-${i}`}
-            className={`absolute rounded-full bg-white/40`}
+            className={`absolute rounded-full bg-white/60`} // Increased opacity
             style={{
               width: size,
               height: size,
@@ -111,7 +111,7 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
             animate={{
               y: [0, -30, 0],
               x: [0, Math.random() * 20 - 10, 0],
-              opacity: [0.4, 0.8, 0.4],
+              opacity: [0.5, 0.9, 0.5], // Increased opacity values
             }}
             transition={{
               duration,
