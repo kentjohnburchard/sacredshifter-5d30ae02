@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect, RefObject } from 'react';
 import { Button } from "@/components/ui/button";
 import { Pause, Play, Volume2, VolumeX, SkipForward, Loader2 } from "lucide-react";
@@ -109,6 +110,8 @@ const RandomizingAudioPlayer: React.FC<RandomizingAudioPlayerProps> = ({
         }
         
         if (data && data.length > 0) {
+          console.log("Found audio mappings:", data);
+          
           const formattedTracks = data.map(track => ({
             id: track.id,
             audioUrl: track.audio_url || ''
@@ -150,6 +153,7 @@ const RandomizingAudioPlayer: React.FC<RandomizingAudioPlayerProps> = ({
       if (!currentTrack) return;
       
       let url = currentTrack.audioUrl;
+      console.log("Setting audio source to:", url);
       
       if (!url.startsWith('http')) {
         url = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${url}`;

@@ -1,48 +1,36 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, RefObject } from 'react';
 
-export function useAudioAnalyzer(audioRef: React.RefObject<HTMLAudioElement>) {
+export default function useAudioAnalyzer(audioRef: RefObject<HTMLAudioElement | null>) {
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
   const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    if (!audioRef.current || isInitialized) return;
-
-    const initializeAudio = () => {
-      try {
-        const context = new (window.AudioContext || window.webkitAudioContext)();
-        const source = context.createMediaElementSource(audioRef.current!);
-        const analyserNode = context.createAnalyser();
-
-        analyserNode.fftSize = 256;
-        source.connect(analyserNode);
-        analyserNode.connect(context.destination);
-
-        setAudioContext(context);
-        setAnalyser(analyserNode);
-        setIsInitialized(true);
-      } catch (error) {
-        console.error("Error initializing audio analyzer:", error);
-      }
-    };
-
-    // Initialize when audio starts playing
-    const handlePlay = () => {
-      if (!isInitialized) {
-        initializeAudio();
-      }
-    };
-
-    audioRef.current.addEventListener('play', handlePlay);
+    if (!audioRef.current) return;
     
+    // Initialize AudioContext
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    const context = new AudioContextClass();
+    
+    // Create an analyzer
+    const analyserNode = context.createAnalyser();
+    analyserNode.fftSize = 256;
+    
+    // Set up media source from the audio element
+    const source = context.createMediaElementSource(audioRef.current);
+    source.connect(analyserNode);
+    analyserNode.connect(context.destination);
+
+    setAudioContext(context);
+    setAnalyser(analyserNode);
+
     return () => {
-      audioRef.current?.removeEventListener('play', handlePlay);
-      audioContext?.close();
+      // Cleanup
+      if (context.state !== 'closed') {
+        context.close();
+      }
     };
-  }, [audioRef, audioContext, isInitialized]);
+  }, [audioRef.current]);
 
   return { audioContext, analyser };
 }
-
-export default useAudioAnalyzer;
