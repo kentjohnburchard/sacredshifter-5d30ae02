@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SacredFlowerOfLife from '@/components/sacred-geometry/shapes/SacredFlowerOfLife';
@@ -84,9 +85,9 @@ const SacredShifterLanding = () => {
                 className="w-full flex justify-center"
               >
                 <img 
-                  src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
+                  src="/lovable-uploads/31e2a863-17fa-464a-83c9-f46baefb690c.png" 
                   alt="Sacred Shifter Logo" 
-                  className="mx-auto mix-blend-screen opacity-70 w-48 md:w-64 drop-shadow-xl" 
+                  className="mx-auto w-64 md:w-80 drop-shadow-xl" 
                 />
               </motion.div>
             </div>
