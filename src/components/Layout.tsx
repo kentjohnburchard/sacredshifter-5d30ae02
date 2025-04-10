@@ -4,7 +4,6 @@ import Sidebar from '@/components/Sidebar';
 import FixedFooter from '@/components/navigation/FixedFooter';
 import { useLocation } from 'react-router-dom';
 import GlobalWatermark from './GlobalWatermark';
-import { AnimatedBackground } from '@/components/sacred-geometry';
 
 interface LayoutProps {
   children: ReactNode;
@@ -18,21 +17,26 @@ const Layout: React.FC<LayoutProps> = ({
   children, 
   pageTitle = "Sacred Shifter", 
   showFooter = true,
-  useBlueWaveBackground = false,
   theme = 'cosmic'
 }) => {
   const location = useLocation();
   const isAuthPage = location.pathname === '/auth';
-  const isJourneyPage = location.pathname.includes('/journey/');
 
   // Set the page title
   document.title = `${pageTitle} | Sacred Shifter`;
 
-  const renderContent = () => (
+  return (
     <div className="flex flex-col min-h-screen">
-      <div className="flex flex-1">
+      {/* Simple static background instead of animated one */}
+      <div className={`fixed inset-0 pointer-events-none z-0 bg-gradient-to-br ${
+        theme === 'cosmic' ? 'from-black via-[#0a0118] to-black' : 
+        theme === 'ethereal' ? 'from-black via-[#0a1818] to-black' : 
+        'from-black via-[#181000] to-black'
+      }`}></div>
+      
+      <div className="flex flex-1 relative z-10">
         {!isAuthPage && <Sidebar />}
-        <main className={`flex-1 ${!isAuthPage ? 'ml-20' : ''} pt-20 px-4 lg:px-8 pb-24 transition-all duration-300 relative`}>
+        <main className={`flex-1 ${!isAuthPage ? 'ml-20' : ''} pt-20 px-4 lg:px-8 pb-24 transition-all duration-300 relative z-10`}>
           {/* Top Logo Watermark */}
           <div className="fixed top-0 left-0 right-0 pointer-events-none z-0 flex justify-center items-start">
             <img 
@@ -54,23 +58,6 @@ const Layout: React.FC<LayoutProps> = ({
       {/* Bottom watermark */}
       <GlobalWatermark />
     </div>
-  );
-
-  // Use blue wave background for specific pages that need it (like JourneyTemplates)
-  if (useBlueWaveBackground) {
-    return (
-      <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
-        <div className="fixed inset-0 pointer-events-none z-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJ3YXZlIiB4PSIwIiB5PSIwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDY1LDEyNSwyNTUsMC4xKSIgc3Ryb2tlLXdpZHRoPSIyIiBkPSJNMCwyNSBDNTAsMCAxNTAsMCAxODAsMjUgQzIxMCw1MCAzMDAsMzAgMzQwLDUwIEMzODAsNzAgNDIwLDI1IDUwMCw1MCBMNTAwLDIwMCBMMCwyMDAiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjd2F2ZSkiPjxhbmltYXRlVHJhbnNmb3JtIGF0dHJpYnV0ZU5hbWU9InBhdHRlcm5UcmFuc2Zvcm0iIHR5cGU9InRyYW5zbGF0ZSIgZnJvbT0iMCAwIiB0bz0iMjAwIDAiIGJlZ2luPSIwcyIgZHVyPSIyMHMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIi8+PC9yZWN0Pjwvc3ZnPg==')]"></div>
-        {renderContent()}
-      </div>
-    );
-  }
-
-  // For all other pages, use the consistent cosmic theme with AnimatedBackground
-  return (
-    <AnimatedBackground theme={theme} intensity="high">
-      {renderContent()}
-    </AnimatedBackground>
   );
 };
 
