@@ -42,7 +42,7 @@ const SacredShifterLanding = () => {
       </div>
 
       {/* Side Navigation */}
-      <div className="fixed left-0 top-0 bottom-0 z-20 w-16 bg-black/30 backdrop-blur-sm flex flex-col items-center justify-center gap-8 border-r border-purple-900/20">
+      <div className="fixed left-0 top-0 bottom-0 z-10 w-16 bg-black/30 backdrop-blur-sm flex flex-col items-center justify-center gap-8 border-r border-purple-900/20">
         <button 
           onClick={() => scrollToSection('home')} 
           className="p-2 rounded-full hover:bg-purple-900/20 transition-all"
@@ -77,7 +77,7 @@ const SacredShifterLanding = () => {
 
       <div className="ml-16"> {/* Offset content to account for sidebar */}
         {/* Shape selector placed as a floating menu, not the main content */}
-        <div className="fixed right-4 top-4 z-20">
+        <div className="fixed right-4 top-4 z-10">
           <nav className="bg-black/20 backdrop-blur-sm p-3 rounded-xl border border-purple-900/20">
             <div className="flex flex-col space-y-2">
               {Object.keys(geometryComponents).map((shape) => (
@@ -105,12 +105,12 @@ const SacredShifterLanding = () => {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1.2 }}
-                className="w-full max-w-md flex justify-center"
+                className="w-full flex justify-center"
               >
                 <img 
                   src="/lovable-uploads/d1dc7000-c2c4-4d7f-8e17-6702ea255abe.png" 
                   alt="Sacred Shifter Logo" 
-                  className="w-48 mix-blend-screen opacity-90 drop-shadow-[0_0_15px_rgba(138,43,226,0.5)]" 
+                  className="mx-auto mix-blend-screen opacity-70 w-48 md:w-64 drop-shadow-xl" 
                 />
               </motion.div>
             </div>
@@ -126,19 +126,10 @@ const SacredShifterLanding = () => {
           </header>
 
           {/* Proper placement of the Sacred Geometry visualizer */}
-          <section className="relative z-10 py-12 flex justify-center">
-            <motion.div 
-              className="w-64 h-64 mx-auto" 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
-            >
-              <div className="rounded-2xl overflow-hidden border border-purple-600/20 shadow-2xl shadow-purple-900/20 backdrop-blur-sm bg-black/10 h-full w-full flex items-center justify-center">
-                <div className="flex items-center justify-center h-full w-full">
-                  {geometryComponents[selectedShape]}
-                </div>
-              </div>
-            </motion.div>
+          <section className="mt-8 mb-12 flex justify-center z-10 relative">
+            <div className="w-full max-w-md rounded-xl overflow-hidden border border-purple-900 shadow-xl bg-black bg-opacity-60 backdrop-blur-md">
+              {geometryComponents[selectedShape]}
+            </div>
           </section>
 
           {/* Navigation Links */}
@@ -286,7 +277,7 @@ const SacredShifterLanding = () => {
           >
             <div className="bg-black/20 backdrop-blur-md rounded-full py-3 px-6 inline-flex items-center gap-3 border border-purple-500/10">
               <div className="h-2 w-2 rounded-full bg-purple-500 animate-pulse"></div>
-              <audio autoPlay loop className="mx-auto">
+              <audio className="mx-auto">
                 <source src="/audio/528hz-heart.mp3" type="audio/mpeg" />
               </audio>
               <p className="text-sm font-medium text-purple-300">528Hz - Heart Chakra</p>
@@ -302,7 +293,7 @@ const SacredShifterLanding = () => {
       </div>
 
       {/* Fixed footer navigation */}
-      <div className="fixed bottom-0 left-0 right-0 z-50">
+      <div className="fixed bottom-0 left-0 right-0 z-10">
         <FixedFooter />
       </div>
     </div>
