@@ -43,25 +43,26 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
     }
   };
   
-  // Further increased opacity values for even better visibility
+  // Higher opacity values for better visibility
   const getOpacity = () => {
     switch (intensity) {
-      case 'low': return { base: 0.25, hover: 0.30 };
-      case 'medium': return { base: 0.35, hover: 0.45 };
-      case 'high': return { base: 0.50, hover: 0.60 };
-      default: return { base: 0.35, hover: 0.45 };
+      case 'low': return { base: 0.35, hover: 0.40 };
+      case 'medium': return { base: 0.45, hover: 0.55 };
+      case 'high': return { base: 0.60, hover: 0.70 };
+      default: return { base: 0.45, hover: 0.55 };
     }
   };
 
   const colors = getColors();
   const opacity = getOpacity();
   
-  // Create array of objects for the wave elements
-  const waves = Array.from({ length: 5 }).map((_, i) => ({
+  // Create array of objects for the wave elements - increased number for more visual interest
+  const waves = Array.from({ length: 8 }).map((_, i) => ({
     id: `wave-${i}`,
-    delay: i * 0.7,
+    delay: i * 0.5,
     duration: 15 + i * 3,
-    opacity: opacity.base + (i * 0.03), // Increased multiplier for better visibility
+    opacity: opacity.base + (i * 0.04), // Increased multiplier for better visibility
+    size: 800 + (i * 50), // Varied sizes
   }));
 
   return (
@@ -75,10 +76,10 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
           transition={{ duration: 2 }}
         >
           <motion.div
-            className={`w-[800px] h-[800px] rounded-full bg-gradient-to-br from-${colors.primary}-500/60 to-${colors.secondary}-500/60 filter blur-3xl`}
+            className={`w-[${wave.size}px] h-[${wave.size}px] rounded-full bg-gradient-to-br from-${colors.primary}-500/70 to-${colors.secondary}-500/70 filter blur-3xl`}
             animate={{
               scale: [1, 1.1, 1],
-              opacity: [wave.opacity, wave.opacity + 0.15, wave.opacity], // Increased opacity change
+              opacity: [wave.opacity, wave.opacity + 0.20, wave.opacity], // Increased opacity change
             }}
             transition={{
               duration: wave.duration,
@@ -91,9 +92,9 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
         </motion.div>
       ))}
 
-      {/* Floating particles with higher opacity */}
-      {Array.from({ length: 30 }).map((_, i) => {
-        const size = Math.random() * 8 + 2; // Larger particles
+      {/* Increased number and visibility of floating particles */}
+      {Array.from({ length: 50 }).map((_, i) => {
+        const size = Math.random() * 10 + 2; // Larger particles
         const x = Math.random() * 100;
         const y = Math.random() * 100;
         const duration = Math.random() * 20 + 15;
@@ -101,18 +102,18 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
         return (
           <motion.div
             key={`particle-${i}`}
-            className={`absolute rounded-full bg-white/70`} // Increased opacity
+            className={`absolute rounded-full bg-white/80`} // Increased opacity
             style={{
               width: size,
               height: size,
               left: `${x}%`,
               top: `${y}%`,
-              boxShadow: '0 0 8px rgba(255, 255, 255, 0.6)' // Added glow
+              boxShadow: '0 0 10px rgba(255, 255, 255, 0.8)' // Enhanced glow
             }}
             animate={{
               y: [0, -30, 0],
               x: [0, Math.random() * 20 - 10, 0],
-              opacity: [0.6, 0.9, 0.6], // Increased opacity values
+              opacity: [0.7, 1, 0.7], // Increased opacity values
             }}
             transition={{
               duration,
