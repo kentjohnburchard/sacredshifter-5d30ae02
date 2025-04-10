@@ -12,6 +12,7 @@ import StarfieldBackground from '@/components/sacred-geometry/StarfieldBackgroun
 import { Music, Heart, Sparkles, BookOpen, Brain, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import FixedFooter from '@/components/navigation/FixedFooter';
+import Sidebar from '@/components/Sidebar';
 
 const geometryComponents = {
   'Flower of Life': <SacredFlowerOfLife />,
@@ -41,42 +42,18 @@ const SacredShifterLanding = () => {
         <StarfieldBackground />
       </div>
 
-      {/* Side Navigation */}
-      <div className="fixed left-0 top-0 bottom-0 z-10 w-16 bg-black/30 backdrop-blur-sm flex flex-col items-center justify-center gap-8 border-r border-purple-900/20">
-        <button 
-          onClick={() => scrollToSection('home')} 
-          className="p-2 rounded-full hover:bg-purple-900/20 transition-all"
-        >
-          <Star className="h-5 w-5 text-purple-200" />
-        </button>
-        <button 
-          onClick={() => scrollToSection('journeys')} 
-          className="p-2 rounded-full hover:bg-purple-900/20 transition-all"
-        >
-          <Music className="h-5 w-5 text-purple-200" />
-        </button>
-        <button 
-          onClick={() => scrollToSection('experiences')} 
-          className="p-2 rounded-full hover:bg-purple-900/20 transition-all"
-        >
-          <Sparkles className="h-5 w-5 text-purple-200" />
-        </button>
-        <button 
-          onClick={() => scrollToSection('frequencies')} 
-          className="p-2 rounded-full hover:bg-purple-900/20 transition-all"
-        >
-          <Heart className="h-5 w-5 text-purple-200" />
-        </button>
-        <button 
-          onClick={() => scrollToSection('my-journey')} 
-          className="p-2 rounded-full hover:bg-purple-900/20 transition-all"
-        >
-          <Brain className="h-5 w-5 text-purple-200" />
-        </button>
-      </div>
+      {/* Side Navigation - use the site-wide Sidebar component */}
+      <Sidebar />
 
-      <div className="ml-16"> {/* Offset content to account for sidebar */}
-        {/* Shape selector placed as a floating menu, not the main content */}
+      <div className="ml-20"> {/* Offset content to account for sidebar */}
+        {/* Sacred Geometry Background Watermark - fixed position with z-index to be behind content */}
+        <div className="fixed inset-0 z-1 pointer-events-none opacity-30 flex items-center justify-center">
+          <div className="w-[80vw] h-[80vh] max-w-4xl">
+            {geometryComponents[selectedShape]}
+          </div>
+        </div>
+
+        {/* Shape selector placed as a floating menu */}
         <div className="fixed right-4 top-4 z-10">
           <nav className="bg-black/20 backdrop-blur-sm p-3 rounded-xl border border-purple-900/20">
             <div className="flex flex-col space-y-2">
@@ -84,7 +61,7 @@ const SacredShifterLanding = () => {
                 <button
                   key={shape}
                   onClick={() => setSelectedShape(shape)}
-                  className={`text-sm whitespace-nowrap text-white hover:text-purple-300 transition-all duration-300 flex items-center gap-2
+                  className={`text-sm whitespace-nowrap text-white hover:text-purple-300 transition-all duration-300 flex items-center gap-2 pointer-events-auto
                     ${selectedShape === shape ? 'text-purple-300' : ''}
                   `}
                 >
@@ -124,13 +101,6 @@ const SacredShifterLanding = () => {
               Explore frequency-based healing, sacred geometry, and consciousness expansion in this interdimensional portal
             </motion.p>
           </header>
-
-          {/* Proper placement of the Sacred Geometry visualizer */}
-          <section className="mt-8 mb-12 flex justify-center z-10 relative">
-            <div className="w-full max-w-md rounded-xl overflow-hidden border border-purple-900 shadow-xl bg-black bg-opacity-60 backdrop-blur-md">
-              {geometryComponents[selectedShape]}
-            </div>
-          </section>
 
           {/* Navigation Links */}
           <motion.div 
