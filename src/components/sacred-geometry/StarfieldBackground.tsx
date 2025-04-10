@@ -1,22 +1,9 @@
 
 import React, { useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
 
 const StarfieldBackground: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const location = useLocation();
-  
-  // Only render starfield on homepage, welcome page, and landing page
-  const shouldRender = [
-    '/', 
-    '/welcome', 
-    '/dashboard',
-    '/sacred-shifter-landing'
-  ].includes(location.pathname);
-  
-  // If not on allowed pages, don't render the canvas
-  if (!shouldRender) return null;
-  
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;

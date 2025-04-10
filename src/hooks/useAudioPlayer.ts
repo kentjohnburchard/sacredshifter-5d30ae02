@@ -1,7 +1,6 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
-import { createTone } from '@/utils/audioUtils';
 
 export const useAudioPlayer = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -10,8 +9,6 @@ export const useAudioPlayer = () => {
   const [currentAudioTime, setCurrentAudioTime] = useState(0);
   const [audioLoaded, setAudioLoaded] = useState(false);
   const [audioError, setAudioError] = useState<string | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const bufferSourceRef = useRef<AudioBufferSourceNode | null>(null);
 
   useEffect(() => {
     // Create audio element if it doesn't exist
@@ -36,20 +33,7 @@ export const useAudioPlayer = () => {
       console.error("Error playing audio:", e);
       setAudioError("Failed to load or play audio");
       setIsAudioPlaying(false);
-      
-      // Try to generate a fallback tone if we have frequency information
-      const frequencyMatch = audio.src.match(/(\d+)hz/i);
-      if (frequencyMatch && frequencyMatch[1]) {
-        const frequency = parseInt(frequencyMatch[1]);
-        if (!isNaN(frequency) && frequency > 0) {
-          toast.info(`Generating ${frequency}Hz tone as fallback`);
-          playFallbackTone(frequency);
-        } else {
-          toast.error("Could not load audio. The file may be missing or in an unsupported format.");
-        }
-      } else {
-        toast.error("Could not load audio. The file may be missing or in an unsupported format.");
-      }
+      toast.error("Could not load audio. The file may be missing or in an unsupported format.");
     };
     
     const handleAudioEnded = () => {
@@ -75,47 +59,8 @@ export const useAudioPlayer = () => {
         console.log("Pausing audio on cleanup");
         audio.pause();
       }
-      
-      // Also stop any fallback tone
-      stopFallbackTone();
     };
   }, [isAudioPlaying]);
-
-  // Play a fallback tone using Web Audio API when the audio file fails to load
-  const playFallbackTone = (frequency: number) => {
-    try {
-      stopFallbackTone(); // Stop any currently playing tone
-      
-      if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-      }
-      
-      if (audioContextRef.current) {
-        const buffer = createTone(audioContextRef.current, frequency, 30, 0.5);
-        bufferSourceRef.current = audioContextRef.current.createBufferSource();
-        bufferSourceRef.current.buffer = buffer;
-        bufferSourceRef.current.connect(audioContextRef.current.destination);
-        bufferSourceRef.current.start();
-        setIsAudioPlaying(true);
-        console.log(`Playing fallback tone at ${frequency}Hz`);
-      }
-    } catch (error) {
-      console.error("Error playing fallback tone:", error);
-      toast.error("Unable to generate audio fallback");
-    }
-  };
-  
-  const stopFallbackTone = () => {
-    if (bufferSourceRef.current) {
-      try {
-        bufferSourceRef.current.stop();
-        bufferSourceRef.current.disconnect();
-        bufferSourceRef.current = null;
-      } catch (error) {
-        console.error("Error stopping fallback tone:", error);
-      }
-    }
-  };
 
   const formatAudioUrl = (url: string): string => {
     // If it's already a proper URL with http/https, return as is
@@ -138,12 +83,6 @@ export const useAudioPlayer = () => {
     // For Supabase storage URLs
     if (url.includes('storage/v1/object')) {
       return url;
-    }
-    
-    // Check for local audio files
-    if (url.startsWith('/audio/') || url.startsWith('audio/')) {
-      const path = url.startsWith('/') ? url : `/${url}`;
-      return `${window.location.origin}${path}`;
     }
     
     // For other URLs, assume they're relative to the Supabase storage
@@ -169,7 +108,6 @@ export const useAudioPlayer = () => {
       // Stop any current playback
       if (isAudioPlaying) {
         audioRef.current.pause();
-        stopFallbackTone();
         setIsAudioPlaying(false);
       }
       
@@ -192,13 +130,6 @@ export const useAudioPlayer = () => {
     const audio = audioRef.current;
     if (!audio) {
       console.error("Audio element not initialized");
-      return;
-    }
-    
-    // If fallback tone is playing, stop it on toggle
-    if (bufferSourceRef.current && isAudioPlaying) {
-      stopFallbackTone();
-      setIsAudioPlaying(false);
       return;
     }
     
@@ -226,20 +157,7 @@ export const useAudioPlayer = () => {
           .catch(error => {
             console.error("Error playing audio:", error);
             setAudioError(`Failed to play audio: ${error.message}`);
-            
-            // Try to extract frequency from filename for fallback
-            const frequencyMatch = audio.src.match(/(\d+)hz/i);
-            if (frequencyMatch && frequencyMatch[1]) {
-              const frequency = parseInt(frequencyMatch[1]);
-              if (!isNaN(frequency) && frequency > 0) {
-                toast.info(`Generating ${frequency}Hz tone as fallback`);
-                playFallbackTone(frequency);
-              } else {
-                toast.error("Failed to play audio. Please try again.");
-              }
-            } else {
-              toast.error("Failed to play audio. Please try again.");
-            }
+            toast.error("Failed to play audio. Please try again.");
           });
       }
     }
@@ -276,7 +194,6 @@ export const useAudioPlayer = () => {
     audioLoaded,
     audioError,
     seekTo,
-    formatAudioUrl,
-    playFallbackTone
+    formatAudioUrl
   };
 };
