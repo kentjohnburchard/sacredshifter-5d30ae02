@@ -7,7 +7,7 @@ interface CosmicContainerProps {
   className?: string;
 }
 
-const CosmicContainer: React.FC<CosmicContainerProps> = ({ children, className = "" }) => {
+export const CosmicContainer: React.FC<CosmicContainerProps> = ({ children, className = "" }) => {
   return (
     <motion.div 
       className={`relative min-h-[400px] flex items-center justify-center ${className}`}
