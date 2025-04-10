@@ -10,18 +10,18 @@ const MetatronsCube: React.FC = () => {
     
     // Create scene
     const scene = new THREE.Scene();
-    scene.background = null; // Make background transparent
+    scene.background = null; // Make background fully transparent
     
-    // Create camera
+    // Create camera with wider view
     const camera = new THREE.PerspectiveCamera(
       75, 
       containerRef.current.clientWidth / containerRef.current.clientHeight, 
       0.1, 
       1000
     );
-    camera.position.z = 5;
+    camera.position.z = 4.5; // Positioned closer to see more detail
     
-    // Create renderer
+    // Create renderer with transparency
     const renderer = new THREE.WebGLRenderer({ 
       antialias: true,
       alpha: true // Enable transparency
@@ -35,7 +35,7 @@ const MetatronsCube: React.FC = () => {
     const material = new THREE.LineBasicMaterial({ 
       color: 0x9f7aea,
       transparent: true,
-      opacity: 0.7 // Make lines slightly transparent
+      opacity: 0.5 // Increased transparency
     });
     
     // Create 13 spheres at Fibonacci points with slightly larger sphere size for visibility
@@ -54,7 +54,7 @@ const MetatronsCube: React.FC = () => {
     const pointsMaterial = new THREE.MeshBasicMaterial({ 
       color: 0xffffff,
       transparent: true,
-      opacity: 0.8
+      opacity: 0.7
     });
     
     const vertices: THREE.Vector3[] = [];
@@ -70,7 +70,7 @@ const MetatronsCube: React.FC = () => {
     const thickerLineMaterial = new THREE.LineBasicMaterial({ 
       color: 0xb794f6, // Slightly lighter purple
       transparent: true,
-      opacity: 0.6, // Make more transparent
+      opacity: 0.4, // Make more transparent
       linewidth: 2 // Note: WebGL has limitations on line thickness
     });
     
@@ -85,8 +85,8 @@ const MetatronsCube: React.FC = () => {
       }
     }
     
-    // Enlarge the cube
-    group.scale.set(0.85, 0.85, 0.85);
+    // Make the cube slightly larger
+    group.scale.set(1.0, 1.0, 1.0);
     scene.add(group);
 
     // Add ambient light

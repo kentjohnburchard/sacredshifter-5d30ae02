@@ -18,11 +18,11 @@ const StarfieldBackground: React.FC = () => {
       canvas.height = window.innerHeight;
     };
 
-    // Create stars with enhanced properties for a more vivid starfield
-    const stars = Array.from({ length: 400 }, () => ({
+    // Create more stars for a denser starfield
+    const stars = Array.from({ length: 600 }, () => ({
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
-      radius: Math.random() * 2, // Slightly larger stars
+      radius: Math.random() * 2.5, // Slightly larger stars for more visibility
       alpha: Math.random(),
       delta: Math.random() * 0.005 + 0.002,
       color: Math.random() > 0.8 ? 
@@ -44,23 +44,23 @@ const StarfieldBackground: React.FC = () => {
       context.fillStyle = gradient;
       context.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Draw each star with twinkling effect
+      // Draw each star with enhanced twinkling effect
       stars.forEach((star) => {
         // Update star opacity for twinkling effect
         star.alpha += star.delta;
         if (star.alpha > 1 || star.alpha < 0.1) star.delta *= -1;
         
-        // Draw the star
+        // Draw the star with enhanced brightness
         context.beginPath();
         context.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-        context.fillStyle = `${star.color}${star.alpha})`;
+        context.fillStyle = `${star.color}${star.alpha * 1.2})`;  // Increased brightness
         context.fill();
         
-        // Add glow for brighter stars
-        if (star.radius > 1.3) {
+        // Add larger glow for brighter stars
+        if (star.radius > 1.2) {
           context.beginPath();
-          context.arc(star.x, star.y, star.radius * 3, 0, Math.PI * 2);
-          context.fillStyle = `${star.color}${star.alpha * 0.1})`;
+          context.arc(star.x, star.y, star.radius * 4, 0, Math.PI * 2);
+          context.fillStyle = `${star.color}${star.alpha * 0.15})`;
           context.fill();
         }
       });
@@ -88,6 +88,7 @@ const StarfieldBackground: React.FC = () => {
         zIndex: -1,
         width: '100%',
         height: '100%',
+        opacity: 1, // Full opacity for stars
       }}
     />
   );

@@ -32,39 +32,38 @@ const SacredShifterLanding = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-black via-[#0a0118] to-black text-white font-sans overflow-x-hidden">
+    <div className="relative min-h-screen w-full bg-gradient-to-b from-black via-[#0a0118] to-black text-white font-sans overflow-hidden">
+      {/* Full screen starfield that shows through all elements */}
       <StarfieldBackground />
 
-      {/* Right floating area with Nav and Geometry Viewer */}
+      {/* Top right floating area with Nav and Geometry Viewer */}
       <div className="fixed right-4 top-6 z-50 flex items-start gap-3">
         {/* Geometry Visualizer - Now floating beside the nav */}
         <motion.div 
-          className="w-48 h-48 z-10"
+          className="w-64 h-64 z-10" // Made container larger 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3, duration: 0.8 }}
         >
-          <div className="rounded-2xl overflow-hidden border border-purple-600/30 shadow-2xl shadow-purple-900/20 backdrop-blur-sm bg-black/10 h-full">
-            <div className="h-full w-full">
+          <div className="rounded-2xl overflow-hidden border border-purple-600/20 shadow-2xl shadow-purple-900/20 backdrop-blur-sm bg-black/10 h-full flex items-center justify-center">
+            <div className="h-60 w-60"> {/* Fixed size for the geometry */}
               {geometryComponents[selectedShape]}
             </div>
           </div>
         </motion.div>
         
-        {/* Floating Navigation with Shape Options */}
-        <nav className="bg-black/20 backdrop-blur-sm p-3 rounded-xl border border-purple-900/30">
+        {/* Floating Navigation with Main Nav Options */}
+        <nav className="bg-black/20 backdrop-blur-sm p-3 rounded-xl border border-purple-900/20">
           <div className="flex flex-col space-y-4">
-            {Object.keys(geometryComponents).map((shape) => (
-              <button
-                key={shape}
-                onClick={() => setSelectedShape(shape)}
-                className={`text-sm whitespace-nowrap text-white hover:text-purple-300 transition-all duration-300 flex items-center gap-2 ${
-                  selectedShape === shape ? 'text-purple-300 font-medium' : ''
-                }`}
+            {['Home', 'Sound Journeys', 'Experiences', 'Frequencies', 'My Journey'].map((item) => (
+              <Link
+                key={item}
+                to={`${item === 'Home' ? '/' : `/${item.toLowerCase().replace(/ /g, '-')}`}`}
+                className="text-sm whitespace-nowrap text-white hover:text-purple-300 transition-all duration-300 flex items-center gap-2"
               >
-                <span className={`h-1.5 w-1.5 rounded-full ${selectedShape === shape ? 'bg-purple-500' : 'bg-purple-900'} opacity-70`}></span>
-                {shape}
-              </button>
+                <span className="h-1.5 w-1.5 rounded-full bg-purple-900 opacity-70"></span>
+                {item}
+              </Link>
             ))}
           </div>
         </nav>
@@ -76,10 +75,11 @@ const SacredShifterLanding = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2 }}
         >
+          {/* Logo that blends better with the theme */}
           <img 
-            src="/lovable-uploads/b9b4b625-472c-484e-a49a-41aaf4f604a5.png" 
+            src="/lovable-uploads/d1dc7000-c2c4-4d7f-8e17-6702ea255abe.png" 
             alt="Sacred Shifter Logo" 
-            className="mx-auto w-48 opacity-40 drop-shadow-[0_0_15px_rgba(138,43,226,0.4)]" 
+            className="mx-auto w-48 opacity-30 drop-shadow-[0_0_15px_rgba(138,43,226,0.5)]" 
           />
         </motion.div>
         <h1 className="sr-only">Sacred Shifter</h1>
@@ -93,24 +93,24 @@ const SacredShifterLanding = () => {
         </motion.p>
       </header>
 
-      {/* Main Navigation Links - Now in center */}
+      {/* Shape Selector Nav - Now in center */}
       <motion.div 
         className="flex justify-center gap-2 mt-12 flex-wrap z-10 relative px-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8, duration: 0.7 }}
       >
-        {['Home', 'Sound Journeys', 'Experiences', 'Frequencies', 'My Journey'].map((label) => (
-          <Link
-            key={label}
-            to={`${label === 'Home' ? '/' : `/${label.toLowerCase().replace(/ /g, '-')}`}`}
+        {Object.keys(geometryComponents).map((shape) => (
+          <button
+            key={shape}
+            onClick={() => setSelectedShape(shape)}
             className={`px-5 py-2 rounded-full font-medium border transition-all duration-300
-              bg-black/30 backdrop-blur-sm hover:bg-purple-900/20 border-purple-900/40 text-gray-300
-              hover:text-white
+              bg-black/30 backdrop-blur-sm hover:bg-purple-900/20 border-purple-900/30 text-gray-300
+              hover:text-white ${selectedShape === shape ? 'bg-purple-900/30 text-white' : ''}
             `}
           >
-            {label}
-          </Link>
+            {shape}
+          </button>
         ))}
       </motion.div>
 
@@ -128,42 +128,42 @@ const SacredShifterLanding = () => {
             description: 'Frequency-based sound healing journeys', 
             path: '/journey-templates', 
             icon: <Music className="h-6 w-6" />,
-            color: 'from-purple-800/10 to-indigo-900/10 border-purple-500/20' 
+            color: 'from-purple-800/5 to-indigo-900/5 border-purple-500/10' 
           },
           { 
             title: 'Meditation', 
             description: 'Guided meditations with sacred frequencies', 
             path: '/meditation', 
             icon: <BookOpen className="h-6 w-6" />,
-            color: 'from-blue-800/10 to-cyan-900/10 border-blue-500/20'  
+            color: 'from-blue-800/5 to-cyan-900/5 border-blue-500/10'  
           },
           { 
             title: 'Heart Center', 
             description: 'Open and balance your heart chakra', 
             path: '/heart-center', 
             icon: <Heart className="h-6 w-6" />,
-            color: 'from-pink-800/10 to-red-900/10 border-pink-500/20'  
+            color: 'from-pink-800/5 to-red-900/5 border-pink-500/10'  
           },
           { 
             title: 'Manifestation', 
             description: 'Focus your energy to manifest intentions', 
             path: '/focus', 
             icon: <Brain className="h-6 w-6" />,
-            color: 'from-emerald-800/10 to-green-900/10 border-emerald-500/20'  
+            color: 'from-emerald-800/5 to-green-900/5 border-emerald-500/10'  
           },
           { 
             title: 'Astrology', 
             description: 'Discover your cosmic blueprint', 
             path: '/astrology', 
             icon: <Star className="h-6 w-6" />,
-            color: 'from-amber-800/10 to-orange-900/10 border-amber-500/20'  
+            color: 'from-amber-800/5 to-orange-900/5 border-amber-500/10'  
           },
           { 
             title: 'Hermetic Wisdom', 
             description: 'Ancient wisdom for modern consciousness', 
             path: '/hermetic-wisdom', 
             icon: <Sparkles className="h-6 w-6" />,
-            color: 'from-violet-800/10 to-fuchsia-900/10 border-violet-500/20'  
+            color: 'from-violet-800/5 to-fuchsia-900/5 border-violet-500/10'  
           },
         ].map(({ title, description, path, icon, color }) => (
           <motion.div
@@ -172,7 +172,7 @@ const SacredShifterLanding = () => {
             className={`bg-gradient-to-br ${color} rounded-2xl p-6 text-white border backdrop-blur-md bg-opacity-30 shadow-lg hover:shadow-xl transition-all`}
           >
             <div className="flex flex-col items-center md:items-start">
-              <div className="p-3 mb-3 rounded-full bg-black/20 backdrop-blur-sm border border-purple-500/20">
+              <div className="p-3 mb-3 rounded-full bg-black/10 backdrop-blur-sm border border-purple-500/10">
                 {icon}
               </div>
               <h3 className="text-xl font-semibold mb-2">{title}</h3>
@@ -192,7 +192,7 @@ const SacredShifterLanding = () => {
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5, duration: 1 }}
       >
-        <div className="bg-black/20 backdrop-blur-md rounded-full py-3 px-6 inline-flex items-center gap-3 border border-purple-500/15">
+        <div className="bg-black/10 backdrop-blur-md rounded-full py-3 px-6 inline-flex items-center gap-3 border border-purple-500/10">
           <div className="h-2 w-2 rounded-full bg-purple-500 animate-pulse"></div>
           <audio autoPlay loop className="mx-auto">
             <source src="/audio/528hz-heart.mp3" type="audio/mpeg" />
@@ -207,11 +207,6 @@ const SacredShifterLanding = () => {
       {/* Add the main site navigation components */}
       <div className="fixed bottom-0 left-0 right-0 z-50">
         <FixedFooter />
-      </div>
-      
-      {/* Add the Sidebar to ensure navigation works */}
-      <div className="fixed left-0 top-0 h-screen z-40 pointer-events-auto">
-        <Sidebar />
       </div>
     </div>
   );

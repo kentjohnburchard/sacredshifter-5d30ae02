@@ -10,8 +10,7 @@ const Torus: React.FC = () => {
     
     // Create scene
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
-    scene.background = null; // Make background transparent
+    scene.background = null; // Make background fully transparent
     
     // Create camera
     const camera = new THREE.PerspectiveCamera(
@@ -20,9 +19,9 @@ const Torus: React.FC = () => {
       0.1, 
       1000
     );
-    camera.position.z = 5;
+    camera.position.z = 5; // Position further back to see more of the torus
     
-    // Create renderer
+    // Create renderer with transparency
     const renderer = new THREE.WebGLRenderer({ 
       antialias: true,
       alpha: true // Enable transparency
@@ -34,7 +33,7 @@ const Torus: React.FC = () => {
     // Create Torus group
     const torusGroup = new THREE.Group();
 
-    // Create main Torus
+    // Create main Torus with more transparent material
     const geometry = new THREE.TorusGeometry(1, 0.4, 32, 100);
     const material = new THREE.MeshStandardMaterial({
       color: new THREE.Color('#9f7aea'), // Violet
@@ -43,36 +42,38 @@ const Torus: React.FC = () => {
       metalness: 0.8,
       wireframe: false,
       transparent: true,
-      opacity: 0.7, // Make slightly transparent
+      opacity: 0.5, // Increased transparency
     });
     
     const torus = new THREE.Mesh(geometry, material);
     torusGroup.add(torus);
 
-    // Add wireframe overlay
+    // Add wireframe overlay with higher transparency
     const wireframeMaterial = new THREE.LineBasicMaterial({
       color: 0xb794f6,
       transparent: true,
-      opacity: 0.4, // More transparent wireframe
+      opacity: 0.3, // More transparent wireframe
     });
     const wireframeGeo = new THREE.EdgesGeometry(geometry);
     const wireframe = new THREE.LineSegments(wireframeGeo, wireframeMaterial);
     torus.add(wireframe);
 
-    // Create inner energy torus
+    // Create inner energy torus with higher transparency
     const innerGeometry = new THREE.TorusGeometry(0.7, 0.2, 16, 50);
     const innerMaterial = new THREE.MeshStandardMaterial({
       color: new THREE.Color('#d6bcfa'),
       emissive: new THREE.Color('#9f7aea'),
       emissiveIntensity: 0.5,
       transparent: true,
-      opacity: 0.5, // More transparent inner torus
+      opacity: 0.4, // More transparent inner torus
     });
     
     const innerTorus = new THREE.Mesh(innerGeometry, innerMaterial);
     innerTorus.rotation.x = Math.PI / 2;
     torusGroup.add(innerTorus);
 
+    // Scale the group to fit better in the container
+    torusGroup.scale.set(0.8, 0.8, 0.8);
     scene.add(torusGroup);
 
     // Add ambient light
