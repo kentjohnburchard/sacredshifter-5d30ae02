@@ -1,270 +1,303 @@
-
-import React, { useState, useEffect, useRef } from "react";
+import React, { useRef, useState, useEffect, RefObject } from 'react';
 import { Button } from "@/components/ui/button";
-import { Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { Pause, Play, Volume2, VolumeX, SkipForward, Loader2 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
-import { useAudioLibrary, AudioTrack } from "@/hooks/useAudioLibrary";
-import { toast } from "sonner";
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
 
 interface RandomizingAudioPlayerProps {
+  audioRef?: RefObject<HTMLAudioElement>;
+  audioUrl?: string | null;
   groupId?: string;
-  feature?: string;
   frequency?: number;
-  audioUrl?: string;
   autoPlay?: boolean;
   onPlayStateChange?: (isPlaying: boolean) => void;
-  className?: string;
-  showControls?: boolean;
 }
 
 const RandomizingAudioPlayer: React.FC<RandomizingAudioPlayerProps> = ({
-  groupId,
-  feature,
-  frequency,
+  audioRef: providedAudioRef,
   audioUrl,
+  groupId,
+  frequency,
   autoPlay = false,
-  onPlayStateChange,
-  className = "",
-  showControls = true
+  onPlayStateChange
 }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
+  // Use provided audioRef or create our own
+  const internalAudioRef = useRef<HTMLAudioElement | null>(null);
+  const audioRef = providedAudioRef || internalAudioRef;
+  
+  const [isPlaying, setIsPlaying] = useState(autoPlay);
   const [volume, setVolume] = useState(0.7);
   const [isMuted, setIsMuted] = useState(false);
-  const [currentTrack, setCurrentTrack] = useState<AudioTrack | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [tracks, setTracks] = useState<{id: string, audioUrl: string}[]>([]);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const prevAutoPlayRef = useRef(autoPlay);
   
-  const { getRandomFromGroup, getByFrequency } = useAudioLibrary();
-
-  // Load the appropriate audio track based on inputs
+  // Initialize audio element
   useEffect(() => {
-    const loadTrack = async () => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+    }
+
+    const audio = audioRef.current;
+    
+    audio.volume = volume;
+    audio.muted = isMuted;
+
+    const handleEnded = () => {
+      if (tracks.length > 1) {
+        skipToNextTrack();
+      } else {
+        setIsPlaying(false);
+        if (onPlayStateChange) onPlayStateChange(false);
+      }
+    };
+
+    audio.addEventListener('ended', handleEnded);
+    
+    return () => {
+      audio.removeEventListener('ended', handleEnded);
+      audio.pause();
+    };
+  }, [audioRef, tracks]);
+  
+  // Handle volume changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+  }, [volume, audioRef]);
+  
+  // Handle mute/unmute
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.muted = isMuted;
+    }
+  }, [isMuted, audioRef]);
+  
+  // Fetch tracks if groupId is provided
+  useEffect(() => {
+    const fetchTracks = async () => {
+      if (!groupId) {
+        if (audioUrl) {
+          setTracks([{id: 'single', audioUrl}]);
+        }
+        return;
+      }
+      
       try {
         setIsLoading(true);
+        const { data, error } = await supabase
+          .from('journey_audio_mappings')
+          .select('*')
+          .eq('journeyId', groupId);
+          
+        if (error) {
+          throw error;
+        }
         
-        // Direct audio URL has highest priority
-        if (audioUrl) {
-          console.log("Using direct audio URL:", audioUrl);
-          setCurrentTrack({
-            id: "direct-url",
-            title: "Audio Track",
-            audioUrl,
-            frequency: frequency || 0
+        if (data && data.length > 0) {
+          const formattedTracks = data.map(track => ({
+            id: track.id,
+            audioUrl: track.audioUrl
+          }));
+          
+          // Sort by isPrimary if possible
+          const sortedTracks = [...formattedTracks].sort((a, b) => {
+            // @ts-ignore - isPrimary might exist on the data
+            if (data.find(t => t.id === a.id)?.isPrimary) return -1;
+            // @ts-ignore - isPrimary might exist on the data
+            if (data.find(t => t.id === b.id)?.isPrimary) return 1;
+            return 0;
           });
-          return;
+          
+          setTracks(sortedTracks);
+        } else if (audioUrl) {
+          // Fallback to direct audio URL if no tracks from group
+          setTracks([{id: 'single', audioUrl}]);
         }
-        
-        // Try to get from group ID
-        if (groupId) {
-          const track = await getRandomFromGroup(groupId);
-          if (track) {
-            setCurrentTrack(track);
-            return;
-          }
+      } catch (error) {
+        console.error("Error fetching tracks:", error);
+        // Fallback to direct audio URL if fetch fails
+        if (audioUrl) {
+          setTracks([{id: 'single', audioUrl}]);
         }
-        
-        // Try to get by frequency
-        if (frequency) {
-          const track = await getByFrequency(frequency);
-          if (track) {
-            setCurrentTrack(track);
-            return;
-          }
-        }
-        
-        // If we reach here, we couldn't find a track
-        console.error("No audio track could be found");
-        
-      } catch (err) {
-        console.error("Error loading audio track:", err);
-        toast.error("Failed to load audio track");
       } finally {
         setIsLoading(false);
       }
     };
     
-    loadTrack();
-  }, [groupId, frequency, audioUrl, getRandomFromGroup, getByFrequency]);
+    fetchTracks();
+  }, [groupId, audioUrl]);
   
-  // Set up audio element when track changes
+  // Set audio source when tracks/currentTrackIndex change
   useEffect(() => {
-    if (!currentTrack?.audioUrl) return;
-    
-    console.log("Setting up audio with URL:", currentTrack.audioUrl);
-    
-    if (!audioRef.current) {
-      audioRef.current = new Audio();
-    }
-    
-    audioRef.current.src = currentTrack.audioUrl;
-    audioRef.current.volume = isMuted ? 0 : volume;
-    audioRef.current.load();
-    
-    const handleEnded = () => {
-      setIsPlaying(false);
-      if (onPlayStateChange) onPlayStateChange(false);
-      console.log("Audio playback ended");
-    };
-    
-    audioRef.current.addEventListener('ended', handleEnded);
-    
-    // Auto-play if requested
-    if (autoPlay && !isPlaying) {
-      console.log("Auto-playing audio");
-      audioRef.current.play()
-        .then(() => {
-          setIsPlaying(true);
-          if (onPlayStateChange) onPlayStateChange(true);
-          console.log("Auto-play started successfully");
-        })
-        .catch(err => {
-          console.error("Failed to auto-play audio:", err);
-          toast.error("Could not auto-play. Please click the play button.");
-        });
-    }
-    
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.removeEventListener('ended', handleEnded);
+    const setAudioSource = () => {
+      if (!audioRef.current || tracks.length === 0) return;
+      
+      const currentTrack = tracks[currentTrackIndex];
+      if (!currentTrack) return;
+      
+      let url = currentTrack.audioUrl;
+      
+      // Format URL if needed
+      if (!url.startsWith('http')) {
+        url = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${url}`;
       }
+      
+      // Handle spaces and parentheses
+      if (url.includes(' ') || url.includes('(') || url.includes(')')) {
+        url = encodeURI(url);
+      }
+      
+      audioRef.current.src = url;
+      audioRef.current.load();
     };
-  }, [currentTrack, autoPlay, volume, isMuted, onPlayStateChange]);
+    
+    setAudioSource();
+  }, [tracks, currentTrackIndex, audioRef]);
   
-  // Update playback state when autoPlay prop changes
+  // Handle autoPlay prop changes
   useEffect(() => {
-    if (audioRef.current) {
-      if (autoPlay && !isPlaying) {
-        console.log("Auto-play prop changed to true, starting playback");
-        audioRef.current.play()
-          .then(() => {
-            setIsPlaying(true);
-            if (onPlayStateChange) onPlayStateChange(true);
-          })
-          .catch(err => {
-            console.error("Failed to start playback on autoPlay change:", err);
+    if (autoPlay !== prevAutoPlayRef.current) {
+      prevAutoPlayRef.current = autoPlay;
+      setIsPlaying(autoPlay);
+      
+      if (autoPlay) {
+        if (audioRef.current) {
+          audioRef.current.play().catch(err => {
+            console.error("Failed to autoplay:", err);
+            setIsPlaying(false);
+            if (onPlayStateChange) onPlayStateChange(false);
           });
-      } else if (!autoPlay && isPlaying) {
-        console.log("Auto-play prop changed to false, pausing playback");
-        audioRef.current.pause();
-        setIsPlaying(false);
-        if (onPlayStateChange) onPlayStateChange(false);
+        }
+      } else {
+        if (audioRef.current) {
+          audioRef.current.pause();
+        }
       }
     }
-  }, [autoPlay, isPlaying, onPlayStateChange]);
+  }, [autoPlay, onPlayStateChange, audioRef]);
   
-  // Handle volume changes
+  // Handle play state changes
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = isMuted ? 0 : volume;
-    }
-  }, [volume, isMuted]);
-  
-  // Toggle play/pause
-  const togglePlay = () => {
-    const audio = audioRef.current;
-    if (!audio || !currentTrack) return;
+    if (!audioRef.current || tracks.length === 0) return;
     
     if (isPlaying) {
-      console.log("Pausing audio:", audio.src);
-      audio.pause();
-      setIsPlaying(false);
-      if (onPlayStateChange) onPlayStateChange(false);
-    } else {
-      console.log("Playing audio:", audio.src);
-      const playPromise = audio.play();
+      const playPromise = audioRef.current.play();
       
       if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsPlaying(true);
-            if (onPlayStateChange) onPlayStateChange(true);
-            console.log("Audio playback started successfully");
-          })
-          .catch(err => {
-            console.error("Error playing audio:", err);
-            toast.error("Failed to play audio. Please try again.");
-          });
+        playPromise.catch(error => {
+          console.error("Play error:", error);
+          setIsPlaying(false);
+          if (onPlayStateChange) onPlayStateChange(false);
+          toast.error("Could not play audio. Please try again or check your browser permissions.");
+        });
       }
+    } else {
+      audioRef.current.pause();
     }
-  };
-  
-  // Toggle mute
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
-  };
-  
-  // Handle volume slider change
-  const handleVolumeChange = (values: number[]) => {
-    const newVolume = values[0];
-    setVolume(newVolume);
     
-    if (newVolume === 0) {
-      setIsMuted(true);
-    } else if (isMuted) {
+    if (onPlayStateChange) {
+      onPlayStateChange(isPlaying);
+    }
+  }, [isPlaying, tracks, onPlayStateChange, audioRef]);
+  
+  const togglePlayPause = () => {
+    setIsPlaying(prev => !prev);
+  };
+  
+  const toggleMute = () => {
+    setIsMuted(prev => !prev);
+  };
+  
+  const handleVolumeChange = (value: number[]) => {
+    setVolume(value[0]);
+    if (value[0] > 0 && isMuted) {
       setIsMuted(false);
     }
   };
   
-  // Clean up on unmount
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = "";
-      }
-    };
-  }, []);
-
-  if (!showControls) {
-    return null;
-  }
-
-  return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <Button
-        variant="outline"
-        size="icon"
-        disabled={isLoading || !currentTrack}
-        className={`h-10 w-10 rounded-full ${isLoading ? 'opacity-50' : ''}`}
-        onClick={togglePlay}
-        aria-label={isPlaying ? "Pause" : "Play"}
-      >
-        {isPlaying ? (
-          <Pause className="h-5 w-5" />
-        ) : (
-          <Play className="h-5 w-5 ml-0.5" />
-        )}
-      </Button>
+  const skipToNextTrack = () => {
+    if (tracks.length <= 1) return;
+    
+    setCurrentTrackIndex(prev => {
+      const nextIndex = (prev + 1) % tracks.length;
+      return nextIndex;
+    });
+    
+    // If already playing, keep playing the next track
+    if (isPlaying && audioRef.current) {
+      const playPromise = audioRef.current.play();
       
-      {currentTrack && (
-        <div className="flex-1 max-w-xs">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 p-0"
-              onClick={toggleMute}
-            >
-              {isMuted ? (
-                <VolumeX className="h-4 w-4" />
-              ) : (
-                <Volume2 className="h-4 w-4" />
-              )}
-            </Button>
-            
-            <Slider
-              value={[isMuted ? 0 : volume]}
-              min={0}
-              max={1}
-              step={0.01}
-              onValueChange={handleVolumeChange}
-            />
-          </div>
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.error("Error playing next track:", error);
+        });
+      }
+    }
+  };
+  
+  return (
+    <div className="flex flex-col space-y-2">
+      <div className="flex items-center space-x-2">
+        <Button
+          variant="outline"
+          size="icon"
+          disabled={isLoading || tracks.length === 0}
+          onClick={togglePlayPause}
+          className={`h-10 w-10 rounded-full ${isPlaying ? 'bg-purple-100' : 'bg-white'}`}
+        >
+          {isLoading ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : isPlaying ? (
+            <Pause className="h-5 w-5" />
+          ) : (
+            <Play className="h-5 w-5 ml-0.5" />
+          )}
+        </Button>
+        
+        <div className="flex-1 flex items-center space-x-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleMute}
+            className="h-8 w-8"
+          >
+            {isMuted ? (
+              <VolumeX className="h-4 w-4" />
+            ) : (
+              <Volume2 className="h-4 w-4" />
+            )}
+          </Button>
+          
+          <Slider
+            value={[isMuted ? 0 : volume]}
+            max={1}
+            step={0.01}
+            onValueChange={handleVolumeChange}
+            className="w-24"
+          />
         </div>
-      )}
+        
+        {tracks.length > 1 && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={skipToNextTrack}
+            className="h-8 w-8"
+          >
+            <SkipForward className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
       
       {frequency && (
-        <span className="text-xs text-muted-foreground ml-1">{frequency}Hz</span>
+        <div className="text-xs text-center text-gray-500">
+          {frequency}Hz {tracks.length > 1 && `· ${currentTrackIndex + 1}/${tracks.length}`}
+        </div>
       )}
     </div>
   );

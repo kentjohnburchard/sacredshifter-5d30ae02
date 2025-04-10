@@ -1,8 +1,9 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Pause } from "lucide-react";
+import { Play, Pause, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import useAudioAnalyzer from "@/hooks/useAudioAnalyzer";
+import { SacredGeometryVisualizer } from "@/components/sacred-geometry";
 
 interface FrequencyPlayerProps {
   audioUrl?: string;
@@ -13,6 +14,7 @@ interface FrequencyPlayerProps {
   frequencyId?: string;
   id?: string;
   groupId?: string;
+  chakra?: string;
 }
 
 const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
@@ -23,14 +25,16 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   frequency,
   frequencyId,
   id,
-  groupId
+  groupId,
+  chakra
 }) => {
   const [isAudioReady, setIsAudioReady] = useState(false);
   const [audioError, setAudioError] = useState<string | null>(null);
+  const [showVisualizer, setShowVisualizer] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const effectiveAudioUrl = url || audioUrl;
+  const { audioContext, analyser } = useAudioAnalyzer(audioRef);
   
-  // Create audio element on mount
   useEffect(() => {
     audioRef.current = new Audio();
     
@@ -74,7 +78,6 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     };
   }, []);
   
-  // Set audio source when URL changes
   useEffect(() => {
     if (!effectiveAudioUrl) {
       console.warn("No audio URL provided to FrequencyPlayer");
@@ -130,7 +133,6 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     }
   }, [effectiveAudioUrl]);
   
-  // Handle play/pause state
   useEffect(() => {
     if (!audioRef.current || !effectiveAudioUrl) return;
     
@@ -182,21 +184,52 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     onPlayToggle();
   };
   
+  const toggleVisualizer = () => {
+    setShowVisualizer(prev => !prev);
+  };
+  
   return (
-    <div className="flex items-center gap-2">
-      <Button
-        variant="outline"
-        size="icon"
-        className="h-10 w-10 rounded-full"
-        onClick={handlePlayPauseClick}
-        aria-label={isPlaying ? "Pause" : "Play"}
-      >
-        {isPlaying ? (
-          <Pause className="h-5 w-5" />
-        ) : (
-          <Play className="h-5 w-5 ml-0.5" />
+    <div className="relative">
+      <SacredGeometryVisualizer 
+        audioContext={audioContext} 
+        analyser={analyser} 
+        isVisible={showVisualizer && isPlaying}
+        chakra={chakra}
+        frequency={frequency}
+        mode="fractal"
+      />
+      
+      <div className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-10 w-10 rounded-full"
+          onClick={handlePlayPauseClick}
+          aria-label={isPlaying ? "Pause" : "Play"}
+        >
+          {isPlaying ? (
+            <Pause className="h-5 w-5" />
+          ) : (
+            <Play className="h-5 w-5 ml-0.5" />
+          )}
+        </Button>
+        
+        {isPlaying && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 rounded-full opacity-70 hover:opacity-100"
+            onClick={toggleVisualizer}
+            aria-label={showVisualizer ? "Hide visualizer" : "Show visualizer"}
+          >
+            {showVisualizer ? (
+              <Eye className="h-4 w-4" />
+            ) : (
+              <EyeOff className="h-4 w-4" />
+            )}
+          </Button>
         )}
-      </Button>
+      </div>
     </div>
   );
 };

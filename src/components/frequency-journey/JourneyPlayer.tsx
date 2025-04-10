@@ -16,10 +16,15 @@ import {
   Music, 
   FileText, 
   BookOpen,
-  Menu
+  Menu,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import RandomizingAudioPlayer from '@/components/audio/RandomizingAudioPlayer';
 import { toast } from 'sonner';
+import { SacredGeometryVisualizer } from '@/components/sacred-geometry';
+import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
+import { useRef } from 'react';
 
 // Add JourneySettings interface to match what's used in JourneyPlayer.tsx
 interface JourneySettings {
@@ -56,6 +61,12 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
   const [isVisualEffectActive, setIsVisualEffectActive] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>("journey");
   const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
+  const [visualizerMode, setVisualizerMode] = useState<'fractal' | 'spiral' | 'mandala'>('fractal');
+  const [showVisualizer, setShowVisualizer] = useState<boolean>(true);
+  
+  // Audio analyzer setup for visualizer
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const { audioContext, analyser } = useAudioAnalyzer(audioRef);
   
   // For demo purposes, automatically start after 1 second
   useEffect(() => {
@@ -98,6 +109,18 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
     toast.success("Reflection saved");
     setReflection('');
   };
+  
+  const toggleVisualizer = () => {
+    setShowVisualizer(prev => !prev);
+  };
+  
+  const changeVisualizerMode = () => {
+    const modes: ('fractal' | 'spiral' | 'mandala')[] = ['fractal', 'spiral', 'mandala'];
+    const currentIndex = modes.indexOf(visualizerMode);
+    const nextIndex = (currentIndex + 1) % modes.length;
+    setVisualizerMode(modes[nextIndex]);
+    toast.info(`Visualizer mode: ${modes[nextIndex]}`);
+  };
 
   // Get frequency display values
   const frequencyValue = frequency?.frequency || 0;
@@ -109,7 +132,20 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
   const isLowSensitivityMode = journeySettings?.lowSensitivityMode || false;
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto relative">
+      {/* Sacred Geometry Visualizer */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <SacredGeometryVisualizer
+          audioContext={audioContext}
+          analyser={analyser}
+          isVisible={showVisualizer && isAudioPlaying}
+          chakra={chakraName}
+          frequency={frequencyValue}
+          mode={visualizerMode}
+          sensitivity={isLowSensitivityMode ? 0.5 : 1}
+        />
+      </div>
+      
       <Card className="border-purple-200 bg-white/90 backdrop-blur-sm overflow-hidden">
         <div className={`h-2 bg-gradient-to-r from-purple-400 to-blue-500`}></div>
         
@@ -134,6 +170,32 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
                 <Clock className="inline-block mr-1 h-4 w-4" />
                 {frequency?.duration ? `${Math.floor(frequency.duration / 60)} min` : '15-30 min'}
               </div>
+              
+              {isAudioPlaying && (
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={toggleVisualizer}
+                  className="h-8 w-8"
+                >
+                  {showVisualizer ? (
+                    <Eye className="h-4 w-4 text-purple-500" />
+                  ) : (
+                    <EyeOff className="h-4 w-4 text-gray-400" />
+                  )}
+                </Button>
+              )}
+              
+              {isAudioPlaying && showVisualizer && (
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={changeVisualizerMode}
+                  className="h-8 w-8"
+                >
+                  <Music className="h-4 w-4 text-purple-500" />
+                </Button>
+              )}
               
               <Button variant="ghost" size="icon">
                 <Heart className="h-5 w-5 text-gray-400 hover:text-pink-500" />
@@ -205,6 +267,7 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
                         
                         <div className="absolute bottom-3 left-3 right-3 z-10">
                           <RandomizingAudioPlayer
+                            audioRef={audioRef}
                             audioUrl={audioUrl || frequency?.audio_url || frequency?.url}
                             groupId={audioGroupId || undefined}
                             frequency={frequencyValue}

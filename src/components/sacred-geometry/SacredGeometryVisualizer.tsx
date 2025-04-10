@@ -1,423 +1,292 @@
 
-import React, { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import React, { useRef, useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 
 interface SacredGeometryVisualizerProps {
-  frequency?: number;
+  audioContext: AudioContext | null;
+  analyser: AnalyserNode | null;
   chakra?: string;
-  isPlaying?: boolean;
-  size?: "sm" | "md" | "lg" | "xl" | "full";
-  animationSpeed?: number;
-  pulseWithAudio?: boolean;
-  geometryType?: "flowerOfLife" | "metatronsCube" | "merkaba" | "sriYantra";
+  frequency?: number;
+  isVisible?: boolean;
+  mode?: 'fractal' | 'spiral' | 'mandala';
+  sensitivity?: number;
 }
 
 const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
-  frequency = 432,
-  chakra,
-  isPlaying = false,
-  size = "md",
-  animationSpeed = 1,
-  pulseWithAudio = true,
-  geometryType = "flowerOfLife",
+  audioContext,
+  analyser,
+  chakra = 'crown',
+  frequency = 528,
+  isVisible = true,
+  mode = 'fractal',
+  sensitivity = 1.0
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [rotation, setRotation] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const animationRef = useRef<number>(0);
   
-  // Map chakras to colors
-  const chakraColors = {
-    root: "#ff0000",
-    sacral: "#ff8000",
-    "solar plexus": "#ffff00",
-    heart: "#00ff00",
-    throat: "#00ffff",
-    "third eye": "#0000ff",
-    crown: "#8000ff",
-    default: "#9b87f5",
+  // Get chakra color based on chakra name
+  const getChakraColor = (chakraName?: string): { main: string, shadow: string, glow: string } => {
+    switch(chakraName?.toLowerCase()) {
+      case 'root':
+        return { main: 'rgba(255, 0, 0, 0.8)', shadow: '#ff0000', glow: 'rgba(255, 0, 0, 0.5)' };
+      case 'sacral':
+        return { main: 'rgba(255, 128, 0, 0.8)', shadow: '#ff8000', glow: 'rgba(255, 128, 0, 0.5)' };
+      case 'solar plexus':
+        return { main: 'rgba(255, 255, 0, 0.8)', shadow: '#ffff00', glow: 'rgba(255, 255, 0, 0.5)' };
+      case 'heart':
+        return { main: 'rgba(0, 255, 0, 0.8)', shadow: '#00ff00', glow: 'rgba(0, 255, 0, 0.5)' };
+      case 'throat':
+        return { main: 'rgba(0, 191, 255, 0.8)', shadow: '#00bfff', glow: 'rgba(0, 191, 255, 0.5)' };
+      case 'third eye':
+        return { main: 'rgba(75, 0, 130, 0.8)', shadow: '#4b0082', glow: 'rgba(75, 0, 130, 0.5)' };
+      case 'crown':
+      default:
+        return { main: 'rgba(138, 43, 226, 0.8)', shadow: '#8a2be2', glow: 'rgba(138, 43, 226, 0.5)' };
+    }
   };
-  
-  const chakraColor = chakra 
-    ? chakraColors[chakra.toLowerCase() as keyof typeof chakraColors] || chakraColors.default
-    : chakraColors.default;
-    
-  // Map frequencies to specific properties
-  const getFrequencyProperties = (freq: number) => {
-    if (freq >= 396 && freq < 417) return { intensity: 0.7, complexity: 3 }; // Liberation
-    if (freq >= 417 && freq < 528) return { intensity: 0.75, complexity: 4 }; // Transformation
-    if (freq >= 528 && freq < 639) return { intensity: 0.85, complexity: 5 }; // Miracle
-    if (freq >= 639 && freq < 741) return { intensity: 0.8, complexity: 4 }; // Relationships
-    if (freq >= 741 && freq < 852) return { intensity: 0.9, complexity: 6 }; // Expression
-    if (freq >= 852 && freq <= 963) return { intensity: 0.95, complexity: 7 }; // Spiritual
-    return { intensity: 0.7, complexity: 4 }; // Default
-  };
-  
-  const freqProps = getFrequencyProperties(frequency);
-  
-  // Size mapping
-  const sizeMap = {
-    sm: { width: 120, height: 120 },
-    md: { width: 200, height: 200 },
-    lg: { width: 300, height: 300 },
-    xl: { width: 400, height: 400 },
-    full: { width: "100%", height: "100%" },
-  };
-  
-  const dimensions = sizeMap[size];
-  
-  // Animation effect
+
   useEffect(() => {
-    if (!canvasRef.current) return;
+    if (!audioContext || !analyser || !canvasRef.current || !isVisible) return;
     
+    setIsPlaying(true);
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const ctx = canvas.getContext('2d')!;
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
     
-    // Set canvas dimensions
-    if (size === "full") {
-      canvas.width = canvas.parentElement?.clientWidth || 300;
-      canvas.height = canvas.parentElement?.clientHeight || 300;
-    } else {
-      canvas.width = typeof dimensions.width === 'number' ? dimensions.width : 300;
-      canvas.height = typeof dimensions.height === 'number' ? dimensions.height : 300;
+    // Resize canvas to match its display size
+    const resizeCanvas = () => {
+      const { width, height } = canvas.getBoundingClientRect();
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+      }
+    };
+    
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    
+    // Define the drawing function based on selected mode
+    const drawFractal = () => {
+      analyser.getByteFrequencyData(dataArray);
+      
+      const chakraColors = getChakraColor(chakra);
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const minDimension = Math.min(canvas.width, canvas.height);
+      
+      // Clear canvas with fade effect
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Calculate average frequency value for pulsation
+      let sum = 0;
+      for (let i = 0; i < dataArray.length; i++) {
+        sum += dataArray[i];
+      }
+      const average = sum / dataArray.length;
+      
+      // Draw outer circle (frequency response)
+      ctx.beginPath();
+      const points = [];
+      for (let i = 0; i < dataArray.length; i++) {
+        const value = dataArray[i] * sensitivity;
+        const percent = i / dataArray.length;
+        const angle = percent * Math.PI * 2;
+        
+        // Calculate radius with frequency response
+        const radiusBase = minDimension * 0.3;
+        const radius = radiusBase + (value * 0.5);
+        
+        const x = centerX + Math.cos(angle) * radius;
+        const y = centerY + Math.sin(angle) * radius;
+        
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+        
+        points.push({ x, y, value });
+      }
+      ctx.closePath();
+      
+      // Apply glow effect
+      ctx.strokeStyle = chakraColors.main;
+      ctx.lineWidth = 2;
+      ctx.shadowBlur = 15 + (average * 0.1);
+      ctx.shadowColor = chakraColors.shadow;
+      ctx.stroke();
+      
+      // Draw sacred geometry inner patterns based on mode
+      if (mode === 'fractal') {
+        drawFractalPattern(ctx, centerX, centerY, minDimension * 0.25, average, chakraColors);
+      } else if (mode === 'spiral') {
+        drawSpiralPattern(ctx, centerX, centerY, minDimension * 0.25, average, chakraColors);
+      } else {
+        drawMandalaPattern(ctx, centerX, centerY, minDimension * 0.25, average, chakraColors);
+      }
+      
+      animationRef.current = requestAnimationFrame(drawFractal);
+    };
+    
+    // Start the animation
+    drawFractal();
+    
+    // Clean up
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+      cancelAnimationFrame(animationRef.current);
+      setIsPlaying(false);
+    };
+  }, [audioContext, analyser, isVisible, chakra, mode, sensitivity]);
+  
+  // Helper function to draw fractal patterns
+  const drawFractalPattern = (
+    ctx: CanvasRenderingContext2D, 
+    centerX: number, 
+    centerY: number, 
+    size: number,
+    intensity: number,
+    colors: { main: string, shadow: string, glow: string }
+  ) => {
+    const numShapes = 6;
+    const angleStep = (Math.PI * 2) / numShapes;
+    
+    // Draw flower of life pattern
+    ctx.lineWidth = 1.5;
+    
+    // Inner circles
+    for (let i = 0; i < numShapes; i++) {
+      const angle = i * angleStep;
+      const x = centerX + Math.cos(angle) * (size * 0.5);
+      const y = centerY + Math.sin(angle) * (size * 0.5);
+      
+      const pulseSize = size * 0.5 + (intensity * 0.05);
+      
+      ctx.beginPath();
+      ctx.arc(x, y, pulseSize, 0, Math.PI * 2);
+      ctx.strokeStyle = colors.main;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = colors.shadow;
+      ctx.stroke();
     }
     
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const baseRadius = Math.min(centerX, centerY) * 0.8;
+    // Center circle
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, size * 0.3 + (intensity * 0.02), 0, Math.PI * 2);
+    ctx.strokeStyle = colors.main;
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = colors.shadow;
+    ctx.stroke();
     
-    let animationFrameId: number;
-    let rotationAngle = 0;
-    
-    const drawFlowerOfLife = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Connecting lines
+    ctx.beginPath();
+    for (let i = 0; i < numShapes; i++) {
+      const angle = i * angleStep;
+      const x = centerX + Math.cos(angle) * size;
+      const y = centerY + Math.sin(angle) * size;
       
-      // Set shadow for glow effect
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = chakraColor;
-      
-      // Base circle
-      const radius = baseRadius * (isPlaying && pulseWithAudio ? 0.95 + Math.sin(Date.now() / 1000) * 0.05 : 1);
-      
-      // Draw the central circle
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius / 3, 0, Math.PI * 2);
-      ctx.strokeStyle = chakraColor;
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      
-      // Draw the flower pattern
-      for (let i = 0; i < 6; i++) {
-        const angle = (Math.PI / 3) * i + rotationAngle;
-        const x = centerX + radius / 2 * Math.cos(angle);
-        const y = centerY + radius / 2 * Math.sin(angle);
-        
-        ctx.beginPath();
-        ctx.arc(x, y, radius / 3, 0, Math.PI * 2);
-        ctx.stroke();
+      if (i === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
       }
-      
-      // Add complexity based on frequency
-      for (let i = 0; i < freqProps.complexity; i++) {
-        const angle = (Math.PI / (freqProps.complexity / 2)) * i + rotationAngle * 0.5;
-        const distanceRatio = 0.65 + (i % 3) * 0.1;
-        const x = centerX + radius * distanceRatio * Math.cos(angle);
-        const y = centerY + radius * distanceRatio * Math.sin(angle);
-        
-        ctx.beginPath();
-        ctx.arc(x, y, radius / 4, 0, Math.PI * 2);
-        ctx.globalAlpha = 0.7 - i * 0.1;
-        ctx.stroke();
-      }
-      
-      ctx.globalAlpha = 1;
-      
-      // Increment rotation if playing
-      if (isPlaying) {
-        rotationAngle += 0.002 * animationSpeed;
-        setRotation(rotationAngle);
-      }
-    };
-    
-    const drawMetatronsCube = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Set shadow for glow effect
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = chakraColor;
-      
-      const radius = baseRadius * (isPlaying && pulseWithAudio ? 0.95 + Math.sin(Date.now() / 1000) * 0.05 : 1);
-      
-      // Draw outer circle
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-      ctx.strokeStyle = chakraColor;
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      
-      // Draw the 13 circles of Metatron's Cube
-      const points = [];
-      
-      // Central circle
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius / 6, 0, Math.PI * 2);
-      ctx.stroke();
-      points.push({ x: centerX, y: centerY });
-      
-      // Draw the inner 6 circles
-      for (let i = 0; i < 6; i++) {
-        const angle = (Math.PI / 3) * i + rotationAngle;
-        const x = centerX + radius / 2 * Math.cos(angle);
-        const y = centerY + radius / 2 * Math.sin(angle);
-        
-        ctx.beginPath();
-        ctx.arc(x, y, radius / 6, 0, Math.PI * 2);
-        ctx.stroke();
-        points.push({ x, y });
-      }
-      
-      // Draw the outer 6 circles
-      for (let i = 0; i < 6; i++) {
-        const angle = (Math.PI / 3) * i + rotationAngle + Math.PI / 6;
-        const x = centerX + radius * 0.8 * Math.cos(angle);
-        const y = centerY + radius * 0.8 * Math.sin(angle);
-        
-        ctx.beginPath();
-        ctx.arc(x, y, radius / 6, 0, Math.PI * 2);
-        ctx.stroke();
-        points.push({ x, y });
-      }
-      
-      // Connect all points to create the cube
-      ctx.beginPath();
-      for (let i = 1; i < points.length; i++) {
-        for (let j = i + 1; j < points.length; j++) {
-          ctx.moveTo(points[i].x, points[i].y);
-          ctx.lineTo(points[j].x, points[j].y);
-        }
-      }
-      ctx.globalAlpha = 0.4;
-      ctx.stroke();
-      ctx.globalAlpha = 1;
-      
-      // Increment rotation if playing
-      if (isPlaying) {
-        rotationAngle += 0.002 * animationSpeed;
-        setRotation(rotationAngle);
-      }
-    };
-    
-    const drawMerkaba = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Set shadow for glow effect
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = chakraColor;
-      
-      const radius = baseRadius * (isPlaying && pulseWithAudio ? 0.95 + Math.sin(Date.now() / 1000) * 0.05 : 1);
-      
-      // Draw outer circle
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-      ctx.strokeStyle = chakraColor;
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      
-      // Draw two interlocking tetrahedrons (Star of David in 2D)
-      const firstPoints = [];
-      const secondPoints = [];
-      
-      // First triangle (pointing up)
-      for (let i = 0; i < 3; i++) {
-        const angle = (Math.PI * 2 / 3) * i + rotationAngle;
-        const x = centerX + radius * 0.8 * Math.cos(angle);
-        const y = centerY + radius * 0.8 * Math.sin(angle);
-        firstPoints.push({ x, y });
-      }
-      
-      // Second triangle (pointing down)
-      for (let i = 0; i < 3; i++) {
-        const angle = (Math.PI * 2 / 3) * i + rotationAngle + Math.PI;
-        const x = centerX + radius * 0.8 * Math.cos(angle);
-        const y = centerY + radius * 0.8 * Math.sin(angle);
-        secondPoints.push({ x, y });
-      }
-      
-      // Draw first triangle
-      ctx.beginPath();
-      ctx.moveTo(firstPoints[0].x, firstPoints[0].y);
-      for (let i = 1; i < firstPoints.length; i++) {
-        ctx.lineTo(firstPoints[i].x, firstPoints[i].y);
-      }
-      ctx.closePath();
-      ctx.globalAlpha = 0.5;
-      ctx.stroke();
-      
-      // Draw second triangle
-      ctx.beginPath();
-      ctx.moveTo(secondPoints[0].x, secondPoints[0].y);
-      for (let i = 1; i < secondPoints.length; i++) {
-        ctx.lineTo(secondPoints[i].x, secondPoints[i].y);
-      }
-      ctx.closePath();
-      ctx.stroke();
-      
-      // Connect the points to create the merkaba
-      ctx.beginPath();
-      for (let i = 0; i < firstPoints.length; i++) {
-        for (let j = 0; j < secondPoints.length; j++) {
-          ctx.moveTo(firstPoints[i].x, firstPoints[i].y);
-          ctx.lineTo(secondPoints[j].x, secondPoints[j].y);
-        }
-      }
-      ctx.globalAlpha = 0.3;
-      ctx.stroke();
-      ctx.globalAlpha = 1;
-      
-      // Increment rotation if playing
-      if (isPlaying) {
-        rotationAngle += 0.003 * animationSpeed;
-        setRotation(rotationAngle);
-      }
-    };
-    
-    const drawSriYantra = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Set shadow for glow effect
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = chakraColor;
-      
-      const radius = baseRadius * (isPlaying && pulseWithAudio ? 0.95 + Math.sin(Date.now() / 1000) * 0.05 : 1);
-      
-      // Draw outer circle
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-      ctx.strokeStyle = chakraColor;
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      
-      // Draw lotus petals around the edge
-      const petalCount = 9;
-      for (let i = 0; i < petalCount; i++) {
-        const angle = (Math.PI * 2 / petalCount) * i + rotationAngle;
-        const x1 = centerX + radius * 0.7 * Math.cos(angle - Math.PI/petalCount);
-        const y1 = centerY + radius * 0.7 * Math.sin(angle - Math.PI/petalCount);
-        const x2 = centerX + radius * 0.9 * Math.cos(angle);
-        const y2 = centerY + radius * 0.9 * Math.sin(angle);
-        const x3 = centerX + radius * 0.7 * Math.cos(angle + Math.PI/petalCount);
-        const y3 = centerY + radius * 0.7 * Math.sin(angle + Math.PI/petalCount);
-        
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.quadraticCurveTo(x2, y2, x3, y3);
-        ctx.quadraticCurveTo(centerX + radius * 0.6 * Math.cos(angle), centerY + radius * 0.6 * Math.sin(angle), x1, y1);
-        ctx.stroke();
-      }
-      
-      // Draw concentric triangles
-      for (let i = 0; i < 4; i++) {
-        // Upward triangle
-        ctx.beginPath();
-        const upRadius = radius * (0.7 - i * 0.12);
-        const upPoints = [];
-        
-        for (let j = 0; j < 3; j++) {
-          const angle = (Math.PI * 2 / 3) * j + rotationAngle;
-          const x = centerX + upRadius * Math.cos(angle);
-          const y = centerY + upRadius * Math.sin(angle);
-          upPoints.push({ x, y });
-        }
-        
-        ctx.moveTo(upPoints[0].x, upPoints[0].y);
-        for (let j = 1; j < upPoints.length; j++) {
-          ctx.lineTo(upPoints[j].x, upPoints[j].y);
-        }
-        ctx.closePath();
-        ctx.globalAlpha = 0.7 - i * 0.1;
-        ctx.stroke();
-        
-        // Downward triangle
-        ctx.beginPath();
-        const downRadius = radius * (0.65 - i * 0.12);
-        const downPoints = [];
-        
-        for (let j = 0; j < 3; j++) {
-          const angle = (Math.PI * 2 / 3) * j + rotationAngle + Math.PI;
-          const x = centerX + downRadius * Math.cos(angle);
-          const y = centerY + downRadius * Math.sin(angle);
-          downPoints.push({ x, y });
-        }
-        
-        ctx.moveTo(downPoints[0].x, downPoints[0].y);
-        for (let j = 1; j < downPoints.length; j++) {
-          ctx.lineTo(downPoints[j].x, downPoints[j].y);
-        }
-        ctx.closePath();
-        ctx.stroke();
-      }
-      
-      // Central point (bindu)
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius * 0.05, 0, Math.PI * 2);
-      ctx.fillStyle = chakraColor;
-      ctx.globalAlpha = 1;
-      ctx.fill();
-      
-      // Increment rotation if playing
-      if (isPlaying) {
-        rotationAngle += 0.002 * animationSpeed;
-        setRotation(rotationAngle);
-      }
-    };
-    
-    // Draw function based on geometry type
-    const draw = () => {
-      if (geometryType === "flowerOfLife") {
-        drawFlowerOfLife();
-      } else if (geometryType === "metatronsCube") {
-        drawMetatronsCube();
-      } else if (geometryType === "merkaba") {
-        drawMerkaba();
-      } else if (geometryType === "sriYantra") {
-        drawSriYantra();
-      }
-      animationFrameId = requestAnimationFrame(draw);
-    };
-    
-    draw();
-    
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, [chakraColor, freqProps.complexity, geometryType, isPlaying, size, dimensions, pulseWithAudio, animationSpeed]);
+    }
+    ctx.closePath();
+    ctx.stroke();
+  };
   
+  // Helper function to draw spiral patterns
+  const drawSpiralPattern = (
+    ctx: CanvasRenderingContext2D, 
+    centerX: number, 
+    centerY: number, 
+    size: number,
+    intensity: number,
+    colors: { main: string, shadow: string, glow: string }
+  ) => {
+    const maxTurns = 5;
+    const spacing = 5;
+    const startRadius = 10 + (intensity * 0.1);
+    
+    ctx.beginPath();
+    for (let angle = 0; angle < maxTurns * Math.PI * 2; angle += 0.1) {
+      const radius = startRadius + spacing * angle / (Math.PI * 2);
+      const x = centerX + Math.cos(angle) * radius;
+      const y = centerY + Math.sin(angle) * radius;
+      
+      if (angle === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+    
+    ctx.strokeStyle = colors.main;
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = colors.shadow;
+    ctx.stroke();
+  };
+  
+  // Helper function to draw mandala patterns
+  const drawMandalaPattern = (
+    ctx: CanvasRenderingContext2D, 
+    centerX: number, 
+    centerY: number, 
+    size: number,
+    intensity: number,
+    colors: { main: string, shadow: string, glow: string }
+  ) => {
+    const numPetals = 12;
+    const innerRadius = size * 0.4;
+    const outerRadius = size + (intensity * 0.3);
+    const angleStep = (Math.PI * 2) / numPetals;
+    
+    // Draw petals
+    ctx.beginPath();
+    for (let i = 0; i < numPetals; i++) {
+      const angle1 = i * angleStep;
+      const angle2 = (i + 1) * angleStep;
+      const midAngle = (angle1 + angle2) / 2;
+      
+      const x1 = centerX + Math.cos(angle1) * innerRadius;
+      const y1 = centerY + Math.sin(angle1) * innerRadius;
+      
+      const xMid = centerX + Math.cos(midAngle) * outerRadius;
+      const yMid = centerY + Math.sin(midAngle) * outerRadius;
+      
+      const x2 = centerX + Math.cos(angle2) * innerRadius;
+      const y2 = centerY + Math.sin(angle2) * innerRadius;
+      
+      ctx.moveTo(x1, y1);
+      ctx.quadraticCurveTo(xMid, yMid, x2, y2);
+    }
+    
+    ctx.strokeStyle = colors.main;
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = colors.shadow;
+    ctx.stroke();
+    
+    // Draw inner circle
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, innerRadius, 0, Math.PI * 2);
+    ctx.stroke();
+  };
+
   return (
-    <div className={`sacred-geometry-container ${isPlaying ? 'is-playing' : ''}`}>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ 
-          opacity: 1, 
-          scale: isPlaying ? [1, 1.02, 1] : 1,
-          rotate: isPlaying ? [0, 1, 0, -1, 0] : 0
-        }}
-        transition={{
-          duration: 3,
-          repeat: isPlaying ? Infinity : 0,
-          repeatType: "reverse"
-        }}
-        className="relative"
-        style={{
-          width: typeof dimensions.width === 'string' ? dimensions.width : `${dimensions.width}px`,
-          height: typeof dimensions.height === 'string' ? dimensions.height : `${dimensions.height}px`
-        }}
-      >
-        <canvas 
-          ref={canvasRef}
-          className="sacred-geometry-canvas"
-        />
-        <div className="absolute inset-0 pointer-events-none sacred-geometry-overlay"></div>
-      </motion.div>
-    </div>
+    <motion.div 
+      className={`sacred-geometry-container ${isPlaying ? 'is-playing' : ''}`}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: isVisible ? 1 : 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <canvas
+        ref={canvasRef}
+        className="sacred-geometry-canvas absolute inset-0 w-full h-full z-0 pointer-events-none"
+      />
+      <div className="sacred-geometry-overlay absolute inset-0 z-0 pointer-events-none" />
+    </motion.div>
   );
 };
 

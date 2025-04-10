@@ -65,6 +65,52 @@
   animation: spin-slow 20s linear infinite;
 }
 
+/* For frequency visualizations */
+@keyframes pulse-slow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+@keyframes pulse-medium {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.8;
+  }
+}
+
+@keyframes pulse-fast {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.7;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 8s ease-in-out infinite;
+}
+
+.animate-pulse-medium {
+  animation: pulse-medium 6s ease-in-out infinite;
+}
+
+.animate-pulse-fast {
+  animation: pulse-fast 4s ease-in-out infinite;
+}
+
 /* Custom cursor */
 .cosmic-cursor {
   cursor: url('/cosmic-cursor.svg') 16 16, auto;
@@ -85,4 +131,65 @@
   background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Chakra colors for visualizer */
+.chakra-root {
+  --chakra-color: rgba(255, 0, 0, 0.8);
+  --chakra-shadow: #ff0000;
+}
+
+.chakra-sacral {
+  --chakra-color: rgba(255, 128, 0, 0.8);
+  --chakra-shadow: #ff8000;
+}
+
+.chakra-solar-plexus {
+  --chakra-color: rgba(255, 255, 0, 0.8);
+  --chakra-shadow: #ffff00;
+}
+
+.chakra-heart {
+  --chakra-color: rgba(0, 255, 0, 0.8);
+  --chakra-shadow: #00ff00;
+}
+
+.chakra-throat {
+  --chakra-color: rgba(0, 191, 255, 0.8);
+  --chakra-shadow: #00bfff;
+}
+
+.chakra-third-eye {
+  --chakra-color: rgba(75, 0, 130, 0.8);
+  --chakra-shadow: #4b0082;
+}
+
+.chakra-crown {
+  --chakra-color: rgba(138, 43, 226, 0.8);
+  --chakra-shadow: #8a2be2;
+}
+
+/* Fractal backdrop styles */
+.fractal-backdrop {
+  background: radial-gradient(circle at center, rgba(75, 0, 130, 0.2), rgba(0, 0, 0, 0.8));
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+/* Both the circle backdrop and the visualizer should be contained within a relative parent */
+.journey-visual-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+.sacred-pulsing-circle {
+  position: absolute;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  left: 50%;
+  top: 50%;
+  background: radial-gradient(circle at center, rgba(138, 43, 226, 0.3), transparent 70%);
+  animation: pulse-slow 6s ease-in-out infinite;
 }
