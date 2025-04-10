@@ -33,19 +33,45 @@ const Merkaba: React.FC = () => {
       roughness: 0.4, 
       emissive: 0x3a1b8c,
       emissiveIntensity: 0.3,
+      wireframe: true,
+    });
+
+    const lineMaterial = new THREE.LineBasicMaterial({
+      color: 0xb794f6,
+      transparent: true,
+      opacity: 0.8,
     });
 
     // Create group to hold both tetrahedrons
     const group = new THREE.Group();
 
-    // Create top tetrahedron
-    const topTetra = new THREE.Mesh(new THREE.TetrahedronGeometry(1), material);
+    // Create top tetrahedron with better geometry
+    const topTetraGeometry = new THREE.TetrahedronGeometry(1.2);
+    const topTetra = new THREE.Mesh(topTetraGeometry, material);
+    const topTetraEdges = new THREE.EdgesGeometry(topTetraGeometry);
+    const topTetraLines = new THREE.LineSegments(topTetraEdges, lineMaterial);
+    topTetra.add(topTetraLines);
     group.add(topTetra);
 
-    // Create bottom tetrahedron
-    const bottomTetra = new THREE.Mesh(new THREE.TetrahedronGeometry(1), material);
+    // Create bottom tetrahedron with better geometry
+    const bottomTetraGeometry = new THREE.TetrahedronGeometry(1.2);
+    const bottomTetra = new THREE.Mesh(bottomTetraGeometry, material);
+    const bottomTetraEdges = new THREE.EdgesGeometry(bottomTetraGeometry);
+    const bottomTetraLines = new THREE.LineSegments(bottomTetraEdges, lineMaterial);
     bottomTetra.rotation.x = Math.PI; // Flip it upside down
+    bottomTetra.add(bottomTetraLines);
     group.add(bottomTetra);
+
+    // Add outer sphere for energy field effect
+    const sphereGeometry = new THREE.SphereGeometry(1.6, 32, 32);
+    const sphereMaterial = new THREE.MeshBasicMaterial({
+      color: 0x9f7aea,
+      transparent: true,
+      opacity: 0.1,
+      wireframe: true,
+    });
+    const energySphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    group.add(energySphere);
 
     scene.add(group);
 
@@ -63,6 +89,9 @@ const Merkaba: React.FC = () => {
       requestAnimationFrame(animate);
       group.rotation.x += 0.005;
       group.rotation.y += 0.005;
+      // Make the energy sphere rotate in the opposite direction
+      energySphere.rotation.x -= 0.002;
+      energySphere.rotation.y -= 0.002;
       renderer.render(scene, camera);
     };
     

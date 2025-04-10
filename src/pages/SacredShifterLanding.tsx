@@ -26,10 +26,18 @@ const SacredShifterLanding = () => {
     <div className="relative min-h-screen bg-black text-white font-sans overflow-x-hidden">
       <StarfieldBackground />
 
-      <header className="text-center pt-20 relative z-10">
-        <h1 className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-blue-400 drop-shadow-lg" style={{ backgroundImage: 'none', color: 'rgba(255,255,255,0.85)' }}>
-          <span className="mix-blend-screen">Sacred Shifter</span>
-        </h1>
+      {/* Top Navigation */}
+      <nav className="fixed left-4 top-1/2 transform -translate-y-1/2 z-50 space-y-4">
+        {['Home', 'Sound Journeys', 'Experiences', 'Frequencies', 'My Journey'].map((label) => (
+          <a key={label} href={`#${label.toLowerCase().replace(/ /g, '-')}`} className="block text-sm text-white hover:text-purple-300 transition">
+            {label}
+          </a>
+        ))}
+      </nav>
+
+      <header className="text-center pt-24 relative z-10">
+        <img src="/lovable-uploads/b9b4b625-472c-484e-a49a-41aaf4f604a5.png" alt="Sacred Shifter Logo" className="mx-auto w-48 opacity-80 mix-blend-screen" />
+        <h1 className="sr-only">Sacred Shifter</h1>
         <p className="text-lg mt-4 max-w-xl mx-auto text-gray-300">
           Explore frequency-based healing, sacred geometry, and consciousness expansion in this interdimensional portal
         </p>
@@ -54,13 +62,13 @@ const SacredShifterLanding = () => {
 
       {/* Geometry Visualizer */}
       <div className="mt-6 px-4 z-10 relative">
-        <div className="rounded-lg overflow-hidden">
+        <div className="rounded-lg overflow-hidden border border-purple-900 shadow-xl">
           {geometryComponents[selectedShape]}
         </div>
       </div>
 
       {/* Experience Grid */}
-      <section className="mt-16 px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl mx-auto z-10 relative">
+      <section id="experiences" className="mt-16 px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl mx-auto z-10 relative">
         {[
           { title: 'Sound Healing', description: 'Frequency-based sound healing journeys' },
           { title: 'Meditation', description: 'Guided meditations with sacred frequencies' },
@@ -75,15 +83,20 @@ const SacredShifterLanding = () => {
           >
             <h3 className="text-xl font-semibold mb-2">{title}</h3>
             <p className="text-sm text-gray-300">{description}</p>
-            <button className="mt-4 text-indigo-300 hover:text-indigo-400 transition">Explore →</button>
+            <a href={`#${title.toLowerCase().replace(/ /g, '-')}`} className="mt-4 block text-indigo-300 hover:text-indigo-400 transition">Explore →</a>
           </div>
         ))}
       </section>
 
       {/* Footer Player */}
-      <footer className="mt-20 pb-10 text-center z-10 relative">
+      <footer className="mt-24 pb-10 text-center z-10 relative">
+        <audio autoPlay loop className="mx-auto mb-2">
+          <source src="/audio/528hz-heart.mp3" type="audio/mpeg" />
+        </audio>
         <p className="text-sm text-purple-400">528Hz - Heart Chakra</p>
-        <div className="mt-2 text-xs text-gray-500">Sound Journeys • Hermetic Wisdom • Heart Center • Manifestation • Astrology</div>
+        <div className="mt-2 text-xs text-gray-500">
+          Sound Journeys • Experiences • Frequencies • My Journey
+        </div>
       </footer>
     </div>
   );

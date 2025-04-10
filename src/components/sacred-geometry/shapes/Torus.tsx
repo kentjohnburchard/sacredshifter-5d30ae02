@@ -26,17 +26,47 @@ const Torus: React.FC = () => {
     renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
     containerRef.current.appendChild(renderer.domElement);
 
-    // Create Torus
-    const geometry = new THREE.TorusGeometry(1, 0.4, 16, 100);
+    // Create Torus group
+    const torusGroup = new THREE.Group();
+
+    // Create main Torus
+    const geometry = new THREE.TorusGeometry(1, 0.4, 32, 100);
     const material = new THREE.MeshStandardMaterial({
       color: new THREE.Color('#9f7aea'), // Violet
       emissive: new THREE.Color('#805ad5'),
       roughness: 0.2,
       metalness: 0.8,
+      wireframe: false,
     });
     
     const torus = new THREE.Mesh(geometry, material);
-    scene.add(torus);
+    torusGroup.add(torus);
+
+    // Add wireframe overlay
+    const wireframeMaterial = new THREE.LineBasicMaterial({
+      color: 0xb794f6,
+      transparent: true,
+      opacity: 0.5,
+    });
+    const wireframeGeo = new THREE.EdgesGeometry(geometry);
+    const wireframe = new THREE.LineSegments(wireframeGeo, wireframeMaterial);
+    torus.add(wireframe);
+
+    // Create inner energy torus
+    const innerGeometry = new THREE.TorusGeometry(0.7, 0.2, 16, 50);
+    const innerMaterial = new THREE.MeshStandardMaterial({
+      color: new THREE.Color('#d6bcfa'),
+      emissive: new THREE.Color('#9f7aea'),
+      emissiveIntensity: 0.5,
+      transparent: true,
+      opacity: 0.7,
+    });
+    
+    const innerTorus = new THREE.Mesh(innerGeometry, innerMaterial);
+    innerTorus.rotation.x = Math.PI / 2;
+    torusGroup.add(innerTorus);
+
+    scene.add(torusGroup);
 
     // Add ambient light
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -52,6 +82,8 @@ const Torus: React.FC = () => {
       requestAnimationFrame(animate);
       torus.rotation.x += 0.005;
       torus.rotation.y += 0.005;
+      innerTorus.rotation.x += 0.008;
+      innerTorus.rotation.z += 0.008;
       renderer.render(scene, camera);
     };
     
