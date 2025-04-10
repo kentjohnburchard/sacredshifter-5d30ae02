@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import './App.css';
+import './styles/sacred-geometry.css';
 import Onboarding from './components/Onboarding';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
@@ -25,15 +26,17 @@ import HermeticWisdom from './pages/HermeticWisdom';
 import JourneyPlayer from './pages/JourneyPlayer';
 import JourneyTemplates from './pages/JourneyTemplates';
 import Astrology from './pages/Astrology';
+import CosmicDashboard from './pages/CosmicDashboard';
 import { JourneySettingsProvider } from './context/JourneySettingsContext';
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <JourneySettingsProvider>
         <ScrollToTop />
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<CosmicDashboard />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/about-founder" element={<AboutFounder />} />
           <Route path="/contact" element={<Contact />} />
@@ -55,6 +58,7 @@ function App() {
           <Route path="/journey-templates" element={<JourneyTemplates />} />
           <Route path="/journey/:frequencyId" element={<JourneyPlayer />} />
           <Route path="/astrology" element={<Astrology />} />
+          <Route path="/journeys" element={<JourneyTemplates />} />
         </Routes>
         <Toaster />
       </JourneySettingsProvider>
