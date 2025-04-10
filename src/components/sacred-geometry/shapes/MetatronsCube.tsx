@@ -10,7 +10,7 @@ const MetatronsCube: React.FC = () => {
     
     // Create scene
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
+    scene.background = null; // Make background transparent
     
     // Create camera
     const camera = new THREE.PerspectiveCamera(
@@ -22,13 +22,21 @@ const MetatronsCube: React.FC = () => {
     camera.position.z = 5;
     
     // Create renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({ 
+      antialias: true,
+      alpha: true // Enable transparency
+    });
     renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
+    renderer.setClearColor(0x000000, 0); // Set clear color to transparent
     containerRef.current.appendChild(renderer.domElement);
 
     // Create Metatron's Cube
     const group = new THREE.Group();
-    const material = new THREE.LineBasicMaterial({ color: 0x9f7aea });
+    const material = new THREE.LineBasicMaterial({ 
+      color: 0x9f7aea,
+      transparent: true,
+      opacity: 0.7 // Make lines slightly transparent
+    });
     
     // Create 13 spheres at Fibonacci points with slightly larger sphere size for visibility
     const spherePositions = [
@@ -41,9 +49,13 @@ const MetatronsCube: React.FC = () => {
       [0.5, -0.289, 0.816], [-0.5, -0.289, 0.816]
     ];
     
-    // Add vertices (small spheres) - increased size to 0.07
-    const pointsGeometry = new THREE.SphereGeometry(0.07, 12, 12);
-    const pointsMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    // Add vertices (small spheres) - increased size to 0.08
+    const pointsGeometry = new THREE.SphereGeometry(0.08, 12, 12);
+    const pointsMaterial = new THREE.MeshBasicMaterial({ 
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.8
+    });
     
     const vertices: THREE.Vector3[] = [];
     
@@ -56,7 +68,9 @@ const MetatronsCube: React.FC = () => {
     
     // Connect all vertices with lines - make lines slightly thicker
     const thickerLineMaterial = new THREE.LineBasicMaterial({ 
-      color: 0x9f7aea,
+      color: 0xb794f6, // Slightly lighter purple
+      transparent: true,
+      opacity: 0.6, // Make more transparent
       linewidth: 2 // Note: WebGL has limitations on line thickness
     });
     
@@ -71,8 +85,8 @@ const MetatronsCube: React.FC = () => {
       }
     }
     
-    // Enlarge the cube slightly (from 0.5 to 0.65)
-    group.scale.set(0.65, 0.65, 0.65);
+    // Enlarge the cube
+    group.scale.set(0.85, 0.85, 0.85);
     scene.add(group);
 
     // Add ambient light

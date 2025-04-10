@@ -11,6 +11,7 @@ const Torus: React.FC = () => {
     // Create scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
+    scene.background = null; // Make background transparent
     
     // Create camera
     const camera = new THREE.PerspectiveCamera(
@@ -22,8 +23,12 @@ const Torus: React.FC = () => {
     camera.position.z = 5;
     
     // Create renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({ 
+      antialias: true,
+      alpha: true // Enable transparency
+    });
     renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
+    renderer.setClearColor(0x000000, 0); // Set clear color to transparent
     containerRef.current.appendChild(renderer.domElement);
 
     // Create Torus group
@@ -37,6 +42,8 @@ const Torus: React.FC = () => {
       roughness: 0.2,
       metalness: 0.8,
       wireframe: false,
+      transparent: true,
+      opacity: 0.7, // Make slightly transparent
     });
     
     const torus = new THREE.Mesh(geometry, material);
@@ -46,7 +53,7 @@ const Torus: React.FC = () => {
     const wireframeMaterial = new THREE.LineBasicMaterial({
       color: 0xb794f6,
       transparent: true,
-      opacity: 0.5,
+      opacity: 0.4, // More transparent wireframe
     });
     const wireframeGeo = new THREE.EdgesGeometry(geometry);
     const wireframe = new THREE.LineSegments(wireframeGeo, wireframeMaterial);
@@ -59,7 +66,7 @@ const Torus: React.FC = () => {
       emissive: new THREE.Color('#9f7aea'),
       emissiveIntensity: 0.5,
       transparent: true,
-      opacity: 0.7,
+      opacity: 0.5, // More transparent inner torus
     });
     
     const innerTorus = new THREE.Mesh(innerGeometry, innerMaterial);
