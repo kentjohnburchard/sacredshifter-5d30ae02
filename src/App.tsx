@@ -87,8 +87,10 @@ function App() {
       <SacredThemeProvider>
         <JourneySettingsProvider>
           <ScrollToTop />
-          {/* Global starfield background that appears on all pages */}
+          
+          {/* Global starfield background for select pages only */}
           <StarfieldBackground />
+          
           <Routes>
             {/* Entry and Auth Routes (no layout wrapper) */}
             <Route path="/" element={<Index />} />

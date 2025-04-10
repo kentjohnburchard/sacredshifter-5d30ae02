@@ -23,7 +23,7 @@ const Layout: React.FC<LayoutProps> = ({
 }) => {
   const location = useLocation();
   const isAuthPage = location.pathname === '/auth';
-  const isJourneyPage = location.pathname.includes('/journey/');
+  const isHomePage = location.pathname === '/' || location.pathname === '/dashboard';
 
   // Set the page title
   document.title = `${pageTitle} | Sacred Shifter`;
@@ -56,12 +56,20 @@ const Layout: React.FC<LayoutProps> = ({
     </div>
   );
 
-  // Always apply the cosmic theme with AnimatedBackground for consistent visuals
-  return (
-    <AnimatedBackground theme={theme} intensity="high">
-      {renderContent()}
-    </AnimatedBackground>
-  );
+  // Only use AnimatedBackground on homepage, use a simple container for all other pages
+  if (isHomePage) {
+    return (
+      <AnimatedBackground theme={theme} intensity="high">
+        {renderContent()}
+      </AnimatedBackground>
+    );
+  } else {
+    return (
+      <div className="bg-gradient-to-b from-black via-[#0a0118] to-black min-h-screen">
+        {renderContent()}
+      </div>
+    );
+  }
 };
 
 export default Layout;
