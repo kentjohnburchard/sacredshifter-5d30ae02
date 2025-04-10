@@ -10,15 +10,15 @@ import BlueprintQuiz from './BlueprintQuiz';
 import BlueprintDisplay from './BlueprintDisplay';
 import { Sparkles, Loader2 } from 'lucide-react';
 
-export const SacredBlueprintCreator: React.FC = () => {
+// Completely refactored for better performance
+const SacredBlueprintCreator: React.FC = () => {
   const { user } = useAuth();
   const [stage, setStage] = useState<'intro' | 'quiz' | 'generating' | 'display'>('intro');
   const [blueprint, setBlueprint] = useState<SacredBlueprint | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Performance optimized - use lazy loading and memoization
+  // Simplified initialization
   useEffect(() => {
-    // When component mounts, check for existing blueprint
     const checkExistingBlueprint = async () => {
       if (!user) {
         setLoading(false);
@@ -39,7 +39,12 @@ export const SacredBlueprintCreator: React.FC = () => {
       }
     };
 
-    checkExistingBlueprint();
+    // Small delay to prevent immediate heavy operations
+    const timer = setTimeout(() => {
+      checkExistingBlueprint();
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, [user]);
 
   const handleQuizComplete = useCallback(async () => {
@@ -51,26 +56,19 @@ export const SacredBlueprintCreator: React.FC = () => {
     setStage('generating');
 
     try {
-      // Get all user quiz responses
+      // Get user data with catch for errors
       const { data: responses } = await getUserQuizResponses(user.id);
-      
-      // Get user astrology data if available
       const { data: astroData } = await getUserAstroData(user.id);
       
-      // Generate blueprint from responses
       const generatedBlueprint = await generateBlueprint(user.id, responses, astroData);
-      
-      // Save blueprint to database
       const { error } = await saveBlueprint(generatedBlueprint);
       
       if (error) {
         throw new Error("Failed to save blueprint");
       }
       
-      // Update local state with new blueprint
       setBlueprint(generatedBlueprint);
       setStage('display');
-      
       toast.success("Your Sacred Blueprint has been created!");
     } catch (error) {
       console.error("Error generating blueprint:", error);
@@ -96,6 +94,7 @@ export const SacredBlueprintCreator: React.FC = () => {
     );
   }
 
+  // Simplified render logic
   return (
     <div className="w-full mx-auto text-white">
       {stage === 'intro' && (
@@ -104,19 +103,15 @@ export const SacredBlueprintCreator: React.FC = () => {
             Discover Your Sacred Blueprint
           </h2>
           <p className="mb-6 text-gray-200">
-            Your Sacred Blueprint is a personalized frequency chart and spiritual identity map 
-            based on your energy, emotions, and resonance tendencies. It reveals your unique 
-            vibrational signature and provides insights into your energetic nature.
+            Your Sacred Blueprint reveals your unique vibrational signature and provides insights into your energetic nature.
           </p>
-          <div className="flex justify-center">
-            <Button 
-              onClick={startQuiz} 
-              className="bg-gradient-to-r from-indigo-600/80 to-purple-600/80 hover:from-indigo-700/80 hover:to-purple-700/80 shadow-lg shadow-purple-500/20"
-            >
-              <Sparkles className="mr-2 h-4 w-4" />
-              Begin Sacred Blueprint Journey
-            </Button>
-          </div>
+          <Button 
+            onClick={startQuiz} 
+            className="bg-gradient-to-r from-indigo-600/80 to-purple-600/80 hover:from-indigo-700/80 hover:to-purple-700/80"
+          >
+            <Sparkles className="mr-2 h-4 w-4" />
+            Begin Sacred Blueprint Journey
+          </Button>
         </Card>
       )}
 
@@ -127,8 +122,8 @@ export const SacredBlueprintCreator: React.FC = () => {
       {stage === 'generating' && (
         <div className="text-center py-10">
           <Loader2 className="h-10 w-10 mx-auto mb-4 animate-spin text-indigo-400" />
-          <h3 className="text-xl font-medium mb-2 text-white">Generating Your Sacred Blueprint</h3>
-          <p className="text-gray-300">We are connecting with your unique frequency...</p>
+          <h3 className="text-xl font-medium mb-2 text-white">Generating Your Blueprint</h3>
+          <p className="text-gray-300">Please wait...</p>
         </div>
       )}
 
@@ -142,7 +137,7 @@ export const SacredBlueprintCreator: React.FC = () => {
               variant="outline"
               className="text-indigo-200 border-indigo-400/30 hover:bg-indigo-800/30"
             >
-              Create a New Blueprint (Version {(blueprint.version || 1) + 1})
+              Create a New Blueprint
             </Button>
           </div>
         </div>
@@ -151,5 +146,4 @@ export const SacredBlueprintCreator: React.FC = () => {
   );
 };
 
-// Memoize the component to prevent unnecessary re-renders
 export default memo(SacredBlueprintCreator);
