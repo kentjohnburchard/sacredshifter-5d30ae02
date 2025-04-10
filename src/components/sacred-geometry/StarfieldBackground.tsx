@@ -18,30 +18,51 @@ const StarfieldBackground: React.FC = () => {
       canvas.height = window.innerHeight;
     };
 
-    // Create stars with twinkling animation properties
-    const stars = Array.from({ length: 300 }, () => ({
+    // Create stars with enhanced properties for a more vivid starfield
+    const stars = Array.from({ length: 400 }, () => ({
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
-      radius: Math.random() * 1.5,
+      radius: Math.random() * 2, // Slightly larger stars
       alpha: Math.random(),
       delta: Math.random() * 0.005 + 0.002,
+      color: Math.random() > 0.8 ? 
+        `rgba(${155 + Math.random() * 100}, ${155 + Math.random() * 100}, 255, ` : // Bluish stars
+        Math.random() > 0.6 ? 
+          `rgba(255, ${155 + Math.random() * 100}, ${155 + Math.random() * 100}, ` : // Reddish stars
+          `rgba(255, 255, 255, ` // White stars
     }));
 
     const draw = () => {
       if (!context) return;
       context.clearRect(0, 0, canvas.width, canvas.height);
-      context.fillStyle = 'black';
+      
+      // Create subtle gradient background for more depth
+      const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
+      gradient.addColorStop(0, 'rgba(10, 1, 24, 1)');
+      gradient.addColorStop(0.5, 'rgba(0, 0, 0, 1)');
+      gradient.addColorStop(1, 'rgba(15, 0, 30, 1)');
+      context.fillStyle = gradient;
       context.fillRect(0, 0, canvas.width, canvas.height);
 
+      // Draw each star with twinkling effect
       stars.forEach((star) => {
         // Update star opacity for twinkling effect
         star.alpha += star.delta;
         if (star.alpha > 1 || star.alpha < 0.1) star.delta *= -1;
         
+        // Draw the star
         context.beginPath();
         context.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-        context.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
+        context.fillStyle = `${star.color}${star.alpha})`;
         context.fill();
+        
+        // Add glow for brighter stars
+        if (star.radius > 1.3) {
+          context.beginPath();
+          context.arc(star.x, star.y, star.radius * 3, 0, Math.PI * 2);
+          context.fillStyle = `${star.color}${star.alpha * 0.1})`;
+          context.fill();
+        }
       });
 
       animationFrameId = requestAnimationFrame(draw);
