@@ -98,9 +98,9 @@ const CosmicDashboard = () => {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-4xl md:text-5xl lg:text-6xl font-playfair font-bold text-white mb-3"
-            >
+            >Welcome
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-300 to-blue-400">
-                Sacred Shifter
+                
               </span>
             </motion.h1>
             <motion.p
@@ -108,8 +108,7 @@ const CosmicDashboard = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
               className="text-lg text-purple-100/80 max-w-2xl"
-            >
-              Explore frequency-based healing, sacred geometry, and consciousness expansion in this interdimensional portal
+            >Tune into healing frequencies, unlock sacred codes and elevate your consciousness.
             </motion.p>
           </div>
           
