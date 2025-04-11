@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Eye, EyeOff } from "lucide-react";
-import { toast } from "sonner";
-import useAudioAnalyzer from "@/hooks/useAudioAnalyzer";
 import { SacredGeometryVisualizer } from "@/components/sacred-geometry";
+import useAudioAnalyzer from "@/hooks/useAudioAnalyzer";
+import { useGlobalAudioPlayer } from "@/hooks/useGlobalAudioPlayer";
 
 interface FrequencyPlayerProps {
   audioUrl?: string;
@@ -15,6 +15,7 @@ interface FrequencyPlayerProps {
   id?: string;
   groupId?: string;
   chakra?: string;
+  title?: string;
 }
 
 const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
@@ -26,162 +27,74 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   frequencyId,
   id,
   groupId,
-  chakra
+  chakra,
+  title = "Sacred Frequency"
 }) => {
-  const [isAudioReady, setIsAudioReady] = useState(false);
-  const [audioError, setAudioError] = useState<string | null>(null);
   const [showVisualizer, setShowVisualizer] = useState(true);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const effectiveAudioUrl = url || audioUrl;
+  const { playAudio } = useGlobalAudioPlayer();
+  
+  // Keep audio analyzer for visualization
+  const audioRef = React.useRef(new Audio());
   const { audioContext, analyser } = useAudioAnalyzer(audioRef);
   
+  // Set up the audio source when component mounts
   useEffect(() => {
-    audioRef.current = new Audio();
-    
-    const handleCanPlay = () => {
-      console.log("Audio can play:", effectiveAudioUrl);
-      setIsAudioReady(true);
-      setAudioError(null);
-    };
-    
-    const handleError = (e: ErrorEvent) => {
-      console.error("Audio load error:", e);
-      setIsAudioReady(false);
-      setAudioError("Failed to load audio");
+    if (effectiveAudioUrl && audioRef.current) {
+      let formattedUrl = effectiveAudioUrl;
       
-      if (isPlaying) {
-        // Notify parent that playback failed
-        onPlayToggle();
-        toast.error("Could not play audio. The file may be missing or in an unsupported format.");
+      // Format URL if needed
+      if (!formattedUrl.startsWith('http')) {
+        formattedUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${formattedUrl}`;
       }
-    };
-    
-    const handleEnded = () => {
-      console.log("Audio playback ended");
+      
+      // Set the source but don't play yet
+      audioRef.current.src = formattedUrl;
+      audioRef.current.load();
+      
+      // If we want to start playing, handle with global player
       if (isPlaying) {
-        onPlayToggle();
+        playFrequency();
       }
-    };
-    
-    audioRef.current.addEventListener("canplay", handleCanPlay);
-    audioRef.current.addEventListener("error", handleError as EventListener);
-    audioRef.current.addEventListener("ended", handleEnded);
+    }
     
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
-        audioRef.current.removeEventListener("canplay", handleCanPlay);
-        audioRef.current.removeEventListener("error", handleError as EventListener);
-        audioRef.current.removeEventListener("ended", handleEnded);
-        audioRef.current.src = "";
+        audioRef.current.src = '';
       }
     };
-  }, []);
-  
-  useEffect(() => {
-    if (!effectiveAudioUrl) {
-      console.warn("No audio URL provided to FrequencyPlayer");
-      return;
-    }
-    
-    console.log("Setting audio source:", effectiveAudioUrl);
-    
-    if (audioRef.current) {
-      // Reset state
-      setIsAudioReady(false);
-      setAudioError(null);
-      
-      // If currently playing, pause first
-      if (isPlaying && audioRef.current.paused === false) {
-        audioRef.current.pause();
-      }
-      
-      try {
-        // Try different URL formats if the original one doesn't work
-        let formattedUrl = effectiveAudioUrl;
-        
-        // First try: Original URL
-        if (!formattedUrl.startsWith('http')) {
-          formattedUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${formattedUrl}`;
-        }
-        
-        // Handle spaces and parentheses
-        if (formattedUrl.includes(' ') || formattedUrl.includes('(') || formattedUrl.includes(')')) {
-          formattedUrl = encodeURI(formattedUrl);
-        }
-        
-        console.log("Setting formatted URL:", formattedUrl);
-        audioRef.current.src = formattedUrl;
-        audioRef.current.load();
-        
-        // Add a fallback in case the first load fails
-        audioRef.current.onerror = () => {
-          console.log("Initial load failed, trying alternate encoding");
-          
-          // Try different encoding approach
-          const filename = effectiveAudioUrl.split('/').pop();
-          if (filename) {
-            const altUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${encodeURIComponent(filename)}`;
-            console.log("Trying alternate URL:", altUrl);
-            audioRef.current!.src = altUrl;
-            audioRef.current!.load();
-          }
-        };
-      } catch (err) {
-        console.error("Error setting audio source:", err);
-      }
-    }
   }, [effectiveAudioUrl]);
   
+  // Update audio playback state when isPlaying changes
   useEffect(() => {
-    if (!audioRef.current || !effectiveAudioUrl) return;
-    
     if (isPlaying) {
-      console.log("Attempting to play:", effectiveAudioUrl);
-      
-      const playPromise = audioRef.current.play();
-      
-      if (playPromise !== undefined) {
-        playPromise.catch(error => {
-          console.error("Error playing audio:", error);
-          // Reset play state
-          onPlayToggle();
-          toast.error("Could not play audio. Please try again.");
-        });
-      }
+      playFrequency();
     } else {
-      if (!audioRef.current.paused) {
-        console.log("Pausing audio");
-        audioRef.current.pause();
-      }
+      // We don't pause the global player here, just update UI
+      // The user will need to pause from the global player
     }
-  }, [isPlaying, effectiveAudioUrl, onPlayToggle]);
+  }, [isPlaying]);
+  
+  const playFrequency = () => {
+    if (effectiveAudioUrl) {
+      // Use the global player
+      playAudio({
+        title: title || `${frequency ? `${frequency}Hz` : 'Sacred'} Frequency`,
+        artist: chakra ? `${chakra} Chakra` : "Sacred Shifter",
+        source: effectiveAudioUrl
+      });
+    }
+  };
   
   const handlePlayPauseClick = () => {
-    if (audioError) {
-      // If there was an error, try reloading before playing
-      if (audioRef.current && effectiveAudioUrl) {
-        // Try different URL formats if the original one doesn't work
-        let formattedUrl = effectiveAudioUrl;
-        
-        // First try: Original URL
-        if (!formattedUrl.startsWith('http')) {
-          formattedUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${formattedUrl}`;
-        }
-        
-        // Handle spaces and parentheses
-        if (formattedUrl.includes(' ') || formattedUrl.includes('(') || formattedUrl.includes(')')) {
-          formattedUrl = encodeURI(formattedUrl);
-        }
-        
-        audioRef.current.src = formattedUrl;
-        audioRef.current.load();
-      }
-      
-      setAudioError(null);
-    }
-    
+    // Toggle play state in parent component
     onPlayToggle();
+    
+    // If not playing, start playing
+    if (!isPlaying) {
+      playFrequency();
+    }
   };
   
   const toggleVisualizer = () => {
