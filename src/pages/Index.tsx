@@ -15,8 +15,8 @@ const Index: React.FC = () => {
     return <Navigate to="/welcome" replace />;
   }
   
-  // Otherwise, redirect to the dashboard
-  return <Navigate to="/dashboard" replace />;
+  // Otherwise, redirect to the home page (which is now CosmicDashboard)
+  return <Navigate to="/" replace />;
 };
 
 export default Index;

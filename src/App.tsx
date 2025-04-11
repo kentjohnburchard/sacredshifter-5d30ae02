@@ -19,9 +19,9 @@ function App() {
   return (
     <React.StrictMode>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<CosmicDashboard />} />
         <Route path="/welcome" element={<Welcome />} />
-        <Route path="/dashboard" element={<CosmicDashboard />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/landing" element={<SacredShifterLanding />} />
         <Route path="/meditations" element={<Meditations />} />
         <Route path="/hermetic-principles" element={<HermeticPrinciples />} />
