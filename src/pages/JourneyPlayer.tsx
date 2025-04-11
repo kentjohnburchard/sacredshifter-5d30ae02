@@ -5,6 +5,7 @@ import Layout from '@/components/Layout';
 import { Card, CardContent } from '@/components/ui/card';
 import journeyTemplates from '@/data/journeyTemplates';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
+import { useJourneyTemplates } from '@/hooks/useJourneyTemplates';
 
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
@@ -12,6 +13,7 @@ const JourneyPlayer = () => {
   const { playAudio } = useGlobalAudioPlayer();
   const [journey, setJourney] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { audioMappings } = useJourneyTemplates();
 
   useEffect(() => {
     if (!journeyId) {
@@ -25,12 +27,13 @@ const JourneyPlayer = () => {
     if (foundJourney) {
       setJourney(foundJourney);
       
-      // Play the journey audio if available
-      if (foundJourney.audioUrl) {
+      // Play the journey audio if available from audio mappings
+      const audioMapping = audioMappings[journeyId];
+      if (audioMapping && audioMapping.audioUrl) {
         playAudio({
           title: foundJourney.title,
           artist: "Sacred Shifter",
-          source: foundJourney.audioUrl
+          source: audioMapping.audioUrl
         });
       }
     } else {
@@ -39,7 +42,7 @@ const JourneyPlayer = () => {
     }
     
     setIsLoading(false);
-  }, [journeyId, navigate, playAudio]);
+  }, [journeyId, navigate, playAudio, audioMappings]);
 
   if (isLoading) {
     return (

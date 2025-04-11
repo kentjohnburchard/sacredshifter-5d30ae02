@@ -42,6 +42,7 @@ import TrinityGateway from './pages/TrinityGateway';
 import Profile from './pages/Profile';
 import SiteMap from './pages/SiteMap';
 import MusicGenerator from './pages/MusicGenerator';
+import Meditation from './pages/Meditation';
 
 function App() {
   return (
@@ -89,9 +90,10 @@ function App() {
             <Route path="/focus" element={<Focus />} />
             <Route path="/hermetic-wisdom" element={<HermeticWisdom />} />
             <Route path="/journey-templates" element={<JourneyTemplates />} />
-            <Route path="/journey/:frequencyId" element={<JourneyPlayer />} />
+            <Route path="/journey/:journeyId" element={<JourneyPlayer />} />
             <Route path="/astrology" element={<Astrology />} />
             <Route path="/journeys" element={<JourneyTemplates />} />
+            <Route path="/meditation" element={<Meditation />} />
           </Routes>
           <Toaster />
         </JourneySettingsProvider>
