@@ -60,14 +60,15 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
 
   useEffect(() => {
     if (!mountRef.current) return;
+    console.log("SacredVisualizer mounting shape:", shape);
 
     // Clear any previous instance
     if (mountRef.current.childNodes.length > 0) {
       mountRef.current.innerHTML = '';
     }
 
-    const width = mountRef.current.clientWidth;
-    const height = mountRef.current.clientHeight;
+    const width = mountRef.current.clientWidth || window.innerWidth;
+    const height = mountRef.current.clientHeight || window.innerHeight;
 
     const scene = new THREE.Scene();
     sceneRef.current = scene;
@@ -89,19 +90,19 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     mountRef.current.appendChild(renderer.domElement);
 
     // Add stronger lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 6.0);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 8.0); // Increased intensity
     scene.add(ambientLight);
     
-    const pointLight1 = new THREE.PointLight(0xffffff, 10.0);
+    const pointLight1 = new THREE.PointLight(0xffffff, 15.0); // Increased intensity
     pointLight1.position.set(5, 5, 5);
     scene.add(pointLight1);
 
-    const pointLight2 = new THREE.PointLight(0xffffff, 10.0);
+    const pointLight2 = new THREE.PointLight(0xffffff, 15.0); // Increased intensity
     pointLight2.position.set(-5, -5, 5);
     scene.add(pointLight2);
 
     // Add a directional light for better illumination
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 8.0);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 15.0); // Increased intensity
     directionalLight.position.set(0, 0, 10);
     scene.add(directionalLight);
 
@@ -131,8 +132,8 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
 
     const handleResize = () => {
       if (!mountRef.current) return;
-      const width = mountRef.current.clientWidth;
-      const height = mountRef.current.clientHeight;
+      const width = mountRef.current.clientWidth || window.innerWidth;
+      const height = mountRef.current.clientHeight || window.innerHeight;
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
@@ -163,7 +164,7 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     const material = new THREE.MeshStandardMaterial({
       color: new THREE.Color('#e6c9ff'),
       emissive: new THREE.Color('#d4a7ff'),
-      emissiveIntensity: 1.2,
+      emissiveIntensity: 2.0, // Increased intensity
       roughness: 0.1,
       metalness: 0.9,
       transparent: true,
@@ -211,8 +212,8 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     }
 
     if (object) {
-      // Make the object much larger and more visible
-      object.scale.set(8.0, 8.0, 8.0);
+      // Make the object MUCH larger and more visible
+      object.scale.set(14.0, 14.0, 14.0); // Increased scale significantly
       scene.add(object);
       shapeRef.current = object;
 
@@ -255,7 +256,7 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     xl: 'h-screen',
   }[size];
 
-  return <div ref={mountRef} className={`w-full ${sizeClass} absolute inset-0`} />;
+  return <div ref={mountRef} className={`w-full ${sizeClass} absolute inset-0 z-10`} />; // Increased z-index
 };
 
 export default SacredVisualizer;

@@ -14,12 +14,12 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
   isStatic = true // Default to static for performance
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const animationFrameRef = useRef<number>();
-  const starsRef = useRef<THREE.Points>();
   const rendererRef = useRef<THREE.WebGLRenderer>();
 
   useEffect(() => {
     if (!containerRef.current) return;
+    
+    console.log("Rendering starfield background, isStatic:", isStatic);
     
     // Create scene with transparent background
     const scene = new THREE.Scene();
@@ -77,33 +77,9 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
     
     const stars = new THREE.Points(starsGeometry, starsMaterial);
     scene.add(stars);
-    starsRef.current = stars;
     
-    // Render the scene once without animation if static
-    const renderScene = () => {
-      if (renderer) {
-        renderer.render(scene, camera);
-      }
-    };
-    
-    if (isStatic) {
-      // For static mode, just render once
-      renderScene();
-    } else {
-      // Only use animation loop if not static
-      const animate = () => {
-        if (!isStatic && starsRef.current) {
-          starsRef.current.rotation.x += 0.0001;
-          starsRef.current.rotation.y += 0.0001;
-        }
-        
-        renderScene();
-        
-        animationFrameRef.current = requestAnimationFrame(animate);
-      };
-      
-      animate();
-    }
+    // Render once - always static
+    renderer.render(scene, camera);
     
     // Handle window resize
     const handleResize = () => {
@@ -117,28 +93,21 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
       renderer.setSize(width, height);
       
       // Re-render after resize
-      renderScene();
+      renderer.render(scene, camera);
     };
     
     window.addEventListener('resize', handleResize);
     
     // Cleanup function
     return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-      
       window.removeEventListener('resize', handleResize);
       
       if (containerRef.current && rendererRef.current) {
         containerRef.current.removeChild(rendererRef.current.domElement);
       }
       
-      if (starsRef.current) {
-        scene.remove(starsRef.current);
-        starsGeometry.dispose();
-        starsMaterial.dispose();
-      }
+      starsGeometry.dispose();
+      starsMaterial.dispose();
       
       if (rendererRef.current) {
         rendererRef.current.dispose();

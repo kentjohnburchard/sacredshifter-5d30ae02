@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { motion } from 'framer-motion';
 import SacredVisualizer from './SacredVisualizer';
@@ -39,6 +39,14 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
   sensitivity = 1,
 }) => {
   const [currentShape, setCurrentShape] = useState<GeometryShape>(defaultShape);
+  
+  useEffect(() => {
+    console.log("SacredGeometryVisualizer mounted with shape:", currentShape);
+  }, []);
+  
+  useEffect(() => {
+    console.log("Shape changed to:", currentShape);
+  }, [currentShape]);
 
   const shouldShow = isVisible !== false;
 
@@ -58,7 +66,7 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
   }
 
   return (
-    <div className={`sacred-geometry-container ${className}`}>
+    <div className={`sacred-geometry-container ${className} relative z-10`}>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -80,12 +88,15 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
         </div>
         
         {showControls && (
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
             <ToggleGroup 
               type="single" 
               value={currentShape}
               onValueChange={(value) => {
-                if (value) setCurrentShape(value as GeometryShape);
+                if (value) {
+                  setCurrentShape(value as GeometryShape);
+                  console.log("Selected shape:", value);
+                }
               }}
               className="bg-black/70 backdrop-blur-md rounded-lg p-1 flex flex-wrap justify-center"
             >

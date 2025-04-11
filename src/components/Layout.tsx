@@ -31,10 +31,10 @@ const Layout: React.FC<LayoutProps> = ({
 
   document.title = `${pageTitle} | Sacred Shifter`;
 
-  // Define theme-based border color
+  // Define theme-based border color - more visible and aligned with theme
   const borderColorClass = liftTheVeil 
-    ? 'border-pink-500/30' 
-    : 'border-purple-500/30';
+    ? 'border-pink-500/50' // More visible pink border (higher opacity)
+    : 'border-purple-500/50'; // More visible purple border (higher opacity)
 
   const renderContent = () => (
     <div className={`flex flex-col min-h-screen border-4 ${borderColorClass} transition-colors duration-300`}>
