@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route } from "react-router-dom";
 import Home from '@/pages/Home';
@@ -19,7 +20,7 @@ function App() {
   return (
     <React.StrictMode>
       <Routes>
-        <Route path="/" element={<Index />} /> {/* This will now use the Index component */}
+        <Route path="/" element={<Index />} />
         <Route path="/home" element={<CosmicDashboard />} />
         <Route path="/welcome" element={<Welcome />} />
         <Route path="/landing" element={<SacredShifterLanding />} />

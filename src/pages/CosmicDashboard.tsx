@@ -110,6 +110,12 @@ const CosmicDashboard = () => {
               className="text-lg text-purple-100/80 max-w-2xl"
             >Tune into healing frequencies, unlock sacred codes and elevate your consciousness.
             </motion.p>
+            <Link to="/landing" className="mt-4 inline-block">
+              <Button variant="outline" size="sm">
+                <Sparkles className="mr-2 h-4 w-4" />
+                View Sacred Shifter Landing
+              </Button>
+            </Link>
           </div>
           
           <motion.div
