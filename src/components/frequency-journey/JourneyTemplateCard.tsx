@@ -62,7 +62,7 @@ const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template, aud
       viewport={{ once: true, margin: "-100px" }}
     >
       <Card 
-        className="cosmic-card"
+        className="cosmic-card border-2 border-purple-200 dark:border-purple-800"
         style={{ borderTopColor: template.color || '#6b46c1' }}
       >
         <CardHeader className={`bg-gradient-to-r ${headerGradient} text-white relative overflow-hidden`}>
@@ -129,17 +129,17 @@ const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template, aud
           </CardTitle>
         </CardHeader>
         
-        <CardContent className="p-6 space-y-4">
+        <CardContent className="p-6 space-y-4 bg-white dark:bg-gray-900">
           <div>
-            <h4 className="text-sm font-medium text-purple-700 font-playfair mb-1">Purpose</h4>
-            <p className="text-sm text-gray-600 font-modern">
+            <h4 className="text-sm font-medium text-purple-700 dark:text-purple-300 font-playfair mb-1">Purpose</h4>
+            <p className="text-sm text-gray-600 dark:text-gray-300 font-modern">
               {template.purpose}
             </p>
           </div>
           
           <div>
-            <h4 className="text-sm font-medium text-purple-700 font-playfair mb-1">Frequencies</h4>
-            <ul className="space-y-1 text-sm text-gray-600 font-modern">
+            <h4 className="text-sm font-medium text-purple-700 dark:text-purple-300 font-playfair mb-1">Frequencies</h4>
+            <ul className="space-y-1 text-sm text-gray-600 dark:text-gray-300 font-modern">
               {template.frequencies.map((freq, index) => (
                 <motion.li 
                   key={index} 
@@ -147,7 +147,7 @@ const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template, aud
                   whileHover={{ x: 3 }}
                   transition={{ type: "spring", stiffness: 400, damping: 10 }}
                 >
-                  <span className="text-purple-500 font-medium">{freq.name} ({freq.value}):</span> 
+                  <span className="text-purple-500 dark:text-purple-300 font-medium">{freq.name} ({freq.value}):</span> 
                   <span>{freq.description}</span>
                 </motion.li>
               ))}
@@ -155,30 +155,30 @@ const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template, aud
           </div>
           
           <motion.div 
-            className="p-4 bg-white/80 backdrop-blur-sm rounded-lg border border-purple-100 relative overflow-hidden"
+            className="p-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg border border-purple-100 dark:border-purple-900 relative overflow-hidden"
             whileHover={{ scale: 1.02 }}
             transition={{ type: "spring", stiffness: 200, damping: 10 }}
           >
             {/* Subtle shimmer effect */}
             <motion.div 
-              className="absolute inset-0 bg-gradient-to-r from-purple-100/20 via-transparent to-purple-100/20 bg-[length:200%_100%]"
+              className="absolute inset-0 bg-gradient-to-r from-purple-100/20 via-transparent to-purple-100/20 dark:from-purple-500/10 dark:via-transparent dark:to-purple-500/10 bg-[length:200%_100%]"
               animate={{ 
                 backgroundPosition: ['0% 0%', '100% 0%', '0% 0%'],
               }}
               transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
             ></motion.div>
             
-            <p className="text-sm italic text-gray-600 relative font-lora">
-              <span className="text-3xl text-purple-300 absolute -top-3 -left-2">"</span>
+            <p className="text-sm italic text-gray-600 dark:text-gray-300 relative font-lora">
+              <span className="text-3xl text-purple-300 dark:text-purple-500 absolute -top-3 -left-2">"</span>
               {template.valeQuote?.replace("Vale", "Kent")}
-              <span className="text-3xl text-purple-300 absolute -bottom-5 -right-2">"</span>
+              <span className="text-3xl text-purple-300 dark:text-purple-500 absolute -bottom-5 -right-2">"</span>
             </p>
-            <p className="text-xs text-right mt-2 text-purple-600 font-medium">— Kent</p>
+            <p className="text-xs text-right mt-2 text-purple-600 dark:text-purple-400 font-medium">— Kent</p>
           </motion.div>
           
           <div className="pt-4 flex justify-between items-center">
             {audioMapping && (
-              <div className="text-xs text-purple-500 flex items-center">
+              <div className="text-xs text-purple-500 dark:text-purple-300 flex items-center">
                 <Music className="h-3 w-3 mr-1" />
                 <span className="truncate max-w-[150px]" title={audioMapping.audioFileName}>
                   {audioMapping.audioFileName.split('/').pop()}

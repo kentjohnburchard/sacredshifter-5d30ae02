@@ -82,7 +82,7 @@ export const JourneyTemplatesGrid = () => {
     return (
       <div className="flex flex-col gap-6 animate-pulse">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="h-40 bg-gray-100 rounded-lg"></div>
+          <div key={i} className="h-40 bg-gray-100 dark:bg-gray-800 rounded-lg"></div>
         ))}
       </div>
     );
@@ -126,7 +126,7 @@ export const JourneyTemplatesGrid = () => {
           
           {uniqueChakras.length > 0 && (
             <div className="mb-4">
-              <p className="text-sm text-gray-500 mb-2">Chakra Filter:</p>
+              <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">Chakra Filter:</p>
               <div className="flex flex-wrap gap-2">
                 {uniqueChakras.map(chakra => (
                   <Badge 
@@ -144,7 +144,7 @@ export const JourneyTemplatesGrid = () => {
           
           {uniqueVibes.length > 0 && (
             <div className="mb-4">
-              <p className="text-sm text-gray-500 mb-2">Vibe Filter:</p>
+              <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">Vibe Filter:</p>
               <div className="flex flex-wrap gap-2">
                 {uniqueVibes.map(vibe => (
                   <Badge 
@@ -161,22 +161,22 @@ export const JourneyTemplatesGrid = () => {
           )}
 
           <div className="flex flex-wrap gap-2 mt-2">
-            <Badge variant="outline" className="bg-white/80 text-purple-600 border-purple-200">
+            <Badge variant="outline" className="bg-white dark:bg-gray-800 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-800">
               <Headphones className="w-3 h-3 mr-1" /> Featured Mode
             </Badge>
-            <Badge variant="outline" className="bg-white/80 text-purple-600 border-purple-200">
+            <Badge variant="outline" className="bg-white dark:bg-gray-800 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-800">
               <Clock className="w-3 h-3 mr-1" /> Sleep Timer
             </Badge>
-            <Badge variant="outline" className="bg-white/80 text-purple-600 border-purple-200">
+            <Badge variant="outline" className="bg-white dark:bg-gray-800 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-800">
               <Waves className="w-3 h-3 mr-1" /> Pink Noise
             </Badge>
-            <Badge variant="outline" className="bg-white/80 text-purple-600 border-purple-200">
+            <Badge variant="outline" className="bg-white dark:bg-gray-800 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-800">
               <Music className="w-3 h-3 mr-1" /> Multiple Tracks
             </Badge>
           </div>
           
           <TabsContent value="all" className="pt-4">
-            <h2 className="text-lg font-semibold text-purple-800 mb-3">All Journeys</h2>
+            <h2 className="text-lg font-semibold text-purple-800 dark:text-purple-300 mb-3">All Journeys</h2>
             <div className="flex flex-col gap-6">
               {filteredTemplates.map((template) => (
                 <div key={template.id} onClick={() => handleTemplateClick(template.id)} className="cursor-pointer">
@@ -187,7 +187,7 @@ export const JourneyTemplatesGrid = () => {
                 </div>
               ))}
               {filteredTemplates.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                   No journeys match your current filters. Try adjusting your selections.
                 </div>
               )}
@@ -205,7 +205,7 @@ export const JourneyTemplatesGrid = () => {
                 </div>
               ))}
               {filteredTemplates.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                   No sound healing journeys available.
                 </div>
               )}
@@ -215,16 +215,16 @@ export const JourneyTemplatesGrid = () => {
           <TabsContent value="meditation" className="pt-4">
             {/* Meditation content from the Meditation page */}
             <div className="mb-6">
-              <h2 className="text-lg font-semibold text-purple-800 mb-2">Sacred Meditation Experiences</h2>
-              <p className="text-gray-600">
+              <h2 className="text-lg font-semibold text-purple-800 dark:text-purple-300 mb-2">Sacred Meditation Experiences</h2>
+              <p className="text-gray-600 dark:text-gray-300">
                 Find peace and elevate your consciousness through guided meditations enhanced with sacred frequencies.
               </p>
             </div>
             
             {selectedMeditation ? (
-              <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-medium text-purple-800">{selectedMeditation.title}</h3>
+                  <h3 className="text-xl font-medium text-purple-800 dark:text-purple-300">{selectedMeditation.title}</h3>
                   <Button 
                     variant="ghost" 
                     size="sm"
@@ -234,35 +234,35 @@ export const JourneyTemplatesGrid = () => {
                   </Button>
                 </div>
                 
-                <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-md mb-4">
-                  <h4 className="text-purple-900 font-medium mb-2">About this Meditation</h4>
-                  <p className="text-gray-700">{selectedMeditation.longDescription}</p>
+                <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/30 dark:to-indigo-900/30 p-4 rounded-md mb-4">
+                  <h4 className="text-purple-900 dark:text-purple-100 font-medium mb-2">About this Meditation</h4>
+                  <p className="text-gray-700 dark:text-gray-300">{selectedMeditation.longDescription}</p>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div className="border border-purple-100 rounded-md p-3">
-                    <p className="text-sm text-gray-500">Frequency</p>
-                    <p className="font-medium">{selectedMeditation.frequency} Hz</p>
+                  <div className="border border-purple-100 dark:border-purple-900 rounded-md p-3">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Frequency</p>
+                    <p className="font-medium text-gray-800 dark:text-gray-200">{selectedMeditation.frequency} Hz</p>
                   </div>
-                  <div className="border border-purple-100 rounded-md p-3">
-                    <p className="text-sm text-gray-500">Duration</p>
-                    <p className="font-medium">{selectedMeditation.duration} minutes</p>
+                  <div className="border border-purple-100 dark:border-purple-900 rounded-md p-3">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Duration</p>
+                    <p className="font-medium text-gray-800 dark:text-gray-200">{selectedMeditation.duration} minutes</p>
                   </div>
-                  <div className="border border-purple-100 rounded-md p-3">
-                    <p className="text-sm text-gray-500">Chakra</p>
-                    <p className="font-medium">{selectedMeditation.chakra}</p>
+                  <div className="border border-purple-100 dark:border-purple-900 rounded-md p-3">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Chakra</p>
+                    <p className="font-medium text-gray-800 dark:text-gray-200">{selectedMeditation.chakra}</p>
                   </div>
-                  <div className="border border-purple-100 rounded-md p-3">
-                    <p className="text-sm text-gray-500">Level</p>
-                    <p className="font-medium">{selectedMeditation.level}</p>
+                  <div className="border border-purple-100 dark:border-purple-900 rounded-md p-3">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Level</p>
+                    <p className="font-medium text-gray-800 dark:text-gray-200">{selectedMeditation.level}</p>
                   </div>
                 </div>
                 
-                <div className="bg-gradient-to-r from-purple-100 to-indigo-100 p-4 rounded-md">
-                  <h4 className="text-purple-900 font-medium mb-2">Begin Your Practice</h4>
+                <div className="bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-900/50 dark:to-indigo-900/50 p-4 rounded-md">
+                  <h4 className="text-purple-900 dark:text-purple-100 font-medium mb-2">Begin Your Practice</h4>
                   {selectedMeditation.audioUrl && (
                     <div className="mb-4">
-                      <p className="text-sm text-purple-800 mb-2">Meditation Audio:</p>
+                      <p className="text-sm text-purple-800 dark:text-purple-200 mb-2">Meditation Audio:</p>
                       <audio controls className="w-full" src={selectedMeditation.audioUrl}>
                         Your browser does not support the audio element.
                       </audio>
@@ -271,7 +271,7 @@ export const JourneyTemplatesGrid = () => {
                   
                   {selectedMeditation.guidanceUrl && (
                     <div>
-                      <p className="text-sm text-purple-800 mb-2">Guided Instructions:</p>
+                      <p className="text-sm text-purple-800 dark:text-purple-200 mb-2">Guided Instructions:</p>
                       <audio controls className="w-full" src={selectedMeditation.guidanceUrl}>
                         Your browser does not support the audio element.
                       </audio>
@@ -292,7 +292,7 @@ export const JourneyTemplatesGrid = () => {
             )}
             
             <div className="flex flex-col gap-6 mt-8">
-              <h2 className="text-lg font-semibold text-purple-800 mb-3">Meditation Journeys</h2>
+              <h2 className="text-lg font-semibold text-purple-800 dark:text-purple-300 mb-3">Meditation Journeys</h2>
               {filteredTemplates.map((template) => (
                 <div key={template.id} onClick={() => handleTemplateClick(template.id)} className="cursor-pointer">
                   <JourneyTemplateCard 
@@ -302,7 +302,7 @@ export const JourneyTemplatesGrid = () => {
                 </div>
               ))}
               {filteredTemplates.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                   No meditation journeys available.
                 </div>
               )}
@@ -320,7 +320,7 @@ export const JourneyTemplatesGrid = () => {
                 </div>
               ))}
               {filteredTemplates.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                   No chakra journeys available.
                 </div>
               )}
