@@ -13,6 +13,7 @@ import JourneyAudioMappingsViewer from '@/pages/admin/JourneyAudioMappingsViewer
 import Welcome from '@/pages/Welcome';
 import SacredShifterLanding from '@/pages/SacredShifterLanding';
 import CosmicDashboard from '@/pages/CosmicDashboard';
+import SiteMap from '@/pages/SiteMap';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/journey-audio-admin" element={<JourneyAudioAdmin />} />
         <Route path="/admin/journey-audio-mappings" element={<JourneyAudioMappingsViewer />} />
+        <Route path="/site-map" element={<SiteMap />} />
       </Routes>
     </React.StrictMode>
   );
