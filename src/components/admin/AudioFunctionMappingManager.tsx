@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -70,23 +69,21 @@ const AudioFunctionMappingManager: React.FC = () => {
     try {
       setLoading(true);
       
-      // Try to fetch the data. If the table doesn't exist yet, we'll catch the error
-      // and just continue with empty mappings
-      let { data, error } = await supabase
+      // Now that the table exists, we can fetch the data
+      const { data, error } = await supabase
         .from('audio_function_mappings')
         .select('*');
         
       if (error) {
         console.error('Error fetching audio mappings:', error);
-        // If table doesn't exist yet, we'll just continue with empty mappings
         return;
       }
       
       // Convert array to record keyed by function_id for easy lookup
       const mappingsRecord: Record<string, AudioFunctionMapping> = {};
       if (data) {
-        data.forEach((mapping: AudioFunctionMapping) => {
-          mappingsRecord[mapping.function_id] = mapping;
+        data.forEach((mapping: any) => {
+          mappingsRecord[mapping.function_id] = mapping as AudioFunctionMapping;
         });
       }
       
@@ -117,7 +114,7 @@ const AudioFunctionMappingManager: React.FC = () => {
       // Generate the audio URL if not provided
       const audioUrl = newAudioUrl || `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioFileName}`;
       
-      // Try to insert the mapping
+      // Now that the table exists, we can insert data
       const { data, error } = await supabase
         .from('audio_function_mappings')
         .insert([

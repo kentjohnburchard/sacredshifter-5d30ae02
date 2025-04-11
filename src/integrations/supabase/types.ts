@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      audio_function_mappings: {
+        Row: {
+          audio_file_name: string
+          audio_url: string | null
+          created_at: string
+          function_id: string
+          id: string
+          is_primary: boolean
+          updated_at: string | null
+        }
+        Insert: {
+          audio_file_name: string
+          audio_url?: string | null
+          created_at?: string
+          function_id: string
+          id?: string
+          is_primary?: boolean
+          updated_at?: string | null
+        }
+        Update: {
+          audio_file_name?: string
+          audio_url?: string | null
+          created_at?: string
+          function_id?: string
+          id?: string
+          is_primary?: boolean
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       credit_transactions: {
         Row: {
           amount: number
