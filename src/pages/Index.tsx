@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react";
 import { Navigate } from "react-router-dom";
 
@@ -8,7 +9,7 @@ const Index: React.FC = () => {
   useEffect(() => {
     // For debugging
     console.log('Index component loaded, hasSeenIntro:', hasSeenIntro);
-  }, []);
+  }, [hasSeenIntro]);
   
   // If they haven't seen the intro, show the welcome page
   if (!hasSeenIntro) {

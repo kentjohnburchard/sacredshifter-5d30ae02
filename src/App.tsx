@@ -10,12 +10,20 @@ import JourneyPlayer from '@/pages/JourneyPlayer';
 import Admin from '@/pages/Admin';
 import JourneyAudioAdmin from '@/pages/admin/JourneyAudioAdmin';
 import JourneyAudioMappingsViewer from '@/pages/admin/JourneyAudioMappingsViewer';
+import Welcome from '@/pages/Welcome';
+import Index from '@/pages/Index';
+import SacredShifterLanding from '@/pages/SacredShifterLanding';
+import CosmicDashboard from '@/pages/CosmicDashboard';
 
 function App() {
   return (
     <React.StrictMode>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Index />} />
+        <Route path="/welcome" element={<Welcome />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/dashboard" element={<CosmicDashboard />} />
+        <Route path="/landing" element={<SacredShifterLanding />} />
         <Route path="/meditations" element={<Meditations />} />
         <Route path="/hermetic-principles" element={<HermeticPrinciples />} />
         <Route path="/frequency-shifting" element={<FrequencyShifting />} />
