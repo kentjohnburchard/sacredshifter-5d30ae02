@@ -43,7 +43,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         isCollapsed ? "w-20" : "w-64",
         liftTheVeil 
           ? "bg-gradient-to-b from-pink-900/90 via-pink-800/80 to-pink-900/90 border-pink-700/50" 
-          : "bg-gradient-to-b from-purple-900/90 via-purple-800/80 to-purple-900/90 border-purple-700/50",
+          : "bg-gradient-to-b from-purple-900/95 via-purple-800/85 to-purple-900/95 border-purple-700/50",
         className
       )}
       onMouseEnter={() => setIsCollapsed(false)}

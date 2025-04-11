@@ -37,9 +37,9 @@ const Layout: React.FC<LayoutProps> = ({
           {/* Top Logo Watermark - increased opacity */}
           <div className="fixed top-0 left-0 right-0 pointer-events-none z-0 flex justify-center items-start">
             <img 
-              src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
+              src="/lovable-uploads/b9b4b625-472c-484e-a49a-41aaf4f604a5.png" 
               alt="Sacred Shifter Top Watermark" 
-              className="max-w-[70%] max-h-[20%] object-contain opacity-[0.18] mt-12" 
+              className="max-w-[70%] max-h-[20%] object-contain opacity-[0.22] mt-12" 
             />
           </div>
           

@@ -1,17 +1,37 @@
 
-import React from "react";
+import React, { useState } from "react";
 import Layout from "@/components/Layout";
-import { CosmicContainer } from "@/components/sacred-geometry";
-import MetatronsCube from "@/components/sacred-geometry/shapes/MetatronsCube";
-import { Card, CardContent } from "@/components/ui/card";
+import { AnimatePresence } from "framer-motion";
+import TrinityIntro from "@/components/trinity-gateway/TrinityIntro";
+import TrinityPhase1 from "@/components/trinity-gateway/TrinityPhase1";
+import TrinityPhase2 from "@/components/trinity-gateway/TrinityPhase2";
+import TrinityPhase3 from "@/components/trinity-gateway/TrinityPhase3";
+import TrinityActivation from "@/components/trinity-gateway/TrinityActivation";
 import { TrademarkedName } from "@/components/ip-protection";
-import { Sparkles, Triangle, Heart, Star } from "lucide-react";
 
 const TrinityGateway = () => {
+  // Manage the journey state
+  const [journeyStage, setJourneyStage] = useState<'intro' | 'phase1' | 'phase2' | 'phase3' | 'activation'>('intro');
+  
+  // Store user journey settings
+  const [intention, setIntention] = useState<string>("");
+  const [selectedElements, setSelectedElements] = useState<string[]>([]);
+
+  // Handlers for progressing through the journey
+  const handleStartJourney = () => setJourneyStage('phase1');
+  const handlePhase1Complete = () => setJourneyStage('phase2');
+  const handlePhase2Complete = () => setJourneyStage('phase3');
+  const handlePhase3Complete = () => setJourneyStage('activation');
+  const handleRestart = () => setJourneyStage('intro');
+  
+  // Handlers for storing user selections
+  const handleSetIntention = (value: string) => setIntention(value);
+  const handleSelectElements = (elements: string[]) => setSelectedElements(elements);
+
   return (
     <Layout pageTitle="Trinity Gateway™" theme="cosmic">
       <div className="container max-w-6xl mx-auto px-4 py-8">
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <h1 className="text-4xl font-playfair mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-600">
             Trinity Gateway™
           </h1>
@@ -20,68 +40,41 @@ const TrinityGateway = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          <div className="flex flex-col justify-center">
-            <h2 className="text-2xl font-playfair mb-4 text-purple-300">The Sacred Trinity</h2>
-            <p className="text-gray-300 mb-4">
-              The trinity represents the threefold nature of consciousness - mind, body, and spirit.
-              When these aspects are in harmony, you can access higher states of awareness and spiritual growth.
-            </p>
-            <p className="text-gray-300 mb-6">
-              The Trinity Gateway™ provides tools and practices to balance these aspects and
-              open the gateway to your highest potential.
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <Card className="bg-purple-900/30 border-purple-500/30">
-                <CardContent className="p-4 text-center">
-                  <div className="flex justify-center mb-2">
-                    <Triangle className="h-8 w-8 text-purple-400" />
-                  </div>
-                  <h3 className="font-medium text-purple-200">Mind</h3>
-                  <p className="text-sm text-gray-300">Clarity & Wisdom</p>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-indigo-900/30 border-indigo-500/30">
-                <CardContent className="p-4 text-center">
-                  <div className="flex justify-center mb-2">
-                    <Heart className="h-8 w-8 text-indigo-400" />
-                  </div>
-                  <h3 className="font-medium text-indigo-200">Body</h3>
-                  <p className="text-sm text-gray-300">Vitality & Presence</p>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-blue-900/30 border-blue-500/30">
-                <CardContent className="p-4 text-center">
-                  <div className="flex justify-center mb-2">
-                    <Star className="h-8 w-8 text-blue-400" />
-                  </div>
-                  <h3 className="font-medium text-blue-200">Spirit</h3>
-                  <p className="text-sm text-gray-300">Connection & Purpose</p>
-                </CardContent>
-              </Card>
-            </div>
-            
-            <Card className="bg-gradient-to-r from-purple-900/30 to-indigo-900/30 border-purple-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-2 mb-2">
-                  <Sparkles className="h-5 w-5 text-purple-400" />
-                  <h3 className="font-medium text-purple-200">Gateway Activation</h3>
-                </div>
-                <p className="text-gray-300">
-                  Experience guided meditations and frequency journeys designed to activate
-                  and harmonize your trinity centers, opening the gateway to expanded consciousness.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+        <AnimatePresence mode="wait">
+          {journeyStage === 'intro' && (
+            <TrinityIntro onStart={handleStartJourney} />
+          )}
           
-          <div className="h-96">
-            <MetatronsCube />
-          </div>
-        </div>
+          {journeyStage === 'phase1' && (
+            <TrinityPhase1 
+              onComplete={handlePhase1Complete} 
+              skipPhase={handlePhase2Complete} 
+            />
+          )}
+          
+          {journeyStage === 'phase2' && (
+            <TrinityPhase2 
+              onComplete={handlePhase2Complete} 
+              onSetIntention={handleSetIntention}
+              onSelectElements={handleSelectElements}
+              skipPhase={handlePhase3Complete} 
+            />
+          )}
+          
+          {journeyStage === 'phase3' && (
+            <TrinityPhase3 
+              onComplete={handlePhase3Complete} 
+            />
+          )}
+          
+          {journeyStage === 'activation' && (
+            <TrinityActivation 
+              intention={intention}
+              selectedElements={selectedElements}
+              onRestart={handleRestart} 
+            />
+          )}
+        </AnimatePresence>
       </div>
     </Layout>
   );

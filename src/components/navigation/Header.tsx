@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -16,7 +17,7 @@ const Header: React.FC = () => {
           <div className="flex items-center space-x-4">
             <Link to="/" className="flex items-center">
               <img 
-                src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
+                src="/lovable-uploads/b9b4b625-472c-484e-a49a-41aaf4f604a5.png" 
                 alt="Sacred Shifter Logo" 
                 className="h-10 w-auto object-contain"
               />

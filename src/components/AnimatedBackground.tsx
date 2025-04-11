@@ -16,7 +16,7 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
     id: `wave-${i}`,
     delay: i * 0.7,
     duration: 15 + i * 3,
-    opacity: 0.04 + (i * 0.015), // Increased opacity by 25%
+    opacity: 0.06 + (i * 0.02), // Further increased opacity by 25%
   }));
 
   return (
@@ -30,10 +30,10 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
           transition={{ duration: 2 }}
         >
           <motion.div
-            className="w-[800px] h-[800px] rounded-full bg-gradient-to-br from-purple-500/20 to-blue-500/20 filter blur-3xl"
+            className="w-[800px] h-[800px] rounded-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 filter blur-3xl"
             animate={{
               scale: [1, 1.1, 1],
-              opacity: [wave.opacity, wave.opacity + 0.025, wave.opacity], // Increased opacity here too
+              opacity: [wave.opacity, wave.opacity + 0.035, wave.opacity], // Increased opacity here too
             }}
             transition={{
               duration: wave.duration,
@@ -56,7 +56,7 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
         return (
           <motion.div
             key={`particle-${i}`}
-            className="absolute rounded-full bg-white/30" // Increased from bg-white/20
+            className="absolute rounded-full bg-white/40" // Increased from bg-white/30
             style={{
               width: size,
               height: size,
@@ -66,7 +66,7 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
             animate={{
               y: [0, -30, 0],
               x: [0, Math.random() * 20 - 10, 0],
-              opacity: [0.4, 0.8, 0.4], // Increased from [0.3, 0.7, 0.3]
+              opacity: [0.5, 0.9, 0.5], // Increased from [0.4, 0.8, 0.4]
             }}
             transition={{
               duration,
