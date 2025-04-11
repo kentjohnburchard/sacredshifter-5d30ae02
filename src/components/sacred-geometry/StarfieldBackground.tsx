@@ -14,7 +14,7 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
   isStatic = true // Default to static for performance
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer>();
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -70,7 +70,7 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
     
     const starsMaterial = new THREE.PointsMaterial({
       color: 0xffffff,
-      size: 0.1,
+      size: 0.15, // Slightly larger stars for better visibility
       transparent: true,
       opacity: opacity
     });
@@ -78,7 +78,7 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
     const stars = new THREE.Points(starsGeometry, starsMaterial);
     scene.add(stars);
     
-    // Render once - always static
+    // Always render once
     renderer.render(scene, camera);
     
     // Handle window resize
@@ -106,8 +106,8 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
         containerRef.current.removeChild(rendererRef.current.domElement);
       }
       
-      starsGeometry.dispose();
-      starsMaterial.dispose();
+      if (starsGeometry) starsGeometry.dispose();
+      if (starsMaterial) starsMaterial.dispose();
       
       if (rendererRef.current) {
         rendererRef.current.dispose();

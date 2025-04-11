@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,8 @@ const Home: React.FC = () => {
     const shapes: ('flower-of-life' | 'metatrons-cube' | 'merkaba')[] = ['flower-of-life', 'metatrons-cube', 'merkaba'];
     let currentIndex = 0;
     
+    console.log("Home: Setting up geometry shape rotation timer");
+    
     const interval = setInterval(() => {
       currentIndex = (currentIndex + 1) % shapes.length;
       setCurrentShape(shapes[currentIndex]);
@@ -36,7 +39,7 @@ const Home: React.FC = () => {
   return (
     <Layout>
       {/* Large Sacred Geometry Visualizer as background element - with enhanced visibility */}
-      <div className="fixed inset-0 z-10 pointer-events-none">
+      <div className="fixed inset-0 z-10 pointer-events-none flex items-center justify-center">
         <SacredGeometryVisualizer 
           defaultShape={currentShape}
           size="xl"

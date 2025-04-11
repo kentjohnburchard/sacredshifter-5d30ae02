@@ -28,13 +28,143 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
   sensitivity = 1
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
-  const sceneRef = useRef<THREE.Scene>();
-  const shapeRef = useRef<THREE.Object3D>();
-  const rendererRef = useRef<THREE.WebGLRenderer>();
-  const frameIdRef = useRef<number>();
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const shapeRef = useRef<THREE.Object3D | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const frameIdRef = useRef<number | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
 
   const [audioData, setAudioData] = useState<number[]>([]);
 
+  // Clear previous renders and set up new scene
+  useEffect(() => {
+    console.log("SacredVisualizer mounting shape:", shape);
+    
+    // Clean up previous scene if it exists
+    if (frameIdRef.current) {
+      cancelAnimationFrame(frameIdRef.current);
+      frameIdRef.current = null;
+    }
+    
+    if (rendererRef.current && mountRef.current && mountRef.current.contains(rendererRef.current.domElement)) {
+      mountRef.current.removeChild(rendererRef.current.domElement);
+      rendererRef.current.dispose();
+    }
+    
+    if (!mountRef.current) return;
+    
+    const width = mountRef.current.clientWidth;
+    const height = mountRef.current.clientHeight;
+    
+    if (!width || !height) {
+      console.error("Container has zero width or height");
+      return;
+    }
+
+    // Set up scene
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
+    scene.background.set(0x000000);
+    scene.background.convertSRGBToLinear();
+    sceneRef.current = scene;
+
+    // Set up camera
+    const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
+    camera.position.z = 5;
+    cameraRef.current = camera;
+
+    // Set up renderer with much better quality
+    const renderer = new THREE.WebGLRenderer({ 
+      antialias: true,
+      alpha: true,
+      powerPreference: 'high-performance'
+    });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(width, height);
+    renderer.setClearColor(0x000000, 0);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    rendererRef.current = renderer;
+    
+    // Add the renderer to the DOM
+    mountRef.current.innerHTML = '';
+    mountRef.current.appendChild(renderer.domElement);
+
+    // Set up lights with MUCH higher intensity
+    const ambientLight = new THREE.AmbientLight(0xffffff, 2.0);
+    scene.add(ambientLight);
+    
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 5.0);
+    directionalLight.position.set(0, 1, 5);
+    scene.add(directionalLight);
+    
+    const pointLight1 = new THREE.PointLight(0xffffff, 5.0);
+    pointLight1.position.set(5, 5, 5);
+    scene.add(pointLight1);
+    
+    const pointLight2 = new THREE.PointLight(0xffffff, 5.0);
+    pointLight2.position.set(-5, -5, 5);
+    scene.add(pointLight2);
+
+    // Create the sacred geometry
+    createSacredGeometry(shape, scene);
+
+    // Animation loop
+    const animate = () => {
+      if (!rendererRef.current || !sceneRef.current || !cameraRef.current) return;
+      
+      frameIdRef.current = requestAnimationFrame(animate);
+      
+      if (shapeRef.current) {
+        shapeRef.current.rotation.x += 0.003;
+        shapeRef.current.rotation.y += 0.005;
+        
+        if (isAudioReactive && audioData.length > 0) {
+          const averageAmplitude = audioData.reduce((sum, val) => sum + val, 0) / audioData.length;
+          const scaleFactor = 1 + (averageAmplitude * 0.2 * (sensitivity || 1));
+          shapeRef.current.scale.set(scaleFactor, scaleFactor, scaleFactor);
+        }
+      }
+      
+      rendererRef.current.render(sceneRef.current, cameraRef.current);
+    };
+    
+    animate();
+    
+    // Handle window resizing
+    const handleResize = () => {
+      if (!mountRef.current || !cameraRef.current || !rendererRef.current) return;
+      
+      const width = mountRef.current.clientWidth;
+      const height = mountRef.current.clientHeight;
+      
+      cameraRef.current.aspect = width / height;
+      cameraRef.current.updateProjectionMatrix();
+      rendererRef.current.setSize(width, height);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      
+      if (frameIdRef.current) {
+        cancelAnimationFrame(frameIdRef.current);
+      }
+      
+      if (shapeRef.current && sceneRef.current) {
+        sceneRef.current.remove(shapeRef.current);
+        shapeRef.current = null;
+      }
+      
+      if (rendererRef.current && mountRef.current && mountRef.current.contains(rendererRef.current.domElement)) {
+        mountRef.current.removeChild(rendererRef.current.domElement);
+        rendererRef.current.dispose();
+        rendererRef.current = null;
+      }
+    };
+  }, [shape]);
+
+  // Handle audio reactivity
   useEffect(() => {
     if (!isAudioReactive || !audioContext || !analyser) return;
     
@@ -42,10 +172,8 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     
     const updateAudioData = () => {
       analyser.getByteFrequencyData(dataArray);
-      
       const normalizedData = Array.from(dataArray).map(value => value / 255);
       setAudioData(normalizedData);
-      
       frameIdRef.current = requestAnimationFrame(updateAudioData);
     };
     
@@ -58,193 +186,137 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     };
   }, [isAudioReactive, audioContext, analyser]);
 
-  useEffect(() => {
-    if (!mountRef.current) return;
-    console.log("SacredVisualizer mounting shape:", shape);
-
-    // Clear any previous instance
-    if (mountRef.current.childNodes.length > 0) {
-      mountRef.current.innerHTML = '';
-    }
-
-    const width = mountRef.current.clientWidth || window.innerWidth;
-    const height = mountRef.current.clientHeight || window.innerHeight;
-
-    const scene = new THREE.Scene();
-    sceneRef.current = scene;
-
-    // Create a camera with a better position to see objects
-    const camera = new THREE.PerspectiveCamera(70, width / height, 0.1, 1000);
-    camera.position.z = 10; // Position camera farther back
-
-    // Create a renderer with better quality settings
-    const renderer = new THREE.WebGLRenderer({ 
-      antialias: true, 
-      alpha: true,
-      powerPreference: 'high-performance'
-    });
-    renderer.setSize(width, height);
-    renderer.setClearColor(0x000000, 0); // Transparent background
-    renderer.setPixelRatio(window.devicePixelRatio);
-    rendererRef.current = renderer;
-    mountRef.current.appendChild(renderer.domElement);
-
-    // Add stronger lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 8.0); // Increased intensity
-    scene.add(ambientLight);
-    
-    const pointLight1 = new THREE.PointLight(0xffffff, 15.0); // Increased intensity
-    pointLight1.position.set(5, 5, 5);
-    scene.add(pointLight1);
-
-    const pointLight2 = new THREE.PointLight(0xffffff, 15.0); // Increased intensity
-    pointLight2.position.set(-5, -5, 5);
-    scene.add(pointLight2);
-
-    // Add a directional light for better illumination
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 15.0); // Increased intensity
-    directionalLight.position.set(0, 0, 10);
-    scene.add(directionalLight);
-
-    createSacredGeometry(shape, scene);
-
-    const animate = () => {
-      frameIdRef.current = requestAnimationFrame(animate);
-      if (shapeRef.current) {
-        // Make rotation very slow for better visibility
-        shapeRef.current.rotation.x += 0.001;
-        shapeRef.current.rotation.y += 0.001;
-        
-        if (isAudioReactive && audioData.length > 0) {
-          const averageAmplitude = audioData.reduce((sum, val) => sum + val, 0) / audioData.length;
-          const scaleFactor = 1 + (averageAmplitude * 0.2 * (sensitivity || 1));
-          shapeRef.current.scale.set(
-            scaleFactor,
-            scaleFactor,
-            scaleFactor
-          );
-        }
-      }
-      renderer.render(scene, camera);
-    };
-    
-    animate();
-
-    const handleResize = () => {
-      if (!mountRef.current) return;
-      const width = mountRef.current.clientWidth || window.innerWidth;
-      const height = mountRef.current.clientHeight || window.innerHeight;
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-      renderer.setSize(width, height);
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      if (frameIdRef.current) {
-        cancelAnimationFrame(frameIdRef.current);
-      }
-      if (shapeRef.current && scene) scene.remove(shapeRef.current);
-      if (renderer && mountRef.current) {
-        mountRef.current.removeChild(renderer.domElement);
-        renderer.dispose();
-      }
-    };
-  }, [shape, isAudioReactive, audioData]);
-
+  // Create sacred geometry based on selected shape
   const createSacredGeometry = (shape: string, scene: THREE.Scene) => {
     if (shapeRef.current) {
       scene.remove(shapeRef.current);
-      shapeRef.current = undefined;
+      shapeRef.current = null;
     }
 
-    // Create a bright, vibrant material with higher opacity
+    // Create a MUCH more visible material with better lighting properties
     const material = new THREE.MeshStandardMaterial({
-      color: new THREE.Color('#e6c9ff'),
-      emissive: new THREE.Color('#d4a7ff'),
-      emissiveIntensity: 2.0, // Increased intensity
-      roughness: 0.1,
-      metalness: 0.9,
+      color: new THREE.Color(0xb794f6), // Bright purple color
+      emissive: new THREE.Color(0x9370db), // Emissive purple glow
+      emissiveIntensity: 0.8,
+      metalness: 0.8,
+      roughness: 0.2,
       transparent: true,
-      opacity: 1.0,
-      side: THREE.DoubleSide // Ensure both sides of geometry are visible
+      opacity: 0.95,
+      side: THREE.DoubleSide,
+      wireframe: false
+    });
+    
+    // Secondary material for additional visibility
+    const emissiveMaterial = new THREE.MeshStandardMaterial({
+      color: new THREE.Color(0xe9d8fd), // Lighter purple
+      emissive: new THREE.Color(0xe9d8fd),
+      emissiveIntensity: 1.0,
+      metalness: 0.9,
+      roughness: 0.1,
+      transparent: true,
+      opacity: 0.9,
+      side: THREE.DoubleSide,
+      wireframe: false
     });
 
     let geometry: THREE.BufferGeometry | undefined;
     let object: THREE.Object3D | undefined;
 
+    // Create the shape
     switch (shape) {
       case 'flower-of-life':
         object = createFlowerOfLife();
         break;
+        
       case 'seed-of-life':
         object = createSeedOfLife();
         break;
+        
       case 'metatrons-cube':
         object = createMetatronsCube();
         break;
+        
       case 'merkaba':
         object = createMerkaba();
         break;
+        
       case 'torus':
-        geometry = new THREE.TorusGeometry(1, 0.4, 32, 100);
+        geometry = new THREE.TorusGeometry(1.5, 0.4, 32, 100);
         break;
+        
       case 'tree-of-life':
         object = createTreeOfLife();
         break;
+        
       case 'sri-yantra':
         object = createSriYantra();
         break;
+        
       case 'vesica-piscis':
         object = createVesicaPiscis();
         break;
+        
       case 'sphere':
       default:
-        geometry = new THREE.SphereGeometry(1, 64, 64);
+        geometry = new THREE.SphereGeometry(1.5, 64, 64);
         break;
     }
 
+    // Create mesh if we have geometry
     if (geometry) {
       const mesh = new THREE.Mesh(geometry, material);
       object = mesh;
     }
 
+    // Add object to scene with MUCH larger scale
     if (object) {
-      // Make the object MUCH larger and more visible
-      object.scale.set(14.0, 14.0, 14.0); // Increased scale significantly
+      // Make the object much larger for better visibility
+      object.scale.set(18.0, 18.0, 18.0);
       scene.add(object);
       shapeRef.current = object;
 
-      addGlowEffect(object, scene);
+      // Add glow and wireframe for better visibility
+      addGlowEffect(object, scene, emissiveMaterial);
     }
   };
 
-  const addGlowEffect = (object: THREE.Object3D, scene: THREE.Scene) => {
-    if (object instanceof THREE.Mesh) {
-      const edges = new THREE.EdgesGeometry(object.geometry);
-      const lineMaterial = new THREE.LineBasicMaterial({ 
-        color: 0xffffff, 
-        transparent: true, 
-        opacity: 1.0,
-        linewidth: 3
+  // Add glow effect to make the shape more visible
+  const addGlowEffect = (object: THREE.Object3D, scene: THREE.Scene, glowMaterial: THREE.Material) => {
+    if (object instanceof THREE.Mesh && object.geometry) {
+      // Add wireframe for extra visibility
+      const wireGeometry = object.geometry.clone();
+      const wireMaterial = new THREE.LineBasicMaterial({
+        color: 0xffffff,
+        linewidth: 2
       });
-      const wireframe = new THREE.LineSegments(edges, lineMaterial);
+      const wireframe = new THREE.LineSegments(
+        new THREE.WireframeGeometry(wireGeometry),
+        wireMaterial
+      );
       object.add(wireframe);
       
-      if (object.geometry) {
-        // Add a highly visible glow around the object
-        const glowMaterial = new THREE.MeshBasicMaterial({
-          color: 0xe5d1ff,
-          transparent: true,
-          opacity: 0.9
-        });
-        
-        // Make the glow much larger
-        const glowMesh = new THREE.Mesh(object.geometry, glowMaterial);
-        glowMesh.scale.set(1.25, 1.25, 1.25);
-        object.add(glowMesh);
+      // Add a slightly larger glowing mesh
+      const glowMesh = new THREE.Mesh(object.geometry, glowMaterial);
+      glowMesh.scale.set(1.05, 1.05, 1.05);
+      object.add(glowMesh);
+      
+      // Add point lights at key vertices for additional glow
+      const vertices = object.geometry.attributes.position;
+      const vertexCount = vertices.count;
+      
+      if (vertexCount > 20) {
+        // Only add lights for some key vertices to avoid performance issues
+        for (let i = 0; i < Math.min(10, vertexCount); i += Math.max(1, Math.floor(vertexCount / 10))) {
+          const vertex = new THREE.Vector3(
+            vertices.getX(i),
+            vertices.getY(i),
+            vertices.getZ(i)
+          );
+          
+          const pointLight = new THREE.PointLight(0xb794f6, 10, 0.5);
+          pointLight.position.copy(vertex);
+          object.add(pointLight);
+        }
       }
     }
   };
@@ -254,9 +326,11 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     md: 'h-160',
     lg: 'h-240',
     xl: 'h-screen',
-  }[size];
+  }[size] || 'h-160';
 
-  return <div ref={mountRef} className={`w-full ${sizeClass} absolute inset-0 z-10`} />; // Increased z-index
+  console.log("Rendering SacredVisualizer with size class:", sizeClass);
+
+  return <div ref={mountRef} className={`w-full ${sizeClass} absolute inset-0 z-10`} />;
 };
 
 export default SacredVisualizer;

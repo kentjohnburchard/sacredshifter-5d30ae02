@@ -48,6 +48,14 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
     console.log("Shape changed to:", currentShape);
   }, [currentShape]);
 
+  // Update shape when defaultShape prop changes
+  useEffect(() => {
+    if (defaultShape !== currentShape) {
+      setCurrentShape(defaultShape);
+      console.log("Default shape changed to:", defaultShape);
+    }
+  }, [defaultShape]);
+
   const shouldShow = isVisible !== false;
 
   const shapeOptions: { value: GeometryShape; label: string }[] = [

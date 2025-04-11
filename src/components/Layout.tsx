@@ -1,5 +1,5 @@
 
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import FixedFooter from '@/components/navigation/FixedFooter';
 import { useLocation } from 'react-router-dom';
@@ -33,8 +33,8 @@ const Layout: React.FC<LayoutProps> = ({
 
   // Define theme-based border color - more visible and aligned with theme
   const borderColorClass = liftTheVeil 
-    ? 'border-pink-500/50' // More visible pink border (higher opacity)
-    : 'border-purple-500/50'; // More visible purple border (higher opacity)
+    ? 'border-pink-500' // Solid pink border when veil is lifted
+    : 'border-purple-500'; // Solid purple border otherwise
 
   const renderContent = () => (
     <div className={`flex flex-col min-h-screen border-4 ${borderColorClass} transition-colors duration-300`}>
