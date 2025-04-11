@@ -38,15 +38,15 @@ export type PageKey = keyof typeof activePages;
 export const navItems = [
   {
     path: "/",
-    key: "home" as PageKey,
-    icon: "HomeIcon",
-    label: "Home",
-  },
-  {
-    path: "/dashboard",
     key: "dashboard" as PageKey,
     icon: "LayoutDashboard",
     label: "Dashboard",
+  },
+  {
+    path: "/home",
+    key: "home" as PageKey,
+    icon: "HomeIcon",
+    label: "Home",
   },
   {
     path: "/sacred-blueprint",

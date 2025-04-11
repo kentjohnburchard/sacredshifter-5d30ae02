@@ -31,6 +31,7 @@ import {
 // Map of route paths to their corresponding icons
 const iconMap: Record<string, React.FC<any>> = {
   '/': Home,
+  '/home': Home,
   '/dashboard': LayoutDashboard,
   '/sacred-blueprint': LayoutTemplate,
   '/frequency-library': Music,

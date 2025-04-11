@@ -47,3 +47,25 @@ export interface JourneyFrequency {
   value: string;
   description: string;
 }
+
+export interface AudioFunction {
+  id: string;
+  name: string;
+  description: string;
+  category: AudioFunctionCategory;
+}
+
+export type AudioFunctionCategory = 
+  | 'journey'
+  | 'interface'
+  | 'meditation'
+  | 'frequency';
+
+export interface AudioFunctionMapping {
+  id: string;
+  functionId: string;
+  audioFileName: string;
+  audioUrl: string | null;
+  isPrimary: boolean;
+  createdAt: string;
+}
