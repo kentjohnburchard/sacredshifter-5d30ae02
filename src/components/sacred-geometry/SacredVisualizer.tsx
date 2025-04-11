@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { createFlowerOfLife, createSeedOfLife, createMetatronsCube, createSriYantra, 
@@ -77,14 +78,16 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     rendererRef.current = renderer;
     mountRef.current.appendChild(renderer.domElement);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.8);
+    // Increase ambient light intensity for better visibility
+    const ambientLight = new THREE.AmbientLight(0xffffff, 2.5);
     scene.add(ambientLight);
 
-    const pointLight = new THREE.PointLight(0xffffff, 3.5);
+    // Increase point light intensity for better visibility
+    const pointLight = new THREE.PointLight(0xffffff, 5.0);
     pointLight.position.set(5, 5, 5);
     scene.add(pointLight);
 
-    const pointLight2 = new THREE.PointLight(0xffffff, 3.0);
+    const pointLight2 = new THREE.PointLight(0xffffff, 4.5);
     pointLight2.position.set(-5, -5, 5);
     scene.add(pointLight2);
 
@@ -93,8 +96,9 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     const animate = () => {
       frameIdRef.current = requestAnimationFrame(animate);
       if (shapeRef.current) {
-        shapeRef.current.rotation.x += 0.003;
-        shapeRef.current.rotation.y += 0.003;
+        // Slow down the rotation speed
+        shapeRef.current.rotation.x += 0.002;
+        shapeRef.current.rotation.y += 0.002;
         
         if (isAudioReactive && audioData.length > 0) {
           const averageAmplitude = audioData.reduce((sum, val) => sum + val, 0) / audioData.length;
@@ -163,11 +167,15 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
       shapeRef.current = undefined;
     }
 
+    // Brighten the material color and increase opacity
     const material = new THREE.MeshStandardMaterial({
-      color: new THREE.Color('#b586ff'),
-      emissive: new THREE.Color('#9a63ff'),
+      color: new THREE.Color('#cb9eff'),
+      emissive: new THREE.Color('#b586ff'),
+      emissiveIntensity: 0.5,
       roughness: 0.1,
       metalness: 0.9,
+      transparent: true,
+      opacity: 0.95,
     });
 
     let geometry: THREE.BufferGeometry | undefined;
@@ -210,7 +218,8 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     }
 
     if (object) {
-      object.scale.set(8.0, 8.0, 8.0);
+      // Increase the scale to make it more visible
+      object.scale.set(3.0, 3.0, 3.0);
       scene.add(object);
       shapeRef.current = object;
 
@@ -231,14 +240,16 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
       object.add(wireframe);
       
       if (object.geometry) {
+        // Increase glow intensity and opacity
         const glowMaterial = new THREE.MeshBasicMaterial({
-          color: 0xb586ff,
+          color: 0xcbaeff,
           transparent: true,
-          opacity: 0.3
+          opacity: 0.6
         });
         
+        // Make the glow larger
         const glowMesh = new THREE.Mesh(object.geometry, glowMaterial);
-        glowMesh.scale.set(1.05, 1.05, 1.05);
+        glowMesh.scale.set(1.15, 1.15, 1.15);
         object.add(glowMesh);
       }
     }

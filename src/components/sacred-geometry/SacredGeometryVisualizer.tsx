@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { motion } from 'framer-motion';
@@ -58,10 +59,6 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
     return null;
   }
 
-  const containerStyle = {
-    transform: `scale(${scale})`,
-  };
-
   return (
     <div className={`sacred-geometry-container ${className}`}>
       <motion.div
@@ -69,7 +66,6 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
         className="w-full h-full relative"
-        style={containerStyle}
       >
         <div className="w-full h-full overflow-hidden">
           <SacredVisualizer 
