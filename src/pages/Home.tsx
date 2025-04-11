@@ -54,7 +54,7 @@ const Home: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
-          className="mb-8"
+          className="mb-4"
         >
           <HealingFeatures />
         </motion.div>
@@ -64,7 +64,7 @@ const Home: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.05 }}
-          className="mb-8"
+          className="mb-4"
         >
           <AboutSacredShifter />
         </motion.div>
@@ -74,7 +74,7 @@ const Home: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.1 }}
-          className="mb-8"
+          className="mb-4"
         >
           <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 shadow-lg">
             <div className="absolute inset-0 bg-cover bg-center opacity-10" 
