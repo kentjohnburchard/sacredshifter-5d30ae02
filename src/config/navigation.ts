@@ -17,7 +17,7 @@ export const activePages = {
   deityOracle: false,
   astralAttunement: false,
   subscription: true,
-  referral: false,
+  referral: false, // Deactivated referral program
   aboutFounder: true,
   contact: true,
   profile: true,
@@ -126,12 +126,6 @@ export const navItems = [
     key: "subscription" as PageKey,
     icon: "User2",
     label: "Subscription",
-  },
-  {
-    path: "/referral",
-    key: "referral" as PageKey,
-    icon: "Sparkles",
-    label: "Referral Program",
   },
   {
     path: "/trinity-gateway",

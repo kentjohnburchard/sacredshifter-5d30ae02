@@ -21,7 +21,7 @@ const SubscriptionPromotion: React.FC<SubscriptionPromotionProps> = ({ compact =
       <CardContent className="pt-6 pb-4 px-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-amber-300" />
-          <p className="text-white text-sm">Align your journey - Upgrade now</p>
+          <p className="text-white text-sm">Unlock your full potential - Only $9.99/month</p>
         </div>
         <Link to="/subscription">
           <Button size="sm" variant="secondary" className="bg-white/20 hover:bg-white/30 text-white">
@@ -36,7 +36,7 @@ const SubscriptionPromotion: React.FC<SubscriptionPromotionProps> = ({ compact =
         <div className="flex items-center gap-2 mb-2">
           <ShieldCheck className="h-5 w-5 text-amber-300" />
           <h3 className="text-lg font-semibold text-white">Sacred Shifter Premium</h3>
-          <Badge className="bg-white/20 text-white text-xs px-2">Align</Badge>
+          <Badge className="bg-white/20 text-white text-xs px-2">Only $9.99/mo</Badge>
         </div>
         <p className="text-white/90 mb-4">
           Upgrade to unlock Sacred Blueprint™, Mirror Portal™, and Emotion Engine™. Begin your journey from human to spirit consciousness.

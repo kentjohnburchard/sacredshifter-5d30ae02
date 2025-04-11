@@ -50,7 +50,8 @@ const Subscription = () => {
               <CardDescription className="text-purple-200">
                 Most popular choice
               </CardDescription>
-              <div className="text-2xl font-bold mt-2">$19.99<span className="text-sm font-normal">/month</span></div>
+              <div className="text-2xl font-bold mt-2">$9.99<span className="text-sm font-normal">/month</span></div>
+              <div className="text-sm text-purple-300 mt-1">or $69.99/year (Save 42%)</div>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
@@ -75,14 +76,14 @@ const Subscription = () => {
             </CardFooter>
           </Card>
 
-          {/* Ultimate Plan */}
+          {/* Lifetime Plan */}
           <Card className="bg-black/40 border-purple-900/50 text-white">
             <CardHeader>
-              <CardTitle className="text-xl font-playfair">Sacred Shifter</CardTitle>
+              <CardTitle className="text-xl font-playfair">Sacred Shifter Lifetime</CardTitle>
               <CardDescription className="text-gray-300">
-                Complete experience
+                Complete experience forever
               </CardDescription>
-              <div className="text-2xl font-bold mt-2">$39.99<span className="text-sm font-normal">/month</span></div>
+              <div className="text-2xl font-bold mt-2">$363.99<span className="text-sm font-normal"> one-time</span></div>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
@@ -92,7 +93,7 @@ const Subscription = () => {
                   "Soul Scribe™",
                   "Deity Oracle™",
                   "Astral Attunement™", 
-                  "1-on-1 Guidance Session", 
+                  "Lifetime Updates", 
                   "Priority Support"
                 ].map((feature) => (
                   <li key={feature} className="flex items-start">
@@ -103,7 +104,7 @@ const Subscription = () => {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button variant="outline" className="w-full">Upgrade</Button>
+              <Button variant="outline" className="w-full">Get Lifetime Access</Button>
             </CardFooter>
           </Card>
         </div>

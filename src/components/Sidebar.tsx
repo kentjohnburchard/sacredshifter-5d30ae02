@@ -39,11 +39,11 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
   return (
     <aside 
       className={cn(
-        "fixed left-0 top-0 z-40 flex h-full flex-col border-r shadow-sm transition-all duration-300",
+        "fixed left-0 top-0 z-40 flex h-full flex-col border-r shadow-md transition-all duration-300",
         isCollapsed ? "w-20" : "w-64",
         liftTheVeil 
-          ? "bg-gradient-to-b from-pink-50 via-white to-pink-50 border-pink-100" 
-          : "bg-gradient-to-b from-purple-50 via-white to-purple-50 border-purple-100",
+          ? "bg-gradient-to-b from-pink-50/80 via-white/70 to-pink-50/80 border-pink-200" 
+          : "bg-gradient-to-b from-purple-50/80 via-white/70 to-purple-50/80 border-purple-200",
         className
       )}
       onMouseEnter={() => setIsCollapsed(false)}
@@ -56,7 +56,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         onClick={() => setIsCollapsed(!isCollapsed)}
         className={cn(
           "absolute -right-3 top-6 h-6 w-6 rounded-full border bg-white p-0 shadow-md",
-          liftTheVeil ? "border-pink-200" : "border-purple-200"
+          liftTheVeil ? "border-pink-300" : "border-purple-300"
         )}
       >
         {isCollapsed ? (
@@ -82,7 +82,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
       {/* User section at the bottom */}
       <div className={cn(
         "border-t px-3 py-4", 
-        liftTheVeil ? "border-pink-100" : "border-purple-100"
+        liftTheVeil ? "border-pink-200" : "border-purple-200"
       )}>
         <SidebarUserDropdown isCollapsed={isCollapsed} />
       </div>

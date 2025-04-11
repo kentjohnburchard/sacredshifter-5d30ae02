@@ -31,7 +31,7 @@ import {
 // Map of route paths to their corresponding icons
 const iconMap: Record<string, React.FC<any>> = {
   '/': Home,
-  '/dashboard': LayoutDashboard, // Changed from Home to LayoutDashboard
+  '/dashboard': LayoutDashboard,
   '/sacred-blueprint': LayoutTemplate,
   '/frequency-library': Music,
   '/heart-center': Heart,
@@ -45,7 +45,6 @@ const iconMap: Record<string, React.FC<any>> = {
   '/deity-oracle': Flame,
   '/astral-attunement': Star,
   '/subscription': User,
-  '/referral': Sparkles,
   '/trinity-gateway': Triangle,
   '/about-founder': User,
   '/contact': Mail,
@@ -90,10 +89,12 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
             className={cn(
               "flex items-center py-2 px-3 text-sm rounded-md transition-colors",
               isActive
-                ? "bg-purple-100 text-purple-900"
-                : "text-gray-600 hover:bg-purple-50 hover:text-purple-900",
-              liftTheVeil && isActive && "bg-pink-100 text-pink-900",
-              liftTheVeil && !isActive && "hover:bg-pink-50 hover:text-pink-900"
+                ? liftTheVeil 
+                  ? "bg-pink-100 text-pink-900" 
+                  : "bg-purple-100 text-purple-900"
+                : "text-gray-600 hover:bg-opacity-80",
+              liftTheVeil && !isActive && "hover:bg-pink-50 hover:text-pink-900",
+              !liftTheVeil && !isActive && "hover:bg-purple-50 hover:text-purple-900"
             )}
           >
             <IconComponent
@@ -110,19 +111,6 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
           </NavLink>
         );
       })}
-      
-      {/* Site Map Link for easy access */}
-      {!isCollapsed && (
-        <NavLink
-          to="/site-map"
-          isMobile={false}
-          onClick={onLinkClick}
-          className="flex items-center py-2 px-3 text-sm rounded-md transition-colors text-gray-600 hover:bg-purple-50 hover:text-purple-900 mt-4 border-t border-purple-50 pt-4"
-        >
-          <Map className="h-5 w-5 mr-2 text-gray-500" />
-          <span>Site Map</span>
-        </NavLink>
-      )}
     </div>
   );
 };

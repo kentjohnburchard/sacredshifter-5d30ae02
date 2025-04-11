@@ -34,12 +34,12 @@ const Layout: React.FC<LayoutProps> = ({
       <div className="flex flex-1">
         {!isAuthPage && <Sidebar />}
         <main className={`flex-1 ${!isAuthPage ? 'ml-20' : ''} pt-20 px-4 lg:px-8 pb-24 transition-all duration-300 relative`}>
-          {/* Top Logo Watermark */}
+          {/* Top Logo Watermark - increased opacity */}
           <div className="fixed top-0 left-0 right-0 pointer-events-none z-0 flex justify-center items-start">
             <img 
               src="/lovable-uploads/9a25249c-f163-4bea-bbbf-c23cea6614c3.png" 
               alt="Sacred Shifter Top Watermark" 
-              className="max-w-[70%] max-h-[20%] object-contain opacity-[0.10] mt-12" 
+              className="max-w-[70%] max-h-[20%] object-contain opacity-[0.18] mt-12" 
             />
           </div>
           
@@ -60,7 +60,7 @@ const Layout: React.FC<LayoutProps> = ({
   if (useBlueWaveBackground) {
     return (
       <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
-        <div className="fixed inset-0 pointer-events-none z-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJ3YXZlIiB4PSIwIiB5PSIwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDY1LDEyNSwyNTUsMC4xKSIgc3Ryb2tlLXdpZHRoPSIyIiBkPSJNMCwyNSBDNTAsMCAxNTAsMCAxODAsMjUgQzIxMCw1MCAzMDAsMzAgMzQwLDUwIEMzODAsNzAgNDIwLDI1IDUwMCw1MCBMNTAwLDIwMCBMMCwyMDAiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjd2F2ZSkiPjxhbmltYXRlVHJhbnNmb3JtIGF0dHJpYnV0ZU5hbWU9InBhdHRlcm5UcmFuc2Zvcm0iIHR5cGU9InRyYW5zbGF0ZSIgZnJvbT0iMCAwIiB0bz0iMjAwIDAiIGJlZ2luPSIwcyIgZHVyPSIyMHMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIi8+PC9yZWN0Pjwvc3ZnPg==')]"></div>
+        <div className="fixed inset-0 pointer-events-none z-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJ3YXZlIiB4PSIwIiB5PSIwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDY1LDEyNSwyNTUsMC4xNSkiIHN0cm9rZS13aWR0aD0iMyIgZD0iTTAsMjUgQzUwLDAgMTUwLDAgMTgwLDI1IEMyMTAsNTAgMzAwLDMwIDM0MCw1MCBDMzgwLDcwIDQyMCwyNSA1MDAsNTAgTDUwMCwyMDAgTDAsMjAwIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI3dhdmUpIj48YW5pbWF0ZVRyYW5zZm9ybSBhdHRyaWJ1dGVOYW1lPSJwYXR0ZXJuVHJhbnNmb3JtIiB0eXBlPSJ0cmFuc2xhdGUiIGZyb209IjAgMCIgdG89IjIwMCAwIiBiZWdpbj0iMHMiIGR1cj0iMjBzIiByZXBlYXRDb3VudD0iaW5kZWZpbml0ZSIvPjwvcmVjdD48L3N2Zz4=')] opacity-80"></div>
         {renderContent()}
       </div>
     );
