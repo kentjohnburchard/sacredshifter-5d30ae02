@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -92,7 +91,6 @@ const CosmicDashboard = () => {
   
   return (
     <Layout pageTitle="Sacred Shifter" showFooter={false}>
-      {/* Add starfield background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <StarfieldBackground density="medium" opacity={0.6} isStatic={false} />
       </div>
@@ -115,12 +113,6 @@ const CosmicDashboard = () => {
             >
               Welcome to your frequency sanctuary. Unlock sacred codes, align with sound, and shift your consciousness.
             </motion.p>
-            <Link to="/landing" className="mt-4 inline-block">
-              <Button variant="outline" size="sm">
-                <Sparkles className="mr-2 h-4 w-4" />
-                View Sacred Shifter Landing
-              </Button>
-            </Link>
           </div>
           
           <motion.div
