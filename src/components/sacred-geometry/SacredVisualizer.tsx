@@ -61,19 +61,17 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
       return;
     }
 
-    // Set up scene
+    // Set up scene with transparent background
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
-    scene.background.set(0x000000);
-    scene.background.convertSRGBToLinear();
+    scene.background = null; // Make background transparent
     sceneRef.current = scene;
 
-    // Set up camera
-    const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
-    camera.position.z = 5;
+    // Set up camera with wider field of view
+    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+    camera.position.z = 3.5; // Move camera closer
     cameraRef.current = camera;
 
-    // Set up renderer with much better quality
+    // Set up renderer with transparency enabled
     const renderer = new THREE.WebGLRenderer({ 
       antialias: true,
       alpha: true,
@@ -81,7 +79,7 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(width, height);
-    renderer.setClearColor(0x000000, 0);
+    renderer.setClearColor(0x000000, 0); // Transparent background
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     rendererRef.current = renderer;
     
@@ -90,33 +88,34 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     mountRef.current.appendChild(renderer.domElement);
 
     // Set up lights with MUCH higher intensity
-    const ambientLight = new THREE.AmbientLight(0xffffff, 2.0);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 3.0);
     scene.add(ambientLight);
     
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 5.0);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 8.0);
     directionalLight.position.set(0, 1, 5);
     scene.add(directionalLight);
     
-    const pointLight1 = new THREE.PointLight(0xffffff, 5.0);
+    const pointLight1 = new THREE.PointLight(0xffffff, 8.0);
     pointLight1.position.set(5, 5, 5);
     scene.add(pointLight1);
     
-    const pointLight2 = new THREE.PointLight(0xffffff, 5.0);
+    const pointLight2 = new THREE.PointLight(0xffffff, 8.0);
     pointLight2.position.set(-5, -5, 5);
     scene.add(pointLight2);
 
     // Create the sacred geometry
     createSacredGeometry(shape, scene);
 
-    // Animation loop
+    // Animation loop with much faster rotation
     const animate = () => {
       if (!rendererRef.current || !sceneRef.current || !cameraRef.current) return;
       
       frameIdRef.current = requestAnimationFrame(animate);
       
       if (shapeRef.current) {
-        shapeRef.current.rotation.x += 0.003;
-        shapeRef.current.rotation.y += 0.005;
+        // Increased rotation speed for better visibility
+        shapeRef.current.rotation.x += 0.005;
+        shapeRef.current.rotation.y += 0.008;
         
         if (isAudioReactive && audioData.length > 0) {
           const averageAmplitude = audioData.reduce((sum, val) => sum + val, 0) / audioData.length;
@@ -195,10 +194,10 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
 
     // Create a MUCH more visible material with better lighting properties
     const material = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(0xb794f6), // Bright purple color
+      color: new THREE.Color(0xae94f6), // Brighter purple color
       emissive: new THREE.Color(0x9370db), // Emissive purple glow
-      emissiveIntensity: 0.8,
-      metalness: 0.8,
+      emissiveIntensity: 1.2,
+      metalness: 0.9,
       roughness: 0.2,
       transparent: true,
       opacity: 0.95,
@@ -210,13 +209,21 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     const emissiveMaterial = new THREE.MeshStandardMaterial({
       color: new THREE.Color(0xe9d8fd), // Lighter purple
       emissive: new THREE.Color(0xe9d8fd),
-      emissiveIntensity: 1.0,
+      emissiveIntensity: 1.5,
       metalness: 0.9,
       roughness: 0.1,
       transparent: true,
       opacity: 0.9,
       side: THREE.DoubleSide,
       wireframe: false
+    });
+
+    // Wireframe material for extra visibility
+    const wireframeMaterial = new THREE.LineBasicMaterial({
+      color: 0xffffff,
+      transparent: true, 
+      opacity: 0.7,
+      linewidth: 2
     });
 
     let geometry: THREE.BufferGeometry | undefined;
@@ -270,28 +277,24 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
 
     // Add object to scene with MUCH larger scale
     if (object) {
-      // Make the object much larger for better visibility
-      object.scale.set(18.0, 18.0, 18.0);
+      // Make the object much larger for better visibility - crucial for visibility
+      object.scale.set(30.0, 30.0, 30.0);
       scene.add(object);
       shapeRef.current = object;
 
       // Add glow and wireframe for better visibility
-      addGlowEffect(object, scene, emissiveMaterial);
+      addGlowEffect(object, scene, emissiveMaterial, wireframeMaterial);
     }
   };
 
   // Add glow effect to make the shape more visible
-  const addGlowEffect = (object: THREE.Object3D, scene: THREE.Scene, glowMaterial: THREE.Material) => {
+  const addGlowEffect = (object: THREE.Object3D, scene: THREE.Scene, glowMaterial: THREE.Material, wireframeMaterial: THREE.LineBasicMaterial) => {
     if (object instanceof THREE.Mesh && object.geometry) {
-      // Add wireframe for extra visibility
+      // Add wireframe for extra visibility - critical for visibility
       const wireGeometry = object.geometry.clone();
-      const wireMaterial = new THREE.LineBasicMaterial({
-        color: 0xffffff,
-        linewidth: 2
-      });
       const wireframe = new THREE.LineSegments(
         new THREE.WireframeGeometry(wireGeometry),
-        wireMaterial
+        wireframeMaterial
       );
       object.add(wireframe);
       
@@ -313,7 +316,7 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
             vertices.getZ(i)
           );
           
-          const pointLight = new THREE.PointLight(0xb794f6, 10, 0.5);
+          const pointLight = new THREE.PointLight(0xb794f6, 15, 0.5);
           pointLight.position.copy(vertex);
           object.add(pointLight);
         }
@@ -321,14 +324,13 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     }
   };
 
+  // Determine size class based on props
   const sizeClass = {
     sm: 'h-64',
     md: 'h-160',
     lg: 'h-240',
     xl: 'h-screen',
   }[size] || 'h-160';
-
-  console.log("Rendering SacredVisualizer with size class:", sizeClass);
 
   return <div ref={mountRef} className={`w-full ${sizeClass} absolute inset-0 z-10`} />;
 };

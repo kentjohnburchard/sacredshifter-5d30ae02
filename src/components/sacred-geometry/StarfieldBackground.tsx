@@ -10,7 +10,7 @@ interface StarfieldBackgroundProps {
 
 const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({ 
   density = 'medium', 
-  opacity = 0.7,
+  opacity = 0.5, // Reduced default opacity
   isStatic = true // Default to static for performance
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -46,10 +46,10 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
     // Determine star count based on density
     const getStarCount = () => {
       switch(density) {
-        case 'low': return 1000;
-        case 'high': return 3000;
+        case 'low': return 800;
+        case 'high': return 2000;
         case 'medium':
-        default: return 2000;
+        default: return 1500;
       }
     };
     

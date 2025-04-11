@@ -106,13 +106,13 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
                   console.log("Selected shape:", value);
                 }
               }}
-              className="bg-black/70 backdrop-blur-md rounded-lg p-1 flex flex-wrap justify-center"
+              className="bg-black/80 backdrop-blur-md rounded-lg p-2 flex flex-wrap justify-center shadow-lg"
             >
               {shapeOptions.map((option) => (
                 <ToggleGroupItem 
                   key={option.value} 
                   value={option.value}
-                  className="px-2 py-1 text-xs text-white data-[state=on]:bg-purple-700/80"
+                  className="px-2 py-1 text-xs text-white data-[state=on]:bg-purple-700"
                 >
                   {option.label}
                 </ToggleGroupItem>
