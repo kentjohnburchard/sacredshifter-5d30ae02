@@ -22,7 +22,6 @@ function App() {
         <Route path="/" element={<Index />} /> {/* This will now use the Index component */}
         <Route path="/home" element={<CosmicDashboard />} />
         <Route path="/welcome" element={<Welcome />} />
-        <Route path="/dashboard" element={<CosmicDashboard />} />
         <Route path="/landing" element={<SacredShifterLanding />} />
         <Route path="/meditations" element={<Meditations />} />
         <Route path="/hermetic-principles" element={<HermeticPrinciples />} />
