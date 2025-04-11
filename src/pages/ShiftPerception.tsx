@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
@@ -33,15 +32,15 @@ const ShiftPerception: React.FC = () => {
       <div className="relative min-h-screen">
         {/* Animated background - subtle cosmic animation */}
         <div className="absolute inset-0 -z-10 overflow-hidden">
-          <AnimatedBackground colorScheme="purple" isActive={true} />
+          <AnimatedBackground colorScheme="purple" isActive={true}>
+            <div></div>
+          </AnimatedBackground>
         </div>
 
         {/* "Free access" badge */}
-        <div className="absolute top-4 right-4 z-10">
-          <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200 font-medium">
-            <Star className="w-3 h-3 mr-1 text-green-600" /> Free Access
-          </Badge>
-        </div>
+        <Badge variant="outline" className="absolute top-4 right-4 z-10 bg-green-100 text-green-800 border-green-200 font-medium">
+          <Star className="w-3 h-3 mr-1 text-green-600" /> Free Access
+        </Badge>
 
         {/* Main content container */}
         <motion.div 

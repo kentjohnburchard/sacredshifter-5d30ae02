@@ -18,12 +18,12 @@ const StarfieldBackground: React.FC = () => {
       canvas.height = window.innerHeight;
     };
 
-    // Reduce number of stars by 50%
-    const stars = Array.from({ length: 500 }, () => ({
+    // Increase star count compared to previous reduction (but still less than original)
+    const stars = Array.from({ length: 750 }, () => ({
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
-      radius: Math.random() * 2, // Smaller stars
-      alpha: Math.random() * 0.5, // Less bright
+      radius: Math.random() * 2.5, // Slightly bigger stars
+      alpha: Math.random() * 0.7, // Brighter stars
       delta: Math.random() * 0.005 + 0.001,
       color: Math.random() > 0.8 ? 
         `rgba(${155 + Math.random() * 100}, ${155 + Math.random() * 100}, 255, ` : 
@@ -49,14 +49,14 @@ const StarfieldBackground: React.FC = () => {
         // Draw the star with enhanced brightness
         context.beginPath();
         context.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-        context.fillStyle = `${star.color}${star.alpha * 1.5})`;  // Increased brightness
+        context.fillStyle = `${star.color}${star.alpha * 2})`;  // Increased brightness
         context.fill();
         
         // Add larger glow for brighter stars
         if (star.radius > 1.2) {
           context.beginPath();
-          context.arc(star.x, star.y, star.radius * 5, 0, Math.PI * 2);
-          context.fillStyle = `${star.color}${star.alpha * 0.25})`;
+          context.arc(star.x, star.y, star.radius * 6, 0, Math.PI * 2);
+          context.fillStyle = `${star.color}${star.alpha * 0.35})`;  // Increased glow opacity
           context.fill();
         }
       });
@@ -84,7 +84,7 @@ const StarfieldBackground: React.FC = () => {
         width: '100%',
         height: '100%',
         zIndex: 0,
-        opacity: 0.5, // Reduced opacity
+        opacity: 0.7, // Increased opacity from 0.5
         pointerEvents: 'none',
       }}
     />
