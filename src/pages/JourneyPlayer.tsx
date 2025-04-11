@@ -1,10 +1,10 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Card, CardContent } from '@/components/ui/card';
 import { useJourneyTemplates } from '@/hooks/useJourneyTemplates';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
+import { toast } from 'sonner';
 
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
