@@ -9,6 +9,7 @@ import JourneyTemplates from '@/pages/JourneyTemplates';
 import JourneyPlayer from '@/pages/JourneyPlayer';
 import Admin from '@/pages/Admin';
 import JourneyAudioAdmin from '@/pages/admin/JourneyAudioAdmin';
+import JourneyAudioMappingsViewer from '@/pages/admin/JourneyAudioMappingsViewer';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/journey-player/:journeyId" element={<JourneyPlayer />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/journey-audio-admin" element={<JourneyAudioAdmin />} />
+        <Route path="/admin/journey-audio-mappings" element={<JourneyAudioMappingsViewer />} />
       </Routes>
     </React.StrictMode>
   );
