@@ -79,19 +79,31 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
     scene.add(stars);
     starsRef.current = stars;
     
-    // Create animation loop if not static
-    const animate = () => {
-      if (!isStatic && starsRef.current) {
-        starsRef.current.rotation.x += 0.0001;
-        starsRef.current.rotation.y += 0.0001;
+    // Render the scene once without animation if static
+    const renderScene = () => {
+      if (renderer) {
+        renderer.render(scene, camera);
       }
-      
-      renderer.render(scene, camera);
-      
-      animationFrameRef.current = requestAnimationFrame(animate);
     };
     
-    animate();
+    if (isStatic) {
+      // For static mode, just render once
+      renderScene();
+    } else {
+      // Only use animation loop if not static
+      const animate = () => {
+        if (!isStatic && starsRef.current) {
+          starsRef.current.rotation.x += 0.0001;
+          starsRef.current.rotation.y += 0.0001;
+        }
+        
+        renderScene();
+        
+        animationFrameRef.current = requestAnimationFrame(animate);
+      };
+      
+      animate();
+    }
     
     // Handle window resize
     const handleResize = () => {
@@ -103,6 +115,9 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
+      
+      // Re-render after resize
+      renderScene();
     };
     
     window.addEventListener('resize', handleResize);

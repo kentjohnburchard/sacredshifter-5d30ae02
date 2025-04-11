@@ -65,7 +65,7 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
         transition={{ duration: 1 }}
         className="w-full h-full relative"
       >
-        <div className="w-full h-full overflow-hidden">
+        <div className="w-full h-full">
           <SacredVisualizer 
             shape={currentShape} 
             size={size} 
