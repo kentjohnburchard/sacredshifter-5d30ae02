@@ -92,9 +92,9 @@ const CosmicDashboard = () => {
   return (
     <Layout pageTitle="Sacred Shifter" showFooter={false}>
       <div className="max-w-7xl mx-auto px-4 pt-10 pb-24">
-        <div className="flex flex-col lg:flex-row justify-between items-center mb-10 gap-8">
+        <div className="flex flex-col lg:flex-row justify-between items-center mb-4 gap-4">
           <div className="text-center lg:text-left">
-            <motion.h1
+            {/*<motion.h1
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-4xl md:text-2xl lg:text-6xl font-playfair font-bold text-white mb-3"
@@ -103,12 +103,13 @@ const CosmicDashboard = () => {
                 
               </span>
             </motion.h1>
+            */)
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-lg text-purple-100/80 max-w-2xl"
-            >Tune into healing frequencies, unlock sacred codes and elevate your consciousness.
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="text-lg text-purple-100/80 max-w-2xl mb-4"
+              >Welcome to your frequency sanctuary. Unlock sacred codes, align with sound, and shift your consciousness.
             </motion.p>
             <Link to="/landing" className="mt-4 inline-block">
               <Button variant="outline" size="sm">
@@ -136,7 +137,13 @@ const CosmicDashboard = () => {
             </div>
           </motion.div>
         </div>
-        
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ delay: 0.3, duration: 0.6 }}
+        >
+        </motion.div>
+
         <Tabs defaultValue="journeys" className="w-full">
           <TabsList className="w-full flex justify-center mb-8 bg-black/30 backdrop-blur-sm">
             <TabsTrigger value="journeys" className="data-[state=active]:bg-purple-900/50">
@@ -247,7 +254,7 @@ const CosmicDashboard = () => {
                       >
                         <div className="mr-4 relative w-16 h-16">
                           <SacredGeometryVisualizer 
-                            defaultShape="flower-of-life"
+                            defaultShape="cube"
                             size="sm"
                             showControls={false}
                           />
