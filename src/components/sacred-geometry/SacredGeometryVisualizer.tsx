@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { motion } from 'framer-motion';
@@ -15,7 +14,6 @@ interface SacredGeometryVisualizerProps {
   showControls?: boolean;
   isAudioReactive?: boolean;
   className?: string;
-  // Add audio analysis props
   audioContext?: AudioContext;
   analyser?: AnalyserNode;
   isVisible?: boolean;
@@ -23,7 +21,7 @@ interface SacredGeometryVisualizerProps {
   frequency?: number;
   mode?: 'fractal' | 'spiral' | 'mandala';
   sensitivity?: number;
-  scale?: number; // New prop to control the scale of the visualizer
+  scale?: number;
 }
 
 const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
@@ -39,11 +37,10 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
   frequency,
   mode,
   sensitivity = 1,
-  scale = 4, // Increased scale from 2 to 4 (doubling the size)
+  scale = 8,
 }) => {
   const [currentShape, setCurrentShape] = useState<GeometryShape>(defaultShape);
 
-  // Only show visualizer if explicitly visible
   const shouldShow = isVisible !== false;
 
   const shapeOptions: { value: GeometryShape; label: string }[] = [
@@ -61,7 +58,6 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
     return null;
   }
 
-  // Apply the scale factor to the container size
   const containerStyle = {
     transform: `scale(${scale})`,
   };
@@ -97,13 +93,13 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
               onValueChange={(value) => {
                 if (value) setCurrentShape(value as GeometryShape);
               }}
-              className="bg-black/70 backdrop-blur-md rounded-lg p-1 flex flex-wrap justify-center" // Increased contrast
+              className="bg-black/70 backdrop-blur-md rounded-lg p-1 flex flex-wrap justify-center"
             >
               {shapeOptions.map((option) => (
                 <ToggleGroupItem 
                   key={option.value} 
                   value={option.value}
-                  className="px-2 py-1 text-xs text-white data-[state=on]:bg-purple-700/80" // Increased contrast
+                  className="px-2 py-1 text-xs text-white data-[state=on]:bg-purple-700/80"
                 >
                   {option.label}
                 </ToggleGroupItem>

@@ -69,22 +69,22 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     createStarfield(scene);
 
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-    camera.position.z = 6;
+    camera.position.z = 5;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
-    renderer.setClearColor(0x000000, 0.3);
+    renderer.setClearColor(0x000000, 0.1);
     rendererRef.current = renderer;
     mountRef.current.appendChild(renderer.domElement);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.8);
     scene.add(ambientLight);
 
-    const pointLight = new THREE.PointLight(0xffffff, 2.5);
+    const pointLight = new THREE.PointLight(0xffffff, 3.5);
     pointLight.position.set(5, 5, 5);
     scene.add(pointLight);
 
-    const pointLight2 = new THREE.PointLight(0xffffff, 2.0);
+    const pointLight2 = new THREE.PointLight(0xffffff, 3.0);
     pointLight2.position.set(-5, -5, 5);
     scene.add(pointLight2);
 
@@ -93,8 +93,8 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     const animate = () => {
       frameIdRef.current = requestAnimationFrame(animate);
       if (shapeRef.current) {
-        shapeRef.current.rotation.x += 0.005;
-        shapeRef.current.rotation.y += 0.005;
+        shapeRef.current.rotation.x += 0.003;
+        shapeRef.current.rotation.y += 0.003;
         
         if (isAudioReactive && audioData.length > 0) {
           const averageAmplitude = audioData.reduce((sum, val) => sum + val, 0) / audioData.length;
@@ -164,10 +164,10 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     }
 
     const material = new THREE.MeshStandardMaterial({
-      color: new THREE.Color('#a56eff'),
-      emissive: new THREE.Color('#8a43ff'),
-      roughness: 0.2,
-      metalness: 0.8,
+      color: new THREE.Color('#b586ff'),
+      emissive: new THREE.Color('#9a63ff'),
+      roughness: 0.1,
+      metalness: 0.9,
     });
 
     let geometry: THREE.BufferGeometry | undefined;
@@ -210,7 +210,7 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     }
 
     if (object) {
-      object.scale.set(6.0, 6.0, 6.0);
+      object.scale.set(8.0, 8.0, 8.0);
       scene.add(object);
       shapeRef.current = object;
 
@@ -224,10 +224,23 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
       const lineMaterial = new THREE.LineBasicMaterial({ 
         color: 0xffffff, 
         transparent: true, 
-        opacity: 0.9
+        opacity: 1.0,
+        linewidth: 2
       });
       const wireframe = new THREE.LineSegments(edges, lineMaterial);
       object.add(wireframe);
+      
+      if (object.geometry) {
+        const glowMaterial = new THREE.MeshBasicMaterial({
+          color: 0xb586ff,
+          transparent: true,
+          opacity: 0.3
+        });
+        
+        const glowMesh = new THREE.Mesh(object.geometry, glowMaterial);
+        glowMesh.scale.set(1.05, 1.05, 1.05);
+        object.add(glowMesh);
+      }
     }
   };
 
