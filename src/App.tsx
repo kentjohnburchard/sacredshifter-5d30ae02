@@ -43,6 +43,7 @@ import Profile from './pages/Profile';
 import SiteMap from './pages/SiteMap';
 import MusicGenerator from './pages/MusicGenerator';
 import Meditation from './pages/Meditation';
+import MusicLibraryPage from './pages/MusicLibraryPage';
 
 function App() {
   return (
@@ -70,6 +71,7 @@ function App() {
             
             {/* Additional Feature Routes */}
             <Route path="/music-generator" element={<MusicGenerator />} />
+            <Route path="/music-library" element={<MusicLibraryPage />} />
             <Route path="/mirror-portal" element={<MirrorPortal />} />
             <Route path="/frequency-shift" element={<FrequencyShift />} />
             <Route path="/soul-scribe" element={<SoulScribe />} />

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Eye, EyeOff } from "lucide-react";
@@ -34,11 +35,22 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   const effectiveAudioUrl = url || audioUrl;
   const { playAudio } = useGlobalAudioPlayer();
   
-  // Keep audio analyzer for visualization
-  const audioRef = React.useRef(new Audio());
+  // Create audio element only once using ref
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
+  const audioInitialized = React.useRef(false);
+  
+  // Initialize audio element only once
+  useEffect(() => {
+    if (!audioInitialized.current) {
+      audioRef.current = new Audio();
+      audioInitialized.current = true;
+    }
+  }, []);
+  
+  // Get analyzer for visualization
   const { audioContext, analyser } = useAudioAnalyzer(audioRef);
   
-  // Set up the audio source when component mounts
+  // Set up the audio source when component mounts or URL changes
   useEffect(() => {
     if (effectiveAudioUrl && audioRef.current) {
       let formattedUrl = effectiveAudioUrl;
@@ -61,7 +73,6 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
-        audioRef.current.src = '';
       }
     };
   }, [effectiveAudioUrl]);
@@ -70,9 +81,6 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   useEffect(() => {
     if (isPlaying) {
       playFrequency();
-    } else {
-      // We don't pause the global player here, just update UI
-      // The user will need to pause from the global player
     }
   }, [isPlaying]);
   
