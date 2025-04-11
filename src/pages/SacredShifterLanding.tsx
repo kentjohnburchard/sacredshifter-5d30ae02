@@ -17,6 +17,7 @@ import ConsciousnessToggle from '@/components/ConsciousnessToggle';
 import Watermark from '@/components/Watermark';
 import { useTheme } from '@/context/ThemeContext';
 import { cn } from '@/lib/utils';
+import { SacredGeometryVisualizer } from '@/components/sacred-geometry';
 
 const geometryComponents = {
   'Flower of Life': <SacredFlowerOfLife />,
@@ -29,7 +30,7 @@ const geometryComponents = {
 };
 
 const SacredShifterLanding = () => {
-  const [selectedShape, setSelectedShape] = useState("Flower of Life");
+  const [selectedShape, setSelectedShape] = useState<"flower-of-life" | "metatrons-cube" | "merkaba" | "torus" | "tree-of-life" | "sri-yantra" | "vesica-piscis">("flower-of-life");
   const { liftTheVeil } = useTheme();
 
   const scrollToSection = (sectionId: string) => {
@@ -39,25 +40,40 @@ const SacredShifterLanding = () => {
     }
   };
 
+  // Map from UI selection to component prop type
+  const shapeMapping: Record<string, "flower-of-life" | "metatrons-cube" | "merkaba" | "torus" | "tree-of-life" | "sri-yantra" | "vesica-piscis"> = {
+    'Flower of Life': 'flower-of-life',
+    "Metatron's Cube": 'metatrons-cube',
+    'Merkaba': 'merkaba',
+    'Torus': 'torus',
+    'Tree of Life': 'tree-of-life',
+    'Sri Yantra': 'sri-yantra',
+    'Vesica Piscis': 'vesica-piscis',
+  };
+
   return (
-    <div className="relative min-h-screen w-full bg-gradient-to-b from-black via-[#0a0118] to-black text-white font-sans overflow-hidden">
+    <div className={cn(
+      "relative min-h-screen w-full bg-gradient-to-b from-black via-[#0a0118] to-black text-white font-sans overflow-hidden",
+      liftTheVeil ? "border-pink-500 border-[6px]" : "border-purple-500 border-[6px]"
+    )}>
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <StarfieldBackground density="medium" opacity={0.8} isStatic={true} />
+        <StarfieldBackground density="medium" opacity={0.6} isStatic={true} />
       </div>
 
       <Sidebar />
       <Watermark />
 
       <div className="ml-20">
+        {/* Much larger, centered sacred geometry visualizer */}
         <div className="fixed inset-0 z-1 pointer-events-none flex items-center justify-center">
-          <div className="w-[180vw] h-[180vh] max-w-none">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 0.9, scale: 1 }} 
-              transition={{ duration: 1.5 }}
-            >
-              {geometryComponents[selectedShape]}
-            </motion.div>
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="w-[140vh] h-[140vh] max-w-none">
+              <SacredGeometryVisualizer 
+                defaultShape={selectedShape}
+                size="xl"
+                showControls={false}
+              />
+            </div>
           </div>
         </div>
 
@@ -71,15 +87,15 @@ const SacredShifterLanding = () => {
               {Object.keys(geometryComponents).map((shape) => (
                 <button
                   key={shape}
-                  onClick={() => setSelectedShape(shape)}
+                  onClick={() => setSelectedShape(shapeMapping[shape])}
                   className={cn(
                     "text-sm whitespace-nowrap text-white hover:text-purple-300 transition-all duration-300 flex items-center gap-2",
-                    selectedShape === shape ? (liftTheVeil ? "text-pink-300" : "text-purple-300") : ""
+                    shapeMapping[shape] === selectedShape ? (liftTheVeil ? "text-pink-300" : "text-purple-300") : ""
                   )}
                 >
                   <span className={cn(
                     "h-2 w-2 rounded-full opacity-90",
-                    selectedShape === shape 
+                    shapeMapping[shape] === selectedShape 
                       ? (liftTheVeil ? "bg-pink-500" : "bg-purple-500") 
                       : (liftTheVeil ? "bg-pink-900" : "bg-purple-900")
                   )}></span>

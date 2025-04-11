@@ -67,8 +67,8 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     sceneRef.current = scene;
 
     // Set up camera with wider field of view
-    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-    camera.position.z = 3.5; // Move camera closer
+    const camera = new THREE.PerspectiveCamera(85, width / height, 0.1, 1000);
+    camera.position.z = 2.0; // Move camera MUCH closer for better visibility
     cameraRef.current = camera;
 
     // Set up renderer with transparency enabled
@@ -87,19 +87,19 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     mountRef.current.innerHTML = '';
     mountRef.current.appendChild(renderer.domElement);
 
-    // Set up lights with MUCH higher intensity
-    const ambientLight = new THREE.AmbientLight(0xffffff, 3.0);
+    // Set up lights with EXTREMELY high intensity for maximum visibility
+    const ambientLight = new THREE.AmbientLight(0xffffff, 4.0);
     scene.add(ambientLight);
     
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 8.0);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 10.0);
     directionalLight.position.set(0, 1, 5);
     scene.add(directionalLight);
     
-    const pointLight1 = new THREE.PointLight(0xffffff, 8.0);
+    const pointLight1 = new THREE.PointLight(0xffffff, 10.0);
     pointLight1.position.set(5, 5, 5);
     scene.add(pointLight1);
     
-    const pointLight2 = new THREE.PointLight(0xffffff, 8.0);
+    const pointLight2 = new THREE.PointLight(0xffffff, 10.0);
     pointLight2.position.set(-5, -5, 5);
     scene.add(pointLight2);
 
@@ -192,11 +192,11 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
       shapeRef.current = null;
     }
 
-    // Create a MUCH more visible material with better lighting properties
+    // Create a SUPER BRIGHT material with extremely high emissive properties for maximum visibility
     const material = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(0xae94f6), // Brighter purple color
-      emissive: new THREE.Color(0x9370db), // Emissive purple glow
-      emissiveIntensity: 1.2,
+      color: new THREE.Color(0xae94f6), // Bright purple
+      emissive: new THREE.Color(0xae94f6), // Same as color for maximum glow
+      emissiveIntensity: 3.0, // MUCH higher emissive intensity
       metalness: 0.9,
       roughness: 0.2,
       transparent: true,
@@ -205,11 +205,11 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
       wireframe: false
     });
     
-    // Secondary material for additional visibility
+    // Secondary material for additional glow effect
     const emissiveMaterial = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(0xe9d8fd), // Lighter purple
+      color: new THREE.Color(0xffffff), // White for maximum brightness
       emissive: new THREE.Color(0xe9d8fd),
-      emissiveIntensity: 1.5,
+      emissiveIntensity: 2.5, // Higher intensity
       metalness: 0.9,
       roughness: 0.1,
       transparent: true,
@@ -218,12 +218,12 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
       wireframe: false
     });
 
-    // Wireframe material for extra visibility
+    // Wireframe material for extra visibility - much brighter
     const wireframeMaterial = new THREE.LineBasicMaterial({
       color: 0xffffff,
       transparent: true, 
-      opacity: 0.7,
-      linewidth: 2
+      opacity: 0.9, // Higher opacity
+      linewidth: 3 // Thicker lines
     });
 
     let geometry: THREE.BufferGeometry | undefined;
@@ -277,8 +277,8 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
 
     // Add object to scene with MUCH larger scale
     if (object) {
-      // Make the object much larger for better visibility - crucial for visibility
-      object.scale.set(30.0, 30.0, 30.0);
+      // Make the object DRAMATICALLY larger for better visibility 
+      object.scale.set(60.0, 60.0, 60.0);
       scene.add(object);
       shapeRef.current = object;
 
@@ -287,7 +287,7 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     }
   };
 
-  // Add glow effect to make the shape more visible
+  // Add glow effect to make the shape EXTREMELY visible
   const addGlowEffect = (object: THREE.Object3D, scene: THREE.Scene, glowMaterial: THREE.Material, wireframeMaterial: THREE.LineBasicMaterial) => {
     if (object instanceof THREE.Mesh && object.geometry) {
       // Add wireframe for extra visibility - critical for visibility
@@ -298,10 +298,15 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
       );
       object.add(wireframe);
       
-      // Add a slightly larger glowing mesh
-      const glowMesh = new THREE.Mesh(object.geometry, glowMaterial);
-      glowMesh.scale.set(1.05, 1.05, 1.05);
-      object.add(glowMesh);
+      // Add multiple glowing meshes at different scales for a more dramatic glow effect
+      const glowMesh1 = new THREE.Mesh(object.geometry, glowMaterial);
+      glowMesh1.scale.set(1.05, 1.05, 1.05);
+      object.add(glowMesh1);
+      
+      const glowMesh2 = new THREE.Mesh(object.geometry, glowMaterial.clone());
+      (glowMesh2.material as THREE.MeshStandardMaterial).opacity = 0.5;
+      glowMesh2.scale.set(1.1, 1.1, 1.1);
+      object.add(glowMesh2);
       
       // Add point lights at key vertices for additional glow
       const vertices = object.geometry.attributes.position;
@@ -309,14 +314,14 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
       
       if (vertexCount > 20) {
         // Only add lights for some key vertices to avoid performance issues
-        for (let i = 0; i < Math.min(10, vertexCount); i += Math.max(1, Math.floor(vertexCount / 10))) {
+        for (let i = 0; i < Math.min(15, vertexCount); i += Math.max(1, Math.floor(vertexCount / 15))) {
           const vertex = new THREE.Vector3(
             vertices.getX(i),
             vertices.getY(i),
             vertices.getZ(i)
           );
           
-          const pointLight = new THREE.PointLight(0xb794f6, 15, 0.5);
+          const pointLight = new THREE.PointLight(0xb794f6, 25, 0.8);
           pointLight.position.copy(vertex);
           object.add(pointLight);
         }

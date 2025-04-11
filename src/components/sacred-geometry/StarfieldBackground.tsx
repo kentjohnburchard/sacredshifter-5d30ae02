@@ -10,7 +10,7 @@ interface StarfieldBackgroundProps {
 
 const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({ 
   density = 'medium', 
-  opacity = 0.5, // Reduced default opacity
+  opacity = 0.3, // Reduced default opacity to avoid overwhelming the sacred geometry
   isStatic = true // Default to static for performance
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -46,10 +46,10 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
     // Determine star count based on density
     const getStarCount = () => {
       switch(density) {
-        case 'low': return 800;
-        case 'high': return 2000;
+        case 'low': return 500; // Reduced count
+        case 'high': return 1500; // Reduced count
         case 'medium':
-        default: return 1500;
+        default: return 1000; // Reduced count
       }
     };
     
@@ -70,7 +70,7 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
     
     const starsMaterial = new THREE.PointsMaterial({
       color: 0xffffff,
-      size: 0.15, // Slightly larger stars for better visibility
+      size: 0.10, // Smaller stars
       transparent: true,
       opacity: opacity
     });
