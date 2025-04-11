@@ -39,8 +39,8 @@ const Home: React.FC = () => {
           defaultShape={currentShape}
           size="xl"
           showControls={false}
-          scale={1.5} // Make it 50% larger
-          className="opacity-90" // Increased opacity
+          scale={3} // Make it 3x larger (doubled from 1.5)
+          className="opacity-95" // Increased opacity for better visibility
         />
       </div>
       

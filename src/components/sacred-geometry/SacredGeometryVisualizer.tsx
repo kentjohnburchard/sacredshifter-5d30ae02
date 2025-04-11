@@ -39,7 +39,7 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
   frequency,
   mode,
   sensitivity = 1,
-  scale = 1, // Default scale factor
+  scale = 2, // Default scale doubled from 1 to 2
 }) => {
   const [currentShape, setCurrentShape] = useState<GeometryShape>(defaultShape);
 

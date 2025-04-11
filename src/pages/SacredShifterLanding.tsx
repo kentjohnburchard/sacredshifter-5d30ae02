@@ -50,10 +50,10 @@ const SacredShifterLanding = () => {
 
       <div className="ml-20">
         <div className="fixed inset-0 z-1 pointer-events-none flex items-center justify-center">
-          <div className="w-[90vw] h-[90vh] max-w-5xl"> {/* Increased size */}
+          <div className="w-[180vw] h-[180vh] max-w-none"> {/* Doubled size from 90vw/90vh */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 0.9, scale: 1 }} {/* Increased opacity */}
+              animate={{ opacity: 0.9, scale: 1 }} 
               transition={{ duration: 1.5 }}
             >
               {geometryComponents[selectedShape]}

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { createFlowerOfLife, createSeedOfLife, createMetatronsCube, createSriYantra, 
@@ -76,25 +75,24 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
 
     // Set up camera
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-    camera.position.z = 5;
+    camera.position.z = 6; // Increased from 5 to create better view of larger geometry
 
     // Set up renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
-    renderer.setClearColor(0x000000, 0.3); // More visible background
+    renderer.setClearColor(0x000000, 0.3);
     rendererRef.current = renderer;
     mountRef.current.appendChild(renderer.domElement);
 
     // Add lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); // Increased intensity
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9); // Increased intensity
     scene.add(ambientLight);
 
-    const pointLight = new THREE.PointLight(0xffffff, 1.5); // Increased intensity
+    const pointLight = new THREE.PointLight(0xffffff, 2.0); // Increased intensity
     pointLight.position.set(5, 5, 5);
     scene.add(pointLight);
 
-    // Add second light source for better illumination
-    const pointLight2 = new THREE.PointLight(0xffffff, 1);
+    const pointLight2 = new THREE.PointLight(0xffffff, 1.5); // Increased intensity
     pointLight2.position.set(-5, -5, 5);
     scene.add(pointLight2);
 
@@ -155,13 +153,13 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     const starsGeometry = new THREE.BufferGeometry();
     const starsMaterial = new THREE.PointsMaterial({
       color: 0xffffff,
-      size: 0.15, // Increased size
+      size: 0.15,
       transparent: true,
-      opacity: 0.9, // Increased opacity
+      opacity: 0.9,
     });
 
     const starsVertices = [];
-    for (let i = 0; i < 1500; i++) { // Increased star count
+    for (let i = 0; i < 1500; i++) {
       const x = (Math.random() - 0.5) * 100;
       const y = (Math.random() - 0.5) * 100;
       const z = (Math.random() - 0.5) * 100;
@@ -175,16 +173,14 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
 
   // Function to create sacred geometry based on selection
   const createSacredGeometry = (shape: string, scene: THREE.Scene) => {
-    // Remove previous shape if exists
     if (shapeRef.current) {
       scene.remove(shapeRef.current);
       shapeRef.current = undefined;
     }
 
-    // Material with enhanced glow and brightness
     const material = new THREE.MeshStandardMaterial({
-      color: new THREE.Color('#a56eff'), // Brighter violet
-      emissive: new THREE.Color('#8a43ff'), // Enhanced emissive color
+      color: new THREE.Color('#a56eff'),
+      emissive: new THREE.Color('#8a43ff'),
       roughness: 0.2,
       metalness: 0.8,
     });
@@ -192,7 +188,6 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     let geometry: THREE.BufferGeometry | undefined;
     let object: THREE.Object3D | undefined;
 
-    // Create the appropriate sacred geometry
     switch (shape) {
       case 'flower-of-life':
         object = createFlowerOfLife();
@@ -207,7 +202,7 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
         object = createMerkaba();
         break;
       case 'torus':
-        geometry = new THREE.TorusGeometry(1, 0.4, 32, 100); // Increased resolution
+        geometry = new THREE.TorusGeometry(1, 0.4, 32, 100);
         break;
       case 'tree-of-life':
         object = createTreeOfLife();
@@ -220,38 +215,32 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
         break;
       case 'sphere':
       default:
-        geometry = new THREE.SphereGeometry(1, 64, 64); // Increased resolution
+        geometry = new THREE.SphereGeometry(1, 64, 64);
         break;
     }
 
-    // If we created a geometry, create a mesh
     if (geometry) {
       const mesh = new THREE.Mesh(geometry, material);
       object = mesh;
     }
 
-    // Add the object to the scene
     if (object) {
-      // Scale up the object to make it more prominent
-      object.scale.set(1.5, 1.5, 1.5); // 50% bigger
-      
+      object.scale.set(3.0, 3.0, 3.0);
       scene.add(object);
       shapeRef.current = object;
 
-      // Add a subtle glow effect
       addGlowEffect(object, scene);
     }
   };
 
   // Add glow effect to object
   const addGlowEffect = (object: THREE.Object3D, scene: THREE.Scene) => {
-    // Add outlines to make the geometry more visible
     if (object instanceof THREE.Mesh) {
       const edges = new THREE.EdgesGeometry(object.geometry);
       const lineMaterial = new THREE.LineBasicMaterial({ 
         color: 0xffffff, 
         transparent: true, 
-        opacity: 0.6 
+        opacity: 0.8
       });
       const wireframe = new THREE.LineSegments(edges, lineMaterial);
       object.add(wireframe);
@@ -260,9 +249,9 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
 
   // Generate size class based on prop
   const sizeClass = {
-    sm: 'h-32',
-    md: 'h-80',  // Increased from h-64
-    lg: 'h-120', // Increased from h-96
+    sm: 'h-64',
+    md: 'h-160',
+    lg: 'h-240',
     xl: 'h-screen',
   }[size];
 

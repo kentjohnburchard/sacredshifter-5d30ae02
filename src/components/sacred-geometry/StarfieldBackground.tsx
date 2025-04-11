@@ -42,8 +42,8 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
     const stars = Array.from({ length: getStarCount() }, () => ({
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
-      radius: Math.random() * 2.5, // Slightly bigger stars
-      alpha: Math.random() * 0.8, // Brighter stars
+      radius: Math.random() * 2.5, // Same size stars
+      alpha: Math.random() * 0.8, 
       delta: Math.random() * 0.005 + 0.001,
       color: Math.random() > 0.8 ? 
         `rgba(${155 + Math.random() * 100}, ${155 + Math.random() * 100}, 255, ` : 
