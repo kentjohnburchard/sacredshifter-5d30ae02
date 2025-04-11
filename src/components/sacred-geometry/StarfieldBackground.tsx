@@ -1,7 +1,17 @@
 
 import React, { useEffect, useRef } from 'react';
 
-const StarfieldBackground: React.FC = () => {
+interface StarfieldBackgroundProps {
+  density?: 'low' | 'medium' | 'high';
+  opacity?: number;
+  static?: boolean;
+}
+
+const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
+  density = 'medium',
+  opacity = 0.7,
+  static = false
+}) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -18,12 +28,22 @@ const StarfieldBackground: React.FC = () => {
       canvas.height = window.innerHeight;
     };
 
-    // Increase star count compared to previous reduction (but still less than original)
-    const stars = Array.from({ length: 750 }, () => ({
+    // Adjust star count based on density
+    const getStarCount = () => {
+      switch(density) {
+        case 'low': return 350;
+        case 'high': return 1000;
+        case 'medium':
+        default: return 650;
+      }
+    };
+
+    // Create stars with appropriate density
+    const stars = Array.from({ length: getStarCount() }, () => ({
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
       radius: Math.random() * 2.5, // Slightly bigger stars
-      alpha: Math.random() * 0.7, // Brighter stars
+      alpha: Math.random() * 0.8, // Brighter stars
       delta: Math.random() * 0.005 + 0.001,
       color: Math.random() > 0.8 ? 
         `rgba(${155 + Math.random() * 100}, ${155 + Math.random() * 100}, 255, ` : 
@@ -42,21 +62,23 @@ const StarfieldBackground: React.FC = () => {
 
       // Draw each star with enhanced twinkling effect
       stars.forEach((star) => {
-        // Update star opacity for twinkling effect
-        star.alpha += star.delta;
-        if (star.alpha > 1 || star.alpha < 0.1) star.delta *= -1;
+        // Update star opacity for twinkling effect (unless static)
+        if (!static) {
+          star.alpha += star.delta;
+          if (star.alpha > 1 || star.alpha < 0.1) star.delta *= -1;
+        }
         
         // Draw the star with enhanced brightness
         context.beginPath();
         context.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-        context.fillStyle = `${star.color}${star.alpha * 2})`;  // Increased brightness
+        context.fillStyle = `${star.color}${star.alpha * opacity * 2})`;  // Apply opacity modifier
         context.fill();
         
         // Add larger glow for brighter stars
         if (star.radius > 1.2) {
           context.beginPath();
-          context.arc(star.x, star.y, star.radius * 6, 0, Math.PI * 2);
-          context.fillStyle = `${star.color}${star.alpha * 0.35})`;  // Increased glow opacity
+          context.arc(star.x, star.y, star.radius * 4, 0, Math.PI * 2);
+          context.fillStyle = `${star.color}${star.alpha * opacity * 0.4})`;  // Apply opacity modifier
           context.fill();
         }
       });
@@ -72,7 +94,7 @@ const StarfieldBackground: React.FC = () => {
       window.removeEventListener('resize', resizeCanvas);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [density, opacity, static]);
 
   return (
     <canvas
@@ -84,7 +106,7 @@ const StarfieldBackground: React.FC = () => {
         width: '100%',
         height: '100%',
         zIndex: 0,
-        opacity: 0.7, // Increased opacity from 0.5
+        opacity: opacity,
         pointerEvents: 'none',
       }}
     />

@@ -81,17 +81,22 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     // Set up renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
-    renderer.setClearColor(0x000000, 0.6); // Transparent background
+    renderer.setClearColor(0x000000, 0.3); // More visible background
     rendererRef.current = renderer;
     mountRef.current.appendChild(renderer.domElement);
 
     // Add lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); // Increased intensity
     scene.add(ambientLight);
 
-    const pointLight = new THREE.PointLight(0xffffff, 1);
+    const pointLight = new THREE.PointLight(0xffffff, 1.5); // Increased intensity
     pointLight.position.set(5, 5, 5);
     scene.add(pointLight);
+
+    // Add second light source for better illumination
+    const pointLight2 = new THREE.PointLight(0xffffff, 1);
+    pointLight2.position.set(-5, -5, 5);
+    scene.add(pointLight2);
 
     // Create the selected sacred geometry
     createSacredGeometry(shape, scene);
@@ -150,13 +155,13 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     const starsGeometry = new THREE.BufferGeometry();
     const starsMaterial = new THREE.PointsMaterial({
       color: 0xffffff,
-      size: 0.1,
+      size: 0.15, // Increased size
       transparent: true,
-      opacity: 0.8,
+      opacity: 0.9, // Increased opacity
     });
 
     const starsVertices = [];
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 1500; i++) { // Increased star count
       const x = (Math.random() - 0.5) * 100;
       const y = (Math.random() - 0.5) * 100;
       const z = (Math.random() - 0.5) * 100;
@@ -176,10 +181,10 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
       shapeRef.current = undefined;
     }
 
-    // Material with soft glow
+    // Material with enhanced glow and brightness
     const material = new THREE.MeshStandardMaterial({
-      color: new THREE.Color('#9f7aea'), // Violet
-      emissive: new THREE.Color('#805ad5'),
+      color: new THREE.Color('#a56eff'), // Brighter violet
+      emissive: new THREE.Color('#8a43ff'), // Enhanced emissive color
       roughness: 0.2,
       metalness: 0.8,
     });
@@ -202,7 +207,7 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
         object = createMerkaba();
         break;
       case 'torus':
-        geometry = new THREE.TorusGeometry(1, 0.4, 16, 100);
+        geometry = new THREE.TorusGeometry(1, 0.4, 32, 100); // Increased resolution
         break;
       case 'tree-of-life':
         object = createTreeOfLife();
@@ -215,7 +220,7 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
         break;
       case 'sphere':
       default:
-        geometry = new THREE.SphereGeometry(1, 32, 32);
+        geometry = new THREE.SphereGeometry(1, 64, 64); // Increased resolution
         break;
     }
 
@@ -227,16 +232,37 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
 
     // Add the object to the scene
     if (object) {
+      // Scale up the object to make it more prominent
+      object.scale.set(1.5, 1.5, 1.5); // 50% bigger
+      
       scene.add(object);
       shapeRef.current = object;
+
+      // Add a subtle glow effect
+      addGlowEffect(object, scene);
+    }
+  };
+
+  // Add glow effect to object
+  const addGlowEffect = (object: THREE.Object3D, scene: THREE.Scene) => {
+    // Add outlines to make the geometry more visible
+    if (object instanceof THREE.Mesh) {
+      const edges = new THREE.EdgesGeometry(object.geometry);
+      const lineMaterial = new THREE.LineBasicMaterial({ 
+        color: 0xffffff, 
+        transparent: true, 
+        opacity: 0.6 
+      });
+      const wireframe = new THREE.LineSegments(edges, lineMaterial);
+      object.add(wireframe);
     }
   };
 
   // Generate size class based on prop
   const sizeClass = {
     sm: 'h-32',
-    md: 'h-64',
-    lg: 'h-96',
+    md: 'h-80',  // Increased from h-64
+    lg: 'h-120', // Increased from h-96
     xl: 'h-screen',
   }[size];
 

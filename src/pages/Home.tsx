@@ -1,4 +1,5 @@
-import React from "react";
+
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Music, Info, BookOpen, Sparkles, Heart } from "lucide-react";
@@ -11,11 +12,39 @@ import AboutSacredShifter from "@/components/AboutSacredShifter";
 import ConsciousnessToggle from "@/components/ConsciousnessToggle";
 import Layout from "@/components/Layout";
 import { TrademarkedName } from "@/components/ip-protection";
+import { SacredGeometryVisualizer } from "@/components/sacred-geometry";
 
 const Home: React.FC = () => {
+  // Track the current sacred geometry shape
+  const [currentShape, setCurrentShape] = useState<'flower-of-life' | 'metatrons-cube' | 'merkaba'>('flower-of-life');
+  
+  // Change shape every 10 seconds
+  React.useEffect(() => {
+    const shapes: ('flower-of-life' | 'metatrons-cube' | 'merkaba')[] = ['flower-of-life', 'metatrons-cube', 'merkaba'];
+    let currentIndex = 0;
+    
+    const interval = setInterval(() => {
+      currentIndex = (currentIndex + 1) % shapes.length;
+      setCurrentShape(shapes[currentIndex]);
+    }, 10000);
+    
+    return () => clearInterval(interval);
+  }, []);
+  
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-4">
+      {/* Large Sacred Geometry Visualizer as background element */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <SacredGeometryVisualizer 
+          defaultShape={currentShape}
+          size="xl"
+          showControls={false}
+          scale={1.5} // Make it 50% larger
+          className="opacity-90" // Increased opacity
+        />
+      </div>
+      
+      <div className="container mx-auto px-4 py-4 relative z-10">
         <div className="max-w-5xl mx-auto">
           {/* Feature cards at the top - reduced spacing */}
           <motion.div
@@ -308,12 +337,6 @@ const Home: React.FC = () => {
       
       {/* Fixed Consciousness Mode Toggle */}
       <ConsciousnessToggle />
-      
-      {/* Background decorative elements */}
-      <div className="fixed inset-0 -z-10 pointer-events-none">
-        <div className="absolute top-1/3 left-1/4 w-48 h-48 bg-purple-300/10 rounded-full filter blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-blue-300/10 rounded-full filter blur-3xl"></div>
-      </div>
     </Layout>
   );
 };

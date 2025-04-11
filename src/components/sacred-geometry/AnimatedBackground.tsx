@@ -8,6 +8,7 @@ interface AnimatedBackgroundProps {
   children: React.ReactNode;
   colorScheme?: string;
   isActive?: boolean;
+  staticBackground?: boolean;  // New prop to control animation
 }
 
 const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ 
@@ -15,17 +16,19 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
   intensity = 'medium',
   children,
   colorScheme,
-  isActive = true
+  isActive = true,
+  staticBackground = false  // Default to false for backward compatibility
 }) => {
-  // Create array of objects for the wave elements with increased number and opacity
+  // Create array of objects for the wave elements
   const getWaves = () => {
-    const count = intensity === 'high' ? 6 : intensity === 'medium' ? 4 : 3;
+    // Reduced number of waves to decrease visual noise
+    const count = intensity === 'high' ? 3 : intensity === 'medium' ? 2 : 1;
     
     return Array.from({ length: count }).map((_, i) => ({
       id: `wave-${i}`,
       delay: i * 0.7,
-      duration: 15 + i * 3,
-      opacity: 0.05 + (i * 0.02), // Increased opacity
+      duration: staticBackground ? 0 : 15 + i * 3, // No animation if static
+      opacity: 0.08 + (i * 0.03), // Increased base opacity for better visibility
     }));
   };
   
@@ -36,22 +39,22 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
     switch(theme) {
       case 'ethereal':
         return {
-          from: 'from-blue-500/20', // Increased opacity from /10
-          to: 'to-purple-500/20', // Increased opacity from /10
-          particle: 'bg-blue-200/40' // Increased opacity from /30
+          from: 'from-blue-500/30',   // Increased opacity
+          to: 'to-purple-500/30',     // Increased opacity
+          particle: 'bg-blue-200/50'  // Increased opacity
         };
       case 'temple':
         return {
-          from: 'from-amber-500/20', // Increased opacity from /10
-          to: 'to-red-500/20', // Increased opacity from /10
-          particle: 'bg-amber-200/40' // Increased opacity from /30
+          from: 'from-amber-500/30',  // Increased opacity
+          to: 'to-red-500/30',        // Increased opacity
+          particle: 'bg-amber-200/50' // Increased opacity
         };
       case 'cosmic':
       default:
         return {
-          from: 'from-purple-500/20', // Increased opacity from /10
-          to: 'to-blue-500/20', // Increased opacity from /10
-          particle: 'bg-purple-200/40' // Increased opacity from /30
+          from: 'from-purple-500/30', // Increased opacity
+          to: 'to-blue-500/30',       // Increased opacity
+          particle: 'bg-purple-200/50' // Increased opacity
         };
     }
   };
@@ -70,14 +73,14 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
             transition={{ duration: 2 }}
           >
             <motion.div
-              className={`w-[1200px] h-[1200px] rounded-full bg-gradient-to-br ${colors.from} ${colors.to} filter blur-3xl`} // Increased size from 800px
-              animate={{
-                scale: [1, 1.15, 1], // More dramatic scaling
-                opacity: [wave.opacity, wave.opacity + 0.04, wave.opacity], // Increased opacity change
+              className={`w-[1500px] h-[1500px] rounded-full bg-gradient-to-br ${colors.from} ${colors.to} filter blur-3xl`} // Increased size significantly
+              animate={staticBackground ? {} : {
+                scale: [1, 1.05, 1], // Reduced scale animation
+                opacity: [wave.opacity, wave.opacity + 0.02, wave.opacity], // Reduced opacity change
               }}
               transition={{
                 duration: wave.duration,
-                repeat: Infinity,
+                repeat: staticBackground ? 0 : Infinity,
                 repeatType: "reverse",
                 ease: "easeInOut",
                 delay: wave.delay,
@@ -86,9 +89,9 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
           </motion.div>
         ))}
 
-        {/* Floating particles with increased size and opacity */}
-        {Array.from({ length: 15 }).map((_, i) => {
-          const size = Math.random() * 8 + 3; // Increased size from 6+2
+        {/* Reduced number of floating particles and made them less distracting */}
+        {!staticBackground && Array.from({ length: 5 }).map((_, i) => { // Reduced from 15 to 5
+          const size = Math.random() * 4 + 2;
           const x = Math.random() * 100;
           const y = Math.random() * 100;
           const duration = Math.random() * 20 + 15;
@@ -103,14 +106,14 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
                 left: `${x}%`,
                 top: `${y}%`,
               }}
-              animate={{
-                y: [0, -40, 0], // Increased movement from -30
-                x: [0, Math.random() * 30 - 15, 0], // Increased movement
-                opacity: [0.4, 0.8, 0.4], // Increased opacity from 0.3, 0.7, 0.3
+              animate={staticBackground ? {} : {
+                y: [0, -20, 0], // Reduced movement
+                x: [0, Math.random() * 10 - 5, 0], // Reduced movement
+                opacity: [0.5, 0.7, 0.5], // Increased base opacity
               }}
               transition={{
-                duration,
-                repeat: Infinity,
+                duration: staticBackground ? 0 : duration,
+                repeat: staticBackground ? 0 : Infinity,
                 repeatType: "reverse",
                 ease: "easeInOut",
                 delay: Math.random() * 5,

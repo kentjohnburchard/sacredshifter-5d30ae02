@@ -67,7 +67,7 @@ const Layout: React.FC<LayoutProps> = ({
   }
 
   return (
-    <AnimatedBackground theme={theme} intensity="medium">
+    <AnimatedBackground theme={theme} intensity="medium" staticBackground={true}>
       {renderContent()}
     </AnimatedBackground>
   );

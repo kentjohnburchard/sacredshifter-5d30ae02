@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SacredFlowerOfLife from '@/components/sacred-geometry/shapes/SacredFlowerOfLife';
@@ -40,25 +41,31 @@ const SacredShifterLanding = () => {
 
   return (
     <div className="relative min-h-screen w-full bg-gradient-to-b from-black via-[#0a0118] to-black text-white font-sans overflow-hidden">
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-20">
-        <StarfieldBackground />
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <StarfieldBackground density="medium" opacity={0.8} />
       </div>
 
       <Sidebar />
       <Watermark />
 
       <div className="ml-20">
-        <div className="fixed inset-0 z-1 pointer-events-none opacity-30 flex items-center justify-center">
-          <div className="w-[80vw] h-[80vh] max-w-4xl">
-            {geometryComponents[selectedShape]}
+        <div className="fixed inset-0 z-1 pointer-events-none flex items-center justify-center">
+          <div className="w-[90vw] h-[90vh] max-w-5xl"> {/* Increased size */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 0.9, scale: 1 }} {/* Increased opacity */}
+              transition={{ duration: 1.5 }}
+            >
+              {geometryComponents[selectedShape]}
+            </motion.div>
           </div>
         </div>
 
         <div className="fixed right-4 top-4 z-20">
           <nav className={cn(
-            "backdrop-blur-sm p-3 rounded-xl border opacity-80",
-            liftTheVeil ? "bg-pink-950/10" : "bg-black/10",
-            liftTheVeil ? "border-pink-900/10" : "border-purple-900/10"
+            "backdrop-blur-sm p-3 rounded-xl border opacity-90", // Increased opacity
+            liftTheVeil ? "bg-pink-950/30" : "bg-black/30",
+            liftTheVeil ? "border-pink-900/30" : "border-purple-900/30"
           )}>
             <div className="flex flex-col space-y-2">
               {Object.keys(geometryComponents).map((shape) => (
@@ -71,7 +78,7 @@ const SacredShifterLanding = () => {
                   )}
                 >
                   <span className={cn(
-                    "h-1.5 w-1.5 rounded-full opacity-70",
+                    "h-2 w-2 rounded-full opacity-90", // Increased size and opacity
                     selectedShape === shape 
                       ? (liftTheVeil ? "bg-pink-500" : "bg-purple-500") 
                       : (liftTheVeil ? "bg-pink-900" : "bg-purple-900")
