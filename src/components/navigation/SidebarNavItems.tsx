@@ -6,7 +6,6 @@ import { cn } from '@/lib/utils';
 import { useTheme } from '@/context/ThemeContext';
 import { getActiveNavItems } from '@/config/navigation';
 import {
-  Home,
   Music,
   Heart,
   HeartPulse,
@@ -30,8 +29,8 @@ import {
 
 // Map of route paths to their corresponding icons
 const iconMap: Record<string, React.FC<any>> = {
-  '/': Home,
-  '/home': Home,
+  '/': LayoutDashboard,
+  '/home': LayoutDashboard,
   '/dashboard': LayoutDashboard,
   '/sacred-blueprint': LayoutTemplate,
   '/frequency-library': Music,
@@ -74,12 +73,24 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
   const location = useLocation();
   const { liftTheVeil } = useTheme();
   const activeNavItems = getActiveNavItems();
+  
+  // Filter out duplicate home routes - ensure we only show one home button
+  // If multiple routes have the same display text, only show the first one
+  const displayedPaths = new Set<string>();
+  const filteredNavItems = activeNavItems.filter(item => {
+    const key = item.label.toLowerCase();
+    if (displayedPaths.has(key)) {
+      return false;
+    }
+    displayedPaths.add(key);
+    return true;
+  });
 
   return (
     <div className="space-y-1">
-      {activeNavItems.map((item) => {
+      {filteredNavItems.map((item) => {
         const isActive = location.pathname === item.path;
-        const IconComponent = iconMap[item.path] || Home;
+        const IconComponent = iconMap[item.path] || LayoutDashboard;
         
         return (
           <NavLink

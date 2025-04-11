@@ -53,7 +53,6 @@ const Watermark: React.FC = () => {
     >
       <div className={`text-sm font-light flex items-center ${getWatermarkColor()}`}>
         {getWatermarkIcon()}
-        Sacred Shifter
       </div>
     </div>
   );
