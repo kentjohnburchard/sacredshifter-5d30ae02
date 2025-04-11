@@ -20,20 +20,28 @@ const JourneyPlayer = () => {
       return;
     }
 
+    console.log(`Loading journey player for journey ID: ${journeyId}`);
+    console.log(`Available audio mappings:`, audioMappings);
+
     // Find the journey from our templates data
     const foundJourney = templates.find(j => j.id === journeyId);
     
     if (foundJourney) {
+      console.log(`Found journey:`, foundJourney);
       setJourney(foundJourney);
       
       // Play the journey audio if available from audio mappings
       const audioMapping = audioMappings[journeyId];
       if (audioMapping && audioMapping.audioUrl) {
+        console.log(`Playing audio for journey ${journeyId}: ${audioMapping.audioUrl}`);
         playAudio({
           title: foundJourney.title,
           artist: "Sacred Shifter",
           source: audioMapping.audioUrl
         });
+      } else {
+        console.error(`No audio mapping found for journey ID: ${journeyId}`);
+        toast.error("No audio available for this journey");
       }
     } else {
       console.error("Journey not found:", journeyId);

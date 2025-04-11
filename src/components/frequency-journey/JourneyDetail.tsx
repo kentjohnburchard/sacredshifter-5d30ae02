@@ -44,14 +44,14 @@ const JourneyDetail: React.FC<JourneyDetailProps> = ({
     };
     sessionStorage.setItem('journeySettings', JSON.stringify(settings));
     
-    // Determine journey URL
-    const journeyUrl = audioMapping
-      ? `/journey/${encodeURIComponent(audioMapping.audioUrl)}`
-      : `/journey/${template.frequencies[0]?.value.split(' ')[0] || ''}`;
-      
-    // Navigate to the journey page
-    navigate(journeyUrl);
-    toast.success(`Starting ${template.title} journey`);
+    // Check if we have an audio mapping and navigate to the player page
+    if (audioMapping?.audioUrl) {
+      // Navigate to the player with the journey ID, not the audio URL
+      navigate(`/journey-player/${template.id}`);
+      toast.success(`Starting ${template.title} journey`);
+    } else {
+      toast.error("No audio available for this journey yet");
+    }
   };
 
   const handleAddSong = () => {
