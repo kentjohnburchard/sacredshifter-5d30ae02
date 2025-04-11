@@ -19,12 +19,12 @@ const StarfieldBackground: React.FC = () => {
     };
 
     // Create more stars for a denser starfield
-    const stars = Array.from({ length: 800 }, () => ({
+    const stars = Array.from({ length: 1000 }, () => ({
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
-      radius: Math.random() * 2.5, // Slightly larger stars for more visibility
+      radius: Math.random() * 3.5, // Even larger stars for more visibility
       alpha: Math.random(),
-      delta: Math.random() * 0.005 + 0.002,
+      delta: Math.random() * 0.008 + 0.002,
       color: Math.random() > 0.8 ? 
         `rgba(${155 + Math.random() * 100}, ${155 + Math.random() * 100}, 255, ` : // Bluish stars
         Math.random() > 0.6 ? 
@@ -49,14 +49,14 @@ const StarfieldBackground: React.FC = () => {
         // Draw the star with enhanced brightness
         context.beginPath();
         context.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-        context.fillStyle = `${star.color}${star.alpha * 1.2})`;  // Increased brightness
+        context.fillStyle = `${star.color}${star.alpha * 1.5})`;  // Increased brightness
         context.fill();
         
         // Add larger glow for brighter stars
         if (star.radius > 1.2) {
           context.beginPath();
-          context.arc(star.x, star.y, star.radius * 4, 0, Math.PI * 2);
-          context.fillStyle = `${star.color}${star.alpha * 0.15})`;
+          context.arc(star.x, star.y, star.radius * 5, 0, Math.PI * 2);
+          context.fillStyle = `${star.color}${star.alpha * 0.25})`;
           context.fill();
         }
       });

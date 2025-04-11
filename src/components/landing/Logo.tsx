@@ -28,7 +28,7 @@ const Logo: React.FC = () => {
         variants={pulseVariants}
         initial="initial"
         animate="animate"
-        src="/lovable-uploads/b9b4b625-472c-484e-a49a-41aaf4f604a5.png" 
+        src="/lovable-uploads/55c4de0c-9d48-42df-a6a2-1bb6520acb46.png" 
         alt="Sacred Shifter Logo" 
         className="w-full max-w-[270px] mx-auto"
       />

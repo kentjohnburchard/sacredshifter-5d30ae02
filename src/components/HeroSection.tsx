@@ -58,9 +58,9 @@ const HeroSection: React.FC = () => {
             className="relative"
           >
             <div className="aspect-w-10 aspect-h-9 rounded-2xl overflow-hidden sacred-glass">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-blue-500/20 mix-blend-overlay"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/30 to-blue-500/30 mix-blend-overlay"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center">
+                <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full bg-white/40 backdrop-blur-sm flex items-center justify-center">
                   <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 animate-pulse-subtle flex items-center justify-center">
                     <span className="text-white text-sm font-medium">Sacred Frequencies</span>
                   </div>
@@ -71,10 +71,10 @@ const HeroSection: React.FC = () => {
         </div>
       </div>
       
-      {/* Decorative elements */}
+      {/* Decorative elements - increased visibility */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-300/10 rounded-full filter blur-3xl animate-pulse-subtle"></div>
-        <div className="absolute bottom-1/3 right-1/3 w-72 h-72 bg-blue-300/10 rounded-full filter blur-3xl animate-pulse-subtle" style={{ animationDelay: "1s" }}></div>
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-300/25 rounded-full filter blur-3xl animate-pulse-subtle"></div>
+        <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-blue-300/25 rounded-full filter blur-3xl animate-pulse-subtle" style={{ animationDelay: "1s" }}></div>
       </div>
     </div>
   );
