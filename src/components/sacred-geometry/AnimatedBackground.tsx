@@ -8,7 +8,7 @@ interface AnimatedBackgroundProps {
   children: React.ReactNode;
   colorScheme?: string;
   isActive?: boolean;
-  staticBackground?: boolean;  // New prop to control animation
+  staticBackground?: boolean;  // This prop name is fine, no need to change
 }
 
 const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ 
@@ -17,7 +17,7 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
   children,
   colorScheme,
   isActive = true,
-  staticBackground = false  // Default to false for backward compatibility
+  staticBackground = false  // This is fine, keep as is
 }) => {
   // Create array of objects for the wave elements
   const getWaves = () => {

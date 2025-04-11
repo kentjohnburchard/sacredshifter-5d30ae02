@@ -1,4 +1,3 @@
-
 import React, { ReactNode } from 'react';
 import Sidebar from '@/components/Sidebar';
 import FixedFooter from '@/components/navigation/FixedFooter';
@@ -26,7 +25,6 @@ const Layout: React.FC<LayoutProps> = ({
   const isJourneyPage = location.pathname.includes('/journey/');
   const useCosmicTheme = !useBlueWaveBackground;
 
-  // Set the page title
   document.title = `${pageTitle} | Sacred Shifter`;
 
   const renderContent = () => (
@@ -34,7 +32,6 @@ const Layout: React.FC<LayoutProps> = ({
       <div className="flex flex-1">
         {!isAuthPage && <Sidebar />}
         <main className={`flex-1 ${!isAuthPage ? 'ml-20' : ''} pt-20 px-4 lg:px-8 pb-24 transition-all duration-300 relative`}>
-          {/* Top Logo Watermark - increased opacity */}
           <div className="fixed top-0 left-0 right-0 pointer-events-none z-0 flex justify-center items-start">
             <img 
               src="/lovable-uploads/55c4de0c-9d48-42df-a6a2-1bb6520acb46.png" 
@@ -47,12 +44,10 @@ const Layout: React.FC<LayoutProps> = ({
         </main>
       </div>
 
-      {/* Add a spacer to prevent content from being hidden behind the fixed footer */}
       <div className="h-16"></div>
       
       {showFooter && <FixedFooter />}
       
-      {/* Bottom watermark */}
       <GlobalWatermark />
     </div>
   );

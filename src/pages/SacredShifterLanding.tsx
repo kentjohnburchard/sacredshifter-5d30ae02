@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SacredFlowerOfLife from '@/components/sacred-geometry/shapes/SacredFlowerOfLife';
@@ -42,7 +41,7 @@ const SacredShifterLanding = () => {
   return (
     <div className="relative min-h-screen w-full bg-gradient-to-b from-black via-[#0a0118] to-black text-white font-sans overflow-hidden">
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <StarfieldBackground density="medium" opacity={0.8} />
+        <StarfieldBackground density="medium" opacity={0.8} isStatic={false} />
       </div>
 
       <Sidebar />
@@ -50,7 +49,7 @@ const SacredShifterLanding = () => {
 
       <div className="ml-20">
         <div className="fixed inset-0 z-1 pointer-events-none flex items-center justify-center">
-          <div className="w-[180vw] h-[180vh] max-w-none"> {/* Doubled size from 90vw/90vh */}
+          <div className="w-[180vw] h-[180vh] max-w-none">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 0.9, scale: 1 }} 
@@ -63,7 +62,7 @@ const SacredShifterLanding = () => {
 
         <div className="fixed right-4 top-4 z-20">
           <nav className={cn(
-            "backdrop-blur-sm p-3 rounded-xl border opacity-90", // Increased opacity
+            "backdrop-blur-sm p-3 rounded-xl border opacity-90",
             liftTheVeil ? "bg-pink-950/30" : "bg-black/30",
             liftTheVeil ? "border-pink-900/30" : "border-purple-900/30"
           )}>
@@ -78,7 +77,7 @@ const SacredShifterLanding = () => {
                   )}
                 >
                   <span className={cn(
-                    "h-2 w-2 rounded-full opacity-90", // Increased size and opacity
+                    "h-2 w-2 rounded-full opacity-90",
                     selectedShape === shape 
                       ? (liftTheVeil ? "bg-pink-500" : "bg-purple-500") 
                       : (liftTheVeil ? "bg-pink-900" : "bg-purple-900")

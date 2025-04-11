@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -39,7 +38,7 @@ const Home: React.FC = () => {
           defaultShape={currentShape}
           size="xl"
           showControls={false}
-          scale={3} // Make it 3x larger (doubled from 1.5)
+          scale={6} // Doubled from 3 to 6
           className="opacity-95" // Increased opacity for better visibility
         />
       </div>

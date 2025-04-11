@@ -32,10 +32,8 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
   const rendererRef = useRef<THREE.WebGLRenderer>();
   const frameIdRef = useRef<number>();
 
-  // State for audio reactivity (to be implemented)
   const [audioData, setAudioData] = useState<number[]>([]);
 
-  // Handle audio reactivity
   useEffect(() => {
     if (!isAudioReactive || !audioContext || !analyser) return;
     
@@ -44,7 +42,6 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     const updateAudioData = () => {
       analyser.getByteFrequencyData(dataArray);
       
-      // Convert to normalized array (0-1 values)
       const normalizedData = Array.from(dataArray).map(value => value / 255);
       setAudioData(normalizedData);
       
@@ -66,47 +63,39 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     const width = mountRef.current.clientWidth;
     const height = mountRef.current.clientHeight;
 
-    // Create scene
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
-    // Add starfield background
     createStarfield(scene);
 
-    // Set up camera
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-    camera.position.z = 6; // Increased from 5 to create better view of larger geometry
+    camera.position.z = 6;
 
-    // Set up renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
     renderer.setClearColor(0x000000, 0.3);
     rendererRef.current = renderer;
     mountRef.current.appendChild(renderer.domElement);
 
-    // Add lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9); // Increased intensity
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
     scene.add(ambientLight);
 
-    const pointLight = new THREE.PointLight(0xffffff, 2.0); // Increased intensity
+    const pointLight = new THREE.PointLight(0xffffff, 2.5);
     pointLight.position.set(5, 5, 5);
     scene.add(pointLight);
 
-    const pointLight2 = new THREE.PointLight(0xffffff, 1.5); // Increased intensity
+    const pointLight2 = new THREE.PointLight(0xffffff, 2.0);
     pointLight2.position.set(-5, -5, 5);
     scene.add(pointLight2);
 
-    // Create the selected sacred geometry
     createSacredGeometry(shape, scene);
 
-    // Animation loop
     const animate = () => {
       frameIdRef.current = requestAnimationFrame(animate);
       if (shapeRef.current) {
         shapeRef.current.rotation.x += 0.005;
         shapeRef.current.rotation.y += 0.005;
         
-        // Apply audio reactivity if enabled
         if (isAudioReactive && audioData.length > 0) {
           const averageAmplitude = audioData.reduce((sum, val) => sum + val, 0) / audioData.length;
           const scaleFactor = 1 + (averageAmplitude * 0.2 * (sensitivity || 1));
@@ -122,7 +111,6 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     
     animate();
 
-    // Handle window resize
     const handleResize = () => {
       if (!mountRef.current) return;
       const width = mountRef.current.clientWidth;
@@ -134,7 +122,6 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
 
     window.addEventListener('resize', handleResize);
 
-    // Clean up
     return () => {
       window.removeEventListener('resize', handleResize);
       if (frameIdRef.current) {
@@ -148,7 +135,6 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     };
   }, [shape, isAudioReactive, audioData]);
 
-  // Function to create starfield background
   const createStarfield = (scene: THREE.Scene) => {
     const starsGeometry = new THREE.BufferGeometry();
     const starsMaterial = new THREE.PointsMaterial({
@@ -171,7 +157,6 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     scene.add(starField);
   };
 
-  // Function to create sacred geometry based on selection
   const createSacredGeometry = (shape: string, scene: THREE.Scene) => {
     if (shapeRef.current) {
       scene.remove(shapeRef.current);
@@ -225,7 +210,7 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     }
 
     if (object) {
-      object.scale.set(3.0, 3.0, 3.0);
+      object.scale.set(6.0, 6.0, 6.0);
       scene.add(object);
       shapeRef.current = object;
 
@@ -233,21 +218,19 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     }
   };
 
-  // Add glow effect to object
   const addGlowEffect = (object: THREE.Object3D, scene: THREE.Scene) => {
     if (object instanceof THREE.Mesh) {
       const edges = new THREE.EdgesGeometry(object.geometry);
       const lineMaterial = new THREE.LineBasicMaterial({ 
         color: 0xffffff, 
         transparent: true, 
-        opacity: 0.8
+        opacity: 0.9
       });
       const wireframe = new THREE.LineSegments(edges, lineMaterial);
       object.add(wireframe);
     }
   };
 
-  // Generate size class based on prop
   const sizeClass = {
     sm: 'h-64',
     md: 'h-160',

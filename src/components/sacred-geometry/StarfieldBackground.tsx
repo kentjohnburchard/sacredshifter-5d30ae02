@@ -4,13 +4,13 @@ import React, { useEffect, useRef } from 'react';
 interface StarfieldBackgroundProps {
   density?: 'low' | 'medium' | 'high';
   opacity?: number;
-  static?: boolean;
+  isStatic?: boolean; // Renamed from 'static' to 'isStatic'
 }
 
 const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
   density = 'medium',
   opacity = 0.7,
-  static = false
+  isStatic = false // Renamed from 'static' to 'isStatic'
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -62,8 +62,8 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
 
       // Draw each star with enhanced twinkling effect
       stars.forEach((star) => {
-        // Update star opacity for twinkling effect (unless static)
-        if (!static) {
+        // Update star opacity for twinkling effect (unless isStatic)
+        if (!isStatic) { // Changed 'static' to 'isStatic'
           star.alpha += star.delta;
           if (star.alpha > 1 || star.alpha < 0.1) star.delta *= -1;
         }
@@ -94,7 +94,7 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
       window.removeEventListener('resize', resizeCanvas);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [density, opacity, static]);
+  }, [density, opacity, isStatic]); // Changed 'static' to 'isStatic'
 
   return (
     <canvas
