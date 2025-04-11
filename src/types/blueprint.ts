@@ -27,6 +27,7 @@ export interface SacredBlueprint {
   blueprint_text: string;
   chakra_signature: ChakraSignature;
   shadow_frequencies: string[];
+  version?: number; // Added version property
 }
 
 export interface BlueprintQuizQuestion {

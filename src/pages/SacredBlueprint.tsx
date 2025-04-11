@@ -11,11 +11,11 @@ import { AnimatePresence } from "framer-motion";
 import BlueprintQuiz from "@/components/sacred-blueprint/BlueprintQuiz";
 import BlueprintDisplay from "@/components/sacred-blueprint/BlueprintDisplay";
 import BlueprintChart from "@/components/sacred-blueprint/BlueprintChart";
-import { SacredBlueprint } from "@/types/blueprint";
+import { type SacredBlueprint as BlueprintType } from "@/types/blueprint";
 import { toast } from "sonner";
 
 // Sample mock blueprint data for demo purposes
-const mockBlueprint: SacredBlueprint = {
+const mockBlueprint: BlueprintType = {
   user_id: "user123",
   created_at: new Date().toISOString(),
   core_frequency: "Harmonic Resonator",
@@ -38,14 +38,15 @@ const mockBlueprint: SacredBlueprint = {
     "Fear of full expression",
     "Resistance to deep emotional connection",
     "Tendency toward people-pleasing"
-  ]
+  ],
+  version: 1
 };
 
-const SacredBlueprint = () => {
+const SacredBlueprintPage = () => {
   const { user } = useAuth();
   const [isQuizComplete, setIsQuizComplete] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [blueprint, setBlueprint] = useState<SacredBlueprint | null>(null);
+  const [blueprint, setBlueprint] = useState<BlueprintType | null>(null);
 
   // Simulate loading the blueprint
   const generateBlueprint = async () => {
@@ -159,4 +160,4 @@ const SacredBlueprint = () => {
   );
 };
 
-export default SacredBlueprint;
+export default SacredBlueprintPage;

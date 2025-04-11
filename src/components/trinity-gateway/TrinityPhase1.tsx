@@ -10,9 +10,10 @@ import { toast } from "sonner";
 
 interface TrinityPhase1Props {
   onComplete: () => void;
+  skipPhase?: () => void;
 }
 
-const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete }) => {
+const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete, skipPhase }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [secondsElapsed, setSecondsElapsed] = useState(0);
@@ -71,6 +72,15 @@ const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete }) => {
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
   
+  // Use the passed skipPhase function or fallback to onComplete if it's not provided
+  const handleSkip = () => {
+    if (skipPhase) {
+      skipPhase();
+    } else {
+      onComplete();
+    }
+  };
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -126,7 +136,7 @@ const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete }) => {
           </p>
           
           <Button 
-            onClick={onComplete}
+            onClick={handleSkip}
             variant="outline"
             className="border-purple-500/50 text-purple-300 hover:bg-purple-900/30"
           >
