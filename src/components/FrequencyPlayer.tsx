@@ -110,15 +110,20 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   };
   
   return (
-    <div className="relative">
-      <SacredGeometryVisualizer 
-        audioContext={audioContext} 
-        analyser={analyser} 
-        isVisible={showVisualizer && isPlaying}
-        chakra={chakra}
-        frequency={frequency}
-        mode="fractal"
-      />
+    <div className="relative z-50">
+      {/* Visualizer with higher z-index to appear above all other content */}
+      {showVisualizer && isPlaying && (
+        <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+          <SacredGeometryVisualizer 
+            audioContext={audioContext} 
+            analyser={analyser} 
+            isVisible={true}
+            chakra={chakra}
+            frequency={frequency}
+            mode="fractal"
+          />
+        </div>
+      )}
       
       <div className="flex items-center gap-2">
         <Button

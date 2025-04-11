@@ -3,9 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Card, CardContent } from '@/components/ui/card';
-import journeyTemplates from '@/data/journeyTemplates';
-import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import { useJourneyTemplates } from '@/hooks/useJourneyTemplates';
+import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
@@ -13,7 +12,7 @@ const JourneyPlayer = () => {
   const { playAudio } = useGlobalAudioPlayer();
   const [journey, setJourney] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { audioMappings } = useJourneyTemplates();
+  const { templates, audioMappings } = useJourneyTemplates();
 
   useEffect(() => {
     if (!journeyId) {
@@ -22,7 +21,7 @@ const JourneyPlayer = () => {
     }
 
     // Find the journey from our templates data
-    const foundJourney = journeyTemplates.find(j => j.id === journeyId);
+    const foundJourney = templates.find(j => j.id === journeyId);
     
     if (foundJourney) {
       setJourney(foundJourney);
@@ -42,7 +41,7 @@ const JourneyPlayer = () => {
     }
     
     setIsLoading(false);
-  }, [journeyId, navigate, playAudio, audioMappings]);
+  }, [journeyId, navigate, playAudio, templates, audioMappings]);
 
   if (isLoading) {
     return (
@@ -80,7 +79,7 @@ const JourneyPlayer = () => {
 
   return (
     <Layout pageTitle={journey.title} useBlueWaveBackground={false} theme="cosmic">
-      <div className="max-w-5xl mx-auto pt-4 pb-12">
+      <div className="max-w-5xl mx-auto pt-4 pb-12 relative z-10">
         <h1 className="text-3xl font-bold text-center mb-6 text-purple-900 dark:text-purple-300">{journey.title}</h1>
         
         <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-purple-100 dark:border-purple-800 shadow-lg">

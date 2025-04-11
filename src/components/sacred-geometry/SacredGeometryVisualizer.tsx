@@ -40,19 +40,10 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
 }) => {
   const [currentShape, setCurrentShape] = useState<GeometryShape>(defaultShape);
   
-  useEffect(() => {
-    console.log("SacredGeometryVisualizer mounted with shape:", currentShape);
-  }, []);
-  
-  useEffect(() => {
-    console.log("Shape changed to:", currentShape);
-  }, [currentShape]);
-
   // Update shape when defaultShape prop changes
   useEffect(() => {
     if (defaultShape !== currentShape) {
       setCurrentShape(defaultShape);
-      console.log("Default shape changed to:", defaultShape);
     }
   }, [defaultShape]);
 
@@ -74,7 +65,7 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
   }
 
   return (
-    <div className={`sacred-geometry-container ${className} relative z-10`}>
+    <div className={`sacred-geometry-container ${className} relative`}>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -103,7 +94,6 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
               onValueChange={(value) => {
                 if (value) {
                   setCurrentShape(value as GeometryShape);
-                  console.log("Selected shape:", value);
                 }
               }}
               className="bg-black/80 backdrop-blur-md rounded-lg p-2 flex flex-wrap justify-center shadow-lg"
