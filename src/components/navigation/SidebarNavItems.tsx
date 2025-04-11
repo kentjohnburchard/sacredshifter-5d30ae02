@@ -90,11 +90,11 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
               "flex items-center py-2 px-3 text-sm rounded-md transition-colors",
               isActive
                 ? liftTheVeil 
-                  ? "bg-pink-100 text-pink-900" 
-                  : "bg-purple-100 text-purple-900"
-                : "text-gray-600 hover:bg-opacity-80",
-              liftTheVeil && !isActive && "hover:bg-pink-50 hover:text-pink-900",
-              !liftTheVeil && !isActive && "hover:bg-purple-50 hover:text-purple-900"
+                  ? "bg-pink-700/50 text-pink-100" 
+                  : "bg-purple-700/50 text-purple-100"
+                : "text-gray-300 hover:bg-opacity-80",
+              liftTheVeil && !isActive && "hover:bg-pink-800/50 hover:text-pink-200",
+              !liftTheVeil && !isActive && "hover:bg-purple-800/50 hover:text-purple-200"
             )}
           >
             <IconComponent
@@ -102,9 +102,9 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
                 "h-5 w-5 mr-2",
                 isActive
                   ? liftTheVeil
-                    ? "text-pink-800"
-                    : "text-purple-800"
-                  : "text-gray-500"
+                    ? "text-pink-300"
+                    : "text-purple-300"
+                  : "text-gray-400"
               )}
             />
             {!isCollapsed && <span>{item.label}</span>}

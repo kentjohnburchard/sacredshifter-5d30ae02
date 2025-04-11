@@ -15,40 +15,40 @@ import { TrademarkedName } from "@/components/ip-protection";
 const Home: React.FC = () => {
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4">
         <div className="max-w-5xl mx-auto">
-          {/* Feature cards at the top */}
+          {/* Feature cards at the top - reduced spacing */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
-            className="mb-12"
+            className="mb-8"
           >
             <HealingFeatures />
           </motion.div>
           
-          {/* About Sacred Shifter - Now prominently displayed under features */}
+          {/* About Sacred Shifter - reduced spacing */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.05 }}
-            className="mb-12"
+            className="mb-8"
           >
             <AboutSacredShifter />
           </motion.div>
           
-          {/* Sacred Blueprint Hero Section */}
+          {/* Sacred Blueprint Hero Section - reduced padding */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="mb-12"
+            className="mb-8"
           >
             <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 shadow-lg">
               <div className="absolute inset-0 bg-cover bg-center opacity-10" 
                    style={{ backgroundImage: "url('https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?ixlib=rb-4.0.3')" }}>
               </div>
-              <div className="grid md:grid-cols-2 gap-6 p-6 md:p-8 relative z-10">
+              <div className="grid md:grid-cols-2 gap-6 p-5 md:p-6 relative z-10">
                 <div className="space-y-4">
                   <span className="inline-block px-3 py-1 rounded-full bg-indigo-100 text-indigo-800 text-xs font-medium">
                     New Feature
@@ -101,8 +101,8 @@ const Home: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* Feature Sections Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+          {/* Feature Sections Grid - tighter spacing */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
             {/* Heart Center Feature */}
             <motion.div
               initial={{ opacity: 0 }}
@@ -110,7 +110,7 @@ const Home: React.FC = () => {
               transition={{ duration: 0.8, delay: 0.25 }}
             >
               <Card className="h-full border-pink-100 hover:border-pink-200 transition-all">
-                <CardHeader>
+                <CardHeader className="py-4 px-5">
                   <CardTitle className="flex items-center">
                     <Heart className="h-5 w-5 mr-2 text-pink-500" />
                     <TrademarkedName>Heart Center</TrademarkedName> Expansion
@@ -119,8 +119,8 @@ const Home: React.FC = () => {
                     Access, cultivate, and radiate love through sacred frequencies and heart-centered practices.
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4 mb-6">
+                <CardContent className="px-5 pb-5">
+                  <div className="space-y-3 mb-4">
                     <div className="flex items-start">
                       <Sparkles className="h-4 w-4 mr-2 text-pink-500 mt-1" />
                       <div>
@@ -157,7 +157,7 @@ const Home: React.FC = () => {
               transition={{ duration: 0.8, delay: 0.3 }}
             >
               <Card className="h-full border-purple-100 hover:border-purple-200 transition-all">
-                <CardHeader>
+                <CardHeader className="py-4 px-5">
                   <CardTitle className="flex items-center">
                     <Music className="h-5 w-5 mr-2 text-purple-500" />
                     Sound Healing
@@ -166,8 +166,8 @@ const Home: React.FC = () => {
                     Experience ancient sound healing practices with modern frequency technology.
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4 mb-6">
+                <CardContent className="px-5 pb-5">
+                  <div className="space-y-3 mb-4">
                     <div className="flex items-start">
                       <Music className="h-4 w-4 mr-2 text-purple-500 mt-1" />
                       <div>
@@ -209,14 +209,14 @@ const Home: React.FC = () => {
               </Card>
             </motion.div>
 
-            {/* Sacred Blueprint Section (NEW) */}
+            {/* Sacred Blueprint Section */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.35 }}
             >
               <Card className="h-full border-indigo-100 hover:border-indigo-200 transition-all">
-                <CardHeader>
+                <CardHeader className="py-4 px-5">
                   <CardTitle className="flex items-center">
                     <Sparkles className="h-5 w-5 mr-2 text-indigo-500" />
                     <TrademarkedName>Sacred Blueprint</TrademarkedName>
@@ -225,8 +225,8 @@ const Home: React.FC = () => {
                     Discover your unique vibrational fingerprint and spiritual identity map.
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4 mb-6">
+                <CardContent className="px-5 pb-5">
+                  <div className="space-y-3 mb-4">
                     <div className="flex items-start">
                       <Sparkles className="h-4 w-4 mr-2 text-indigo-500 mt-1" />
                       <div>
@@ -263,7 +263,7 @@ const Home: React.FC = () => {
               transition={{ duration: 0.8, delay: 0.4 }}
             >
               <Card className="h-full border-blue-100 hover:border-blue-200 transition-all">
-                <CardHeader>
+                <CardHeader className="py-4 px-5">
                   <CardTitle className="flex items-center">
                     <BookOpen className="h-5 w-5 mr-2 text-blue-500" />
                     Hermetic Principles
@@ -272,8 +272,8 @@ const Home: React.FC = () => {
                     Ancient wisdom explaining the vibrational nature of the universe.
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4 mb-6">
+                <CardContent className="px-5 pb-5">
+                  <div className="space-y-3 mb-4">
                     <div className="flex items-start">
                       <Info className="h-4 w-4 mr-2 text-blue-500 mt-1" />
                       <div>

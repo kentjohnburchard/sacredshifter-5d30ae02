@@ -3,6 +3,9 @@ import React from "react";
 import Layout from "@/components/Layout";
 import { CosmicContainer } from "@/components/sacred-geometry";
 import MetatronsCube from "@/components/sacred-geometry/shapes/MetatronsCube";
+import { Card, CardContent } from "@/components/ui/card";
+import { TrademarkedName } from "@/components/ip-protection";
+import { Sparkles, Heart } from "lucide-react";
 
 const SacredBlueprint = () => {
   return (
@@ -28,6 +31,34 @@ const SacredBlueprint = () => {
               The Sacred Blueprint™ helps you identify your core frequencies, soul lessons, 
               and energetic patterns that shape your journey.
             </p>
+            
+            <div className="mt-8 space-y-4">
+              <Card className="bg-purple-900/30 border-purple-500/30">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Sparkles className="h-5 w-5 text-purple-400" />
+                    <h3 className="font-medium text-purple-200">Core Frequency Analysis</h3>
+                  </div>
+                  <p className="text-gray-300">
+                    Discover your unique vibrational signature that influences how you perceive
+                    and interact with the world around you.
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-indigo-900/30 border-indigo-500/30">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Heart className="h-5 w-5 text-indigo-400" />
+                    <h3 className="font-medium text-indigo-200">Chakra Energy Assessment</h3>
+                  </div>
+                  <p className="text-gray-300">
+                    Map your energy centers and understand how they shape your emotional, mental,
+                    and spiritual experiences.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
           </div>
           
           <div className="h-96">

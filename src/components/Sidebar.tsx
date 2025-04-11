@@ -42,8 +42,8 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         "fixed left-0 top-0 z-40 flex h-full flex-col border-r shadow-md transition-all duration-300",
         isCollapsed ? "w-20" : "w-64",
         liftTheVeil 
-          ? "bg-gradient-to-b from-pink-50/80 via-white/70 to-pink-50/80 border-pink-200" 
-          : "bg-gradient-to-b from-purple-50/80 via-white/70 to-purple-50/80 border-purple-200",
+          ? "bg-gradient-to-b from-pink-900/90 via-pink-800/80 to-pink-900/90 border-pink-700/50" 
+          : "bg-gradient-to-b from-purple-900/90 via-purple-800/80 to-purple-900/90 border-purple-700/50",
         className
       )}
       onMouseEnter={() => setIsCollapsed(false)}
@@ -82,7 +82,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
       {/* User section at the bottom */}
       <div className={cn(
         "border-t px-3 py-4", 
-        liftTheVeil ? "border-pink-200" : "border-purple-200"
+        liftTheVeil ? "border-pink-700/50" : "border-purple-700/50"
       )}>
         <SidebarUserDropdown isCollapsed={isCollapsed} />
       </div>

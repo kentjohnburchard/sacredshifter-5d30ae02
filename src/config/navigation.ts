@@ -208,5 +208,18 @@ export const navItems = [
 
 // Helper function to get active nav items
 export const getActiveNavItems = () => {
-  return navItems.filter(item => activePages[item.key]);
+  // Ensure we don't have duplicate routes in the final navigation
+  const uniqueKeys = new Set();
+  return navItems.filter(item => {
+    // Check if the item is active AND has not been included yet
+    const isActive = activePages[item.key];
+    const isUnique = !uniqueKeys.has(item.path);
+    
+    // Track the paths we've seen
+    if (isUnique) {
+      uniqueKeys.add(item.path);
+    }
+    
+    return isActive && isUnique;
+  });
 };

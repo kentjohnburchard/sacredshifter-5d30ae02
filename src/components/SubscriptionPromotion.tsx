@@ -55,6 +55,11 @@ const SubscriptionPromotion: React.FC<SubscriptionPromotionProps> = ({ compact =
             <p className="text-white/90 text-sm">Emotion Engine™ advanced tracking</p>
           </div>
         </div>
+        <div className="flex flex-wrap gap-2 mt-3">
+          <Badge variant="outline" className="bg-white/10 text-white border-white/20">$9.99/month</Badge>
+          <Badge variant="outline" className="bg-white/10 text-white border-white/20">$69.99/year</Badge>
+          <Badge variant="outline" className="bg-white/10 text-white border-white/20">$363.99 lifetime</Badge>
+        </div>
       </CardContent>
       <CardFooter className="pt-2 pb-6">
         <Link to="/subscription" className="w-full">
