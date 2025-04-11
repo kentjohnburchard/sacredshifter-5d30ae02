@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { createFlowerOfLife, createSeedOfLife, createMetatronsCube, createSriYantra, 
@@ -67,7 +66,7 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
-    createStarfield(scene);
+    // We're not adding a starfield here anymore since it will be static
 
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
     camera.position.z = 5;
@@ -78,16 +77,16 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     rendererRef.current = renderer;
     mountRef.current.appendChild(renderer.domElement);
 
-    // Increase ambient light intensity for better visibility
-    const ambientLight = new THREE.AmbientLight(0xffffff, 2.5);
+    // Significantly increase ambient light intensity for better visibility
+    const ambientLight = new THREE.AmbientLight(0xffffff, 4.0);
     scene.add(ambientLight);
-
-    // Increase point light intensity for better visibility
-    const pointLight = new THREE.PointLight(0xffffff, 5.0);
+    
+    // Significantly increase point light intensity for better visibility
+    const pointLight = new THREE.PointLight(0xffffff, 7.0);
     pointLight.position.set(5, 5, 5);
     scene.add(pointLight);
 
-    const pointLight2 = new THREE.PointLight(0xffffff, 4.5);
+    const pointLight2 = new THREE.PointLight(0xffffff, 6.0);
     pointLight2.position.set(-5, -5, 5);
     scene.add(pointLight2);
 
@@ -96,9 +95,9 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     const animate = () => {
       frameIdRef.current = requestAnimationFrame(animate);
       if (shapeRef.current) {
-        // Slow down the rotation speed
-        shapeRef.current.rotation.x += 0.002;
-        shapeRef.current.rotation.y += 0.002;
+        // Make rotation very slow for better visibility
+        shapeRef.current.rotation.x += 0.001;
+        shapeRef.current.rotation.y += 0.001;
         
         if (isAudioReactive && audioData.length > 0) {
           const averageAmplitude = audioData.reduce((sum, val) => sum + val, 0) / audioData.length;
@@ -140,25 +139,7 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
   }, [shape, isAudioReactive, audioData]);
 
   const createStarfield = (scene: THREE.Scene) => {
-    const starsGeometry = new THREE.BufferGeometry();
-    const starsMaterial = new THREE.PointsMaterial({
-      color: 0xffffff,
-      size: 0.15,
-      transparent: true,
-      opacity: 0.9,
-    });
-
-    const starsVertices = [];
-    for (let i = 0; i < 1500; i++) {
-      const x = (Math.random() - 0.5) * 100;
-      const y = (Math.random() - 0.5) * 100;
-      const z = (Math.random() - 0.5) * 100;
-      starsVertices.push(x, y, z);
-    }
-
-    starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsVertices, 3));
-    const starField = new THREE.Points(starsGeometry, starsMaterial);
-    scene.add(starField);
+    // Not used anymore - keeping method for compatibility
   };
 
   const createSacredGeometry = (shape: string, scene: THREE.Scene) => {
@@ -167,15 +148,15 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
       shapeRef.current = undefined;
     }
 
-    // Brighten the material color and increase opacity
+    // Make the material much more visible with strong colors and full opacity
     const material = new THREE.MeshStandardMaterial({
-      color: new THREE.Color('#cb9eff'),
-      emissive: new THREE.Color('#b586ff'),
-      emissiveIntensity: 0.5,
+      color: new THREE.Color('#e6c9ff'),
+      emissive: new THREE.Color('#d4a7ff'),
+      emissiveIntensity: 0.8,
       roughness: 0.1,
       metalness: 0.9,
       transparent: true,
-      opacity: 0.95,
+      opacity: 1.0, // Full opacity
     });
 
     let geometry: THREE.BufferGeometry | undefined;
@@ -218,8 +199,8 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     }
 
     if (object) {
-      // Increase the scale to make it more visible
-      object.scale.set(3.0, 3.0, 3.0);
+      // Dramatically increase the scale to make it much more visible
+      object.scale.set(6.0, 6.0, 6.0);
       scene.add(object);
       shapeRef.current = object;
 
@@ -240,16 +221,16 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
       object.add(wireframe);
       
       if (object.geometry) {
-        // Increase glow intensity and opacity
+        // Significantly increase glow intensity and opacity
         const glowMaterial = new THREE.MeshBasicMaterial({
-          color: 0xcbaeff,
+          color: 0xe5d1ff,
           transparent: true,
-          opacity: 0.6
+          opacity: 0.9
         });
         
-        // Make the glow larger
+        // Make the glow much larger
         const glowMesh = new THREE.Mesh(object.geometry, glowMaterial);
-        glowMesh.scale.set(1.15, 1.15, 1.15);
+        glowMesh.scale.set(1.25, 1.25, 1.25);
         object.add(glowMesh);
       }
     }

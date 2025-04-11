@@ -22,7 +22,6 @@ interface SacredGeometryVisualizerProps {
   frequency?: number;
   mode?: 'fractal' | 'spiral' | 'mandala';
   sensitivity?: number;
-  scale?: number;
 }
 
 const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
@@ -38,7 +37,6 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
   frequency,
   mode,
   sensitivity = 1,
-  scale = 8,
 }) => {
   const [currentShape, setCurrentShape] = useState<GeometryShape>(defaultShape);
 
