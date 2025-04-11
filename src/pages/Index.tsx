@@ -2,11 +2,9 @@ import React, { useEffect } from "react";
 import { Navigate } from "react-router-dom";
 
 const Index: React.FC = () => {
-  // Check if the user has seen the intro
   const hasSeenIntro = localStorage.getItem('hasSeenIntro') === 'true';
   
   useEffect(() => {
-    // For debugging
     console.log('Index component loaded, hasSeenIntro:', hasSeenIntro);
   }, [hasSeenIntro]);
   
@@ -15,8 +13,8 @@ const Index: React.FC = () => {
     return <Navigate to="/welcome" replace />;
   }
   
-  // Otherwise, redirect to the home page (which is now CosmicDashboard)
-  return <Navigate to="/" replace />;
+  // Otherwise, redirect to the cosmic dashboard
+  return <Navigate to="/home" replace />;
 };
 
 export default Index;

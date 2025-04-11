@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route } from "react-router-dom";
 import Home from '@/pages/Home';
@@ -14,14 +13,15 @@ import Welcome from '@/pages/Welcome';
 import SacredShifterLanding from '@/pages/SacredShifterLanding';
 import CosmicDashboard from '@/pages/CosmicDashboard';
 import SiteMap from '@/pages/SiteMap';
+import Index from '@/pages/Index'; // Ensure this import is correct
 
 function App() {
   return (
     <React.StrictMode>
       <Routes>
-        <Route path="/" element={<CosmicDashboard />} />
+        <Route path="/" element={<Index />} /> {/* This will now use the Index component */}
+        <Route path="/home" element={<CosmicDashboard />} />
         <Route path="/welcome" element={<Welcome />} />
-        <Route path="/home" element={<Home />} />
         <Route path="/landing" element={<SacredShifterLanding />} />
         <Route path="/meditations" element={<Meditations />} />
         <Route path="/hermetic-principles" element={<HermeticPrinciples />} />
