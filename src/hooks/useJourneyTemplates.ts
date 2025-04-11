@@ -99,13 +99,30 @@ export const useJourneyTemplates = ({ includeAudioMappings = true }: UseJourneyT
             // Create a mapping from template ID to audio URL
             const mappings: Record<string, { audioUrl: string, audioFileName: string }> = {};
             
-            mappingsData.forEach((mapping) => {
-              const audioUrl = mapping.audio_url || 
-                `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${mapping.audio_file_name}`;
+            // Group by journey_template_id and prioritize is_primary=true entries
+            const groupedMappings: Record<string, any[]> = {};
+            mappingsData.forEach(mapping => {
+              if (!groupedMappings[mapping.journey_template_id]) {
+                groupedMappings[mapping.journey_template_id] = [];
+              }
+              groupedMappings[mapping.journey_template_id].push(mapping);
+            });
+            
+            // For each journey, find the primary track or use the first available
+            Object.entries(groupedMappings).forEach(([journeyId, journeyMappings]) => {
+              // Sort by is_primary (true first)
+              const sortedMappings = journeyMappings.sort((a, b) => 
+                a.is_primary === b.is_primary ? 0 : a.is_primary ? -1 : 1
+              );
               
-              mappings[mapping.journey_template_id] = {
+              const primaryMapping = sortedMappings[0];
+              
+              const audioUrl = primaryMapping.audio_url || 
+                `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${primaryMapping.audio_file_name}`;
+              
+              mappings[journeyId] = {
                 audioUrl,
-                audioFileName: mapping.audio_file_name
+                audioFileName: primaryMapping.audio_file_name
               };
             });
             
