@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Card, CardContent } from '@/components/ui/card';
-import { journeyTemplates } from '@/data/journeyTemplates';
+import journeyTemplates from '@/data/journeyTemplates';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 
 const JourneyPlayer = () => {
