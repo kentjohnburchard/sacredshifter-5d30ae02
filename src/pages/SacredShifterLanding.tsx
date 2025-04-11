@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SacredFlowerOfLife from '@/components/sacred-geometry/shapes/SacredFlowerOfLife';
@@ -41,7 +40,7 @@ const SacredShifterLanding = () => {
 
   return (
     <div className="relative min-h-screen w-full bg-gradient-to-b from-black via-[#0a0118] to-black text-white font-sans overflow-hidden">
-      <div className="fixed inset-0 z-0 pointer-events-none">
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-20">
         <StarfieldBackground />
       </div>
 
@@ -57,8 +56,9 @@ const SacredShifterLanding = () => {
 
         <div className="fixed right-4 top-4 z-20">
           <nav className={cn(
-            "backdrop-blur-sm p-3 rounded-xl border",
-            liftTheVeil ? "bg-pink-950/20 border-pink-900/20" : "bg-black/20 border-purple-900/20"
+            "backdrop-blur-sm p-3 rounded-xl border opacity-80",
+            liftTheVeil ? "bg-pink-950/10" : "bg-black/10",
+            liftTheVeil ? "border-pink-900/10" : "border-purple-900/10"
           )}>
             <div className="flex flex-col space-y-2">
               {Object.keys(geometryComponents).map((shape) => (

@@ -3,81 +3,122 @@ import React from "react";
 import { motion } from "framer-motion";
 
 interface AnimatedBackgroundProps {
-  colorScheme: string;
+  theme?: 'cosmic' | 'ethereal' | 'temple';
+  intensity?: 'low' | 'medium' | 'high';
+  children: React.ReactNode;
+  colorScheme?: string;
   isActive?: boolean;
 }
 
 const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ 
+  theme = 'cosmic',
+  intensity = 'medium',
+  children,
   colorScheme,
-  isActive = false
+  isActive = true
 }) => {
-  // Create array of objects for the wave elements
-  const waves = Array.from({ length: 5 }).map((_, i) => ({
-    id: `wave-${i}`,
-    delay: i * 0.7,
-    duration: 15 + i * 3,
-    opacity: 0.15 + (i * 0.04), // Further increased opacity for better visibility
-  }));
+  // Reduce wave count and opacity
+  const getWaves = () => {
+    const count = intensity === 'high' ? 4 : intensity === 'medium' ? 3 : 2;
+    
+    return Array.from({ length: count }).map((_, i) => ({
+      id: `wave-${i}`,
+      delay: i * 0.7,
+      duration: 15 + i * 3,
+      opacity: 0.01 + (i * 0.005), // Reduced opacity
+    }));
+  };
+  
+  const waves = getWaves();
+  
+  const getThemeColors = () => {
+    switch(theme) {
+      case 'ethereal':
+        return {
+          from: 'from-blue-500/5', // Reduced opacity
+          to: 'to-purple-500/5', // Reduced opacity
+          particle: 'bg-blue-200/15' // Reduced opacity
+        };
+      case 'temple':
+        return {
+          from: 'from-amber-500/5', // Reduced opacity
+          to: 'to-red-500/5', // Reduced opacity
+          particle: 'bg-amber-200/15' // Reduced opacity
+        };
+      case 'cosmic':
+      default:
+        return {
+          from: 'from-purple-500/5', // Reduced opacity
+          to: 'to-blue-500/5', // Reduced opacity
+          particle: 'bg-purple-200/15' // Reduced opacity
+        };
+    }
+  };
+  
+  const colors = getThemeColors();
 
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden">
-      {waves.map((wave) => (
-        <motion.div
-          key={wave.id}
-          className="absolute inset-0 flex items-center justify-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: wave.opacity }}
-          transition={{ duration: 2 }}
-        >
+    <div className="min-h-screen bg-black text-white">
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        {waves.map((wave) => (
           <motion.div
-            className="w-[800px] h-[800px] rounded-full bg-gradient-to-br from-purple-500/50 to-blue-500/50 filter blur-3xl"
-            animate={{
-              scale: [1, 1.1, 1],
-              opacity: [wave.opacity, wave.opacity + 0.055, wave.opacity], // Increased opacity here too
-            }}
-            transition={{
-              duration: wave.duration,
-              repeat: Infinity,
-              repeatType: "reverse",
-              ease: "easeInOut",
-              delay: wave.delay,
-            }}
-          />
-        </motion.div>
-      ))}
+            key={wave.id}
+            className="absolute inset-0 flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: wave.opacity }}
+            transition={{ duration: 2 }}
+          >
+            <motion.div
+              className={`w-[600px] h-[600px] rounded-full bg-gradient-to-br ${colors.from} ${colors.to} filter blur-3xl`} // Reduced size
+              animate={{
+                scale: [1, 1.05, 1], // Less dramatic scaling
+                opacity: [wave.opacity, wave.opacity + 0.01, wave.opacity],
+              }}
+              transition={{
+                duration: wave.duration,
+                repeat: Infinity,
+                repeatType: "reverse",
+                ease: "easeInOut",
+                delay: wave.delay,
+              }}
+            />
+          </motion.div>
+        ))}
 
-      {/* Floating particles - increased visibility */}
-      {Array.from({ length: 15 }).map((_, i) => {
-        const size = Math.random() * 8 + 3; // Increased size
-        const x = Math.random() * 100;
-        const y = Math.random() * 100;
-        const duration = Math.random() * 20 + 15;
-        
-        return (
-          <motion.div
-            key={`particle-${i}`}
-            className="absolute rounded-full bg-white/60" // Increased from bg-white/40
-            style={{
-              width: size,
-              height: size,
-              left: `${x}%`,
-              top: `${y}%`,
-            }}
-            animate={{
-              y: [0, -30, 0],
-              x: [0, Math.random() * 20 - 10, 0],
-              opacity: [0.6, 1, 0.6], // Increased from [0.5, 0.9, 0.5]
-            }}
-            transition={{
-              duration,
-              repeat: Infinity,
-              repeatType: "reverse",
-              ease: "easeInOut",
-              delay: Math.random() * 5,
-            }}
-          />
-        );
-      })}
+        {/* Reduce number of particles and their opacity */}
+        {Array.from({ length: 10 }).map((_, i) => { // Reduced from 15 to 10
+          const size = Math.random() * 4 + 1; // Smaller particles
+          const x = Math.random() * 100;
+          const y = Math.random() * 100;
+          const duration = Math.random() * 15 + 10; // Shorter duration
+          
+          return (
+            <motion.div
+              key={`particle-${i}`}
+              className={`absolute rounded-full ${colors.particle}`}
+              style={{
+                width: size,
+                height: size,
+                left: `${x}%`,
+                top: `${y}%`,
+              }}
+              animate={{
+                y: [0, -20, 0], // Less dramatic movement
+                x: [0, Math.random() * 10 - 5, 0],
+                opacity: [0.2, 0.4, 0.2], // Reduced opacity
+              }}
+              transition={{
+                duration,
+                repeat: Infinity,
+                repeatType: "reverse",
+                ease: "easeInOut",
+                delay: Math.random() * 3,
+              }}
+            />
+          );
+        })}
+      </div>
+      {children}
     </div>
   );
 };

@@ -18,18 +18,18 @@ const StarfieldBackground: React.FC = () => {
       canvas.height = window.innerHeight;
     };
 
-    // Create more stars for a denser starfield
-    const stars = Array.from({ length: 1000 }, () => ({
+    // Reduce number of stars by 50%
+    const stars = Array.from({ length: 500 }, () => ({
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
-      radius: Math.random() * 3.5, // Even larger stars for more visibility
-      alpha: Math.random(),
-      delta: Math.random() * 0.008 + 0.002,
+      radius: Math.random() * 2, // Smaller stars
+      alpha: Math.random() * 0.5, // Less bright
+      delta: Math.random() * 0.005 + 0.001,
       color: Math.random() > 0.8 ? 
-        `rgba(${155 + Math.random() * 100}, ${155 + Math.random() * 100}, 255, ` : // Bluish stars
+        `rgba(${155 + Math.random() * 100}, ${155 + Math.random() * 100}, 255, ` : 
         Math.random() > 0.6 ? 
-          `rgba(255, ${155 + Math.random() * 100}, ${155 + Math.random() * 100}, ` : // Reddish stars
-          `rgba(255, 255, 255, ` // White stars
+          `rgba(255, ${155 + Math.random() * 100}, ${155 + Math.random() * 100}, ` : 
+          `rgba(255, 255, 255, `
     }));
 
     const draw = () => {
@@ -84,6 +84,7 @@ const StarfieldBackground: React.FC = () => {
         width: '100%',
         height: '100%',
         zIndex: 0,
+        opacity: 0.5, // Reduced opacity
         pointerEvents: 'none',
       }}
     />
