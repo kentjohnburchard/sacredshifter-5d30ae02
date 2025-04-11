@@ -59,6 +59,7 @@ const iconMap: Record<string, React.FC<any>> = {
   '/personal-vibe': Settings,
   '/site-map': Map,
   '/profile': User,
+  '/landing': LayoutDashboard,
 };
 
 interface SidebarNavItemsProps {
@@ -74,15 +75,16 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
   const { liftTheVeil } = useTheme();
   const activeNavItems = getActiveNavItems();
   
-  // Filter out duplicate home routes - ensure we only show one home button
-  // If multiple routes have the same display text, only show the first one
+  // Filter out duplicate home routes by path
   const displayedPaths = new Set<string>();
   const filteredNavItems = activeNavItems.filter(item => {
-    const key = item.label.toLowerCase();
-    if (displayedPaths.has(key)) {
+    // Consider '/' and '/home' and '/dashboard' as the same home route
+    const normalizedPath = ['/home', '/dashboard', '/'].includes(item.path) ? 'home' : item.path;
+    
+    if (displayedPaths.has(normalizedPath)) {
       return false;
     }
-    displayedPaths.add(key);
+    displayedPaths.add(normalizedPath);
     return true;
   });
 
