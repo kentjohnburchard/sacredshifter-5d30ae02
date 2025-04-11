@@ -1,4 +1,5 @@
 
+
 export interface SongMapping {
   id: string;
   title: string;
@@ -63,9 +64,10 @@ export type AudioFunctionCategory =
 
 export interface AudioFunctionMapping {
   id: string;
-  functionId: string;
-  audioFileName: string;
-  audioUrl: string | null;
-  isPrimary: boolean;
-  createdAt: string;
+  function_id: string;
+  audio_file_name: string;
+  audio_url: string | null;
+  is_primary: boolean;
+  created_at: string;
 }
+

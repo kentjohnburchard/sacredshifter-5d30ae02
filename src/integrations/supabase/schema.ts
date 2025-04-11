@@ -17,3 +17,4 @@ export const AUDIO_FUNCTION_MAPPINGS_TABLE = {
   `,
   foreignKeys: ``
 };
+

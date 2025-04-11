@@ -7,34 +7,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Loader2, Music, PlayCircle, SoundWave, AudioLines, Volume2 } from 'lucide-react';
+import { Loader2, Music, PlayCircle, AudioWaveform, Volume2, AudioLines } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-
-interface AudioFunction {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-}
-
-interface AudioMapping {
-  id: string;
-  function_id: string;
-  audio_file_name: string;
-  audio_url: string | null;
-  is_primary: boolean;
-}
+import { AudioFunction, AudioFunctionMapping } from '@/types/music';
 
 const AudioFunctionMappingManager: React.FC = () => {
   const [audioFunctions, setAudioFunctions] = useState<AudioFunction[]>([]);
   const [selectedFunction, setSelectedFunction] = useState<string>('');
   const [audioFileName, setAudioFileName] = useState<string>('');
-  const [audioUrl, setAudioUrl] = useState<string>('');
+  const [newAudioUrl, setNewAudioUrl] = useState<string>('');
   const [isPrimary, setIsPrimary] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(true);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>('journey');
-  const [mappings, setMappings] = useState<Record<string, AudioMapping>>({});
+  const [mappings, setMappings] = useState<Record<string, AudioFunctionMapping>>({});
 
   // List of all available sound functions by category
   const audioFunctionsList: AudioFunction[] = [
@@ -84,21 +70,22 @@ const AudioFunctionMappingManager: React.FC = () => {
     try {
       setLoading(true);
       
-      // This would normally fetch from a database table for audio function mappings
-      // For now, we'll simulate this with static data
-      const { data, error } = await supabase
+      // Try to fetch the data. If the table doesn't exist yet, we'll catch the error
+      // and just continue with empty mappings
+      let { data, error } = await supabase
         .from('audio_function_mappings')
         .select('*');
         
       if (error) {
         console.error('Error fetching audio mappings:', error);
+        // If table doesn't exist yet, we'll just continue with empty mappings
         return;
       }
       
       // Convert array to record keyed by function_id for easy lookup
-      const mappingsRecord: Record<string, AudioMapping> = {};
+      const mappingsRecord: Record<string, AudioFunctionMapping> = {};
       if (data) {
-        data.forEach((mapping: AudioMapping) => {
+        data.forEach((mapping: AudioFunctionMapping) => {
           mappingsRecord[mapping.function_id] = mapping;
         });
       }
@@ -127,25 +114,33 @@ const AudioFunctionMappingManager: React.FC = () => {
     try {
       setSubmitting(true);
       
-      // In a real implementation, this would insert to a database table
-      // For demonstration, we'll just show a success message
-      const audioUrl = audioUrl || `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioFileName}`;
+      // Generate the audio URL if not provided
+      const audioUrl = newAudioUrl || `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioFileName}`;
+      
+      // Try to insert the mapping
+      const { data, error } = await supabase
+        .from('audio_function_mappings')
+        .insert([
+          {
+            function_id: selectedFunction,
+            audio_file_name: audioFileName,
+            audio_url: audioUrl,
+            is_primary: isPrimary
+          }
+        ]);
+      
+      if (error) {
+        console.error('Error adding audio mapping:', error);
+        toast.error('Failed to save audio mapping');
+        return;
+      }
       
       // Update local state to show the mapping
-      setMappings(prev => ({
-        ...prev,
-        [selectedFunction]: {
-          id: `new-${Date.now()}`,
-          function_id: selectedFunction,
-          audio_file_name: audioFileName,
-          audio_url: audioUrl,
-          is_primary: isPrimary
-        }
-      }));
+      fetchAudioMappings();
       
       // Reset form
       setAudioFileName('');
-      setAudioUrl('');
+      setNewAudioUrl('');
       setIsPrimary(true);
       
       toast.success('Audio function mapping added successfully');
@@ -169,7 +164,7 @@ const AudioFunctionMappingManager: React.FC = () => {
       case 'journey':
         return <PlayCircle className="h-4 w-4" />;
       case 'interface':
-        return <SoundWave className="h-4 w-4" />;
+        return <AudioWaveform className="h-4 w-4" />;
       case 'meditation':
         return <Volume2 className="h-4 w-4" />;
       case 'frequency':
@@ -195,7 +190,7 @@ const AudioFunctionMappingManager: React.FC = () => {
               <span>Journeys</span>
             </TabsTrigger>
             <TabsTrigger value="interface" className="flex items-center gap-2">
-              <SoundWave className="h-4 w-4" />
+              <AudioWaveform className="h-4 w-4" />
               <span>Interface</span>
             </TabsTrigger>
             <TabsTrigger value="meditation" className="flex items-center gap-2">
@@ -257,8 +252,8 @@ const AudioFunctionMappingManager: React.FC = () => {
                   <Label htmlFor="url">Custom Audio URL (Optional)</Label>
                   <Input 
                     id="url" 
-                    value={audioUrl}
-                    onChange={(e) => setAudioUrl(e.target.value)}
+                    value={newAudioUrl}
+                    onChange={(e) => setNewAudioUrl(e.target.value)}
                     placeholder="https://example.com/audio.mp3"
                   />
                   <p className="text-xs text-gray-500 mt-1">
