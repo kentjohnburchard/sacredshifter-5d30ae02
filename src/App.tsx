@@ -38,7 +38,6 @@ import SoulScribe from './pages/SoulScribe';
 import DeityOracle from './pages/DeityOracle';
 import AstralAttunement from './pages/AstralAttunement';
 import Subscription from './pages/Subscription';
-import ReferralProgram from './pages/ReferralProgram';
 import TrinityGateway from './pages/TrinityGateway';
 import Profile from './pages/Profile';
 import SiteMap from './pages/SiteMap';
@@ -76,7 +75,6 @@ function App() {
             <Route path="/deity-oracle" element={<DeityOracle />} />
             <Route path="/astral-attunement" element={<AstralAttunement />} />
             <Route path="/subscription" element={<Subscription />} />
-            <Route path="/referral" element={<ReferralProgram />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/site-map" element={<SiteMap />} />
             

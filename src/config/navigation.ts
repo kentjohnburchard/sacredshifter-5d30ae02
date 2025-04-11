@@ -17,7 +17,6 @@ export const activePages = {
   deityOracle: false,
   astralAttunement: false,
   subscription: true,
-  referral: false, // Deactivated referral program
   aboutFounder: true,
   contact: true,
   profile: true,
