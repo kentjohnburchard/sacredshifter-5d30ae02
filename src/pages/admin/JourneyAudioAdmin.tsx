@@ -1,7 +1,7 @@
 
 import React from 'react';
 import Layout from '@/components/Layout';
-import { JourneyAudioManager } from '@/components/frequency-journey';
+import { JourneyAudioMapper } from '@/components/frequency-journey';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Music, Settings } from 'lucide-react';
 
@@ -22,7 +22,7 @@ const JourneyAudioAdmin: React.FC = () => {
               When a user clicks "Begin Journey" on a template, they'll hear one of the assigned audio tracks.
             </p>
             
-            <JourneyAudioManager />
+            <JourneyAudioMapper />
           </CardContent>
         </Card>
       </div>
