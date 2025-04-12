@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -95,9 +96,9 @@ const CosmicDashboard = () => {
         <StarfieldBackground density="medium" opacity={0.6} isStatic={false} />
       </div>
       
-      <div className="max-w-7xl mx-auto px-4 pt-10 pb-24 relative z-10">
-        <div className="flex flex-col lg:flex-row justify-between items-center mb-8 gap-8">
-          <div className="text-center lg:text-left z-10 relative">
+      <div className="max-w-7xl mx-auto px-4 pb-24 relative z-10">
+        <div className="flex flex-col md:flex-row items-center justify-between mb-4 pt-4">
+          <div className="w-full md:w-1/2 text-center md:text-left mb-4 md:mb-0 z-20">
             <motion.h1
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -109,39 +110,31 @@ const CosmicDashboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="text-lg text-purple-100/80 max-w-2xl mb-4"
+                className="text-lg text-purple-100/80 max-w-2xl"
             >
               Welcome to your frequency sanctuary. Unlock sacred codes, align with sound, and shift your consciousness.
             </motion.p>
           </div>
           
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ 
-              delay: 0.3,
-              type: "spring",
-              stiffness: 100
-            }}
-            className="w-full md:w-96 h-96 flex-shrink-0 relative lg:absolute lg:right-8 lg:top-4 pointer-events-auto z-0"
-          >
-            <div className="w-full h-full" onClick={() => setIsPlaying(!isPlaying)}>
+          <div className="w-full md:w-1/2 h-64 md:h-80 flex items-center justify-center relative z-10">
+            <div className="w-full h-full cursor-pointer" onClick={() => setIsPlaying(!isPlaying)}>
               <SacredGeometryVisualizer 
                 defaultShape={selectedShape}
                 size="lg"
+                showControls={true}
               />
             </div>
-          </motion.div>
+          </div>
         </div>
         
         <motion.div 
-          initial={{ opacity: 0, y: 40 }} 
+          initial={{ opacity: 0, y: 20 }} 
           animate={{ opacity: 1, y: 0 }} 
           transition={{ delay: 0.3, duration: 0.6 }}
-          className="mt-16 pt-8 relative z-10"
+          className="mt-4 relative z-10"
         >
           <Tabs defaultValue="journeys" className="w-full">
-            <TabsList className="w-full flex justify-center mb-8 bg-black/30 backdrop-blur-sm">
+            <TabsList className="w-full flex justify-center mb-6 bg-black/30 backdrop-blur-sm">
               <TabsTrigger value="journeys" className="data-[state=active]:bg-purple-900/50">
                 <Music className="h-4 w-4 mr-2" /> Sound Journeys
               </TabsTrigger>
