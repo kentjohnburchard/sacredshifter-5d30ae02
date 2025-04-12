@@ -1,7 +1,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Heart, Lightbulb, Music, Sparkles, Wand2 } from "lucide-react";
+import { Heart, Lightbulb, Music, Sparkles, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface CosmicFooterProps {
@@ -30,10 +30,10 @@ const CosmicFooter: React.FC<CosmicFooterProps> = ({
   
   const footerLinks = [
     { name: "Sound Journeys", icon: <Music className="h-4 w-4" />, path: "/journey-templates" },
-    { name: "Hermetic Wisdom", icon: <Lightbulb className="h-4 w-4" />, path: "/hermetic-wisdom" },
+    { name: "Hermetic Wisdom", icon: <Lightbulb className="h-4 w-4" />, path: "/hermetic-principles" },
     { name: "Heart Center", icon: <Heart className="h-4 w-4" />, path: "/heart-center" },
-    { name: "Manifestation", icon: <Wand2 className="h-4 w-4" />, path: "/focus" },
-    { name: "Astrology", icon: <Sparkles className="h-4 w-4" />, path: "/astrology" },
+    { name: "Sacred Blueprint", icon: <Sparkles className="h-4 w-4" />, path: "/sacred-blueprint" },
+    { name: "Astrology", icon: <Star className="h-4 w-4" />, path: "/astrology" },
   ];
   
   return (

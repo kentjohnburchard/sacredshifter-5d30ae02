@@ -8,6 +8,8 @@ import { AnimatedBackground } from '@/components/sacred-geometry';
 import { useTheme } from '@/context/ThemeContext';
 import { cn } from '@/lib/utils';
 import GlobalAudioPlayer from './audio/GlobalAudioPlayer';
+import ConsciousnessToggle from './ConsciousnessToggle';
+import CosmicFooter from './sacred-geometry/CosmicFooter';
 
 interface LayoutProps {
   children: ReactNode;
@@ -62,6 +64,12 @@ const Layout: React.FC<LayoutProps> = ({
       
       {/* Global Audio Player */}
       <GlobalAudioPlayer />
+      
+      {/* Add ConsciousnessToggle (Easter Egg) to every page */}
+      <ConsciousnessToggle />
+      
+      {/* Add CosmicFooter to every page */}
+      {showFooter && <CosmicFooter />}
     </div>
   );
 
