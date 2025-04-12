@@ -66,9 +66,9 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     scene.background = null; // Make background transparent
     sceneRef.current = scene;
 
-    // Set up camera with wider field of view for better visibility
-    const camera = new THREE.PerspectiveCamera(95, width / height, 0.1, 1000);
-    camera.position.z = 1.0; // Position the camera even closer for maximum visibility
+    // Set up camera with appropriate field of view
+    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+    camera.position.z = 3; // Position the camera at a safe distance
     cameraRef.current = camera;
 
     // Create renderer with transparency enabled
@@ -77,7 +77,7 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
       alpha: true,
       powerPreference: 'high-performance'
     });
-    renderer.setPixelRatio(window.devicePixelRatio * 1.5); // Higher pixel ratio for sharper rendering
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(width, height);
     renderer.setClearColor(0x000000, 0); // Transparent background
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -87,42 +87,35 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     mountRef.current.innerHTML = '';
     mountRef.current.appendChild(renderer.domElement);
 
-    // Set up lights with EXTREMELY high intensity for maximum visibility
-    const ambientLight = new THREE.AmbientLight(0xffffff, 8.0); // Double intensity
+    // Set up lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 2.0);
     scene.add(ambientLight);
     
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 15.0); // Increase intensity
-    directionalLight.position.set(0, 1, 2); // Move closer
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 4.0);
+    directionalLight.position.set(0, 1, 2);
     scene.add(directionalLight);
     
-    const pointLight1 = new THREE.PointLight(0xff00ff, 15.0); // Purple light
+    const pointLight1 = new THREE.PointLight(0xff00ff, 2.0); // Purple light
     pointLight1.position.set(3, 3, 3);
     scene.add(pointLight1);
     
-    const pointLight2 = new THREE.PointLight(0x00ffff, 15.0); // Cyan light
+    const pointLight2 = new THREE.PointLight(0x00ffff, 2.0); // Cyan light
     pointLight2.position.set(-3, -3, 3);
     scene.add(pointLight2);
-    
-    // Add another light directly behind the camera for front-facing illumination
-    const frontLight = new THREE.SpotLight(0xffffff, 20.0);
-    frontLight.position.set(0, 0, 3);
-    frontLight.angle = Math.PI / 2;
-    scene.add(frontLight);
 
     // Create the sacred geometry
     createSacredGeometry(shape, scene);
 
-    // Animation loop with FASTER rotation for better visibility
+    // Animation loop
     const animate = () => {
       if (!rendererRef.current || !sceneRef.current || !cameraRef.current) return;
       
       frameIdRef.current = requestAnimationFrame(animate);
       
       if (shapeRef.current) {
-        // Increased rotation for better visibility of all angles
+        // Standard rotation speeds
         shapeRef.current.rotation.x += 0.01;
-        shapeRef.current.rotation.y += 0.015;
-        shapeRef.current.rotation.z += 0.005;
+        shapeRef.current.rotation.y += 0.01;
         
         if (isAudioReactive && audioData.length > 0) {
           const averageAmplitude = audioData.reduce((sum, val) => sum + val, 0) / audioData.length;
@@ -148,7 +141,9 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
       rendererRef.current.setSize(width, height);
       
       // Re-render after resize
-      renderer.render(scene, camera);
+      if (rendererRef.current && sceneRef.current && cameraRef.current) {
+        rendererRef.current.render(sceneRef.current, cameraRef.current);
+      }
     };
     
     window.addEventListener('resize', handleResize);
@@ -203,38 +198,24 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
       shapeRef.current = null;
     }
 
-    // Create a SUPER BRIGHT material with extremely high emissive properties
+    // Create a standard material
     const material = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(0xae94f6), // Bright purple
-      emissive: new THREE.Color(0xf0c0ff), // Brighter emissive color
-      emissiveIntensity: 5.0, // EXTREMELY high emissive intensity
-      metalness: 0.9,
-      roughness: 0.2,
+      color: new THREE.Color(0xae94f6), // Purple
+      emissive: new THREE.Color(0x6f42c1), // Emissive color
+      emissiveIntensity: 0.5,
+      metalness: 0.7,
+      roughness: 0.3,
       transparent: true,
-      opacity: 0.98, // Increased opacity
+      opacity: 0.8,
       side: THREE.DoubleSide,
-      wireframe: false
+      wireframe: shape === 'sphere' ? false : true // Only sphere is not wireframe
     });
     
-    // Secondary material for additional glow effect
-    const emissiveMaterial = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(0xffffff), // White for maximum brightness
-      emissive: new THREE.Color(0xffffff),
-      emissiveIntensity: 4.0, // Higher intensity
-      metalness: 0.9,
-      roughness: 0.1,
-      transparent: true,
-      opacity: 0.95, // Increased opacity
-      side: THREE.DoubleSide,
-      wireframe: false
-    });
-
-    // Wireframe material for extra visibility - MUCH brighter and thicker
+    // Wireframe material
     const wireframeMaterial = new THREE.LineBasicMaterial({
-      color: 0xffffff,
+      color: 0xb794f6,
       transparent: true, 
-      opacity: 1.0, // Full opacity
-      linewidth: 5 // Maximum thickness
+      opacity: 0.8
     });
 
     let geometry: THREE.BufferGeometry | undefined;
@@ -259,7 +240,8 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
         break;
         
       case 'torus':
-        geometry = new THREE.TorusGeometry(1.5, 0.4, 64, 128); // Increased segments for smoother appearance
+        // Fixed torus implementation
+        geometry = new THREE.TorusGeometry(1, 0.3, 32, 64);
         break;
         
       case 'tree-of-life':
@@ -275,86 +257,67 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
         break;
         
       case 'sphere':
-      default:
-        geometry = new THREE.SphereGeometry(1.5, 64, 64);
+        // Fixed sphere implementation - smaller and with better materials
+        geometry = new THREE.SphereGeometry(0.8, 32, 32);
+        const sphereMaterial = new THREE.MeshPhongMaterial({
+          color: 0x9f7aea,
+          emissive: 0x4c1d95,
+          emissiveIntensity: 0.2,
+          transparent: true,
+          opacity: 0.7,
+          wireframe: false,
+          shininess: 50
+        });
+        const mesh = new THREE.Mesh(geometry, sphereMaterial);
+        
+        // Add wireframe on top for better visibility
+        const wireframe = new THREE.LineSegments(
+          new THREE.WireframeGeometry(geometry),
+          new THREE.LineBasicMaterial({
+            color: 0xb794f6,
+            transparent: true,
+            opacity: 0.3
+          })
+        );
+        mesh.add(wireframe);
+        
+        object = mesh;
         break;
     }
 
-    // Create mesh if we have geometry
-    if (geometry) {
+    // Create mesh if we have geometry and no object yet
+    if (geometry && !object) {
       const mesh = new THREE.Mesh(geometry, material);
       object = mesh;
-    }
-
-    // Add object to scene with MUCH larger scale
-    if (object) {
-      // Make the object DRAMATICALLY larger for better visibility 
-      object.scale.set(100.0, 100.0, 100.0); // Even larger scale
-      scene.add(object);
-      shapeRef.current = object;
-
-      // Add glow and wireframe for better visibility
-      addGlowEffect(object, scene, emissiveMaterial, wireframeMaterial);
-    }
-  };
-
-  // Add glow effect to make the shape EXTREMELY visible
-  const addGlowEffect = (object: THREE.Object3D, scene: THREE.Scene, glowMaterial: THREE.Material, wireframeMaterial: THREE.LineBasicMaterial) => {
-    if (object instanceof THREE.Mesh && object.geometry) {
-      // Add wireframe for extra visibility - critical for visibility
-      const wireGeometry = object.geometry.clone();
+      
+      // Add wireframe for better visibility
       const wireframe = new THREE.LineSegments(
-        new THREE.WireframeGeometry(wireGeometry),
+        new THREE.WireframeGeometry(geometry),
         wireframeMaterial
       );
       object.add(wireframe);
-      
-      // Add multiple glowing meshes at different scales for a more dramatic glow effect
-      const glowMesh1 = new THREE.Mesh(object.geometry, glowMaterial);
-      glowMesh1.scale.set(1.05, 1.05, 1.05);
-      object.add(glowMesh1);
-      
-      const glowMesh2 = new THREE.Mesh(object.geometry, glowMaterial.clone());
-      (glowMesh2.material as THREE.MeshStandardMaterial).opacity = 0.7; // Increased opacity
-      glowMesh2.scale.set(1.15, 1.15, 1.15); // Larger glow radius
-      object.add(glowMesh2);
-      
-      // Add a third glowing layer for maximum visibility
-      const glowMesh3 = new THREE.Mesh(object.geometry, glowMaterial.clone());
-      (glowMesh3.material as THREE.MeshStandardMaterial).opacity = 0.5;
-      glowMesh3.scale.set(1.25, 1.25, 1.25);
-      object.add(glowMesh3);
-      
-      // Add point lights at key vertices for additional glow
-      const vertices = object.geometry.attributes.position;
-      const vertexCount = vertices.count;
-      
-      if (vertexCount > 20) {
-        // Add more lights for better illumination
-        for (let i = 0; i < Math.min(30, vertexCount); i += Math.max(1, Math.floor(vertexCount / 30))) {
-          const vertex = new THREE.Vector3(
-            vertices.getX(i),
-            vertices.getY(i),
-            vertices.getZ(i)
-          );
-          
-          const pointLight = new THREE.PointLight(0xb794f6, 50, 1.5); // Increased intensity and range
-          pointLight.position.copy(vertex);
-          object.add(pointLight);
-        }
+    }
+
+    // Add object to scene
+    if (object) {
+      if (shape !== 'sphere') {
+        // Make non-sphere objects smaller for better visibility
+        object.scale.set(0.8, 0.8, 0.8);
       }
+      scene.add(object);
+      shapeRef.current = object;
     }
   };
 
-  // Determine size class based on props - make it LARGER
+  // Determine size class based on props
   const sizeClass = {
-    sm: 'h-96', // Increased size
-    md: 'h-screen', // Make medium size full screen height
-    lg: 'h-screen',
-    xl: 'h-screen',
-  }[size] || 'h-screen';
+    sm: 'h-64',
+    md: 'h-96',
+    lg: 'h-[500px]',
+    xl: 'h-[600px]',
+  }[size] || 'h-96';
 
-  return <div ref={mountRef} className={`w-full ${sizeClass} absolute inset-0 z-10`} />;
+  return <div ref={mountRef} className={`w-full ${sizeClass}`} />;
 };
 
 export default SacredVisualizer;

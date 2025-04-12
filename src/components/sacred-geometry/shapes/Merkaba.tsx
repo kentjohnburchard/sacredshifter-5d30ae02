@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 
@@ -11,14 +12,14 @@ const Merkaba: React.FC = () => {
     const scene = new THREE.Scene();
     scene.background = null; // Make background fully transparent
     
-    // Create camera
+    // Create camera with wider field of view
     const camera = new THREE.PerspectiveCamera(
       75, 
       containerRef.current.clientWidth / containerRef.current.clientHeight, 
       0.1, 
       1000
     );
-    camera.position.z = 4.5; // Positioned to see the whole merkaba
+    camera.position.z = 4; // Position camera to see the whole merkaba
     
     // Create renderer with transparency
     const renderer = new THREE.WebGLRenderer({ 
@@ -29,7 +30,10 @@ const Merkaba: React.FC = () => {
     renderer.setClearColor(0x000000, 0); // Set clear color to transparent
     containerRef.current.appendChild(renderer.domElement);
 
-    // Create Merkaba (Star Tetrahedron)
+    // Create Merkaba (Star Tetrahedron) - fixed implementation
+    const group = new THREE.Group();
+    
+    // Material for the tetrahedrons
     const material = new THREE.MeshStandardMaterial({ 
       color: 0x9f7aea, 
       metalness: 0.6, 
@@ -38,49 +42,38 @@ const Merkaba: React.FC = () => {
       emissiveIntensity: 0.3,
       wireframe: true,
       transparent: true,
-      opacity: 0.2 // Slightly more transparent
+      opacity: 0.7
     });
 
-    const lineMaterial = new THREE.LineBasicMaterial({
+    // Create upward-pointing tetrahedron
+    const tetraGeometryUp = new THREE.TetrahedronGeometry(1);
+    const tetraUp = new THREE.Mesh(tetraGeometryUp, material);
+    tetraUp.rotation.z = Math.PI / 7; // Slight rotation for better visibility
+    group.add(tetraUp);
+    
+    // Create downward-pointing tetrahedron
+    const tetraGeometryDown = new THREE.TetrahedronGeometry(1);
+    const tetraDown = new THREE.Mesh(tetraGeometryDown, material.clone());
+    tetraDown.rotation.z = Math.PI;
+    tetraDown.rotation.y = Math.PI / 3.5;
+    group.add(tetraDown);
+    
+    // Create edgeTriangles for better visibility
+    const edgesMaterial = new THREE.LineBasicMaterial({ 
       color: 0xb794f6,
       transparent: true,
-      opacity: 0.2, // Slightly more transparent lines
+      opacity: 0.8
     });
-
-    // Create group to hold both tetrahedrons
-    const group = new THREE.Group();
-
-    // Create top tetrahedron with better geometry
-    const topTetraGeometry = new THREE.TetrahedronGeometry(1.2);
-    const topTetra = new THREE.Mesh(topTetraGeometry, material);
-    const topTetraEdges = new THREE.EdgesGeometry(topTetraGeometry);
-    const topTetraLines = new THREE.LineSegments(topTetraEdges, lineMaterial);
-    topTetra.add(topTetraLines);
-    group.add(topTetra);
-
-    // Create bottom tetrahedron with better geometry
-    const bottomTetraGeometry = new THREE.TetrahedronGeometry(1.2);
-    const bottomTetra = new THREE.Mesh(bottomTetraGeometry, material);
-    const bottomTetraEdges = new THREE.EdgesGeometry(bottomTetraGeometry);
-    const bottomTetraLines = new THREE.LineSegments(bottomTetraEdges, lineMaterial);
-    bottomTetra.rotation.x = Math.PI; // Flip it upside down
-    bottomTetra.add(bottomTetraLines);
-    group.add(bottomTetra);
-
-    // Add outer sphere for energy field effect
-    const sphereGeometry = new THREE.SphereGeometry(1.6, 32, 32);
-    const sphereMaterial = new THREE.MeshBasicMaterial({
-      color: 0x9f7aea,
-      transparent: true,
-      opacity: 0.05, // Even more transparent energy sphere
-      wireframe: true,
-    });
-    const energySphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-    group.add(energySphere);
-
-    // Center and scale the group
-    group.position.set(0, 0, 0);
-    group.scale.set(0.8, 0.8, 0.8); // Scale to match MetatronsCube
+    
+    const edgesUp = new THREE.EdgesGeometry(tetraGeometryUp);
+    const lineUp = new THREE.LineSegments(edgesUp, edgesMaterial);
+    tetraUp.add(lineUp);
+    
+    const edgesDown = new THREE.EdgesGeometry(tetraGeometryDown);
+    const lineDown = new THREE.LineSegments(edgesDown, edgesMaterial);
+    tetraDown.add(lineDown);
+    
+    // Add to scene
     scene.add(group);
 
     // Add ambient light
@@ -97,9 +90,6 @@ const Merkaba: React.FC = () => {
       requestAnimationFrame(animate);
       group.rotation.x += 0.005;
       group.rotation.y += 0.005;
-      // Make the energy sphere rotate in the opposite direction
-      energySphere.rotation.x -= 0.002;
-      energySphere.rotation.y -= 0.002;
       renderer.render(scene, camera);
     };
     
@@ -127,12 +117,11 @@ const Merkaba: React.FC = () => {
       }
       
       // Dispose of resources
-      topTetraGeometry.dispose();
-      bottomTetraGeometry.dispose();
-      sphereGeometry.dispose();
+      tetraGeometryUp.dispose();
+      tetraGeometryDown.dispose();
       material.dispose();
-      lineMaterial.dispose();
-      sphereMaterial.dispose();
+      edgesMaterial.dispose();
+      renderer.dispose();
     };
   }, []);
 

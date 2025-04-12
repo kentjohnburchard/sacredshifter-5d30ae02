@@ -20,7 +20,7 @@ const ConsciousnessToggle: React.FC = () => {
         
         // Show success toast
         toast.success(newMode ? "Lifted the Veil! Cosmic insights unlocked." : "Returning to standard perception", {
-          icon: <Sparkles className={newMode ? "text-brand-aurapink" : "text-purple-400"} />,
+          icon: <Sparkles className={newMode ? "text-pink-500" : "text-purple-400"} />,
           position: "bottom-center"
         });
       }
@@ -33,12 +33,16 @@ const ConsciousnessToggle: React.FC = () => {
   return (
     <button 
       onClick={toggleConsciousnessMode}
-      className="fixed bottom-6 right-6 z-40 bg-white/80 backdrop-blur-sm border border-purple-200 rounded-full p-3 shadow-md hover:shadow-lg transition-all duration-300 group"
-      title={liftTheVeil ? "Switch to Standard Mode" : "Lift the Veil"}
+      className={`fixed bottom-6 right-6 z-40 rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-300 group ${
+        liftTheVeil 
+          ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-pink-500/30" 
+          : "bg-black/60 backdrop-blur-sm text-purple-300 border border-purple-500/30"
+      }`}
+      title={liftTheVeil ? "Return to standard perception" : "Lift the Veil"}
       aria-label="Toggle consciousness mode"
     >
       <Sparkles 
-        className={`h-5 w-5 ${liftTheVeil ? 'text-pink-500 animate-pulse-subtle' : 'text-purple-400'} group-hover:scale-110 transition-all`}
+        className={`h-5 w-5 ${liftTheVeil ? 'animate-pulse' : ''} group-hover:scale-110 transition-all`}
       />
     </button>
   );

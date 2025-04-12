@@ -1,13 +1,12 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CosmicContainer, SacredVisualizer, CosmicFooter, SacredGeometryVisualizer } from "@/components/sacred-geometry";
+import { CosmicContainer, SacredGeometryVisualizer, CosmicFooter } from "@/components/sacred-geometry";
 import StarfieldBackground from "@/components/sacred-geometry/StarfieldBackground";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import { toast } from "sonner";
+import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "@/context/ThemeContext";
 import { 
   Music, Heart, Wand2, Lightbulb, 
@@ -16,13 +15,12 @@ import {
 } from "lucide-react";
 
 const CosmicDashboard = () => {
+  const navigate = useNavigate();
   const [selectedShape, setSelectedShape] = useState<
     "flower-of-life" | "metatrons-cube" | "merkaba" | "torus" | "sphere"
   >("flower-of-life");
   
   const [isPlaying, setIsPlaying] = useState(false);
-  const [easterEggClicks, setEasterEggClicks] = useState(0);
-  const [showEasterEgg, setShowEasterEgg] = useState(false);
   const { liftTheVeil, setLiftTheVeil } = useTheme();
   
   const journeyCategories = [
@@ -35,28 +33,12 @@ const CosmicDashboard = () => {
       path: "/journey-templates",
     },
     {
-      id: "meditation",
-      title: "Meditation",
-      icon: <Moon className="h-5 w-5" />,
-      color: "bg-blue-500",
-      description: "Guided meditations with sacred frequencies",
-      path: "/journey-templates?tab=meditation",
-    },
-    {
       id: "heart-center",
       title: "Heart Center",
       icon: <Heart className="h-5 w-5" />,
       color: "bg-pink-500",
       description: "Open and balance your heart chakra",
       path: "/heart-center",
-    },
-    {
-      id: "manifestation",
-      title: "Manifestation",
-      icon: <Wand2 className="h-5 w-5" />,
-      color: "bg-amber-500",
-      description: "Focus your energy to manifest intentions",
-      path: "/focus",
     },
     {
       id: "astrology",
@@ -95,44 +77,13 @@ const CosmicDashboard = () => {
     }),
   };
   
-  // Enhanced easter egg functionality with visualization click counter
-  const handleVisualizerClick = () => {
-    setIsPlaying(!isPlaying);
-    setEasterEggClicks(prev => {
-      const newCount = prev + 1;
-      if (newCount === 7) {
-        console.log("Easter egg activated!");
-        toast.success("🎉 You found the secret frequency! Enlightenment awaits.", {
-          duration: 5000,
-        });
-        setShowEasterEgg(true);
-        return 0;
-      }
-      return newCount;
-    });
-  };
-
-  // Reset easter egg after timeout
-  useEffect(() => {
-    if (showEasterEgg) {
-      const timer = setTimeout(() => {
-        setShowEasterEgg(false);
-      }, 10000);
-      return () => clearTimeout(timer);
+  // Navigate to pages when tabs are clicked
+  const handleTabClick = (tabValue: string) => {
+    if (tabValue === "frequencies") {
+      navigate("/frequency-library");
+    } else if (tabValue === "timeline") {
+      navigate("/journey-templates");
     }
-  }, [showEasterEgg]);
-
-  // Easter egg toggle function that connects with ThemeContext
-  const toggleEasterEgg = () => {
-    const newMode = !liftTheVeil;
-    setLiftTheVeil(newMode);
-    
-    toast.success(newMode ? 
-      "🌌 Veil lifted! Cosmic consciousness activated." : 
-      "🌎 Returning to standard perception", {
-      position: "bottom-right",
-      duration: 3000,
-    });
   };
   
   return (
@@ -171,32 +122,10 @@ const CosmicDashboard = () => {
           />
         </div>
       </div>
-      
-      {/* Easter egg animation overlay */}
-      {showEasterEgg && (
-        <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden">
-          <div className="absolute inset-0 bg-purple-900/20 backdrop-blur-sm"></div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <motion.div 
-              initial={{ scale: 0, rotate: 0 }}
-              animate={{ 
-                scale: [0, 1.2, 1],
-                rotate: [0, 180, 360],
-              }}
-              transition={{ duration: 3 }}
-              className="w-64 h-64 rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 opacity-70"
-            >
-              <div className="absolute inset-0 flex items-center justify-center text-white text-2xl font-bold">
-                528Hz Activated
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      )}
 
       {/* Easter egg toggle button - fixed in bottom right */}
       <button 
-        onClick={toggleEasterEgg}
+        onClick={() => setLiftTheVeil(!liftTheVeil)}
         className={`fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
           liftTheVeil 
             ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-pink-500/30" 
@@ -230,13 +159,9 @@ const CosmicDashboard = () => {
           </div>
           
           <div className="w-full md:w-1/2 h-64 md:h-80 flex items-center justify-center relative z-30">
-            <div 
-              className="w-full h-full cursor-pointer px-2" 
-              onClick={handleVisualizerClick}
-              title="Click 7 times for a surprise"
-            >
+            <div className="w-full h-full px-2">
               <div className="w-full h-full flex items-center justify-center">
-                {/* This visualizer is just for interactions, main visualizer is fixed position */}
+                {/* This visualizer is just for decoration */}
                 <div className="w-full h-full opacity-40 hover:opacity-70 transition-opacity">
                   <SacredGeometryVisualizer 
                     defaultShape={selectedShape}
@@ -256,7 +181,7 @@ const CosmicDashboard = () => {
           transition={{ delay: 0.3, duration: 0.6 }}
           className="mt-4 relative z-10"
         >
-          <Tabs defaultValue="journeys" className="w-full">
+          <Tabs defaultValue="journeys" className="w-full" onValueChange={handleTabClick}>
             <TabsList className="w-full flex justify-center mb-6 bg-black/30 backdrop-blur-sm">
               <TabsTrigger value="journeys" className="data-[state=active]:bg-purple-900/50">
                 <Music className="h-4 w-4 mr-2" /> Sound Journeys
@@ -287,7 +212,6 @@ const CosmicDashboard = () => {
                         className="h-full transition-transform hover:translate-y-[-5px]"
                         glowColor={
                           category.id === "heart-center" ? "pink" :
-                          category.id === "manifestation" ? "gold" :
                           category.id === "astrology" ? "blue" :
                           category.id === "hermetic-wisdom" ? "purple" :
                           "purple"
@@ -480,6 +404,7 @@ const CosmicDashboard = () => {
         </motion.div>
       </div>
       
+      {/* Restored CosmicFooter component */}
       <CosmicFooter 
         showFrequencyBar={isPlaying} 
         currentFrequency={528}

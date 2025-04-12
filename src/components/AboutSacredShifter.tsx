@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
@@ -64,57 +65,57 @@ const AboutSacredShifter: React.FC = () => {
         >
           {!liftTheVeil ? (
             <>
-              <p className="text-gray-700 leading-relaxed">
-                <strong>Sacred Shifter</strong> is more than an app it's your portal to vibrational transformation.
+              <p className="text-white leading-relaxed">
+                <strong>Sacred Shifter</strong> is more than an app—it's your portal to vibrational transformation.
               </p>
               
-              <p className="text-gray-700 leading-relaxed">
+              <p className="text-white leading-relaxed">
                 Crafted at the crossroads of ancient wisdom and next-gen tech, Sacred Shifter weaves healing frequencies, 
                 fractal visuals, and personalised cosmic insights into a one-of-a-kind experience. Whether you're aligning 
                 your chakras, syncing with the moon, or just trying to shake off yesterday's energetic gunk, this is your 
                 sacred space to shift.
               </p>
               
-              <p className="text-gray-700 leading-relaxed">
+              <p className="text-white leading-relaxed">
                 Dive into your personal soundscape, guided by real-time resonance, sacred geometry, and the whispers of 
                 your star chart. Customise your vibe, tune into your essence, and let every frequency move you closer to 
                 who you truly are.
               </p>
               
-              <div className="mt-6 font-light italic text-gray-600">
+              <div className="mt-6 font-light italic text-white">
                 <p>You're not just listening to music.<br />
                 You're remembering your power.<br />
                 You're rewriting your frequency.<br />
                 You're becoming your own sacred shift.</p>
               </div>
               
-              <p className="mt-6 text-right text-sm text-gray-600">Kent Burchard - Sacred Shifter Founder</p>
+              <p className="mt-6 text-right text-sm text-white">Kent Burchard - Sacred Shifter Founder</p>
             </>
           ) : (
             <>
-              <p className="text-gray-800 font-medium leading-relaxed">
+              <p className="text-white font-medium leading-relaxed">
                 Welcome, seeker.<br />
-                You didn't stumble here by accident this was a soul appointment booked lifetimes ago.
+                You didn't stumble here by accident—this was a soul appointment booked lifetimes ago.
               </p>
               
-              <p className="text-gray-800 font-medium leading-relaxed">
+              <p className="text-white font-medium leading-relaxed">
                 <strong>Sacred Shifter</strong> is not just an app.<br />
                 It's a sacred transmission.<br />
                 A technodelic temple.<br />
                 A mirror for the version of you that already remembers.
               </p>
               
-              <p className="text-gray-800 leading-relaxed">
+              <p className="text-white leading-relaxed">
                 We blend ancient vibrational medicine, personalised astrology, fractal-coded visuals, and next-gen AI to give 
                 your aura the glow-up it deserves. Every tone, every pulse, every shimmering sacred pixel is calibrated to 
                 <strong> shift you</strong> into alignment with your higher timeline.
               </p>
               
-              <p className="text-gray-800 leading-relaxed">
+              <p className="text-white leading-relaxed">
                 You choose your vibe. You call your energy. You command your cosmos.
               </p>
               
-              <ul className="my-6 space-y-2">
+              <ul className="my-6 space-y-2 text-white">
                 <li className="flex items-start">
                   <span className="mr-2">🌌</span> 
                   <span>Feel like a celestial queen with custom gradients that match your chakras.</span>
@@ -133,13 +134,13 @@ const AboutSacredShifter: React.FC = () => {
                 </li>
               </ul>
               
-              <p className="text-gray-800 font-medium leading-relaxed">
+              <p className="text-white font-medium leading-relaxed">
                 This isn't self-care. This is <strong>self-remembrance</strong>.<br />
                 And baby, you are not here to play small. You are here to vibrate louder than karma, shake the timelines, 
                 and realign the multiverse with your sacred frequency.
               </p>
               
-              <p className="text-gray-800 font-medium leading-relaxed">
+              <p className="text-white font-medium leading-relaxed">
                 So take a breath.<br />
                 Hit play.<br />
                 And shift.
@@ -149,7 +150,7 @@ const AboutSacredShifter: React.FC = () => {
                 <strong>Sacred Shifter</strong>: Where your essence meets its echo.
               </p>
               
-              <p className="mt-4 text-right text-sm text-gray-600">Kent Burchard - Sacred Shifter Founder</p>
+              <p className="mt-4 text-right text-sm text-white">Kent Burchard - Sacred Shifter Founder</p>
             </>
           )}
         </motion.div>
@@ -160,19 +161,19 @@ const AboutSacredShifter: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mt-10 p-8 bg-opacity-10 backdrop-blur-sm bg-purple-200 rounded-lg border border-purple-100 shadow-md"
+          className="mt-10 p-8 bg-opacity-10 backdrop-blur-sm bg-purple-900/30 rounded-lg border border-purple-500/30 shadow-md"
         >
-          <p className="italic text-center text-gray-700 text-xl md:text-2xl font-light">"{quotes[currentQuoteIndex].text}"</p>
+          <p className="italic text-center text-white text-xl md:text-2xl font-light">"{quotes[currentQuoteIndex].text}"</p>
           {quotes[currentQuoteIndex].author && (
-            <p className="text-center text-sm text-gray-500 mt-4">— {quotes[currentQuoteIndex].author}</p>
+            <p className="text-center text-sm text-purple-200 mt-4">— {quotes[currentQuoteIndex].author}</p>
           )}
         </motion.div>
       </div>
       
       {/* Background decorative elements */}
       <div className="absolute -z-10 inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-300/5 rounded-full filter blur-3xl"></div>
-        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-blue-300/5 rounded-full filter blur-3xl"></div>
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-500/5 rounded-full filter blur-3xl"></div>
+        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-blue-500/5 rounded-full filter blur-3xl"></div>
       </div>
     </section>
   );

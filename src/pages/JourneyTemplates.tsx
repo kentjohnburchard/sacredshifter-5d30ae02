@@ -22,8 +22,8 @@ const JourneyTemplates = () => {
       <div className="max-w-5xl mx-auto py-4 pb-8">
         <div className="mb-4 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-2">Sound Journeys & Sacred Meditation</h1>
-            <p className="text-base text-gray-700 dark:text-gray-300">
+            <h1 className="text-3xl font-bold tracking-tight mb-2 text-white">Sound Journeys & Sacred Meditation</h1>
+            <p className="text-base text-white">
               Explore our curated journeys and meditations designed to address specific healing needs. 
               Each experience combines frequencies, soundscapes, and guidance to support your path to wellness.
             </p>
@@ -31,7 +31,7 @@ const JourneyTemplates = () => {
           
           {isAdmin && (
             <Link to="/admin/journey-audio-admin">
-              <Button variant="outline" size="sm" className="flex items-center gap-2">
+              <Button variant="outline" size="sm" className="flex items-center gap-2 text-white border-white/40 hover:bg-white/10">
                 <Settings className="h-4 w-4" />
                 Manage Journey Audio
               </Button>
