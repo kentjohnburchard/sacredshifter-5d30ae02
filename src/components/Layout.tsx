@@ -32,7 +32,10 @@ const Layout: React.FC<LayoutProps> = ({
   const isJourneyPage = location.pathname.includes('/journey/');
   const useCosmicTheme = !useBlueWaveBackground;
 
-  document.title = `${pageTitle} | Sacred Shifter`;
+  // Update document title
+  useEffect(() => {
+    document.title = `${pageTitle} | Sacred Shifter`;
+  }, [pageTitle]);
 
   // Define theme-based border color with HIGH contrast
   const borderColorClass = liftTheVeil 

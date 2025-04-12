@@ -1,112 +1,132 @@
 
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTheme } from '@/context/ThemeContext';
 
 const quotes = [
-  { id: 1, text: "You are not lost. You are remembering." },
-  { id: 2, text: "Your soul didn't come here to play small." },
-  { id: 3, text: "The discomfort you feel? That's your wings growing." },
-  { id: 4, text: "When you feel most alone, you're most connected to truth." },
-  { id: 5, text: "The universe speaks in synchronicities. Listen closely." },
-  { id: 6, text: "Your frequency is your signature in the cosmos." },
+  {
+    text: "The day you decide that you are more interested in being aware of your thoughts than you are in the thoughts themselves—that is the day you will find your way out.",
+    author: "Michael Singer"
+  },
+  {
+    text: "You are not the voice of the mind, you are the one who hears it.",
+    author: "Eckhart Tolle"
+  },
+  {
+    text: "The mind is a wonderful servant but a terrible master.",
+    author: "Robin Sharma"
+  },
+  {
+    text: "Between stimulus and response there is a space. In that space is our power to choose our response.",
+    author: "Viktor Frankl"
+  },
+  {
+    text: "The world as we have created it is a process of our thinking. It cannot be changed without changing our thinking.",
+    author: "Albert Einstein"
+  }
 ];
 
 const QuoteSlider: React.FC = () => {
-  const [currentQuote, setCurrentQuote] = useState(0);
-  const [direction, setDirection] = useState(0);
+  const { liftTheVeil } = useTheme();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState<'left' | 'right'>('right');
   
-  // Auto-advance quotes
+  const goToPrevious = () => {
+    setDirection('left');
+    setCurrentIndex(prevIndex => (prevIndex === 0 ? quotes.length - 1 : prevIndex - 1));
+  };
+  
+  const goToNext = () => {
+    setDirection('right');
+    setCurrentIndex(prevIndex => (prevIndex === quotes.length - 1 ? 0 : prevIndex + 1));
+  };
+  
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDirection(1);
-      setCurrentQuote((prev) => (prev + 1) % quotes.length);
-    }, 5000);
-    
+    const timer = setTimeout(goToNext, 12000);
     return () => clearTimeout(timer);
-  }, [currentQuote]);
-
-  const nextQuote = () => {
-    setDirection(1);
-    setCurrentQuote((prev) => (prev + 1) % quotes.length);
-  };
-
-  const prevQuote = () => {
-    setDirection(-1);
-    setCurrentQuote((prev) => (prev - 1 + quotes.length) % quotes.length);
-  };
-
+  }, [currentIndex]);
+  
   const variants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? 100 : -100,
-      opacity: 0,
+    enter: (direction: 'left' | 'right') => ({
+      x: direction === 'right' ? 200 : -200,
+      opacity: 0
     }),
     center: {
       x: 0,
-      opacity: 1,
+      opacity: 1
     },
-    exit: (direction: number) => ({
-      x: direction < 0 ? 100 : -100,
-      opacity: 0,
-    }),
+    exit: (direction: 'left' | 'right') => ({
+      x: direction === 'right' ? -200 : 200,
+      opacity: 0
+    })
   };
-
+  
   return (
-    <div className="relative bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg p-8 border border-purple-100">
-      <div className="h-[100px] flex items-center justify-center relative overflow-hidden">
-        <AnimatePresence custom={direction} mode="wait">
+    <div className="relative">
+      <div className="flex justify-between mb-4">
+        <button
+          onClick={goToPrevious}
+          className={`p-2 rounded-full ${
+            liftTheVeil 
+              ? 'bg-pink-900/30 hover:bg-pink-900/50 text-pink-300' 
+              : 'bg-purple-900/30 hover:bg-purple-900/50 text-purple-300'
+          }`}
+          aria-label="Previous quote"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+        <button
+          onClick={goToNext}
+          className={`p-2 rounded-full ${
+            liftTheVeil 
+              ? 'bg-pink-900/30 hover:bg-pink-900/50 text-pink-300' 
+              : 'bg-purple-900/30 hover:bg-purple-900/50 text-purple-300'
+          }`}
+          aria-label="Next quote"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      </div>
+      
+      <div className={`relative overflow-hidden p-6 rounded-lg ${
+        liftTheVeil 
+          ? 'bg-pink-900/20 border border-pink-500/30' 
+          : 'bg-purple-900/20 border border-purple-500/30'
+      }`}>
+        <AnimatePresence mode="wait" custom={direction}>
           <motion.div
-            key={currentQuote}
+            key={currentIndex}
             custom={direction}
             variants={variants}
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{ duration: 0.5 }}
-            className="absolute text-center max-w-md"
+            transition={{ type: "tween", duration: 0.5 }}
+            className="min-h-[120px] flex flex-col justify-center"
           >
-            <p className="text-lg md:text-xl font-playfair text-purple-800 italic">
-              "{quotes[currentQuote].text}"
-            </p>
+            <p className="text-white italic mb-2">"{quotes[currentIndex].text}"</p>
+            <p className="text-right text-sm text-gray-300">— {quotes[currentIndex].author}</p>
           </motion.div>
         </AnimatePresence>
-      </div>
-
-      <div className="mt-6 flex justify-center gap-4">
-        <Button 
-          variant="outline" 
-          size="icon" 
-          onClick={prevQuote}
-          className="rounded-full h-8 w-8"
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
         
-        <div className="flex gap-1">
+        <div className="mt-4 flex justify-center space-x-2">
           {quotes.map((_, index) => (
             <button
               key={index}
-              className={`h-2 w-2 rounded-full ${
-                index === currentQuote ? "bg-purple-600" : "bg-purple-200"
-              }`}
               onClick={() => {
-                setDirection(index > currentQuote ? 1 : -1);
-                setCurrentQuote(index);
+                setDirection(index > currentIndex ? 'right' : 'left');
+                setCurrentIndex(index);
               }}
+              className={`w-2 h-2 rounded-full transition-colors ${
+                index === currentIndex
+                  ? (liftTheVeil ? 'bg-pink-500' : 'bg-purple-500')
+                  : 'bg-gray-600 hover:bg-gray-500'
+              }`}
               aria-label={`Go to quote ${index + 1}`}
             />
           ))}
         </div>
-        
-        <Button 
-          variant="outline" 
-          size="icon" 
-          onClick={nextQuote}
-          className="rounded-full h-8 w-8"
-        >
-          <ChevronRight className="h-4 w-4" />
-        </Button>
       </div>
     </div>
   );

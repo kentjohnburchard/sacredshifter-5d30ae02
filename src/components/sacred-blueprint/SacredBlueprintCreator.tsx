@@ -1,150 +1,193 @@
 
-import React, { useState, useEffect } from 'react';
-import { SacredBlueprint } from '@/types/blueprint';
-import { useAuth } from '@/context/AuthContext';
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { toast } from 'sonner';
-import { generateBlueprint, saveBlueprint, getUserQuizResponses, getUserAstroData, fetchUserBlueprint } from '@/utils/blueprintUtils';
-import BlueprintQuiz from './BlueprintQuiz';
-import BlueprintDisplay from './BlueprintDisplay';
-import { Sparkles, Loader2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Sparkles, ChevronRight, Check } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useTheme } from '@/context/ThemeContext';
 
-export const SacredBlueprintCreator: React.FC = () => {
-  const { user } = useAuth();
-  const [stage, setStage] = useState<'intro' | 'quiz' | 'generating' | 'display'>('intro');
-  const [blueprint, setBlueprint] = useState<SacredBlueprint | null>(null);
-  const [loading, setLoading] = useState(true);
+interface Question {
+  id: string;
+  question: string;
+  options: string[];
+}
 
-  // Check if the user already has a blueprint
-  useEffect(() => {
-    const checkExistingBlueprint = async () => {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const { data: existingBlueprint } = await fetchUserBlueprint(user.id);
-        
-        if (existingBlueprint) {
-          setBlueprint(existingBlueprint);
-          setStage('display');
-        }
-      } catch (error) {
-        console.error("Error checking for existing blueprint:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkExistingBlueprint();
-  }, [user]);
-
-  const handleQuizComplete = async () => {
-    if (!user) {
-      toast.error("You must be logged in to generate a blueprint");
-      return;
-    }
-
-    setStage('generating');
-
-    try {
-      // Get all user quiz responses
-      const { data: responses } = await getUserQuizResponses(user.id);
-      
-      // Get user astrology data if available
-      const { data: astroData } = await getUserAstroData(user.id);
-      
-      // Generate blueprint from responses
-      const generatedBlueprint = await generateBlueprint(user.id, responses, astroData);
-      
-      // Save blueprint to database
-      const { error } = await saveBlueprint(generatedBlueprint);
-      
-      if (error) {
-        throw new Error("Failed to save blueprint");
-      }
-      
-      // Update local state with new blueprint
-      setBlueprint(generatedBlueprint);
-      setStage('display');
-      
-      toast.success("Your Sacred Blueprint has been created!");
-    } catch (error) {
-      console.error("Error generating blueprint:", error);
-      toast.error("There was an error generating your blueprint. Please try again.");
-      setStage('quiz');
-    }
-  };
-
-  const startQuiz = () => {
-    setStage('quiz');
-  };
-
-  const createNewBlueprint = () => {
-    setBlueprint(null);
-    setStage('quiz');
-  };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
-      </div>
-    );
+const questions: Question[] = [
+  {
+    id: "energy-type",
+    question: "Which energy type do you most resonate with?",
+    options: ["Flowing Water", "Steady Earth", "Dynamic Fire", "Expansive Air", "Ethereal Void"]
+  },
+  {
+    id: "emotional-pattern",
+    question: "What emotional pattern do you experience most frequently?",
+    options: ["Peaceful Calm", "Vibrant Joy", "Deep Contemplation", "Creative Inspiration", "Compassionate Love"]
+  },
+  {
+    id: "spiritual-gift",
+    question: "Which spiritual gift feels most natural to you?",
+    options: ["Empathic Connection", "Visionary Insight", "Healing Presence", "Manifestation", "Transcendent Awareness"]
+  },
+  {
+    id: "life-purpose",
+    question: "Which life purpose statement resonates most deeply?",
+    options: [
+      "To create harmony and beauty in the world",
+      "To understand and share universal wisdom",
+      "To heal and transform suffering",
+      "To innovate and bring new possibilities",
+      "To witness and honor the sacredness of existence"
+    ]
   }
+];
 
+const SacredBlueprintCreator: React.FC = () => {
+  const { liftTheVeil } = useTheme();
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [showResults, setShowResults] = useState(false);
+  
+  const handleOptionSelect = (option: string) => {
+    setAnswers({
+      ...answers,
+      [questions[currentQuestionIndex].id]: option
+    });
+    
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    } else {
+      setShowResults(true);
+    }
+  };
+  
+  const resetQuiz = () => {
+    setCurrentQuestionIndex(0);
+    setAnswers({});
+    setShowResults(false);
+  };
+  
+  const currentQuestion = questions[currentQuestionIndex];
+  
   return (
-    <div className="max-w-4xl mx-auto">
-      {stage === 'intro' && (
-        <Card className="p-8 text-center bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-100">
-          <h2 className="text-2xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
-            Discover Your Sacred Blueprint
-          </h2>
-          <p className="mb-6 text-gray-700">
-            Your Sacred Blueprint is a personalized frequency chart and spiritual identity map 
-            based on your energy, emotions, and resonance tendencies. It reveals your unique 
-            vibrational signature and provides insights into your energetic nature.
-          </p>
-          <div className="flex justify-center">
+    <div className="space-y-6">
+      {!showResults ? (
+        <Card className="bg-black/30 backdrop-blur-sm border-white/10">
+          <CardHeader>
+            <CardTitle className="text-xl text-white flex items-center gap-2">
+              <Sparkles className={`h-5 w-5 ${liftTheVeil ? 'text-pink-500' : 'text-purple-500'}`} />
+              Question {currentQuestionIndex + 1} of {questions.length}
+            </CardTitle>
+            <CardDescription className="text-gray-300">
+              Select the option that resonates most with your inner truth
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-lg text-white mb-6">{currentQuestion.question}</p>
+            <div className="space-y-3">
+              {currentQuestion.options.map((option, index) => (
+                <motion.button
+                  key={index}
+                  whileHover={{ scale: 1.02 }}
+                  onClick={() => handleOptionSelect(option)}
+                  className={`w-full text-left p-4 rounded-lg border transition-all ${
+                    liftTheVeil 
+                      ? 'border-pink-500/30 hover:border-pink-500 hover:bg-pink-900/20' 
+                      : 'border-purple-500/30 hover:border-purple-500 hover:bg-purple-900/20'
+                  }`}
+                >
+                  {option}
+                </motion.button>
+              ))}
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-between">
             <Button 
-              onClick={startQuiz} 
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+              variant="ghost" 
+              onClick={resetQuiz} 
+              disabled={currentQuestionIndex === 0}
+              className="text-gray-400"
             >
-              <Sparkles className="mr-2 h-4 w-4" />
-              Begin Sacred Blueprint Journey
+              Reset
             </Button>
-          </div>
+            
+            <div className="flex items-center space-x-1">
+              {questions.map((_, index) => (
+                <div 
+                  key={index}
+                  className={`w-2 h-2 rounded-full ${
+                    index === currentQuestionIndex 
+                      ? (liftTheVeil ? 'bg-pink-500' : 'bg-purple-500')
+                      : index < currentQuestionIndex
+                      ? 'bg-gray-300'
+                      : 'bg-gray-600'
+                  }`}
+                />
+              ))}
+            </div>
+          </CardFooter>
         </Card>
-      )}
-
-      {stage === 'quiz' && (
-        <BlueprintQuiz onComplete={handleQuizComplete} />
-      )}
-
-      {stage === 'generating' && (
-        <div className="text-center py-12">
-          <Loader2 className="h-12 w-12 mx-auto mb-4 animate-spin text-indigo-600" />
-          <h3 className="text-xl font-medium mb-2">Generating Your Sacred Blueprint</h3>
-          <p className="text-gray-600">We are connecting with your unique frequency...</p>
-        </div>
-      )}
-
-      {stage === 'display' && blueprint && (
-        <div className="space-y-6">
-          <BlueprintDisplay blueprint={blueprint} />
-          
-          <div className="flex justify-center">
-            <Button 
-              onClick={createNewBlueprint} 
-              variant="outline"
-              className="text-indigo-600 border-indigo-300 hover:bg-indigo-50"
-            >
-              Create a New Blueprint (Version {(blueprint.version || 1) + 1})
-            </Button>
-          </div>
-        </div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="space-y-6"
+        >
+          <Card className={`border ${
+            liftTheVeil ? 'border-pink-500/30 bg-pink-950/20' : 'border-purple-500/30 bg-purple-950/20'
+          } backdrop-blur-sm`}>
+            <CardHeader>
+              <CardTitle className="text-xl text-white flex items-center gap-2">
+                <Sparkles className={`h-5 w-5 ${liftTheVeil ? 'text-pink-500' : 'text-purple-500'}`} />
+                Your Sacred Blueprint
+              </CardTitle>
+              <CardDescription className="text-gray-300">
+                The cosmic encoding of your soul's purpose
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="p-3 bg-black/40 rounded-lg">
+                <div className="text-gray-400 text-sm mb-1">Primary Energy:</div>
+                <div className="text-white">{answers["energy-type"]}</div>
+              </div>
+              
+              <div className="p-3 bg-black/40 rounded-lg">
+                <div className="text-gray-400 text-sm mb-1">Emotional Pattern:</div>
+                <div className="text-white">{answers["emotional-pattern"]}</div>
+              </div>
+              
+              <div className="p-3 bg-black/40 rounded-lg">
+                <div className="text-gray-400 text-sm mb-1">Core Spiritual Gift:</div>
+                <div className="text-white">{answers["spiritual-gift"]}</div>
+              </div>
+              
+              <div className="p-3 bg-black/40 rounded-lg">
+                <div className="text-gray-400 text-sm mb-1">Soul Purpose:</div>
+                <div className="text-white">{answers["life-purpose"]}</div>
+              </div>
+              
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className={`p-4 rounded-lg text-sm italic ${
+                  liftTheVeil ? 'bg-pink-900/20 text-pink-200' : 'bg-purple-900/20 text-purple-200'
+                }`}
+              >
+                This unique combination forms your Sacred Blueprint, revealing the divine design of your
+                soul's journey. You resonate with a specific vibrational signature that contributes
+                to the universal harmony.
+              </motion.div>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <Button variant="ghost" onClick={resetQuiz} className="text-gray-400">
+                Start Over
+              </Button>
+              <Button className={liftTheVeil ? 'bg-pink-700 hover:bg-pink-800' : 'bg-purple-700 hover:bg-purple-800'}>
+                Save Blueprint
+              </Button>
+            </CardFooter>
+          </Card>
+        </motion.div>
       )}
     </div>
   );

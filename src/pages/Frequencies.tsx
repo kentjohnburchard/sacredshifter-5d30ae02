@@ -1,71 +1,177 @@
 
-import React from 'react';
-import Layout from '@/components/Layout';
-import { Button } from '@/components/ui/button';
-import { Music } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import Layout from "@/components/Layout";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Library, BookmarkIcon, Music, Sparkles } from "lucide-react";
+import { useTheme } from '@/context/ThemeContext';
+import { motion } from 'framer-motion';
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import FrequencyLibraryViewer from "@/components/frequency-library/FrequencyLibraryViewer";
+import SacredGeometryVisualizer from "@/components/sacred-geometry/SacredGeometryVisualizer";
 
 const Frequencies: React.FC = () => {
-  const frequencyData = [
-    { frequency: 432, name: "Miracle Tone", description: "Known for creating a sense of peace and well-being", chakra: "Heart" },
-    { frequency: 528, name: "Love Frequency", description: "Associated with DNA repair and transformation", chakra: "Heart" },
-    { frequency: 639, name: "Connecting Frequency", description: "Helps with interpersonal relationships", chakra: "Heart" },
-    { frequency: 741, name: "Awakening Intuition", description: "Cleansing frequency that helps problem solving", chakra: "Third Eye" },
-    { frequency: 852, name: "Spiritual Return", description: "Awakens spiritual intuition", chakra: "Crown" },
-    { frequency: 963, name: "Divine Connection", description: "Connects to the spiritual light", chakra: "Crown" },
-    { frequency: 396, name: "Liberation Frequency", description: "Liberates you from fear and guilt", chakra: "Root" },
-    { frequency: 417, name: "Change Facilitator", description: "Facilitates change and clearing of past traumas", chakra: "Sacral" },
-  ];
-
-  const getChakraColor = (chakra: string): string => {
-    switch (chakra.toLowerCase()) {
-      case 'root': return 'bg-red-500/50 border-red-400';
-      case 'sacral': return 'bg-orange-500/50 border-orange-400';
-      case 'solar plexus': return 'bg-yellow-500/50 border-yellow-400';
-      case 'heart': return 'bg-green-500/50 border-green-400';
-      case 'throat': return 'bg-blue-500/50 border-blue-400';
-      case 'third eye': return 'bg-indigo-500/50 border-indigo-400';
-      case 'crown': return 'bg-purple-500/50 border-purple-400';
-      default: return 'bg-purple-500/50 border-purple-400';
-    }
-  };
-
+  const { liftTheVeil } = useTheme();
+  
   return (
     <Layout pageTitle="Frequency Library" theme="cosmic">
-      <div className="container mx-auto py-6">
-        <h1 className="text-3xl font-bold text-white mb-6">Frequency Library</h1>
-        <div className="bg-black/30 backdrop-blur-sm text-white p-6 rounded-lg">
-          <p className="mb-6 text-lg">
-            Explore our collection of healing frequencies and sound therapies designed to 
-            restore harmony and balance to your energy centers. Each frequency is associated
-            with specific chakras and healing intentions.
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-            {frequencyData.map((item) => (
-              <div key={item.frequency} className={`p-5 rounded-lg text-center border ${getChakraColor(item.chakra)}`}>
-                <h3 className="text-2xl font-semibold text-white">{item.frequency} Hz</h3>
-                <p className="text-lg mt-1 font-medium text-white">{item.name}</p>
-                <p className="text-sm mt-2 text-white/80">{item.description}</p>
-                <p className="text-sm mt-2 font-medium">{item.chakra} Chakra</p>
-                <Button 
-                  className="mt-4 w-full bg-white/20 hover:bg-white/30 text-white"
-                >
-                  <Music className="mr-2 h-4 w-4" /> 
-                  Play {item.frequency}Hz
-                </Button>
+      <div className="max-w-6xl mx-auto px-4 py-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+            <Music className={`${liftTheVeil ? 'text-pink-500' : 'text-purple-500'}`} />
+            Sacred Frequency Library
+          </h1>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-3">
+            <div className="bg-black/30 backdrop-blur-sm text-white p-6 rounded-lg mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <p className="mb-4">
+                    Explore our comprehensive library of sacred frequencies, each designed to align with specific 
+                    chakras, healing intentions, and consciousness states. These frequencies have been calibrated to 
+                    create profound resonance within your energetic system.
+                  </p>
+                  
+                  {liftTheVeil ? (
+                    <motion.p 
+                      initial={{ opacity: 0 }} 
+                      animate={{ opacity: 1 }} 
+                      className="p-4 bg-pink-900/30 border border-pink-500/30 rounded-lg italic text-pink-200"
+                    >
+                      With the veil lifted, these frequencies connect to the quantum field directly, 
+                      allowing for multidimensional healing and consciousness expansion beyond the 
+                      limitations of ordinary perception.
+                    </motion.p>
+                  ) : (
+                    <p className="p-4 bg-purple-900/30 border border-purple-500/30 rounded-lg">
+                      Each frequency creates a specific resonance pattern that can facilitate healing, 
+                      meditation, creativity, focus, or spiritual awakening, depending on its vibrational quality.
+                    </p>
+                  )}
+                </div>
+                
+                <div className="relative h-[200px]">
+                  <SacredGeometryVisualizer 
+                    defaultShape="flower-of-life" 
+                    size="md" 
+                    showControls={false}
+                    isVisible={true}
+                    chakra="throat"
+                    className="absolute inset-0"
+                  />
+                </div>
               </div>
-            ))}
+            </div>
+            
+            <Tabs defaultValue="library" className="w-full">
+              <TabsList className="bg-black/40 border border-white/10 mb-6">
+                <TabsTrigger value="library" className="data-[state=active]:bg-purple-800/50">
+                  <Library className="h-4 w-4 mr-2" />
+                  Browse Library
+                </TabsTrigger>
+                <TabsTrigger value="saved" className="data-[state=active]:bg-purple-800/50">
+                  <BookmarkIcon className="h-4 w-4 mr-2" />
+                  Saved Frequencies
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="library">
+                <Card className="border border-white/10 bg-black/40 backdrop-blur-sm">
+                  <CardContent className="p-4 sm:p-6">
+                    <FrequencyLibraryViewer />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="saved">
+                <Card className="border border-white/10 bg-black/40 backdrop-blur-sm">
+                  <CardContent className="p-6 text-center">
+                    <div className="py-12">
+                      <Sparkles className={`h-12 w-12 mx-auto mb-4 ${liftTheVeil ? 'text-pink-500' : 'text-purple-500'}`} />
+                      <h3 className="text-xl font-medium text-white mb-2">Your Sacred Collection</h3>
+                      <p className="text-gray-300 max-w-md mx-auto mb-6">
+                        Save your favorite frequencies here to create your personal healing library
+                        for easy access during your consciousness journeys.
+                      </p>
+                      
+                      <Button className={liftTheVeil ? 'bg-pink-700 hover:bg-pink-800' : 'bg-purple-700 hover:bg-purple-800'}>
+                        Browse Frequencies
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </div>
           
-          <div className="mt-8 text-center">
-            <p className="mb-4 text-white">Want to explore more detailed information about frequencies?</p>
-            <Link to="/frequency-library">
-              <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                <Music className="mr-2 h-4 w-4" />
-                Advanced Frequency Library
-              </Button>
-            </Link>
+          <div className="space-y-6">
+            <Card className={`border ${liftTheVeil ? 'border-pink-500/30 bg-pink-950/20' : 'border-purple-500/30 bg-purple-950/20'} backdrop-blur-sm`}>
+              <CardContent className="p-6">
+                <h2 className="text-xl font-bold text-white mb-4">Frequency Benefits</h2>
+                <ul className="space-y-3">
+                  <li className="flex items-start">
+                    <div className={`p-1 rounded-full mr-3 mt-0.5 ${liftTheVeil ? 'bg-pink-900/50' : 'bg-purple-900/50'}`}>
+                      <div className={`w-2 h-2 rounded-full ${liftTheVeil ? 'bg-pink-400' : 'bg-purple-400'}`}></div>
+                    </div>
+                    <span className="text-gray-300">Chakra alignment and balancing</span>
+                  </li>
+                  <li className="flex items-start">
+                    <div className={`p-1 rounded-full mr-3 mt-0.5 ${liftTheVeil ? 'bg-pink-900/50' : 'bg-purple-900/50'}`}>
+                      <div className={`w-2 h-2 rounded-full ${liftTheVeil ? 'bg-pink-400' : 'bg-purple-400'}`}></div>
+                    </div>
+                    <span className="text-gray-300">Cellular regeneration support</span>
+                  </li>
+                  <li className="flex items-start">
+                    <div className={`p-1 rounded-full mr-3 mt-0.5 ${liftTheVeil ? 'bg-pink-900/50' : 'bg-purple-900/50'}`}>
+                      <div className={`w-2 h-2 rounded-full ${liftTheVeil ? 'bg-pink-400' : 'bg-purple-400'}`}></div>
+                    </div>
+                    <span className="text-gray-300">Enhanced meditation states</span>
+                  </li>
+                  <li className="flex items-start">
+                    <div className={`p-1 rounded-full mr-3 mt-0.5 ${liftTheVeil ? 'bg-pink-900/50' : 'bg-purple-900/50'}`}>
+                      <div className={`w-2 h-2 rounded-full ${liftTheVeil ? 'bg-pink-400' : 'bg-purple-400'}`}></div>
+                    </div>
+                    <span className="text-gray-300">DNA activation and repair</span>
+                  </li>
+                  <li className="flex items-start">
+                    <div className={`p-1 rounded-full mr-3 mt-0.5 ${liftTheVeil ? 'bg-pink-900/50' : 'bg-purple-900/50'}`}>
+                      <div className={`w-2 h-2 rounded-full ${liftTheVeil ? 'bg-pink-400' : 'bg-purple-400'}`}></div>
+                    </div>
+                    <span className="text-gray-300">Emotional processing and release</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+            
+            <Card className="border border-white/10 bg-black/40 backdrop-blur-sm">
+              <CardContent className="p-6">
+                <h2 className="text-xl font-bold text-white mb-4">Using Frequencies</h2>
+                <div className="space-y-4 text-gray-300 text-sm">
+                  <p>
+                    For optimal results, listen with headphones in a calm environment. 
+                    Regular practice helps establish stronger resonance patterns.
+                  </p>
+                  <p>
+                    Start with 5-10 minute sessions and gradually increase to 30 minutes 
+                    as your energy system attunes to the vibrations.
+                  </p>
+                </div>
+                
+                <div className="mt-6">
+                  <Link to="/dashboard">
+                    <Button 
+                      variant="outline"
+                      className={`w-full ${liftTheVeil ? 'border-pink-500 hover:bg-pink-900/50' : 'border-purple-500 hover:bg-purple-900/50'} border transition-colors`}
+                    >
+                      Return to Dashboard
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
