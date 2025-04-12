@@ -62,6 +62,14 @@ const GlobalAudioPlayer = ({ initiallyExpanded = false }: GlobalAudioPlayerProps
     };
   }, [setAudioSource, togglePlayPause, isAudioPlaying]);
 
+  // Dispatch audio state change events when isAudioPlaying changes
+  useEffect(() => {
+    const event = new CustomEvent('audioStateChange', {
+      detail: { isPlaying: isAudioPlaying }
+    });
+    window.dispatchEvent(event);
+  }, [isAudioPlaying]);
+
   // Update volume when it changes
   useEffect(() => {
     if (audioRef.current) {

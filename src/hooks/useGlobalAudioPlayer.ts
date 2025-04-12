@@ -1,5 +1,5 @@
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 type AudioInfo = {
   title: string;
@@ -9,12 +9,31 @@ type AudioInfo = {
 };
 
 export function useGlobalAudioPlayer() {
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  // Function to play audio through the global player
   const playAudio = useCallback((audioInfo: AudioInfo) => {
     const event = new CustomEvent('playAudio', {
       detail: { audioInfo }
     });
     window.dispatchEvent(event);
+    
+    // Set isPlaying to true when audio starts
+    setIsPlaying(true);
   }, []);
 
-  return { playAudio };
+  // Listen for global audio player state changes
+  useCallback(() => {
+    const handleAudioStateChange = (event: CustomEvent) => {
+      setIsPlaying(event.detail.isPlaying);
+    };
+
+    window.addEventListener('audioStateChange' as any, handleAudioStateChange as EventListener);
+
+    return () => {
+      window.removeEventListener('audioStateChange' as any, handleAudioStateChange as EventListener);
+    };
+  }, []);
+
+  return { playAudio, isPlaying };
 }
