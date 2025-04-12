@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,6 +5,7 @@ import { CosmicContainer, SacredVisualizer, CosmicFooter, SacredGeometryVisualiz
 import StarfieldBackground from "@/components/sacred-geometry/StarfieldBackground";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { 
   Music, Heart, Wand2, Lightbulb, 
   Sparkles, Moon, CloudSun, BookOpen,
@@ -90,16 +90,13 @@ const CosmicDashboard = () => {
     }),
   };
   
-  // Easter egg functionality
   const handleVisualizerClick = () => {
     setIsPlaying(!isPlaying);
     setEasterEggClicks(prev => {
       const newCount = prev + 1;
       if (newCount === 7) {
-        // Trigger easter egg after 7 clicks
         console.log("Easter egg activated!");
-        // You could show a toast, change the visualizer, or add some special effect here
-        return 0; // Reset counter
+        return 0;
       }
       return newCount;
     });
@@ -132,7 +129,6 @@ const CosmicDashboard = () => {
           </div>
           
           <div className="w-full md:w-1/2 h-64 md:h-80 flex items-center justify-center relative z-10">
-            {/* Make sure the visualizer control buttons are fully visible */}
             <div className="w-full h-full cursor-pointer px-2" onClick={handleVisualizerClick}>
               <div className="w-full h-full flex items-center justify-center">
                 <SacredGeometryVisualizer 
@@ -329,7 +325,6 @@ const CosmicDashboard = () => {
           </Tabs>
         </motion.div>
         
-        {/* Add the missing about information section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -381,7 +376,6 @@ const CosmicDashboard = () => {
         showFrequencyBar={isPlaying} 
         currentFrequency={528}
         currentChakra="Heart"
-        className="border-0 shadow-2xl"
       />
     </Layout>
   );

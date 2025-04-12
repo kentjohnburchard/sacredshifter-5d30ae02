@@ -6,15 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Settings } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 
 const JourneyTemplates = () => {
   const { user } = useAuth();
+  const { currentTheme } = useTheme();
   const isAdmin = user && user.email === "admin@example.com"; // You can adjust the admin check based on your auth logic
   
   return (
     <Layout 
       pageTitle="Sound Journeys & Sacred Meditation" 
-      useBlueWaveBackground={true}
+      useBlueWaveBackground={false}
+      theme="cosmic"
     >
       <div className="max-w-5xl mx-auto py-4 pb-8">
         <div className="mb-4 flex justify-between items-center">
