@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -7,17 +7,35 @@ import { useJourneyTemplates } from '@/hooks/useJourneyTemplates';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import { toast } from 'sonner';
 import { useJourneySongs } from '@/hooks/useJourneySongs';
+import { SacredGeometryVisualizer } from '@/components/sacred-geometry';
+import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
 
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
   const navigate = useNavigate();
-  const { playAudio } = useGlobalAudioPlayer();
+  const { playAudio, isPlaying } = useGlobalAudioPlayer();
   const [journey, setJourney] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { templates } = useJourneyTemplates();
+  const [visualizerMode, setVisualizerMode] = useState<'fractal' | 'spiral' | 'mandala'>('fractal');
+  
+  // Create a ref for the audio element used by the global player
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  
+  // Setup audio analyzer for visualizer
+  const { audioContext, analyser } = useAudioAnalyzer(audioRef);
   
   // Get songs for this journey using the useJourneySongs hook
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
+
+  // Find the audio element in the DOM after component mounts
+  useEffect(() => {
+    // Find the audio element being used by the global player
+    const audioElement = document.querySelector('audio');
+    if (audioElement) {
+      audioRef.current = audioElement;
+    }
+  }, []);
 
   useEffect(() => {
     if (!journeyId) {
@@ -64,7 +82,7 @@ const JourneyPlayer = () => {
     }
   }, [journeyId, navigate, playAudio, templates, songs, loadingSongs]);
 
-  // Create a container style with explicit height for the visualizer
+  // Create a container style with explicit height for the visualizer that floats above all content
   const visualizerContainerStyle = {
     position: 'fixed' as const,
     top: 0,
@@ -72,7 +90,7 @@ const JourneyPlayer = () => {
     width: '100vw',
     height: '100vh',
     pointerEvents: 'none' as const,
-    zIndex: -1
+    zIndex: 50  // Higher z-index to float above content but below UI controls
   };
 
   if (isLoading || loadingSongs) {
@@ -111,11 +129,18 @@ const JourneyPlayer = () => {
 
   return (
     <Layout pageTitle={journey.title} useBlueWaveBackground={false} theme="cosmic">
-      {/* Fixed container for the visualizer with explicit dimensions */}
+      {/* Fixed container for the visualizer with explicit dimensions - floating above content */}
       <div style={visualizerContainerStyle}>
-        <div className="h-full w-full">
-          {/* This div will be the container for the SacredGeometryVisualizer */}
-        </div>
+        {isPlaying && (
+          <SacredGeometryVisualizer 
+            audioContext={audioContext}
+            analyser={analyser}
+            isVisible={true}
+            chakra={journey.chakras?.[0]}
+            mode={visualizerMode}
+            showControls={false}
+          />
+        )}
       </div>
       
       <div className="max-w-5xl mx-auto pt-4 pb-12 relative z-10">
