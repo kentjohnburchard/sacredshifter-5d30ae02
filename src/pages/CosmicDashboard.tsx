@@ -104,7 +104,6 @@ const CosmicDashboard = () => {
           duration: 5000,
         });
         setShowEasterEgg(true);
-        setTimeout(() => setShowEasterEgg(false), 10000);
         return 0;
       }
       return newCount;
@@ -123,6 +122,7 @@ const CosmicDashboard = () => {
   
   return (
     <Layout pageTitle="Sacred Shifter" showFooter={false}>
+      {/* Starfield background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <StarfieldBackground density="medium" opacity={0.6} isStatic={false} />
       </div>
@@ -143,6 +143,17 @@ const CosmicDashboard = () => {
               {shape.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
             </button>
           ))}
+        </div>
+      </div>
+      
+      {/* Main Sacred Geometry Visualizer - fixed position */}
+      <div className="fixed inset-0 z-10 pointer-events-none">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <SacredGeometryVisualizer 
+            defaultShape={selectedShape}
+            size="xl"
+            showControls={false}
+          />
         </div>
       </div>
       
@@ -168,7 +179,7 @@ const CosmicDashboard = () => {
         </div>
       )}
       
-      <div className="max-w-7xl mx-auto px-4 pb-24 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 pb-24 relative z-20">
         <div className="flex flex-col md:flex-row items-center justify-between mb-4 pt-4">
           <div className="w-full md:w-1/2 text-center md:text-left mb-4 md:mb-0 z-20">
             <motion.h1
@@ -188,15 +199,22 @@ const CosmicDashboard = () => {
             </motion.p>
           </div>
           
-          <div className="w-full md:w-1/2 h-64 md:h-80 flex items-center justify-center relative z-10">
-            <div className="w-full h-full cursor-pointer px-2" onClick={handleVisualizerClick}>
+          <div className="w-full md:w-1/2 h-64 md:h-80 flex items-center justify-center relative z-30">
+            <div 
+              className="w-full h-full cursor-pointer px-2" 
+              onClick={handleVisualizerClick}
+              title="Click 7 times for a surprise"
+            >
               <div className="w-full h-full flex items-center justify-center">
-                <SacredGeometryVisualizer 
-                  defaultShape={selectedShape}
-                  size="lg"
-                  showControls={false}
-                  className="transform scale-90"
-                />
+                {/* This visualizer is just for interactions, main visualizer is fixed position */}
+                <div className="w-full h-full opacity-40 hover:opacity-70 transition-opacity">
+                  <SacredGeometryVisualizer 
+                    defaultShape={selectedShape}
+                    size="lg"
+                    showControls={false}
+                    className="transform scale-90"
+                  />
+                </div>
               </div>
             </div>
           </div>
