@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "@/context/ThemeContext";
+import TimelineViewer from "@/components/timeline/TimelineViewer";
 import { 
   Music, Heart, Wand2, Lightbulb, 
   Sparkles, Moon, CloudSun, BookOpen,
@@ -16,6 +17,7 @@ import {
 
 const CosmicDashboard = () => {
   const navigate = useNavigate();
+  const [selectedTab, setSelectedTab] = useState("journeys");
   const [selectedShape, setSelectedShape] = useState<
     "flower-of-life" | "metatrons-cube" | "merkaba" | "torus" | "sphere"
   >("flower-of-life");
@@ -77,17 +79,8 @@ const CosmicDashboard = () => {
     }),
   };
   
-  // Navigate to pages when tabs are clicked
-  const handleTabClick = (tabValue: string) => {
-    if (tabValue === "frequencies") {
-      navigate("/frequency-library");
-    } else if (tabValue === "timeline") {
-      navigate("/journey-templates");
-    }
-  };
-  
   return (
-    <Layout pageTitle="Sacred Shifter" showFooter={false}>
+    <Layout pageTitle="Sacred Shifter">
       {/* Starfield background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <StarfieldBackground density="medium" opacity={0.6} isStatic={false} />
@@ -181,7 +174,7 @@ const CosmicDashboard = () => {
           transition={{ delay: 0.3, duration: 0.6 }}
           className="mt-4 relative z-10"
         >
-          <Tabs defaultValue="journeys" className="w-full" onValueChange={handleTabClick}>
+          <Tabs defaultValue="journeys" className="w-full" value={selectedTab} onValueChange={setSelectedTab}>
             <TabsList className="w-full flex justify-center mb-6 bg-black/30 backdrop-blur-sm">
               <TabsTrigger value="journeys" className="data-[state=active]:bg-purple-900/50">
                 <Music className="h-4 w-4 mr-2" /> Sound Journeys
@@ -298,7 +291,7 @@ const CosmicDashboard = () => {
                           <div>
                             <h4 className="text-white font-medium">{freq.name}</h4>
                             <p className="text-purple-200/70 text-sm">{freq.value}Hz - {freq.chakra} Chakra</p>
-                            <Link to={`/frequency-library?frequency=${freq.value}`} className="text-purple-300 text-xs mt-1 block">
+                            <Link to={`/frequencies?frequency=${freq.value}`} className="text-purple-300 text-xs mt-1 block">
                               Experience →
                             </Link>
                           </div>
@@ -307,7 +300,7 @@ const CosmicDashboard = () => {
                     </div>
                     <div className="mt-6 text-center">
                       <Button asChild variant="outline">
-                        <Link to="/frequency-library">
+                        <Link to="/frequencies">
                           Explore Full Frequency Library
                         </Link>
                       </Button>
@@ -342,16 +335,7 @@ const CosmicDashboard = () => {
                   Track your frequency shifts and consciousness expansion through your personal timeline.
                 </p>
                 
-                <div className="bg-black/30 rounded-lg p-8 text-center">
-                  <Sparkles className="h-12 w-12 mx-auto mb-4 text-purple-400 opacity-60" />
-                  <h3 className="text-lg font-medium text-white mb-2">Journey Timeline</h3>
-                  <p className="text-purple-200/70 max-w-md mx-auto mb-6">
-                    Start your frequency journey to build a personal timeline of your consciousness evolution.
-                  </p>
-                  <Button asChild>
-                    <Link to="/journey-templates">Begin Your Journey</Link>
-                  </Button>
-                </div>
+                <TimelineViewer />
               </CosmicContainer>
             </TabsContent>
           </Tabs>
@@ -404,7 +388,7 @@ const CosmicDashboard = () => {
         </motion.div>
       </div>
       
-      {/* Restored CosmicFooter component */}
+      {/* Cosmic Footer with frequency information */}
       <CosmicFooter 
         showFrequencyBar={isPlaying} 
         currentFrequency={528}

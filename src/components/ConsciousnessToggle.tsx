@@ -1,50 +1,36 @@
 
 import React from 'react';
-import { Sparkles } from 'lucide-react';
-import { useUserPreferences } from '@/hooks/useUserPreferences';
-import { toast } from 'sonner';
+import { motion } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
+import { Sparkles } from 'lucide-react';
 
 const ConsciousnessToggle: React.FC = () => {
-  const { preferences, saveUserPreferences, loading } = useUserPreferences();
   const { liftTheVeil, setLiftTheVeil } = useTheme();
-  
-  const toggleConsciousnessMode = async () => {
-    try {
-      if (!loading) {
-        // Toggle the mode
-        const newMode = !liftTheVeil;
-        
-        // Use the theme context function to update the mode
-        setLiftTheVeil(newMode);
-        
-        // Show success toast
-        toast.success(newMode ? "Lifted the Veil! Cosmic insights unlocked." : "Returning to standard perception", {
-          icon: <Sparkles className={newMode ? "text-pink-500" : "text-purple-400"} />,
-          position: "bottom-center"
-        });
-      }
-    } catch (error) {
-      console.error('Error toggling consciousness mode:', error);
-      toast.error('Could not update consciousness mode');
-    }
-  };
 
   return (
-    <button 
-      onClick={toggleConsciousnessMode}
-      className={`fixed bottom-6 right-6 z-40 rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-300 group ${
-        liftTheVeil 
-          ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-pink-500/30" 
-          : "bg-black/60 backdrop-blur-sm text-purple-300 border border-purple-500/30"
+    <motion.button
+      className={`fixed bottom-6 right-6 z-[1000] w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${
+        liftTheVeil
+          ? 'bg-gradient-to-r from-pink-500 to-pink-700 text-white'
+          : 'bg-black/60 backdrop-blur-md text-purple-300 border border-purple-500/30'
       }`}
-      title={liftTheVeil ? "Return to standard perception" : "Lift the Veil"}
-      aria-label="Toggle consciousness mode"
+      onClick={() => setLiftTheVeil(!liftTheVeil)}
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.9 }}
+      title={liftTheVeil ? 'Return to normal consciousness' : 'Lift the veil of perception'}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
     >
-      <Sparkles 
-        className={`h-5 w-5 ${liftTheVeil ? 'animate-pulse' : ''} group-hover:scale-110 transition-all`}
-      />
-    </button>
+      <Sparkles className={`h-5 w-5 ${liftTheVeil ? 'animate-pulse' : ''}`} />
+      {liftTheVeil && (
+        <motion.div
+          className="absolute -inset-2 bg-pink-500/20 rounded-full -z-10"
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        />
+      )}
+    </motion.button>
   );
 };
 

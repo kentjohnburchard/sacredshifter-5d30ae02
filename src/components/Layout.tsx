@@ -68,8 +68,8 @@ const Layout: React.FC<LayoutProps> = ({
       {/* Add ConsciousnessToggle (Easter Egg) to every page */}
       <ConsciousnessToggle />
       
-      {/* Add CosmicFooter to every page */}
-      {showFooter && <CosmicFooter />}
+      {/* Add CosmicFooter to every page with explicit z-index to ensure visibility */}
+      {showFooter && <CosmicFooter showFrequencyBar={false} />}
     </div>
   );
 
