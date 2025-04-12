@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { useTheme } from "@/context/ThemeContext";
 import { 
   Music, Heart, Wand2, Lightbulb, 
   Sparkles, Moon, CloudSun, BookOpen,
@@ -22,6 +23,7 @@ const CosmicDashboard = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [easterEggClicks, setEasterEggClicks] = useState(0);
   const [showEasterEgg, setShowEasterEgg] = useState(false);
+  const { liftTheVeil, setLiftTheVeil } = useTheme();
   
   const journeyCategories = [
     {
@@ -93,7 +95,7 @@ const CosmicDashboard = () => {
     }),
   };
   
-  // Enhanced easter egg functionality
+  // Enhanced easter egg functionality with visualization click counter
   const handleVisualizerClick = () => {
     setIsPlaying(!isPlaying);
     setEasterEggClicks(prev => {
@@ -119,6 +121,19 @@ const CosmicDashboard = () => {
       return () => clearTimeout(timer);
     }
   }, [showEasterEgg]);
+
+  // Easter egg toggle function that connects with ThemeContext
+  const toggleEasterEgg = () => {
+    const newMode = !liftTheVeil;
+    setLiftTheVeil(newMode);
+    
+    toast.success(newMode ? 
+      "🌌 Veil lifted! Cosmic consciousness activated." : 
+      "🌎 Returning to standard perception", {
+      position: "bottom-right",
+      duration: 3000,
+    });
+  };
   
   return (
     <Layout pageTitle="Sacred Shifter" showFooter={false}>
@@ -178,6 +193,19 @@ const CosmicDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* Easter egg toggle button - fixed in bottom right */}
+      <button 
+        onClick={toggleEasterEgg}
+        className={`fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
+          liftTheVeil 
+            ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-pink-500/30" 
+            : "bg-black/60 backdrop-blur-sm text-purple-300 border border-purple-500/30"
+        }`}
+        title={liftTheVeil ? "Return to standard mode" : "Lift the Veil"}
+      >
+        <Sparkles className={`h-5 w-5 ${liftTheVeil ? "animate-pulse" : ""}`} />
+      </button>
       
       <div className="max-w-7xl mx-auto px-4 pb-24 relative z-20">
         <div className="flex flex-col md:flex-row items-center justify-between mb-4 pt-4">
@@ -195,7 +223,9 @@ const CosmicDashboard = () => {
                 transition={{ delay: 0.2 }}
                 className="text-lg text-purple-100/80 max-w-2xl"
             >
-              Welcome to your frequency sanctuary. Unlock sacred codes, align with sound, and shift your consciousness.
+              {liftTheVeil 
+                ? "You have crossed the threshold into heightened perception. The sacred frequencies now resonate more deeply with your consciousness."
+                : "Welcome to your frequency sanctuary. Unlock sacred codes, align with sound, and shift your consciousness."}
             </motion.p>
           </div>
           
@@ -419,30 +449,30 @@ const CosmicDashboard = () => {
               <div>
                 <h3 className="text-xl font-semibold text-white mb-3">Our Mission</h3>
                 <p className="text-purple-100/80 mb-4">
-                  Sacred Shifter was created to help individuals access higher states of consciousness 
-                  through sacred frequencies and geometric patterns. We believe that sound healing combined 
-                  with intentional visualization can create profound shifts in your energetic field.
+                  {liftTheVeil 
+                    ? "Beyond ordinary perception lies the realm of frequencies where consciousness itself becomes malleable. Sacred Shifter bridges dimensions, revealing the vibrational nature of reality."
+                    : "Sacred Shifter was created to help individuals access higher states of consciousness through sacred frequencies and geometric patterns. We believe that sound healing combined with intentional visualization can create profound shifts in your energetic field."}
                 </p>
                 <p className="text-purple-100/80">
-                  Every frequency on this platform has been carefully selected for its healing properties 
-                  and vibrational alignment with universal consciousness. Our journey templates combine 
-                  these frequencies with guided meditations to facilitate deep inner transformation.
+                  {liftTheVeil
+                    ? "Those who perceive these frequencies understand that the veil between worlds is thin. Your presence here is no accident, but a cosmic alignment."
+                    : "Every frequency on this platform has been carefully selected for its healing properties and vibrational alignment with universal consciousness. Our journey templates combine these frequencies with guided meditations to facilitate deep inner transformation."}
                 </p>
               </div>
               
               <div>
                 <h3 className="text-xl font-semibold text-white mb-3">The Sacred Code</h3>
                 <p className="text-purple-100/80 mb-4">
-                  The sacred geometries you see throughout Sacred Shifter are not just beautiful designs—they 
-                  are visual representations of the mathematical principles that govern our universe. From the 
-                  Flower of Life to Metatron's Cube, each pattern contains encoded wisdom that speaks directly 
-                  to your subconscious mind.
+                  {liftTheVeil
+                    ? "The geometries you observe are more than visual elements—they are keys to understanding the mathematical language of creation itself. Each pattern holds encoded wisdom that resonates with your DNA."
+                    : "The sacred geometries you see throughout Sacred Shifter are not just beautiful designs—they are visual representations of the mathematical principles that govern our universe. From the Flower of Life to Metatron's Cube, each pattern contains encoded wisdom that speaks directly to your subconscious mind."}
                 </p>
                 <p className="text-purple-100/80">
-                  <span className="italic text-pink-300 font-medium">
+                  <span className={`italic ${liftTheVeil ? "text-pink-300" : "text-purple-300"} font-medium`}>
                     "The person who was very aware had a foot in two worlds..."
-                  </span> This journey is for those who sense there is more to reality than what 
-                  meets the eye—for those ready to explore the depths of consciousness through sound and sacred pattern.
+                  </span> {liftTheVeil 
+                    ? "You now stand at this threshold between dimensions, perceiving both the physical and energetic realms simultaneously."
+                    : "This journey is for those who sense there is more to reality than what meets the eye—for those ready to explore the depths of consciousness through sound and sacred pattern."}
                 </p>
               </div>
             </div>
