@@ -69,7 +69,7 @@ const Layout: React.FC<LayoutProps> = ({
       <ConsciousnessToggle />
       
       {/* Add CosmicFooter to every page with explicit z-index to ensure visibility */}
-      {showFooter && <CosmicFooter showFrequencyBar={false} />}
+      {showFooter && <CosmicFooter showFrequencyBar={false} className="z-[999]" />}
     </div>
   );
 

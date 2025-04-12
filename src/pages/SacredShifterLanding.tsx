@@ -9,7 +9,7 @@ import TreeOfLife from '@/components/sacred-geometry/shapes/TreeOfLife';
 import SriYantra from '@/components/sacred-geometry/shapes/SriYantra';
 import VesicaPiscis from '@/components/sacred-geometry/shapes/VesicaPiscis';
 import StarfieldBackground from '@/components/sacred-geometry/StarfieldBackground';
-import { Music, Heart, Sparkles, BookOpen, Brain, Star } from 'lucide-react';
+import { Music, Heart, Sparkles, BookOpen, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import FixedFooter from '@/components/navigation/FixedFooter';
 import Sidebar from '@/components/Sidebar';
@@ -108,25 +108,11 @@ const SacredShifterLanding = () => {
                 color: 'from-purple-800/5 to-indigo-900/5 border-purple-500/10' 
               },
               { 
-                title: 'Meditation', 
-                description: 'Guided meditations with sacred frequencies', 
-                path: '/meditation', 
-                icon: <BookOpen className="h-6 w-6" />,
-                color: 'from-blue-800/5 to-cyan-900/5 border-blue-500/10'  
-              },
-              { 
                 title: 'Heart Center', 
                 description: 'Open and balance your heart chakra', 
                 path: '/heart-center', 
                 icon: <Heart className="h-6 w-6" />,
                 color: 'from-pink-800/5 to-red-900/5 border-pink-500/10'  
-              },
-              { 
-                title: 'Manifestation', 
-                description: 'Focus your energy to manifest intentions', 
-                path: '/focus', 
-                icon: <Brain className="h-6 w-6" />,
-                color: 'from-emerald-800/5 to-green-900/5 border-emerald-500/10'  
               },
               { 
                 title: 'Astrology', 

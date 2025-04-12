@@ -78,6 +78,17 @@ const CosmicDashboard = () => {
       },
     }),
   };
+
+  const handleTabChange = (value: string) => {
+    setSelectedTab(value);
+    
+    // Navigate to appropriate pages based on tab selection
+    if (value === "frequencies") {
+      navigate("/frequencies");
+    } else if (value === "timeline") {
+      navigate("/timeline"); 
+    }
+  };
   
   return (
     <Layout pageTitle="Sacred Shifter">
@@ -89,7 +100,7 @@ const CosmicDashboard = () => {
       {/* Fixed position visualizer controls at the top right */}
       <div className="fixed top-20 right-8 z-50 bg-black/80 backdrop-blur-md rounded-lg p-2 shadow-xl border border-purple-500/30">
         <div className="flex flex-wrap gap-1">
-          {["flower-of-life", "metatrons-cube", "merkaba", "torus", "sphere"].map((shape) => (
+          {["flower-of-life", "metatrons-cube", "merkaba", "torus"].map((shape) => (
             <button
               key={shape}
               onClick={() => setSelectedShape(shape as any)}
@@ -116,18 +127,7 @@ const CosmicDashboard = () => {
         </div>
       </div>
 
-      {/* Easter egg toggle button - fixed in bottom right */}
-      <button 
-        onClick={() => setLiftTheVeil(!liftTheVeil)}
-        className={`fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
-          liftTheVeil 
-            ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-pink-500/30" 
-            : "bg-black/60 backdrop-blur-sm text-purple-300 border border-purple-500/30"
-        }`}
-        title={liftTheVeil ? "Return to standard mode" : "Lift the Veil"}
-      >
-        <Sparkles className={`h-5 w-5 ${liftTheVeil ? "animate-pulse" : ""}`} />
-      </button>
+      {/* Easter egg toggle button - fixed in bottom right - redundant, removed to avoid duplicates */}
       
       <div className="max-w-7xl mx-auto px-4 pb-24 relative z-20">
         <div className="flex flex-col md:flex-row items-center justify-between mb-4 pt-4">
@@ -174,7 +174,7 @@ const CosmicDashboard = () => {
           transition={{ delay: 0.3, duration: 0.6 }}
           className="mt-4 relative z-10"
         >
-          <Tabs defaultValue="journeys" className="w-full" value={selectedTab} onValueChange={setSelectedTab}>
+          <Tabs defaultValue="journeys" className="w-full" value={selectedTab} onValueChange={handleTabChange}>
             <TabsList className="w-full flex justify-center mb-6 bg-black/30 backdrop-blur-sm">
               <TabsTrigger value="journeys" className="data-[state=active]:bg-purple-900/50">
                 <Music className="h-4 w-4 mr-2" /> Sound Journeys
@@ -267,76 +267,13 @@ const CosmicDashboard = () => {
             </TabsContent>
             
             <TabsContent value="frequencies">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-2">
-                  <CosmicContainer className="p-6">
-                    <h3 className="text-xl font-semibold text-white mb-4">Featured Frequencies</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {featuredFrequencies.map((freq, i) => (
-                        <motion.div
-                          key={freq.value}
-                          custom={i}
-                          variants={containerVariants}
-                          initial="hidden"
-                          animate="visible"
-                          className="bg-black/30 rounded-lg p-4 border border-purple-500/20 flex items-center"
-                        >
-                          <div className="mr-4 relative w-16 h-16">
-                            <SacredGeometryVisualizer 
-                              defaultShape="metatrons-cube"
-                              size="sm"
-                              showControls={false}
-                            />
-                          </div>
-                          <div>
-                            <h4 className="text-white font-medium">{freq.name}</h4>
-                            <p className="text-purple-200/70 text-sm">{freq.value}Hz - {freq.chakra} Chakra</p>
-                            <Link to={`/frequencies?frequency=${freq.value}`} className="text-purple-300 text-xs mt-1 block">
-                              Experience →
-                            </Link>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                    <div className="mt-6 text-center">
-                      <Button asChild variant="outline">
-                        <Link to="/frequencies">
-                          Explore Full Frequency Library
-                        </Link>
-                      </Button>
-                    </div>
-                  </CosmicContainer>
-                </div>
-                
-                <CosmicContainer className="p-6">
-                  <h3 className="text-xl font-semibold text-white mb-4">Recently Played</h3>
-                  <div className="space-y-4">
-                    <div className="bg-black/20 rounded p-3 border border-purple-500/10">
-                      <p className="text-sm font-medium text-white">432Hz Miracle Tone</p>
-                      <p className="text-xs text-purple-200/70">Heart Chakra • 15 min</p>
-                    </div>
-                    <div className="bg-black/20 rounded p-3 border border-purple-500/10">
-                      <p className="text-sm font-medium text-white">963Hz Divine Connection</p>
-                      <p className="text-xs text-purple-200/70">Crown Chakra • 20 min</p>
-                    </div>
-                    <div className="bg-black/20 rounded p-3 border border-purple-500/10">
-                      <p className="text-sm font-medium text-white">528Hz DNA Repair</p>
-                      <p className="text-xs text-purple-200/70">Heart Chakra • 30 min</p>
-                    </div>
-                  </div>
-                </CosmicContainer>
-              </div>
+              {/* This content will not be displayed as we'll navigate to the Frequencies page */}
+              <div>Redirecting to frequencies page...</div>
             </TabsContent>
             
             <TabsContent value="timeline">
-              <CosmicContainer className="p-6">
-                <h2 className="text-2xl font-bold text-white mb-4">Your Sacred Journey</h2>
-                <p className="text-purple-100/80 mb-6">
-                  Track your frequency shifts and consciousness expansion through your personal timeline.
-                </p>
-                
-                <TimelineViewer />
-              </CosmicContainer>
+              {/* This content will not be displayed as we'll navigate to the Timeline page */}
+              <div>Redirecting to timeline page...</div>
             </TabsContent>
           </Tabs>
         </motion.div>
@@ -387,13 +324,6 @@ const CosmicDashboard = () => {
           </CosmicContainer>
         </motion.div>
       </div>
-      
-      {/* Cosmic Footer with frequency information */}
-      <CosmicFooter 
-        showFrequencyBar={isPlaying} 
-        currentFrequency={528}
-        currentChakra="Heart"
-      />
     </Layout>
   );
 };

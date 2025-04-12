@@ -8,12 +8,14 @@ interface CosmicFooterProps {
   showFrequencyBar?: boolean;
   currentFrequency?: number;
   currentChakra?: string;
+  className?: string;
 }
 
 const CosmicFooter: React.FC<CosmicFooterProps> = ({
   showFrequencyBar = false,
   currentFrequency,
   currentChakra,
+  className = "",
 }) => {
   const getChakraColor = (chakra?: string): string => {
     switch (chakra?.toLowerCase()) {
@@ -30,7 +32,7 @@ const CosmicFooter: React.FC<CosmicFooterProps> = ({
   
   const footerLinks = [
     { name: "Sound Journeys", icon: <Music className="h-4 w-4" />, path: "/journey-templates" },
-    { name: "Hermetic Wisdom", icon: <Lightbulb className="h-4 w-4" />, path: "/hermetic-principles" },
+    { name: "Hermetic Wisdom", icon: <Lightbulb className="h-4 w-4" />, path: "/hermetic-wisdom" },
     { name: "Heart Center", icon: <Heart className="h-4 w-4" />, path: "/heart-center" },
     { name: "Sacred Blueprint", icon: <Sparkles className="h-4 w-4" />, path: "/sacred-blueprint" },
     { name: "Astrology", icon: <Star className="h-4 w-4" />, path: "/astrology" },
@@ -40,7 +42,7 @@ const CosmicFooter: React.FC<CosmicFooterProps> = ({
     <motion.footer
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="fixed bottom-0 w-full bg-black/70 backdrop-blur-lg border-t border-purple-900/50 text-white py-2 px-4 z-[999]"
+      className={`fixed bottom-0 w-full bg-black/70 backdrop-blur-lg border-t border-purple-900/50 text-white py-2 px-4 ${className}`}
     >
       {showFrequencyBar && currentFrequency && (
         <motion.div

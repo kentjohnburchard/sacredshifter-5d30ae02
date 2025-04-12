@@ -34,6 +34,7 @@ const iconMap: Record<string, React.FC<any>> = {
   '/dashboard': LayoutDashboard,
   '/sacred-blueprint': LayoutTemplate,
   '/frequency-library': Music,
+  '/frequencies': Music,
   '/heart-center': Heart,
   '/emotion-engine': HeartPulse,
   '/timeline': Activity,

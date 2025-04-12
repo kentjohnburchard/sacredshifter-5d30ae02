@@ -14,12 +14,14 @@ import Welcome from '@/pages/Welcome';
 import SacredShifterLanding from '@/pages/SacredShifterLanding';
 import CosmicDashboard from '@/pages/CosmicDashboard';
 import SiteMap from '@/pages/SiteMap';
-import Index from '@/pages/Index'; // Ensure this import is correct
+import Index from '@/pages/Index';
 import Frequencies from '@/pages/Frequencies';
 import SacredBlueprint from '@/pages/SacredBlueprint';
 import HeartCenter from '@/pages/HeartCenter';
 import ShiftPerception from '@/pages/ShiftPerception';
 import Astrology from '@/pages/Astrology';
+import Focus from '@/pages/Focus';
+import Timeline from '@/pages/Timeline';
 
 function App() {
   return (
@@ -45,6 +47,8 @@ function App() {
         <Route path="/heart-center" element={<HeartCenter />} />
         <Route path="/shift-perception" element={<ShiftPerception />} />
         <Route path="/astrology" element={<Astrology />} />
+        <Route path="/focus" element={<Focus />} />
+        <Route path="/timeline" element={<Timeline />} />
       </Routes>
     </React.StrictMode>
   );
