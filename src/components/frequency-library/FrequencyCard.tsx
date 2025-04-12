@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,9 @@ const FrequencyCard: React.FC<FrequencyCardProps> = ({ frequency, savedId, notes
   const [saveNotes, setSaveNotes] = useState(notes || "");
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
 
-  const getChakraColor = (chakra: string) => {
+  const getChakraColor = (chakra: string | null | undefined) => {
+    if (!chakra) return 'from-gray-400 to-gray-500'; // Handle null or undefined chakra
+
     switch (chakra.toLowerCase()) {
       case 'root': return 'from-red-500 to-red-600';
       case 'sacral': return 'from-orange-400 to-orange-500';
@@ -113,7 +116,7 @@ const FrequencyCard: React.FC<FrequencyCardProps> = ({ frequency, savedId, notes
             </div>
           </div>
           <Badge variant="outline" className="bg-gradient-to-r from-purple-50 to-indigo-50 text-indigo-700 border-indigo-200">
-            {frequency.chakra} Chakra
+            {frequency.chakra || "Unknown"} Chakra
           </Badge>
         </div>
         
@@ -188,7 +191,7 @@ const FrequencyCard: React.FC<FrequencyCardProps> = ({ frequency, savedId, notes
                     <Badge 
                       className={`bg-gradient-to-r ${getChakraColor(frequency.chakra)} text-white border-none`}
                     >
-                      {frequency.chakra} Chakra
+                      {frequency.chakra || "Unknown"} Chakra
                     </Badge>
                     <span className="text-sm font-medium">{frequency.frequency} Hz</span>
                   </div>
