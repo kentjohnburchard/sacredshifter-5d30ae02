@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CosmicContainer, SacredVisualizer, CosmicFooter, SacredGeometryVisualizer } from "@/components/sacred-geometry";
@@ -6,6 +7,7 @@ import StarfieldBackground from "@/components/sacred-geometry/StarfieldBackgroun
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import { 
   Music, Heart, Wand2, Lightbulb, 
   Sparkles, Moon, CloudSun, BookOpen,
@@ -19,6 +21,7 @@ const CosmicDashboard = () => {
   
   const [isPlaying, setIsPlaying] = useState(false);
   const [easterEggClicks, setEasterEggClicks] = useState(0);
+  const [showEasterEgg, setShowEasterEgg] = useState(false);
   
   const journeyCategories = [
     {
@@ -90,23 +93,80 @@ const CosmicDashboard = () => {
     }),
   };
   
+  // Enhanced easter egg functionality
   const handleVisualizerClick = () => {
     setIsPlaying(!isPlaying);
     setEasterEggClicks(prev => {
       const newCount = prev + 1;
       if (newCount === 7) {
         console.log("Easter egg activated!");
+        toast.success("🎉 You found the secret frequency! Enlightenment awaits.", {
+          duration: 5000,
+        });
+        setShowEasterEgg(true);
+        setTimeout(() => setShowEasterEgg(false), 10000);
         return 0;
       }
       return newCount;
     });
   };
+
+  // Reset easter egg after timeout
+  useEffect(() => {
+    if (showEasterEgg) {
+      const timer = setTimeout(() => {
+        setShowEasterEgg(false);
+      }, 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [showEasterEgg]);
   
   return (
     <Layout pageTitle="Sacred Shifter" showFooter={false}>
       <div className="fixed inset-0 z-0 pointer-events-none">
         <StarfieldBackground density="medium" opacity={0.6} isStatic={false} />
       </div>
+      
+      {/* Fixed position visualizer controls at the top right */}
+      <div className="fixed top-20 right-8 z-50 bg-black/80 backdrop-blur-md rounded-lg p-2 shadow-xl border border-purple-500/30">
+        <div className="flex flex-wrap gap-1">
+          {["flower-of-life", "metatrons-cube", "merkaba", "torus", "sphere"].map((shape) => (
+            <button
+              key={shape}
+              onClick={() => setSelectedShape(shape as any)}
+              className={`text-xs py-1 px-2 rounded-md transition-colors ${
+                selectedShape === shape 
+                  ? "bg-purple-600 text-white" 
+                  : "bg-purple-900/40 text-purple-100 hover:bg-purple-800/60"
+              }`}
+            >
+              {shape.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      {/* Easter egg animation overlay */}
+      {showEasterEgg && (
+        <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden">
+          <div className="absolute inset-0 bg-purple-900/20 backdrop-blur-sm"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <motion.div 
+              initial={{ scale: 0, rotate: 0 }}
+              animate={{ 
+                scale: [0, 1.2, 1],
+                rotate: [0, 180, 360],
+              }}
+              transition={{ duration: 3 }}
+              className="w-64 h-64 rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 opacity-70"
+            >
+              <div className="absolute inset-0 flex items-center justify-center text-white text-2xl font-bold">
+                528Hz Activated
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      )}
       
       <div className="max-w-7xl mx-auto px-4 pb-24 relative z-10">
         <div className="flex flex-col md:flex-row items-center justify-between mb-4 pt-4">
@@ -134,7 +194,7 @@ const CosmicDashboard = () => {
                 <SacredGeometryVisualizer 
                   defaultShape={selectedShape}
                   size="lg"
-                  showControls={true}
+                  showControls={false}
                   className="transform scale-90"
                 />
               </div>
