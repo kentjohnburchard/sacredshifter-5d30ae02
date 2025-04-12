@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useJourneyTemplates } from '@/hooks/useJourneyTemplates';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import { toast } from 'sonner';
+import { useJourneySongs } from '@/hooks/useJourneySongs';
 
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
@@ -13,7 +14,10 @@ const JourneyPlayer = () => {
   const { playAudio } = useGlobalAudioPlayer();
   const [journey, setJourney] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { templates, audioMappings } = useJourneyTemplates();
+  const { templates } = useJourneyTemplates();
+  
+  // Get songs for this journey using the useJourneySongs hook
+  const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
 
   useEffect(() => {
     if (!journeyId) {
@@ -23,8 +27,7 @@ const JourneyPlayer = () => {
 
     console.log(`Loading journey player for journey ID: ${journeyId}`);
     console.log(`Available templates:`, templates.map(t => t.id));
-    console.log(`Available audio mappings:`, audioMappings);
-
+    
     // Find the journey from our templates data
     const foundJourney = templates.find(j => j.id === journeyId);
     
@@ -32,17 +35,21 @@ const JourneyPlayer = () => {
       console.log(`Found journey:`, foundJourney);
       setJourney(foundJourney);
       
-      // Play the journey audio if available from audio mappings
-      const journeyAudioMapping = audioMappings[journeyId];
-      if (journeyAudioMapping && journeyAudioMapping.audioUrl) {
-        console.log(`Playing audio for journey ${journeyId}: ${journeyAudioMapping.audioUrl}`);
+      // Wait for songs to load before trying to play
+      if (!loadingSongs && songs.length > 0) {
+        // Choose a random song from the available ones
+        const randomIndex = Math.floor(Math.random() * songs.length);
+        const selectedSong = songs[randomIndex];
+        
+        console.log(`Playing random song (${randomIndex + 1}/${songs.length}) for journey ${journeyId}:`, selectedSong);
+        
         playAudio({
-          title: foundJourney.title,
+          title: selectedSong.title || foundJourney.title,
           artist: "Sacred Shifter",
-          source: journeyAudioMapping.audioUrl
+          source: selectedSong.audioUrl
         });
-      } else {
-        console.error(`No audio mapping found for journey ID: ${journeyId}`);
+      } else if (!loadingSongs && songs.length === 0) {
+        console.error(`No songs found for journey ID: ${journeyId}`);
         toast.error("No audio available for this journey");
       }
     } else {
@@ -52,10 +59,23 @@ const JourneyPlayer = () => {
       setIsLoading(false);
     }
     
-    setIsLoading(false);
-  }, [journeyId, navigate, playAudio, templates, audioMappings]);
+    if (!loadingSongs) {
+      setIsLoading(false);
+    }
+  }, [journeyId, navigate, playAudio, templates, songs, loadingSongs]);
 
-  if (isLoading) {
+  // Create a container style with explicit height for the visualizer
+  const visualizerContainerStyle = {
+    position: 'fixed' as const,
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    pointerEvents: 'none' as const,
+    zIndex: -1
+  };
+
+  if (isLoading || loadingSongs) {
     return (
       <Layout pageTitle="Loading Journey">
         <div className="flex items-center justify-center h-[60vh]">
@@ -91,6 +111,13 @@ const JourneyPlayer = () => {
 
   return (
     <Layout pageTitle={journey.title} useBlueWaveBackground={false} theme="cosmic">
+      {/* Fixed container for the visualizer with explicit dimensions */}
+      <div style={visualizerContainerStyle}>
+        <div className="h-full w-full">
+          {/* This div will be the container for the SacredGeometryVisualizer */}
+        </div>
+      </div>
+      
       <div className="max-w-5xl mx-auto pt-4 pb-12 relative z-10">
         <h1 className="text-3xl font-bold text-center mb-6 text-purple-900 dark:text-purple-300">{journey.title}</h1>
         
