@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -21,6 +22,7 @@ const JourneyPlayer = () => {
     }
 
     console.log(`Loading journey player for journey ID: ${journeyId}`);
+    console.log(`Available templates:`, templates.map(t => t.id));
     console.log(`Available audio mappings:`, audioMappings);
 
     // Find the journey from our templates data
@@ -31,13 +33,13 @@ const JourneyPlayer = () => {
       setJourney(foundJourney);
       
       // Play the journey audio if available from audio mappings
-      const audioMapping = audioMappings[journeyId];
-      if (audioMapping && audioMapping.audioUrl) {
-        console.log(`Playing audio for journey ${journeyId}: ${audioMapping.audioUrl}`);
+      const journeyAudioMapping = audioMappings[journeyId];
+      if (journeyAudioMapping && journeyAudioMapping.audioUrl) {
+        console.log(`Playing audio for journey ${journeyId}: ${journeyAudioMapping.audioUrl}`);
         playAudio({
           title: foundJourney.title,
           artist: "Sacred Shifter",
-          source: audioMapping.audioUrl
+          source: journeyAudioMapping.audioUrl
         });
       } else {
         console.error(`No audio mapping found for journey ID: ${journeyId}`);
@@ -45,7 +47,9 @@ const JourneyPlayer = () => {
       }
     } else {
       console.error("Journey not found:", journeyId);
-      navigate('/journey-templates');
+      toast.error("Journey not found");
+      // Don't navigate away - show the error UI instead
+      setIsLoading(false);
     }
     
     setIsLoading(false);
@@ -97,18 +101,31 @@ const JourneyPlayer = () => {
               
               <div className="bg-purple-50 dark:bg-purple-900/30 p-6 rounded-lg mb-8">
                 <h3 className="text-xl font-medium text-purple-800 dark:text-purple-300 mb-4">Journey Intent</h3>
-                <p>{journey.intent || "This journey is designed to help you connect with your inner wisdom and tap into the healing frequencies that resonate with your being."}</p>
+                <p>{journey.purpose || "This journey is designed to help you connect with your inner wisdom and tap into the healing frequencies that resonate with your being."}</p>
               </div>
               
               <div className="mb-8">
                 <h3 className="text-xl font-medium text-purple-800 dark:text-purple-300 mb-4">Guidance</h3>
                 <p>Find a comfortable position where you can relax fully. This journey works best when you can give it your complete attention.</p>
                 <p className="mt-3">Let the sounds wash over you and guide your consciousness to deeper levels of awareness.</p>
+                
+                {journey.guidedPrompt && (
+                  <div className="mt-4 bg-purple-50/50 dark:bg-purple-900/20 p-4 rounded-lg">
+                    <h4 className="text-lg font-medium text-purple-700 dark:text-purple-300 mb-2">Guided Prompt</h4>
+                    <p className="italic">{journey.guidedPrompt}</p>
+                  </div>
+                )}
               </div>
               
               <div className="text-center mt-12 text-sm text-gray-500 dark:text-gray-400">
-                <p>Your audio is now playing in the global player at the bottom right corner of the screen.</p>
+                <p>Your audio is now playing in the global player.</p>
                 <p className="mt-1">You can continue browsing while listening to your journey.</p>
+                <button 
+                  className="mt-4 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+                  onClick={() => navigate('/journey-templates')}
+                >
+                  Back to Journeys
+                </button>
               </div>
             </div>
           </CardContent>

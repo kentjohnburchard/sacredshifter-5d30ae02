@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -34,13 +33,8 @@ const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template, aud
   // Get songs for this journey
   const { songs, loading } = useJourneySongs(template.id);
   
-  // Extract the first frequency value to use in the link if needed
-  const firstFrequencyValue = template.frequencies[0]?.value.split(' ')[0] || '';
-  
-  // Now we can use audioMapping to direct to the correct audio
-  const journeyLink = audioMapping
-    ? `/journey/${encodeURIComponent(audioMapping.audioUrl)}`
-    : `/journey/${firstFrequencyValue}`;
+  // Now we can use audioMapping to direct to the correct journey player page with template ID
+  const journeyLink = `/journey-player/${template.id}`;
   
   // Determine header gradient based on chakras
   const getHeaderGradient = () => {

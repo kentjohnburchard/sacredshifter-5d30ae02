@@ -22,6 +22,7 @@ import ShiftPerception from '@/pages/ShiftPerception';
 import Astrology from '@/pages/Astrology';
 import Focus from '@/pages/Focus';
 import Timeline from '@/pages/Timeline';
+import FrequencyDetailPage from '@/pages/FrequencyDetailPage';
 
 function App() {
   return (
@@ -37,8 +38,10 @@ function App() {
         <Route path="/frequency-shifting" element={<FrequencyShifting />} />
         <Route path="/frequency-library" element={<Frequencies />} />
         <Route path="/frequencies" element={<Frequencies />} />
+        <Route path="/frequency/:frequencyId" element={<FrequencyDetailPage />} />
         <Route path="/journey-templates" element={<JourneyTemplates />} />
         <Route path="/journey-player/:journeyId" element={<JourneyPlayer />} />
+        <Route path="/journey/:journeyId" element={<JourneyPlayer />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/journey-audio-admin" element={<JourneyAudioAdmin />} />
         <Route path="/admin/journey-audio-mappings" element={<JourneyAudioMappingsViewer />} />
