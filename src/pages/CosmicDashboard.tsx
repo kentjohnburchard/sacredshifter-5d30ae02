@@ -5,7 +5,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CosmicContainer, SacredVisualizer, CosmicFooter, SacredGeometryVisualizer } from "@/components/sacred-geometry";
 import StarfieldBackground from "@/components/sacred-geometry/StarfieldBackground";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
   Music, Heart, Wand2, Lightbulb, 
@@ -19,6 +18,7 @@ const CosmicDashboard = () => {
   >("flower-of-life");
   
   const [isPlaying, setIsPlaying] = useState(false);
+  const [easterEggClicks, setEasterEggClicks] = useState(0);
   
   const journeyCategories = [
     {
@@ -90,6 +90,21 @@ const CosmicDashboard = () => {
     }),
   };
   
+  // Easter egg functionality
+  const handleVisualizerClick = () => {
+    setIsPlaying(!isPlaying);
+    setEasterEggClicks(prev => {
+      const newCount = prev + 1;
+      if (newCount === 7) {
+        // Trigger easter egg after 7 clicks
+        console.log("Easter egg activated!");
+        // You could show a toast, change the visualizer, or add some special effect here
+        return 0; // Reset counter
+      }
+      return newCount;
+    });
+  };
+  
   return (
     <Layout pageTitle="Sacred Shifter" showFooter={false}>
       <div className="fixed inset-0 z-0 pointer-events-none">
@@ -117,12 +132,16 @@ const CosmicDashboard = () => {
           </div>
           
           <div className="w-full md:w-1/2 h-64 md:h-80 flex items-center justify-center relative z-10">
-            <div className="w-full h-full cursor-pointer" onClick={() => setIsPlaying(!isPlaying)}>
-              <SacredGeometryVisualizer 
-                defaultShape={selectedShape}
-                size="lg"
-                showControls={true}
-              />
+            {/* Make sure the visualizer control buttons are fully visible */}
+            <div className="w-full h-full cursor-pointer px-2" onClick={handleVisualizerClick}>
+              <div className="w-full h-full flex items-center justify-center">
+                <SacredGeometryVisualizer 
+                  defaultShape={selectedShape}
+                  size="lg"
+                  showControls={true}
+                  className="transform scale-90"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -309,12 +328,60 @@ const CosmicDashboard = () => {
             </TabsContent>
           </Tabs>
         </motion.div>
+        
+        {/* Add the missing about information section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+          className="mt-16 relative z-10"
+        >
+          <CosmicContainer className="p-6 md:p-8">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">About Sacred Shifter</h2>
+              <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-indigo-500 mx-auto my-4"></div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-3">Our Mission</h3>
+                <p className="text-purple-100/80 mb-4">
+                  Sacred Shifter was created to help individuals access higher states of consciousness 
+                  through sacred frequencies and geometric patterns. We believe that sound healing combined 
+                  with intentional visualization can create profound shifts in your energetic field.
+                </p>
+                <p className="text-purple-100/80">
+                  Every frequency on this platform has been carefully selected for its healing properties 
+                  and vibrational alignment with universal consciousness. Our journey templates combine 
+                  these frequencies with guided meditations to facilitate deep inner transformation.
+                </p>
+              </div>
+              
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-3">The Sacred Code</h3>
+                <p className="text-purple-100/80 mb-4">
+                  The sacred geometries you see throughout Sacred Shifter are not just beautiful designs—they 
+                  are visual representations of the mathematical principles that govern our universe. From the 
+                  Flower of Life to Metatron's Cube, each pattern contains encoded wisdom that speaks directly 
+                  to your subconscious mind.
+                </p>
+                <p className="text-purple-100/80">
+                  <span className="italic text-pink-300 font-medium">
+                    "The person who was very aware had a foot in two worlds..."
+                  </span> This journey is for those who sense there is more to reality than what 
+                  meets the eye—for those ready to explore the depths of consciousness through sound and sacred pattern.
+                </p>
+              </div>
+            </div>
+          </CosmicContainer>
+        </motion.div>
       </div>
       
       <CosmicFooter 
         showFrequencyBar={isPlaying} 
         currentFrequency={528}
         currentChakra="Heart"
+        className="border-0 shadow-2xl"
       />
     </Layout>
   );
