@@ -2,6 +2,7 @@
 import React from 'react';
 import Layout from '@/components/Layout';
 import { useTheme } from '@/context/ThemeContext';
+import SacredBlueprintCreator from '@/components/sacred-blueprint/SacredBlueprintCreator';
 
 const SacredBlueprint: React.FC = () => {
   const { liftTheVeil } = useTheme();
@@ -16,14 +17,16 @@ const SacredBlueprint: React.FC = () => {
             spiritual identity, and soul purpose through a personalized frequency assessment.
           </p>
           {liftTheVeil ? (
-            <p className="italic text-pink-300">
+            <p className="italic text-pink-300 mb-6">
               The veil has been lifted. Your cosmic attunement has been activated at the highest level.
             </p>
           ) : (
-            <p className="text-purple-300">
+            <p className="text-purple-300 mb-6">
               Discover your unique resonance pattern and unlock your spiritual potential.
             </p>
           )}
+          
+          <SacredBlueprintCreator />
         </div>
       </div>
     </Layout>

@@ -2,16 +2,15 @@
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CosmicContainer, SacredGeometryVisualizer, CosmicFooter } from "@/components/sacred-geometry";
+import { CosmicContainer, SacredGeometryVisualizer } from "@/components/sacred-geometry";
 import StarfieldBackground from "@/components/sacred-geometry/StarfieldBackground";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "@/context/ThemeContext";
-import TimelineViewer from "@/components/timeline/TimelineViewer";
 import { 
-  Music, Heart, Wand2, Lightbulb, 
-  Sparkles, Moon, CloudSun, BookOpen,
+  Music, Heart, Lightbulb, 
+  Sparkles, CloudSun, BookOpen,
   Clock, Headphones, Waves 
 } from "lucide-react";
 
@@ -19,11 +18,10 @@ const CosmicDashboard = () => {
   const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState("journeys");
   const [selectedShape, setSelectedShape] = useState<
-    "flower-of-life" | "metatrons-cube" | "merkaba" | "torus" | "sphere"
+    "flower-of-life" | "metatrons-cube" | "merkaba" | "torus"
   >("flower-of-life");
   
-  const [isPlaying, setIsPlaying] = useState(false);
-  const { liftTheVeil, setLiftTheVeil } = useTheme();
+  const { liftTheVeil } = useTheme();
   
   const journeyCategories = [
     {
@@ -126,8 +124,6 @@ const CosmicDashboard = () => {
           />
         </div>
       </div>
-
-      {/* Easter egg toggle button - fixed in bottom right - redundant, removed to avoid duplicates */}
       
       <div className="max-w-7xl mx-auto px-4 pb-24 relative z-20">
         <div className="flex flex-col md:flex-row items-center justify-between mb-4 pt-4">

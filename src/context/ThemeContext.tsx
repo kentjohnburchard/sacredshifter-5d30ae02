@@ -2,7 +2,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useLoveQuotes } from "@/hooks/useLoveQuotes";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
-import { UserPreferences } from "@/hooks/useUserPreferences";
+import { toast } from "sonner";
+import { Sparkles } from "lucide-react";
 
 type ThemeContextType = {
   liftTheVeil: boolean;
@@ -59,11 +60,31 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [preferences]);
 
-  // Set lift the veil mode
+  // Set lift the veil mode with visual feedback
   const setLiftTheVeil = async (mode: boolean) => {
     try {
       // Update local state immediately for responsive UI
       setLiftTheVeilState(mode);
+      
+      // Change theme based on consciousness mode
+      if (mode) {
+        // Pink-focused theme for lifted veil
+        setCurrentTheme("linear-gradient(to right, #FF36AB, #B967FF)");
+        document.documentElement.classList.add('veil-lifted');
+      } else {
+        // Purple-focused theme for standard mode
+        setCurrentTheme("linear-gradient(to right, #4facfe, #00f2fe)");
+        document.documentElement.classList.remove('veil-lifted');
+      }
+      
+      // Show toast notification to confirm the change
+      toast.success(
+        mode ? "Veil Lifted! Welcome to heightened perception." : "Returning to standard consciousness",
+        {
+          icon: <Sparkles className={mode ? "text-pink-500" : "text-purple-500"} />,
+          duration: 3000
+        }
+      );
       
       // Then update in database
       await saveUserPreferences({
@@ -74,6 +95,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       console.error("Error toggling Lift the Veil Mode:", error);
       // Revert state if save failed
       setLiftTheVeilState(!mode);
+      toast.error("Failed to change consciousness mode");
     }
   };
 
@@ -97,6 +119,20 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       refreshRandomQuote();
     }
   }, [getRandomQuote, refreshRandomQuote]);
+
+  // Add global CSS variables for theme colors
+  useEffect(() => {
+    const root = document.documentElement;
+    if (liftTheVeil) {
+      root.style.setProperty('--primary-accent', '#FF36AB');
+      root.style.setProperty('--secondary-accent', '#B967FF');
+      root.style.setProperty('--text-accent', '#FF70E9');
+    } else {
+      root.style.setProperty('--primary-accent', '#8B5CF6');
+      root.style.setProperty('--secondary-accent', '#6366F1');
+      root.style.setProperty('--text-accent', '#A78BFA');
+    }
+  }, [liftTheVeil]);
 
   return (
     <ThemeContext.Provider value={{ 
