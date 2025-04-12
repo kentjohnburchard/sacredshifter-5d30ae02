@@ -86,8 +86,8 @@ const PerceptionChecklist: React.FC = () => {
         >
           <p className={`text-sm ${liftTheVeil ? 'text-pink-200' : 'text-purple-200'}`}>
             You've identified {checkedItems.length} signs of shifting perception.
-            {checkedItems.length >= 5 && ' Your awareness is expanding significantly.'}
-            {checkedItems.length >= 8 && ' You're experiencing a profound shift in consciousness.'}
+            {checkedItems.length >= 5 && " Your awareness is expanding significantly."}
+            {checkedItems.length >= 8 && " You're experiencing a profound shift in consciousness."}
           </p>
         </motion.div>
       )}
