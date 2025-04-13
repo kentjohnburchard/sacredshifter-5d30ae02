@@ -1,7 +1,6 @@
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { JourneyTemplate } from "@/data/journeyTemplates";
-import { useGlobalAudioPlayer } from "@/hooks/useGlobalAudioPlayer";
 import { toast } from "sonner";
 import { Sparkles } from "lucide-react";
 
@@ -37,26 +36,24 @@ const JourneyPreStartModal: React.FC<JourneyPreStartModalProps> = ({
   // Set a default intention
   const defaultIntention = `Open to experiencing ${template.title}`;
   
-  // Auto-start the journey when component mounts and is open
-  useEffect(() => {
+  React.useEffect(() => {
+    // If modal is open, trigger the onStart immediately
     if (open) {
-      // Small delay to ensure proper rendering/mounting
-      const timer = setTimeout(() => {
-        onStart(defaultIntention, defaultSettings);
-        // Notify user that the journey has started
-        toast.success(`${template.title} journey started`, {
-          icon: <Sparkles className="text-purple-500" />,
-          duration: 3000
-        });
-        // Close the "modal" (which will now actually just be a controller)
-        onOpenChange(false);
-      }, 100);
+      // No need for setTimeout, just start immediately
+      onStart(defaultIntention, defaultSettings);
       
-      return () => clearTimeout(timer);
+      // Notify user that the journey has started
+      toast.success(`${template.title} journey started`, {
+        icon: <Sparkles className="text-purple-500" />,
+        duration: 3000
+      });
+      
+      // Close the modal since we don't need it anymore
+      onOpenChange(false);
     }
-  }, [open, onStart, template.title, defaultSettings, onOpenChange]);
+  }, [open, template.title, defaultIntention, defaultSettings, onStart, onOpenChange]);
 
-  // Return an empty fragment as we're no longer showing a modal
+  // We're not rendering any UI for this modal anymore
   return null;
 };
 

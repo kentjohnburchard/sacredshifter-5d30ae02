@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -32,7 +31,7 @@ const JourneyPlayer = () => {
   const initializationAttemptedRef = useRef(false);
   
   // Get templates
-  const { templates } = useJourneyTemplates();
+  const { templates, loading: loadingTemplates } = useJourneyTemplates();
   
   // Get songs for this journey using the useJourneySongs hook
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
@@ -134,12 +133,18 @@ const JourneyPlayer = () => {
 
   // Initialize journey and start audio playback
   useEffect(() => {
+    // Only proceed if journey ID is provided
     if (!journeyId) {
       navigate('/journey-templates');
       return;
     }
 
     console.log(`JourneyPlayer: Loading journey player for journey ID: ${journeyId}`);
+    
+    // Wait for templates to load before trying to find the journey
+    if (loadingTemplates) {
+      return;
+    }
     
     // Find the journey from our templates data
     const foundJourney = templates.find(j => j.id === journeyId);
@@ -148,7 +153,7 @@ const JourneyPlayer = () => {
       console.log(`JourneyPlayer: Found journey:`, foundJourney);
       setJourney(foundJourney);
       
-      // Mark that we've finished loading
+      // Mark that we've finished loading journey data
       if (!loadingSongs) {
         setIsLoading(false);
       }
@@ -157,7 +162,7 @@ const JourneyPlayer = () => {
       toast.error("Journey not found");
       setIsLoading(false);
     }
-  }, [journeyId, navigate, templates, loadingSongs]);
+  }, [journeyId, navigate, templates, loadingSongs, loadingTemplates]);
 
   // Handle audio playback initialization separately from journey loading
   useEffect(() => {
@@ -200,7 +205,7 @@ const JourneyPlayer = () => {
         } else {
           console.log("JourneyPlayer: No song selected for initialization");
         }
-      }, 1000);
+      }, 300);
     }
   }, [journey, songs, loadingSongs, isLoading, playAudio, journeyId, audioInitialized]);
 
@@ -250,7 +255,8 @@ const JourneyPlayer = () => {
     }
   };
 
-  if (isLoading || loadingSongs) {
+  // Loading state - keep simple and focused on loading text
+  if (isLoading || loadingSongs || loadingTemplates) {
     return (
       <Layout pageTitle="Loading Journey">
         <div className="flex items-center justify-center h-[60vh]">
@@ -263,7 +269,8 @@ const JourneyPlayer = () => {
     );
   }
 
-  if (!journey) {
+  // Handle the case where the journey is not found, but make sure templates have loaded first
+  if (!journey && !loadingTemplates) {
     return (
       <Layout pageTitle="Journey Not Found">
         <div className="max-w-4xl mx-auto my-12 px-4">
