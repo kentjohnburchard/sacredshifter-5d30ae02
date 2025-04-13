@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Eye, EyeOff } from "lucide-react";
@@ -39,9 +40,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   const audioElementFoundRef = React.useRef(false);
   
-  // Use the audio analyzer hook consistently
-  const { audioContext, analyser } = useAudioAnalyzer(audioRef);
-  
+  // Find the audio element in the DOM
   useEffect(() => {
     if (!audioElementFoundRef.current) {
       const globalAudio = document.querySelector('audio');
@@ -51,6 +50,9 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       }
     }
   }, []);
+  
+  // Use the audio analyzer hook consistently
+  const { audioContext, analyser } = useAudioAnalyzer(audioRef);
   
   const isCurrentlyPlaying = React.useMemo(() => {
     if (!currentAudio || !effectiveAudioUrl) return false;
@@ -83,6 +85,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   };
   
   const toggleVisualizer = () => {
+    console.log("Toggling visualizer in FrequencyPlayer, current state:", showVisualizer);
     setShowVisualizer(prev => !prev);
   };
   

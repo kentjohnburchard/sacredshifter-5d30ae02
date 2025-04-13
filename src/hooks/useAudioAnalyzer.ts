@@ -34,21 +34,21 @@ const useAudioAnalyzer = (
       connectionAttempted.current = true;
       
       try {
-        // Check if this audio element already has a source node
-        const source = audioContext.createMediaElementSource(audioRef.current);
-        sourceNodeRef.current = source;
-        source.connect(analyser);
-        analyser.connect(audioContext.destination);
-        sourceConnected.current = true;
-        console.log("Successfully connected audio source to analyzer");
+        // Try to create and connect a source node
+        if (!sourceNodeRef.current && audioRef.current) {
+          sourceNodeRef.current = audioContext.createMediaElementSource(audioRef.current);
+          sourceNodeRef.current.connect(analyser);
+          analyser.connect(audioContext.destination);
+          sourceConnected.current = true;
+          console.log("Successfully connected audio source to analyzer");
+        }
       } catch (error) {
-        console.log("Audio connection already exists, using existing connection");
+        console.log("Audio connection already exists or failed:", error);
         // If an error occurs, it's likely already connected, so we'll mark it as connected
         sourceConnected.current = true;
       }
     }
     
-    // Cleanup function - we don't disconnect since the audio might be used elsewhere
     return () => {};
   }, [audioRef.current, audioContext, analyser]);
   

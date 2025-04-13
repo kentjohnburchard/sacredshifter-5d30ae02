@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -27,6 +28,7 @@ const JourneyPlayer = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const lastPlayedIndex = useRef<number | null>(null);
   const songsRef = useRef<any[]>([]);
+  const audioElementFoundRef = useRef(false);
   
   // Get templates
   const { templates } = useJourneyTemplates();
@@ -37,21 +39,23 @@ const JourneyPlayer = () => {
   // Setup audio analyzer for visualizer - call the hook unconditionally
   const { audioContext, analyser } = useAudioAnalyzer(audioRef);
 
+  // Find the audio element in the DOM after component mounts
+  useEffect(() => {
+    if (!audioElementFoundRef.current) {
+      const globalAudio = document.querySelector('audio');
+      if (globalAudio) {
+        audioRef.current = globalAudio;
+        audioElementFoundRef.current = true;
+      }
+    }
+  }, []);
+
   // Store songs in ref to access in callbacks
   useEffect(() => {
     if (songs && songs.length > 0) {
       songsRef.current = songs;
     }
   }, [songs]);
-  
-  // Find the audio element in the DOM after component mounts
-  useEffect(() => {
-    // Find the audio element being used by the global player
-    const audioElement = document.querySelector('audio');
-    if (audioElement) {
-      audioRef.current = audioElement;
-    }
-  }, []);
 
   // Function to select a random song that's not the last played one
   const selectRandomSong = () => {
@@ -93,17 +97,16 @@ const JourneyPlayer = () => {
       }
     };
     
-    // Register the callback with the global audio player
     if (setOnEndedCallback) {
       setOnEndedCallback(handleTrackEnded);
       
-      // Cleanup the callback when component unmounts
       return () => {
         setOnEndedCallback(null);
       };
     }
   }, [journey, playAudio, setOnEndedCallback]);
 
+  // Initialize journey and start audio playback
   useEffect(() => {
     if (!journeyId) {
       navigate('/journey-templates');
@@ -119,23 +122,25 @@ const JourneyPlayer = () => {
       console.log(`Found journey:`, foundJourney);
       setJourney(foundJourney);
       
-      // Only start playing audio if we haven't initialized yet and are not currently playing anything
-      if (!audioInitialized && !isPlaying && !loadingSongs && songs.length > 0) {
-        // Select a random song to start with
-        const selectedSong = selectRandomSong();
-        
-        if (selectedSong) {
-          console.log(`Playing initial random song for journey ${journeyId}:`, selectedSong);
+      // Only start playing audio if we haven't initialized yet, have songs loaded, and aren't playing anything
+      if (!audioInitialized && !loadingSongs && songs.length > 0) {
+        setTimeout(() => {
+          // Select a random song to start with
+          const selectedSong = selectRandomSong();
           
-          playAudio({
-            title: selectedSong.title || foundJourney.title,
-            artist: "Sacred Shifter",
-            source: selectedSong.audioUrl
-          });
-          
-          // Mark as initialized to prevent repeated playback attempts
-          setAudioInitialized(true);
-        }
+          if (selectedSong) {
+            console.log(`Playing initial random song for journey ${journeyId}:`, selectedSong);
+            
+            playAudio({
+              title: selectedSong.title || foundJourney.title,
+              artist: "Sacred Shifter",
+              source: selectedSong.audioUrl
+            });
+            
+            // Mark as initialized to prevent repeated playback attempts
+            setAudioInitialized(true);
+          }
+        }, 500); // Short delay to ensure audio context is ready
       }
     } else {
       console.error("Journey not found:", journeyId);
@@ -146,10 +151,11 @@ const JourneyPlayer = () => {
     if (!loadingSongs) {
       setIsLoading(false);
     }
-  }, [journeyId, navigate, playAudio, templates, songs, loadingSongs, isPlaying, audioInitialized]);
+  }, [journeyId, navigate, playAudio, templates, songs, loadingSongs, audioInitialized]);
 
-  // Toggle visualizer on/off to save resources
+  // Toggle visualizer on/off
   const toggleVisualizer = () => {
+    console.log("Toggling visualizer, current state:", showVisualizer);
     setShowVisualizer(prev => !prev);
   };
   
@@ -198,7 +204,7 @@ const JourneyPlayer = () => {
 
   return (
     <Layout pageTitle={journey?.title} useBlueWaveBackground={false} theme="cosmic">
-      {/* Fractal Audio Visualizer - audio reactive, replacing sacred geometry */}
+      {/* Fractal Audio Visualizer - only show when both conditions are true */}
       {showVisualizer && isPlaying && (
         <FractalAudioVisualizer
           audioContext={audioContext}
