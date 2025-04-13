@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { FrequencyLibraryItem } from '@/types/frequencies';
 import { Card, CardContent } from '@/components/ui/card';
@@ -61,6 +62,8 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
   const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
   const [visualizerMode, setVisualizerMode] = useState<'purple' | 'blue' | 'rainbow' | 'gold'>('purple');
   const [showVisualizer, setShowVisualizer] = useState<boolean>(true);
+  const [detectedPrimes, setDetectedPrimes] = useState<number[]>([]);
+  const [currentFrequency, setCurrentFrequency] = useState<number | null>(null);
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const { audioContext, analyser } = useAudioAnalyzer(audioRef);
@@ -118,6 +121,20 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
     toast.info(`Visualizer mode: ${modes[nextIndex]}`);
   };
 
+  // Handle prime number sequence detection
+  const handlePrimeSequence = (primes: number[]) => {
+    setDetectedPrimes(primes);
+    // Could trigger additional effects based on prime detection
+    if (primes.length > 0 && primes.length % 3 === 0) {
+      toast.info(`Prime sequence detected: ${primes.slice(-3).join(', ')}`);
+    }
+  };
+  
+  // Handle frequency detection
+  const handleFrequencyDetected = (freq: number) => {
+    setCurrentFrequency(freq);
+  };
+
   const frequencyValue = frequency?.frequency || 0;
   const frequencyTitle = frequency?.title || `${frequencyValue}Hz Journey`;
   const chakraName = frequency?.chakra || '';
@@ -134,6 +151,10 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
           isVisible={showVisualizer && isAudioPlaying}
           colorScheme={visualizerMode}
           pauseWhenStopped={isLowSensitivityMode}
+          frequency={frequencyValue}
+          chakra={chakraName}
+          onPrimeSequence={handlePrimeSequence}
+          onFrequencyDetected={handleFrequencyDetected}
         />
       </div>
       
@@ -151,6 +172,11 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
                 {chakraName && (
                   <Badge variant="outline" className="border-purple-200 text-purple-700">
                     {chakraName} Chakra
+                  </Badge>
+                )}
+                {currentFrequency && (
+                  <Badge variant="outline" className="ml-2 border-blue-200 text-blue-700">
+                    Current: ~{currentFrequency}Hz
                   </Badge>
                 )}
               </div>
@@ -256,6 +282,14 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
                           )}
                         </div>
                         
+                        {detectedPrimes.length > 0 && (
+                          <div className="absolute top-2 right-2 z-10">
+                            <Badge className="bg-purple-600 text-white">
+                              {detectedPrimes.length} Primes Detected
+                            </Badge>
+                          </div>
+                        )}
+                        
                         <div className="absolute bottom-3 left-3 right-3 z-10">
                           <RandomizingAudioPlayer
                             audioRef={audioRef}
@@ -357,6 +391,22 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
                         <li>Allow 15-30 minutes for full effect</li>
                       </ul>
                     </div>
+                    
+                    {detectedPrimes.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-600">Prime Numbers Detected</h4>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {detectedPrimes.map((prime, index) => (
+                            <Badge key={index} variant="outline" className="bg-purple-100">
+                              {prime}
+                            </Badge>
+                          ))}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Prime numbers create harmonic resonance patterns that may enhance meditative states
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
