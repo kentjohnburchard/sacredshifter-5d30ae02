@@ -6,7 +6,6 @@ import { useAuth } from "@/context/AuthContext";
 import { cleanupUserPreferencesData } from "@/utils/cleanupPreferencesData";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import OriginFlow from "@/components/sacred-geometry/OriginFlow";
-import AboutSacredShifter from "@/components/AboutSacredShifter";
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -35,9 +34,6 @@ const Dashboard: React.FC = () => {
     <Layout pageTitle="Dashboard">
       <div className="py-4 pb-8">
         <UserDashboard />
-        <div className="mt-8">
-          <AboutSacredShifter />
-        </div>
       </div>
       
       {showOriginFlow && (

@@ -157,8 +157,7 @@ const AboutSacredShifter: React.FC = () => {
           <BioContent 
             content={currentBio} 
             isLiftedVeil={liftTheVeil} 
-            isTransitioning={isTransitioning}
-            showTitle={false}
+            isTransitioning={isTransitioning} 
           />
         </motion.div>
         

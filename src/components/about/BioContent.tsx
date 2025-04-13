@@ -1,67 +1,62 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface BioContentProps {
   content: string;
   isLiftedVeil: boolean;
   isTransitioning: boolean;
-  showTitle?: boolean;
 }
 
-const BioContent: React.FC<BioContentProps> = ({ content, isLiftedVeil, isTransitioning, showTitle = true }) => {
-  // Split content into paragraphs for better styling
-  const paragraphs = content.split('\n\n');
+const BioContent: React.FC<BioContentProps> = ({ content, isLiftedVeil, isTransitioning }) => {
+  const formatBioWithEmphasis = (text: string) => {
+    return text.split('\n\n').map((paragraph, index) => {
+      const formattedParagraph = paragraph.replace(/\*(.*?)\*/g, '<span class="font-bold">$1</span>');
+      return (
+        <p 
+          key={index} 
+          className={`text-white leading-relaxed ${index > 0 ? 'mt-4' : ''}`} 
+          dangerouslySetInnerHTML={{ __html: formattedParagraph }} 
+        />
+      );
+    });
+  };
 
   return (
-    <div className="mb-8">
-      {showTitle && (
-        <>
-          {/* Title for the section */}
-          <motion.h2
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className={`text-3xl font-bold mb-6 text-center ${
-              isLiftedVeil ? 'text-pink-400' : 'text-purple-400'
-            }`}
-          >
-            {isLiftedVeil ? '🪞 Lift the Veil Mode' : '🌀 About Sacred Shifter'}
-          </motion.h2>
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={isLiftedVeil ? "veil-lifted-bio" : "standard-bio"}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.5 }}
+        className={`relative ${isTransitioning ? 'animate-pulse' : ''}`}
+      >
+        {/* Bio content with emphasis */}
+        <div className="relative">
+          {formatBioWithEmphasis(content)}
           
-          {/* Subtitle */}
-          <motion.h3
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className={`text-xl italic mb-6 text-center ${
-              isLiftedVeil ? 'text-pink-300' : 'text-purple-300'
-            }`}
-          >
-            {isLiftedVeil ? '' : '🌌 Message from the Consciousness Within'}
-          </motion.h3>
-        </>
-      )}
+          {/* Subtle glow effect on text when in lifted veil mode */}
+          {isLiftedVeil && (
+            <div 
+              className="absolute inset-0 bg-gradient-to-r from-pink-500/5 to-purple-500/5 rounded-lg blur-xl pointer-events-none"
+              style={{ 
+                animation: 'pulse 3s infinite alternate',
+                mixBlendMode: 'overlay'
+              }}
+            />
+          )}
+        </div>
 
-      {/* Bio content */}
-      <div className={`space-y-4 text-${isLiftedVeil ? 'pink' : 'purple'}-50`}>
-        {paragraphs.map((paragraph, index) => (
-          <motion.p
-            key={index}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 + index * 0.05 }}
-            className={`whitespace-pre-wrap ${
-              paragraph.startsWith('"') && paragraph.endsWith('"')
-                ? `text-center italic text-lg ${isLiftedVeil ? 'text-pink-300' : 'text-purple-300'}`
-                : ''
-            }`}
-          >
-            {paragraph}
-          </motion.p>
-        ))}
-      </div>
-    </div>
+        <div className={`mt-6 font-light italic text-white ${isLiftedVeil ? 'text-pink-100' : 'text-purple-100'}`}>
+          <p>Sacred Shifter: {isLiftedVeil ? 'Remembering Truth' : 'Finding Your Frequency'}</p>
+        </div>
+        
+        <p className={`mt-6 text-right text-sm ${isLiftedVeil ? 'text-pink-300' : 'text-purple-300'}`}>
+          Sacred Shifter Founder
+        </p>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 
