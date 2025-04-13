@@ -47,11 +47,12 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       if (globalAudio) {
         audioRef.current = globalAudio;
         audioElementFoundRef.current = true;
+        console.log("FrequencyPlayer: Found audio element");
       }
     }
   }, []);
   
-  // Use the audio analyzer hook consistently
+  // Use the audio analyzer hook
   const { audioContext, analyser } = useAudioAnalyzer(audioRef);
   
   const isCurrentlyPlaying = React.useMemo(() => {

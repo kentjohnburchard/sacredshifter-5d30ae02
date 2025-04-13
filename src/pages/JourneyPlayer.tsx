@@ -29,6 +29,7 @@ const JourneyPlayer = () => {
   const lastPlayedIndex = useRef<number | null>(null);
   const songsRef = useRef<any[]>([]);
   const audioElementFoundRef = useRef(false);
+  const initializationAttemptedRef = useRef(false);
   
   // Get templates
   const { templates } = useJourneyTemplates();
@@ -46,6 +47,7 @@ const JourneyPlayer = () => {
       if (globalAudio) {
         audioRef.current = globalAudio;
         audioElementFoundRef.current = true;
+        console.log("Found audio element in the DOM");
       }
     }
   }, []);
@@ -54,6 +56,7 @@ const JourneyPlayer = () => {
   useEffect(() => {
     if (songs && songs.length > 0) {
       songsRef.current = songs;
+      console.log("Songs loaded:", songs.length);
     }
   }, [songs]);
 
@@ -82,6 +85,8 @@ const JourneyPlayer = () => {
 
   // Set up track completion callback
   useEffect(() => {
+    if (!setOnEndedCallback) return;
+    
     // Configure the end of track handler to play another random track
     const handleTrackEnded = () => {
       console.log("Track ended, selecting next random track");
@@ -97,13 +102,11 @@ const JourneyPlayer = () => {
       }
     };
     
-    if (setOnEndedCallback) {
-      setOnEndedCallback(handleTrackEnded);
-      
-      return () => {
-        setOnEndedCallback(null);
-      };
-    }
+    setOnEndedCallback(handleTrackEnded);
+    
+    return () => {
+      setOnEndedCallback(null);
+    };
   }, [journey, playAudio, setOnEndedCallback]);
 
   // Initialize journey and start audio playback
@@ -122,36 +125,47 @@ const JourneyPlayer = () => {
       console.log(`Found journey:`, foundJourney);
       setJourney(foundJourney);
       
-      // Only start playing audio if we haven't initialized yet, have songs loaded, and aren't playing anything
-      if (!audioInitialized && !loadingSongs && songs.length > 0) {
-        setTimeout(() => {
-          // Select a random song to start with
-          const selectedSong = selectRandomSong();
-          
-          if (selectedSong) {
-            console.log(`Playing initial random song for journey ${journeyId}:`, selectedSong);
-            
-            playAudio({
-              title: selectedSong.title || foundJourney.title,
-              artist: "Sacred Shifter",
-              source: selectedSong.audioUrl
-            });
-            
-            // Mark as initialized to prevent repeated playback attempts
-            setAudioInitialized(true);
-          }
-        }, 500); // Short delay to ensure audio context is ready
+      // Mark that we've finished loading
+      if (!loadingSongs) {
+        setIsLoading(false);
       }
     } else {
       console.error("Journey not found:", journeyId);
       toast.error("Journey not found");
       setIsLoading(false);
     }
+  }, [journeyId, navigate, templates, loadingSongs]);
+
+  // Handle audio playback initialization separately from journey loading
+  useEffect(() => {
+    // Only attempt initialization once
+    if (initializationAttemptedRef.current || audioInitialized) return;
     
-    if (!loadingSongs) {
-      setIsLoading(false);
+    // Only start playing audio if we have songs loaded and we're not playing anything
+    if (!loadingSongs && songs.length > 0 && !isLoading && journey) {
+      console.log("Attempting to initialize audio playback");
+      initializationAttemptedRef.current = true;
+      
+      // Short delay to ensure audio context is ready
+      setTimeout(() => {
+        // Select a random song to start with
+        const selectedSong = selectRandomSong();
+        
+        if (selectedSong) {
+          console.log(`Playing initial random song for journey ${journeyId}:`, selectedSong);
+          
+          playAudio({
+            title: selectedSong.title || journey.title,
+            artist: "Sacred Shifter",
+            source: selectedSong.audioUrl
+          });
+          
+          // Mark as initialized to prevent repeated playback attempts
+          setAudioInitialized(true);
+        }
+      }, 1000);
     }
-  }, [journeyId, navigate, playAudio, templates, songs, loadingSongs, audioInitialized]);
+  }, [journey, songs, loadingSongs, isLoading, playAudio, journeyId, audioInitialized]);
 
   // Toggle visualizer on/off
   const toggleVisualizer = () => {
