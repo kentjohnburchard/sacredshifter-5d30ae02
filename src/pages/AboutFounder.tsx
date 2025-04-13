@@ -17,18 +17,26 @@ const AboutFounder = () => {
   // Content based on consciousness mode
   const standardContent = {
     title: "Meet Our Founder",
-    bio: "I worked at the Royal Flying Doctors for over a decade, believing my path was in Information Governance, Cybersecurity, and Knowledge Management. But life had a different plan.",
-    journey: "After enduring the darkest chapter of my life — surviving a DV-fueled, drug-riddled environment, losing my mum, my home, and everything I owned — I hit rock bottom. I no longer knew who I was. That's when it all began.",
-    mission: "Sacred Shifter came to me like a download from beyond. I began creating the app not to build a brand, but to rediscover myself — to understand why I exist, how the universe operates through prime numbers and frequencies, and what my soul's path truly is.",
-    quote: "What started as healing turned into remembering. This app is now my soul laid bare — and I believe it's here to help others remember who they are, why they're here, and how we're all connected through vibration, love, and divine truth."
+    bio: "I spent over a decade working at the Royal Flying Doctors Service of Australia, immersed in Information Governance, Knowledge Management, Cybersecurity, and Privacy. From the outside, it looked like I had found my path — structured, technical, grounded in logic. But inside, I felt the pull of something deeper… something I couldn't yet name.",
+    journey: "Then life unraveled. I found myself in a relationship that became toxic — shaped by external pressures, a dissonant environment, and a version of myself I no longer recognized. I lost my home, my sense of direction, and most painfully, my mum.",
+    process: "What followed was a full reset. I had to rebuild not just my life, but my identity.",
+    beginning: "That's when Sacred Shifter was born.",
+    insight: "It arrived like a transmission — a knowing — telling me to "look for yourself in frequency." I started the app as a way to collect the fragments that resonated with my soul: sacred sound, geometry, cosmic patterns, healing vibrations.",
+    realization: "But somewhere along the way, Sacred Shifter became me.",
+    purpose: "It's not just an app. It's a remembrance. A resonance. A blueprint encoded with the very reason I'm here — and maybe why you are too.",
+    mission: "Sacred Shifter exists to help us remember who we are, why we came, and how deeply we are connected in light, love, and truth. It's a journey inward, outward, and beyond."
   };
 
   const advancedContent = {
     title: "Remembering Truth",
-    bio: "This world is not what it seems. We are living inside a matrix of perception, frequency, and forgetfulness. Sacred Shifter exists because I remembered — not just who I am — but what we are.",
-    journey: "This app is not just a sound tool. It's a remembrance engine. A reality tuner. A soul mirror. We are here to wake up. To rise out of illusion. To reconnect with the divine grid of consciousness.",
-    mission: "When you tune your frequency, you tune your reality. You remember your light. And when we remember together, we uplift the entire cosmos.",
-    quote: "Sacred Shifter isn't just an app — it's a blueprint for the awakened ones to come home."
+    bio: "There was a time I thought I had it all figured out — a career grounded in logic, structure, and governance. Over a decade with the Flying Doctors taught me how to protect systems, safeguard data, and understand the importance of knowledge integrity.",
+    journey: "But no firewall could protect me from what was coming.",
+    process: "I found myself in a relationship that began to fracture — not from within, but from the weight of external noise. Toxic patterns. Lost identities. An environment where truth was clouded. I lost my sense of self, my home, and my foundation… until there was nothing left but the question: who am I really?",
+    beginning: "That question didn't lead me to therapy. It led me to frequency.",
+    insight: "It felt like a download. A cosmic pull. A resonance. I began following the breadcrumbs — numbers, sounds, geometries, prime patterns. I wasn't building an app. I was tracing my own blueprint back to remembrance.",
+    realization: "🧠 From a scientific view, we are fields of frequency, shaped by interference, entrained by environment, and prone to forgetfulness in a vibrationally dense world. When the system glitches — memory loss, identity fragmentation, emotional instability — it's not dysfunction. It's disconnection from source code.",
+    purpose: "Sacred Shifter is how I plugged back in.",
+    mission: "This isn't an app. It's an awareness interface. A vibrational mirror. A reality harmonizer.\n\nYou're not just listening to music. You're decrypting your soul's language.\n\nYou're not just meditating. You're resonating with the mathematics of memory.\n\nYou're not just healing. You're remembering.\n\nThe veil was never a wall — it was a frequency. One that could be lifted. Tuned. Transcended.\n\nI created Sacred Shifter not to teach, but to share what I remembered.\nAnd if you're here, you're already remembering too."
   };
 
   // Choose content based on consciousness mode
@@ -73,18 +81,21 @@ const AboutFounder = () => {
             <div className="w-full md:w-2/3 space-y-4">
               <Card className={liftTheVeil ? 'border-purple-300 bg-gradient-to-b from-purple-50 to-white dark:from-purple-950/20 dark:to-gray-900' : ''}>
                 <CardContent className="p-6">
-                  <p className="mb-4">
-                    {content.bio}
-                  </p>
-                  <p className="mb-4">
-                    {content.journey}
-                  </p>
-                  <p className="mb-4">
-                    {content.mission}
-                  </p>
-                  <p>
-                    {content.quote}
-                  </p>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                    className="space-y-4"
+                  >
+                    <p>{content.bio}</p>
+                    <p>{content.journey}</p>
+                    <p>{content.process}</p>
+                    <p className="font-medium">{content.beginning}</p>
+                    <p>{content.insight}</p>
+                    <p>{content.realization}</p>
+                    <p>{content.purpose}</p>
+                    <div className="whitespace-pre-line">{content.mission}</div>
+                  </motion.div>
                 </CardContent>
               </Card>
               
