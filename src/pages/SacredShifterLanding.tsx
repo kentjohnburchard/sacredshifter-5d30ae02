@@ -9,7 +9,7 @@ import TreeOfLife from '@/components/sacred-geometry/shapes/TreeOfLife';
 import SriYantra from '@/components/sacred-geometry/shapes/SriYantra';
 import VesicaPiscis from '@/components/sacred-geometry/shapes/VesicaPiscis';
 import StarfieldBackground from '@/components/sacred-geometry/StarfieldBackground';
-import { Music, Heart, Sparkles, BookOpen, Star, Moon, LibraryBig, Wand2 } from 'lucide-react';
+import { Music, Heart, Sparkles, BookOpen, Star, Moon, LibraryBig, Wand2, Compass, Brain, Activity, Map } from 'lucide-react';
 import { motion } from 'framer-motion';
 import FixedFooter from '@/components/navigation/FixedFooter';
 import BottomNavigation from '@/components/navigation/BottomNavigation';
@@ -62,7 +62,7 @@ const SacredShifterLanding = () => {
     'Vesica Piscis': 'vesica-piscis',
   };
 
-  // Feature cards data grouped by category
+  // Feature cards data grouped by category - Expanded with more options
   const categoryFeatures = {
     sound: [
       {
@@ -78,6 +78,20 @@ const SacredShifterLanding = () => {
         icon: <Moon className="h-7 w-7" />,
         color: "from-blue-900 to-indigo-800",
         path: "/meditations",
+      },
+      {
+        title: "Frequency Library",
+        description: "Explore sacred tones and frequencies",
+        icon: <Activity className="h-7 w-7" />,
+        color: "from-cyan-900 to-blue-800",
+        path: "/frequency-library",
+      },
+      {
+        title: "Music Generator",
+        description: "Create custom healing soundscapes",
+        icon: <Music className="h-7 w-7" />,
+        color: "from-indigo-900 to-blue-700", 
+        path: "/music-generator",
       },
     ],
     experiences: [
@@ -95,8 +109,22 @@ const SacredShifterLanding = () => {
         color: "from-amber-900 to-yellow-800",
         path: "/intentions",
       },
+      {
+        title: "Mirror Portal",
+        description: "Self-reflection and consciousness expansion",
+        icon: <Compass className="h-7 w-7" />,
+        color: "from-emerald-900 to-teal-800",
+        path: "/mirror-portal",
+      },
+      {
+        title: "Perception Shift",
+        description: "Transform how you see reality",
+        icon: <Brain className="h-7 w-7" />,
+        color: "from-violet-900 to-purple-800",
+        path: "/shift-perception",
+      },
     ],
-    frequencies: [
+    wisdom: [
       {
         title: "Astrology",
         description: "Discover your cosmic blueprint",
@@ -110,6 +138,20 @@ const SacredShifterLanding = () => {
         icon: <LibraryBig className="h-7 w-7" />,
         color: "from-violet-900 to-purple-800",
         path: "/hermetic-wisdom",
+      },
+      {
+        title: "Trinity Gateway",
+        description: "Experience the three-fold path of awakening",
+        icon: <Sparkles className="h-7 w-7" />,
+        color: "from-amber-900 to-orange-800",
+        path: "/trinity-gateway",
+      },
+      {
+        title: "Soul Scribe",
+        description: "Sacred writing and wisdom channeling",
+        icon: <BookOpen className="h-7 w-7" />,
+        color: "from-blue-900 to-indigo-800",
+        path: "/soul-scribe",
       },
     ],
     journey: [
@@ -127,22 +169,36 @@ const SacredShifterLanding = () => {
         color: "from-indigo-900 to-blue-800",
         path: "/sacred-blueprint",
       },
+      {
+        title: "Harmonic Map",
+        description: "Visualize your frequency alignment",
+        icon: <Map className="h-7 w-7" />,
+        color: "from-purple-900 to-indigo-800",
+        path: "/harmonic-map",
+      },
+      {
+        title: "Energy Check",
+        description: "Assess and balance your energy field",
+        icon: <Activity className="h-7 w-7" />,
+        color: "from-pink-900 to-red-800",
+        path: "/energy-check",
+      },
     ],
   };
 
   // All features combined for tile display
   const allFeatures = [
     ...categoryFeatures.sound,
-    ...categoryFeatures.experiences,
-    ...categoryFeatures.frequencies,
+    ...categoryFeatures.experiences, 
+    ...categoryFeatures.wisdom,
     ...categoryFeatures.journey
   ];
 
-  // Navigation tabs
+  // Navigation tabs - Enhanced with more comprehensive categories
   const navigationTabs = [
     { label: "Sound Journeys", icon: <Music className="h-5 w-5" />, value: "sound" },
     { label: "Experiences", icon: <Sparkles className="h-5 w-5" />, value: "experiences" },
-    { label: "Frequencies", icon: <BookOpen className="h-5 w-5" />, value: "frequencies" },
+    { label: "Sacred Wisdom", icon: <BookOpen className="h-5 w-5" />, value: "wisdom" },
     { label: "My Journey", icon: <Star className="h-5 w-5" />, value: "journey" },
   ];
 
@@ -150,20 +206,6 @@ const SacredShifterLanding = () => {
   const toggleOriginFlow = () => {
     setShowOriginFlow(!showOriginFlow);
   };
-
-  // Add a trigger for the Origin Flow easter egg
-  useEffect(() => {
-    // Add a small clickable area in the bottom left for Origin Flow 
-    const originTrigger = document.createElement('div');
-    originTrigger.className = 'fixed bottom-4 left-4 w-8 h-8 z-50 cursor-pointer opacity-20 hover:opacity-60';
-    originTrigger.innerHTML = '✧'; // Simple star symbol as a subtle indicator
-    originTrigger.addEventListener('click', toggleOriginFlow);
-    document.body.appendChild(originTrigger);
-    
-    return () => {
-      document.body.removeChild(originTrigger);
-    };
-  }, []);
 
   return (
     <div className={cn(
@@ -178,19 +220,41 @@ const SacredShifterLanding = () => {
       <Watermark />
       <GlobalWatermark />
 
-      {/* Origin Flow Easter Egg */}
+      {/* Origin Flow Easter Egg - Always rendered as a button for discovery */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1, duration: 0.5 }}
+        className="fixed left-6 top-20 z-50 cursor-pointer"
+        onClick={toggleOriginFlow}
+      >
+        <div className="p-2 rounded-full bg-purple-900/30 hover:bg-purple-800/50 border border-purple-500/30 transition-colors">
+          <Compass className="h-5 w-5 text-purple-200" />
+        </div>
+      </motion.div>
+
+      {/* Origin Flow Modal - Only shows when toggled */}
       {showOriginFlow && <OriginFlow forceShow={true} />}
+
+      {/* Sacred Shifter Logo Watermark - Added for consistency */}
+      <div className="fixed top-0 left-0 right-0 pointer-events-none z-0 flex justify-center items-start">
+        <img 
+          src="/lovable-uploads/55c4de0c-9d48-42df-a6a2-1bb6520acb46.png" 
+          alt="Sacred Shifter Top Watermark" 
+          className="max-w-[70%] max-h-[20%] object-contain opacity-[0.35] mt-12" 
+        />
+      </div>
 
       <div className="ml-0 sm:ml-20">
         {/* Sacred geometry visualizer positioned more centrally and prominently */}
         <div className="fixed inset-0 z-5 pointer-events-none flex items-center justify-center">
-          <div className="w-full flex items-center justify-center">
-            <div className="w-[90vh] h-[90vh] max-w-none">
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="w-[90vh] h-[90vh] max-w-[90%] max-h-[90%]">
               <SacredGeometryVisualizer 
                 defaultShape={selectedShape}
                 size="xl"
                 showControls={false}
-                className="opacity-90"
+                className="opacity-80"
               />
             </div>
           </div>
@@ -299,7 +363,7 @@ const SacredShifterLanding = () => {
       </div>
 
       {/* Floating Sacred Geometry Selector */}
-      <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 max-w-sm w-full">
+      <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-40 max-w-sm w-full">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -326,8 +390,9 @@ const SacredShifterLanding = () => {
       </div>
 
       <ConsciousnessToggle />
+      
+      {/* Only render one footer, not both */}
       <FixedFooter />
-      <BottomNavigation />
     </div>
   );
 };
