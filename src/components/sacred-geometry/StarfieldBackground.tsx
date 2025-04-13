@@ -72,20 +72,20 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
       positions[i3 + 1] = (Math.random() - 0.5) * 100;
       positions[i3 + 2] = (Math.random() - 0.5) * 100;
       
-      // Varied star sizes
-      sizes[i] = Math.random() * 2;
+      // Varied star sizes - smaller range for more natural look
+      sizes[i] = Math.random() * 1.5;
     }
     
     starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     starsGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
     
-    // Load texture first 
-    const pointTexture = new THREE.TextureLoader().load('/lovable-uploads/d26329c2-349c-4a0e-af05-875c3a5f2754.png');
+    // Create circular star texture programmatically instead of using an image
+    const starTexture = createCircularStarTexture();
     
     // Create star material with custom shaders
     const starsMaterial = new THREE.ShaderMaterial({
       uniforms: {
-        pointTexture: { value: pointTexture },
+        pointTexture: { value: starTexture },
         opacity: { value: opacity }
       },
       vertexShader: `
@@ -94,6 +94,7 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
         void main() {
           vSize = size;
           vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          // Adjust size calculation to prevent squishing
           gl_PointSize = size * (300.0 / -mvPosition.z);
           gl_Position = projectionMatrix * mvPosition;
         }
@@ -103,8 +104,10 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
         uniform float opacity;
         varying float vSize;
         void main() {
+          // Use texture properly to create circular stars
           gl_FragColor = texture2D(pointTexture, gl_PointCoord);
-          gl_FragColor.a *= opacity * (0.5 + vSize * 0.5);
+          // Apply opacity with softer fade toward edges
+          gl_FragColor.a *= opacity * (0.3 + vSize * 0.7);
         }
       `,
       blending: THREE.AdditiveBlending,
@@ -161,6 +164,30 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
     };
     
     const brightStars = createBrightStars();
+    
+    // Generate a circular star texture programmatically
+    function createCircularStarTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 32;
+      canvas.height = 32;
+      
+      const context = canvas.getContext('2d');
+      if (!context) return new THREE.Texture();
+      
+      // Draw circular gradient for stars
+      const gradient = context.createRadialGradient(16, 16, 0, 16, 16, 16);
+      gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+      gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.8)');
+      gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.4)');
+      gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      
+      context.fillStyle = gradient;
+      context.fillRect(0, 0, 32, 32);
+      
+      const texture = new THREE.Texture(canvas);
+      texture.needsUpdate = true;
+      return texture;
+    }
     
     // Animation loop
     const animate = () => {
