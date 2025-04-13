@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Eye, EyeOff } from "lucide-react";
@@ -31,84 +30,54 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   chakra,
   title = "Sacred Frequency"
 }) => {
-  const [showVisualizer, setShowVisualizer] = useState(true);
+  const [showVisualizer, setShowVisualizer] = useState(false);
   const effectiveAudioUrl = url || audioUrl;
-  const { playAudio } = useGlobalAudioPlayer();
+  const { playAudio, togglePlayPause, currentAudio } = useGlobalAudioPlayer();
   
-  // Create audio element only once using ref
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   const audioInitialized = React.useRef(false);
   
-  // Initialize audio element only once
   useEffect(() => {
     if (!audioInitialized.current) {
-      // Find the global audio player's audio element
       const globalAudio = document.querySelector('audio');
       if (globalAudio) {
         audioRef.current = globalAudio;
       } else {
-        // Fallback to creating a new audio element if global one not found
         audioRef.current = new Audio();
       }
       audioInitialized.current = true;
     }
   }, []);
   
-  // Get analyzer for visualization
   const { audioContext, analyser } = useAudioAnalyzer(audioRef);
   
-  // Set up the audio source when component mounts or URL changes
-  useEffect(() => {
-    if (effectiveAudioUrl && audioRef.current) {
+  const isCurrentlyPlaying = React.useMemo(() => {
+    if (!currentAudio || !effectiveAudioUrl) return false;
+    return currentAudio.source === effectiveAudioUrl && isPlaying;
+  }, [currentAudio, effectiveAudioUrl, isPlaying]);
+  
+  const handlePlayPauseClick = () => {
+    onPlayToggle();
+    
+    if (isCurrentlyPlaying) {
+      togglePlayPause();
+    } else if (effectiveAudioUrl) {
+      playFrequency();
+    }
+  };
+  
+  const playFrequency = () => {
+    if (effectiveAudioUrl) {
       let formattedUrl = effectiveAudioUrl;
-      
-      // Format URL if needed
       if (!formattedUrl.startsWith('http')) {
         formattedUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${formattedUrl}`;
       }
       
-      // Set the source but don't play yet
-      audioRef.current.src = formattedUrl;
-      audioRef.current.load();
-      
-      // If we want to start playing, handle with global player
-      if (isPlaying) {
-        playFrequency();
-      }
-    }
-    
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-    };
-  }, [effectiveAudioUrl]);
-  
-  // Update audio playback state when isPlaying changes
-  useEffect(() => {
-    if (isPlaying && effectiveAudioUrl) {
-      playFrequency();
-    }
-  }, [isPlaying]);
-  
-  const playFrequency = () => {
-    if (effectiveAudioUrl) {
-      // Use the global player
       playAudio({
         title: title || `${frequency ? `${frequency}Hz` : 'Sacred'} Frequency`,
         artist: chakra ? `${chakra} Chakra` : "Sacred Shifter",
-        source: effectiveAudioUrl
+        source: formattedUrl
       });
-    }
-  };
-  
-  const handlePlayPauseClick = () => {
-    // Toggle play state in parent component
-    onPlayToggle();
-    
-    // If not playing, start playing
-    if (!isPlaying) {
-      playFrequency();
     }
   };
   
@@ -118,9 +87,8 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   
   return (
     <div className="relative z-50">
-      {/* Visualizer with higher z-index to appear above all other content */}
       {showVisualizer && isPlaying && (
-        <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+        <div className="fixed inset-0 pointer-events-none z-40 flex items-center justify-center">
           <SacredGeometryVisualizer 
             audioContext={audioContext} 
             analyser={analyser} 

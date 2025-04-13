@@ -1,199 +1,145 @@
 
-import { useState, useRef, useEffect } from 'react';
-import { toast } from 'sonner';
+import { useState, useEffect, useRef } from 'react';
 
-export const useAudioPlayer = () => {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+export function useAudioPlayer() {
+  const audioRef = useRef<HTMLAudioElement>(null);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentAudioTime, setCurrentAudioTime] = useState(0);
   const [audioLoaded, setAudioLoaded] = useState(false);
   const [audioError, setAudioError] = useState<string | null>(null);
+  const audioSourceRef = useRef<string | null>(null);
 
+  // Ensure the audio element exists
   useEffect(() => {
-    // Create audio element if it doesn't exist
     if (!audioRef.current) {
+      // Create an audio element if it doesn't exist yet
+      const audioElement = document.querySelector('audio') || document.createElement('audio');
+      audioElement.id = 'global-audio-player';
+      audioElement.style.display = 'none';
+      
+      if (!audioElement.parentElement) {
+        document.body.appendChild(audioElement);
+      }
+      
+      audioRef.current = audioElement as HTMLAudioElement;
       console.log("Creating new Audio element");
-      audioRef.current = new Audio();
     }
+    
+    return () => {
+      // Don't remove the audio element on unmount, let it persist
+    };
+  }, []);
+
+  // Set up event listeners for the audio element
+  useEffect(() => {
+    if (!audioRef.current) return;
     
     const audio = audioRef.current;
     
-    const setAudioData = () => {
-      setDuration(audio.duration);
-      setAudioLoaded(true);
-      console.log("Audio loaded and ready:", audio.src);
-    };
-
-    const setAudioTime = () => {
+    const handleTimeUpdate = () => {
       setCurrentAudioTime(audio.currentTime);
     };
     
-    const handleAudioError = (e: Event) => {
-      console.error("Error playing audio:", e);
-      setAudioError("Failed to load or play audio");
-      setIsAudioPlaying(false);
-      toast.error("Could not load audio. The file may be missing or in an unsupported format.");
+    const handleLoadedMetadata = () => {
+      setDuration(audio.duration);
+      setAudioLoaded(true);
+      setAudioError(null);
     };
     
-    const handleAudioEnded = () => {
-      console.log("Audio playback ended");
-      setIsAudioPlaying(false);
-      setCurrentAudioTime(0);
+    const handlePlay = () => {
+      setIsAudioPlaying(true);
     };
-
-    // Wait for audio to be loaded
-    audio.addEventListener('loadeddata', setAudioData);
-    audio.addEventListener('timeupdate', setAudioTime);
-    audio.addEventListener('error', handleAudioError);
-    audio.addEventListener('ended', handleAudioEnded);
+    
+    const handlePause = () => {
+      setIsAudioPlaying(false);
+    };
+    
+    const handleError = (e: any) => {
+      console.error("Audio error:", e);
+      setAudioError("Failed to load audio");
+      setAudioLoaded(false);
+    };
+    
+    // Remove existing event listeners to prevent duplicates
+    audio.removeEventListener('timeupdate', handleTimeUpdate);
+    audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.removeEventListener('play', handlePlay);
+    audio.removeEventListener('pause', handlePause);
+    audio.removeEventListener('error', handleError);
+    
+    // Add event listeners
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('error', handleError);
     
     return () => {
-      audio.removeEventListener('loadeddata', setAudioData);
-      audio.removeEventListener('timeupdate', setAudioTime);
-      audio.removeEventListener('error', handleAudioError);
-      audio.removeEventListener('ended', handleAudioEnded);
-      
-      // Pause audio when component is unmounted
-      if (isAudioPlaying) {
-        console.log("Pausing audio on cleanup");
-        audio.pause();
+      // Clean up event listeners if component unmounts
+      if (audio) {
+        audio.removeEventListener('timeupdate', handleTimeUpdate);
+        audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+        audio.removeEventListener('play', handlePlay);
+        audio.removeEventListener('pause', handlePause);
+        audio.removeEventListener('error', handleError);
       }
     };
-  }, [isAudioPlaying]);
+  }, [audioRef.current]);
 
-  const formatAudioUrl = (url: string): string => {
-    // If it's already a proper URL with http/https, return as is
-    if (!url) {
-      console.warn("Empty audio URL provided");
-      return '';
-    }
+  // Function to set the audio source
+  const setAudioSource = (source: string) => {
+    if (!audioRef.current) return;
     
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
-    }
-    
-    // If it's a path to a file from Pixabay, fix the URL
-    if (url.includes('pixabay.com') || url.includes('/music/')) {
-      // Make sure there's no leading slash in the path
-      const path = url.startsWith('/') ? url.substring(1) : url;
-      return `https://cdn.pixabay.com/${path}`;
-    }
-    
-    // For Supabase storage URLs
-    if (url.includes('storage/v1/object')) {
-      return url;
-    }
-    
-    // For other URLs, assume they're relative to the Supabase storage
-    console.log("Using Supabase storage URL:", url);
-    return `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${url}`;
-  };
-
-  const setAudioSource = (src: string) => {
-    if (!src) {
-      console.error("No audio source provided");
-      setAudioError("No audio source provided");
-      return;
-    }
-    
-    const formattedUrl = formatAudioUrl(src);
-    console.log("Setting audio source:", formattedUrl);
-    
-    if (audioRef.current) {
-      // Reset state
+    // Only change the source if it's different from current
+    if (audioSourceRef.current !== source) {
+      audioSourceRef.current = source;
+      audioRef.current.src = source;
+      audioRef.current.load();
       setAudioLoaded(false);
       setAudioError(null);
-      
-      // Stop any current playback
-      if (isAudioPlaying) {
-        audioRef.current.pause();
-        setIsAudioPlaying(false);
-      }
-      
-      try {
-        // Set new source
-        audioRef.current.src = formattedUrl;
-        audioRef.current.load();
-        console.log("Audio started loading:", formattedUrl);
-      } catch (err) {
-        console.error("Error setting audio source:", err);
-        setAudioError(`Error setting audio source: ${err}`);
-        toast.error("Failed to load audio file");
-      }
-    } else {
-      console.error("Audio element not initialized");
     }
   };
 
+  // Function to toggle play/pause
   const togglePlayPause = () => {
-    const audio = audioRef.current;
-    if (!audio) {
-      console.error("Audio element not initialized");
-      return;
-    }
+    if (!audioRef.current) return;
     
-    // If no source, don't try to play
-    if (!audio.src) {
-      console.error("No audio source set");
-      toast.error("No audio available");
-      return;
-    }
-
     if (isAudioPlaying) {
-      console.log("Pausing audio:", audio.src);
-      audio.pause();
-      setIsAudioPlaying(false);
+      audioRef.current.pause();
     } else {
-      console.log("Playing audio:", audio.src);
-      const playPromise = audio.play();
-      
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsAudioPlaying(true);
-            console.log("Audio playback started successfully");
-          })
-          .catch(error => {
+      // Ensure we have a src before playing
+      if (audioRef.current.src) {
+        const playPromise = audioRef.current.play();
+        
+        // Handle the play promise to catch any errors
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
             console.error("Error playing audio:", error);
-            setAudioError(`Failed to play audio: ${error.message}`);
-            toast.error("Failed to play audio. Please try again.");
+            setAudioError("Failed to play audio");
           });
+        }
       }
     }
   };
 
-  const handleTimeUpdate = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    setCurrentAudioTime(audio.currentTime);
-  };
-
-  const handleVolumeChange = (volume: number) => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.volume = volume;
-  };
-  
+  // Function to seek to a specific time
   const seekTo = (time: number) => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.currentTime = time;
+    if (!audioRef.current) return;
+    
+    audioRef.current.currentTime = time;
     setCurrentAudioTime(time);
   };
 
   return {
-    audioRef,
-    togglePlayPause,
     isAudioPlaying,
     duration,
     currentAudioTime,
-    handleTimeUpdate,
-    handleVolumeChange,
-    setAudioSource,
-    audioLoaded,
-    audioError,
+    togglePlayPause,
     seekTo,
-    formatAudioUrl
+    setAudioSource,
+    audioRef,
+    audioLoaded,
+    audioError
   };
-};
+}

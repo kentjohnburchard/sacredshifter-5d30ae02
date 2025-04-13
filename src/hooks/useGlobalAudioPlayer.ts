@@ -12,7 +12,9 @@ type AudioInfo = {
 let globalAudioState = {
   currentAudio: null as AudioInfo | null,
   isPlaying: false,
-  onEndedCallback: null as (() => void) | null
+  onEndedCallback: null as (() => void) | null,
+  // Track whether the audio has been initialized to prevent duplicate initialization
+  isInitialized: false
 };
 
 export function useGlobalAudioPlayer() {
@@ -35,6 +37,15 @@ export function useGlobalAudioPlayer() {
 
   // Function to play audio through the global player
   const playAudio = useCallback((audioInfo: AudioInfo) => {
+    // Check if we're trying to play the same audio that's already playing
+    const isSameAudio = globalAudioState.currentAudio?.source === audioInfo.source;
+    
+    // If it's the same audio and already playing, don't trigger a replay
+    if (isSameAudio && globalAudioState.isPlaying) {
+      console.log("Already playing this audio, skipping replay");
+      return;
+    }
+    
     // Update global state
     globalAudioState.currentAudio = audioInfo;
     globalAudioState.isPlaying = true;
@@ -46,6 +57,22 @@ export function useGlobalAudioPlayer() {
     // Dispatch event to notify the global player
     const event = new CustomEvent('playAudio', {
       detail: { audioInfo }
+    });
+    window.dispatchEvent(event);
+  }, []);
+
+  // Function to toggle play/pause state
+  const togglePlayPause = useCallback(() => {
+    // Update global state
+    const newIsPlaying = !globalAudioState.isPlaying;
+    globalAudioState.isPlaying = newIsPlaying;
+    
+    // Update local state
+    setIsPlaying(newIsPlaying);
+    
+    // Dispatch event to notify the global player
+    const event = new CustomEvent('togglePlayPause', {
+      detail: { isPlaying: newIsPlaying }
     });
     window.dispatchEvent(event);
   }, []);
@@ -81,5 +108,11 @@ export function useGlobalAudioPlayer() {
     };
   }, []);
 
-  return { playAudio, isPlaying, currentAudio, setOnEndedCallback };
+  return { 
+    playAudio, 
+    isPlaying, 
+    currentAudio, 
+    setOnEndedCallback,
+    togglePlayPause
+  };
 }
