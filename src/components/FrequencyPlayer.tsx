@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Eye, EyeOff } from "lucide-react";
@@ -40,21 +39,19 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   
   // Get the global audio element
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
-  const audioElementFoundRef = React.useRef(false);
   
-  // Find the audio element in the DOM
+  // Find the audio element in the DOM - IMPORTANT: do this only once on mount
   useEffect(() => {
-    if (!audioElementFoundRef.current) {
-      console.log("FrequencyPlayer: Looking for audio element");
-      const globalAudio = document.querySelector('audio#global-audio-player');
-      if (globalAudio) {
-        audioRef.current = globalAudio as HTMLAudioElement;
-        audioElementFoundRef.current = true;
-        console.log("FrequencyPlayer: Found audio element");
-      } else {
-        console.log("FrequencyPlayer: Audio element not found");
-      }
+    console.log("FrequencyPlayer: Looking for audio element");
+    const globalAudio = document.querySelector('audio#global-audio-player');
+    if (globalAudio) {
+      audioRef.current = globalAudio as HTMLAudioElement;
+      console.log("FrequencyPlayer: Found audio element");
+    } else {
+      console.log("FrequencyPlayer: Audio element not found");
     }
+    
+    // No cleanup - keep the reference
   }, []);
   
   // Use the audio analyzer hook with the global audio element

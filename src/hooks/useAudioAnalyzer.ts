@@ -27,8 +27,8 @@ const useAudioAnalyzer = (
         newAnalyser.fftSize = 2048;
         setAnalyser(newAnalyser);
         
-        // Set output to destination to ensure sound flows through
-        newAnalyser.connect(context.destination);
+        // IMPORTANT: Don't connect to destination here - this creates a parallel audio path
+        // That will cause the original audio path to be disconnected
       } catch (error) {
         console.error("Failed to initialize audio context:", error);
       }
@@ -65,8 +65,19 @@ const useAudioAnalyzer = (
           if (!sourceNodeRef.current) {
             console.log("Creating new MediaElementAudioSourceNode");
             sourceNodeRef.current = audioContext.createMediaElementSource(audioRef.current);
+            
+            // CRITICAL CHANGE: Create a gain node to preserve the original audio path
+            const gainNode = audioContext.createGain();
+            gainNode.gain.value = 1.0; // Keep original volume
+            
+            // Connect in this order: source -> gain -> destination (for audio playback)
+            sourceNodeRef.current.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // Also connect to analyzer as a side chain (doesn't interrupt the audio flow)
             sourceNodeRef.current.connect(analyser);
-            console.log("Successfully connected audio source to analyzer");
+            
+            console.log("Successfully connected audio source to analyzer and preserved audio path");
             sourceConnected.current = true;
           }
         } catch (error) {
