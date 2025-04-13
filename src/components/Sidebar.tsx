@@ -88,12 +88,12 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
       {/* Sidebar for mobile (full screen when active) */}
       <aside 
         className={cn(
-          "fixed left-0 top-0 z-40 flex h-full flex-col border-r shadow-md transition-all duration-300 sm:translate-x-0",
+          "fixed left-0 top-0 z-40 flex h-full flex-col border-r shadow-lg transition-all duration-300 sm:translate-x-0",
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full",
           isMobileMenuOpen ? "w-64" : (isCollapsed ? "w-20" : "w-64"),
           liftTheVeil 
-            ? "bg-gradient-to-b from-pink-900/95 via-pink-800/90 to-pink-900/95 border-pink-700/50" 
-            : "bg-gradient-to-b from-purple-900/95 via-purple-800/90 to-purple-900/95 border-purple-700/50",
+            ? "bg-gradient-to-b from-pink-900 via-pink-800 to-pink-900 border-pink-700" 
+            : "bg-gradient-to-b from-purple-900 via-purple-800 to-purple-900 border-purple-700",
           "sm:translate-x-0", // Always show on sm breakpoint and up
           className
         )}
@@ -149,7 +149,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         {/* User section at the bottom */}
         <div className={cn(
           "border-t px-3 py-4", 
-          liftTheVeil ? "border-pink-700/50" : "border-purple-700/50"
+          liftTheVeil ? "border-pink-700" : "border-purple-700"
         )}>
           <SidebarUserDropdown isCollapsed={effectivelyCollapsed} />
         </div>
@@ -161,8 +161,8 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           "hidden sm:flex fixed left-0 top-0 z-40 h-full flex-col border-r shadow-md transition-all duration-300",
           isCollapsed ? "w-20" : "w-64",
           liftTheVeil 
-            ? "bg-gradient-to-b from-pink-900/95 via-pink-800/90 to-pink-900/95 border-pink-700/50" 
-            : "bg-gradient-to-b from-purple-900/95 via-purple-800/90 to-purple-900/95 border-purple-700/50",
+            ? "bg-gradient-to-b from-pink-900 via-pink-800 to-pink-900 border-pink-700" 
+            : "bg-gradient-to-b from-purple-900 via-purple-800 to-purple-900 border-purple-700",
           className
         )}
         onMouseEnter={() => setIsCollapsed(false)}

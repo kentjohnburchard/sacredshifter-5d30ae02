@@ -1,3 +1,4 @@
+
 import React from 'react';
 import NavLink from './NavLink';
 import { useLocation } from 'react-router-dom';
@@ -105,18 +106,18 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
               "flex items-center py-2 px-3 text-sm rounded-md transition-colors group relative",
               isActive
                 ? liftTheVeil 
-                  ? "bg-pink-700/50 text-white font-medium" 
-                  : "bg-purple-700/50 text-white font-medium"
+                  ? "bg-pink-700/70 text-white font-bold" 
+                  : "bg-purple-700/70 text-white font-bold"
                 : "text-white hover:bg-opacity-80", 
-              liftTheVeil && !isActive && "hover:bg-pink-800/50 hover:text-pink-200",
-              !liftTheVeil && !isActive && "hover:bg-purple-800/50 hover:text-purple-200"
+              liftTheVeil && !isActive && "hover:bg-pink-800/70 hover:text-white",
+              !liftTheVeil && !isActive && "hover:bg-purple-800/70 hover:text-white"
             )}
           >
             {/* Active item indicator - subtle glow effect */}
             {isActive && (
               <div className={cn(
-                "absolute inset-0 rounded-md opacity-20",
-                liftTheVeil ? "shadow-[0_0_8px_2px_rgba(236,72,153,0.6)]" : "shadow-[0_0_8px_2px_rgba(147,51,234,0.6)]"
+                "absolute inset-0 rounded-md opacity-40",
+                liftTheVeil ? "shadow-[0_0_12px_4px_rgba(236,72,153,0.8)]" : "shadow-[0_0_12px_4px_rgba(147,51,234,0.8)]"
               )} />
             )}
             
@@ -125,14 +126,14 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
                 "h-5 w-5 mr-3", 
                 isActive
                   ? liftTheVeil
-                    ? "text-pink-300"
-                    : "text-purple-300"
+                    ? "text-white"
+                    : "text-white"
                   : "text-white"
               )}
             />
             <span 
               className={cn(
-                "transition-all duration-300 ease-in-out text-white font-medium",
+                "transition-all duration-300 ease-in-out text-white font-bold",
                 isCollapsed 
                   ? "opacity-0 w-0 overflow-hidden" 
                   : "opacity-100 w-auto"
