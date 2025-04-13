@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import RandomizingAudioPlayer from '@/components/audio/RandomizingAudioPlayer';
 import { toast } from 'sonner';
-import { SacredGeometryVisualizer } from '@/components/sacred-geometry';
+import FractalAudioVisualizer from '@/components/audio/FractalAudioVisualizer';
 import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
 import { useRef } from 'react';
 
@@ -61,7 +61,7 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
   const [isVisualEffectActive, setIsVisualEffectActive] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>("journey");
   const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
-  const [visualizerMode, setVisualizerMode] = useState<'fractal' | 'spiral' | 'mandala'>('fractal');
+  const [visualizerMode, setVisualizerMode] = useState<'purple' | 'blue' | 'rainbow' | 'gold'>('purple');
   const [showVisualizer, setShowVisualizer] = useState<boolean>(true);
   
   // Audio analyzer setup for visualizer
@@ -115,7 +115,7 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
   };
   
   const changeVisualizerMode = () => {
-    const modes: ('fractal' | 'spiral' | 'mandala')[] = ['fractal', 'spiral', 'mandala'];
+    const modes: ('purple' | 'blue' | 'rainbow' | 'gold')[] = ['purple', 'blue', 'rainbow', 'gold'];
     const currentIndex = modes.indexOf(visualizerMode);
     const nextIndex = (currentIndex + 1) % modes.length;
     setVisualizerMode(modes[nextIndex]);
@@ -133,16 +133,14 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
 
   return (
     <div className="max-w-4xl mx-auto relative">
-      {/* Sacred Geometry Visualizer */}
+      {/* Fractal Audio Visualizer - replaceing sacred geometry visualizer */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
-        <SacredGeometryVisualizer
+        <FractalAudioVisualizer
           audioContext={audioContext}
           analyser={analyser}
           isVisible={showVisualizer && isAudioPlaying}
-          chakra={chakraName}
-          frequency={frequencyValue}
-          mode={visualizerMode}
-          sensitivity={isLowSensitivityMode ? 0.5 : 1}
+          colorScheme={visualizerMode}
+          intensity={isLowSensitivityMode ? 0.5 : 1}
         />
       </div>
       

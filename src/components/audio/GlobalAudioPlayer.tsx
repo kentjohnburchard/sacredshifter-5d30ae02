@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Pause, Play, X, MinusCircle, Volume2, VolumeX, SkipBack, SkipForward } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { SacredGeometryVisualizer } from '@/components/sacred-geometry';
+import FractalAudioVisualizer from '@/components/audio/FractalAudioVisualizer';
 import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
 
 export interface GlobalAudioPlayerProps {
@@ -19,6 +19,7 @@ const GlobalAudioPlayer = ({ initiallyExpanded = false }: GlobalAudioPlayerProps
   const onEndedCallbackRef = useRef<(() => void) | null>(null);
   const audioInitializedRef = useRef(false);
   const [showVisualizer, setShowVisualizer] = useState(true);
+  const [visualizerMode, setVisualizerMode] = useState<'purple' | 'blue' | 'rainbow' | 'gold'>('purple');
   
   const {
     isAudioPlaying,
@@ -203,6 +204,13 @@ const GlobalAudioPlayer = ({ initiallyExpanded = false }: GlobalAudioPlayerProps
     setShowVisualizer(!showVisualizer);
   };
   
+  const changeVisualizerMode = () => {
+    const modes: ('purple' | 'blue' | 'rainbow' | 'gold')[] = ['purple', 'blue', 'rainbow', 'gold'];
+    const currentIndex = modes.indexOf(visualizerMode);
+    const nextIndex = (currentIndex + 1) % modes.length;
+    setVisualizerMode(modes[nextIndex]);
+  };
+  
   const handleClose = () => {
     if (isAudioPlaying) {
       togglePlayPause(); // Pause the audio
@@ -222,14 +230,14 @@ const GlobalAudioPlayer = ({ initiallyExpanded = false }: GlobalAudioPlayerProps
 
   return (
     <>
-      {/* Sacred Geometry Visualizer - only show when playing and visualizer is enabled */}
+      {/* Fractal Audio Visualizer - only show when playing and visualizer is enabled */}
       {showVisualizer && isAudioPlaying && (
         <div className="fixed inset-0 pointer-events-none z-40">
-          <SacredGeometryVisualizer 
+          <FractalAudioVisualizer 
             audioContext={audioContext} 
             analyser={analyser} 
             isVisible={true}
-            mode="fractal"
+            colorScheme={visualizerMode}
           />
         </div>
       )}
@@ -258,6 +266,7 @@ const GlobalAudioPlayer = ({ initiallyExpanded = false }: GlobalAudioPlayerProps
               size="icon"
               className="h-7 w-7 text-purple-600 hover:text-purple-800"
               onClick={toggleVisualizer}
+              title={showVisualizer ? "Hide visualizer" : "Show visualizer"}
             >
               {showVisualizer ? (
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -273,6 +282,23 @@ const GlobalAudioPlayer = ({ initiallyExpanded = false }: GlobalAudioPlayerProps
                 </svg>
               )}
             </Button>
+            
+            {showVisualizer && isAudioPlaying && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-purple-600 hover:text-purple-800"
+                onClick={changeVisualizerMode}
+                title="Change visualizer style"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 12h20"></path>
+                  <path d="M12 2v20"></path>
+                  <circle cx="12" cy="12" r="4"></circle>
+                </svg>
+              </Button>
+            )}
+            
             <Button
               variant="ghost"
               size="icon"

@@ -1,7 +1,8 @@
+
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Eye, EyeOff } from "lucide-react";
-import { SacredGeometryVisualizer } from "@/components/sacred-geometry";
+import FractalAudioVisualizer from "@/components/audio/FractalAudioVisualizer";
 import useAudioAnalyzer from "@/hooks/useAudioAnalyzer";
 import { useGlobalAudioPlayer } from "@/hooks/useGlobalAudioPlayer";
 
@@ -89,13 +90,14 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     <div className="relative z-50">
       {showVisualizer && isPlaying && (
         <div className="fixed inset-0 pointer-events-none z-40 flex items-center justify-center">
-          <SacredGeometryVisualizer 
+          <FractalAudioVisualizer 
             audioContext={audioContext} 
             analyser={analyser} 
             isVisible={true}
-            chakra={chakra}
-            frequency={frequency}
-            mode="fractal"
+            colorScheme={chakra?.toLowerCase() === "heart" ? "gold" : 
+                      chakra?.toLowerCase() === "throat" ? "blue" : 
+                      chakra?.toLowerCase() === "crown" ? "rainbow" : 
+                      "purple"}
           />
         </div>
       )}

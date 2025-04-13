@@ -7,7 +7,7 @@ import { useJourneyTemplates } from '@/hooks/useJourneyTemplates';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import { toast } from 'sonner';
 import { useJourneySongs } from '@/hooks/useJourneySongs';
-import { SacredGeometryVisualizer } from '@/components/sacred-geometry';
+import FractalAudioVisualizer from '@/components/audio/FractalAudioVisualizer';
 import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff, Shuffle } from 'lucide-react';
@@ -19,7 +19,7 @@ const JourneyPlayer = () => {
   const [journey, setJourney] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { templates } = useJourneyTemplates();
-  const [visualizerMode, setVisualizerMode] = useState<'fractal' | 'spiral' | 'mandala'>('fractal');
+  const [visualizerMode, setVisualizerMode] = useState<'purple' | 'blue' | 'rainbow' | 'gold'>('purple');
   const [showVisualizer, setShowVisualizer] = useState(true);
   
   // Create a ref for the audio element used by the global player
@@ -156,20 +156,18 @@ const JourneyPlayer = () => {
     }
   }, [journeyId, navigate, playAudio, templates, songs, loadingSongs, currentAudio]);
 
-  // Create a container style with explicit height for the visualizer that floats above all content
-  const visualizerContainerStyle = {
-    position: 'fixed' as const,
-    top: 0,
-    left: 0,
-    width: '100vw',
-    height: '100vh',
-    pointerEvents: 'none' as const,
-    zIndex: 50  // Higher z-index to float above content but below UI controls
-  };
-
   // Toggle visualizer on/off to save resources
   const toggleVisualizer = () => {
     setShowVisualizer(prev => !prev);
+  };
+  
+  // Change visualizer color scheme
+  const cycleVisualizerMode = () => {
+    const modes: ('purple' | 'blue' | 'rainbow' | 'gold')[] = ['purple', 'blue', 'rainbow', 'gold'];
+    const currentIndex = modes.indexOf(visualizerMode);
+    const nextIndex = (currentIndex + 1) % modes.length;
+    setVisualizerMode(modes[nextIndex]);
+    toast.info(`Visualizer mode: ${modes[nextIndex]}`);
   };
 
   if (isLoading || loadingSongs) {
@@ -208,18 +206,15 @@ const JourneyPlayer = () => {
 
   return (
     <Layout pageTitle={journey?.title} useBlueWaveBackground={false} theme="cosmic">
-      {/* Fixed container for the visualizer with explicit dimensions - floating above content */}
+      {/* Fractal Audio Visualizer - audio reactive, replacing sacred geometry */}
       {showVisualizer && isPlaying && (
-        <div style={visualizerContainerStyle}>
-          <SacredGeometryVisualizer 
-            audioContext={audioContext}
-            analyser={analyser}
-            isVisible={true}
-            chakra={journey?.chakras?.[0]}
-            mode={visualizerMode}
-            showControls={false}
-          />
-        </div>
+        <FractalAudioVisualizer
+          audioContext={audioContext}
+          analyser={analyser}
+          isVisible={true}
+          colorScheme={visualizerMode}
+          intensity={1}
+        />
       )}
       
       <div className="max-w-5xl mx-auto pt-4 pb-12 relative z-10">
@@ -238,6 +233,17 @@ const JourneyPlayer = () => {
               <><EyeOff className="h-4 w-4 mr-2" /> Show Visual</>
             )}
           </Button>
+          
+          {showVisualizer && isPlaying && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="ml-2 bg-white/30 backdrop-blur-sm"
+              onClick={cycleVisualizerMode}
+            >
+              Change Style
+            </Button>
+          )}
         </div>
         
         <div className="absolute top-4 left-4 z-20 flex items-center">
