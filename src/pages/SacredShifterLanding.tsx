@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import SacredFlowerOfLife from '@/components/sacred-geometry/shapes/SacredFlowerOfLife';
@@ -84,13 +85,6 @@ const SacredShifterLanding = () => {
         icon: <Activity className="h-7 w-7" />,
         color: "from-cyan-900 to-blue-800",
         path: "/frequency-library",
-      },
-      {
-        title: "Music Generator",
-        description: "Create custom healing soundscapes",
-        icon: <Music className="h-7 w-7" />,
-        color: "from-indigo-900 to-blue-700", 
-        path: "/music-generator",
       },
     ],
     experiences: [
@@ -246,18 +240,19 @@ const SacredShifterLanding = () => {
       liftTheVeil ? "border-pink-500 border-[6px]" : "border-purple-500 border-[6px]"
     )}>
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <StarfieldBackground density="medium" opacity={0.6} isStatic={true} />
+        <StarfieldBackground density="high" opacity={0.8} isStatic={true} />
       </div>
 
       <Sidebar />
       <Watermark />
       <GlobalWatermark />
 
+      {/* Origin Flow toggle - moved higher to prevent being covered by bottom navigation */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1, duration: 0.5 }}
-        className="fixed left-6 top-[50%] z-50 cursor-pointer"
+        className="fixed left-6 top-[40%] z-50 cursor-pointer"
         onClick={toggleOriginFlow}
       >
         <div className="p-2 rounded-full bg-purple-900/30 hover:bg-purple-800/50 border border-purple-500/30 transition-colors">
@@ -286,7 +281,8 @@ const SacredShifterLanding = () => {
         </motion.div>
       )}
 
-      <div className="fixed top-0 left-0 right-0 pointer-events-none z-0 flex justify-center items-start">
+      {/* Sacred Shifter Watermark Logo - positioned at top */}
+      <div className="fixed top-0 left-0 right-0 pointer-events-none z-10 flex justify-center items-start">
         <img 
           src="/lovable-uploads/55c4de0c-9d48-42df-a6a2-1bb6520acb46.png" 
           alt="Sacred Shifter Top Watermark" 
@@ -309,113 +305,126 @@ const SacredShifterLanding = () => {
         </div>
 
         <div className="container mx-auto px-4 pt-24 md:pt-32 relative z-20">
-          <div className="text-center mb-16 md:mb-20 max-w-4xl mx-auto">
+          {/* Downsized welcome text and repositioned below top logo */}
+          <div className="text-center mb-8 mt-20 max-w-4xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-8"
+              className="mb-4"
             >
-              <h1 className="text-5xl sm:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-300 to-indigo-400 mb-6">
+              <h1 className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-300 to-indigo-400 mb-3">
                 Welcome to Sacred Shifter
               </h1>
-              <p className="text-lg md:text-xl text-purple-100 max-w-3xl mx-auto">
+              <p className="text-sm md:text-base text-purple-100 max-w-2xl mx-auto">
                 Explore frequency-based healing, sacred geometry, and consciousness expansion in 
                 this interdimensional portal
               </p>
             </motion.div>
           </div>
 
-          <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="mb-12">
-            <TabsList className="bg-black/60 backdrop-blur-sm rounded-full px-4 py-2 flex items-center mx-auto">
-              {navigationTabs.map((tab) => (
-                <TabsTrigger 
-                  key={tab.value} 
-                  value={tab.value}
-                  className="flex items-center px-3 py-2 rounded-full text-sm sm:text-base text-purple-100 
-                           hover:bg-purple-900/40 transition-colors whitespace-nowrap data-[state=active]:bg-purple-800/70"
-                >
-                  <span className="mr-2">{tab.icon}</span>
-                  <span>{tab.label}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            
-            {Object.keys(categoryFeatures).map((category) => (
-              <TabsContent key={category} value={category} className="animate-fade-in mt-6">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-8">
-                  {categoryFeatures[category as keyof typeof categoryFeatures].map((card) => (
-                    card.onClick ? (
-                      <div key={card.title} onClick={card.onClick} className="cursor-pointer">
-                        <motion.div
-                          whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
-                          className={`bg-gradient-to-br ${card.color} rounded-lg p-3 text-white border border-white/10 
-                                    backdrop-blur-md shadow-lg hover:shadow-xl transition-all h-full flex flex-col`}
-                        >
-                          <div className="flex flex-col h-full">
-                            <div className="flex items-center mb-1">
-                              <div className="p-1.5 rounded-full bg-black/20 backdrop-blur-sm mr-2">
-                                {card.icon}
-                              </div>
-                              <h3 className="text-base font-semibold">{card.title}</h3>
-                            </div>
-                            
-                            <p className="text-xs text-gray-200/90 mt-1">{card.description}</p>
-                            
-                            <div className="mt-auto pt-1 flex justify-end">
-                              <span className="text-white/80 flex items-center text-xs font-medium">
-                                Explore <span aria-hidden="true" className="ml-1">→</span>
-                              </span>
-                            </div>
-                          </div>
-                        </motion.div>
-                      </div>
-                    ) : (
-                      <Link to={card.path} key={card.title} className="block">
-                        <motion.div
-                          whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
-                          className={`bg-gradient-to-br ${card.color} rounded-lg p-3 text-white border border-white/10 
-                                    backdrop-blur-md shadow-lg hover:shadow-xl transition-all h-full flex flex-col`}
-                        >
-                          <div className="flex flex-col h-full">
-                            <div className="flex items-center mb-1">
-                              <div className="p-1.5 rounded-full bg-black/20 backdrop-blur-sm mr-2">
-                                {card.icon}
-                              </div>
-                              <h3 className="text-base font-semibold">{card.title}</h3>
-                            </div>
-                            
-                            <p className="text-xs text-gray-200/90 mt-1">{card.description}</p>
-                            
-                            <div className="mt-auto pt-1 flex justify-end">
-                              <span className="text-white/80 flex items-center text-xs font-medium">
-                                Explore <span aria-hidden="true" className="ml-1">→</span>
-                              </span>
-                            </div>
-                          </div>
-                        </motion.div>
-                      </Link>
-                    )
+          {/* Responsive tab navigation with scroll for small screens */}
+          <div className="mb-12 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-transparent">
+            <Tabs 
+              defaultValue={activeTab} 
+              value={activeTab} 
+              onValueChange={setActiveTab} 
+              className="w-full min-w-max"
+            >
+              <div className="flex justify-center w-full">
+                <TabsList className="bg-black/60 backdrop-blur-sm rounded-full px-2 py-2 flex items-center mx-auto overflow-x-auto white-space-nowrap">
+                  {navigationTabs.map((tab) => (
+                    <TabsTrigger 
+                      key={tab.value} 
+                      value={tab.value}
+                      className="flex items-center px-3 py-2 rounded-full text-sm sm:text-base text-purple-100 
+                               hover:bg-purple-900/40 transition-colors whitespace-nowrap data-[state=active]:bg-purple-800/70"
+                    >
+                      <span className="mr-2">{tab.icon}</span>
+                      <span>{tab.label}</span>
+                    </TabsTrigger>
                   ))}
-                </div>
-              </TabsContent>
-            ))}
-          </Tabs>
+                </TabsList>
+              </div>
+              
+              {Object.keys(categoryFeatures).map((category) => (
+                <TabsContent key={category} value={category} className="animate-fade-in mt-6">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-8">
+                    {categoryFeatures[category as keyof typeof categoryFeatures].map((card) => (
+                      card.onClick ? (
+                        <div key={card.title} onClick={card.onClick} className="cursor-pointer">
+                          <motion.div
+                            whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
+                            className={`bg-gradient-to-br ${card.color} rounded-lg p-3 text-white border border-white/10 
+                                      backdrop-blur-md shadow-lg hover:shadow-xl transition-all h-full flex flex-col`}
+                          >
+                            <div className="flex flex-col h-full">
+                              <div className="flex items-center mb-1">
+                                <div className="p-1.5 rounded-full bg-black/20 backdrop-blur-sm mr-2">
+                                  {card.icon}
+                                </div>
+                                <h3 className="text-base font-semibold">{card.title}</h3>
+                              </div>
+                              
+                              <p className="text-xs text-gray-200/90 mt-1">{card.description}</p>
+                              
+                              <div className="mt-auto pt-1 flex justify-end">
+                                <span className="text-white/80 flex items-center text-xs font-medium">
+                                  Explore <span aria-hidden="true" className="ml-1">→</span>
+                                </span>
+                              </div>
+                            </div>
+                          </motion.div>
+                        </div>
+                      ) : (
+                        <Link to={card.path} key={card.title} className="block">
+                          <motion.div
+                            whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
+                            className={`bg-gradient-to-br ${card.color} rounded-lg p-3 text-white border border-white/10 
+                                      backdrop-blur-md shadow-lg hover:shadow-xl transition-all h-full flex flex-col`}
+                          >
+                            <div className="flex flex-col h-full">
+                              <div className="flex items-center mb-1">
+                                <div className="p-1.5 rounded-full bg-black/20 backdrop-blur-sm mr-2">
+                                  {card.icon}
+                                </div>
+                                <h3 className="text-base font-semibold">{card.title}</h3>
+                              </div>
+                              
+                              <p className="text-xs text-gray-200/90 mt-1">{card.description}</p>
+                              
+                              <div className="mt-auto pt-1 flex justify-end">
+                                <span className="text-white/80 flex items-center text-xs font-medium">
+                                  Explore <span aria-hidden="true" className="ml-1">→</span>
+                                </span>
+                              </div>
+                            </div>
+                          </motion.div>
+                        </Link>
+                      )
+                    ))}
+                  </div>
+                </TabsContent>
+              ))}
+            </Tabs>
+          </div>
 
           <div className="h-24"></div>
         </div>
       </div>
 
+      {/* Prime Sigil Activator for About Sacred Shifter */}
       <div className="fixed top-4 right-4 z-40">
         <div onClick={toggleAboutComponent} className="cursor-pointer">
-          <PrimeSigilActivator size="md" />
+          <PrimeSigilActivator size="md" withTooltip={true} />
         </div>
       </div>
 
+      {/* Sacred Geometries Selector */}
       <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-40 max-w-sm w-full">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-black/80 backdrop-blur-lg rounded-xl p-4 border border-purple-500/30 shadow-lg shadow-purple-900/20"
+          className="bg-black/80 backdrop-blur-lg rounded-xl p-4 border border-purple-500/30 shadow-lg shadow-purple-900/20 mx-2"
         >
           <h2 className="text-lg font-semibold text-center mb-3">Sacred Geometries</h2>
           <div className="grid grid-cols-4 gap-2">

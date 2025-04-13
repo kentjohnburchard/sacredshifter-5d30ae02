@@ -53,24 +53,26 @@ const ThemeEnhancer: React.FC<ThemeEnhancerProps> = ({
       </div>
       
       {/* About Sacred Shifter Modal - conditionally rendered */}
-      {showAbout && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto"
-        >
-          <div className="relative max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <button 
-              className="absolute right-4 top-4 text-white/60 hover:text-white z-10"
-              onClick={onToggleAbout}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-            </button>
-            <AboutSacredShifter />
-          </div>
-        </motion.div>
-      )}
+      <AnimatePresence>
+        {showAbout && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto"
+          >
+            <div className="relative max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+              <button 
+                className="absolute right-4 top-4 text-white/60 hover:text-white z-10"
+                onClick={onToggleAbout}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              </button>
+              <AboutSacredShifter />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       <AnimatePresence>
         {liftTheVeil && (
