@@ -101,7 +101,7 @@ const AboutFounder = () => {
                 />
                 <CardContent className="p-4">
                   <h3 className="text-lg font-medium">Kent Burchard</h3>
-                  <p className="text-sm text-gray-500">Founder & Sound Researcher</p>
+                  <p className="text-sm text-gray-500">Founder</p>
                 </CardContent>
               </Card>
             </div>

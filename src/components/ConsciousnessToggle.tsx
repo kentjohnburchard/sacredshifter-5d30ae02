@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { AnimatePresence, motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
+import { toast } from "sonner";
 
 // Number of clicks needed to trigger the easter egg
 const CLICKS_TO_TRIGGER = 7;
@@ -40,7 +41,15 @@ const ConsciousnessToggle: React.FC = () => {
     // If we reach the target click count, toggle easter egg mode
     if (newCount >= CLICKS_TO_TRIGGER) {
       setClickCount(0);
-      setLiftTheVeil(!liftTheVeil);
+      const newMode = !liftTheVeil;
+      setLiftTheVeil(newMode);
+      
+      // Show a small toast to indicate the mode change
+      toast.success(newMode ? "Veil Lifted! Consciousness Expanded" : "Standard Mode activated", {
+        icon: <Sparkles className={newMode ? "text-pink-500" : "text-indigo-500"} />,
+        duration: 3000,
+        position: "top-center"
+      });
     }
   };
   

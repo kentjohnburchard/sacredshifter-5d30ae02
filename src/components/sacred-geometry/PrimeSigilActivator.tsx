@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
@@ -24,33 +23,27 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
   const svgRef = useRef<SVGSVGElement>(null);
   const primes = useRef(generatePrimeSequence(12)).current;
 
-  // Convert size to pixel dimensions
   const dimensions = {
     sm: 40,
     md: 60,
     lg: 80
   }[size];
 
-  // Play a tone when activated
   const playActivationTone = () => {
     try {
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
       
-      // Set frequency based on mode (963Hz for lifting the veil, 528Hz for lowering)
       oscillator.frequency.value = liftTheVeil ? 528 : 963;
       oscillator.type = 'sine';
       
-      // Set volume
       gainNode.gain.value = 0.2;
       gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1.5);
       
-      // Connect nodes
       oscillator.connect(gainNode);
       gainNode.connect(audioContext.destination);
       
-      // Start and stop
       oscillator.start();
       setTimeout(() => oscillator.stop(), 1500);
     } catch (error) {
@@ -59,18 +52,14 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
   };
   
   const handleActivate = () => {
-    // Show ripple effect
     setShowRipple(true);
     setTimeout(() => setShowRipple(false), 700);
     
-    // Toggle veil mode
     setLiftTheVeil(!liftTheVeil);
     
-    // Play activation tone
     playActivationTone();
   };
 
-  // Calculate golden ratio spiral points
   const createGoldenSpiralPath = (centerX: number, centerY: number, maxRadius: number): string => {
     const points: [number, number][] = [];
     const goldenRatio = 1.618033988749895;
@@ -90,7 +79,6 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
     ).join(' ');
   };
   
-  // Calculate flower of life points
   const createFlowerOfLifeCircles = (centerX: number, centerY: number, radius: number): {cx: number, cy: number, r: number}[] => {
     const circles = [{ cx: centerX, cy: centerY, r: radius }];
     const positions = [
@@ -112,7 +100,6 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
     return circles;
   };
   
-  // Create prime number dots
   const createPrimeDots = (centerX: number, centerY: number, radius: number): {cx: number, cy: number, r: number}[] => {
     return primes.slice(0, 7).map((prime, i) => {
       const angle = (i / 7) * Math.PI * 2;
@@ -155,7 +142,6 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
                   ${isHovered ? 'drop-shadow-lg' : ''}
                 `}
               >
-                {/* Base circle */}
                 <circle 
                   cx={center} 
                   cy={center} 
@@ -166,7 +152,6 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
                   className={liftTheVeil ? "animate-pulse-slow" : ""}
                 />
                 
-                {/* Flower of life pattern */}
                 <g className="text-opacity-70">
                   {flowerCircles.map((circle, i) => (
                     <circle
@@ -182,7 +167,6 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
                   ))}
                 </g>
                 
-                {/* Golden spiral */}
                 <path 
                   d={spiralPath} 
                   fill="none" 
@@ -191,7 +175,6 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
                   className={`origin-center ${liftTheVeil ? 'animate-spin-slow' : ''}`}
                 />
                 
-                {/* Prime number dots */}
                 <g className={`${liftTheVeil ? 'text-pink-400' : 'text-purple-400'}`}>
                   {primeDots.map((dot, i) => (
                     <circle
@@ -206,7 +189,6 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
                   ))}
                 </g>
 
-                {/* Central sacred geometry symbol */}
                 <motion.g
                   animate={{
                     rotate: liftTheVeil ? 360 : 0
@@ -230,7 +212,6 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
                   />
                 </motion.g>
                 
-                {/* Center point */}
                 <circle 
                   cx={center} 
                   cy={center} 
@@ -240,7 +221,6 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
                 />
               </svg>
               
-              {/* Glow overlay */}
               <div
                 className={`absolute inset-0 rounded-full bg-gradient-radial 
                 ${liftTheVeil 
@@ -250,7 +230,6 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
                 filter blur-md opacity-60 animate-glow mix-blend-soft-light`}
               />
               
-              {/* Ripple effect */}
               <AnimatePresence>
                 {showRipple && (
                   <motion.div

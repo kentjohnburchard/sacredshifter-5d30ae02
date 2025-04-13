@@ -38,7 +38,7 @@ const Watermark: React.FC = () => {
     setLiftTheVeil(newMode);
     
     // Show a small toast to indicate the mode change
-    toast.success(newMode ? "Veil Lifted!" : "Standard Mode activated", {
+    toast.success(newMode ? "Veil Lifted! Accessing higher consciousness..." : "Standard Mode activated", {
       icon: <Sparkles className={newMode ? "text-pink-500" : "text-indigo-500"} />,
       duration: 2000,
       position: "top-right"
