@@ -1,0 +1,137 @@
+import React, { useState, useEffect } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { toast } from 'sonner';
+import { Clock, Save, Eye, EyeOff } from 'lucide-react';
+
+interface PrimeNumberDisplayProps {
+  primes: number[];
+  sessionId?: string;
+  journeyTitle?: string;
+}
+
+interface PrimeHistoryEntry {
+  id: string;
+  timestamp: string;
+  primes: number[];
+  journeyTitle?: string;
+}
+
+const PrimeNumberDisplay: React.FC<PrimeNumberDisplayProps> = ({ 
+  primes, 
+  sessionId,
+  journeyTitle 
+}) => {
+  const [visible, setVisible] = useState(true);
+  const [primeHistory, setPrimeHistory] = useLocalStorage<PrimeHistoryEntry[]>('sacred-prime-history', []);
+  
+  const saveToHistory = () => {
+    const newEntry: PrimeHistoryEntry = {
+      id: sessionId || `prime-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      primes: [...primes],
+      journeyTitle
+    };
+    
+    // Add to history without duplicates
+    setPrimeHistory(prev => {
+      // Check if we already have this exact sequence saved recently
+      const isDuplicate = prev.some(entry => 
+        JSON.stringify(entry.primes) === JSON.stringify(primes) && 
+        Date.now() - new Date(entry.timestamp).getTime() < 60000 // Within last minute
+      );
+      
+      if (isDuplicate) {
+        toast.info("This prime sequence is already saved in your recent history");
+        return prev;
+      }
+      
+      // Keep history at a reasonable size
+      const maxHistory = 50;
+      const updatedHistory = [newEntry, ...prev];
+      if (updatedHistory.length > maxHistory) {
+        return updatedHistory.slice(0, maxHistory);
+      }
+      return updatedHistory;
+    });
+    
+    toast.success("Prime number sequence saved to your history");
+  };
+
+  if (!visible || primes.length === 0) return (
+    <Button 
+      variant="outline" 
+      size="sm" 
+      className="fixed bottom-4 right-4 z-50 opacity-50 hover:opacity-100 bg-black/30 backdrop-blur-sm"
+      onClick={() => setVisible(true)}
+    >
+      <Eye className="w-4 h-4 mr-2" />
+      Show Primes
+    </Button>
+  );
+
+  return (
+    <motion.div 
+      className="fixed bottom-4 right-4 z-50 p-3 bg-black/40 backdrop-blur-md rounded-lg text-white border border-purple-500/30 shadow-lg max-w-xs"
+      initial={{ y: 20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: 20, opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="flex justify-between items-center mb-2">
+        <h3 className="text-sm font-medium flex items-center">
+          <Clock className="w-3 h-3 mr-1" /> 
+          Active Prime Sequence
+        </h3>
+        <div className="flex gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 text-gray-400 hover:text-white"
+            onClick={saveToHistory}
+            title="Save to history"
+          >
+            <Save className="w-3 h-3" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 text-gray-400 hover:text-white"
+            onClick={() => setVisible(false)}
+            title="Hide display"
+          >
+            <EyeOff className="w-3 h-3" />
+          </Button>
+        </div>
+      </div>
+      
+      <div className="flex flex-wrap gap-1">
+        {primes.map((prime, index) => (
+          <motion.div
+            key={`${prime}-${index}`}
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            transition={{ duration: 0.2, delay: index * 0.05 }}
+          >
+            <Badge 
+              variant="outline" 
+              className="bg-purple-900/50 border-purple-400/30 text-purple-100"
+            >
+              {prime}
+            </Badge>
+          </motion.div>
+        ))}
+      </div>
+      {journeyTitle && (
+        <p className="text-xs text-gray-300 mt-1 truncate">
+          Journey: {journeyTitle}
+        </p>
+      )}
+    </motion.div>
+  );
+};
+
+export default PrimeNumberDisplay;

@@ -1,8 +1,10 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { JourneyTemplate } from "@/data/journeyTemplates";
 import { toast } from "sonner";
 import { Sparkles } from "lucide-react";
+import { useEasterEggContext } from "@/context/EasterEggContext";
+import PrimeNumberDisplay from "@/components/prime-display/PrimeNumberDisplay";
 
 export interface JourneySettingsValues {
   lowSensitivityMode: boolean;
@@ -35,6 +37,8 @@ const JourneyPreStartModal: React.FC<JourneyPreStartModalProps> = ({
 }) => {
   // Set a default intention
   const defaultIntention = `Open to experiencing ${template.title}`;
+  const { isEasterEggMode } = useEasterEggContext();
+  const [initialPrimes] = useState<number[]>([2, 3, 5, 7, 11]);
   
   useEffect(() => {
     // If modal is open, trigger the onStart immediately
@@ -49,10 +53,22 @@ const JourneyPreStartModal: React.FC<JourneyPreStartModalProps> = ({
         description: "Fractal visualizer activated. Tune in to the sacred prime sequence patterns."
       });
       
+      // Display initial primes if in easter egg mode
+      if (isEasterEggMode) {
+        toast.info("Prime number sequence activated", {
+          description: "The visualizer uses prime numbers to generate sacred geometry patterns"
+        });
+      }
+      
       // Close the modal since we don't need it anymore
       onOpenChange(false);
     }
-  }, [open, template.title, defaultIntention, defaultSettings, onStart, onOpenChange]);
+  }, [open, template.title, defaultIntention, defaultSettings, onStart, onOpenChange, isEasterEggMode]);
+
+  // Show prime number display when in easter egg mode and modal is open
+  if (isEasterEggMode && open) {
+    return <PrimeNumberDisplay primes={initialPrimes} journeyTitle={template.title} />;
+  }
 
   // We're not rendering any UI for this modal anymore
   return null;

@@ -24,6 +24,7 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import PrimeNumberDisplay from '@/components/prime-display/PrimeNumberDisplay';
 
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
@@ -37,6 +38,7 @@ const JourneyPlayer = () => {
   const [showVisualizer, setShowVisualizer] = useState(true);
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [infoExpanded, setInfoExpanded] = useState(false);
+  const [activePrimes, setActivePrimes] = useState<number[]>([]);
   
   // Create refs
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -292,6 +294,10 @@ const JourneyPlayer = () => {
     );
   }
 
+  const handlePrimeSequence = (primes: number[]) => {
+    setActivePrimes(primes);
+  };
+
   return (
     <Layout pageTitle={journey?.title} useBlueWaveBackground={false} theme="cosmic">
       {showVisualizer && isPlaying && (
@@ -301,6 +307,15 @@ const JourneyPlayer = () => {
           isVisible={true}
           colorScheme={visualizerMode}
           pauseWhenStopped={true}
+          onPrimeSequence={handlePrimeSequence}
+        />
+      )}
+      
+      {isPlaying && (
+        <PrimeNumberDisplay 
+          primes={activePrimes} 
+          sessionId={journeyId}
+          journeyTitle={journey?.title}
         />
       )}
       

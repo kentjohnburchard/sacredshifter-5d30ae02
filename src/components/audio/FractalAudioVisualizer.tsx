@@ -11,6 +11,7 @@ interface FractalAudioVisualizerProps {
   pauseWhenStopped?: boolean; // Whether to pause animation when audio is stopped
   chakra?: string; // Optional chakra association
   frequency?: number; // Optional frequency in Hz
+  onPrimeSequence?: (primes: number[]) => void; // New callback to expose primes
 }
 
 const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
@@ -21,7 +22,8 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
   colorScheme = 'purple',
   pauseWhenStopped = false,
   chakra,
-  frequency
+  frequency,
+  onPrimeSequence
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -36,6 +38,7 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
   const primeIndexRef = useRef<number>(0);
   const beatDetectedRef = useRef<boolean>(false);
   const timeRef = useRef<number>(0);
+  const [activePrimes, setActivePrimes] = useState<number[]>([]);
   
   const primes = useMemo(() => {
     const primeArray: number[] = [];
@@ -62,6 +65,33 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
     
     return primeArray;
   }, []);
+
+  useEffect(() => {
+    if (isVisible && onPrimeSequence) {
+      const initialPrimes = primes.slice(0, 5);
+      setActivePrimes(initialPrimes);
+      onPrimeSequence(initialPrimes);
+    }
+  }, [isVisible, primes, onPrimeSequence]);
+
+  useEffect(() => {
+    const updateActivePrimes = () => {
+      if (!isVisible || !onPrimeSequence) return;
+
+      const updatedPrimes = [
+        primes[primeIndexRef.current % primes.length],
+        primes[(primeIndexRef.current + 1) % primes.length],
+        primes[(primeIndexRef.current + 2) % primes.length],
+        primes[(primeIndexRef.current + 3) % primes.length],
+        primes[(primeIndexRef.current + 4) % primes.length],
+      ];
+      setActivePrimes(updatedPrimes);
+      onPrimeSequence(updatedPrimes);
+    };
+
+    const interval = setInterval(updateActivePrimes, 1000);
+    return () => clearInterval(interval);
+  }, [isVisible, primes, onPrimeSequence]);
 
   const getColorScheme = () => {
     if (chakra) {
@@ -583,6 +613,18 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
       if (beatDetected && !beatDetectedRef.current) {
         beatDetectedRef.current = true;
         primeIndexRef.current = (primeIndexRef.current + 1) % primes.length;
+        
+        if (onPrimeSequence) {
+          const currentPrimes = [
+            primes[primeIndexRef.current % primes.length],
+            primes[(primeIndexRef.current + 1) % primes.length],
+            primes[(primeIndexRef.current + 2) % primes.length],
+            primes[(primeIndexRef.current + 3) % primes.length],
+            primes[(primeIndexRef.current + 4) % primes.length],
+          ];
+          setActivePrimes(currentPrimes);
+          onPrimeSequence(currentPrimes);
+        }
       } else if (!beatDetected && beatDetectedRef.current) {
         beatDetectedRef.current = false;
       }
@@ -641,10 +683,11 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
         fractal.rotation.x += 0.0003 + midFreq * 0.002 * intensity;
         
         if (beatDetected) {
-          const particles = fractal.children[0] as THREE.Points;
-          if (particles && particles.material instanceof THREE.PointsMaterial) {
-            particles.material.size = 0.08 + bassFreq * 0.1;
-            particles.material.opacity = 0.7 + bassFreq * 0.3;
+          const particles = fractal.children[0];
+          if (particles instanceof THREE.Points) {
+            const material = particles.material as THREE.PointsMaterial;
+            material.size = 0.08 + bassFreq * 0.1;
+            material.opacity = 0.7 + bassFreq * 0.3;
           }
         }
       }
