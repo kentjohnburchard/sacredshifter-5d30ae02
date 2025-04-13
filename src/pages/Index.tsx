@@ -1,10 +1,10 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { Navigate } from "react-router-dom";
 
 const Index: React.FC = () => {
-  // Always navigate to the welcome page
-  return <Navigate to="/welcome" replace />;
+  // Always navigate to the home page
+  return <Navigate to="/home" replace />;
 };
 
 export default Index;
