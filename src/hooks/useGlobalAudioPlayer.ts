@@ -11,13 +11,27 @@ type AudioInfo = {
 // Create a singleton pattern to maintain state across component unmounts/remounts
 let globalAudioState = {
   currentAudio: null as AudioInfo | null,
-  isPlaying: false
+  isPlaying: false,
+  onEndedCallback: null as (() => void) | null
 };
 
 export function useGlobalAudioPlayer() {
   const [isPlaying, setIsPlaying] = useState(globalAudioState.isPlaying);
   const [currentAudio, setCurrentAudio] = useState<AudioInfo | null>(globalAudioState.currentAudio);
   const eventsAttached = useRef(false);
+  const [onEndedCallback, setOnEndedCallbackState] = useState<(() => void) | null>(globalAudioState.onEndedCallback);
+
+  // Function to set onEnded callback
+  const setOnEndedCallback = useCallback((callback: (() => void) | null) => {
+    globalAudioState.onEndedCallback = callback;
+    setOnEndedCallbackState(callback);
+    
+    // Dispatch event to notify the global player about callback change
+    const event = new CustomEvent('audioCallbackChange', {
+      detail: { callback }
+    });
+    window.dispatchEvent(event);
+  }, []);
 
   // Function to play audio through the global player
   const playAudio = useCallback((audioInfo: AudioInfo) => {
@@ -67,5 +81,5 @@ export function useGlobalAudioPlayer() {
     };
   }, []);
 
-  return { playAudio, isPlaying, currentAudio };
+  return { playAudio, isPlaying, currentAudio, setOnEndedCallback };
 }

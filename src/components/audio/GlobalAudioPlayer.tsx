@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -14,6 +14,7 @@ const GlobalAudioPlayer = ({ initiallyExpanded = false }: GlobalAudioPlayerProps
   const [expanded, setExpanded] = useState(initiallyExpanded);
   const [volume, setVolume] = useState(0.8);
   const [isMuted, setIsMuted] = useState(false);
+  const onEndedCallbackRef = useRef<(() => void) | null>(null);
   
   const {
     isAudioPlaying,
@@ -34,6 +35,25 @@ const GlobalAudioPlayer = ({ initiallyExpanded = false }: GlobalAudioPlayerProps
     imageUrl?: string;
     source: string;
   } | null>(null);
+
+  // Set up the audio ended event listener
+  useEffect(() => {
+    const handleAudioEnded = () => {
+      if (onEndedCallbackRef.current) {
+        onEndedCallbackRef.current();
+      }
+    };
+    
+    if (audioRef.current) {
+      audioRef.current.addEventListener('ended', handleAudioEnded);
+    }
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.removeEventListener('ended', handleAudioEnded);
+      }
+    };
+  }, [audioRef]);
 
   // Listen for custom events to control the global player
   useEffect(() => {
@@ -60,11 +80,18 @@ const GlobalAudioPlayer = ({ initiallyExpanded = false }: GlobalAudioPlayerProps
       }, 100);
     };
 
-    // Add event listener with type assertion
+    const handleCallbackChange = (event: CustomEvent) => {
+      const { callback } = event.detail;
+      onEndedCallbackRef.current = callback;
+    };
+
+    // Add event listeners with type assertion
     window.addEventListener('playAudio' as any, handlePlayAudio as EventListener);
+    window.addEventListener('audioCallbackChange' as any, handleCallbackChange as EventListener);
 
     return () => {
       window.removeEventListener('playAudio' as any, handlePlayAudio as EventListener);
+      window.removeEventListener('audioCallbackChange' as any, handleCallbackChange as EventListener);
     };
   }, [setAudioSource, togglePlayPause, isAudioPlaying]);
 

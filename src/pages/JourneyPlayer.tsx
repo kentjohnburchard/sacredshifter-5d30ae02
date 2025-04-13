@@ -93,10 +93,14 @@ const JourneyPlayer = () => {
     };
     
     // Register the callback with the global audio player
-    setOnEndedCallback(handleTrackEnded);
-    
-    // Cleanup the callback when component unmounts
-    return () => setOnEndedCallback(null);
+    if (setOnEndedCallback) {
+      setOnEndedCallback(handleTrackEnded);
+      
+      // Cleanup the callback when component unmounts
+      return () => {
+        setOnEndedCallback(null);
+      };
+    }
   }, [journey, playAudio, setOnEndedCallback]);
 
   useEffect(() => {
