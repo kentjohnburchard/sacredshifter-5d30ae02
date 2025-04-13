@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import { Settings } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -8,11 +8,19 @@ import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useJourneyTemplates } from "@/hooks/useJourneyTemplates";
 import JourneyTemplatesGrid from "@/components/frequency-journey/JourneyTemplatesGrid";
+import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
 
 const JourneyTemplates = () => {
   const { user } = useAuth();
   const { liftTheVeil } = useTheme();
   const isAdmin = user && user.email === "admin@example.com"; // You can adjust the admin check based on your auth logic
+  const [featuredAudio] = useState({
+    audioUrl: "https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/432hz_meditation.mp3",
+    title: "Sacred Frequency Journey",
+    artist: "Sacred Shifter",
+    frequency: 432,
+    chakra: "Heart"
+  });
   
   return (
     <Layout 
@@ -38,6 +46,16 @@ const JourneyTemplates = () => {
               </Button>
             </Link>
           )}
+        </div>
+        
+        <div className="fixed bottom-4 right-4 z-50">
+          <SacredAudioPlayer
+            audioUrl={featuredAudio.audioUrl}
+            title={featuredAudio.title}
+            artist={featuredAudio.artist}
+            frequency={featuredAudio.frequency}
+            chakra={featuredAudio.chakra}
+          />
         </div>
         
         <div className="bg-black/30 backdrop-blur-sm text-white p-6 rounded-lg mb-8">
