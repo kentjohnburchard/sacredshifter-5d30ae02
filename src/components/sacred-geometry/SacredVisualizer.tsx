@@ -1,8 +1,9 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { createFlowerOfLife, createSeedOfLife, createMetatronsCube, createSriYantra, 
          createTreeOfLife, createVesicaPiscis, createMerkaba } from './sacredGeometryUtils';
+import { motion } from 'framer-motion';
 
 interface SacredVisualizerProps {
   shape: 'flower-of-life' | 'seed-of-life' | 'metatrons-cube' | 'merkaba' | 'torus' | 'tree-of-life' | 'sri-yantra' | 'vesica-piscis' | 'sphere';
@@ -24,7 +25,7 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
   analyser,
   chakra,
   frequency,
-  mode,
+  mode = 'fractal',
   sensitivity = 1
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -33,12 +34,21 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const frameIdRef = useRef<number | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const clockRef = useRef<THREE.Clock>(new THREE.Clock());
 
-  const [audioData, setAudioData] = React.useState<number[]>([]);
+  // Animation progress state for fractal expansion
+  const [fractalProgress, setFractalProgress] = useState<number>(0);
+  const [audioData, setAudioData] = useState<number[]>([]);
+  const [isExpanding, setIsExpanding] = useState<boolean>(true);
 
   // Clear previous renders and set up new scene
   useEffect(() => {
     console.log("SacredVisualizer mounting shape:", shape);
+    
+    // Reset fractal expansion on shape change
+    setIsExpanding(true);
+    setFractalProgress(0);
+    clockRef.current.start();
     
     // Clean up previous scene if it exists
     if (frameIdRef.current) {
@@ -68,7 +78,7 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
 
     // Set up camera with appropriate field of view
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-    camera.position.z = 3; // Position the camera at a safe distance
+    camera.position.z = 5; // Start with a wider view to see the fractal expansion
     cameraRef.current = camera;
 
     // Create renderer with transparency enabled
@@ -108,19 +118,70 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
 
     // Animation loop
     const animate = () => {
-      if (!rendererRef.current || !sceneRef.current || !cameraRef.current) return;
+      if (!rendererRef.current || !sceneRef.current || !cameraRef.current || !shapeRef.current) return;
       
       frameIdRef.current = requestAnimationFrame(animate);
       
-      if (shapeRef.current) {
-        // Standard rotation speeds
-        shapeRef.current.rotation.x += 0.01;
-        shapeRef.current.rotation.y += 0.01;
+      const delta = clockRef.current.getDelta();
+      
+      // Handle fractal expansion animation
+      if (isExpanding) {
+        // Accelerate expansion based on progress
+        const progressDelta = delta * (0.5 + fractalProgress * 0.5); // Speeds up as it progresses
+        setFractalProgress(prev => {
+          const newProgress = prev + progressDelta;
+          if (newProgress >= 1) {
+            setIsExpanding(false);
+            return 1;
+          }
+          return newProgress;
+        });
+        
+        // Scale the geometry based on fractal progress with easing
+        const easeOutCubic = 1 - Math.pow(1 - fractalProgress, 3);
+        const scale = 0.01 + easeOutCubic * 0.99; // Start tiny (0.01) and expand to full size (1.0)
+        shapeRef.current.scale.set(scale, scale, scale);
+        
+        // Add rotation during expansion
+        shapeRef.current.rotation.x += delta * 0.2;
+        shapeRef.current.rotation.y += delta * 0.3;
+        
+        // Camera zoom effect during expansion
+        if (cameraRef.current) {
+          cameraRef.current.position.z = 5 - (easeOutCubic * 1.5); // Zoom in as the shape expands
+        }
+      } else {
+        // Standard rotation after expansion is complete
+        shapeRef.current.rotation.x += 0.005;
+        shapeRef.current.rotation.y += 0.005;
         
         if (isAudioReactive && audioData.length > 0) {
           const averageAmplitude = audioData.reduce((sum, val) => sum + val, 0) / audioData.length;
           const scaleFactor = 1 + (averageAmplitude * 0.3 * (sensitivity || 1));
           shapeRef.current.scale.set(scaleFactor, scaleFactor, scaleFactor);
+        }
+      }
+      
+      // Add pulsing glow effect for prime positions
+      if (shapeRef.current) {
+        // Apply subtle prime-based pulse
+        const time = clockRef.current.getElapsedTime();
+        const primePulse = (
+          Math.sin(time * 2) * 0.02 + // Prime 2
+          Math.sin(time * 3) * 0.015 + // Prime 3
+          Math.sin(time * 5) * 0.01 + // Prime 5
+          Math.sin(time * 7) * 0.005   // Prime 7
+        );
+        
+        // Apply pulse to shape opacity or scale
+        if (shapeRef.current.children.length > 0) {
+          shapeRef.current.children.forEach(child => {
+            if (child instanceof THREE.Mesh && child.material instanceof THREE.Material) {
+              if ('emissiveIntensity' in child.material) {
+                child.material.emissiveIntensity = 0.5 + primePulse;
+              }
+            }
+          });
         }
       }
       
@@ -224,40 +285,64 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     // Create the shape
     switch (shape) {
       case 'flower-of-life':
-        object = createFlowerOfLife();
+        object = createFlowerOfLife(true); // Pass fractal flag
         break;
         
       case 'seed-of-life':
-        object = createSeedOfLife();
+        object = createSeedOfLife(true); // Pass fractal flag
         break;
         
       case 'metatrons-cube':
-        object = createMetatronsCube();
+        object = createMetatronsCube(true); // Pass fractal flag
         break;
         
       case 'merkaba':
-        object = createMerkaba();
+        object = createMerkaba(true); // Pass fractal flag
         break;
         
       case 'torus':
-        // Fixed torus implementation
+        // Fractal torus implementation
+        const torusGroup = new THREE.Group();
         geometry = new THREE.TorusGeometry(1, 0.3, 32, 64);
+        const torusMaterial = material.clone();
+        const torus = new THREE.Mesh(geometry, torusMaterial);
+        torusGroup.add(torus);
+        
+        // Add wireframe for better visibility
+        const wireframe = new THREE.LineSegments(
+          new THREE.WireframeGeometry(geometry),
+          wireframeMaterial
+        );
+        torus.add(wireframe);
+        
+        // Origin point (central node)
+        const originGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+        const originMaterial = new THREE.MeshPhongMaterial({
+          color: 0xffffff,
+          emissive: 0xb794f6,
+          emissiveIntensity: 1.0
+        });
+        const origin = new THREE.Mesh(originGeometry, originMaterial);
+        torusGroup.add(origin);
+        
+        object = torusGroup;
         break;
         
       case 'tree-of-life':
-        object = createTreeOfLife();
+        object = createTreeOfLife(true); // Pass fractal flag
         break;
         
       case 'sri-yantra':
-        object = createSriYantra();
+        object = createSriYantra(true); // Pass fractal flag
         break;
         
       case 'vesica-piscis':
-        object = createVesicaPiscis();
+        object = createVesicaPiscis(true); // Pass fractal flag
         break;
         
       case 'sphere':
-        // Fixed sphere implementation - smaller and with better materials
+        // Fractal sphere implementation
+        const sphereGroup = new THREE.Group();
         geometry = new THREE.SphereGeometry(0.8, 32, 32);
         const sphereMaterial = new THREE.MeshPhongMaterial({
           color: 0x9f7aea,
@@ -271,7 +356,7 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
         const mesh = new THREE.Mesh(geometry, sphereMaterial);
         
         // Add wireframe on top for better visibility
-        const wireframe = new THREE.LineSegments(
+        const sphereWireframe = new THREE.LineSegments(
           new THREE.WireframeGeometry(geometry),
           new THREE.LineBasicMaterial({
             color: 0xb794f6,
@@ -279,9 +364,21 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
             opacity: 0.3
           })
         );
-        mesh.add(wireframe);
+        mesh.add(sphereWireframe);
         
-        object = mesh;
+        // Origin point (central node)
+        const sphereOrigin = new THREE.Mesh(
+          new THREE.SphereGeometry(0.1, 16, 16),
+          new THREE.MeshPhongMaterial({
+            color: 0xffffff,
+            emissive: 0xb794f6,
+            emissiveIntensity: 1.0
+          })
+        );
+        sphereGroup.add(sphereOrigin);
+        sphereGroup.add(mesh);
+        
+        object = sphereGroup;
         break;
     }
 
@@ -296,14 +393,28 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
         wireframeMaterial
       );
       object.add(wireframe);
+      
+      // Add origin point (central node)
+      const originGeometry = new THREE.SphereGeometry(0.05, 16, 16);
+      const originMaterial = new THREE.MeshPhongMaterial({
+        color: 0xffffff,
+        emissive: 0xb794f6,
+        emissiveIntensity: 1.0
+      });
+      const origin = new THREE.Mesh(originGeometry, originMaterial);
+      object.add(origin);
     }
 
     // Add object to scene
     if (object) {
+      // Start as a tiny point at the center for fractal expansion
+      object.scale.set(0.01, 0.01, 0.01);
+      
       if (shape !== 'sphere') {
-        // Make non-sphere objects smaller for better visibility
-        object.scale.set(0.8, 0.8, 0.8);
+        // Make non-sphere objects smaller for better visibility when fully expanded
+        object.scale.multiplyScalar(0.8);
       }
+      
       scene.add(object);
       shapeRef.current = object;
     }
@@ -317,7 +428,15 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     xl: 'h-[600px]',
   }[size] || 'h-96';
 
-  return <div ref={mountRef} className={`w-full ${sizeClass}`} />;
+  return (
+    <motion.div 
+      ref={mountRef} 
+      className={`w-full ${sizeClass}`}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    />
+  );
 };
 
 export default SacredVisualizer;

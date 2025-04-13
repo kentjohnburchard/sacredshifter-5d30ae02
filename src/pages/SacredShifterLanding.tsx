@@ -1,13 +1,6 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import SacredFlowerOfLife from '@/components/sacred-geometry/shapes/SacredFlowerOfLife';
-import MetatronsCube from '@/components/sacred-geometry/shapes/MetatronsCube';
-import Merkaba from '@/components/sacred-geometry/shapes/Merkaba';
-import Torus from '@/components/sacred-geometry/shapes/Torus';
-import TreeOfLife from '@/components/sacred-geometry/shapes/TreeOfLife';
-import SriYantra from '@/components/sacred-geometry/shapes/SriYantra';
-import VesicaPiscis from '@/components/sacred-geometry/shapes/VesicaPiscis';
 import StarfieldBackground from '@/components/sacred-geometry/StarfieldBackground';
 import { Music, Heart, Sparkles, BookOpen, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -19,16 +12,6 @@ import { useTheme } from '@/context/ThemeContext';
 import { cn } from '@/lib/utils';
 import { SacredGeometryVisualizer } from '@/components/sacred-geometry';
 import SacredAudioPlayer from '@/components/audio/SacredAudioPlayer';
-
-const geometryComponents = {
-  'Flower of Life': <SacredFlowerOfLife />,
-  "Metatron's Cube": <MetatronsCube />,
-  'Merkaba': <Merkaba />,
-  'Torus': <Torus />,
-  'Tree of Life': <TreeOfLife />,
-  'Sri Yantra': <SriYantra />,
-  'Vesica Piscis': <VesicaPiscis />,
-};
 
 const SacredShifterLanding = () => {
   const [selectedShape, setSelectedShape] = useState<"flower-of-life" | "metatrons-cube" | "merkaba" | "torus" | "tree-of-life" | "sri-yantra" | "vesica-piscis">("flower-of-life");
@@ -72,6 +55,8 @@ const SacredShifterLanding = () => {
                 size="xl"
                 showControls={false}
                 className="opacity-70"
+                mode="fractal"
+                expandable={false}
               />
             </div>
           </div>

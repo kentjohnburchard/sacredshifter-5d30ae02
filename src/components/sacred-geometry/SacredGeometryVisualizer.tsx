@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import SacredVisualizer from './SacredVisualizer';
 import { CosmicContainer } from '.';
 import { Button } from '@/components/ui/button';
-import { Maximize2, Minimize2, Play } from 'lucide-react';
+import { Maximize2, Minimize2, Play, Flower, Hexagon } from 'lucide-react';
 
 type GeometryShape = 'flower-of-life' | 'seed-of-life' | 'metatrons-cube' | 
                       'merkaba' | 'torus' | 'tree-of-life' | 'sri-yantra' | 
@@ -39,13 +39,14 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
   isVisible = true,
   chakra,
   frequency,
-  mode,
+  mode = 'fractal',
   sensitivity = 1,
   expandable = false,
   onExpandStateChange,
 }) => {
   const [currentShape, setCurrentShape] = useState<GeometryShape>(defaultShape);
   const [expanded, setExpanded] = useState(false);
+  const [visualizerMode, setVisualizerMode] = useState<'fractal' | 'spiral' | 'mandala'>(mode || 'fractal');
   
   // Update shape when defaultShape prop changes
   useEffect(() => {
@@ -75,6 +76,12 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
     { value: 'tree-of-life', label: 'Tree of Life' },
     { value: 'sri-yantra', label: 'Sri Yantra' },
     { value: 'vesica-piscis', label: 'Vesica Piscis' },
+  ];
+
+  const modeOptions = [
+    { value: 'fractal', label: 'Fractal', icon: <Flower className="w-4 h-4" /> },
+    { value: 'spiral', label: 'Spiral', icon: <Hexagon className="w-4 h-4" /> },
+    { value: 'mandala', label: 'Mandala', icon: <Play className="w-4 h-4 rotate-90" /> },
   ];
 
   if (!shouldShow) {
@@ -116,33 +123,65 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
             analyser={analyser}
             chakra={chakra}
             frequency={frequency}
-            mode={mode}
+            mode={visualizerMode}
             sensitivity={sensitivity}
           />
         </div>
         
-        {showControls && (
-          <div className={`${expanded ? "absolute bottom-8" : "absolute bottom-2 sm:bottom-4"} left-1/2 transform -translate-x-1/2 z-20 w-full px-2 sm:px-0 max-w-full sm:max-w-md`}>
+        {showControls && expanded && (
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20">
             <ToggleGroup 
               type="single" 
-              value={currentShape}
+              value={visualizerMode}
               onValueChange={(value) => {
                 if (value) {
-                  setCurrentShape(value as GeometryShape);
+                  setVisualizerMode(value as 'fractal' | 'spiral' | 'mandala');
                 }
               }}
-              className="bg-black/80 backdrop-blur-md rounded-lg p-1 sm:p-2 flex flex-wrap justify-center shadow-lg overflow-x-auto"
+              className="bg-black/60 backdrop-blur-md rounded-lg p-2 flex flex-wrap justify-center shadow-lg"
             >
-              {shapeOptions.map((option) => (
+              {modeOptions.map((option) => (
                 <ToggleGroupItem 
                   key={option.value} 
                   value={option.value}
-                  className="px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs text-white data-[state=on]:bg-purple-700 rounded"
+                  className="px-3 py-1 text-xs text-white data-[state=on]:bg-purple-700 rounded flex items-center gap-2"
                 >
-                  {option.label}
+                  {option.icon} {option.label}
                 </ToggleGroupItem>
               ))}
             </ToggleGroup>
+          </div>
+        )}
+        
+        {showControls && (
+          <div className={`${expanded ? "absolute bottom-8" : "absolute bottom-2 sm:bottom-4"} left-1/2 transform -translate-x-1/2 z-20 w-full px-2 sm:px-0 max-w-full sm:max-w-md`}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="bg-black/80 backdrop-blur-md rounded-lg p-1 sm:p-2 flex flex-wrap justify-center shadow-lg overflow-x-auto"
+            >
+              <ToggleGroup 
+                type="single" 
+                value={currentShape}
+                onValueChange={(value) => {
+                  if (value) {
+                    setCurrentShape(value as GeometryShape);
+                  }
+                }}
+                className="flex flex-wrap justify-center"
+              >
+                {shapeOptions.map((option) => (
+                  <ToggleGroupItem 
+                    key={option.value} 
+                    value={option.value}
+                    className="px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs text-white data-[state=on]:bg-purple-700 rounded"
+                  >
+                    {option.label}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            </motion.div>
           </div>
         )}
         
