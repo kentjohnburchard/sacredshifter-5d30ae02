@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Logo, AnimatedText } from "@/components/landing";
@@ -22,12 +23,11 @@ const LandingPrompt: React.FC = () => {
       }, 3000);
       return () => clearTimeout(timer);
     } else if (currentLine === lines.length - 1) {
-      // After showing the last line, wait a moment and then navigate to the home page
+      // After showing the last line, wait a moment and then navigate directly to the dashboard
       const redirectTimer = setTimeout(() => {
-        // Set localStorage to remember user has seen intro
-        localStorage.setItem('hasSeenIntro', 'true');
-        console.log('Setting hasSeenIntro to true and redirecting to home');
-        navigate("/", { replace: true });
+        console.log('Completed intro, redirecting to cosmic dashboard');
+        // Navigate directly to the dashboard instead of index
+        navigate("/home", { replace: true });
       }, 4000); // Wait 4 seconds after showing the last line
       return () => clearTimeout(redirectTimer);
     }
