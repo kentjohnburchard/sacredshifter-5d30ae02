@@ -1,3 +1,4 @@
+
 import * as THREE from 'three';
 
 // Create Flower of Life with fractal expansion support
@@ -10,10 +11,14 @@ export const createFlowerOfLife = (fractal = false) => {
   // Origin point for fractal expansion
   if (fractal) {
     const originGeometry = new THREE.SphereGeometry(0.05, 16, 16);
-    const originMaterial = new THREE.MeshBasicMaterial({ 
+    const originMaterial = new THREE.MeshStandardMaterial({ 
       color: 0xffffff,
       transparent: true,
-      opacity: 0.8
+      opacity: 0.8,
+      emissive: 0xb794f6,
+      emissiveIntensity: 0.6,
+      metalness: 0.5,
+      roughness: 0.2
     });
     const origin = new THREE.Mesh(originGeometry, originMaterial);
     group.add(origin);
@@ -51,10 +56,14 @@ export const createSeedOfLife = (fractal = false) => {
   // Origin point for fractal expansion
   if (fractal) {
     const originGeometry = new THREE.SphereGeometry(0.05, 16, 16);
-    const originMaterial = new THREE.MeshBasicMaterial({ 
+    const originMaterial = new THREE.MeshStandardMaterial({ 
       color: 0xffffff,
       transparent: true,
-      opacity: 0.8
+      opacity: 0.8,
+      emissive: 0xb794f6,
+      emissiveIntensity: 0.6,
+      metalness: 0.5,
+      roughness: 0.2
     });
     const origin = new THREE.Mesh(originGeometry, originMaterial);
     group.add(origin);
@@ -101,10 +110,14 @@ export const createMetatronsCube = (fractal = false) => {
   
   // Add vertices (small spheres)
   const pointsGeometry = new THREE.SphereGeometry(0.05, 8, 8);
-  const pointsMaterial = new THREE.MeshBasicMaterial({ 
+  const pointsMaterial = new THREE.MeshStandardMaterial({ 
     color: 0xffffff,
     transparent: true,
-    opacity: fractal ? 0.9 : 0.7 // Brighter origin in fractal mode
+    opacity: fractal ? 0.9 : 0.7, // Brighter origin in fractal mode
+    emissive: 0xb794f6,
+    emissiveIntensity: 0.5,
+    metalness: 0.7,
+    roughness: 0.3
   });
   
   const vertices: THREE.Vector3[] = [];
@@ -115,8 +128,8 @@ export const createMetatronsCube = (fractal = false) => {
     // In fractal mode, make the center point (origin) more prominent
     if (fractal && index === 0) {
       point.scale.set(1.5, 1.5, 1.5);
-      (point.material as THREE.MeshBasicMaterial).emissive = new THREE.Color(0xb794f6);
-      (point.material as THREE.MeshBasicMaterial).emissiveIntensity = 1.0;
+      (point.material as THREE.MeshStandardMaterial).emissive = new THREE.Color(0xb794f6);
+      (point.material as THREE.MeshStandardMaterial).emissiveIntensity = 1.0;
     }
     
     point.position.set(pos[0], pos[1], pos[2]);
@@ -150,10 +163,12 @@ export const createSriYantra = (fractal = false) => {
   
   // Origin point (bindu) for fractal expansion - more prominent in fractal mode
   const binduGeometry = new THREE.CircleGeometry(fractal ? 0.08 : 0.05, 32);
-  const binduMaterial = new THREE.MeshBasicMaterial({ 
+  const binduMaterial = new THREE.MeshStandardMaterial({ 
     color: 0xffffff,
     emissive: fractal ? 0xb794f6 : 0x9f7aea,
-    emissiveIntensity: fractal ? 1.0 : 0.5
+    emissiveIntensity: fractal ? 1.0 : 0.5,
+    metalness: 0.6,
+    roughness: 0.2
   });
   const bindu = new THREE.Mesh(binduGeometry, binduMaterial);
   bindu.position.z = 0.1;
@@ -229,7 +244,11 @@ export const createTreeOfLife = (fractal = false) => {
   const sphereMaterial = new THREE.MeshStandardMaterial({ 
     color: 0xffffff,
     emissive: 0x9f7aea,
-    emissiveIntensity: 0.5
+    emissiveIntensity: 0.5,
+    metalness: 0.6,
+    roughness: 0.3,
+    transparent: true,
+    opacity: 0.8
   });
   
   const vertices: THREE.Vector3[] = [];
@@ -284,10 +303,14 @@ export const createVesicaPiscis = (fractal = false) => {
   // Origin point for fractal expansion
   if (fractal) {
     const originGeometry = new THREE.SphereGeometry(0.05, 16, 16);
-    const originMaterial = new THREE.MeshBasicMaterial({ 
+    const originMaterial = new THREE.MeshStandardMaterial({ 
       color: 0xffffff, 
       emissive: 0xb794f6,
-      emissiveIntensity: 1.0
+      emissiveIntensity: 1.0,
+      metalness: 0.5,
+      roughness: 0.2,
+      transparent: true,
+      opacity: 0.9
     });
     const origin = new THREE.Mesh(originGeometry, originMaterial);
     group.add(origin);
@@ -354,7 +377,9 @@ export function createMerkaba(fractal = false) {
       emissive: 0xb794f6,
       emissiveIntensity: 1.0,
       transparent: true,
-      opacity: 0.9
+      opacity: 0.9,
+      metalness: 0.7,
+      roughness: 0.3
     });
     const origin = new THREE.Mesh(originGeometry, originMaterial);
     group.add(origin);
