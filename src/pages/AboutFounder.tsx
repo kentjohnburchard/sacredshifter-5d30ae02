@@ -19,7 +19,7 @@ const AboutFounder = () => {
     bio: "Dr. Sarah Thompson is a neuroscientist, sound therapist, and meditation expert with over 15 years of experience studying the effects of frequency and vibration on human consciousness. After completing her Ph.D. in Neuroscience at Stanford University, she dedicated her life to researching how specific sound frequencies can influence brain states and facilitate healing.",
     journey: "Her personal journey with sound healing began after experiencing chronic stress and anxiety during her academic career. When traditional treatments provided limited relief, she discovered the profound impact of specific frequencies and meditation practices on her well-being.",
     mission: "This transformative experience inspired her to create Sacred Shifter - a platform that combines cutting-edge neuroscience with ancient wisdom traditions to make frequency healing accessible to everyone. Dr. Thompson continues to collaborate with researchers, sound healers, and meditation teachers worldwide to expand the boundaries of what's possible through conscious sound.",
-    quote: ""Sound is not just something we hear—it's a powerful force that can restructure our neural pathways, balance our energetic fields, and open doorways to expanded states of consciousness.""
+    quote: "Sound is not just something we hear—it's a powerful force that can restructure our neural pathways, balance our energetic fields, and open doorways to expanded states of consciousness."
   };
 
   const easterEggContent = {
@@ -27,7 +27,7 @@ const AboutFounder = () => {
     bio: "Sarah is a starseed consciousness who arrived on Earth in human form to help facilitate the Great Awakening through sound frequencies. Her earthly credentials include a PhD in Neuroscience, but her true education came from the crystalline libraries of the Pleiadian sound temples.",
     journey: "While her human form was experiencing what the medical establishment called 'chronic stress and anxiety,' she was actually undergoing the initial phases of light body activation. During a deep meditation, she received the sacred geometry patterns that would later become the foundation for the Sacred Shifter frequency algorithms.",
     mission: "The Sacred Shifter platform serves as an interdimensional bridge, helping humans recalibrate their molecular structure to higher vibrational states through precisely calculated frequency combinations. Each sound journey contains encoded light language that communicates directly with your DNA, activating dormant potential.",
-    quote: ""What appears as sound to the human ear is actually multidimensional light code—each frequency is a key unlocking the doors between worlds, reminding you of who you truly are beyond this earthly disguise.""
+    quote: "What appears as sound to the human ear is actually multidimensional light code—each frequency is a key unlocking the doors between worlds, reminding you of who you truly are beyond this earthly disguise."
   };
 
   // Choose content based on Easter Egg mode
