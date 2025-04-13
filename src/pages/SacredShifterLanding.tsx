@@ -216,7 +216,7 @@ const PrimeNumberBar: React.FC<{ isActive: boolean; isAudioPlaying: boolean; lif
 };
 
 // Sacred scroll reveal animation (spiral sigil in corner)
-const SacredScrollReveal: React.FC<{ liftTheVeil: boolean }> = ({ liftTheVeil }) => {
+const SacredScrollReveal: React.FC<{ liftTheVeil: boolean; onClick: () => void }> = ({ liftTheVeil, onClick }) => {
   const { scrollYProgress } = useScroll();
   const opacityProgress = useTransform(scrollYProgress, [0, 0.3, 0.8], [0, 1, 0]);
   const scaleProgress = useTransform(scrollYProgress, [0, 0.3, 0.8], [0.8, 1.1, 0.9]);
@@ -224,12 +224,15 @@ const SacredScrollReveal: React.FC<{ liftTheVeil: boolean }> = ({ liftTheVeil })
   
   return (
     <motion.div 
-      className="fixed right-12 bottom-32 pointer-events-none z-10"
+      className="fixed right-12 bottom-32 cursor-pointer z-10"
       style={{ 
         opacity: opacityProgress, 
         scale: scaleProgress,
         rotate: rotateProgress
       }}
+      onClick={onClick}
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.95 }}
     >
       <div className={cn(
         "w-24 h-24 rounded-full",
@@ -378,6 +381,7 @@ const SacredShifterLanding: React.FC = () => {
   const [showOriginFlow, setShowOriginFlow] = useState(false);
   const [showAboutComponent, setShowAboutComponent] = useState(true);
   const [primeMode, setPrimeMode] = useState(false);
+  const [pageState, setPageState] = useState<"normal" | "sacred">("normal");
   
   // Auto-cycle through shapes when not playing audio
   useEffect(() => {
@@ -403,6 +407,11 @@ const SacredShifterLanding: React.FC = () => {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
+  };
+
+  // Change page state when sigil is clicked
+  const handleSigilClick = () => {
+    setPageState(prev => prev === "normal" ? "sacred" : "normal");
   };
 
   // Shape mapping for the geometry visualizer
@@ -587,7 +596,6 @@ const SacredShifterLanding: React.FC = () => {
   const toggleAboutComponent = () => setShowAboutComponent(!showAboutComponent);
   const toggleGeometrySelector = () => setShowGeometrySelector(!showGeometrySelector);
   const togglePrimeMode = () => setPrimeMode(!primeMode);
-  const toggleVeilMode = () => setLiftTheVeil(!liftTheVeil);
 
   return (
     <div className={cn(
@@ -624,54 +632,30 @@ const SacredShifterLanding: React.FC = () => {
         <ShapeSelector selectedShape={selectedShape} onSelectShape={setSelectedShape} />
       )}
 
-      {/* Sacred scroll reveal animation */}
-      <SacredScrollReveal liftTheVeil={liftTheVeil} />
+      {/* Sacred scroll reveal animation with click handler to change page state */}
+      <SacredScrollReveal liftTheVeil={liftTheVeil} onClick={handleSigilClick} />
 
-      {/* Mode toggles */}
-      <div className="fixed right-6 top-24 z-50 flex flex-col gap-3">
-        {/* Prime Mode Toggle */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.5 }}
-          className={cn(
-            "p-2 rounded-lg backdrop-blur-sm border flex items-center gap-2 cursor-pointer",
-            primeMode 
-              ? (liftTheVeil ? "bg-pink-900/60 border-pink-500/40" : "bg-purple-900/60 border-purple-500/40")
-              : "bg-black/40 border-white/10"
-          )}
-          onClick={togglePrimeMode}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <Switch id="prime-mode" checked={primeMode} className={liftTheVeil ? "data-[state=checked]:bg-pink-500" : ""} />
-          <Label htmlFor="prime-mode" className="text-sm font-medium cursor-pointer flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4" />
-            <span>Prime Mode</span>
-          </Label>
-        </motion.div>
-        
-        {/* Veil Mode Toggle */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.7 }}
-          className={cn(
-            "p-2 rounded-lg backdrop-blur-sm border flex items-center gap-2 cursor-pointer",
-            liftTheVeil 
-              ? "bg-pink-900/60 border-pink-500/40"
-              : "bg-black/40 border-white/10"
-          )}
-          onClick={toggleVeilMode}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <div className="text-sm font-medium cursor-pointer flex items-center gap-1.5">
-            {liftTheVeil ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-            <span>Lift the Veil</span>
-          </div>
-        </motion.div>
-      </div>
+      {/* Prime Mode Toggle */}
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.5 }}
+        className={cn(
+          "fixed right-6 top-24 z-50 p-2 rounded-lg backdrop-blur-sm border flex items-center gap-2 cursor-pointer",
+          primeMode 
+            ? (liftTheVeil ? "bg-pink-900/60 border-pink-500/40" : "bg-purple-900/60 border-purple-500/40")
+            : "bg-black/40 border-white/10"
+        )}
+        onClick={togglePrimeMode}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.98 }}
+      >
+        <Switch id="prime-mode" checked={primeMode} className={liftTheVeil ? "data-[state=checked]:bg-pink-500" : ""} />
+        <Label htmlFor="prime-mode" className="text-sm font-medium cursor-pointer flex items-center gap-1.5">
+          <Sparkles className="w-4 h-4" />
+          <span>Prime Mode</span>
+        </Label>
+      </motion.div>
 
       {/* Origin Flow compass button */}
       <motion.div 
@@ -722,51 +706,6 @@ const SacredShifterLanding: React.FC = () => {
         />
       </div>
 
-      {/* Main sacred geometry visualization */}
-      <div className="fixed inset-0 z-5 pointer-events-none flex items-center justify-center">
-        <motion.div 
-          className="w-full h-full flex items-center justify-center"
-          animate={isAudioPlaying ? {
-            scale: [1, 1.02, 1],
-            opacity: [0.8, 0.9, 0.8]
-          } : {}}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            repeatType: "reverse",
-            ease: "easeInOut"
-          }}
-        >
-          <div className={`w-[140vh] h-[140vh] max-w-[140%] max-h-[140%] ${isAudioPlaying ? 'animate-pulse-medium' : ''}`}>
-            <SacredGeometryVisualizer 
-              defaultShape={selectedShape}
-              size="xl"
-              showControls={false}
-              className={`opacity-90 ${isAudioPlaying ? 'is-playing' : ''}`}
-              isAudioReactive={isAudioPlaying}
-            />
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Secondary sacred geometry visualization */}
-      <div className="fixed bottom-0 right-0 z-4 pointer-events-none">
-        <motion.div
-          className="w-[40vh] h-[40vh] opacity-50"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 0.5, scale: 1 }}
-          transition={{ duration: 1, delay: 1 }}
-        >
-          <SacredGeometryVisualizer 
-            defaultShape={selectedShape === 'flower-of-life' ? 'merkaba' : 'flower-of-life'}
-            size="md"
-            showControls={false}
-            className="opacity-70"
-          />
-        </motion.div>
-      </div>
-
-      {/* Main content container */}
       <div className="ml-0 sm:ml-20">
         <div className="container mx-auto px-4 pt-8 md:pt-12 relative z-20">
           {/* Welcome Title Section */}
@@ -834,24 +773,8 @@ const SacredShifterLanding: React.FC = () => {
             </AnimatePresence>
           </motion.div>
           
-          {/* About Sacred Shifter Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="mb-6 relative z-20"
-          >
-            {/* Static About Content */}
-            <AboutSacredContent liftTheVeil={liftTheVeil} />
-            
-            {/* Expandable About Component */}
-            <div className="mt-4">
-              <AboutSacredShifter />
-            </div>
-          </motion.div>
-          
-          {/* Feature Tabs Section */}
-          <div className="mb-12">
+          {/* Feature Tabs Section - Moved above About section */}
+          <div className="mb-6">
             <Tabs 
               defaultValue={activeTab} 
               value={activeTab} 
@@ -996,6 +919,96 @@ const SacredShifterLanding: React.FC = () => {
               ))}
             </Tabs>
           </div>
+          
+          {/* Main sacred geometry visualization - Moved below tabs */}
+          <div className="relative mt-12 mb-16 z-10 flex items-center justify-center">
+            <motion.div 
+              className="w-full h-[50vh] sm:h-[60vh] md:h-[70vh] flex items-center justify-center"
+              animate={isAudioPlaying ? {
+                scale: [1, 1.02, 1],
+                opacity: [0.8, 0.9, 0.8]
+              } : {}}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                repeatType: "reverse",
+                ease: "easeInOut"
+              }}
+            >
+              <div className={`w-full h-full max-w-[90%] max-h-[90%] ${isAudioPlaying ? 'animate-pulse-medium' : ''}`}>
+                <SacredGeometryVisualizer 
+                  defaultShape={selectedShape}
+                  size="xl"
+                  showControls={false}
+                  className={`opacity-90 ${isAudioPlaying ? 'is-playing' : ''}`}
+                  isAudioReactive={isAudioPlaying}
+                />
+              </div>
+            </motion.div>
+          </div>
+          
+          {/* Secondary sacred geometry visualization */}
+          <div className="fixed bottom-0 right-0 z-4 pointer-events-none">
+            <motion.div
+              className="w-[40vh] h-[40vh] opacity-50"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 0.5, scale: 1 }}
+              transition={{ duration: 1, delay: 1 }}
+            >
+              <SacredGeometryVisualizer 
+                defaultShape={selectedShape === 'flower-of-life' ? 'merkaba' : 'flower-of-life'}
+                size="md"
+                showControls={false}
+                className="opacity-70"
+              />
+            </motion.div>
+          </div>
+          
+          {/* About Sacred Shifter Section - Moved below geometry */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="mb-6 relative z-20"
+          >
+            {/* Static About Content */}
+            <AboutSacredContent liftTheVeil={liftTheVeil} />
+            
+            {/* Content that changes based on pageState (sigil click) */}
+            <AnimatePresence mode="wait">
+              <motion.div 
+                key={pageState}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5 }}
+                className="mt-4"
+              >
+                {pageState === "normal" ? (
+                  <AboutSacredShifter />
+                ) : (
+                  <div className="cosmic-glass p-8 rounded-xl max-w-4xl mx-auto">
+                    <h3 className="text-2xl font-bold text-center mb-6">Sacred Geometry Patterns</h3>
+                    <p className="text-center mb-4">
+                      The patterns you see are not just visual representations, but energetic blueprints that 
+                      resonate with the fundamental structures of reality. Each sacred geometry pattern holds its own 
+                      frequency and purpose.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                      <div className="text-center space-y-2">
+                        <h4 className="font-medium text-lg">Flower of Life</h4>
+                        <p className="text-sm">The pattern of creation containing all geometric forms and mathematical formulas</p>
+                      </div>
+                      <div className="text-center space-y-2">
+                        <h4 className="font-medium text-lg">Merkaba</h4>
+                        <p className="text-sm">A vehicle of light for interdimensional travel and consciousness acceleration</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </motion.div>
         </div>
       </div>
       
