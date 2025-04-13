@@ -42,7 +42,14 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   // Initialize audio element only once
   useEffect(() => {
     if (!audioInitialized.current) {
-      audioRef.current = new Audio();
+      // Find the global audio player's audio element
+      const globalAudio = document.querySelector('audio');
+      if (globalAudio) {
+        audioRef.current = globalAudio;
+      } else {
+        // Fallback to creating a new audio element if global one not found
+        audioRef.current = new Audio();
+      }
       audioInitialized.current = true;
     }
   }, []);
@@ -79,7 +86,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   
   // Update audio playback state when isPlaying changes
   useEffect(() => {
-    if (isPlaying) {
+    if (isPlaying && effectiveAudioUrl) {
       playFrequency();
     }
   }, [isPlaying]);

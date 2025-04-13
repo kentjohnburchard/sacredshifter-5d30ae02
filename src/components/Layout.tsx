@@ -65,8 +65,8 @@ const Layout: React.FC<LayoutProps> = ({
       
       <GlobalWatermark />
       
-      {/* Global Audio Player */}
-      <GlobalAudioPlayer />
+      {/* Global Audio Player - Always render it regardless of page */}
+      <GlobalAudioPlayer initiallyExpanded={false} />
       
       {/* Add ConsciousnessToggle (Easter Egg) to every page */}
       <ConsciousnessToggle />

@@ -128,7 +128,7 @@ const JourneyPlayer = () => {
   }
 
   return (
-    <Layout pageTitle={journey.title} useBlueWaveBackground={false} theme="cosmic">
+    <Layout pageTitle={journey?.title} useBlueWaveBackground={false} theme="cosmic">
       {/* Fixed container for the visualizer with explicit dimensions - floating above content */}
       <div style={visualizerContainerStyle}>
         {isPlaying && (
@@ -136,7 +136,7 @@ const JourneyPlayer = () => {
             audioContext={audioContext}
             analyser={analyser}
             isVisible={true}
-            chakra={journey.chakras?.[0]}
+            chakra={journey?.chakras?.[0]}
             mode={visualizerMode}
             showControls={false}
           />

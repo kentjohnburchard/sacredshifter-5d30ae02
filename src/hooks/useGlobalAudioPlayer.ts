@@ -1,5 +1,5 @@
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 
 type AudioInfo = {
   title: string;
@@ -23,7 +23,7 @@ export function useGlobalAudioPlayer() {
   }, []);
 
   // Listen for global audio player state changes
-  useCallback(() => {
+  useEffect(() => {
     const handleAudioStateChange = (event: CustomEvent) => {
       setIsPlaying(event.detail.isPlaying);
     };
