@@ -115,7 +115,7 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
           >
             <IconComponent
               className={cn(
-                "h-5 w-5 mr-2",
+                "h-5 w-5 mr-3", // Increased right margin
                 isActive
                   ? liftTheVeil
                     ? "text-pink-300"
@@ -125,16 +125,17 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
             />
             <span 
               className={cn(
-                "transition-all duration-300 ease-in-out",
+                "transition-all duration-300 ease-in-out text-white", // Added text-white
                 isCollapsed 
                   ? "opacity-0 w-0 overflow-hidden" 
-                  : "opacity-100 w-auto"
+                  : "opacity-100 w-auto",
+                "text-sm" // Ensure consistent text size
               )}
             >
               {item.label}
             </span>
             {isCollapsed && (
-              <ChevronRight className="h-4 w-4 ml-auto opacity-0 group-hover:opacity-100" />
+              <ChevronRight className="h-4 w-4 ml-auto opacity-0 group-hover:opacity-100 text-white" />
             )}
           </NavLink>
         );
@@ -144,4 +145,3 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
 };
 
 export default SidebarNavItems;
-
