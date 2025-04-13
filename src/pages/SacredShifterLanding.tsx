@@ -561,7 +561,6 @@ const SacredShifterLanding = () => {
 
       <div className="ml-0 sm:ml-20">
         <div className="container mx-auto px-4 pt-8 md:pt-12 relative z-20">
-          {/* Welcome Title Section - Now at the top with smaller margins */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -605,7 +604,6 @@ const SacredShifterLanding = () => {
             </p>
           </motion.div>
           
-          {/* About Sacred Shifter Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -615,7 +613,6 @@ const SacredShifterLanding = () => {
             <AboutSacredShifter />
           </motion.div>
           
-          {/* Feature Tabs Section */}
           <div className="mb-12">
             <Tabs 
               defaultValue={activeTab} 
@@ -702,4 +699,75 @@ const SacredShifterLanding = () => {
                           </div>
                         </motion.div>
                       ) : (
-                        <Link to={card.path} key={card.
+                        <Link to={card.path} key={card.title}>
+                          <motion.div 
+                            className="cosmic-card"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: index * 0.1 }}
+                            whileHover={{ 
+                              y: -5, 
+                              boxShadow: liftTheVeil 
+                                ? '0 10px 25px -5px rgba(255,105,180,0.3)' 
+                                : '0 10px 25px -5px rgba(147,51,234,0.3)' 
+                            }}
+                          >
+                            <div 
+                              className={`bg-gradient-to-br ${card.color} rounded-lg p-3 text-white border border-white/10 
+                                         backdrop-blur-md shadow-lg hover:shadow-xl transition-all h-full flex flex-col cosmic-glass-hover`}
+                            >
+                              <div className="flex flex-col h-full">
+                                <div className="flex items-center mb-1">
+                                  <motion.div 
+                                    className="p-1.5 rounded-full bg-black/20 backdrop-blur-sm mr-2"
+                                    animate={{
+                                      scale: [1, 1.1, 1],
+                                      opacity: [0.7, 1, 0.7]
+                                    }}
+                                    transition={{
+                                      duration: 3, 
+                                      repeat: Infinity, 
+                                      repeatType: "reverse",
+                                      delay: index * 0.5
+                                    }}
+                                  >
+                                    {card.icon}
+                                  </motion.div>
+                                  <h3 className={`text-base font-semibold ${liftTheVeil ? 'text-shimmer' : ''}`}>{card.title}</h3>
+                                </div>
+                                
+                                <p className="text-xs text-gray-200/90 mt-1">{card.description}</p>
+                                
+                                <div className="mt-auto pt-1 flex justify-end">
+                                  <motion.span 
+                                    className="text-white/80 flex items-center text-xs font-medium"
+                                    whileHover={{ x: 3 }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                  >
+                                    Explore <span aria-hidden="true" className="ml-1">→</span>
+                                  </motion.span>
+                                </div>
+                              </div>
+                            </div>
+                          </motion.div>
+                        </Link>
+                      )
+                    ))}
+                  </motion.div>
+                </TabsContent>
+              ))}
+            </Tabs>
+          </div>
+        </div>
+      </div>
+      
+      <div className="relative z-20">
+        <LegalFooter />
+      </div>
+      
+      <CosmicFooter />
+    </div>
+  );
+};
+
+export default SacredShifterLanding;
