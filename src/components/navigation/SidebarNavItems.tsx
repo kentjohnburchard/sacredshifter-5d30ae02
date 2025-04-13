@@ -108,6 +108,8 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
         const isActive = isPathActive(item.path);
         const IconComponent = iconMap[item.path] || LayoutDashboard;
         
+        // CRITICAL FIX: Use explicit safelist-friendly classes
+        // Use !important for text visibility in production
         return (
           <NavLink
             key={item.path}
@@ -115,14 +117,14 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
             isMobile={false}
             onClick={onLinkClick}
             className={cn(
-              "flex items-center py-2 px-3 text-sm rounded-md transition-colors group relative",
+              "flex items-center py-2 px-3 text-sm rounded-md transition-colors group relative !text-white",
               isActive
                 ? liftTheVeil 
-                  ? "bg-pink-700/80 text-white font-bold" 
-                  : "bg-purple-700/80 text-white font-bold"
-                : "text-white font-bold opacity-100", 
-              liftTheVeil && !isActive && "hover:bg-pink-800/70 hover:text-white",
-              !liftTheVeil && !isActive && "hover:bg-purple-800/70 hover:text-white"
+                  ? "bg-pink-700/80 !text-white font-bold" 
+                  : "bg-purple-700/80 !text-white font-bold"
+                : "!text-white font-bold", 
+              liftTheVeil && !isActive && "hover:bg-pink-800/70 hover:!text-white",
+              !liftTheVeil && !isActive && "hover:bg-purple-800/70 hover:!text-white"
             )}
           >
             {/* Active item indicator - subtle glow effect */}
@@ -135,15 +137,16 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
             
             <div className="flex items-center z-10 relative">
               <IconComponent
-                className="h-5 w-5 mr-3 text-white"
+                className="h-5 w-5 mr-3 !text-white"
               />
               <span 
-                className="text-white font-bold opacity-100 w-auto"
+                className="!text-white font-bold w-auto"
+                style={{ opacity: 1 }} // Explicit inline style to ensure visibility
               >
                 {item.label}
               </span>
               {isCollapsed && (
-                <ChevronRight className="h-4 w-4 ml-auto text-white" />
+                <ChevronRight className="h-4 w-4 ml-auto !text-white" />
               )}
             </div>
           </NavLink>

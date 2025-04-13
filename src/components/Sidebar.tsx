@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import SidebarLogo from "@/components/navigation/SidebarLogo";
@@ -15,9 +16,16 @@ interface SidebarProps {
 const AUTO_COLLAPSE_DELAY = 4000; // 4 seconds before auto-collapse
 
 const Sidebar: React.FC<SidebarProps> = ({ className }) => {
+  // CRITICAL FIX: Initialize state from localStorage or default, not from window measurements
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false); // For hydration safety
   const { liftTheVeil } = useTheme();
+  
+  // Mount safety for SSR/hydration
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   
   useEffect(() => {
     const handleResize = () => {
@@ -29,16 +37,22 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
       }
     };
     
-    window.addEventListener('resize', handleResize);
+    // Only add event listener after component mounts
+    if (isMounted) {
+      window.addEventListener('resize', handleResize);
+    }
+    
     return () => {
-      window.removeEventListener('resize', handleResize);
+      if (isMounted) {
+        window.removeEventListener('resize', handleResize);
+      }
     };
-  }, [isMobileMenuOpen]);
+  }, [isMobileMenuOpen, isMounted]);
 
   useEffect(() => {
     let timer: number | undefined;
     
-    if (!isCollapsed && window.innerWidth >= 640) {
+    if (!isCollapsed && isMounted && window.innerWidth >= 640) {
       timer = window.setTimeout(() => {
         setIsCollapsed(true);
       }, AUTO_COLLAPSE_DELAY);
@@ -49,13 +63,16 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         clearTimeout(timer);
       }
     };
-  }, [isCollapsed]);
+  }, [isCollapsed, isMounted]);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
   const effectivelyCollapsed = isMobileMenuOpen ? false : isCollapsed;
+
+  // Don't render UI during SSR to avoid hydration mismatch
+  if (!isMounted) return null;
 
   return (
     <>
@@ -66,7 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         className="fixed top-4 left-4 z-50 sm:hidden"
         aria-label="Toggle menu"
       >
-        <Menu className="h-5 w-5 text-white" />
+        <Menu className="h-5 w-5 !text-white" />
       </Button>
       
       {isMobileMenuOpen && (
@@ -76,9 +93,10 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         />
       )}
       
+      {/* CRITICAL FIX: Add !important visibility classes and explicit z-index */}
       <aside 
         className={cn(
-          "fixed left-0 top-0 z-40 flex h-full flex-col border-r shadow-lg transition-all duration-300 sm:translate-x-0",
+          "fixed left-0 top-0 z-40 flex h-full flex-col border-r shadow-lg transition-all duration-300 sm:translate-x-0 !visible",
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full",
           isMobileMenuOpen ? "w-64" : (isCollapsed ? "w-20" : "w-64"),
           liftTheVeil 
@@ -87,6 +105,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           "sm:translate-x-0",
           className
         )}
+        style={{ display: "flex" }} // Force display flex
       >
         <Button 
           variant="ghost" 
@@ -140,15 +159,17 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         </div>
       </aside>
       
+      {/* CRITICAL FIX: Add explicit width, height and z-index for the hover-activated sidebar */}
       <aside 
         className={cn(
-          "hidden sm:flex fixed left-0 top-0 z-40 h-full flex-col border-r shadow-md transition-all duration-300",
+          "hidden sm:flex fixed left-0 top-0 z-40 h-full flex-col border-r shadow-md transition-all duration-300 !visible",
           isCollapsed ? "w-20" : "w-64",
           liftTheVeil 
             ? "bg-gradient-to-b from-pink-900 via-pink-800 to-pink-900 border-pink-700" 
             : "bg-gradient-to-b from-purple-900 via-purple-800 to-purple-900 border-purple-700",
           className
         )}
+        style={{ display: "flex" }} // Force display flex
         onMouseEnter={() => setIsCollapsed(false)}
         onMouseLeave={() => setIsCollapsed(true)}
       />

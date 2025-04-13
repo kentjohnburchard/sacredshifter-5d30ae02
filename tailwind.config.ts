@@ -10,6 +10,26 @@ export default {
     "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
   ],
+  safelist: [
+    // Critical sidebar classes that must be preserved in production
+    'text-white',
+    'font-bold',
+    'font-medium',
+    'opacity-100',
+    'bg-purple-700/80',
+    'bg-pink-700/80',
+    'hover:text-white',
+    'hover:bg-purple-800/70',
+    'hover:bg-pink-800/70',
+    'h-full',
+    'w-20',
+    'w-64',
+    'translate-x-0',
+    '-translate-x-full',
+    '!visible',
+    '!text-white',
+    '!opacity-100',
+  ],
   prefix: "",
   theme: {
     container: {

@@ -37,7 +37,7 @@ const PrimeNumberDisplay: React.FC<PrimeNumberDisplayProps> = ({
     };
     
     // Add to history without duplicates
-    setPrimeHistory((prev: PrimeHistoryEntry[]) => {
+    setPrimeHistory((prev) => {
       // Check if we already have this exact sequence saved recently
       const isDuplicate = prev.some(entry => 
         JSON.stringify(entry.primes) === JSON.stringify(primes) && 
