@@ -106,9 +106,9 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
               "flex items-center py-2 px-3 text-sm rounded-md transition-colors group relative",
               isActive
                 ? liftTheVeil 
-                  ? "bg-pink-700/70 text-white font-bold" 
-                  : "bg-purple-700/70 text-white font-bold"
-                : "text-white hover:bg-opacity-80", 
+                  ? "bg-pink-700/80 text-white font-bold" 
+                  : "bg-purple-700/80 text-white font-bold"
+                : "text-white font-bold hover:bg-opacity-80", 
               liftTheVeil && !isActive && "hover:bg-pink-800/70 hover:text-white",
               !liftTheVeil && !isActive && "hover:bg-purple-800/70 hover:text-white"
             )}
@@ -121,29 +121,24 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
               )} />
             )}
             
-            <IconComponent
-              className={cn(
-                "h-5 w-5 mr-3", 
-                isActive
-                  ? liftTheVeil
-                    ? "text-white"
-                    : "text-white"
-                  : "text-white"
+            <div className="flex items-center z-10 relative">
+              <IconComponent
+                className="h-5 w-5 mr-3 text-white"
+              />
+              <span 
+                className={cn(
+                  "text-white font-bold opacity-100",
+                  isCollapsed 
+                    ? "absolute opacity-0 w-0 overflow-hidden" 
+                    : "opacity-100 w-auto"
+                )}
+              >
+                {item.label}
+              </span>
+              {isCollapsed && (
+                <ChevronRight className="h-4 w-4 ml-auto opacity-0 group-hover:opacity-100 text-white" />
               )}
-            />
-            <span 
-              className={cn(
-                "transition-all duration-300 ease-in-out text-white font-bold",
-                isCollapsed 
-                  ? "opacity-0 w-0 overflow-hidden" 
-                  : "opacity-100 w-auto"
-              )}
-            >
-              {item.label}
-            </span>
-            {isCollapsed && (
-              <ChevronRight className="h-4 w-4 ml-auto opacity-0 group-hover:opacity-100 text-white" />
-            )}
+            </div>
           </NavLink>
         );
       })}

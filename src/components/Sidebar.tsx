@@ -155,7 +155,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         </div>
       </aside>
       
-      {/* Desktop behavior */}
+      {/* Desktop behavior - Shadow element that responds to hover events */}
       <aside 
         className={cn(
           "hidden sm:flex fixed left-0 top-0 z-40 h-full flex-col border-r shadow-md transition-all duration-300",
