@@ -85,7 +85,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         className={cn(
           "fixed left-0 top-0 z-40 flex h-full flex-col border-r shadow-md transition-all duration-300 sm:translate-x-0",
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full",
-          isCollapsed ? "w-20" : "w-64",
+          isMobileMenuOpen ? "w-64" : (isCollapsed ? "w-20" : "w-64"),
           liftTheVeil 
             ? "bg-gradient-to-b from-pink-900/95 via-pink-800/90 to-pink-900/95 border-pink-700/50" 
             : "bg-gradient-to-b from-purple-900/95 via-purple-800/90 to-purple-900/95 border-purple-700/50",
@@ -126,14 +126,14 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         </Button>
 
         {/* Logo and App Title */}
-        <div className={`flex items-center justify-center py-3 sm:py-5 ${isCollapsed ? "px-2" : "px-4"}`}>
-          <SidebarLogo className={isCollapsed ? "scale-75" : ""} />
+        <div className={`flex items-center justify-center py-3 sm:py-5 ${isCollapsed && !isMobileMenuOpen ? "px-2" : "px-4"}`}>
+          <SidebarLogo className={isCollapsed && !isMobileMenuOpen ? "scale-75" : ""} />
         </div>
 
         {/* Scrollable Navigation Items */}
         <ScrollArea className="flex-1 px-2 sm:px-3 py-2">
           <SidebarNavItems 
-            isCollapsed={isCollapsed}
+            isCollapsed={isCollapsed && !isMobileMenuOpen}
             onLinkClick={() => {
               setIsCollapsed(true);
               setIsMobileMenuOpen(false);
@@ -146,7 +146,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           "border-t px-3 py-4", 
           liftTheVeil ? "border-pink-700/50" : "border-purple-700/50"
         )}>
-          <SidebarUserDropdown isCollapsed={isCollapsed} />
+          <SidebarUserDropdown isCollapsed={isCollapsed && !isMobileMenuOpen} />
         </div>
       </aside>
       
