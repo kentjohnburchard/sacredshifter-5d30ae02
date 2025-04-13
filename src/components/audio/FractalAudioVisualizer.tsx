@@ -395,8 +395,10 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
       for (let i = 0; i < visualizationEnd; i++) {
         barHeight = dataArray[i] * 0.5;
         
-        // Color based on scheme
+        // Color based on chakra frequency ranges
         let barColor;
+        const nyquist = (audioContext?.sampleRate || 44100) / 2;
+        const barFrequency = (i / visualizationEnd) * nyquist;
         
         const isPrimeBar = isPrime(i + 2); // Offset to avoid 0, 1
         const barAlpha = isPrimeBar ? 0.9 : 0.7;
@@ -404,7 +406,8 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
         // Create special effects for active primes
         const isPrimeRelated = isPrimeBar || (activePrime !== null && ((i + 2) % activePrime === 0));
         
-        barColor = getColorForScheme(colorScheme, isPrimeRelated, barAlpha);
+        // Get color based on frequency range (chakra mapping)
+        barColor = getChakraColor(barFrequency, isPrimeRelated, barAlpha);
         
         // Make active prime bars glow
         if (isPrimeRelated && activePrime !== null) {
@@ -557,6 +560,10 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
           const x = centerX + Math.cos(angle) * adjustedRadius;
           const y = centerY + Math.sin(angle) * adjustedRadius;
           
+          // Map this point to a frequency for coloring
+          const nyquist = (audioContext?.sampleRate || 44100) / 2;
+          const pointFrequency = (dataIndex / dataArray.length) * nyquist;
+          
           // Check if this index is prime
           const pointNumber = i + 1; // 1-based indexing
           const isPrimePoint = isPrime(pointNumber);
@@ -567,15 +574,15 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
           ctx.moveTo(prevX, prevY);
           ctx.lineTo(x, y);
           
-          // Set line style based on prime status
+          // Set line style based on prime status and frequency (chakra color)
           const lineAlpha = 0.3 + (amplitude * 0.7);
-          ctx.strokeStyle = getColorForScheme(colorScheme, isPrimeRelated, lineAlpha);
+          ctx.strokeStyle = getChakraColor(pointFrequency, isPrimeRelated, lineAlpha);
           ctx.lineWidth = 1 + (isPrimeRelated ? amplitude * 2 : amplitude);
           
           // Add glow for prime points
           if (isPrimeRelated) {
             ctx.shadowBlur = 5;
-            ctx.shadowColor = getColorForScheme(colorScheme, true, 0.7);
+            ctx.shadowColor = getChakraColor(pointFrequency, true, 0.7);
           } else {
             ctx.shadowBlur = 0;
           }
@@ -587,7 +594,7 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
             ctx.beginPath();
             const pointSize = 2 + amplitude * 6;
             ctx.arc(x, y, pointSize, 0, Math.PI * 2);
-            ctx.fillStyle = getColorForScheme(colorScheme, true, 0.8);
+            ctx.fillStyle = getChakraColor(pointFrequency, true, 0.8);
             ctx.fill();
             
             // For active primes, add connecting lines to center
@@ -595,7 +602,7 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
               ctx.beginPath();
               ctx.moveTo(centerX, centerY);
               ctx.lineTo(x, y);
-              ctx.strokeStyle = getColorForScheme(colorScheme, true, 0.3);
+              ctx.strokeStyle = getChakraColor(pointFrequency, true, 0.3);
               ctx.lineWidth = 0.5 + amplitude;
               ctx.stroke();
             }
@@ -622,6 +629,47 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
       };
       
       drawSpiral();
+    };
+
+    // Helper to get colors based on chakra frequency ranges
+    const getChakraColor = (frequency: number, isPrime: boolean, alpha: number): string => {
+      // Define frequency ranges for chakras
+      if (frequency < 60) {
+        // Root - Red (20-60 Hz)
+        return isPrime 
+          ? `rgba(234, 56, 76, ${alpha})` // Bright red for primes
+          : `rgba(200, 36, 50, ${alpha})`; // Darker red for others
+      } else if (frequency < 100) {
+        // Sacral - Orange (60–100 Hz)
+        return isPrime
+          ? `rgba(255, 165, 0, ${alpha})` // Bright orange for primes
+          : `rgba(230, 140, 0, ${alpha})`; // Darker orange for others
+      } else if (frequency < 150) {
+        // Solar Plexus - Yellow (100–150 Hz)
+        return isPrime 
+          ? `rgba(255, 215, 0, ${alpha})` // Bright yellow/gold for primes
+          : `rgba(218, 165, 32, ${alpha})`; // Darker golden rod for others
+      } else if (frequency < 250) {
+        // Heart - Green (150–250 Hz)
+        return isPrime
+          ? `rgba(46, 204, 113, ${alpha})` // Bright green for primes
+          : `rgba(39, 174, 96, ${alpha})`; // Darker green for others
+      } else if (frequency < 400) {
+        // Throat - Blue (250–400 Hz)
+        return isPrime
+          ? `rgba(52, 152, 219, ${alpha})` // Bright blue for primes
+          : `rgba(41, 128, 185, ${alpha})`; // Darker blue for others
+      } else if (frequency < 600) {
+        // Third Eye - Indigo (400–600 Hz)
+        return isPrime
+          ? `rgba(155, 89, 182, ${alpha})` // Bright indigo for primes
+          : `rgba(142, 68, 173, ${alpha})`; // Darker indigo for others
+      } else {
+        // Crown - Violet/White (600+ Hz)
+        return isPrime
+          ? `rgba(243, 240, 255, ${alpha})` // Nearly white for primes
+          : `rgba(175, 122, 197, ${alpha})`; // Violet for others
+      }
     };
 
     // Helper to get colors based on scheme
@@ -659,14 +707,9 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
         ctx.font = '14px Arial';
         ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
         ctx.fillText(
-          "Aligning frequencies to prime intervals to bypass harmonic distortion",
+          "Prime Harmonic Activated: Aligned with natural consciousness fields",
           canvas.width / 2, 
           80
-        );
-        ctx.fillText(
-          "and resonate with natural consciousness fields",
-          canvas.width / 2,
-          100
         );
       }
     };

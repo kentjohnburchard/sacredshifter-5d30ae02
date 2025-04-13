@@ -1,475 +1,492 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Minimize2, 
-  Maximize2, 
-  Play, 
-  Pause, 
-  Volume, 
-  VolumeX, 
-  Music, 
-  PlusSquare,
-  Info
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
+import { 
+  Play, 
+  Pause, 
+  Volume2, 
+  VolumeX, 
+  Maximize2, 
+  Minimize2, 
+  Eye, 
+  EyeOff,
+  BarChart4
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTheme } from '@/context/ThemeContext';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import PrimeAudioVisualizer from './PrimeAudioVisualizer';
+import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
+import FractalAudioVisualizer from './FractalAudioVisualizer';
 
-const SacredAudioPlayer: React.FC = () => {
-  const [expanded, setExpanded] = useState(false);
-  const [volume, setVolume] = useState(0.7);
-  const [isMuted, setIsMuted] = useState(false);
-  const [visualMode, setVisualMode] = useState<'prime' | 'regular'>('prime');
-  const [visualLayout, setVisualLayout] = useState<'vertical' | 'radial'>('vertical');
+interface SacredAudioPlayerProps {
+  audioUrl?: string;
+  title?: string;
+  artist?: string;
+  frequency?: number;
+  chakra?: string;
+  initiallyExpanded?: boolean;
+  onPlayStateChange?: (isPlaying: boolean) => void;
+}
+
+const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
+  audioUrl,
+  title = 'Sacred Sound',
+  artist,
+  frequency,
+  chakra,
+  initiallyExpanded = false,
+  onPlayStateChange
+}) => {
   const { liftTheVeil } = useTheme();
-  const audioProgressRef = useRef<HTMLDivElement>(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [activePrime, setActivePrime] = useState<number | null>(null);
-  const [showPrimeTooltip, setShowPrimeTooltip] = useState(false);
-  const primeDisplayTimeout = useRef<NodeJS.Timeout | null>(null);
+  const [expanded, setExpanded] = useState(initiallyExpanded);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [volume, setVolume] = useState(0.8);
+  const [isMuted, setIsMuted] = useState(false);
+  const [showVisualizer, setShowVisualizer] = useState(true);
+  const [primes, setPrimes] = useState<number[]>([]);
+  const [detectedFrequency, setDetectedFrequency] = useState<number | null>(null);
+  const [visualizerMode, setVisualizerMode] = useState<'purple' | 'blue' | 'rainbow' | 'gold'>(
+    liftTheVeil ? 'rainbow' : chakraToVisualMode(chakra) || 'purple'
+  );
   
-  const { 
-    playAudio, 
-    isPlaying, 
-    currentAudio, 
-    togglePlayPause 
-  } = useGlobalAudioPlayer();
-
-  // Get a reference to the audio element
-  const audioElement = document.getElementById('global-audio-player') as HTMLAudioElement | null;
+  const playerRef = useRef<HTMLDivElement>(null);
+  const {
+    isAudioPlaying,
+    duration,
+    currentAudioTime,
+    togglePlayPause,
+    seekTo,
+    setAudioSource,
+    audioRef,
+    audioLoaded,
+  } = useAudioPlayer();
   
-  // Use the audio analyzer hook with the global audio element
-  const { audioContext, analyser } = useAudioAnalyzer(audioElement);
-
-  // Update volume when it changes
+  // Get analyzer for visualization
+  const { audioContext, analyser } = useAudioAnalyzer(audioRef.current);
+  
+  // Update audio source when url changes
   useEffect(() => {
-    if (audioElement) {
-      audioElement.volume = isMuted ? 0 : volume;
+    if (audioUrl) {
+      setAudioSource(audioUrl);
     }
-  }, [volume, isMuted, audioElement]);
-
-  // Track audio progress
+  }, [audioUrl, setAudioSource]);
+  
+  // Apply volume changes
   useEffect(() => {
-    if (!audioElement) return;
-    
-    const handleTimeUpdate = () => {
-      setCurrentTime(audioElement.currentTime);
-      setDuration(audioElement.duration || 0);
-    };
-    
-    audioElement.addEventListener('timeupdate', handleTimeUpdate);
-    
-    return () => {
-      audioElement.removeEventListener('timeupdate', handleTimeUpdate);
-    };
-  }, [audioElement]);
-
-  // Handle prime detection
-  const handlePrimeDetected = (prime: number) => {
-    // Set the active prime and show the tooltip
-    setActivePrime(prime);
-    setShowPrimeTooltip(true);
-    
-    // Clear any existing timeout
-    if (primeDisplayTimeout.current) {
-      clearTimeout(primeDisplayTimeout.current);
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume;
     }
-    
-    // Hide the tooltip after 3 seconds
-    primeDisplayTimeout.current = setTimeout(() => {
-      setShowPrimeTooltip(false);
-    }, 3000);
+  }, [volume, isMuted, audioRef]);
+  
+  // Notify parent component of play state changes
+  useEffect(() => {
+    if (onPlayStateChange) {
+      onPlayStateChange(isAudioPlaying);
+    }
+  }, [isAudioPlaying, onPlayStateChange]);
+  
+  // Toggle playback
+  const handlePlayPause = () => {
+    togglePlayPause();
   };
-
-  useEffect(() => {
-    return () => {
-      // Clean up timeout on unmount
-      if (primeDisplayTimeout.current) {
-        clearTimeout(primeDisplayTimeout.current);
-      }
-    };
-  }, []);
-
+  
+  // Toggle expanded view
+  const handleExpand = () => {
+    setExpanded(!expanded);
+    if (isFullscreen) {
+      setIsFullscreen(false);
+    }
+  };
+  
+  // Toggle fullscreen view
+  const handleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+    setExpanded(true); // Always expand when toggling fullscreen
+  };
+  
+  // Toggle visualizer visibility
+  const handleToggleVisualizer = () => {
+    setShowVisualizer(!showVisualizer);
+  };
+  
+  // Toggle mute
+  const handleToggleMute = () => {
+    setIsMuted(!isMuted);
+  };
+  
+  // Change visualizer mode
+  const handleChangeVisualizer = () => {
+    const modes: ('purple' | 'blue' | 'rainbow' | 'gold')[] = ['purple', 'blue', 'rainbow', 'gold'];
+    const currentIndex = modes.indexOf(visualizerMode);
+    const nextIndex = (currentIndex + 1) % modes.length;
+    setVisualizerMode(modes[nextIndex]);
+  };
+  
   // Format time display (minutes:seconds)
   const formatTime = (time: number): string => {
-    if (!time || isNaN(time)) return '0:00';
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
   };
-
-  // Handle seeking in the audio track
-  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!audioElement || !audioProgressRef.current) return;
-    
-    const bounds = audioProgressRef.current.getBoundingClientRect();
-    const x = e.clientX - bounds.left;
-    const ratio = x / bounds.width;
-    const seekTime = ratio * duration;
-    
-    audioElement.currentTime = seekTime;
-  };
-
-  // Toggle mute state
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
-  };
-
-  // Toggle visualization mode between prime and regular
-  const toggleVisualMode = () => {
-    setVisualMode(prev => prev === 'prime' ? 'regular' : 'prime');
-  };
-
-  // Toggle visualization layout between vertical and radial
-  const toggleVisualLayout = () => {
-    setVisualLayout(prev => prev === 'vertical' ? 'radial' : 'vertical');
-  };
-
-  // Don't render if no audio is playing or loading
-  if (!currentAudio) return null;
   
-  // Determine progress percentage
-  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
-
+  // Handle prime sequence updates from visualizer
+  const handlePrimeSequence = (newPrimes: number[]) => {
+    if (newPrimes.length > 0) {
+      setPrimes(newPrimes);
+    }
+  };
+  
+  // Handle frequency detection updates from visualizer
+  const handleFrequencyDetected = (freq: number) => {
+    setDetectedFrequency(freq);
+  };
+  
+  // Map chakra to visualizer mode
+  function chakraToVisualMode(chakraName?: string): 'purple' | 'blue' | 'rainbow' | 'gold' | undefined {
+    if (!chakraName) return undefined;
+    
+    switch (chakraName.toLowerCase()) {
+      case 'root': return 'purple';
+      case 'sacral': 
+      case 'solar plexus': return 'gold';
+      case 'heart': return 'purple';
+      case 'throat':
+      case 'third eye': return 'blue';
+      case 'crown': return 'rainbow';
+      default: return undefined;
+    }
+  }
+  
+  // Determine chakra-specific color classes
+  const getChakraColorClasses = (): {bg: string, text: string, border: string} => {
+    if (liftTheVeil) {
+      return {
+        bg: 'from-pink-900/90 to-purple-900/90',
+        text: 'text-pink-100',
+        border: 'border-pink-800'
+      };
+    }
+    
+    if (!chakra) {
+      return {
+        bg: 'from-indigo-900/90 to-purple-900/90',
+        text: 'text-purple-100',
+        border: 'border-purple-800'
+      };
+    }
+    
+    // Return chakra-specific colors
+    switch(chakra.toLowerCase()) {
+      case 'root':
+        return {
+          bg: 'from-red-900/90 to-red-700/90',
+          text: 'text-red-100',
+          border: 'border-red-800'
+        };
+      case 'sacral':
+        return {
+          bg: 'from-orange-900/90 to-orange-700/90',
+          text: 'text-orange-100',
+          border: 'border-orange-800'
+        };
+      case 'solar plexus':
+        return {
+          bg: 'from-amber-900/90 to-yellow-700/90',
+          text: 'text-amber-100',
+          border: 'border-amber-800'
+        };
+      case 'heart':
+        return {
+          bg: 'from-green-900/90 to-emerald-700/90',
+          text: 'text-green-100',
+          border: 'border-green-800'
+        };
+      case 'throat':
+        return {
+          bg: 'from-blue-900/90 to-blue-700/90',
+          text: 'text-blue-100',
+          border: 'border-blue-800'
+        };
+      case 'third eye':
+        return {
+          bg: 'from-indigo-900/90 to-violet-700/90',
+          text: 'text-indigo-100',
+          border: 'border-indigo-800'
+        };
+      case 'crown':
+        return {
+          bg: 'from-violet-900/90 to-purple-700/90',
+          text: 'text-violet-100',
+          border: 'border-violet-800'
+        };
+      default:
+        return {
+          bg: 'from-indigo-900/90 to-purple-900/90',
+          text: 'text-purple-100',
+          border: 'border-purple-800'
+        };
+    }
+  };
+  
+  const colors = getChakraColorClasses();
+  
   return (
-    <div className="fixed bottom-6 right-6 z-50">
-      <AnimatePresence mode="wait">
-        {expanded ? (
-          <motion.div
-            key="expanded"
-            initial={{ opacity: 0, y: 50, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9, y: 50 }}
-            transition={{ type: "spring", damping: 25 }}
-            className={`rounded-xl overflow-hidden shadow-xl ${
-              liftTheVeil 
-                ? 'border border-pink-500/30 bg-gradient-to-br from-slate-900/95 to-black/90 shadow-pink-500/20' 
-                : 'border border-purple-500/30 bg-gradient-to-br from-slate-900/95 to-black/90 shadow-purple-500/20'
-            }`}
-            style={{ width: '320px' }}
-          >
-            {/* Header with title and controls */}
-            <div className={`px-4 py-3 flex items-center justify-between ${
-              liftTheVeil ? 'bg-pink-950/30' : 'bg-purple-950/30'
-            }`}>
-              <TooltipProvider>
-                <Tooltip open={showPrimeTooltip}>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center">
-                      <h3 className={`font-medium text-sm truncate max-w-[200px] ${
-                        liftTheVeil ? 'text-pink-200' : 'text-purple-200'
-                      }`}>
-                        Prime Harmonix {visualMode === 'prime' ? '✧' : ''}
-                      </h3>
-                      {activePrime && showPrimeTooltip && (
-                        <motion.span 
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.8 }}
-                          className={`text-xs font-medium ml-2 px-2 py-0.5 rounded-full ${
-                            liftTheVeil 
-                              ? 'bg-pink-500/20 text-pink-200' 
-                              : 'bg-purple-500/20 text-purple-200'
-                          }`}
-                        >
-                          Prime {activePrime}
-                        </motion.span>
-                      )}
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" align="start" className="max-w-xs">
-                    <p className="text-xs">
-                      Aligning frequencies to prime intervals to bypass harmonic distortion and resonate with natural consciousness fields.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              
-              <div className="flex gap-1">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-7 w-7 rounded-full"
-                  onClick={() => setExpanded(false)}
-                >
-                  <Minimize2 className="h-4 w-4 text-gray-400" />
-                </Button>
-              </div>
-            </div>
-
-            {/* Visualizer */}
-            <div className="h-48 w-full overflow-hidden bg-black/70 relative">
-              {/* Prime detection effect overlay */}
-              <AnimatePresence>
-                {activePrime && showPrimeTooltip && (
-                  <motion.div 
-                    className="absolute inset-0 z-10 pointer-events-none"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <div className={`absolute inset-0 ${
-                      liftTheVeil 
-                        ? 'bg-gradient-to-t from-transparent to-pink-500/5' 
-                        : 'bg-gradient-to-t from-transparent to-purple-500/5'
-                    }`}></div>
-                    <div className="absolute top-2 left-2 right-2 flex justify-center">
-                      <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        liftTheVeil
-                          ? 'bg-pink-500/20 text-pink-200'
-                          : 'bg-purple-500/20 text-purple-200'
-                      }`}>
-                        Prime Frequency: {activePrime}
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              
-              <PrimeAudioVisualizer
+    <div ref={playerRef} className={`relative z-40 ${isFullscreen ? 'fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm' : ''}`}>
+      <motion.div 
+        initial={{ scale: 0.95, opacity: 0 }} 
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className={`
+          ${isFullscreen 
+            ? 'w-full h-full max-w-full rounded-none' 
+            : expanded 
+              ? 'w-full md:w-[600px] rounded-lg' 
+              : 'w-full max-w-[320px] rounded-lg'
+          } 
+          overflow-hidden shadow-lg relative
+        `}
+      >
+        {/* Visualizer background - only shown when playing */}
+        <AnimatePresence>
+          {showVisualizer && isAudioPlaying && audioContext && analyser && (
+            <motion.div 
+              key="visualizer"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className={`absolute inset-0 z-0 ${expanded || isFullscreen ? '' : 'opacity-30'}`}
+            >
+              <FractalAudioVisualizer 
                 audioContext={audioContext}
                 analyser={analyser}
-                isPlaying={isPlaying}
-                colorMode={liftTheVeil ? 'veil-lifted' : 'standard'}
-                visualMode={visualMode}
-                layout={visualLayout}
-                onPrimeDetected={handlePrimeDetected}
+                isVisible={true}
+                colorScheme={visualizerMode}
+                pauseWhenStopped={false}
+                frequency={frequency}
+                chakra={chakra}
+                onPrimeSequence={handlePrimeSequence}
+                onFrequencyDetected={handleFrequencyDetected}
               />
-            </div>
-
-            {/* Track info */}
-            <div className="p-4">
-              <div className="mb-2">
-                <h4 className={`font-medium text-sm ${
-                  liftTheVeil ? 'text-pink-200' : 'text-purple-200'
-                }`}>
-                  {currentAudio.title || 'Now Playing'}
-                </h4>
-                {currentAudio.artist && (
-                  <p className="text-xs text-gray-400">
-                    {currentAudio.artist}
-                  </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
+        {/* Player UI */}
+        <div className={`
+          relative z-10 flex flex-col bg-gradient-to-r ${colors.bg}
+          ${(!showVisualizer || !isAudioPlaying) ? 'bg-opacity-100' : 'bg-opacity-50 backdrop-blur-sm'}
+          ${isFullscreen ? 'h-full' : ''}
+          border ${colors.border}
+        `}>
+          {/* Player header */}
+          <div className="px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center">
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`h-8 w-8 ${colors.text} mr-2`}
+                onClick={handleExpand}
+                title={expanded ? "Minimize" : "Expand"}
+              >
+                {expanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              </Button>
+              <div className="truncate max-w-[200px]">
+                <p className={`font-medium text-sm ${colors.text} truncate`}>
+                  {title}
+                </p>
+                {artist && (
+                  <p className="text-xs text-gray-300 truncate">{artist}</p>
                 )}
               </div>
+            </div>
+            <div className="flex items-center space-x-1">
+              {expanded && (
+                <>
+                  {isAudioPlaying && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={`h-7 w-7 text-white/70 hover:text-white`}
+                      onClick={handleToggleVisualizer}
+                      title={showVisualizer ? "Hide visualizer" : "Show visualizer"}
+                    >
+                      {showVisualizer ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  )}
+                  
+                  {isAudioPlaying && showVisualizer && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={`h-7 w-7 text-white/70 hover:text-white`}
+                      onClick={handleChangeVisualizer}
+                      title="Change visualizer style"
+                    >
+                      <BarChart4 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </>
+              )}
               
-              {/* Progress bar */}
-              <div className="mb-4">
-                <div 
-                  ref={audioProgressRef}
-                  onClick={handleSeek}
-                  className={`w-full h-1.5 bg-gray-700 rounded-full cursor-pointer relative overflow-hidden mb-1`}
-                >
-                  <div 
-                    className={`absolute top-0 left-0 h-full rounded-full ${
-                      liftTheVeil ? 'bg-pink-500' : 'bg-purple-500'
-                    }`}
-                    style={{ width: `${progressPercent}%` }}
-                  />
-                </div>
-                <div className="flex justify-between text-xs text-gray-400">
-                  <span>{formatTime(currentTime)}</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`h-7 w-7 text-white/70 hover:text-white`}
+                onClick={handleFullscreen}
+                title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+              >
+                {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              </Button>
+            </div>
+          </div>
+          
+          {/* Player content - only visible when expanded */}
+          {expanded && (
+            <div className="p-4 space-y-4 flex-1 flex flex-col">
+              {/* Frequency and chakra info */}
+              <div className="flex flex-wrap gap-2">
+                {frequency && (
+                  <Badge variant="outline" className={`border-white/20 ${colors.text}`}>
+                    {frequency} Hz
+                  </Badge>
+                )}
+                {chakra && (
+                  <Badge variant="outline" className={`border-white/20 ${colors.text}`}>
+                    {chakra} Chakra
+                  </Badge>
+                )}
+                {detectedFrequency && (
+                  <Badge variant="outline" className="border-white/20 text-white/80">
+                    Current: ~{detectedFrequency} Hz
+                  </Badge>
+                )}
+                {primes.length > 0 && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge className={`bg-white/20 hover:bg-white/30 cursor-help ${colors.text}`}>
+                        {primes.length} Primes Found
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-sm">Prime Harmonics Detected: {primes.slice(-5).join(', ')}</p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Prime frequencies align with sacred harmonic fields for resonance with natural consciousness
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+              </div>
+
+              {/* Audio player center area */}
+              <div className={`flex-1 flex flex-col justify-center items-center min-h-[200px] ${isFullscreen ? 'min-h-[60vh]' : ''}`}>
+                {/* Center play/pause button (shown when not playing or visualizer hidden) */}
+                {(!isAudioPlaying || !showVisualizer) && (
+                  <motion.div
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className={`relative rounded-full ${liftTheVeil ? 'bg-pink-600/20' : 'bg-purple-600/20'} p-8`}
+                  >
+                    <Button
+                      variant="default"
+                      size="icon"
+                      className={`h-16 w-16 rounded-full ${liftTheVeil ? 'bg-pink-600 hover:bg-pink-700' : 'bg-purple-600 hover:bg-purple-700'}`}
+                      onClick={handlePlayPause}
+                      disabled={!audioLoaded}
+                    >
+                      {isAudioPlaying ? (
+                        <Pause className="h-8 w-8" />
+                      ) : (
+                        <Play className="h-8 w-8 ml-1" />
+                      )}
+                    </Button>
+                    <div className={`absolute inset-0 rounded-full ${liftTheVeil ? 'bg-pink-600/10' : 'bg-purple-600/10'} animate-ping`} />
+                  </motion.div>
+                )}
+              </div>
+
+              {/* Audio controls */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs text-gray-300">
+                  <span>{formatTime(currentAudioTime)}</span>
                   <span>{formatTime(duration)}</span>
                 </div>
+                <Slider
+                  value={[currentAudioTime]}
+                  max={duration || 100}
+                  step={0.1}
+                  onValueChange={(values) => seekTo(values[0])}
+                  className="w-full"
+                />
               </div>
-              
-              {/* Controls */}
-              <div className="flex justify-between items-center">
-                {/* Play/pause button */}
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className={`h-10 w-10 rounded-full border ${
-                    liftTheVeil ? 'border-pink-500/50 hover:border-pink-400' : 'border-purple-500/50 hover:border-purple-400'
-                  }`}
-                  onClick={togglePlayPause}
-                >
-                  {isPlaying ? (
-                    <Pause className={`h-4 w-4 ${liftTheVeil ? 'text-pink-300' : 'text-purple-300'}`} />
-                  ) : (
-                    <Play className={`h-4 w-4 ml-0.5 ${liftTheVeil ? 'text-pink-300' : 'text-purple-300'}`} />
-                  )}
-                </Button>
-                
-                {/* Volume control */}
+
+              {/* Bottom controls */}
+              <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8"
-                    onClick={toggleMute}
+                    className="text-white/70 hover:text-white"
+                    onClick={handleToggleMute}
                   >
-                    {isMuted ? (
-                      <VolumeX className="h-4 w-4 text-gray-400" />
-                    ) : (
-                      <Volume className="h-4 w-4 text-gray-400" />
-                    )}
+                    {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
                   </Button>
                   
-                  <Slider
-                    value={[isMuted ? 0 : volume]}
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    onValueChange={(values) => setVolume(values[0])}
-                    className={`w-24 ${liftTheVeil ? 'bg-pink-950/50' : 'bg-purple-950/50'}`}
-                  />
+                  <div className="w-20">
+                    <Slider
+                      value={[isMuted ? 0 : volume]}
+                      max={1}
+                      step={0.01}
+                      onValueChange={(values) => {
+                        setVolume(values[0]);
+                        if (values[0] > 0 && isMuted) {
+                          setIsMuted(false);
+                        }
+                      }}
+                    />
+                  </div>
                 </div>
-              </div>
-              
-              {/* Visualization controls */}
-              <div className="flex justify-between text-xs mt-4">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        className={`px-2 py-1 rounded flex items-center gap-1 ${
-                          liftTheVeil 
-                            ? 'text-pink-300 hover:bg-pink-950/30' 
-                            : 'text-purple-300 hover:bg-purple-950/30'
-                        }`}
-                        onClick={toggleVisualMode}
-                      >
-                        <PlusSquare className="h-3 w-3" />
-                        {visualMode === 'prime' ? 'Prime Mode' : 'Standard Mode'}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="text-xs max-w-[200px]">
-                        {visualMode === 'prime' 
-                          ? 'Prime Mode highlights frequencies that align with prime numbers for deeper resonance' 
-                          : 'Standard Mode shows all frequency bands equally'}
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
                 
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        className={`px-2 py-1 rounded flex items-center gap-1 ${
-                          liftTheVeil 
-                            ? 'text-pink-300 hover:bg-pink-950/30' 
-                            : 'text-purple-300 hover:bg-purple-950/30'
-                        }`}
-                        onClick={toggleVisualLayout}
-                      >
-                        <Music className="h-3 w-3" />
-                        {visualLayout === 'vertical' ? 'Vertical' : 'Radial'}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="text-xs max-w-[200px]">
-                        Switch between vertical bars and radial circular pattern
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        className={`px-2 py-1 rounded flex items-center gap-1 ${
-                          liftTheVeil 
-                            ? 'text-pink-300/70 hover:bg-pink-950/30 hover:text-pink-300' 
-                            : 'text-purple-300/70 hover:bg-purple-950/30 hover:text-purple-300'
-                        }`}
-                      >
-                        <Info className="h-3 w-3" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <div className="text-xs max-w-[220px] space-y-1">
-                        <p>
-                          <strong>Prime Harmonics:</strong> A frequency that bypasses standard resonance patterns to awaken your soul's original rhythm.
-                        </p>
-                        <p className="pt-1 text-muted-foreground">
-                          When prime frequencies align, notice the glow intensify — these are moments of heightened consciousness.
-                        </p>
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Button
+                  variant="default"
+                  size="sm"
+                  className={`rounded-full ${liftTheVeil ? 'bg-pink-600 hover:bg-pink-700' : 'bg-purple-600 hover:bg-purple-700'}`}
+                  onClick={handlePlayPause}
+                  disabled={!audioLoaded}
+                >
+                  {isAudioPlaying ? (
+                    <Pause className="h-4 w-4 mr-2" />
+                  ) : (
+                    <Play className="h-4 w-4 mr-2 ml-0.5" />
+                  )}
+                  {isAudioPlaying ? 'Pause' : 'Play'}
+                </Button>
               </div>
             </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="collapsed"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ type: "spring", damping: 20 }}
-            className={`flex items-center space-x-2 p-2 rounded-full shadow-lg cursor-pointer ${
-              liftTheVeil 
-                ? 'bg-gradient-to-r from-slate-900/90 to-slate-900/95 border border-pink-500/30 shadow-pink-500/10' 
-                : 'bg-gradient-to-r from-slate-900/90 to-slate-900/95 border border-purple-500/30 shadow-purple-500/10'
-            }`}
-            onClick={() => setExpanded(true)}
-          >
-            {/* Play/pause button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-full"
-              onClick={(e) => {
-                e.stopPropagation();
-                togglePlayPause();
-              }}
-            >
-              {isPlaying ? (
-                <Pause className={`h-4 w-4 ${liftTheVeil ? 'text-pink-300' : 'text-purple-300'}`} />
-              ) : (
-                <Play className={`h-4 w-4 ml-0.5 ${liftTheVeil ? 'text-pink-300' : 'text-purple-300'}`} />
-              )}
-            </Button>
-            
-            {/* Title */}
-            <div className="max-w-[120px] truncate">
-              <span className={`text-xs font-medium ${
-                liftTheVeil ? 'text-pink-200' : 'text-purple-200'
-              }`}>
-                {currentAudio.title || 'Now Playing'}
-              </span>
+          )}
+          
+          {/* Minimized player controls - only visible when not expanded */}
+          {!expanded && (
+            <div className="p-2 flex items-center justify-center">
+              <Button
+                variant="default"
+                size="icon"
+                className={`h-10 w-10 rounded-full ${liftTheVeil ? 'bg-pink-600 hover:bg-pink-700' : 'bg-purple-600 hover:bg-purple-700'}`}
+                onClick={handlePlayPause}
+                disabled={!audioLoaded}
+              >
+                {isAudioPlaying ? (
+                  <Pause className="h-5 w-5" />
+                ) : (
+                  <Play className="h-5 w-5 ml-0.5" />
+                )}
+              </Button>
             </div>
-            
-            {/* Prime indicator */}
-            <AnimatePresence>
-              {activePrime && showPrimeTooltip && (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  className={`h-2 w-2 rounded-full ${
-                    liftTheVeil ? 'bg-pink-400 animate-pulse' : 'bg-purple-400 animate-pulse'
-                  }`}
-                />
-              )}
-            </AnimatePresence>
-            
-            {/* Expand button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-full"
-              onClick={(e) => {
-                e.stopPropagation();
-                setExpanded(true);
-              }}
-            >
-              <Maximize2 className="h-4 w-4 text-gray-400" />
-            </Button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </div>
+      </motion.div>
     </div>
   );
 };
