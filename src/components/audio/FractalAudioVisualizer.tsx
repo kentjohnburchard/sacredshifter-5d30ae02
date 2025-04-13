@@ -177,7 +177,6 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
     const complexMaterial = new THREE.MeshPhongMaterial({
       color: colors.primary,
       emissive: colors.accent,
-      emissiveIntensity: 0.2,
       shininess: 80,
       transparent: true,
       opacity: 0.9,
@@ -289,9 +288,13 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
           mesh.rotation.z += rotationSpeed * 0.7;
           mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
           
-          // Adjust material properties
+          // Adjust material properties - fixed TypeScript error by casting to MeshPhongMaterial
           if (!Array.isArray(mesh.material)) {
-            mesh.material.emissiveIntensity = 0.2 + bassFreq * 0.3 * intensity;
+            // Ensure we're working with a MeshPhongMaterial
+            const material = mesh.material as THREE.MeshPhongMaterial;
+            if (material.emissive) {
+              material.emissiveIntensity = 0.2 + bassFreq * 0.3 * intensity;
+            }
           }
         } 
         else if (index === 1) { // Wireframe - affected by mids

@@ -16,21 +16,26 @@ const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
   const navigate = useNavigate();
   const { playAudio, isPlaying, currentAudio, setOnEndedCallback } = useGlobalAudioPlayer();
+  
+  // Create all useState hooks first, before any conditional logic
   const [journey, setJourney] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { templates } = useJourneyTemplates();
   const [visualizerMode, setVisualizerMode] = useState<'purple' | 'blue' | 'rainbow' | 'gold'>('purple');
   const [showVisualizer, setShowVisualizer] = useState(true);
   
-  // Create a ref for the audio element used by the global player
+  // Create refs
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  
-  // Track management refs
   const lastPlayedIndex = useRef<number | null>(null);
   const songsRef = useRef<any[]>([]);
   
+  // Get templates
+  const { templates } = useJourneyTemplates();
+  
   // Get songs for this journey using the useJourneySongs hook
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
+  
+  // Setup audio analyzer for visualizer - call the hook unconditionally
+  const { audioContext, analyser } = useAudioAnalyzer(audioRef);
 
   // Store songs in ref to access in callbacks
   useEffect(() => {
@@ -47,10 +52,6 @@ const JourneyPlayer = () => {
       audioRef.current = audioElement;
     }
   }, []);
-  
-  // Setup audio analyzer for visualizer - only if visualizer is shown and audio is playing
-  const shouldUseAudioAnalyzer = showVisualizer && isPlaying && audioRef.current !== null;
-  const { audioContext, analyser } = shouldUseAudioAnalyzer ? useAudioAnalyzer(audioRef) : { audioContext: null, analyser: null };
 
   // Function to select a random song that's not the last played one
   const selectRandomSong = () => {
@@ -213,7 +214,6 @@ const JourneyPlayer = () => {
           analyser={analyser}
           isVisible={true}
           colorScheme={visualizerMode}
-          intensity={1}
         />
       )}
       

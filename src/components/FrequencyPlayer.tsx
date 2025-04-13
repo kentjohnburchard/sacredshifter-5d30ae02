@@ -31,12 +31,17 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   chakra,
   title = "Sacred Frequency"
 }) => {
+  // Create all state hooks at the top
   const [showVisualizer, setShowVisualizer] = useState(false);
+  
   const effectiveAudioUrl = url || audioUrl;
   const { playAudio, togglePlayPause, currentAudio } = useGlobalAudioPlayer();
   
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   const audioInitialized = React.useRef(false);
+  
+  // Use the audio analyzer hook consistently
+  const { audioContext, analyser } = useAudioAnalyzer(audioRef);
   
   useEffect(() => {
     if (!audioInitialized.current) {
@@ -49,8 +54,6 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       audioInitialized.current = true;
     }
   }, []);
-  
-  const { audioContext, analyser } = useAudioAnalyzer(audioRef);
   
   const isCurrentlyPlaying = React.useMemo(() => {
     if (!currentAudio || !effectiveAudioUrl) return false;
