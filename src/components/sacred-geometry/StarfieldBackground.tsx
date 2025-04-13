@@ -1,17 +1,20 @@
-
 import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 
 interface StarfieldBackgroundProps {
   density?: 'low' | 'medium' | 'high';
   opacity?: number;
-  isStatic: boolean; // Controls animation
+  isStatic?: boolean;
+  starCount?: number;
+  speed?: number;
 }
 
 const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({ 
   density = 'medium', 
   opacity = 0.3, 
-  isStatic = false 
+  isStatic = false,
+  starCount = 1500,
+  speed = 0.5
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -55,12 +58,7 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
     
     // Determine star count based on density (increased!)
     const getStarCount = () => {
-      switch(density) {
-        case 'low': return 800;
-        case 'high': return 2500;
-        case 'medium':
-        default: return 1500;
-      }
+      return starCount;
     };
     
     // Create stars
@@ -170,8 +168,8 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
       
       if (starsRef.current && !isStatic) {
         // Slower, more subtle rotation
-        starsRef.current.rotation.x += 0.0002;
-        starsRef.current.rotation.y += 0.0003;
+        starsRef.current.rotation.x += speed;
+        starsRef.current.rotation.y += speed;
         
         // Bright stars rotate slightly differently
         brightStars.rotation.x += 0.0001;
@@ -230,7 +228,7 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
         rendererRef.current.dispose();
       }
     };
-  }, [density, opacity, isStatic]);
+  }, [density, opacity, isStatic, starCount, speed]);
 
   return <div ref={containerRef} className="absolute inset-0 z-0" />;
 };
