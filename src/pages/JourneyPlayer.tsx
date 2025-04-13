@@ -23,9 +23,6 @@ const JourneyPlayer = () => {
   // Create a ref for the audio element used by the global player
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
-  // Setup audio analyzer for visualizer - only if visualizer is shown
-  const { audioContext, analyser } = showVisualizer && isPlaying ? useAudioAnalyzer(audioRef) : { audioContext: null, analyser: null };
-  
   // Get songs for this journey using the useJourneySongs hook
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
 
@@ -37,6 +34,10 @@ const JourneyPlayer = () => {
       audioRef.current = audioElement;
     }
   }, []);
+  
+  // Setup audio analyzer for visualizer - only if visualizer is shown and audio is playing
+  const shouldUseAudioAnalyzer = showVisualizer && isPlaying && audioRef.current !== null;
+  const { audioContext, analyser } = shouldUseAudioAnalyzer ? useAudioAnalyzer(audioRef) : { audioContext: null, analyser: null };
 
   useEffect(() => {
     if (!journeyId) {
