@@ -109,6 +109,23 @@ const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
     const baseColor = colorMode === 'standard' ? 
       { r: 139, g: 92, b: 246 } : // purple
       { r: 236, g: 72, b: 153 };  // pink
+
+    // Add subtle background glow
+    const glow = ctx.createRadialGradient(
+      canvas.width / 2, canvas.height / 2, 0,
+      canvas.width / 2, canvas.height / 2, canvas.width / 2
+    );
+    
+    if (colorMode === 'standard') {
+      glow.addColorStop(0, 'rgba(139, 92, 246, 0.05)');
+      glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    } else {
+      glow.addColorStop(0, 'rgba(236, 72, 153, 0.05)');
+      glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    }
+    
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     for (let i = 0; i < Math.min(64, frequencyData.length); i++) {
       const value = frequencyData[i];
@@ -120,13 +137,18 @@ const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
         (primeArray.includes(i) || isPrime(i)) : 
         false;
       
+      // Create pulse animation based on time
+      const pulseOffset = Date.now() * 0.001 + i * 0.2;
+      const pulseFactor = 0.5 + 0.5 * Math.sin(pulseOffset);
+      
       // Calculate color based on whether this is a prime index
       let alpha = 0.5 + percent * 0.5;
       let color;
+      let glowIntensity = 0;
       
       if (isPrimeIndex) {
-        // Make prime bars brighter and more saturated
-        const glowIntensity = 0.2 + 0.8 * Math.sin(Date.now() * 0.003 + i * 0.2);
+        // Make prime bars brighter and more saturated with pulsing effect
+        glowIntensity = 0.2 + 0.8 * pulseFactor;
         alpha = 0.7 + 0.3 * glowIntensity;
         
         if (colorMode === 'standard') {
@@ -148,7 +170,7 @@ const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
       
       // Create rounded bars
       const x = i * (barWidth + barGap);
-      const barRadius = barWidth / 2;
+      const barRadius = Math.min(barWidth / 2, 4);
       
       // Draw rounded rectangle
       ctx.beginPath();
@@ -162,10 +184,25 @@ const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
       
       // Add glow effect for prime bars
       if (isPrimeIndex && percent > 0.1) {
-        ctx.shadowBlur = 15;
+        ctx.shadowBlur = 15 * glowIntensity;
         ctx.shadowColor = colorMode === 'standard' ? 'rgba(139, 92, 246, 0.8)' : 'rgba(236, 72, 153, 0.8)';
         ctx.fill();
         ctx.shadowBlur = 0;
+        
+        // Add a glow trail for prime bars
+        const trailHeight = barHeight * 0.4 * pulseFactor;
+        const trailGradient = ctx.createLinearGradient(0, canvas.height - barHeight, 0, canvas.height - barHeight - trailHeight);
+        
+        if (colorMode === 'standard') {
+          trailGradient.addColorStop(0, 'rgba(139, 92, 246, 0.4)');
+          trailGradient.addColorStop(1, 'rgba(139, 92, 246, 0)');
+        } else {
+          trailGradient.addColorStop(0, 'rgba(236, 72, 153, 0.4)');
+          trailGradient.addColorStop(1, 'rgba(236, 72, 153, 0)');
+        }
+        
+        ctx.fillStyle = trailGradient;
+        ctx.fillRect(x, canvas.height - barHeight - trailHeight, barWidth, trailHeight);
       }
     }
   };
@@ -184,6 +221,29 @@ const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
       { r: 139, g: 92, b: 246 } : // purple
       { r: 236, g: 72, b: 153 };  // pink
     
+    // Add subtle background glow
+    const glow = ctx.createRadialGradient(
+      centerX, centerY, 0,
+      centerX, centerY, radius
+    );
+    
+    if (colorMode === 'standard') {
+      glow.addColorStop(0, 'rgba(139, 92, 246, 0.05)');
+      glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    } else {
+      glow.addColorStop(0, 'rgba(236, 72, 153, 0.05)');
+      glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    }
+    
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw a subtle center circle
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 5, 0, Math.PI * 2);
+    ctx.fillStyle = colorMode === 'standard' ? 'rgba(139, 92, 246, 0.8)' : 'rgba(236, 72, 153, 0.8)';
+    ctx.fill();
+    
     for (let i = 0; i < barCount; i++) {
       const value = frequencyData[i];
       const percent = value / 255;
@@ -194,13 +254,18 @@ const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
         (primeArray.includes(i) || isPrime(i)) : 
         false;
       
+      // Create pulse animation based on time
+      const pulseOffset = Date.now() * 0.001 + i * 0.2;
+      const pulseFactor = 0.5 + 0.5 * Math.sin(pulseOffset);
+      
       // Calculate color based on whether this is a prime index
       let alpha = 0.5 + percent * 0.5;
       let color;
+      let glowIntensity = 0;
       
       if (isPrimeIndex) {
-        // Make prime bars brighter and more saturated
-        const glowIntensity = 0.2 + 0.8 * Math.sin(Date.now() * 0.003 + i * 0.2);
+        // Make prime bars brighter and more saturated with pulsing effect
+        glowIntensity = 0.2 + 0.8 * pulseFactor;
         alpha = 0.7 + 0.3 * glowIntensity;
         
         if (colorMode === 'standard') {
@@ -218,25 +283,62 @@ const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
       }
       
       const angle = i * angleStep;
-      const x1 = centerX + Math.cos(angle) * radius;
-      const y1 = centerY + Math.sin(angle) * radius;
-      const x2 = centerX + Math.cos(angle) * (radius + barHeight);
-      const y2 = centerY + Math.sin(angle) * (radius + barHeight);
+      const innerRadius = radius * 0.3;
+      const outerRadius = innerRadius + barHeight;
       
-      // Draw the line
+      const x1 = centerX + Math.cos(angle) * innerRadius;
+      const y1 = centerY + Math.sin(angle) * innerRadius;
+      const x2 = centerX + Math.cos(angle) * outerRadius;
+      const y2 = centerY + Math.sin(angle) * outerRadius;
+      
+      // Draw the line with varying thickness based on frequency
+      const lineWidth = 2 + percent * 4;
+      
       ctx.beginPath();
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
-      ctx.lineWidth = 4;
+      ctx.lineWidth = lineWidth;
       ctx.strokeStyle = color;
       ctx.stroke();
       
       // Add glow effect for prime bars
       if (isPrimeIndex && percent > 0.1) {
-        ctx.shadowBlur = 15;
+        ctx.shadowBlur = 15 * glowIntensity;
         ctx.shadowColor = colorMode === 'standard' ? 'rgba(139, 92, 246, 0.8)' : 'rgba(236, 72, 153, 0.8)';
         ctx.stroke();
         ctx.shadowBlur = 0;
+        
+        // Add a small dot at the end of prime bars
+        ctx.beginPath();
+        ctx.arc(x2, y2, lineWidth * 0.8, 0, Math.PI * 2);
+        ctx.fillStyle = colorMode === 'standard' ? 'rgba(139, 92, 246, 0.9)' : 'rgba(236, 72, 153, 0.9)';
+        ctx.fill();
+        
+        // Connect prime nodes with subtle arcs
+        if (isPrimeIndex && i > 0) {
+          // Find previous prime index
+          for (let j = i - 1; j >= 0; j--) {
+            if (primeArray.includes(j) || isPrime(j)) {
+              const prevAngle = j * angleStep;
+              const prevX = centerX + Math.cos(prevAngle) * outerRadius;
+              const prevY = centerY + Math.sin(prevAngle) * outerRadius;
+              
+              // Draw subtle connection line
+              ctx.beginPath();
+              ctx.moveTo(x2, y2);
+              
+              // Draw arc between prime points
+              const arcRadius = Math.sqrt(Math.pow(x2 - prevX, 2) + Math.pow(y2 - prevY, 2)) / 2;
+              ctx.strokeStyle = colorMode === 'standard' ? 
+                `rgba(139, 92, 246, ${0.1 * pulseFactor})` : 
+                `rgba(236, 72, 153, ${0.1 * pulseFactor})`;
+              ctx.lineWidth = 1;
+              ctx.lineTo(prevX, prevY);
+              ctx.stroke();
+              break;
+            }
+          }
+        }
       }
     }
   };
