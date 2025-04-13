@@ -63,6 +63,14 @@ export default {
     'from-pink-500/5',
     'to-purple-500/5',
     'via-purple-500/2',
+    // Add sacred glyph classes
+    'animate-spin-slow',
+    'animate-pulse-slow',
+    'animate-glow',
+    'bg-gradient-radial',
+    'from-indigo-400',
+    'via-purple-500',
+    'to-fuchsia-600'
   ],
   prefix: "",
   theme: {
@@ -82,6 +90,9 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "spin-slow": "spin 8s linear infinite",
+        "glow": "glow 2s ease-in-out infinite alternate",
+        "ripple": "ripple 1s ease-out"
       },
       keyframes: {
         "accordion-down": {
@@ -92,6 +103,14 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "glow": {
+          "0%": { filter: "brightness(0.9) drop-shadow(0 0 2px rgba(147, 51, 234, 0.5))" },
+          "100%": { filter: "brightness(1.1) drop-shadow(0 0 8px rgba(147, 51, 234, 0.8))" }
+        },
+        "ripple": {
+          "0%": { transform: "scale(0.95)", opacity: "1" },
+          "100%": { transform: "scale(1.5)", opacity: "0" }
+        }
       },
       colors: {
         border: "hsl(var(--border))",
@@ -144,7 +163,10 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+      }
     },
   },
-  plugins: ["tailwindcss-animate"],
+  plugins: [require("tailwindcss-animate")],
 } satisfies Config;

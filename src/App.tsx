@@ -2,6 +2,7 @@
 import React from 'react';
 import { Routes, Route } from "react-router-dom";
 import { EasterEggProvider } from "@/context/EasterEggContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 import Home from '@/pages/Home';
 import Meditations from '@/pages/Meditations';
 import HermeticPrinciples from '@/pages/HermeticPrinciples';
@@ -44,53 +45,55 @@ import ThemeEnhancer from '@/components/ThemeEnhancer';
 
 function App() {
   return (
-    <EasterEggProvider>
-      <Toaster />
-      <OriginFlow />
-      <ThemeEnhancer />
-      <React.StrictMode>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/home" element={<CosmicDashboard />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/cosmic-dashboard" element={<CosmicDashboard />} />
-          <Route path="/welcome" element={<Welcome />} />
-          <Route path="/landing" element={<SacredShifterLanding />} />
-          <Route path="/meditations" element={<Meditations />} />
-          <Route path="/hermetic-principles" element={<HermeticPrinciples />} />
-          <Route path="/hermetic-wisdom" element={<HermeticWisdom />} />
-          <Route path="/frequency-shifting" element={<FrequencyShifting />} />
-          <Route path="/frequency-library" element={<Frequencies />} />
-          <Route path="/frequencies" element={<Frequencies />} />
-          <Route path="/frequency/:frequencyId" element={<FrequencyDetailPage />} />
-          <Route path="/journey-templates" element={<JourneyTemplates />} />
-          <Route path="/journey-player/:journeyId" element={<JourneyPlayer />} />
-          <Route path="/journey/:journeyId" element={<JourneyPlayer />} />
-          <Route path="/journeys" element={<Journeys />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/admin/journey-audio-admin" element={<JourneyAudioAdmin />} />
-          <Route path="/admin/journey-audio-mappings" element={<JourneyAudioMappingsViewer />} />
-          <Route path="/site-map" element={<SiteMap />} />
-          <Route path="/sacred-blueprint" element={<SacredBlueprint />} />
-          <Route path="/heart-center" element={<HeartCenter />} />
-          <Route path="/shift-perception" element={<ShiftPerception />} />
-          <Route path="/astrology" element={<Astrology />} />
-          <Route path="/focus" element={<Focus />} />
-          <Route path="/timeline" element={<Timeline />} />
-          <Route path="/prime-history" element={<PrimeHistory />} />
-          <Route path="/harmonic-map" element={<HarmonicMap />} />
-          <Route path="/heart-dashboard" element={<HeartDashboard />} />
-          <Route path="/energy-check" element={<EnergyCheck />} />
-          <Route path="/alignment" element={<Alignment />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/subscription" element={<Subscription />} />
-          <Route path="/trinity-gateway" element={<TrinityGateway />} />
-          <Route path="/about-founder" element={<AboutFounder />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/personal-vibe" element={<PersonalVibeSettings />} />
-        </Routes>
-      </React.StrictMode>
-    </EasterEggProvider>
+    <ThemeProvider>
+      <EasterEggProvider>
+        <Toaster />
+        <OriginFlow />
+        <ThemeEnhancer />
+        <React.StrictMode>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/home" element={<CosmicDashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/cosmic-dashboard" element={<CosmicDashboard />} />
+            <Route path="/welcome" element={<Welcome />} />
+            <Route path="/landing" element={<SacredShifterLanding />} />
+            <Route path="/meditations" element={<Meditations />} />
+            <Route path="/hermetic-principles" element={<HermeticPrinciples />} />
+            <Route path="/hermetic-wisdom" element={<HermeticWisdom />} />
+            <Route path="/frequency-shifting" element={<FrequencyShifting />} />
+            <Route path="/frequency-library" element={<Frequencies />} />
+            <Route path="/frequencies" element={<Frequencies />} />
+            <Route path="/frequency/:frequencyId" element={<FrequencyDetailPage />} />
+            <Route path="/journey-templates" element={<JourneyTemplates />} />
+            <Route path="/journey-player/:journeyId" element={<JourneyPlayer />} />
+            <Route path="/journey/:journeyId" element={<JourneyPlayer />} />
+            <Route path="/journeys" element={<Journeys />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/journey-audio-admin" element={<JourneyAudioAdmin />} />
+            <Route path="/admin/journey-audio-mappings" element={<JourneyAudioMappingsViewer />} />
+            <Route path="/site-map" element={<SiteMap />} />
+            <Route path="/sacred-blueprint" element={<SacredBlueprint />} />
+            <Route path="/heart-center" element={<HeartCenter />} />
+            <Route path="/shift-perception" element={<ShiftPerception />} />
+            <Route path="/astrology" element={<Astrology />} />
+            <Route path="/focus" element={<Focus />} />
+            <Route path="/timeline" element={<Timeline />} />
+            <Route path="/prime-history" element={<PrimeHistory />} />
+            <Route path="/harmonic-map" element={<HarmonicMap />} />
+            <Route path="/heart-dashboard" element={<HeartDashboard />} />
+            <Route path="/energy-check" element={<EnergyCheck />} />
+            <Route path="/alignment" element={<Alignment />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/subscription" element={<Subscription />} />
+            <Route path="/trinity-gateway" element={<TrinityGateway />} />
+            <Route path="/about-founder" element={<AboutFounder />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/personal-vibe" element={<PersonalVibeSettings />} />
+          </Routes>
+        </React.StrictMode>
+      </EasterEggProvider>
+    </ThemeProvider>
   );
 }
 

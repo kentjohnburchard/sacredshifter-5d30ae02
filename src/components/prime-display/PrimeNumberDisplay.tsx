@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
@@ -181,9 +182,9 @@ const PrimeNumberDisplay: React.FC = () => {
                   <div className="flex items-center space-x-2">
                     <span>{entry.number}</span>
                     {entry.isPrime ? (
-                      <Badge size="sm" className={`${liftTheVeil ? 'bg-pink-500' : 'bg-purple-500'}`}>Prime</Badge>
+                      <Badge className={`${liftTheVeil ? 'bg-pink-500' : 'bg-purple-500'}`}>Prime</Badge>
                     ) : (
-                      <Badge size="sm" variant="outline">Composite</Badge>
+                      <Badge variant="outline">Composite</Badge>
                     )}
                   </div>
                   <span className="text-xs text-gray-500">
