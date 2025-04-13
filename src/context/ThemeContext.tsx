@@ -48,6 +48,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       // Set theme and element preferences
       if (preferences.theme_gradient) {
         setCurrentTheme(preferences.theme_gradient);
+      } else {
+        // Set default theme based on consciousness mode
+        setCurrentTheme(consciousnessMode === "lift-the-veil" 
+          ? "linear-gradient(to right, #FF36AB, #B967FF)" 
+          : "linear-gradient(to right, #4facfe, #00f2fe)");
       }
       
       if (preferences.element) {
@@ -127,10 +132,16 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       root.style.setProperty('--primary-accent', '#FF36AB');
       root.style.setProperty('--secondary-accent', '#B967FF');
       root.style.setProperty('--text-accent', '#FF70E9');
+      root.style.setProperty('--theme-gradient', 'linear-gradient(to right, #FF36AB, #B967FF)');
+      root.style.setProperty('--theme-primary', '#FF36AB');
+      root.style.setProperty('--theme-secondary', '#B967FF');
     } else {
       root.style.setProperty('--primary-accent', '#8B5CF6');
       root.style.setProperty('--secondary-accent', '#6366F1');
       root.style.setProperty('--text-accent', '#A78BFA');
+      root.style.setProperty('--theme-gradient', 'linear-gradient(to right, #4facfe, #00f2fe)');
+      root.style.setProperty('--theme-primary', '#4facfe');
+      root.style.setProperty('--theme-secondary', '#00f2fe');
     }
   }, [liftTheVeil]);
 

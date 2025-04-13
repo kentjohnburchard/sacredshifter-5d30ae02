@@ -34,6 +34,8 @@ import HermeticWisdom from '@/pages/HermeticWisdom';
 import AboutFounder from '@/pages/AboutFounder';
 import Contact from '@/pages/Contact';
 import PersonalVibeSettings from '@/pages/PersonalVibeSettings';
+import Dashboard from '@/pages/Dashboard';
+import Journeys from '@/pages/Journeys';
 
 function App() {
   return (
@@ -41,7 +43,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/home" element={<CosmicDashboard />} />
-        <Route path="/dashboard" element={<CosmicDashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/cosmic-dashboard" element={<CosmicDashboard />} />
         <Route path="/welcome" element={<Welcome />} />
         <Route path="/landing" element={<SacredShifterLanding />} />
         <Route path="/meditations" element={<Meditations />} />
@@ -54,6 +57,7 @@ function App() {
         <Route path="/journey-templates" element={<JourneyTemplates />} />
         <Route path="/journey-player/:journeyId" element={<JourneyPlayer />} />
         <Route path="/journey/:journeyId" element={<JourneyPlayer />} />
+        <Route path="/journeys" element={<Journeys />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/journey-audio-admin" element={<JourneyAudioAdmin />} />
         <Route path="/admin/journey-audio-mappings" element={<JourneyAudioMappingsViewer />} />

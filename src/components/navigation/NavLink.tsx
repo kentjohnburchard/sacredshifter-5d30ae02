@@ -40,7 +40,9 @@ const NavLink: React.FC<NavLinkProps> = ({
       onClick={onClick}
       style={{ opacity: 1 }} // Inline style to ensure opacity
     >
-      {children}
+      <span className="text-white opacity-100">
+        {children}
+      </span>
     </Link>
   );
 };
