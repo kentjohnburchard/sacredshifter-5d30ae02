@@ -10,6 +10,7 @@ interface PrimeAudioVisualizerProps {
   colorMode?: 'standard' | 'veil-lifted';
   visualMode?: 'prime' | 'regular';
   layout?: 'radial' | 'vertical';
+  onPrimeDetected?: (prime: number) => void;
 }
 
 const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
@@ -18,12 +19,16 @@ const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
   isPlaying,
   colorMode = 'standard',
   visualMode = 'prime',
-  layout = 'vertical'
+  layout = 'vertical',
+  onPrimeDetected
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
   const [primeArray, setPrimeArray] = useState<number[]>([]);
   const [frequencyData, setFrequencyData] = useState<Uint8Array | null>(null);
+  const [activePrime, setActivePrime] = useState<number | null>(null);
+  const lastPrimeDetectionTime = useRef<number>(0);
+  const lastActivePrime = useRef<number | null>(null);
 
   // Generate array of prime numbers up to 100
   useEffect(() => {
@@ -89,6 +94,9 @@ const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
         drawRadialBars(ctx, canvas, frequencyData);
       }
       
+      // Check for dominant prime frequencies
+      detectPrimeFrequency(frequencyData);
+      
       animationRef.current = requestAnimationFrame(draw);
     };
 
@@ -98,6 +106,60 @@ const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
       cancelAnimationFrame(animationRef.current);
     };
   }, [isPlaying, audioContext, analyser, frequencyData, layout, visualMode, colorMode, primeArray]);
+
+  // Detect dominant frequencies that match prime numbers
+  const detectPrimeFrequency = (frequencyData: Uint8Array) => {
+    const now = Date.now();
+    // Only check every 200ms to avoid too frequent updates
+    if (now - lastPrimeDetectionTime.current < 200) return;
+    
+    // Find the highest amplitude frequency
+    let maxAmplitude = 0;
+    let dominantFreqIndex = 0;
+    
+    for (let i = 0; i < Math.min(64, frequencyData.length); i++) {
+      if (frequencyData[i] > maxAmplitude) {
+        maxAmplitude = frequencyData[i];
+        dominantFreqIndex = i;
+      }
+    }
+    
+    // Check if this is a significant amplitude (above 70% of max)
+    if (maxAmplitude > 180) { // 70% of 255
+      // Check if dominant frequency index is prime or has prime factors
+      if (isPrime(dominantFreqIndex)) {
+        if (lastActivePrime.current !== dominantFreqIndex) {
+          setActivePrime(dominantFreqIndex);
+          lastActivePrime.current = dominantFreqIndex;
+          if (onPrimeDetected) onPrimeDetected(dominantFreqIndex);
+        }
+        
+        // Reset timestamp for detection limits
+        lastPrimeDetectionTime.current = now;
+        return;
+      }
+      
+      // Check if any of the prime factors are significant
+      const primeFactors = calculatePrimeFactors(dominantFreqIndex);
+      if (primeFactors.length > 0 && primeFactors[0] > 2) { // Ignore if only factor is 2
+        if (lastActivePrime.current !== primeFactors[0]) {
+          setActivePrime(primeFactors[0]);
+          lastActivePrime.current = primeFactors[0];
+          if (onPrimeDetected) onPrimeDetected(primeFactors[0]);
+        }
+        
+        // Reset timestamp for detection limits
+        lastPrimeDetectionTime.current = now;
+        return;
+      }
+    }
+    
+    // If we reach here and no prime was detected for 2 seconds, clear active prime
+    if (now - lastPrimeDetectionTime.current > 2000 && activePrime !== null) {
+      setActivePrime(null);
+      lastActivePrime.current = null;
+    }
+  };
 
   const drawVerticalBars = (
     ctx: CanvasRenderingContext2D, 
@@ -151,10 +213,23 @@ const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
         glowIntensity = 0.2 + 0.8 * pulseFactor;
         alpha = 0.7 + 0.3 * glowIntensity;
         
-        if (colorMode === 'standard') {
-          color = `rgba(139, 92, 246, ${alpha})`; // Brighter purple for primes
+        // Special highlight for the active prime
+        if (activePrime !== null && (i === activePrime || i % activePrime === 0)) {
+          // Create a rainbow effect for "lift the veil" mode when prime is active
+          if (colorMode === 'veil-lifted') {
+            // Rainbow effect
+            const hue = (Date.now() * 0.05 + i * 10) % 360;
+            color = `hsla(${hue}, 100%, 70%, ${alpha})`;
+          } else {
+            // Extra bright purple for active prime
+            color = `rgba(159, 122, 255, ${alpha})`;
+          }
         } else {
-          color = `rgba(236, 72, 153, ${alpha})`; // Brighter pink for primes
+          if (colorMode === 'standard') {
+            color = `rgba(139, 92, 246, ${alpha})`; // Brighter purple for primes
+          } else {
+            color = `rgba(236, 72, 153, ${alpha})`; // Brighter pink for primes
+          }
         }
       } else {
         // Regular bars have lower opacity
@@ -268,10 +343,23 @@ const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
         glowIntensity = 0.2 + 0.8 * pulseFactor;
         alpha = 0.7 + 0.3 * glowIntensity;
         
-        if (colorMode === 'standard') {
-          color = `rgba(139, 92, 246, ${alpha})`; // Brighter purple for primes
+        // Special highlight for the active prime
+        if (activePrime !== null && (i === activePrime || i % activePrime === 0)) {
+          // Create a rainbow effect for "lift the veil" mode when prime is active
+          if (colorMode === 'veil-lifted') {
+            // Rainbow effect
+            const hue = (Date.now() * 0.05 + i * 10) % 360;
+            color = `hsla(${hue}, 100%, 70%, ${alpha})`;
+          } else {
+            // Extra bright purple for active prime
+            color = `rgba(159, 122, 255, ${alpha})`;
+          }
         } else {
-          color = `rgba(236, 72, 153, ${alpha})`; // Brighter pink for primes
+          if (colorMode === 'standard') {
+            color = `rgba(139, 92, 246, ${alpha})`; // Brighter purple for primes
+          } else {
+            color = `rgba(236, 72, 153, ${alpha})`; // Brighter pink for primes
+          }
         }
       } else {
         // Regular bars have lower opacity
@@ -340,6 +428,26 @@ const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
           }
         }
       }
+    }
+    
+    // Draw prime frequency label when active
+    if (activePrime !== null) {
+      const fontSize = Math.min(canvas.width, canvas.height) * 0.08;
+      ctx.font = `${fontSize}px 'Inter', sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = colorMode === 'standard' ? 
+        'rgba(139, 92, 246, 0.8)' : 
+        'rgba(236, 72, 153, 0.8)';
+      ctx.fillText(`Prime ${activePrime}`, centerX, centerY + radius * 0.8);
+      
+      // Add glow to text
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = colorMode === 'standard' ? 
+        'rgba(139, 92, 246, 0.8)' : 
+        'rgba(236, 72, 153, 0.8)';
+      ctx.fillText(`Prime ${activePrime}`, centerX, centerY + radius * 0.8);
+      ctx.shadowBlur = 0;
     }
   };
 

@@ -2,7 +2,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Minimize2, Maximize2, Play, Pause, Volume, VolumeX, Music } from 'lucide-react';
+import { 
+  Minimize2, 
+  Maximize2, 
+  Play, 
+  Pause, 
+  Volume, 
+  VolumeX, 
+  Music, 
+  PlusSquare,
+  Info
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { useTheme } from '@/context/ThemeContext';
@@ -20,6 +30,9 @@ const SacredAudioPlayer: React.FC = () => {
   const audioProgressRef = useRef<HTMLDivElement>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [activePrime, setActivePrime] = useState<number | null>(null);
+  const [showPrimeTooltip, setShowPrimeTooltip] = useState(false);
+  const primeDisplayTimeout = useRef<NodeJS.Timeout | null>(null);
   
   const { 
     playAudio, 
@@ -57,6 +70,32 @@ const SacredAudioPlayer: React.FC = () => {
     };
   }, [audioElement]);
 
+  // Handle prime detection
+  const handlePrimeDetected = (prime: number) => {
+    // Set the active prime and show the tooltip
+    setActivePrime(prime);
+    setShowPrimeTooltip(true);
+    
+    // Clear any existing timeout
+    if (primeDisplayTimeout.current) {
+      clearTimeout(primeDisplayTimeout.current);
+    }
+    
+    // Hide the tooltip after 3 seconds
+    primeDisplayTimeout.current = setTimeout(() => {
+      setShowPrimeTooltip(false);
+    }, 3000);
+  };
+
+  useEffect(() => {
+    return () => {
+      // Clean up timeout on unmount
+      if (primeDisplayTimeout.current) {
+        clearTimeout(primeDisplayTimeout.current);
+      }
+    };
+  }, []);
+
   // Format time display (minutes:seconds)
   const formatTime = (time: number): string => {
     if (!time || isNaN(time)) return '0:00';
@@ -92,7 +131,7 @@ const SacredAudioPlayer: React.FC = () => {
     setVisualLayout(prev => prev === 'vertical' ? 'radial' : 'vertical');
   };
 
-  // Don't render if no audio is playing
+  // Don't render if no audio is playing or loading
   if (!currentAudio) return null;
   
   // Determine progress percentage
@@ -107,10 +146,11 @@ const SacredAudioPlayer: React.FC = () => {
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9, y: 50 }}
+            transition={{ type: "spring", damping: 25 }}
             className={`rounded-xl overflow-hidden shadow-xl ${
               liftTheVeil 
-                ? 'border border-pink-500/30 bg-gradient-to-br from-slate-900/95 to-black' 
-                : 'border border-purple-500/30 bg-gradient-to-br from-slate-900/95 to-black'
+                ? 'border border-pink-500/30 bg-gradient-to-br from-slate-900/95 to-black/90 shadow-pink-500/20' 
+                : 'border border-purple-500/30 bg-gradient-to-br from-slate-900/95 to-black/90 shadow-purple-500/20'
             }`}
             style={{ width: '320px' }}
           >
@@ -119,21 +159,38 @@ const SacredAudioPlayer: React.FC = () => {
               liftTheVeil ? 'bg-pink-950/30' : 'bg-purple-950/30'
             }`}>
               <TooltipProvider>
-                <Tooltip>
+                <Tooltip open={showPrimeTooltip}>
                   <TooltipTrigger asChild>
-                    <h3 className={`font-medium text-sm truncate max-w-[200px] ${
-                      liftTheVeil ? 'text-pink-200' : 'text-purple-200'
-                    }`}>
-                      Prime Harmonix {visualMode === 'prime' ? '✧' : ''}
-                    </h3>
+                    <div className="flex items-center">
+                      <h3 className={`font-medium text-sm truncate max-w-[200px] ${
+                        liftTheVeil ? 'text-pink-200' : 'text-purple-200'
+                      }`}>
+                        Prime Harmonix {visualMode === 'prime' ? '✧' : ''}
+                      </h3>
+                      {activePrime && showPrimeTooltip && (
+                        <motion.span 
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          className={`text-xs font-medium ml-2 px-2 py-0.5 rounded-full ${
+                            liftTheVeil 
+                              ? 'bg-pink-500/20 text-pink-200' 
+                              : 'bg-purple-500/20 text-purple-200'
+                          }`}
+                        >
+                          Prime {activePrime}
+                        </motion.span>
+                      )}
+                    </div>
                   </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="text-xs max-w-[200px] text-center">
+                  <TooltipContent side="top" align="start" className="max-w-xs">
+                    <p className="text-xs">
                       Aligning frequencies to prime intervals to bypass harmonic distortion and resonate with natural consciousness fields.
                     </p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
+              
               <div className="flex gap-1">
                 <Button 
                   variant="ghost" 
@@ -147,7 +204,35 @@ const SacredAudioPlayer: React.FC = () => {
             </div>
 
             {/* Visualizer */}
-            <div className="h-48 w-full overflow-hidden bg-black/70">
+            <div className="h-48 w-full overflow-hidden bg-black/70 relative">
+              {/* Prime detection effect overlay */}
+              <AnimatePresence>
+                {activePrime && showPrimeTooltip && (
+                  <motion.div 
+                    className="absolute inset-0 z-10 pointer-events-none"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <div className={`absolute inset-0 ${
+                      liftTheVeil 
+                        ? 'bg-gradient-to-t from-transparent to-pink-500/5' 
+                        : 'bg-gradient-to-t from-transparent to-purple-500/5'
+                    }`}></div>
+                    <div className="absolute top-2 left-2 right-2 flex justify-center">
+                      <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        liftTheVeil
+                          ? 'bg-pink-500/20 text-pink-200'
+                          : 'bg-purple-500/20 text-purple-200'
+                      }`}>
+                        Prime Frequency: {activePrime}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              
               <PrimeAudioVisualizer
                 audioContext={audioContext}
                 analyser={analyser}
@@ -155,6 +240,7 @@ const SacredAudioPlayer: React.FC = () => {
                 colorMode={liftTheVeil ? 'veil-lifted' : 'standard'}
                 visualMode={visualMode}
                 layout={visualLayout}
+                onPrimeDetected={handlePrimeDetected}
               />
             </div>
 
@@ -239,27 +325,79 @@ const SacredAudioPlayer: React.FC = () => {
               
               {/* Visualization controls */}
               <div className="flex justify-between text-xs mt-4">
-                <button 
-                  className={`px-2 py-1 rounded ${
-                    liftTheVeil 
-                      ? 'text-pink-300 hover:bg-pink-950/30' 
-                      : 'text-purple-300 hover:bg-purple-950/30'
-                  }`}
-                  onClick={toggleVisualMode}
-                >
-                  {visualMode === 'prime' ? 'Prime Mode' : 'Standard Mode'}
-                </button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        className={`px-2 py-1 rounded flex items-center gap-1 ${
+                          liftTheVeil 
+                            ? 'text-pink-300 hover:bg-pink-950/30' 
+                            : 'text-purple-300 hover:bg-purple-950/30'
+                        }`}
+                        onClick={toggleVisualMode}
+                      >
+                        <PlusSquare className="h-3 w-3" />
+                        {visualMode === 'prime' ? 'Prime Mode' : 'Standard Mode'}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-xs max-w-[200px]">
+                        {visualMode === 'prime' 
+                          ? 'Prime Mode highlights frequencies that align with prime numbers for deeper resonance' 
+                          : 'Standard Mode shows all frequency bands equally'}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 
-                <button 
-                  className={`px-2 py-1 rounded ${
-                    liftTheVeil 
-                      ? 'text-pink-300 hover:bg-pink-950/30' 
-                      : 'text-purple-300 hover:bg-purple-950/30'
-                  }`}
-                  onClick={toggleVisualLayout}
-                >
-                  {visualLayout === 'vertical' ? 'Vertical' : 'Radial'}
-                </button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        className={`px-2 py-1 rounded flex items-center gap-1 ${
+                          liftTheVeil 
+                            ? 'text-pink-300 hover:bg-pink-950/30' 
+                            : 'text-purple-300 hover:bg-purple-950/30'
+                        }`}
+                        onClick={toggleVisualLayout}
+                      >
+                        <Music className="h-3 w-3" />
+                        {visualLayout === 'vertical' ? 'Vertical' : 'Radial'}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-xs max-w-[200px]">
+                        Switch between vertical bars and radial circular pattern
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        className={`px-2 py-1 rounded flex items-center gap-1 ${
+                          liftTheVeil 
+                            ? 'text-pink-300/70 hover:bg-pink-950/30 hover:text-pink-300' 
+                            : 'text-purple-300/70 hover:bg-purple-950/30 hover:text-purple-300'
+                        }`}
+                      >
+                        <Info className="h-3 w-3" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <div className="text-xs max-w-[220px] space-y-1">
+                        <p>
+                          <strong>Prime Harmonics:</strong> A frequency that bypasses standard resonance patterns to awaken your soul's original rhythm.
+                        </p>
+                        <p className="pt-1 text-muted-foreground">
+                          When prime frequencies align, notice the glow intensify — these are moments of heightened consciousness.
+                        </p>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
           </motion.div>
@@ -269,10 +407,11 @@ const SacredAudioPlayer: React.FC = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ type: "spring", damping: 20 }}
             className={`flex items-center space-x-2 p-2 rounded-full shadow-lg cursor-pointer ${
               liftTheVeil 
-                ? 'bg-gradient-to-r from-slate-900/90 to-slate-900/95 border border-pink-500/30' 
-                : 'bg-gradient-to-r from-slate-900/90 to-slate-900/95 border border-purple-500/30'
+                ? 'bg-gradient-to-r from-slate-900/90 to-slate-900/95 border border-pink-500/30 shadow-pink-500/10' 
+                : 'bg-gradient-to-r from-slate-900/90 to-slate-900/95 border border-purple-500/30 shadow-purple-500/10'
             }`}
             onClick={() => setExpanded(true)}
           >
@@ -301,6 +440,20 @@ const SacredAudioPlayer: React.FC = () => {
                 {currentAudio.title || 'Now Playing'}
               </span>
             </div>
+            
+            {/* Prime indicator */}
+            <AnimatePresence>
+              {activePrime && showPrimeTooltip && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className={`h-2 w-2 rounded-full ${
+                    liftTheVeil ? 'bg-pink-400 animate-pulse' : 'bg-purple-400 animate-pulse'
+                  }`}
+                />
+              )}
+            </AnimatePresence>
             
             {/* Expand button */}
             <Button
