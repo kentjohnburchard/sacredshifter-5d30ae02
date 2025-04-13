@@ -19,6 +19,7 @@ import {
   SkipBack, MessageCircle, Layers, Info, Heart
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from 'sonner';
 
 // Define interfaces for the feedback data
 interface FrequencyFeedback {
@@ -49,6 +50,7 @@ const FrequencyExperiencePlayer = () => {
   const [isMuted, setIsMuted] = useState(false);
   const previousVolumeRef = useRef(volume);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const audioInitializedRef = useRef(false);
   
   // Audio player hook
   const { 
@@ -57,7 +59,10 @@ const FrequencyExperiencePlayer = () => {
     setAudioSource,
     currentAudioTime,
     duration,
-    seekTo
+    seekTo,
+    audioRef,
+    audioLoaded,
+    audioError
   } = useAudioPlayer();
 
   // Fetch frequency data
@@ -140,21 +145,23 @@ const FrequencyExperiencePlayer = () => {
 
   // Set audio source when frequency data is loaded
   useEffect(() => {
-    if (frequency?.audio_url || frequency?.url) {
+    if (!audioInitializedRef.current && frequency && (frequency.audio_url || frequency.url)) {
       const audioSource = frequency.audio_url || frequency.url;
       if (audioSource) {
+        console.log("FrequencyExperiencePlayer: Setting audio source to", audioSource);
         setAudioSource(audioSource);
+        audioInitializedRef.current = true;
       }
     }
   }, [frequency, setAudioSource]);
 
   // Handle looping
   useEffect(() => {
-    const audioElem = document.querySelector('audio');
-    if (audioElem) {
-      audioElem.loop = isLooping;
+    if (audioRef.current) {
+      audioRef.current.loop = isLooping;
+      console.log("FrequencyExperiencePlayer: Set audio loop to", isLooping);
     }
-  }, [isLooping]);
+  }, [isLooping, audioRef]);
 
   // Format time in mm:ss
   const formatTime = (timeInSeconds: number) => {
@@ -169,9 +176,9 @@ const FrequencyExperiencePlayer = () => {
     const newVolume = value[0];
     setVolume(newVolume);
     
-    const audioElem = document.querySelector('audio');
-    if (audioElem) {
-      audioElem.volume = newVolume;
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume;
+      console.log("FrequencyExperiencePlayer: Set volume to", newVolume);
     }
     
     if (isMuted && newVolume > 0) {
@@ -181,20 +188,32 @@ const FrequencyExperiencePlayer = () => {
 
   // Handle mute toggle
   const toggleMute = () => {
-    const audioElem = document.querySelector('audio');
-    if (audioElem) {
+    if (audioRef.current) {
       if (!isMuted) {
         previousVolumeRef.current = volume;
         setVolume(0);
-        audioElem.volume = 0;
+        audioRef.current.volume = 0;
       } else {
         const restoreVolume = previousVolumeRef.current || 0.5;
         setVolume(restoreVolume);
-        audioElem.volume = restoreVolume;
+        audioRef.current.volume = restoreVolume;
       }
       setIsMuted(!isMuted);
+      console.log("FrequencyExperiencePlayer: Toggled mute to", !isMuted);
     }
   };
+
+  // Handle errors in audio loading
+  useEffect(() => {
+    if (audioError) {
+      toast({
+        title: "Audio Error",
+        description: "There was a problem loading the audio. Please try again.",
+        variant: "destructive"
+      });
+      console.error("FrequencyExperiencePlayer: Audio error detected", audioError);
+    }
+  }, [audioError, toast]);
 
   // Handle comment submission
   const handleSubmitComment = async () => {
@@ -241,6 +260,29 @@ const FrequencyExperiencePlayer = () => {
       toast({
         title: "Error submitting comment",
         description: "Please try again later",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Handle playback control
+  const handlePlayPause = () => {
+    if (audioLoaded || audioRef.current?.src) {
+      togglePlayPause();
+      console.log("FrequencyExperiencePlayer: Toggled playback to", !isAudioPlaying);
+    } else if (frequency?.audio_url || frequency?.url) {
+      // Try to set the source again if not loaded
+      const audioSource = frequency.audio_url || frequency.url;
+      console.log("FrequencyExperiencePlayer: Setting audio source again:", audioSource);
+      setAudioSource(audioSource);
+      // Wait a bit and then try to play
+      setTimeout(() => {
+        togglePlayPause();
+      }, 100);
+    } else {
+      toast({
+        title: "No Audio Available",
+        description: "This frequency doesn't have an audio file assigned.",
         variant: "destructive"
       });
     }
@@ -371,14 +413,29 @@ const FrequencyExperiencePlayer = () => {
               <div className="flex flex-col space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    <Button variant="ghost" size="icon" onClick={togglePlayPause}>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={handlePlayPause}
+                      disabled={audioError !== null}
+                    >
                       {isAudioPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => setIsLooping(!isLooping)}>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => setIsLooping(!isLooping)}
+                      disabled={audioError !== null}
+                    >
                       <Repeat className={`h-5 w-5 ${isLooping ? 'text-purple-500' : ''}`} />
                     </Button>
                     <div className="flex items-center space-x-1 min-w-20">
-                      <Button variant="ghost" size="icon" onClick={toggleMute}>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={toggleMute}
+                        disabled={audioError !== null}
+                      >
                         {isMuted || volume === 0 ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
                       </Button>
                       <div className="w-16">
@@ -388,6 +445,7 @@ const FrequencyExperiencePlayer = () => {
                           max={1}
                           step={0.01}
                           onValueChange={handleVolumeChange}
+                          disabled={audioError !== null}
                         />
                       </div>
                     </div>

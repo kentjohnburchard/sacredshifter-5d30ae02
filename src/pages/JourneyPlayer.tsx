@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -39,6 +40,7 @@ const JourneyPlayer = () => {
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [infoExpanded, setInfoExpanded] = useState(false);
   const [activePrimes, setActivePrimes] = useState<number[]>([]);
+  const [visualizerMounted, setVisualizerMounted] = useState(false);
   
   // Create refs
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -46,6 +48,7 @@ const JourneyPlayer = () => {
   const songsRef = useRef<any[]>([]);
   const audioElementFoundRef = useRef(false);
   const initializationAttemptedRef = useRef(false);
+  const audioPlayAttemptedRef = useRef(false);
   
   // Get templates
   const { templates, loading: loadingTemplates } = useJourneyTemplates();
@@ -57,19 +60,33 @@ const JourneyPlayer = () => {
   useEffect(() => {
     if (!audioElementFoundRef.current) {
       console.log("JourneyPlayer: Looking for audio element");
-      const globalAudio = document.querySelector('audio');
+      // Try several methods to find the audio element
+      const globalAudio = document.querySelector('#global-audio-player') || document.querySelector('audio');
       if (globalAudio) {
-        audioRef.current = globalAudio;
+        audioRef.current = globalAudio as HTMLAudioElement;
         audioElementFoundRef.current = true;
-        console.log("JourneyPlayer: Found audio element in the DOM");
+        console.log("JourneyPlayer: Found audio element in the DOM:", globalAudio);
       } else {
-        console.log("JourneyPlayer: Audio element not found");
+        console.log("JourneyPlayer: Audio element not found, will create one if needed");
+        // If no audio element is found, we'll create one later when needed
       }
     }
   }, []);
   
   // Setup audio analyzer for visualizer
-  const { audioContext, analyser } = useAudioAnalyzer(audioRef);
+  const { audioContext, analyser } = useAudioAnalyzer(audioRef.current);
+
+  // Ensure only one visualizer is active by controlling mounting/unmounting
+  useEffect(() => {
+    // Only show visualizer when playing and component is mounted
+    if (isPlaying && showVisualizer && !visualizerMounted) {
+      console.log("JourneyPlayer: Mounting visualizer");
+      setVisualizerMounted(true);
+    } else if (!isPlaying && visualizerMounted) {
+      console.log("JourneyPlayer: Unmounting visualizer (playback stopped)");
+      setVisualizerMounted(false);
+    }
+  }, [isPlaying, showVisualizer, visualizerMounted]);
 
   // Store songs in ref to access in callbacks
   useEffect(() => {
@@ -173,46 +190,67 @@ const JourneyPlayer = () => {
 
   // Handle audio playback initialization separately from journey loading
   useEffect(() => {
-    if (initializationAttemptedRef.current || audioInitialized || isLoading || loadingSongs) return;
-    
-    if (journey && songs && songs.length > 0) {
-      initializationAttemptedRef.current = true;
-      
-      setTimeout(() => {
-        const selectedSong = selectRandomSong();
-        
-        if (selectedSong) {
-          console.log(`JourneyPlayer: Playing initial random song for journey ${journeyId}:`, selectedSong);
-          
-          let audioUrl = selectedSong.audioUrl;
-          if (audioUrl && !audioUrl.startsWith('http')) {
-            audioUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioUrl}`;
-            console.log("JourneyPlayer: Formatted URL:", audioUrl);
-          }
-          
-          if (audioUrl) {
-            playAudio({
-              title: selectedSong.title || journey.title,
-              artist: "Sacred Shifter",
-              source: audioUrl
-            });
-            
-            setAudioInitialized(true);
-          } else {
-            console.error("JourneyPlayer: Invalid audio URL");
-            toast.error("Could not play audio: Invalid URL");
-          }
-        } else {
-          console.log("JourneyPlayer: No song selected for initialization");
-        }
-      }, 300);
+    // Only attempt initialization once and only if we have the necessary data
+    if (audioPlayAttemptedRef.current || isLoading || loadingSongs || !journey || !songs || songs.length === 0) {
+      return;
     }
-  }, [journey, songs, loadingSongs, isLoading, playAudio, journeyId, audioInitialized]);
+    
+    // Mark that we've attempted audio initialization to prevent multiple tries
+    audioPlayAttemptedRef.current = true;
+    console.log("JourneyPlayer: Attempting to initialize audio playback");
+    
+    // Start playback with a slight delay to ensure DOM is ready
+    setTimeout(() => {
+      const selectedSong = selectRandomSong();
+      
+      if (selectedSong) {
+        console.log(`JourneyPlayer: Playing initial random song for journey ${journeyId}:`, selectedSong);
+        
+        let audioUrl = selectedSong.audioUrl;
+        if (audioUrl && !audioUrl.startsWith('http')) {
+          audioUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioUrl}`;
+          console.log("JourneyPlayer: Formatted URL:", audioUrl);
+        }
+        
+        if (audioUrl) {
+          // Ensure audio element exists before playing
+          if (!audioRef.current) {
+            console.log("JourneyPlayer: Creating audio element since none was found");
+            const audioElement = document.createElement('audio');
+            audioElement.id = 'global-audio-player';
+            audioElement.style.display = 'none';
+            audioElement.crossOrigin = 'anonymous';
+            document.body.appendChild(audioElement);
+            audioRef.current = audioElement;
+            audioElementFoundRef.current = true;
+          }
+          
+          playAudio({
+            title: selectedSong.title || journey.title,
+            artist: "Sacred Shifter",
+            source: audioUrl
+          });
+          
+          setAudioInitialized(true);
+          console.log("JourneyPlayer: Audio playback initialized");
+        } else {
+          console.error("JourneyPlayer: Invalid audio URL");
+          toast.error("Could not play audio: Invalid URL");
+        }
+      } else {
+        console.log("JourneyPlayer: No song selected for initialization");
+      }
+    }, 500); // Increased delay for better stability
+    
+  }, [journey, songs, loadingSongs, isLoading, playAudio, journeyId]);
 
   // Toggle visualizer on/off
   const toggleVisualizer = () => {
     console.log("JourneyPlayer: Toggling visualizer, current state:", showVisualizer);
     setShowVisualizer(prev => !prev);
+    if (showVisualizer) {
+      setVisualizerMounted(false); // Unmount visualizer when hiding
+    }
   };
   
   // Change visualizer color scheme
@@ -300,7 +338,8 @@ const JourneyPlayer = () => {
 
   return (
     <Layout pageTitle={journey?.title} useBlueWaveBackground={false} theme="cosmic">
-      {showVisualizer && isPlaying && (
+      {/* Only render visualizer when it should be mounted (controls single instance) */}
+      {visualizerMounted && audioContext && analyser && (
         <FractalAudioVisualizer
           audioContext={audioContext}
           analyser={analyser}
@@ -311,7 +350,7 @@ const JourneyPlayer = () => {
         />
       )}
       
-      {isPlaying && (
+      {isPlaying && activePrimes.length > 0 && (
         <PrimeNumberDisplay 
           primes={activePrimes} 
           sessionId={journeyId}

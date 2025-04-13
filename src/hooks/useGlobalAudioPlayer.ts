@@ -14,7 +14,34 @@ let globalAudioState = {
   isPlaying: false,
   onEndedCallback: null as (() => void) | null,
   // Track whether the audio has been initialized to prevent duplicate initialization
-  isInitialized: false
+  isInitialized: false,
+  // Track current audio element to ensure consistency
+  audioElement: null as HTMLAudioElement | null
+};
+
+// Ensure we have a global audio element
+const getOrCreateGlobalAudioElement = (): HTMLAudioElement => {
+  if (globalAudioState.audioElement) {
+    return globalAudioState.audioElement;
+  }
+  
+  // Look for existing audio element first
+  let audioElement = document.getElementById('global-audio-player') as HTMLAudioElement;
+  
+  // Create one if it doesn't exist
+  if (!audioElement) {
+    audioElement = document.createElement('audio');
+    audioElement.id = 'global-audio-player';
+    audioElement.style.display = 'none';
+    audioElement.crossOrigin = 'anonymous'; // Important for analyzing cross-origin media
+    document.body.appendChild(audioElement);
+    console.log("Global Audio Player: Created new audio element");
+  } else {
+    console.log("Global Audio Player: Found existing audio element");
+  }
+  
+  globalAudioState.audioElement = audioElement;
+  return audioElement;
 };
 
 export function useGlobalAudioPlayer() {
@@ -22,6 +49,35 @@ export function useGlobalAudioPlayer() {
   const [currentAudio, setCurrentAudio] = useState<AudioInfo | null>(globalAudioState.currentAudio);
   const eventsAttached = useRef(false);
   const [onEndedCallback, setOnEndedCallbackState] = useState<(() => void) | null>(globalAudioState.onEndedCallback);
+
+  // Initialize audio element if needed
+  useEffect(() => {
+    // Get or create the audio element on mount
+    const audioElement = getOrCreateGlobalAudioElement();
+    
+    // Set up event listeners if not already attached
+    if (!globalAudioState.isInitialized) {
+      // Event listener for playback ending
+      const handleEnded = () => {
+        if (globalAudioState.onEndedCallback) {
+          console.log("Global Audio Player: Track ended, executing callback");
+          globalAudioState.onEndedCallback();
+        }
+      };
+      
+      // Listen for playback ending
+      audioElement.addEventListener('ended', handleEnded);
+      
+      // Mark as initialized
+      globalAudioState.isInitialized = true;
+      console.log("Global Audio Player: Initialized event handlers");
+      
+      // Clean up on full app unmount
+      return () => {
+        audioElement.removeEventListener('ended', handleEnded);
+      };
+    }
+  }, []);
 
   // Function to set onEnded callback
   const setOnEndedCallback = useCallback((callback: (() => void) | null) => {
@@ -38,6 +94,8 @@ export function useGlobalAudioPlayer() {
 
   // Function to play audio through the global player
   const playAudio = useCallback((audioInfo: AudioInfo) => {
+    const audioElement = getOrCreateGlobalAudioElement();
+    
     // Check if we're trying to play the same audio that's already playing
     const isSameAudio = globalAudioState.currentAudio?.source === audioInfo.source;
     
@@ -55,10 +113,24 @@ export function useGlobalAudioPlayer() {
     setCurrentAudio(audioInfo);
     setIsPlaying(true);
     
-    // Log the audio that's about to be played
-    console.log("Global player: Changing to new song:", audioInfo.title, "URL:", audioInfo.source);
+    // Set the audio source directly
+    console.log("Global player: Playing new song:", audioInfo.title, "URL:", audioInfo.source);
     
-    // Dispatch event to notify the global player
+    // Update audio element directly
+    audioElement.src = audioInfo.source;
+    audioElement.load();
+    
+    // Play the audio
+    const playPromise = audioElement.play();
+    if (playPromise !== undefined) {
+      playPromise.catch((error) => {
+        console.error("Global player: Error playing audio:", error);
+        globalAudioState.isPlaying = false;
+        setIsPlaying(false);
+      });
+    }
+    
+    // Dispatch event to notify any other components
     const event = new CustomEvent('playAudio', {
       detail: { audioInfo }
     });
@@ -67,12 +139,30 @@ export function useGlobalAudioPlayer() {
 
   // Function to toggle play/pause state
   const togglePlayPause = useCallback(() => {
+    const audioElement = getOrCreateGlobalAudioElement();
+    
     // Update global state
     const newIsPlaying = !globalAudioState.isPlaying;
     globalAudioState.isPlaying = newIsPlaying;
     
     // Update local state
     setIsPlaying(newIsPlaying);
+    
+    // Update audio element directly
+    if (newIsPlaying) {
+      if (audioElement.src) {
+        const playPromise = audioElement.play();
+        if (playPromise !== undefined) {
+          playPromise.catch((error) => {
+            console.error("Global player: Error playing audio:", error);
+            globalAudioState.isPlaying = false;
+            setIsPlaying(false);
+          });
+        }
+      }
+    } else {
+      audioElement.pause();
+    }
     
     // Dispatch event to notify the global player
     const event = new CustomEvent('togglePlayPause', {
