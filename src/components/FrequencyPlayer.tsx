@@ -120,14 +120,14 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   };
   
   // Determine color scheme based on chakra
-  const getColorScheme = () => {
+  const getColorScheme = (): "purple" | "blue" | "rainbow" | "gold" => {
     if (!chakra) return 'purple';
     
     switch (chakra.toLowerCase()) {
-      case 'root': return 'red';
+      case 'root': return 'purple'; // Changed from 'red' to 'purple'
       case 'sacral': return 'gold';
       case 'solar plexus': return 'gold';
-      case 'heart': return 'green';
+      case 'heart': return 'purple'; // Changed from 'green' to 'purple'
       case 'throat': return 'blue';
       case 'third eye': return 'blue';
       case 'crown': return 'rainbow';
