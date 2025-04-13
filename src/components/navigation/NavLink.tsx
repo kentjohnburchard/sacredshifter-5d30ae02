@@ -41,10 +41,20 @@ const NavLink: React.FC<NavLinkProps> = ({
       onClick={onClick}
       style={{ 
         opacity: 1,
-        color: "white" 
-      }} // Explicit inline style as extra safety
+        color: "white",
+        visibility: "visible",
+        display: "block" 
+      }}
     >
-      <span className="!text-white !opacity-100 font-bold" style={{ color: "white", opacity: 1 }}>
+      <span 
+        className="!text-white !opacity-100 font-bold" 
+        style={{ 
+          color: "white", 
+          opacity: 1,
+          visibility: "visible", 
+          display: "inline" 
+        }}
+      >
         {children}
       </span>
     </Link>

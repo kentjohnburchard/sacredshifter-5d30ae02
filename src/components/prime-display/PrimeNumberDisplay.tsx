@@ -41,7 +41,7 @@ const PrimeNumberDisplay: React.FC<PrimeNumberDisplayProps> = ({
     };
     
     // Add to history without duplicates
-    setPrimeHistory((prev) => {
+    setPrimeHistory((prev: PrimeHistoryEntry[]) => {
       // Ensure prev is an array
       const currentHistory = Array.isArray(prev) ? prev : [];
       

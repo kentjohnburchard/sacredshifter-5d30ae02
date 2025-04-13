@@ -19,7 +19,7 @@ const Dashboard: React.FC = () => {
     }
     
     // Track dashboard visits
-    setDashboardVisits((prev) => {
+    setDashboardVisits((prev: number) => {
       // Need to ensure we're treating prev as a number
       const currentVisits = typeof prev === 'number' ? prev : 0;
       return currentVisits + 1;
