@@ -14,7 +14,7 @@ export function useAudioPlayer() {
   useEffect(() => {
     if (!audioRef.current) {
       // Create an audio element if it doesn't exist yet
-      const audioElement = document.querySelector('audio#global-audio-player') || document.createElement('audio');
+      const audioElement = document.querySelector('audio#global-audio-player') as HTMLAudioElement || document.createElement('audio');
       audioElement.id = 'global-audio-player';
       audioElement.style.display = 'none';
       audioElement.crossOrigin = 'anonymous'; // Important for analyzing cross-origin media
@@ -23,7 +23,7 @@ export function useAudioPlayer() {
         document.body.appendChild(audioElement);
       }
       
-      audioRef.current = audioElement as HTMLAudioElement;
+      audioRef.current = audioElement;
       console.log("Creating new Audio element");
     }
     
