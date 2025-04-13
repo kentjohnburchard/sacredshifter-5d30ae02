@@ -12,6 +12,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { cn } from '@/lib/utils';
 import { SacredGeometryVisualizer } from '@/components/sacred-geometry';
 import SacredAudioPlayer from '@/components/audio/SacredAudioPlayer';
+import RealityOptimisationEngine from '@/components/sacred-geometry/RealityOptimisationEngine';
 
 const SacredShifterLanding = () => {
   const [selectedShape, setSelectedShape] = useState<"flower-of-life" | "metatrons-cube" | "merkaba" | "torus" | "tree-of-life" | "sri-yantra" | "vesica-piscis">("flower-of-life");
@@ -152,7 +153,7 @@ const SacredShifterLanding = () => {
             </motion.div>
           </div>
 
-          <div className="relative z-20 max-w-md mx-auto mb-16 bg-black/70 backdrop-blur-md rounded-lg p-4 border border-purple-500/30">
+          <div className="relative z-20 max-w-md mx-auto mb-6 bg-black/70 backdrop-blur-md rounded-lg p-4 border border-purple-500/30">
             <h2 className="text-xl font-semibold text-center mb-4">Sacred Geometries</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {Object.entries(shapeMapping).map(([name, value]) => (
@@ -171,6 +172,12 @@ const SacredShifterLanding = () => {
               ))}
             </div>
           </div>
+          
+          {/* Reality Optimisation Engine */}
+          <RealityOptimisationEngine 
+            selectedShape={selectedShape} 
+            liftTheVeil={liftTheVeil}
+          />
         </div>
       </div>
 
