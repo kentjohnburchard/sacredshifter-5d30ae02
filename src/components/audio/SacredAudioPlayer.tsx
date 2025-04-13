@@ -80,24 +80,28 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   
   const { audioContext, analyser } = useAudioAnalyzer(audioRef.current);
   
+  // Effect to set the audio source when the component mounts
   useEffect(() => {
     if (audioUrl) {
       setAudioSource(audioUrl);
     }
   }, [audioUrl, setAudioSource]);
   
+  // Effect to update the audio volume when it changes
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = isMuted ? 0 : volume;
     }
   }, [volume, isMuted, audioRef]);
   
+  // Effect to notify the parent when the play state changes
   useEffect(() => {
     if (onPlayStateChange) {
       onPlayStateChange(isAudioPlaying);
     }
   }, [isAudioPlaying, onPlayStateChange]);
 
+  // Effect to update visualizer mode based on theme
   useEffect(() => {
     if (liftTheVeil) {
       setVisualizerMode('rainbow');
@@ -106,6 +110,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     }
   }, [liftTheVeil, chakra]);
   
+  // Effect to manage the active tooltip for prime numbers
   useEffect(() => {
     if (primes.length > 0) {
       const latestPrime = primes[primes.length - 1];
@@ -268,8 +273,9 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   
   const colors = getChakraColorClasses();
   
+  // Only return the component if we're on the home page or if we're viewing a journey
   return (
-    <div ref={playerRef} className={`relative z-40 ${isFullscreen ? 'fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm' : ''}`}>
+    <div ref={playerRef} className={`fixed bottom-4 right-4 z-50 ${isFullscreen ? 'fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm' : ''}`}>
       <motion.div 
         initial={{ scale: 0.95, opacity: 0 }} 
         animate={{ scale: 1, opacity: 1 }}
@@ -284,6 +290,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           overflow-hidden shadow-lg relative
         `}
       >
+        {/* Visualizer */}
         <div 
           ref={visualizerRef}
           className={`absolute inset-0 z-0 transition-opacity duration-300 ${
@@ -317,6 +324,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           </AnimatePresence>
         </div>
         
+        {/* Prime number tooltip */}
         <AnimatePresence>
           {activeTooltipPrime && isAudioPlaying && (
             <motion.div
@@ -338,6 +346,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           )}
         </AnimatePresence>
         
+        {/* Player UI */}
         <div className={`
           relative z-10 flex flex-col bg-gradient-to-r ${colors.bg}
           ${(!showVisualizer || !isAudioPlaying) ? 'bg-opacity-100' : 'bg-opacity-50 backdrop-blur-sm'}
