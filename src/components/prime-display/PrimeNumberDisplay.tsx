@@ -1,202 +1,100 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { calculatePrimeFactors } from '@/utils/primeCalculations';
-import { PrimeHistoryEntry } from '@/types/primeTypes';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Sparkles, History, RefreshCw } from 'lucide-react';
-import { useTheme } from '@/context/ThemeContext';
+import { calculatePrimeFactors, isPrime } from '@/utils/primeCalculations';
+import { PrimeNumberDisplayProps } from '@/types/primeTypes';
 
-const PrimeNumberDisplay: React.FC = () => {
-  const [inputValue, setInputValue] = useState<string>('');
-  const [number, setNumber] = useState<number | null>(null);
-  const [factors, setFactors] = useState<number[]>([]);
-  const [isPrime, setIsPrime] = useState<boolean | null>(null);
-  const [isCalculating, setIsCalculating] = useState<boolean>(false);
-  const [primeHistory, setPrimeHistory] = useLocalStorage<PrimeHistoryEntry[]>("prime-history", []);
-  const { liftTheVeil } = useTheme();
-
-  useEffect(() => {
-    if (number !== null) {
-      setIsCalculating(true);
-      
-      // Simulate calculation time for better UX
-      const timer = setTimeout(() => {
-        const result = calculatePrimeFactors(number);
-        setFactors(result);
-        setIsPrime(result.length === 1 && result[0] === number);
-        setIsCalculating(false);
-        
-        // Add to history
-        const newEntry: PrimeHistoryEntry = {
-          number,
-          isPrime: result.length === 1 && result[0] === number,
-          factors: result,
-          timestamp: new Date().toISOString()
-        };
-        
-        // Update history with direct value instead of function
-        const updatedHistory = [...primeHistory, newEntry];
-        setPrimeHistory(updatedHistory);
-        
-      }, 600);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [number]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const parsedValue = parseInt(inputValue);
-    if (!isNaN(parsedValue) && parsedValue > 0) {
-      setNumber(parsedValue);
+const PrimeNumberDisplay: React.FC<PrimeNumberDisplayProps> = ({
+  primes = [],
+  sessionId,
+  journeyTitle,
+  expanded = false,
+  onToggleExpand
+}) => {
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.5,
+        staggerChildren: 0.1
+      }
     }
   };
 
-  const handleClearHistory = () => {
-    setPrimeHistory([]);
+  const itemVariants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { opacity: 1, scale: 1 }
   };
 
-  const handleRandomNumber = () => {
-    // Generate a random number between 1 and 10000
-    const randomNum = Math.floor(Math.random() * 10000) + 1;
-    setInputValue(randomNum.toString());
-    setNumber(randomNum);
-  };
+  if (primes.length === 0) return null;
 
   return (
-    <div className="space-y-6">
-      <Card className={`${liftTheVeil ? 'border-pink-300 shadow-pink-500/10' : 'border-purple-300 shadow-purple-500/10'} shadow-lg`}>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>Prime Number Explorer</span>
-            <Sparkles className={`h-5 w-5 ${liftTheVeil ? 'text-pink-500' : 'text-purple-500'}`} />
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex space-x-2">
-              <Input
-                type="number"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Enter a number"
-                className="flex-1"
-                min="1"
-                required
-              />
-              <Button 
-                type="submit" 
-                className={`${liftTheVeil ? 'bg-pink-600 hover:bg-pink-700' : 'bg-purple-600 hover:bg-purple-700'}`}
-              >
-                Check
-              </Button>
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={handleRandomNumber}
-                className={`${liftTheVeil ? 'text-pink-600 border-pink-300' : 'text-purple-600 border-purple-300'}`}
-              >
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-            </div>
-          </form>
-
-          {isCalculating && (
-            <div className="mt-4 flex justify-center">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              >
-                <Sparkles className={`h-8 w-8 ${liftTheVeil ? 'text-pink-500' : 'text-purple-500'}`} />
-              </motion.div>
-            </div>
-          )}
-
-          {!isCalculating && number !== null && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="mt-4 space-y-2"
+    <motion.div
+      className={`prime-display ${expanded ? 'fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4' : 'absolute top-4 left-4 z-40'}`}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <div className={`bg-purple-900/30 backdrop-blur-sm rounded-xl border border-purple-500/20 shadow-lg ${expanded ? 'w-full max-w-2xl' : 'max-w-xs'}`}>
+        <div className="px-4 py-3 flex justify-between items-center border-b border-purple-500/20">
+          <h3 className="text-purple-100 font-medium">Prime Harmonics</h3>
+          
+          {onToggleExpand && (
+            <button
+              onClick={onToggleExpand}
+              className="text-purple-300 hover:text-purple-100 transition-colors text-sm"
             >
-              <div className="flex items-center space-x-2">
-                <span className="font-medium">Result:</span>
-                {isPrime ? (
-                  <Badge className={`${liftTheVeil ? 'bg-pink-500' : 'bg-purple-500'}`}>Prime</Badge>
-                ) : (
-                  <Badge variant="outline">Composite</Badge>
-                )}
-              </div>
-              
-              <div>
-                <span className="font-medium">Prime Factors:</span>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {factors.map((factor, index) => (
-                    <Badge 
-                      key={index} 
-                      variant="outline" 
-                      className={`${liftTheVeil ? 'border-pink-300 text-pink-700' : 'border-purple-300 text-purple-700'}`}
-                    >
-                      {factor}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
+              {expanded ? "Minimize" : "Expand"}
+            </button>
           )}
-        </CardContent>
-      </Card>
-
-      {primeHistory.length > 0 && (
-        <Card className="border-gray-300">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="flex items-center">
-              <History className="h-5 w-5 mr-2" />
-              <span>History</span>
-            </CardTitle>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={handleClearHistory}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              Clear
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2 max-h-60 overflow-y-auto">
-              {primeHistory.slice().reverse().map((entry, index) => (
-                <div 
-                  key={index} 
-                  className="flex items-center justify-between p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
-                  onClick={() => {
-                    setInputValue(entry.number.toString());
-                    setNumber(entry.number);
-                  }}
-                >
-                  <div className="flex items-center space-x-2">
-                    <span>{entry.number}</span>
-                    {entry.isPrime ? (
-                      <Badge className={`${liftTheVeil ? 'bg-pink-500' : 'bg-purple-500'}`}>Prime</Badge>
-                    ) : (
-                      <Badge variant="outline">Composite</Badge>
-                    )}
-                  </div>
-                  <span className="text-xs text-gray-500">
-                    {new Date(entry.timestamp).toLocaleTimeString()}
+        </div>
+        
+        <div className={`p-4 ${expanded ? 'grid grid-cols-1 md:grid-cols-2 gap-4' : 'flex flex-wrap gap-2'}`}>
+          {primes.slice(0, expanded ? undefined : 5).map((prime, index) => {
+            const isActuallyPrime = isPrime(prime);
+            const factors = isActuallyPrime ? [prime] : calculatePrimeFactors(prime);
+            
+            return (
+              <motion.div 
+                key={`${prime}-${index}`}
+                variants={itemVariants}
+                className={`${expanded 
+                  ? 'bg-purple-500/10 p-3 rounded-lg' 
+                  : 'bg-purple-500/10 px-2 py-1 rounded'}`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className={`font-mono ${isActuallyPrime ? 'text-pink-300' : 'text-purple-300'} ${expanded ? 'text-xl' : 'text-sm'}`}>
+                    {prime}
                   </span>
+                  
+                  {isActuallyPrime && (
+                    <span className="bg-pink-500/20 text-pink-200 text-xs px-1.5 rounded">
+                      Prime
+                    </span>
+                  )}
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+                
+                {expanded && !isActuallyPrime && factors.length > 0 && (
+                  <div className="mt-2 text-xs text-purple-200">
+                    <span>Factors: {factors.join(' × ')}</span>
+                  </div>
+                )}
+              </motion.div>
+            );
+          })}
+        </div>
+        
+        {expanded && journeyTitle && (
+          <div className="px-4 py-2 border-t border-purple-500/20 text-xs text-purple-300">
+            <p>Session: {journeyTitle || "Untitled"}</p>
+            {sessionId && <p className="opacity-60">ID: {sessionId.substring(0, 8)}</p>}
+          </div>
+        )}
+      </div>
+    </motion.div>
   );
 };
 

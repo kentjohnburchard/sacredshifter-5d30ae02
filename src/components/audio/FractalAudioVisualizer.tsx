@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import * as THREE from 'three';
+import { generatePrimeSequence, isPrime } from '@/utils/primeCalculations';
 
 interface FractalAudioVisualizerProps {
   audioContext?: AudioContext | null;
@@ -12,7 +13,9 @@ interface FractalAudioVisualizerProps {
   pauseWhenStopped?: boolean; // Whether to pause animation when audio is stopped
   chakra?: string; // Optional chakra association
   frequency?: number; // Optional frequency in Hz
-  onPrimeSequence?: (primes: number[]) => void; // New callback to expose primes
+  onPrimeSequence?: (primes: number[]) => void; // Callback to expose primes
+  showEqualizer?: boolean; // Whether to show the equalizer
+  onToggleEqualizer?: () => void; // Callback when equalizer is toggled
 }
 
 const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
@@ -24,9 +27,12 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
   pauseWhenStopped = false,
   chakra,
   frequency,
-  onPrimeSequence
+  onPrimeSequence,
+  showEqualizer = true,
+  onToggleEqualizer
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const equalizerRef = useRef<HTMLCanvasElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -40,6 +46,7 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
   const beatDetectedRef = useRef<boolean>(false);
   const timeRef = useRef<number>(0);
   const lastAudioDataRef = useRef<{ bass: number, mid: number, high: number }>({ bass: 0.1, mid: 0.1, high: 0.1 });
+  const equalizerDataRef = useRef<Uint8Array | null>(null);
   const [activePrimes, setActivePrimes] = useState<number[]>([]);
   
   // Generate prime numbers sequence
@@ -251,6 +258,7 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
       containerRef.current.style.right = '0';
       containerRef.current.style.bottom = '0';
       containerRef.current.style.overflow = 'hidden';
+      containerRef.current.style.zIndex = '10';
     }
     
     // Set up lighting
@@ -277,6 +285,7 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
     if (analyser) {
       console.log("FractalVisualizer: Analyzer available, creating data buffer");
       dataArrayRef.current = new Uint8Array(analyser.frequencyBinCount);
+      equalizerDataRef.current = new Uint8Array(analyser.frequencyBinCount);
     } else {
       console.log("FractalVisualizer: No analyzer provided");
     }
@@ -341,6 +350,119 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
       console.log("FractalVisualizer: Cleanup complete");
     };
   }, [isVisible, colorScheme, chakra]);
+
+  // Render the equalizer
+  useEffect(() => {
+    if (!isVisible || !showEqualizer || !equalizerRef.current || !analyser) return;
+
+    const canvas = equalizerRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Set canvas size to match container
+    const resizeEqualizer = () => {
+      if (!canvas || !containerRef.current) return;
+      
+      canvas.width = containerRef.current.clientWidth;
+      canvas.height = 100; // Fixed height for equalizer
+    };
+
+    resizeEqualizer();
+    window.addEventListener('resize', resizeEqualizer);
+
+    // Create the data array for the equalizer if it doesn't exist
+    if (!equalizerDataRef.current) {
+      equalizerDataRef.current = new Uint8Array(analyser.frequencyBinCount);
+    }
+
+    // Function to draw equalizer
+    const drawEqualizer = () => {
+      if (!ctx || !canvas || !analyser || !equalizerDataRef.current) return;
+      
+      // Get frequency data
+      analyser.getByteFrequencyData(equalizerDataRef.current);
+      
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Set up variables
+      const bufferLength = 64; // Use a fixed number of bars for better performance
+      const barWidth = (canvas.width / bufferLength) * 0.8; // 80% width to leave space between bars
+      const barSpacing = (canvas.width / bufferLength) * 0.2; // 20% spacing
+      
+      // Get colors based on selected color scheme
+      const colors = getColorScheme();
+      const primaryColor = `rgb(${Math.floor(colors.primary.r * 255)}, ${Math.floor(colors.primary.g * 255)}, ${Math.floor(colors.primary.b * 255)})`;
+      const accentColor = `rgb(${Math.floor(colors.accent.r * 255)}, ${Math.floor(colors.accent.g * 255)}, ${Math.floor(colors.accent.b * 255)})`;
+      const highlightColor = `rgb(${Math.floor(colors.highlight.r * 255)}, ${Math.floor(colors.highlight.g * 255)}, ${Math.floor(colors.highlight.b * 255)})`;
+      
+      // Draw bars
+      for (let i = 0; i < bufferLength; i++) {
+        const dataIndex = Math.floor((i / bufferLength) * equalizerDataRef.current.length);
+        const value = equalizerDataRef.current[dataIndex];
+        const barHeight = (value / 255) * canvas.height * 0.9; // 90% of canvas height
+        
+        const x = i * (barWidth + barSpacing);
+        const y = canvas.height - barHeight;
+        
+        // Check if this bar index is a prime number (add special effects)
+        const isPrimeBar = isPrime(i + 1); // +1 because we want to start from 1, not 0
+        
+        if (isPrimeBar) {
+          // Prime number bars get special treatment
+          
+          // Add glow effect
+          ctx.shadowBlur = 15;
+          ctx.shadowColor = highlightColor;
+          
+          // Create gradient for prime bars
+          const gradient = ctx.createLinearGradient(x, y, x, canvas.height);
+          gradient.addColorStop(0, highlightColor);
+          gradient.addColorStop(1, accentColor);
+          
+          ctx.fillStyle = gradient;
+          
+          // Draw bar with rounded top
+          ctx.beginPath();
+          ctx.moveTo(x, canvas.height);
+          ctx.lineTo(x, y + 5);
+          ctx.arc(x + barWidth / 2, y + 5, barWidth / 2, Math.PI, 0, true);
+          ctx.lineTo(x + barWidth, canvas.height);
+          ctx.fill();
+          
+          // Add the prime number as text
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+          ctx.font = '8px Arial';
+          ctx.fillText((i + 1).toString(), x + barWidth / 2 - 3, canvas.height - 5);
+          
+          // Reset shadow for non-prime bars
+          ctx.shadowBlur = 0;
+        } else {
+          // Regular bars
+          const gradient = ctx.createLinearGradient(x, y, x, canvas.height);
+          gradient.addColorStop(0, primaryColor);
+          gradient.addColorStop(1, 'rgba(0, 0, 0, 0.2)');
+          
+          ctx.fillStyle = gradient;
+          ctx.fillRect(x, y, barWidth, barHeight);
+        }
+      }
+    };
+
+    // Animation loop for equalizer
+    const animateEqualizer = () => {
+      if (!isVisible || !showEqualizer) return;
+      
+      drawEqualizer();
+      requestAnimationFrame(animateEqualizer);
+    };
+
+    animateEqualizer();
+
+    return () => {
+      window.removeEventListener('resize', resizeEqualizer);
+    };
+  }, [isVisible, showEqualizer, analyser]);
   
   // Create fractal objects with enhanced geometry and materials
   const createFractals = () => {
@@ -908,28 +1030,105 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
     // Render the scene
     rendererRef.current.render(sceneRef.current, cameraRef.current);
   };
+
+  // Toggle equalizer visibility
+  const handleToggleEqualizer = () => {
+    if (onToggleEqualizer) {
+      onToggleEqualizer();
+    }
+  };
   
   if (!isVisible) return null;
   
   return (
     <motion.div 
-      ref={containerRef} 
-      className="fixed inset-0 pointer-events-none w-full h-full"
+      className="relative w-full h-full"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
-      style={{
-        width: '100%',
-        height: '100%',
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        overflow: 'hidden'
-      }}
-    />
+    >
+      {/* Main fractal visualizer */}
+      <div 
+        ref={containerRef} 
+        className="fixed inset-0 pointer-events-none w-full h-full"
+        style={{
+          width: '100%',
+          height: '100%',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          overflow: 'hidden'
+        }}
+      />
+
+      {/* Equalizer at the bottom */}
+      {showEqualizer && (
+        <motion.div 
+          className="absolute bottom-0 left-0 right-0 h-24 z-20 pointer-events-none"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+        >
+          <canvas 
+            ref={equalizerRef} 
+            className="w-full h-full"
+            style={{ position: 'absolute', bottom: 0 }}
+          ></canvas>
+        </motion.div>
+      )}
+
+      {/* Sacred Toggle Symbol */}
+      <motion.div 
+        className="absolute top-4 right-4 z-30 cursor-pointer pointer-events-auto"
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={handleToggleEqualizer}
+      >
+        <div className="relative group">
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-gradient-radial from-indigo-400 via-purple-500 to-fuchsia-600 shadow-lg ${showEqualizer ? 'animate-spin-slow' : ''}`}>
+            {/* Flower of Life design for toggle */}
+            <svg width="32" height="32" viewBox="0 0 100 100" className="text-white">
+              <circle cx="50" cy="50" r="8" fill="white" className="animate-pulse-slow" />
+              {/* Inner ring */}
+              {[0, 60, 120, 180, 240, 300].map((angle, i) => (
+                <circle
+                  key={`inner-${i}`}
+                  cx={50 + Math.cos(angle * Math.PI / 180) * 16}
+                  cy={50 + Math.sin(angle * Math.PI / 180) * 16}
+                  r="6"
+                  fill="rgba(255,255,255,0.8)"
+                  className={isPrime(i + 1) ? 'animate-pulse-slow' : ''}
+                />
+              ))}
+              {/* Outer ring */}
+              {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((angle, i) => (
+                <circle
+                  key={`outer-${i}`}
+                  cx={50 + Math.cos(angle * Math.PI / 180) * 30}
+                  cy={50 + Math.sin(angle * Math.PI / 180) * 30}
+                  r="4"
+                  fill="rgba(255,255,255,0.6)"
+                  className={isPrime(i + 1) ? 'animate-pulse-slow' : ''}
+                />
+              ))}
+            </svg>
+          </div>
+          {/* Ripple effect when active */}
+          {showEqualizer && (
+            <div className="absolute inset-0 rounded-full bg-indigo-400/30 animate-ripple"></div>
+          )}
+          {/* Tooltip */}
+          <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/70 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+            {showEqualizer ? "Hide Equalizer" : "Show Equalizer"}
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

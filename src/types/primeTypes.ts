@@ -5,3 +5,11 @@ export interface PrimeHistoryEntry {
   factors: number[];
   timestamp: string;
 }
+
+export interface PrimeNumberDisplayProps {
+  primes: number[];
+  sessionId?: string;
+  journeyTitle?: string;
+  expanded?: boolean;
+  onToggleExpand?: () => void;
+}
