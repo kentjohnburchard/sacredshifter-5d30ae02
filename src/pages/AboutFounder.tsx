@@ -5,44 +5,40 @@ import Layout from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTheme } from "@/context/ThemeContext";
 import AboutSacredShifter from "@/components/AboutSacredShifter";
-import { Switch } from "@/components/ui/switch";
-import { Sparkles } from "lucide-react";
 
 const AboutFounder = () => {
-  const { liftTheVeil, setLiftTheVeil } = useTheme();
+  const { liftTheVeil } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
-  const [showToggle, setShowToggle] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
-    
-    // Show toggle after a short delay
-    const timer = setTimeout(() => {
-      setShowToggle(true);
-    }, 1500);
-    
-    return () => clearTimeout(timer);
   }, []);
 
-  // Content variants based on consciousness mode
+  // Content based on consciousness mode
   const standardContent = {
     title: "Meet Our Founder",
-    bio: "Kent Burchard is a sound engineer, frequency researcher, and consciousness explorer with over a decade of experience studying the effects of sound on human awareness and potential. With a background in audio engineering and a passion for the science of consciousness, Kent has dedicated his career to making transformative sound technologies accessible to everyone.",
-    journey: "Kent's journey with frequency work began after his own transformative experiences with sound meditation. Discovering the powerful effects that specific frequencies had on his own consciousness, he began researching and developing tools that could help others achieve similar breakthroughs.",
-    mission: "This led to the creation of Sacred Shifter - a platform that bridges the gap between cutting-edge sound technology and ancient wisdom traditions. Kent continues to collaborate with researchers, sound healers, and consciousness experts worldwide to refine and expand the Sacred Shifter experience.",
-    quote: "Sound isn't just something we hear—it's a fundamental force that can transform our state of being and open us to new levels of awareness and potential."
+    bio: "I worked at the Royal Flying Doctors for over a decade, believing my path was in Information Governance, Cybersecurity, and Knowledge Management. But life had a different plan.",
+    journey: "After enduring the darkest chapter of my life — surviving a DV-fueled, drug-riddled environment, losing my mum, my home, and everything I owned — I hit rock bottom. I no longer knew who I was. That's when it all began.",
+    mission: "Sacred Shifter came to me like a download from beyond. I began creating the app not to build a brand, but to rediscover myself — to understand why I exist, how the universe operates through prime numbers and frequencies, and what my soul's path truly is.",
+    quote: "What started as healing turned into remembering. This app is now my soul laid bare — and I believe it's here to help others remember who they are, why they're here, and how we're all connected through vibration, love, and divine truth."
   };
 
   const advancedContent = {
-    title: "The Visionary Behind Sacred Shifter",
-    bio: "Kent Burchard is a consciousness explorer who recognized the profound potential of frequency work to accelerate human evolution. While his background includes formal training in audio engineering, his true education came through direct experience with the transformative power of sound frequencies and their effect on states of consciousness.",
-    journey: "What began as personal exploration into expanded states of awareness quickly became a mission to create technologies that could assist others on their own journeys. Kent discovered that certain precise frequencies could reliably induce profound shifts in perception and help people access heightened states of consciousness.",
-    mission: "Sacred Shifter was born from this vision—a platform designed to serve as a bridge between ordinary awareness and expanded states of being. Each frequency experience is carefully calibrated to facilitate specific consciousness shifts, allowing users to access their own innate potential for transformation and growth.",
-    quote: "The frequencies we work with are like keys that unlock dormant potentials within us. What appears as sound is actually a doorway to experiencing who we truly are beyond our everyday identity."
+    title: "Remembering Truth",
+    bio: "This world is not what it seems. We are living inside a matrix of perception, frequency, and forgetfulness. Sacred Shifter exists because I remembered — not just who I am — but what we are.",
+    journey: "This app is not just a sound tool. It's a remembrance engine. A reality tuner. A soul mirror. We are here to wake up. To rise out of illusion. To reconnect with the divine grid of consciousness.",
+    mission: "When you tune your frequency, you tune your reality. You remember your light. And when we remember together, we uplift the entire cosmos.",
+    quote: "Sacred Shifter isn't just an app — it's a blueprint for the awakened ones to come home."
   };
 
   // Choose content based on consciousness mode
   const content = liftTheVeil ? advancedContent : standardContent;
+  
+  // Quotes to display
+  const quotes = [
+    "You are not here by accident. You're here because the Universe can't do this without you.",
+    "The frequencies we work with are like keys that unlock dormant potentials..."
+  ];
 
   return (
     <Layout pageTitle="About Our Founder">
@@ -57,32 +53,6 @@ const AboutFounder = () => {
             <h1 className={`text-3xl font-bold ${liftTheVeil ? 'bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 text-transparent bg-clip-text' : 'text-purple-900 dark:text-purple-100'}`}>
               {content.title}
             </h1>
-            
-            {showToggle && (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center gap-2 rounded-full px-3 py-1.5 
-                  bg-opacity-20 backdrop-blur-sm border 
-                  shadow-md"
-                style={{
-                  backgroundColor: liftTheVeil ? 'rgba(236,72,153,0.2)' : 'rgba(147,51,234,0.2)',
-                  borderColor: liftTheVeil ? 'rgba(236,72,153,0.3)' : 'rgba(147,51,234,0.3)',
-                }}
-              >
-                <span className={`text-sm font-medium ${liftTheVeil ? 'text-pink-200' : 'text-purple-200'}`}>
-                  Lift the Veil
-                </span>
-                <Switch 
-                  checked={liftTheVeil}
-                  onCheckedChange={() => setLiftTheVeil(!liftTheVeil)}
-                  className={liftTheVeil ? 'data-[state=checked]:bg-pink-600' : 'data-[state=checked]:bg-purple-600'}
-                />
-                <Sparkles 
-                  className={`h-4 w-4 ${liftTheVeil ? 'text-pink-300' : 'text-purple-300'}`} 
-                />
-              </motion.div>
-            )}
           </div>
           
           <div className="flex flex-col md:flex-row gap-8 items-center">
@@ -109,8 +79,11 @@ const AboutFounder = () => {
                   <p className="mb-4">
                     {content.journey}
                   </p>
-                  <p>
+                  <p className="mb-4">
                     {content.mission}
+                  </p>
+                  <p>
+                    {content.quote}
                   </p>
                 </CardContent>
               </Card>
@@ -126,15 +99,44 @@ const AboutFounder = () => {
                   repeatType: "reverse"
                 }}
               >
-                <Card className={`${liftTheVeil ? 'border-indigo-300 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/30 dark:to-indigo-900/30' : 'bg-purple-50 dark:bg-purple-900/20'}`}>
-                  <CardContent className="p-6 italic text-center">
-                    <p className={liftTheVeil ? 'text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-indigo-500' : ''}>
-                      {content.quote}
-                    </p>
-                  </CardContent>
-                </Card>
+                {liftTheVeil && (
+                  <div className="text-right text-sm italic text-pink-400">
+                    — Sacred Shifter: Remembering Truth
+                  </div>
+                )}
               </motion.div>
             </div>
+          </div>
+
+          {/* Animated Quotes */}
+          <div className="mt-16 space-y-8">
+            {quotes.map((quote, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 + (index * 0.2), duration: 0.8 }}
+                className={`p-6 rounded-lg ${liftTheVeil 
+                  ? 'bg-gradient-to-r from-indigo-900/20 to-purple-900/20 border border-pink-500/20' 
+                  : 'bg-gradient-to-r from-purple-900/20 to-indigo-900/20 border border-purple-500/20'}`}
+              >
+                <motion.p 
+                  animate={{ 
+                    textShadow: liftTheVeil 
+                      ? ['0 0 3px rgba(236,72,153,0.3)', '0 0 7px rgba(236,72,153,0.5)', '0 0 3px rgba(236,72,153,0.3)']
+                      : ['0 0 3px rgba(147,51,234,0.3)', '0 0 7px rgba(147,51,234,0.5)', '0 0 3px rgba(147,51,234,0.3)']
+                  }}
+                  transition={{ 
+                    duration: 4, 
+                    repeat: Infinity, 
+                    repeatType: "reverse" 
+                  }}
+                  className="text-center italic text-lg md:text-xl text-white"
+                >
+                  "{quote}"
+                </motion.p>
+              </motion.div>
+            ))}
           </div>
 
           {/* About Sacred Shifter Component */}

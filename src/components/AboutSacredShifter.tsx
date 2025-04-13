@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
-import { Switch } from '@/components/ui/switch';
 import { Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -20,7 +19,7 @@ const standardQuotes: Quote[] = [
 ];
 
 const veilLiftedQuotes: Quote[] = [
-  { text: "You are not here by accident. You're here because the Universe can't do this shift without you.", author: "Sacred Shifter" },
+  { text: "You are not here by accident. You're here because the Universe can't do this without you.", author: "Sacred Shifter" },
   { text: "Your frequency is not negotiable. Neither is your magic.", author: "Sacred Shifter" },
   { text: "Honey, you didn't come this far to only come this far.", author: "Sacred Shifter" },
   { text: "Alignment isn't just a yoga pose it's the frequency you're serving today.", author: "Sacred Shifter" },
@@ -42,10 +41,9 @@ When you tune your frequency, you tune your reality. You remember your light. An
 Sacred Shifter isn't just an app — it's a blueprint for the awakened ones to come home.`;
 
 const AboutSacredShifter: React.FC = () => {
-  const { liftTheVeil, setLiftTheVeil } = useTheme();
+  const { liftTheVeil } = useTheme();
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
   const [isShimmering, setIsShimmering] = useState(false);
-  const [showVeilToggle, setShowVeilToggle] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   
   const quotes = liftTheVeil ? veilLiftedQuotes : standardQuotes;
@@ -66,18 +64,6 @@ const AboutSacredShifter: React.FC = () => {
       setTimeout(() => setIsShimmering(false), 1000);
     }, 5000 + Math.random() * 3000);
     return () => clearInterval(interval);
-  }, []);
-
-  // Show the toggle after the user has scrolled down a bit
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 300) {
-        setShowVeilToggle(true);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Play tone when veil is lifted
@@ -117,22 +103,6 @@ const AboutSacredShifter: React.FC = () => {
     }
   };
 
-  const handleToggleVeil = () => {
-    setIsTransitioning(true);
-    
-    // Visual feedback first
-    toast(liftTheVeil ? "Returning to standard perspective" : "Lifting the veil of perception", {
-      icon: <Sparkles className={liftTheVeil ? "text-purple-500" : "text-pink-500"} />,
-      duration: 3000,
-    });
-    
-    // Then toggle the mode with a slight delay for visual effect
-    setTimeout(() => {
-      setLiftTheVeil(!liftTheVeil);
-      setIsTransitioning(false);
-    }, 300);
-  };
-
   const shimmeryTextStyle = isShimmering 
     ? "animate-pulse bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-500" 
     : "bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-400";
@@ -155,35 +125,6 @@ const AboutSacredShifter: React.FC = () => {
   return (
     <section className="py-10 px-4 sm:px-6 relative overflow-hidden">
       <div className="max-w-4xl mx-auto">
-        {/* Lift the Veil Toggle - Appears after scrolling */}
-        <AnimatePresence>
-          {showVeilToggle && (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.4 }}
-              className={`fixed bottom-20 right-6 z-50 flex items-center gap-2 p-3 rounded-full 
-                ${liftTheVeil 
-                  ? 'bg-pink-900/80 border border-pink-500/50' 
-                  : 'bg-purple-900/80 border border-purple-500/50'} 
-                backdrop-blur-md shadow-lg`}
-            >
-              <span className={`text-sm font-medium ${liftTheVeil ? 'text-pink-200' : 'text-purple-200'}`}>
-                Lift the Veil
-              </span>
-              <Switch 
-                checked={liftTheVeil}
-                onCheckedChange={handleToggleVeil}
-                className={liftTheVeil ? 'data-[state=checked]:bg-pink-600' : 'data-[state=checked]:bg-purple-600'}
-              />
-              <Sparkles 
-                className={`h-4 w-4 ${liftTheVeil ? 'text-pink-300' : 'text-purple-300'}`} 
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         {/* Dynamic About Content */}
         <motion.div
           initial={{ opacity: 0 }}
