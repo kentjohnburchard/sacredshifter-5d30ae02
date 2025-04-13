@@ -11,6 +11,7 @@ const useAudioAnalyzer = (
   // Track if we've already connected this audio element
   const sourceConnected = useRef<boolean>(false);
   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const connectionAttempted = useRef<boolean>(false);
   
   useEffect(() => {
     // Only create audio context if it doesn't exist yet
@@ -28,25 +29,27 @@ const useAudioAnalyzer = (
     }
     
     // Try to connect audio element to analyzer if we have both
-    if (audioContext && !sourceConnected.current && audioRef.current) {
+    if (audioContext && analyser && audioRef.current && !sourceConnected.current && !connectionAttempted.current) {
+      // Mark that we've attempted a connection to prevent multiple attempts
+      connectionAttempted.current = true;
+      
       try {
+        // Check if this audio element already has a source node
         const source = audioContext.createMediaElementSource(audioRef.current);
         sourceNodeRef.current = source;
-        source.connect(analyser!);
-        analyser!.connect(audioContext.destination);
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
         sourceConnected.current = true;
+        console.log("Successfully connected audio source to analyzer");
       } catch (error) {
-        console.error("Error connecting audio source:", error);
+        console.log("Audio connection already exists, using existing connection");
         // If an error occurs, it's likely already connected, so we'll mark it as connected
         sourceConnected.current = true;
       }
     }
     
-    // Cleanup function
-    return () => {
-      // No need to close AudioContext or disconnect sources
-      // They might be used elsewhere
-    };
+    // Cleanup function - we don't disconnect since the audio might be used elsewhere
+    return () => {};
   }, [audioRef.current, audioContext, analyser]);
   
   return { audioContext, analyser };

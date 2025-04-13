@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -22,6 +21,7 @@ const JourneyPlayer = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [visualizerMode, setVisualizerMode] = useState<'purple' | 'blue' | 'rainbow' | 'gold'>('purple');
   const [showVisualizer, setShowVisualizer] = useState(true);
+  const [audioInitialized, setAudioInitialized] = useState(false);
   
   // Create refs
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -111,7 +111,6 @@ const JourneyPlayer = () => {
     }
 
     console.log(`Loading journey player for journey ID: ${journeyId}`);
-    console.log(`Available templates:`, templates.map(t => t.id));
     
     // Find the journey from our templates data
     const foundJourney = templates.find(j => j.id === journeyId);
@@ -120,42 +119,34 @@ const JourneyPlayer = () => {
       console.log(`Found journey:`, foundJourney);
       setJourney(foundJourney);
       
-      // Check if we already have this journey playing
-      const isCurrentJourneyPlaying = currentAudio && 
-        currentAudio.title?.includes(foundJourney.title);
-      
-      // Only start a new audio if not already playing this journey's audio
-      if (!isCurrentJourneyPlaying) {
-        // Wait for songs to load before trying to play
-        if (!loadingSongs && songs.length > 0) {
-          // Select a random song to start with
-          const selectedSong = selectRandomSong();
+      // Only start playing audio if we haven't initialized yet and are not currently playing anything
+      if (!audioInitialized && !isPlaying && !loadingSongs && songs.length > 0) {
+        // Select a random song to start with
+        const selectedSong = selectRandomSong();
+        
+        if (selectedSong) {
+          console.log(`Playing initial random song for journey ${journeyId}:`, selectedSong);
           
-          if (selectedSong) {
-            console.log(`Playing initial random song for journey ${journeyId}:`, selectedSong);
-            
-            playAudio({
-              title: selectedSong.title || foundJourney.title,
-              artist: "Sacred Shifter",
-              source: selectedSong.audioUrl
-            });
-          }
-        } else if (!loadingSongs && songs.length === 0) {
-          console.error(`No songs found for journey ID: ${journeyId}`);
-          toast.error("No audio available for this journey");
+          playAudio({
+            title: selectedSong.title || foundJourney.title,
+            artist: "Sacred Shifter",
+            source: selectedSong.audioUrl
+          });
+          
+          // Mark as initialized to prevent repeated playback attempts
+          setAudioInitialized(true);
         }
       }
     } else {
       console.error("Journey not found:", journeyId);
       toast.error("Journey not found");
-      // Don't navigate away - show the error UI instead
       setIsLoading(false);
     }
     
     if (!loadingSongs) {
       setIsLoading(false);
     }
-  }, [journeyId, navigate, playAudio, templates, songs, loadingSongs, currentAudio]);
+  }, [journeyId, navigate, playAudio, templates, songs, loadingSongs, isPlaying, audioInitialized]);
 
   // Toggle visualizer on/off to save resources
   const toggleVisualizer = () => {
