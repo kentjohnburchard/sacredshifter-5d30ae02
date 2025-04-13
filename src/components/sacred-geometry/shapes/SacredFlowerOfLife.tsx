@@ -34,13 +34,16 @@ const SacredFlowerOfLife: React.FC = () => {
     const group = new THREE.Group();
     const radius = 0.4;
     const layers = 3;
+    
+    // More vibrant and visible material
     const material = new THREE.LineBasicMaterial({ 
-      color: 0x9f7aea,
+      color: 0x9b87f5, // Vivid purple from the color palette
       transparent: true,
-      opacity: 0.15 // Increased transparency (was 0.2)
+      opacity: 0.5, // Increased opacity
+      linewidth: 2 // Thicker lines
     });
 
-    // Create overlapping circles in a hex grid pattern
+    // Create overlapping circles in a hex grid pattern with more pronounced visibility
     for (let i = -layers; i <= layers; i++) {
       for (let j = -layers; j <= layers; j++) {
         const dx = i * radius * 1.5;
@@ -49,7 +52,7 @@ const SacredFlowerOfLife: React.FC = () => {
         // Skip circles that are too far from the center
         if (Math.sqrt(dx * dx + dy * dy) > radius * layers * 1.5) continue;
 
-        const circleGeometry = new THREE.CircleGeometry(radius, 32);
+        const circleGeometry = new THREE.CircleGeometry(radius, 64); // Increased segments for smoother circles
         const edges = new THREE.EdgesGeometry(circleGeometry);
         const circle = new THREE.LineSegments(edges, material);
         
@@ -60,19 +63,18 @@ const SacredFlowerOfLife: React.FC = () => {
     
     // Center and scale the group
     group.position.set(0, 0, 0);
-    group.scale.set(1.2, 1.2, 1.2); // Slightly larger
+    group.scale.set(1.2, 1.2, 1.2); 
     scene.add(group);
 
-    // Add ambient light
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    // Enhanced lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.0); // Increased intensity
     scene.add(ambientLight);
     
-    // Add point light
-    const pointLight = new THREE.PointLight(0xffffff, 1);
+    const pointLight = new THREE.PointLight(0x9b87f5, 2.0); // Purple point light
     pointLight.position.set(5, 5, 5);
     scene.add(pointLight);
     
-    // Animation
+    // More dynamic animation
     const animate = () => {
       requestAnimationFrame(animate);
       group.rotation.x += 0.005;
@@ -112,3 +114,4 @@ const SacredFlowerOfLife: React.FC = () => {
 };
 
 export default SacredFlowerOfLife;
+
