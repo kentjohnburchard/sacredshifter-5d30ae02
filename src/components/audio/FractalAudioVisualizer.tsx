@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { isPrime } from '@/utils/primeCalculations';
@@ -34,6 +33,7 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
   const [activePrime, setActivePrime] = useState<number | null>(null);
   const lastActivePrimeTime = useRef<number>(Date.now());
   const [renderMode, setRenderMode] = useState<'fractal' | 'flower' | 'spiral'>('flower');
+  const lastModeCycleTime = useRef<number>(Date.now());
 
   useEffect(() => {
     if (!isVisible || !audioContext || !analyser) {
@@ -171,6 +171,18 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
       }
     };
 
+    // Helper to check if audio is active
+    const isAudioActive = (dataArray: Uint8Array): boolean => {
+      let sum = 0;
+      const sampleSize = Math.min(32, dataArray.length);
+      
+      for (let i = 0; i < sampleSize; i++) {
+        sum += dataArray[i];
+      }
+      
+      return (sum / sampleSize) > 5; // Consider active if average is above threshold
+    };
+
     // Main animation function
     const animate = () => {
       if (!isVisible || !analyser || !frequencyDataRef.current) {
@@ -227,29 +239,13 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
       
       // Cycle through rendering modes every 20 seconds if active prime is present
       const now = Date.now();
-      if (activePrime !== null && now - lastModeCycleTime > 20000) {
+      if (activePrime !== null && now - lastModeCycleTime.current > 20000) {
         const modes: ('fractal' | 'flower' | 'spiral')[] = ['fractal', 'flower', 'spiral'];
         const currentIndex = modes.indexOf(renderMode);
         const nextIndex = (currentIndex + 1) % modes.length;
         setRenderMode(modes[nextIndex]);
-        lastModeCycleTime = now;
+        lastModeCycleTime.current = now;
       }
-    };
-
-    // Reference to track mode cycling
-    const now = Date.now();
-    let lastModeCycleTime = now;
-
-    // Helper to check if audio is active
-    const isAudioActive = (dataArray: Uint8Array): boolean => {
-      let sum = 0;
-      const sampleSize = Math.min(32, dataArray.length);
-      
-      for (let i = 0; i < sampleSize; i++) {
-        sum += dataArray[i];
-      }
-      
-      return (sum / sampleSize) > 5; // Consider active if average is above threshold
     };
 
     // Draw audio visualization with flower of life pattern
@@ -657,7 +653,7 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
       ctx.textAlign = 'center';
       ctx.fillText(`Prime: ${prime}`, canvas.width / 2, 50);
       
-      // Add a tooltip about prime frequencies if on mouseover
+      // Add a tooltip about prime mapping if on mouseover
       if (canvas.dataset.showTooltip === 'true') {
         ctx.font = '14px Arial';
         ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
@@ -739,4 +735,3 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
 };
 
 export default FractalAudioVisualizer;
-
