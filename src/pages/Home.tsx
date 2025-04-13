@@ -15,15 +15,16 @@ import { TrademarkedName } from "@/components/ip-protection";
 import { SacredGeometryVisualizer } from "@/components/sacred-geometry";
 import { useTheme } from "@/context/ThemeContext";
 import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
+import RealityOptimisationEngine from "@/components/sacred-geometry/RealityOptimisationEngine";
 
 const Home: React.FC = () => {
   // Track the current sacred geometry shape
-  const [currentShape, setCurrentShape] = useState<'flower-of-life' | 'metatrons-cube' | 'merkaba'>('flower-of-life');
+  const [currentShape, setCurrentShape] = useState<'flower-of-life' | 'metatrons-cube' | 'merkaba' | 'torus' | 'tree-of-life' | 'sri-yantra' | 'vesica-piscis'>('flower-of-life');
   const { liftTheVeil } = useTheme();
   
   // Change shape every 10 seconds
   React.useEffect(() => {
-    const shapes: ('flower-of-life' | 'metatrons-cube' | 'merkaba')[] = ['flower-of-life', 'metatrons-cube', 'merkaba'];
+    const shapes: ('flower-of-life' | 'metatrons-cube' | 'merkaba' | 'torus' | 'tree-of-life' | 'sri-yantra' | 'vesica-piscis')[] = ['flower-of-life', 'metatrons-cube', 'merkaba', 'torus', 'tree-of-life', 'sri-yantra', 'vesica-piscis'];
     let currentIndex = 0;
     
     console.log("Home: Setting up geometry shape rotation timer");
@@ -133,6 +134,33 @@ const Home: React.FC = () => {
             </div>
           </div>
         </motion.div>
+
+        {/* Reality Optimisation Engine */}
+        <div className="relative z-20 max-w-md mx-auto mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+            {['Flower of Life', "Metatron's Cube", 'Merkaba', 'Torus', 'Tree of Life', 'Sri Yantra', 'Vesica Piscis'].map((name) => {
+              const value = name.toLowerCase().replace(/[']/g, '').replace(/\s+/g, '-') as 'flower-of-life' | 'metatrons-cube' | 'merkaba' | 'torus' | 'tree-of-life' | 'sri-yantra' | 'vesica-piscis';
+              return (
+                <button
+                  key={name}
+                  onClick={() => setCurrentShape(value)}
+                  className={`text-sm py-2 px-3 rounded-md transition-colors ${
+                    currentShape === value 
+                      ? "bg-purple-600 text-white" 
+                      : "bg-purple-900/40 text-purple-100 hover:bg-purple-800/60"
+                  }`}
+                >
+                  {name}
+                </button>
+              );
+            })}
+          </div>
+          
+          <RealityOptimisationEngine 
+            selectedShape={currentShape} 
+            liftTheVeil={liftTheVeil}
+          />
+        </div>
 
         {/* Feature Sections Grid - tighter spacing */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
