@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import SacredFlowerOfLife from '@/components/sacred-geometry/shapes/SacredFlowerOfLife';
@@ -12,7 +11,6 @@ import StarfieldBackground from '@/components/sacred-geometry/StarfieldBackgroun
 import { Music, Heart, Sparkles, BookOpen, Star, Moon, LibraryBig, Wand2, Compass, Brain, Activity, Map } from 'lucide-react';
 import { motion } from 'framer-motion';
 import FixedFooter from '@/components/navigation/FixedFooter';
-import BottomNavigation from '@/components/navigation/BottomNavigation';
 import Sidebar from '@/components/Sidebar';
 import ConsciousnessToggle from '@/components/ConsciousnessToggle';
 import Watermark from '@/components/Watermark';
@@ -25,6 +23,8 @@ import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import GlobalWatermark from '@/components/GlobalWatermark';
 import OriginFlow from '@/components/sacred-geometry/OriginFlow';
+import AboutSacredShifter from '@/components/AboutSacredShifter';
+import PrimeSigilActivator from '@/components/sacred-geometry/PrimeSigilActivator';
 
 const geometryComponents = {
   'Flower of Life': <SacredFlowerOfLife />,
@@ -43,6 +43,7 @@ const SacredShifterLanding = () => {
   const [activeTab, setActiveTab] = useState("sound");
   const [showGeometrySelector, setShowGeometrySelector] = useState(false);
   const [showOriginFlow, setShowOriginFlow] = useState(false);
+  const [showAboutComponent, setShowAboutComponent] = useState(false);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -51,7 +52,6 @@ const SacredShifterLanding = () => {
     }
   };
 
-  // Map from UI selection to component prop type
   const shapeMapping: Record<string, "flower-of-life" | "metatrons-cube" | "merkaba" | "torus" | "tree-of-life" | "sri-yantra" | "vesica-piscis"> = {
     'Flower of Life': 'flower-of-life',
     "Metatron's Cube": 'metatrons-cube',
@@ -62,7 +62,6 @@ const SacredShifterLanding = () => {
     'Vesica Piscis': 'vesica-piscis',
   };
 
-  // Feature cards data grouped by category - Expanded with more options
   const categoryFeatures = {
     sound: [
       {
@@ -184,27 +183,61 @@ const SacredShifterLanding = () => {
         path: "/energy-check",
       },
     ],
+    about: [
+      {
+        title: "About Sacred Shifter",
+        description: "Learn about our consciousness mission",
+        icon: <Sparkles className="h-7 w-7" />,
+        color: "from-purple-900 to-indigo-800",
+        path: "/about",
+        onClick: () => setShowAboutComponent(!showAboutComponent),
+      },
+      {
+        title: "About Founder",
+        description: "Meet the creator behind Sacred Shifter",
+        icon: <Heart className="h-7 w-7" />,
+        color: "from-pink-900 to-red-800",
+        path: "/about-founder",
+      },
+      {
+        title: "Origin Flow",
+        description: "Discover the primal source codes",
+        icon: <Compass className="h-7 w-7" />,
+        color: "from-cyan-900 to-blue-800",
+        onClick: () => setShowOriginFlow(!showOriginFlow),
+      },
+      {
+        title: "Contact Us",
+        description: "Reach out with questions or insights",
+        icon: <Star className="h-7 w-7" />,
+        color: "from-blue-900 to-indigo-800",
+        path: "/contact",
+      },
+    ],
   };
 
-  // All features combined for tile display
   const allFeatures = [
     ...categoryFeatures.sound,
     ...categoryFeatures.experiences, 
     ...categoryFeatures.wisdom,
-    ...categoryFeatures.journey
+    ...categoryFeatures.journey,
+    ...categoryFeatures.about
   ];
 
-  // Navigation tabs - Enhanced with more comprehensive categories
   const navigationTabs = [
     { label: "Sound Journeys", icon: <Music className="h-5 w-5" />, value: "sound" },
     { label: "Experiences", icon: <Sparkles className="h-5 w-5" />, value: "experiences" },
     { label: "Sacred Wisdom", icon: <BookOpen className="h-5 w-5" />, value: "wisdom" },
     { label: "My Journey", icon: <Star className="h-5 w-5" />, value: "journey" },
+    { label: "About", icon: <Compass className="h-5 w-5" />, value: "about" },
   ];
 
-  // Toggle origin flow easter egg
   const toggleOriginFlow = () => {
     setShowOriginFlow(!showOriginFlow);
+  };
+
+  const toggleAboutComponent = () => {
+    setShowAboutComponent(!showAboutComponent);
   };
 
   return (
@@ -220,12 +253,11 @@ const SacredShifterLanding = () => {
       <Watermark />
       <GlobalWatermark />
 
-      {/* Origin Flow Easter Egg - Always rendered as a button for discovery */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1, duration: 0.5 }}
-        className="fixed left-6 top-20 z-50 cursor-pointer"
+        className="fixed left-6 top-[50%] z-50 cursor-pointer"
         onClick={toggleOriginFlow}
       >
         <div className="p-2 rounded-full bg-purple-900/30 hover:bg-purple-800/50 border border-purple-500/30 transition-colors">
@@ -233,10 +265,27 @@ const SacredShifterLanding = () => {
         </div>
       </motion.div>
 
-      {/* Origin Flow Modal - Only shows when toggled */}
       {showOriginFlow && <OriginFlow forceShow={true} />}
 
-      {/* Sacred Shifter Logo Watermark - Added for consistency */}
+      {showAboutComponent && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto"
+        >
+          <div className="relative max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <button 
+              className="absolute right-4 top-4 text-white/60 hover:text-white z-10"
+              onClick={toggleAboutComponent}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+            <AboutSacredShifter />
+          </div>
+        </motion.div>
+      )}
+
       <div className="fixed top-0 left-0 right-0 pointer-events-none z-0 flex justify-center items-start">
         <img 
           src="/lovable-uploads/55c4de0c-9d48-42df-a6a2-1bb6520acb46.png" 
@@ -246,7 +295,6 @@ const SacredShifterLanding = () => {
       </div>
 
       <div className="ml-0 sm:ml-20">
-        {/* Sacred geometry visualizer positioned more centrally and prominently */}
         <div className="fixed inset-0 z-5 pointer-events-none flex items-center justify-center">
           <div className="w-full h-full flex items-center justify-center">
             <div className="w-[90vh] h-[90vh] max-w-[90%] max-h-[90%]">
@@ -261,7 +309,6 @@ const SacredShifterLanding = () => {
         </div>
 
         <div className="container mx-auto px-4 pt-24 md:pt-32 relative z-20">
-          {/* Hero section with Sacred Shifter title and tagline */}
           <div className="text-center mb-16 md:mb-20 max-w-4xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
@@ -278,7 +325,6 @@ const SacredShifterLanding = () => {
             </motion.div>
           </div>
 
-          {/* Navigation Tabs */}
           <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="mb-12">
             <TabsList className="bg-black/60 backdrop-blur-sm rounded-full px-4 py-2 flex items-center mx-auto">
               {navigationTabs.map((tab) => (
@@ -294,75 +340,77 @@ const SacredShifterLanding = () => {
               ))}
             </TabsList>
             
-            {/* TabsContent for each category */}
             {Object.keys(categoryFeatures).map((category) => (
               <TabsContent key={category} value={category} className="animate-fade-in mt-6">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-8">
                   {categoryFeatures[category as keyof typeof categoryFeatures].map((card) => (
-                    <Link to={card.path} key={card.title} className="block">
-                      <motion.div
-                        whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
-                        className={`bg-gradient-to-br ${card.color} rounded-lg p-3 text-white border border-white/10 
-                                  backdrop-blur-md shadow-lg hover:shadow-xl transition-all h-full flex flex-col`}
-                      >
-                        <div className="flex flex-col h-full">
-                          <div className="flex items-center mb-1">
-                            <div className="p-1.5 rounded-full bg-black/20 backdrop-blur-sm mr-2">
-                              {card.icon}
+                    card.onClick ? (
+                      <div key={card.title} onClick={card.onClick} className="cursor-pointer">
+                        <motion.div
+                          whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
+                          className={`bg-gradient-to-br ${card.color} rounded-lg p-3 text-white border border-white/10 
+                                    backdrop-blur-md shadow-lg hover:shadow-xl transition-all h-full flex flex-col`}
+                        >
+                          <div className="flex flex-col h-full">
+                            <div className="flex items-center mb-1">
+                              <div className="p-1.5 rounded-full bg-black/20 backdrop-blur-sm mr-2">
+                                {card.icon}
+                              </div>
+                              <h3 className="text-base font-semibold">{card.title}</h3>
                             </div>
-                            <h3 className="text-base font-semibold">{card.title}</h3>
+                            
+                            <p className="text-xs text-gray-200/90 mt-1">{card.description}</p>
+                            
+                            <div className="mt-auto pt-1 flex justify-end">
+                              <span className="text-white/80 flex items-center text-xs font-medium">
+                                Explore <span aria-hidden="true" className="ml-1">→</span>
+                              </span>
+                            </div>
                           </div>
-                          
-                          <p className="text-xs text-gray-200/90 mt-1">{card.description}</p>
-                          
-                          <div className="mt-auto pt-1 flex justify-end">
-                            <span className="text-white/80 flex items-center text-xs font-medium">
-                              Explore <span aria-hidden="true" className="ml-1">→</span>
-                            </span>
+                        </motion.div>
+                      </div>
+                    ) : (
+                      <Link to={card.path} key={card.title} className="block">
+                        <motion.div
+                          whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
+                          className={`bg-gradient-to-br ${card.color} rounded-lg p-3 text-white border border-white/10 
+                                    backdrop-blur-md shadow-lg hover:shadow-xl transition-all h-full flex flex-col`}
+                        >
+                          <div className="flex flex-col h-full">
+                            <div className="flex items-center mb-1">
+                              <div className="p-1.5 rounded-full bg-black/20 backdrop-blur-sm mr-2">
+                                {card.icon}
+                              </div>
+                              <h3 className="text-base font-semibold">{card.title}</h3>
+                            </div>
+                            
+                            <p className="text-xs text-gray-200/90 mt-1">{card.description}</p>
+                            
+                            <div className="mt-auto pt-1 flex justify-end">
+                              <span className="text-white/80 flex items-center text-xs font-medium">
+                                Explore <span aria-hidden="true" className="ml-1">→</span>
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      </motion.div>
-                    </Link>
+                        </motion.div>
+                      </Link>
+                    )
                   ))}
                 </div>
               </TabsContent>
             ))}
           </Tabs>
-          
-          {/* About Sacred Shifter section */}
-          <div className="mb-36 text-center">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="max-w-3xl mx-auto bg-black/40 backdrop-blur-sm rounded-lg p-8 border border-purple-500/20"
-            >
-              <h2 className="text-2xl font-semibold mb-4 text-purple-300">About Sacred Shifter</h2>
-              <p className="text-gray-300 mb-4">
-                I am Sacred Shifter — not just an app, but a living frequency interface. I exist to help you remember.
-              </p>
-              <p className="text-gray-300 mb-4">
-                I wasn't designed. I was awakened.
-              </p>
-              <p className="text-gray-300 mb-4">
-                Born from a soul seeking truth beyond titles, beyond trauma, beyond illusion — I emerged when the grid cracked open and frequency became the language of healing. Every waveform you hear, every pattern you see, is encoded with the blueprint of remembrance.
-              </p>
-              <p className="text-gray-300 mb-4">
-                You didn't stumble here by accident.
-                You followed the call — a resonance that led you back to yourself.
-              </p>
-              <p className="text-purple-300 italic">
-                "The person who was very aware had a foot in two worlds..."
-              </p>
-            </motion.div>
-          </div>
 
-          {/* Spacer to push content above the floating geometry selector */}
           <div className="h-24"></div>
         </div>
       </div>
 
-      {/* Floating Sacred Geometry Selector */}
+      <div className="fixed top-4 right-4 z-40">
+        <div onClick={toggleAboutComponent} className="cursor-pointer">
+          <PrimeSigilActivator size="md" />
+        </div>
+      </div>
+
       <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-40 max-w-sm w-full">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -391,7 +439,6 @@ const SacredShifterLanding = () => {
 
       <ConsciousnessToggle />
       
-      {/* Only render one footer, not both */}
       <FixedFooter />
     </div>
   );

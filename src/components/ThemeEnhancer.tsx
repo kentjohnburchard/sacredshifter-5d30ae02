@@ -3,8 +3,17 @@ import React, { useEffect } from 'react';
 import { useTheme } from '@/context/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import PrimeSigilActivator from '@/components/sacred-geometry/PrimeSigilActivator';
+import AboutSacredShifter from '@/components/AboutSacredShifter';
 
-const ThemeEnhancer: React.FC = () => {
+interface ThemeEnhancerProps {
+  showAbout?: boolean;
+  onToggleAbout?: () => void;
+}
+
+const ThemeEnhancer: React.FC<ThemeEnhancerProps> = ({ 
+  showAbout = false,
+  onToggleAbout = () => {}
+}) => {
   const { liftTheVeil } = useTheme();
   
   // Apply global CSS variables when theme changes
@@ -38,8 +47,30 @@ const ThemeEnhancer: React.FC = () => {
     <>
       {/* Sacred Glyph Activator positioned at the top right */}
       <div className="fixed top-4 right-4 z-40">
-        <PrimeSigilActivator size="md" />
+        <div onClick={onToggleAbout} className="cursor-pointer">
+          <PrimeSigilActivator size="md" withTooltip={true} />
+        </div>
       </div>
+      
+      {/* About Sacred Shifter Modal - conditionally rendered */}
+      {showAbout && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto"
+        >
+          <div className="relative max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <button 
+              className="absolute right-4 top-4 text-white/60 hover:text-white z-10"
+              onClick={onToggleAbout}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+            <AboutSacredShifter />
+          </div>
+        </motion.div>
+      )}
       
       <AnimatePresence>
         {liftTheVeil && (
