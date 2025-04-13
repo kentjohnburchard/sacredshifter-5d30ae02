@@ -95,7 +95,6 @@ const JourneyTemplates = () => {
           
           <h2 className="text-2xl font-bold text-white mb-4">Featured Journeys</h2>
           
-          {/* Replace the hardcoded journey cards with the JourneyTemplatesGrid component */}
           <JourneyTemplatesGrid />
           
           <div className="flex justify-center mt-8">
