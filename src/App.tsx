@@ -12,11 +12,7 @@ import JourneyPlayer from '@/pages/JourneyPlayer';
 import Admin from '@/pages/Admin';
 import JourneyAudioAdmin from '@/pages/admin/JourneyAudioAdmin';
 import JourneyAudioMappingsViewer from '@/pages/admin/JourneyAudioMappingsViewer';
-import Welcome from '@/pages/Welcome';
-import SacredShifterLanding from '@/pages/SacredShifterLanding';
-import CosmicDashboard from '@/pages/CosmicDashboard';
 import SiteMap from '@/pages/SiteMap';
-import Index from '@/pages/Index';
 import Frequencies from '@/pages/Frequencies';
 import SacredBlueprint from '@/pages/SacredBlueprint';
 import HeartCenter from '@/pages/HeartCenter';
@@ -36,7 +32,6 @@ import HermeticWisdom from '@/pages/HermeticWisdom';
 import AboutFounder from '@/pages/AboutFounder';
 import Contact from '@/pages/Contact';
 import PersonalVibeSettings from '@/pages/PersonalVibeSettings';
-import Dashboard from '@/pages/Dashboard';
 import Journeys from '@/pages/Journeys';
 import PrimeHistory from '@/pages/PrimeHistory';
 import { Toaster } from 'sonner';
@@ -52,12 +47,8 @@ function App() {
         <ThemeEnhancer />
         <React.StrictMode>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<Home />} />
             <Route path="/home" element={<Home />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/cosmic-dashboard" element={<CosmicDashboard />} />
-            <Route path="/welcome" element={<Welcome />} />
-            <Route path="/landing" element={<SacredShifterLanding />} />
             <Route path="/meditations" element={<Meditations />} />
             <Route path="/hermetic-principles" element={<HermeticPrinciples />} />
             <Route path="/hermetic-wisdom" element={<HermeticWisdom />} />
