@@ -14,9 +14,10 @@ export function useAudioPlayer() {
   useEffect(() => {
     if (!audioRef.current) {
       // Create an audio element if it doesn't exist yet
-      const audioElement = document.querySelector('audio') || document.createElement('audio');
+      const audioElement = document.querySelector('audio#global-audio-player') || document.createElement('audio');
       audioElement.id = 'global-audio-player';
       audioElement.style.display = 'none';
+      audioElement.crossOrigin = 'anonymous'; // Important for analyzing cross-origin media
       
       if (!audioElement.parentElement) {
         document.body.appendChild(audioElement);
@@ -45,14 +46,17 @@ export function useAudioPlayer() {
       setDuration(audio.duration);
       setAudioLoaded(true);
       setAudioError(null);
+      console.log("Audio loaded, duration:", audio.duration);
     };
     
     const handlePlay = () => {
       setIsAudioPlaying(true);
+      console.log("Audio play event detected");
     };
     
     const handlePause = () => {
       setIsAudioPlaying(false);
+      console.log("Audio pause event detected");
     };
     
     const handleError = (e: any) => {
@@ -93,6 +97,7 @@ export function useAudioPlayer() {
     
     // Only change the source if it's different from current
     if (audioSourceRef.current !== source) {
+      console.log("Setting audio source to:", source);
       audioSourceRef.current = source;
       audioRef.current.src = source;
       audioRef.current.load();
@@ -105,20 +110,32 @@ export function useAudioPlayer() {
   const togglePlayPause = () => {
     if (!audioRef.current) return;
     
+    console.log("Toggle play/pause called, current state:", isAudioPlaying);
+    
     if (isAudioPlaying) {
       audioRef.current.pause();
     } else {
       // Ensure we have a src before playing
       if (audioRef.current.src) {
+        // Set volume to ensure it's audible
+        audioRef.current.volume = 0.7;
+        
+        console.log("Attempting to play audio...");
         const playPromise = audioRef.current.play();
         
         // Handle the play promise to catch any errors
         if (playPromise !== undefined) {
-          playPromise.catch(error => {
-            console.error("Error playing audio:", error);
-            setAudioError("Failed to play audio");
-          });
+          playPromise
+            .then(() => {
+              console.log("Audio playback started successfully");
+            })
+            .catch(error => {
+              console.error("Error playing audio:", error);
+              setAudioError("Failed to play audio");
+            });
         }
+      } else {
+        console.warn("Cannot play - no audio source set");
       }
     }
   };

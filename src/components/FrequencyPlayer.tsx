@@ -38,6 +38,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   const effectiveAudioUrl = url || audioUrl;
   const { playAudio, togglePlayPause, currentAudio } = useGlobalAudioPlayer();
   
+  // Get the global audio element
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   const audioElementFoundRef = React.useRef(false);
   
@@ -45,9 +46,9 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   useEffect(() => {
     if (!audioElementFoundRef.current) {
       console.log("FrequencyPlayer: Looking for audio element");
-      const globalAudio = document.querySelector('audio');
+      const globalAudio = document.querySelector('audio#global-audio-player');
       if (globalAudio) {
-        audioRef.current = globalAudio;
+        audioRef.current = globalAudio as HTMLAudioElement;
         audioElementFoundRef.current = true;
         console.log("FrequencyPlayer: Found audio element");
       } else {
@@ -56,14 +57,16 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     }
   }, []);
   
-  // Use the audio analyzer hook
+  // Use the audio analyzer hook with the global audio element
   const { audioContext, analyser } = useAudioAnalyzer(audioRef);
   
+  // Check if this frequency is currently playing
   const isCurrentlyPlaying = React.useMemo(() => {
     if (!currentAudio || !effectiveAudioUrl) return false;
     return currentAudio.source === effectiveAudioUrl && isPlaying;
   }, [currentAudio, effectiveAudioUrl, isPlaying]);
   
+  // Handle play/pause button click
   const handlePlayPauseClick = () => {
     onPlayToggle();
     
@@ -76,6 +79,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     }
   };
   
+  // Play this specific frequency
   const playFrequency = () => {
     if (effectiveAudioUrl) {
       let formattedUrl = effectiveAudioUrl;
@@ -97,6 +101,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     }
   };
   
+  // Toggle visualizer visibility
   const toggleVisualizer = () => {
     console.log("Toggling visualizer in FrequencyPlayer, current state:", showVisualizer);
     setShowVisualizer(prev => !prev);
@@ -104,7 +109,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   
   return (
     <div className="relative z-50">
-      {showVisualizer && isPlaying && (
+      {showVisualizer && isPlaying && audioContext && analyser && (
         <div className="fixed inset-0 pointer-events-none z-40 flex items-center justify-center">
           <FractalAudioVisualizer 
             audioContext={audioContext} 
