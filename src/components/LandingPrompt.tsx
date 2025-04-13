@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Logo, AnimatedText } from "@/components/landing";
@@ -26,8 +25,7 @@ const LandingPrompt: React.FC = () => {
       // After showing the last line, wait a moment and then navigate directly to the dashboard
       const redirectTimer = setTimeout(() => {
         console.log('Completed intro, redirecting to dashboard');
-        // Navigate directly to the dashboard instead of home
-        navigate("/dashboard", { replace: true });
+        navigate("/landing", { replace: true });
       }, 4000); // Wait 4 seconds after showing the last line
       return () => clearTimeout(redirectTimer);
     }
