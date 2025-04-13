@@ -65,7 +65,7 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
   }
 
   return (
-    <div className={`sacred-geometry-container ${className} relative`}>
+    <div className={`sacred-geometry-container w-full h-[60vw] max-h-[400px] sm:h-[300px] lg:h-[384px] rounded-xl shadow-xl bg-black/20 ${className} relative`}>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -87,7 +87,7 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
         </div>
         
         {showControls && (
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
+          <div className="absolute bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 z-20 w-full px-2 sm:px-0 max-w-full sm:max-w-md">
             <ToggleGroup 
               type="single" 
               value={currentShape}
@@ -96,13 +96,13 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
                   setCurrentShape(value as GeometryShape);
                 }
               }}
-              className="bg-black/80 backdrop-blur-md rounded-lg p-2 flex flex-wrap justify-center shadow-lg"
+              className="bg-black/80 backdrop-blur-md rounded-lg p-1 sm:p-2 flex flex-wrap justify-center shadow-lg overflow-x-auto"
             >
               {shapeOptions.map((option) => (
                 <ToggleGroupItem 
                   key={option.value} 
                   value={option.value}
-                  className="px-2 py-1 text-xs text-white data-[state=on]:bg-purple-700"
+                  className="px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs text-white data-[state=on]:bg-purple-700 rounded"
                 >
                   {option.label}
                 </ToggleGroupItem>

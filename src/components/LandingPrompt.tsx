@@ -38,10 +38,10 @@ const LandingPrompt: React.FC = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
-      className="min-h-[70vh] flex flex-col items-center justify-center text-center px-4 py-20"
+      className="min-h-[70vh] flex flex-col items-center justify-center text-center px-4 sm:px-6 lg:px-8 py-10 sm:py-16 lg:py-20 max-w-7xl mx-auto"
     >
       {/* Enhanced Logo Container with Glow */}
-      <div className="relative mb-10 w-full flex justify-center">
+      <div className="relative mb-6 sm:mb-8 lg:mb-10 w-full flex justify-center">
         <motion.div 
           className="absolute -inset-4 bg-gradient-to-r from-purple-500/20 via-blue-500/30 to-pink-500/20 rounded-full blur-xl"
           animate={{
@@ -56,7 +56,7 @@ const LandingPrompt: React.FC = () => {
         />
         
         <motion.div
-          className="relative bg-black/30 backdrop-blur-sm p-6 rounded-full"
+          className="relative bg-black/30 backdrop-blur-sm p-4 sm:p-6 rounded-full"
           initial={{ scale: 0.9 }}
           animate={{ scale: 1 }}
           transition={{ duration: 1, delay: 0.5 }}
@@ -104,7 +104,7 @@ const LandingPrompt: React.FC = () => {
       
       {/* Sacred Shimmer Effect */}
       <motion.div 
-        className="absolute bottom-20 w-full max-w-md h-1 bg-gradient-to-r from-transparent via-purple-400/30 to-transparent rounded-full mx-auto"
+        className="absolute bottom-10 sm:bottom-16 lg:bottom-20 w-full max-w-md h-1 bg-gradient-to-r from-transparent via-purple-400/30 to-transparent rounded-full mx-auto"
         animate={{
           opacity: [0, 0.7, 0],
           width: ["0%", "80%", "0%"],

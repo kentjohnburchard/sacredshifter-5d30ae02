@@ -35,12 +35,12 @@ const SacredFlowerOfLife: React.FC = () => {
     const radius = 0.4;
     const layers = 3;
     
-    // More vibrant and visible material
+    // More vibrant and visible material with improved visibility
     const material = new THREE.LineBasicMaterial({ 
       color: 0x9b87f5, // Vivid purple from the color palette
       transparent: true,
-      opacity: 0.5, // Increased opacity
-      linewidth: 2 // Thicker lines
+      opacity: 0.7, // Further increased opacity for better visibility
+      linewidth: 3 // Even thicker lines for better visibility
     });
 
     // Create overlapping circles in a hex grid pattern with more pronounced visibility
@@ -63,14 +63,14 @@ const SacredFlowerOfLife: React.FC = () => {
     
     // Center and scale the group
     group.position.set(0, 0, 0);
-    group.scale.set(1.2, 1.2, 1.2); 
+    group.scale.set(1.3, 1.3, 1.3); // Slightly larger for better visibility
     scene.add(group);
 
     // Enhanced lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.0); // Increased intensity
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2); // Increased intensity
     scene.add(ambientLight);
     
-    const pointLight = new THREE.PointLight(0x9b87f5, 2.0); // Purple point light
+    const pointLight = new THREE.PointLight(0x9b87f5, 2.5); // Brighter purple point light
     pointLight.position.set(5, 5, 5);
     scene.add(pointLight);
     
@@ -114,4 +114,3 @@ const SacredFlowerOfLife: React.FC = () => {
 };
 
 export default SacredFlowerOfLife;
-

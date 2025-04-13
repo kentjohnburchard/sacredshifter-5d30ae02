@@ -10,13 +10,13 @@ const FixedFooter: React.FC = () => {
 
   return (
     <div 
-      className={`fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-r from-[#9966FF]/10 to-[#bf99ff]/5 border-t border-purple-100 py-4 px-4 shadow-lg transition-transform duration-300 ${
+      className={`fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-r from-[#9966FF]/10 to-[#bf99ff]/5 border-t border-purple-100 py-3 sm:py-4 px-2 sm:px-4 shadow-lg transition-transform duration-300 ${
         isVisible ? 'translate-y-0' : 'translate-y-full'
       }`}
     >
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-center">
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-4 mb-2 sm:mb-0 w-full sm:w-auto">
             <Link to="/" className="text-xs flex items-center gap-1 text-[#800080]/90 hover:text-[#800080]">
               <Home className="h-3 w-3" />
               <span>Home</span>
@@ -35,7 +35,7 @@ const FixedFooter: React.FC = () => {
             </Link>
           </div>
           
-          <div className="mt-2 sm:mt-0 text-xs flex items-center gap-2">
+          <div className="flex items-center gap-2 text-xs">
             <Link to="/profile" className="flex items-center gap-1 text-[#800080]/90 hover:text-[#800080]">
               <User className="h-3 w-3" />
               <span>Profile</span>
@@ -44,7 +44,7 @@ const FixedFooter: React.FC = () => {
               <Map className="h-3 w-3" />
               <span>Site Map</span>
             </Link>
-            <span className="text-[#800080]/70">© {new Date().getFullYear()} <TrademarkedName>Sacred Shifter</TrademarkedName></span>
+            <span className="text-[#800080]/70 text-[10px] sm:text-xs">© {new Date().getFullYear()} <TrademarkedName>Sacred Shifter</TrademarkedName></span>
           </div>
         </div>
       </div>

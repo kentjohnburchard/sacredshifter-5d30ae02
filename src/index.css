@@ -71,8 +71,54 @@
   * {
     @apply border-border;
   }
+  html {
+    @apply scroll-smooth overflow-x-hidden;
+  }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground overflow-x-hidden;
+  }
+
+  h1 {
+    @apply text-2xl sm:text-3xl lg:text-4xl font-semibold;
+  }
+
+  h2 {
+    @apply text-xl sm:text-2xl lg:text-3xl font-semibold;
+  }
+
+  h3 {
+    @apply text-lg sm:text-xl font-medium;
+  }
+
+  p {
+    @apply text-base sm:text-lg leading-relaxed;
+  }
+
+  /* Responsive spacing utilities */
+  .container-responsive {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .flex-responsive {
+    @apply flex flex-col sm:flex-row gap-4 sm:gap-6 lg:gap-8;
+  }
+
+  .grid-responsive {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8;
+  }
+
+  .grid-responsive-4 {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6;
+  }
+
+  /* Responsive button styles */
+  .btn-responsive {
+    @apply px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  /* Card-like component */
+  .card-responsive {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden p-4 sm:p-6 w-full;
   }
 }
 

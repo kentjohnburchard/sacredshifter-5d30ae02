@@ -19,7 +19,7 @@ const Welcome: React.FC = () => {
   }, []);
   
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-black">
+    <div className="relative min-h-screen w-full overflow-hidden bg-black scroll-smooth">
       {/* Sacred Geometry Background Layer */}
       <div className="absolute inset-0 opacity-30">
         <SacredFlowerOfLife />
@@ -37,7 +37,7 @@ const Welcome: React.FC = () => {
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         {/* Floating Circle */}
         <motion.div 
-          className="absolute w-32 h-32 rounded-full border border-purple-500/20 bg-gradient-to-br from-purple-500/5 to-blue-500/5"
+          className="absolute w-20 sm:w-32 h-20 sm:h-32 rounded-full border border-purple-500/20 bg-gradient-to-br from-purple-500/5 to-blue-500/5"
           initial={{ x: "10%", y: "20%", opacity: 0 }}
           animate={{ 
             x: ["10%", "15%", "10%"], 
@@ -54,7 +54,7 @@ const Welcome: React.FC = () => {
         
         {/* Floating Triangle */}
         <motion.div 
-          className="absolute w-40 h-40 left-3/4 top-1/4"
+          className="absolute w-24 sm:w-40 h-24 sm:h-40 left-3/4 top-1/4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.2, rotate: [0, 360] }}
           transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
@@ -65,7 +65,7 @@ const Welcome: React.FC = () => {
         
         {/* Floating Diamond */}
         <motion.div 
-          className="absolute w-24 h-24 left-1/4 top-2/3"
+          className="absolute w-16 sm:w-24 h-16 sm:h-24 left-1/4 top-2/3"
           initial={{ opacity: 0 }}
           animate={{ 
             opacity: 0.25, 
@@ -84,7 +84,7 @@ const Welcome: React.FC = () => {
       
       {/* Content Layer with Landing Prompt */}
       <motion.div 
-        className="relative z-10 w-full h-full"
+        className="relative z-10 w-full h-full max-w-7xl mx-auto"
         initial={{ opacity: 0 }}
         animate={{ opacity: showContent ? 1 : 0 }}
         transition={{ duration: 1.2 }}

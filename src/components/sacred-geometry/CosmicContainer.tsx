@@ -39,8 +39,8 @@ const CosmicContainer: React.FC<CosmicContainerProps> = ({
   
   // Map variant to styles
   const variantStyles = {
-    card: "rounded-xl bg-black/40 backdrop-blur-md",
-    panel: "rounded-lg bg-black/60 backdrop-blur-lg",
+    card: "rounded-xl shadow-lg bg-black/40 backdrop-blur-md",
+    panel: "rounded-lg shadow-md bg-black/60 backdrop-blur-lg",
     orb: "rounded-full bg-black/30 backdrop-blur-md aspect-square",
   }[variant];
   
@@ -73,14 +73,14 @@ const CosmicContainer: React.FC<CosmicContainerProps> = ({
         <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none"></div>
         
         {/* Content */}
-        <div className="relative flex-1 z-10">{children}</div>
+        <div className="relative flex-1 z-10 px-3 sm:px-4 py-3 sm:py-4">{children}</div>
       </div>
       
       {/* Animated corner accents */}
       {animate && (
         <>
           <motion.div
-            className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-purple-400/50"
+            className="absolute top-0 left-0 w-4 sm:w-8 h-4 sm:h-8 border-t-2 border-l-2 border-purple-400/50"
             animate={{
               opacity: [0.3, 0.7, 0.3],
             }}
@@ -91,7 +91,7 @@ const CosmicContainer: React.FC<CosmicContainerProps> = ({
             }}
           />
           <motion.div
-            className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-purple-400/50"
+            className="absolute top-0 right-0 w-4 sm:w-8 h-4 sm:h-8 border-t-2 border-r-2 border-purple-400/50"
             animate={{
               opacity: [0.3, 0.7, 0.3],
             }}
@@ -103,7 +103,7 @@ const CosmicContainer: React.FC<CosmicContainerProps> = ({
             }}
           />
           <motion.div
-            className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-purple-400/50"
+            className="absolute bottom-0 left-0 w-4 sm:w-8 h-4 sm:h-8 border-b-2 border-l-2 border-purple-400/50"
             animate={{
               opacity: [0.3, 0.7, 0.3],
             }}
@@ -115,7 +115,7 @@ const CosmicContainer: React.FC<CosmicContainerProps> = ({
             }}
           />
           <motion.div
-            className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-purple-400/50"
+            className="absolute bottom-0 right-0 w-4 sm:w-8 h-4 sm:h-8 border-b-2 border-r-2 border-purple-400/50"
             animate={{
               opacity: [0.3, 0.7, 0.3],
             }}
