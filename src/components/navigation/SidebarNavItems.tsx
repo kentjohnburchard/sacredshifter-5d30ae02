@@ -103,33 +103,44 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
             isMobile={false}
             onClick={onLinkClick}
             className={cn(
-              "flex items-center py-2 px-3 text-sm rounded-md transition-colors group",
+              "flex items-center py-2 px-3 text-sm rounded-md transition-colors group relative",
               isActive
                 ? liftTheVeil 
-                  ? "bg-pink-700/50 text-white" 
-                  : "bg-purple-700/50 text-white"
+                  ? "bg-pink-700/50 text-white font-medium" 
+                  : "bg-purple-700/50 text-white font-medium"
                 : "text-white hover:bg-opacity-80", 
-              liftTheVeil && !isActive && "hover:bg-pink-800/50 hover:text-white",
-              !liftTheVeil && !isActive && "hover:bg-purple-800/50 hover:text-white"
+              liftTheVeil && !isActive && "hover:bg-pink-800/50 hover:text-pink-200",
+              !liftTheVeil && !isActive && "hover:bg-purple-800/50 hover:text-purple-200"
             )}
           >
+            {/* Active item indicator - subtle glow effect */}
+            {isActive && (
+              <div className={cn(
+                "absolute inset-0 rounded-md opacity-20",
+                liftTheVeil ? "shadow-[0_0_8px_2px_rgba(236,72,153,0.6)]" : "shadow-[0_0_8px_2px_rgba(147,51,234,0.6)]"
+              )} />
+            )}
+            
             <IconComponent
               className={cn(
-                "h-5 w-5 mr-3", // Increased right margin
+                "h-5 w-5 mr-3", 
                 isActive
                   ? liftTheVeil
                     ? "text-pink-300"
                     : "text-purple-300"
-                  : "text-gray-400"
+                  : "text-gray-200"
               )}
             />
             <span 
               className={cn(
-                "transition-all duration-300 ease-in-out text-white", // Explicitly set text-white
+                "transition-all duration-300 ease-in-out",
                 isCollapsed 
                   ? "opacity-0 w-0 overflow-hidden" 
                   : "opacity-100 w-auto",
-                "text-sm" // Ensure consistent text size
+                isActive
+                  ? "text-white font-medium"
+                  : "text-white",
+                "text-sm"
               )}
             >
               {item.label}

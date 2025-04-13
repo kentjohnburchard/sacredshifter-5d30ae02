@@ -23,11 +23,11 @@ const NavLink: React.FC<NavLinkProps> = ({
   // Mobile styles are different from desktop styles
   const mobileActiveClass = isActive 
     ? "bg-[#9966FF]/10 text-white font-medium" 
-    : "text-white hover:bg-[#9966FF]/5 hover:text-white"; // Changed text-gray-200 to text-white for better visibility
+    : "text-white hover:bg-[#9966FF]/5 hover:text-purple-200"; 
     
   const desktopActiveClass = isActive 
     ? "text-white font-medium" 
-    : "text-white hover:text-white"; // Changed text-gray-200 to text-white for better visibility
+    : "text-white hover:text-purple-200"; 
     
   const baseClass = isMobile 
     ? `text-lg font-medium transition-colors px-4 py-2 rounded-md ${mobileActiveClass}` 
