@@ -173,17 +173,26 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
 
     // Main animation function
     const animate = () => {
-      if (!isVisible || (pauseWhenStopped && !isAudioActive(dataArray))) {
+      if (!isVisible || !analyser || !frequencyDataRef.current) {
         animationFrameRef.current = requestAnimationFrame(animate);
         return;
       }
 
       animationFrameRef.current = requestAnimationFrame(animate);
       
-      if (!ctx || !analyser || !frequencyDataRef.current) return;
+      if (!ctx) return;
       
       analyser.getByteFrequencyData(frequencyDataRef.current);
       const dataArray = frequencyDataRef.current;
+      
+      // Check if audio is active before continuing
+      if (pauseWhenStopped && !isAudioActive(dataArray)) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        animationFrameRef.current = requestAnimationFrame(animate);
+        return;
+      }
       
       // Detect prime frequencies
       detectPrimeFrequencies(dataArray);
@@ -217,6 +226,7 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
       }
       
       // Cycle through rendering modes every 20 seconds if active prime is present
+      const now = Date.now();
       if (activePrime !== null && now - lastModeCycleTime > 20000) {
         const modes: ('fractal' | 'flower' | 'spiral')[] = ['fractal', 'flower', 'spiral'];
         const currentIndex = modes.indexOf(renderMode);
@@ -729,3 +739,4 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
 };
 
 export default FractalAudioVisualizer;
+
