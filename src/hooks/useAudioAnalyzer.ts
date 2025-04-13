@@ -13,6 +13,7 @@ const useAudioAnalyzer = (
   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
   const connectionAttemptedRef = useRef<boolean>(false);
   const connectionTimeoutRef = useRef<number | null>(null);
+  const audioElementRef = useRef<HTMLAudioElement | null>(null);
   
   // Check if the audio element exists globally
   useEffect(() => {
@@ -43,13 +44,17 @@ const useAudioAnalyzer = (
       }
       
       // Only attempt connection if we have all required pieces and haven't already connected
+      // Also check if the audio element has changed since last connection
       if (
         audioContext && 
         analyser && 
         audioRef.current && 
-        !sourceConnected.current
+        (!sourceConnected.current || audioElementRef.current !== audioRef.current)
       ) {
         console.log("Audio element available for connection:", audioRef.current);
+        
+        // Save reference to current audio element
+        audioElementRef.current = audioRef.current;
         
         // IMPORTANT: Always resume the audio context first
         if (audioContext.state === 'suspended') {
@@ -79,6 +84,14 @@ const useAudioAnalyzer = (
             
             console.log("Successfully connected audio source to analyzer and preserved audio path");
             sourceConnected.current = true;
+          } else if (audioElementRef.current !== audioRef.current) {
+            // If the audio element changed but we already have a source node,
+            // we need to disconnect the old one and create a new one
+            console.log("Audio element changed, recreating connection");
+            sourceNodeRef.current = null;
+            sourceConnected.current = false;
+            // Try connecting again on the next tick
+            setTimeout(connectAudio, 0);
           }
         } catch (error) {
           console.log("Audio connection error (might already be connected):", error);
@@ -91,13 +104,14 @@ const useAudioAnalyzer = (
           hasContext: !!audioContext,
           hasAnalyser: !!analyser,
           hasAudioRef: !!audioRef.current,
-          alreadyConnected: sourceConnected.current
+          alreadyConnected: sourceConnected.current,
+          sameAudioElement: audioElementRef.current === audioRef.current
         });
       }
     };
     
     // Try connecting immediately if we have everything we need
-    if (audioRef.current && audioContext && analyser && !sourceConnected.current) {
+    if (audioRef.current && audioContext && analyser) {
       connectionTimeoutRef.current = window.setTimeout(connectAudio, 100);
     }
     

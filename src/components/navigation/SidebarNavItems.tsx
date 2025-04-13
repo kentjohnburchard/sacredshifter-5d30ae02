@@ -129,14 +129,14 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
                 className={cn(
                   "text-white font-bold opacity-100",
                   isCollapsed 
-                    ? "absolute opacity-0 w-0 overflow-hidden" 
+                    ? "opacity-100 w-auto" // Changed from opacity-0 to opacity-100
                     : "opacity-100 w-auto"
                 )}
               >
                 {item.label}
               </span>
               {isCollapsed && (
-                <ChevronRight className="h-4 w-4 ml-auto opacity-0 group-hover:opacity-100 text-white" />
+                <ChevronRight className="h-4 w-4 ml-auto text-white" /> // Removed opacity-0 from this element
               )}
             </div>
           </NavLink>

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Eye, EyeOff } from "lucide-react";
@@ -37,7 +38,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   const effectiveAudioUrl = url || audioUrl;
   const { playAudio, togglePlayPause, currentAudio } = useGlobalAudioPlayer();
   
-  // Get the global audio element
+  // Get the global audio element - use a stable ref that won't change on re-renders
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   
   // Find the audio element in the DOM - IMPORTANT: do this only once on mount

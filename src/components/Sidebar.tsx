@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import SidebarLogo from "@/components/navigation/SidebarLogo";
@@ -20,11 +19,9 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { liftTheVeil } = useTheme();
   
-  // Handle screen size changes
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 640) {
-        // On mobile, the sidebar should always be collapsed until manually opened
         setIsCollapsed(true);
         if (isMobileMenuOpen) {
           setIsMobileMenuOpen(false);
@@ -38,11 +35,9 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
     };
   }, [isMobileMenuOpen]);
 
-  // Set up auto-collapse timer
   useEffect(() => {
     let timer: number | undefined;
     
-    // Only auto-collapse on desktop and if sidebar is expanded
     if (!isCollapsed && window.innerWidth >= 640) {
       timer = window.setTimeout(() => {
         setIsCollapsed(true);
@@ -56,17 +51,14 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
     };
   }, [isCollapsed]);
 
-  // Mobile menu toggle
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  // For mobile view, the sidebar is always fully expanded (not collapsed)
   const effectivelyCollapsed = isMobileMenuOpen ? false : isCollapsed;
 
   return (
     <>
-      {/* Mobile Menu Button - Only visible on small screens */}
       <Button
         variant="ghost"
         size="sm"
@@ -77,7 +69,6 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         <Menu className="h-5 w-5 text-white" />
       </Button>
       
-      {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div 
           className="fixed inset-0 bg-black/50 z-40 sm:hidden"
@@ -85,7 +76,6 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         />
       )}
       
-      {/* Sidebar for mobile (full screen when active) */}
       <aside 
         className={cn(
           "fixed left-0 top-0 z-40 flex h-full flex-col border-r shadow-lg transition-all duration-300 sm:translate-x-0",
@@ -94,11 +84,10 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           liftTheVeil 
             ? "bg-gradient-to-b from-pink-900 via-pink-800 to-pink-900 border-pink-700" 
             : "bg-gradient-to-b from-purple-900 via-purple-800 to-purple-900 border-purple-700",
-          "sm:translate-x-0", // Always show on sm breakpoint and up
+          "sm:translate-x-0",
           className
         )}
       >
-        {/* Collapse button - Hidden on mobile */}
         <Button 
           variant="ghost" 
           size="sm" 
@@ -116,7 +105,6 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           )}
         </Button>
 
-        {/* Close button - Only on mobile */}
         <Button 
           variant="ghost" 
           size="sm" 
@@ -130,12 +118,10 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           <ChevronLeft className="h-5 w-5" />
         </Button>
 
-        {/* Logo and App Title */}
         <div className={`flex items-center justify-center py-3 sm:py-5 ${effectivelyCollapsed ? "px-2" : "px-4"}`}>
           <SidebarLogo className={effectivelyCollapsed ? "scale-75" : ""} />
         </div>
 
-        {/* Scrollable Navigation Items */}
         <ScrollArea className="flex-1 px-2 sm:px-3 py-2">
           <SidebarNavItems 
             isCollapsed={effectivelyCollapsed}
@@ -146,7 +132,6 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           />
         </ScrollArea>
 
-        {/* User section at the bottom */}
         <div className={cn(
           "border-t px-3 py-4", 
           liftTheVeil ? "border-pink-700" : "border-purple-700"
@@ -155,7 +140,6 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         </div>
       </aside>
       
-      {/* Desktop behavior - Shadow element that responds to hover events */}
       <aside 
         className={cn(
           "hidden sm:flex fixed left-0 top-0 z-40 h-full flex-col border-r shadow-md transition-all duration-300",
