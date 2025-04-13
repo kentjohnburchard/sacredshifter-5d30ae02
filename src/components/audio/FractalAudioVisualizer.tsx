@@ -9,6 +9,7 @@ interface FractalAudioVisualizerProps {
   isVisible: boolean;
   intensity?: number; // 0-1 controls the intensity of visualizations
   colorScheme?: 'purple' | 'blue' | 'rainbow' | 'gold';
+  pauseWhenStopped?: boolean; // Whether to pause animation when audio is stopped
 }
 
 const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
@@ -16,7 +17,8 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
   analyser,
   isVisible,
   intensity = 1,
-  colorScheme = 'purple'
+  colorScheme = 'purple',
+  pauseWhenStopped = false
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -25,6 +27,7 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
   const animationFrameRef = useRef<number | null>(null);
   const fractalsRef = useRef<THREE.Mesh[]>([]);
   const dataArrayRef = useRef<Uint8Array | null>(null);
+  const visualizerActiveRef = useRef<boolean>(false);
   
   // Generate a color based on the chosen scheme
   const getColorScheme = () => {
@@ -59,6 +62,9 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
   // Initialize Three.js scene
   useEffect(() => {
     if (!isVisible || !containerRef.current) return;
+    
+    console.log("FractalVisualizer: Initializing Three.js scene");
+    visualizerActiveRef.current = true;
     
     // Setup scene
     const scene = new THREE.Scene();
@@ -103,7 +109,10 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
     
     // Create audio data buffer if we have an analyzer
     if (analyser) {
+      console.log("FractalVisualizer: Analyzer available, creating data buffer");
       dataArrayRef.current = new Uint8Array(analyser.frequencyBinCount);
+    } else {
+      console.log("FractalVisualizer: No analyzer provided");
     }
     
     // Generate fractal elements
@@ -127,27 +136,37 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
     
     // Cleanup
     return () => {
+      visualizerActiveRef.current = false;
       window.removeEventListener('resize', handleResize);
       
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
       }
       
       if (rendererRef.current && containerRef.current) {
-        containerRef.current.removeChild(rendererRef.current.domElement);
-        rendererRef.current.dispose();
+        try {
+          containerRef.current.removeChild(rendererRef.current.domElement);
+          rendererRef.current.dispose();
+        } catch (err) {
+          console.error("Error cleaning up renderer:", err);
+        }
       }
       
       // Clean up geometries and materials
-      fractalsRef.current.forEach(mesh => {
-        scene.remove(mesh);
-        mesh.geometry.dispose();
-        if (Array.isArray(mesh.material)) {
-          mesh.material.forEach(mat => mat.dispose());
-        } else {
-          mesh.material.dispose();
-        }
-      });
+      if (sceneRef.current) {
+        fractalsRef.current.forEach(mesh => {
+          sceneRef.current?.remove(mesh);
+          mesh.geometry.dispose();
+          if (Array.isArray(mesh.material)) {
+            mesh.material.forEach(mat => mat.dispose());
+          } else {
+            mesh.material.dispose();
+          }
+        });
+      }
+      
+      console.log("FractalVisualizer: Cleanup complete");
     };
   }, [isVisible, colorScheme]);
   
@@ -251,7 +270,7 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
   
   // Animation loop
   const animate = () => {
-    if (!sceneRef.current || !cameraRef.current || !rendererRef.current) return;
+    if (!sceneRef.current || !cameraRef.current || !rendererRef.current || !visualizerActiveRef.current) return;
     
     animationFrameRef.current = requestAnimationFrame(animate);
     

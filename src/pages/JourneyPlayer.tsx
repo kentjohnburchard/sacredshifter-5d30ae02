@@ -40,11 +40,14 @@ const JourneyPlayer = () => {
   // Find the audio element in the DOM after component mounts
   useEffect(() => {
     if (!audioElementFoundRef.current) {
+      console.log("JourneyPlayer: Looking for audio element");
       const globalAudio = document.querySelector('audio');
       if (globalAudio) {
         audioRef.current = globalAudio;
         audioElementFoundRef.current = true;
-        console.log("Found audio element in the DOM");
+        console.log("JourneyPlayer: Found audio element in the DOM");
+      } else {
+        console.log("JourneyPlayer: Audio element not found");
       }
     }
   }, []);
@@ -56,16 +59,22 @@ const JourneyPlayer = () => {
   useEffect(() => {
     if (songs && songs.length > 0) {
       songsRef.current = songs;
-      console.log("Songs loaded:", songs.length);
+      console.log("JourneyPlayer: Songs loaded:", songs.length);
     }
   }, [songs]);
 
   // Function to select a random song that's not the last played one
   const selectRandomSong = () => {
-    if (!songsRef.current || songsRef.current.length === 0) return null;
+    if (!songsRef.current || songsRef.current.length === 0) {
+      console.log("JourneyPlayer: No songs available");
+      return null;
+    }
     
     // If only one song is available, return it
-    if (songsRef.current.length === 1) return songsRef.current[0];
+    if (songsRef.current.length === 1) {
+      console.log("JourneyPlayer: Only one song available, returning it");
+      return songsRef.current[0];
+    }
     
     // Get available indices excluding the lastPlayedIndex
     const availableIndices = Array.from(
@@ -79,6 +88,7 @@ const JourneyPlayer = () => {
     
     // Save this as the last played index
     lastPlayedIndex.current = selectedIndex;
+    console.log(`JourneyPlayer: Selected song index ${selectedIndex} out of ${songsRef.current.length}`);
     
     return songsRef.current[selectedIndex];
   };
@@ -89,20 +99,33 @@ const JourneyPlayer = () => {
     
     // Configure the end of track handler to play another random track
     const handleTrackEnded = () => {
-      console.log("Track ended, selecting next random track");
+      console.log("JourneyPlayer: Track ended, selecting next random track");
       const nextSong = selectRandomSong();
       
       if (nextSong) {
-        console.log("Playing next random song:", nextSong);
-        playAudio({
-          title: nextSong.title || (journey?.title + " (continued)"),
-          artist: "Sacred Shifter",
-          source: nextSong.audioUrl
-        });
+        console.log("JourneyPlayer: Playing next random song:", nextSong);
+        
+        // Make sure the URL is properly formatted
+        let audioUrl = nextSong.audioUrl;
+        if (audioUrl && !audioUrl.startsWith('http')) {
+          audioUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioUrl}`;
+        }
+        
+        if (audioUrl) {
+          playAudio({
+            title: nextSong.title || (journey?.title + " (continued)"),
+            artist: "Sacred Shifter",
+            source: audioUrl
+          });
+        } else {
+          console.error("JourneyPlayer: Invalid audio URL for next song");
+          toast.error("Could not play next track: Invalid audio URL");
+        }
       }
     };
     
     setOnEndedCallback(handleTrackEnded);
+    console.log("JourneyPlayer: Set up track completion callback");
     
     return () => {
       setOnEndedCallback(null);
@@ -116,13 +139,13 @@ const JourneyPlayer = () => {
       return;
     }
 
-    console.log(`Loading journey player for journey ID: ${journeyId}`);
+    console.log(`JourneyPlayer: Loading journey player for journey ID: ${journeyId}`);
     
     // Find the journey from our templates data
     const foundJourney = templates.find(j => j.id === journeyId);
     
     if (foundJourney) {
-      console.log(`Found journey:`, foundJourney);
+      console.log(`JourneyPlayer: Found journey:`, foundJourney);
       setJourney(foundJourney);
       
       // Mark that we've finished loading
@@ -130,7 +153,7 @@ const JourneyPlayer = () => {
         setIsLoading(false);
       }
     } else {
-      console.error("Journey not found:", journeyId);
+      console.error("JourneyPlayer: Journey not found:", journeyId);
       toast.error("Journey not found");
       setIsLoading(false);
     }
@@ -142,8 +165,8 @@ const JourneyPlayer = () => {
     if (initializationAttemptedRef.current || audioInitialized || isLoading || loadingSongs) return;
     
     // Only proceed if we have a journey and songs to play
-    if (journey && songs.length > 0) {
-      console.log("Attempting to initialize audio playback");
+    if (journey && songs && songs.length > 0) {
+      console.log("JourneyPlayer: Attempting to initialize audio playback");
       initializationAttemptedRef.current = true;
       
       // Short delay to ensure audio context is ready
@@ -152,22 +175,30 @@ const JourneyPlayer = () => {
         const selectedSong = selectRandomSong();
         
         if (selectedSong) {
-          console.log(`Playing initial random song for journey ${journeyId}:`, selectedSong);
+          console.log(`JourneyPlayer: Playing initial random song for journey ${journeyId}:`, selectedSong);
           
           // Make sure the URL is properly formatted
           let audioUrl = selectedSong.audioUrl;
-          if (!audioUrl.startsWith('http')) {
+          if (audioUrl && !audioUrl.startsWith('http')) {
             audioUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioUrl}`;
+            console.log("JourneyPlayer: Formatted URL:", audioUrl);
           }
           
-          playAudio({
-            title: selectedSong.title || journey.title,
-            artist: "Sacred Shifter",
-            source: audioUrl
-          });
-          
-          // Mark as initialized to prevent repeated playback attempts
-          setAudioInitialized(true);
+          if (audioUrl) {
+            playAudio({
+              title: selectedSong.title || journey.title,
+              artist: "Sacred Shifter",
+              source: audioUrl
+            });
+            
+            // Mark as initialized to prevent repeated playback attempts
+            setAudioInitialized(true);
+          } else {
+            console.error("JourneyPlayer: Invalid audio URL");
+            toast.error("Could not play audio: Invalid URL");
+          }
+        } else {
+          console.log("JourneyPlayer: No song selected for initialization");
         }
       }, 1000);
     }
@@ -175,7 +206,7 @@ const JourneyPlayer = () => {
 
   // Toggle visualizer on/off
   const toggleVisualizer = () => {
-    console.log("Toggling visualizer, current state:", showVisualizer);
+    console.log("JourneyPlayer: Toggling visualizer, current state:", showVisualizer);
     setShowVisualizer(prev => !prev);
   };
   
@@ -190,23 +221,28 @@ const JourneyPlayer = () => {
 
   // Manually restart audio if it isn't playing
   const forcePlayAudio = () => {
-    if (!isPlaying && songsRef.current.length > 0 && journey) {
+    if (!isPlaying && songsRef.current && songsRef.current.length > 0 && journey) {
       const selectedSong = selectRandomSong();
       
       if (selectedSong) {
-        console.log("Force playing song:", selectedSong);
+        console.log("JourneyPlayer: Force playing song:", selectedSong);
         
         // Make sure the URL is properly formatted
         let audioUrl = selectedSong.audioUrl;
-        if (!audioUrl.startsWith('http')) {
+        if (audioUrl && !audioUrl.startsWith('http')) {
           audioUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioUrl}`;
         }
         
-        playAudio({
-          title: selectedSong.title || journey.title,
-          artist: "Sacred Shifter",
-          source: audioUrl
-        });
+        if (audioUrl) {
+          playAudio({
+            title: selectedSong.title || journey.title,
+            artist: "Sacred Shifter",
+            source: audioUrl
+          });
+        } else {
+          console.error("JourneyPlayer: Invalid audio URL");
+          toast.error("Could not play audio: Invalid URL");
+        }
       }
     } else if (isPlaying) {
       // Toggle pause if already playing
@@ -257,6 +293,7 @@ const JourneyPlayer = () => {
           analyser={analyser}
           isVisible={true}
           colorScheme={visualizerMode}
+          pauseWhenStopped={true}
         />
       )}
       

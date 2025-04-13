@@ -33,6 +33,7 @@ export function useGlobalAudioPlayer() {
       detail: { callback }
     });
     window.dispatchEvent(event);
+    console.log("Global audio player: onEndedCallback set");
   }, []);
 
   // Function to play audio through the global player
@@ -42,7 +43,7 @@ export function useGlobalAudioPlayer() {
     
     // If it's the same audio and already playing, don't trigger a replay
     if (isSameAudio && globalAudioState.isPlaying) {
-      console.log("Already playing this audio, skipping replay");
+      console.log("Global player: Already playing this audio, skipping replay");
       return;
     }
     
@@ -55,7 +56,7 @@ export function useGlobalAudioPlayer() {
     setIsPlaying(true);
     
     // Log the audio that's about to be played
-    console.log("Changing to new song:", audioInfo.title, "URL:", audioInfo.source);
+    console.log("Global player: Changing to new song:", audioInfo.title, "URL:", audioInfo.source);
     
     // Dispatch event to notify the global player
     const event = new CustomEvent('playAudio', {
@@ -78,6 +79,7 @@ export function useGlobalAudioPlayer() {
       detail: { isPlaying: newIsPlaying }
     });
     window.dispatchEvent(event);
+    console.log("Global player: Toggle play/pause, now playing:", newIsPlaying);
   }, []);
 
   // Listen for global audio player state changes
@@ -89,6 +91,7 @@ export function useGlobalAudioPlayer() {
       const newIsPlaying = event.detail.isPlaying;
       globalAudioState.isPlaying = newIsPlaying;
       setIsPlaying(newIsPlaying);
+      console.log("Global player: Audio state changed to playing:", newIsPlaying);
     };
 
     // Track audio info changes
@@ -97,12 +100,14 @@ export function useGlobalAudioPlayer() {
       if (newAudioInfo) {
         globalAudioState.currentAudio = newAudioInfo;
         setCurrentAudio(newAudioInfo);
+        console.log("Global player: Audio info changed:", newAudioInfo.title);
       }
     };
 
     window.addEventListener('audioStateChange' as any, handleAudioStateChange as EventListener);
     window.addEventListener('audioInfoChange' as any, handleAudioInfoChange as EventListener);
     eventsAttached.current = true;
+    console.log("Global player: Event listeners attached");
 
     return () => {
       window.removeEventListener('audioStateChange' as any, handleAudioStateChange as EventListener);

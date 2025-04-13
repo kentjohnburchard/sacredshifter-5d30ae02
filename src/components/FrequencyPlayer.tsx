@@ -33,6 +33,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
 }) => {
   // Create all state hooks at the top
   const [showVisualizer, setShowVisualizer] = useState(false);
+  const [audioInitialized, setAudioInitialized] = useState(false);
   
   const effectiveAudioUrl = url || audioUrl;
   const { playAudio, togglePlayPause, currentAudio } = useGlobalAudioPlayer();
@@ -43,11 +44,14 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   // Find the audio element in the DOM
   useEffect(() => {
     if (!audioElementFoundRef.current) {
+      console.log("FrequencyPlayer: Looking for audio element");
       const globalAudio = document.querySelector('audio');
       if (globalAudio) {
         audioRef.current = globalAudio;
         audioElementFoundRef.current = true;
         console.log("FrequencyPlayer: Found audio element");
+      } else {
+        console.log("FrequencyPlayer: Audio element not found");
       }
     }
   }, []);
@@ -64,8 +68,10 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     onPlayToggle();
     
     if (isCurrentlyPlaying) {
+      console.log("FrequencyPlayer: Toggling playback state");
       togglePlayPause();
     } else if (effectiveAudioUrl) {
+      console.log("FrequencyPlayer: Playing new frequency");
       playFrequency();
     }
   };
@@ -77,13 +83,17 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
         formattedUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${formattedUrl}`;
       }
       
-      console.log("Playing frequency with URL:", formattedUrl);
+      console.log("FrequencyPlayer: Playing frequency with URL:", formattedUrl);
       
       playAudio({
         title: title || `${frequency ? `${frequency}Hz` : 'Sacred'} Frequency`,
         artist: chakra ? `${chakra} Chakra` : "Sacred Shifter",
         source: formattedUrl
       });
+      
+      // Show visualizer automatically when playing
+      setShowVisualizer(true);
+      setAudioInitialized(true);
     }
   };
   
@@ -104,6 +114,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
                       chakra?.toLowerCase() === "throat" ? "blue" : 
                       chakra?.toLowerCase() === "crown" ? "rainbow" : 
                       "purple"}
+            pauseWhenStopped={true}
           />
         </div>
       )}

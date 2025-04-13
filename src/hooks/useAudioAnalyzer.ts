@@ -18,6 +18,7 @@ const useAudioAnalyzer = (
     // Only create audio context if it doesn't exist yet
     if (!audioContext) {
       try {
+        console.log("Creating new AudioContext");
         const context = new (window.AudioContext || (window as any).webkitAudioContext)();
         setAudioContext(context);
         
@@ -42,16 +43,23 @@ const useAudioAnalyzer = (
         audioContext && 
         analyser && 
         audioRef.current && 
-        !sourceConnected.current && 
-        !connectionAttemptedRef.current
+        !sourceConnected.current
       ) {
-        // Mark that we've attempted a connection to prevent multiple attempts
-        connectionAttemptedRef.current = true;
+        console.log("Audio element available for connection:", audioRef.current);
         
         try {
-          console.log("Attempting to connect audio to analyzer");
-          // Create and connect a source node
-          if (!sourceNodeRef.current && audioRef.current) {
+          // IMPORTANT: Check if the audio context is in suspended state and resume it
+          if (audioContext.state === 'suspended') {
+            audioContext.resume().then(() => {
+              console.log("AudioContext resumed successfully");
+            }).catch(err => {
+              console.error("Failed to resume AudioContext:", err);
+            });
+          }
+          
+          // Create a source node ONLY if we haven't already
+          if (!sourceNodeRef.current) {
+            console.log("Creating new MediaElementAudioSourceNode");
             sourceNodeRef.current = audioContext.createMediaElementSource(audioRef.current);
             sourceNodeRef.current.connect(analyser);
             analyser.connect(audioContext.destination);
@@ -59,16 +67,23 @@ const useAudioAnalyzer = (
             console.log("Successfully connected audio source to analyzer");
           }
         } catch (error) {
-          console.log("Audio connection already exists or failed:", error);
-          // If an error occurs, it's likely already connected, so we'll mark it as connected
+          console.log("Audio connection error (might already be connected):", error);
+          // Most likely the audio element is already connected to another audio context
+          // Mark as connected to prevent further attempts
           sourceConnected.current = true;
         }
+      } else {
+        console.log("Cannot connect audio yet:", {
+          hasContext: !!audioContext,
+          hasAnalyser: !!analyser,
+          hasAudioRef: !!audioRef.current,
+          alreadyConnected: sourceConnected.current
+        });
       }
     };
     
-    // Only try to connect if all required pieces are available
+    // Try connecting immediately if we have everything we need
     if (audioRef.current && audioContext && analyser && !sourceConnected.current) {
-      // Use a shorter delay for connection attempt
       connectionTimeoutRef.current = window.setTimeout(connectAudio, 100);
     }
     
@@ -76,15 +91,15 @@ const useAudioAnalyzer = (
       // Clean up timeout on unmount
       if (connectionTimeoutRef.current) {
         clearTimeout(connectionTimeoutRef.current);
-        connectionTimeoutRef.current = null;
       }
     };
   }, [audioRef.current, audioContext, analyser]);
   
-  // Ensure the audio context is resumed when needed
+  // Ensure the audio context is resumed when needed - especially on user interaction
   useEffect(() => {
     if (audioContext && audioContext.state === 'suspended') {
       const resumeAudioContext = () => {
+        console.log("Attempting to resume AudioContext after user interaction");
         audioContext.resume().then(() => {
           console.log('AudioContext resumed successfully');
         }).catch(err => {
