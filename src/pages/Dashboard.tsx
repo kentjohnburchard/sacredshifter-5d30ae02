@@ -18,12 +18,8 @@ const Dashboard: React.FC = () => {
       cleanupUserPreferencesData(user.id);
     }
     
-    // Track dashboard visits
-    setDashboardVisits((prev: number) => {
-      // Need to ensure we're treating prev as a number
-      const currentVisits = typeof prev === 'number' ? prev : 0;
-      return currentVisits + 1;
-    });
+    // Track dashboard visits - Fix TS error by using a non-function value
+    setDashboardVisits(typeof dashboardVisits === 'number' ? dashboardVisits + 1 : 1);
     
     // Show origin flow if this is one of the first three visits
     if ((typeof dashboardVisits === 'number' && dashboardVisits < 3)) {

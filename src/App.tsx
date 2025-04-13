@@ -40,12 +40,14 @@ import Journeys from '@/pages/Journeys';
 import PrimeHistory from '@/pages/PrimeHistory';
 import { Toaster } from 'sonner';
 import OriginFlow from '@/components/sacred-geometry/OriginFlow';
+import ThemeEnhancer from '@/components/ThemeEnhancer';
 
 function App() {
   return (
     <EasterEggProvider>
       <Toaster />
       <OriginFlow />
+      <ThemeEnhancer />
       <React.StrictMode>
         <Routes>
           <Route path="/" element={<Index />} />

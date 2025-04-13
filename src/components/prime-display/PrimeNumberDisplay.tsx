@@ -1,177 +1,201 @@
-
 import React, { useState, useEffect } from 'react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { toast } from 'sonner';
-import { Clock, Save, Eye, EyeOff, Maximize2, Minimize2 } from 'lucide-react';
+import { calculatePrimeFactors } from '@/utils/primeCalculations';
+import { PrimeHistoryEntry } from '@/types/primeTypes';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Sparkles, History, RefreshCw } from 'lucide-react';
+import { useTheme } from '@/context/ThemeContext';
 
-interface PrimeHistoryEntry {
-  id: string;
-  timestamp: string;
-  primes: number[];
-  journeyTitle?: string;
-}
+const PrimeNumberDisplay: React.FC = () => {
+  const [inputValue, setInputValue] = useState<string>('');
+  const [number, setNumber] = useState<number | null>(null);
+  const [factors, setFactors] = useState<number[]>([]);
+  const [isPrime, setIsPrime] = useState<boolean | null>(null);
+  const [isCalculating, setIsCalculating] = useState<boolean>(false);
+  const [primeHistory, setPrimeHistory] = useLocalStorage<PrimeHistoryEntry[]>("prime-history", []);
+  const { liftTheVeil } = useTheme();
 
-interface PrimeNumberDisplayProps {
-  primes: number[];
-  sessionId?: string;
-  journeyTitle?: string;
-  expanded?: boolean;
-  onToggleExpand?: () => void;
-}
+  useEffect(() => {
+    if (number !== null) {
+      setIsCalculating(true);
+      
+      // Simulate calculation time for better UX
+      const timer = setTimeout(() => {
+        const result = calculatePrimeFactors(number);
+        setFactors(result);
+        setIsPrime(result.length === 1 && result[0] === number);
+        setIsCalculating(false);
+        
+        // Add to history
+        const newEntry: PrimeHistoryEntry = {
+          number,
+          isPrime: result.length === 1 && result[0] === number,
+          factors: result,
+          timestamp: new Date().toISOString()
+        };
+        
+        // Update history with direct value instead of function
+        const updatedHistory = [...primeHistory, newEntry];
+        setPrimeHistory(updatedHistory);
+        
+      }, 600);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [number]);
 
-const PrimeNumberDisplay: React.FC<PrimeNumberDisplayProps> = ({ 
-  primes, 
-  sessionId,
-  journeyTitle,
-  expanded = false,
-  onToggleExpand 
-}) => {
-  const [visible, setVisible] = useState(true);
-  const [primeHistory, setPrimeHistory] = useLocalStorage<PrimeHistoryEntry[]>('sacred-prime-history', []);
-  
-  const saveToHistory = () => {
-    const newEntry: PrimeHistoryEntry = {
-      id: sessionId || `prime-${Date.now()}`,
-      timestamp: new Date().toISOString(),
-      primes: [...primes],
-      journeyTitle
-    };
-    
-    // Add to history without duplicates
-    setPrimeHistory((prev: PrimeHistoryEntry[]) => {
-      // Ensure prev is an array
-      const currentHistory = Array.isArray(prev) ? prev : [];
-      
-      // Check if we already have this exact sequence saved recently
-      const isDuplicate = currentHistory.some(entry => 
-        JSON.stringify(entry.primes) === JSON.stringify(primes) && 
-        Date.now() - new Date(entry.timestamp).getTime() < 60000 // Within last minute
-      );
-      
-      if (isDuplicate) {
-        toast.info("This prime sequence is already saved in your recent history");
-        return currentHistory;
-      }
-      
-      // Keep history at a reasonable size
-      const maxHistory = 50;
-      const updatedHistory = [newEntry, ...currentHistory];
-      if (updatedHistory.length > maxHistory) {
-        return updatedHistory.slice(0, maxHistory);
-      }
-      return updatedHistory;
-    });
-    
-    toast.success("Prime number sequence saved to your history");
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const parsedValue = parseInt(inputValue);
+    if (!isNaN(parsedValue) && parsedValue > 0) {
+      setNumber(parsedValue);
+    }
   };
 
-  if (!visible || primes.length === 0) return (
-    <Button 
-      variant="outline" 
-      size="sm" 
-      className="fixed bottom-4 right-4 z-50 opacity-50 hover:opacity-100 bg-black/30 backdrop-blur-sm"
-      onClick={() => setVisible(true)}
-    >
-      <Eye className="w-4 h-4 mr-2" />
-      Show Primes
-    </Button>
-  );
+  const handleClearHistory = () => {
+    setPrimeHistory([]);
+  };
 
-  const positionClass = expanded 
-    ? "fixed inset-0 z-50 flex flex-col justify-center items-center bg-black/80" 
-    : "fixed bottom-4 right-4 z-50";
-    
-  const contentClass = expanded
-    ? "p-6 bg-black/70 backdrop-blur-lg rounded-lg border border-purple-500/50 shadow-lg max-w-md w-full"
-    : "p-3 bg-black/40 backdrop-blur-md rounded-lg border border-purple-500/30 shadow-lg max-w-xs";
+  const handleRandomNumber = () => {
+    // Generate a random number between 1 and 10000
+    const randomNum = Math.floor(Math.random() * 10000) + 1;
+    setInputValue(randomNum.toString());
+    setNumber(randomNum);
+  };
 
   return (
-    <motion.div 
-      className={positionClass}
-      initial={{ y: 20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: 20, opacity: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <div className={contentClass}>
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="text-sm font-medium flex items-center text-white">
-            <Clock className="w-3 h-3 mr-1" /> 
-            Active Prime Sequence
-          </h3>
-          <div className="flex gap-1">
-            {onToggleExpand && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 text-gray-400 hover:text-white"
-                onClick={onToggleExpand}
-                title={expanded ? "Minimize" : "Maximize"}
+    <div className="space-y-6">
+      <Card className={`${liftTheVeil ? 'border-pink-300 shadow-pink-500/10' : 'border-purple-300 shadow-purple-500/10'} shadow-lg`}>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span>Prime Number Explorer</span>
+            <Sparkles className={`h-5 w-5 ${liftTheVeil ? 'text-pink-500' : 'text-purple-500'}`} />
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex space-x-2">
+              <Input
+                type="number"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder="Enter a number"
+                className="flex-1"
+                min="1"
+                required
+              />
+              <Button 
+                type="submit" 
+                className={`${liftTheVeil ? 'bg-pink-600 hover:bg-pink-700' : 'bg-purple-600 hover:bg-purple-700'}`}
               >
-                {expanded ? <Minimize2 className="w-3 h-3" /> : <Maximize2 className="w-3 h-3" />}
+                Check
               </Button>
-            )}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 text-gray-400 hover:text-white"
-              onClick={saveToHistory}
-              title="Save to history"
-            >
-              <Save className="w-3 h-3" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 text-gray-400 hover:text-white"
-              onClick={() => setVisible(false)}
-              title="Hide display"
-            >
-              <EyeOff className="w-3 h-3" />
-            </Button>
-          </div>
-        </div>
-        
-        <div className="flex flex-wrap gap-1">
-          {primes.map((prime, index) => (
-            <motion.div
-              key={`${prime}-${index}`}
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ duration: 0.2, delay: index * 0.05 }}
-            >
-              <Badge 
+              <Button 
+                type="button" 
                 variant="outline" 
-                className="bg-purple-900/50 border-purple-400/30 text-purple-100"
+                onClick={handleRandomNumber}
+                className={`${liftTheVeil ? 'text-pink-600 border-pink-300' : 'text-purple-600 border-purple-300'}`}
               >
-                {prime}
-              </Badge>
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </div>
+          </form>
+
+          {isCalculating && (
+            <div className="mt-4 flex justify-center">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              >
+                <Sparkles className={`h-8 w-8 ${liftTheVeil ? 'text-pink-500' : 'text-purple-500'}`} />
+              </motion.div>
+            </div>
+          )}
+
+          {!isCalculating && number !== null && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mt-4 space-y-2"
+            >
+              <div className="flex items-center space-x-2">
+                <span className="font-medium">Result:</span>
+                {isPrime ? (
+                  <Badge className={`${liftTheVeil ? 'bg-pink-500' : 'bg-purple-500'}`}>Prime</Badge>
+                ) : (
+                  <Badge variant="outline">Composite</Badge>
+                )}
+              </div>
+              
+              <div>
+                <span className="font-medium">Prime Factors:</span>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {factors.map((factor, index) => (
+                    <Badge 
+                      key={index} 
+                      variant="outline" 
+                      className={`${liftTheVeil ? 'border-pink-300 text-pink-700' : 'border-purple-300 text-purple-700'}`}
+                    >
+                      {factor}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
             </motion.div>
-          ))}
-        </div>
-        {journeyTitle && (
-          <p className="text-xs text-gray-300 mt-1 truncate">
-            Journey: {journeyTitle}
-          </p>
-        )}
-      </div>
-      
-      {expanded && (
-        <div className="mt-4">
-          <Button 
-            variant="outline" 
-            onClick={onToggleExpand}
-            className="bg-purple-900/30 border-purple-400/30 text-purple-100 hover:bg-purple-900/50"
-          >
-            Return to Player
-          </Button>
-        </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {primeHistory.length > 0 && (
+        <Card className="border-gray-300">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="flex items-center">
+              <History className="h-5 w-5 mr-2" />
+              <span>History</span>
+            </CardTitle>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleClearHistory}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              Clear
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2 max-h-60 overflow-y-auto">
+              {primeHistory.slice().reverse().map((entry, index) => (
+                <div 
+                  key={index} 
+                  className="flex items-center justify-between p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                  onClick={() => {
+                    setInputValue(entry.number.toString());
+                    setNumber(entry.number);
+                  }}
+                >
+                  <div className="flex items-center space-x-2">
+                    <span>{entry.number}</span>
+                    {entry.isPrime ? (
+                      <Badge size="sm" className={`${liftTheVeil ? 'bg-pink-500' : 'bg-purple-500'}`}>Prime</Badge>
+                    ) : (
+                      <Badge size="sm" variant="outline">Composite</Badge>
+                    )}
+                  </div>
+                  <span className="text-xs text-gray-500">
+                    {new Date(entry.timestamp).toLocaleTimeString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
-    </motion.div>
+    </div>
   );
 };
 

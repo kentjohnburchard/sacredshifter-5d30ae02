@@ -4,13 +4,24 @@ import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTheme } from "@/context/ThemeContext";
+import AboutSacredShifter from "@/components/AboutSacredShifter";
+import { Switch } from "@/components/ui/switch";
+import { Sparkles } from "lucide-react";
 
 const AboutFounder = () => {
-  const { liftTheVeil } = useTheme();
+  const { liftTheVeil, setLiftTheVeil } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
+  const [showToggle, setShowToggle] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
+    
+    // Show toggle after a short delay
+    const timer = setTimeout(() => {
+      setShowToggle(true);
+    }, 1500);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   // Content variants based on consciousness mode
@@ -42,9 +53,37 @@ const AboutFounder = () => {
           transition={{ duration: 0.8 }}
           className="space-y-8"
         >
-          <h1 className={`text-3xl font-bold text-center ${liftTheVeil ? 'bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 text-transparent bg-clip-text' : 'text-purple-900 dark:text-purple-100'}`}>
-            {content.title}
-          </h1>
+          <div className="flex items-center justify-between">
+            <h1 className={`text-3xl font-bold ${liftTheVeil ? 'bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 text-transparent bg-clip-text' : 'text-purple-900 dark:text-purple-100'}`}>
+              {content.title}
+            </h1>
+            
+            {showToggle && (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex items-center gap-2 rounded-full px-3 py-1.5 
+                  bg-opacity-20 backdrop-blur-sm border 
+                  shadow-md"
+                style={{
+                  backgroundColor: liftTheVeil ? 'rgba(236,72,153,0.2)' : 'rgba(147,51,234,0.2)',
+                  borderColor: liftTheVeil ? 'rgba(236,72,153,0.3)' : 'rgba(147,51,234,0.3)',
+                }}
+              >
+                <span className={`text-sm font-medium ${liftTheVeil ? 'text-pink-200' : 'text-purple-200'}`}>
+                  Lift the Veil
+                </span>
+                <Switch 
+                  checked={liftTheVeil}
+                  onCheckedChange={() => setLiftTheVeil(!liftTheVeil)}
+                  className={liftTheVeil ? 'data-[state=checked]:bg-pink-600' : 'data-[state=checked]:bg-purple-600'}
+                />
+                <Sparkles 
+                  className={`h-4 w-4 ${liftTheVeil ? 'text-pink-300' : 'text-purple-300'}`} 
+                />
+              </motion.div>
+            )}
+          </div>
           
           <div className="flex flex-col md:flex-row gap-8 items-center">
             <div className="w-full md:w-1/3">
@@ -52,7 +91,7 @@ const AboutFounder = () => {
                 <img 
                   src="/lovable-uploads/09d5c002-7d5b-48cd-b5f5-77dc788b1781.png" 
                   alt="Kent Burchard - Founder" 
-                  className="w-full h-auto"
+                  className={`w-full h-auto transition-all duration-1000 ${liftTheVeil ? 'filter saturate-110 brightness-105' : ''}`}
                 />
                 <CardContent className="p-4">
                   <h3 className="text-lg font-medium">Kent Burchard</h3>
@@ -96,6 +135,15 @@ const AboutFounder = () => {
                 </Card>
               </motion.div>
             </div>
+          </div>
+
+          {/* About Sacred Shifter Component */}
+          <div className="mt-16">
+            <h2 className={`text-2xl font-bold mb-8 ${liftTheVeil ? 'bg-gradient-to-r from-pink-400 to-purple-500 text-transparent bg-clip-text' : 'text-purple-900 dark:text-purple-100'}`}>
+              About Sacred Shifter
+            </h2>
+            
+            <AboutSacredShifter />
           </div>
         </motion.div>
       </div>
