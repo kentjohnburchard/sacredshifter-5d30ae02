@@ -22,6 +22,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import GlobalWatermark from '@/components/GlobalWatermark';
 
 const geometryComponents = {
   'Flower of Life': <SacredFlowerOfLife />,
@@ -38,6 +39,7 @@ const SacredShifterLanding = () => {
   const { liftTheVeil } = useTheme();
   const { setAudioSource } = useAudioPlayer();
   const [activeTab, setActiveTab] = useState("sound");
+  const [showGeometrySelector, setShowGeometrySelector] = useState(false);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -63,14 +65,14 @@ const SacredShifterLanding = () => {
       {
         title: "Sound Healing",
         description: "Frequency-based sound healing journeys",
-        icon: <Music className="h-8 w-8" />,
+        icon: <Music className="h-7 w-7" />,
         color: "from-purple-900 to-indigo-800",
         path: "/journey-templates",
       },
       {
         title: "Meditation",
         description: "Guided meditations with sacred frequencies",
-        icon: <Moon className="h-8 w-8" />,
+        icon: <Moon className="h-7 w-7" />,
         color: "from-blue-900 to-indigo-800",
         path: "/meditations",
       },
@@ -79,14 +81,14 @@ const SacredShifterLanding = () => {
       {
         title: "Heart Center",
         description: "Open and balance your heart chakra",
-        icon: <Heart className="h-8 w-8" />,
+        icon: <Heart className="h-7 w-7" />,
         color: "from-red-900 to-pink-800",
         path: "/heart-center",
       },
       {
         title: "Manifestation",
         description: "Focus your energy to manifest intentions",
-        icon: <Wand2 className="h-8 w-8" />,
+        icon: <Wand2 className="h-7 w-7" />,
         color: "from-amber-900 to-yellow-800",
         path: "/intentions",
       },
@@ -95,14 +97,14 @@ const SacredShifterLanding = () => {
       {
         title: "Astrology",
         description: "Discover your cosmic blueprint",
-        icon: <Star className="h-8 w-8" />,
+        icon: <Star className="h-7 w-7" />,
         color: "from-cyan-900 to-blue-800",
         path: "/astrology",
       },
       {
         title: "Hermetic Wisdom",
         description: "Ancient wisdom for modern consciousness",
-        icon: <LibraryBig className="h-8 w-8" />,
+        icon: <LibraryBig className="h-7 w-7" />,
         color: "from-violet-900 to-purple-800",
         path: "/hermetic-wisdom",
       },
@@ -111,19 +113,27 @@ const SacredShifterLanding = () => {
       {
         title: "Timeline",
         description: "Track your consciousness journey",
-        icon: <Sparkles className="h-8 w-8" />,
+        icon: <Sparkles className="h-7 w-7" />,
         color: "from-green-900 to-teal-800",
         path: "/timeline",
       },
       {
         title: "Sacred Blueprint",
         description: "Discover your unique energetic pattern",
-        icon: <BookOpen className="h-8 w-8" />,
+        icon: <BookOpen className="h-7 w-7" />,
         color: "from-indigo-900 to-blue-800",
         path: "/sacred-blueprint",
       },
     ],
   };
+
+  // All features combined for tile display
+  const allFeatures = [
+    ...categoryFeatures.sound,
+    ...categoryFeatures.experiences,
+    ...categoryFeatures.frequencies,
+    ...categoryFeatures.journey
+  ];
 
   // Navigation tabs
   const navigationTabs = [
@@ -132,6 +142,11 @@ const SacredShifterLanding = () => {
     { label: "Frequencies", icon: <BookOpen className="h-5 w-5" />, value: "frequencies" },
     { label: "My Journey", icon: <Star className="h-5 w-5" />, value: "journey" },
   ];
+
+  // Toggle geometry selector
+  const toggleGeometrySelector = () => {
+    setShowGeometrySelector(!showGeometrySelector);
+  };
 
   return (
     <div className={cn(
@@ -144,10 +159,11 @@ const SacredShifterLanding = () => {
 
       <Sidebar />
       <Watermark />
+      <GlobalWatermark />
 
       <div className="ml-0 sm:ml-20">
-        {/* Fixed position sacred geometry visualizer that floats above everything with higher z-index */}
-        <div className="fixed inset-0 z-10 pointer-events-none flex items-center justify-center">
+        {/* Fixed position sacred geometry visualizer positioned lower on the page */}
+        <div className="fixed inset-0 z-10 pointer-events-none flex items-center justify-center mt-40">
           <div className="w-full h-full flex items-center justify-center">
             <div className="w-[140vh] h-[140vh] max-w-none">
               <SacredGeometryVisualizer 
@@ -160,16 +176,16 @@ const SacredShifterLanding = () => {
           </div>
         </div>
 
-        <div className="container mx-auto px-4 pt-16 md:pt-24 relative z-20">
+        <div className="container mx-auto px-4 pt-24 md:pt-40 relative z-20">
           {/* Hero section with Sacred Shifter title and tagline */}
-          <div className="text-center mb-10 md:mb-16 max-w-4xl mx-auto">
+          <div className="text-center mb-16 md:mb-24 max-w-4xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6"
+              className="mb-8"
             >
-              <h1 className="text-5xl sm:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-300 to-indigo-400 mb-4">
-                Sacred Shifter
+              <h1 className="text-5xl sm:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-300 to-indigo-400 mb-6">
+                Welcome to Sacred Shifter
               </h1>
               <p className="text-lg md:text-xl text-purple-100 max-w-3xl mx-auto">
                 Explore frequency-based healing, sacred geometry, and consciousness expansion in 
@@ -194,43 +210,39 @@ const SacredShifterLanding = () => {
               ))}
             </TabsList>
             
-            {/* Dynamic Feature Cards Sections based on selected tab */}
-            {Object.keys(categoryFeatures).map(category => (
-              <TabsContent key={category} value={category} className="mt-0">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16 animate-fade-in">
-                  {categoryFeatures[category as keyof typeof categoryFeatures].map((card) => (
-                    <Link to={card.path} key={card.title}>
-                      <motion.div
-                        whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
-                        className={`bg-gradient-to-br ${card.color} rounded-2xl p-6 text-white border border-white/10 
-                                  backdrop-blur-md shadow-lg hover:shadow-xl transition-all h-full flex flex-col`}
-                      >
-                        <div className="flex flex-col h-full">
-                          <div className="flex items-center mb-4">
-                            <div className="p-3 rounded-full bg-black/20 backdrop-blur-sm mr-4">
-                              {card.icon}
-                            </div>
-                            <h3 className="text-xl font-semibold">{card.title}</h3>
-                          </div>
-                          
-                          <p className="text-sm text-gray-200/90 mb-4">{card.description}</p>
-                          
-                          <div className="mt-auto flex justify-end">
-                            <span className="text-white/80 flex items-center text-sm font-medium">
-                              Explore <span aria-hidden="true" className="ml-1">→</span>
-                            </span>
-                          </div>
+            {/* Feature Tiles Grid - All features shown */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-16 animate-fade-in">
+              {allFeatures.map((card) => (
+                <Link to={card.path} key={card.title} className="block">
+                  <motion.div
+                    whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
+                    className={`bg-gradient-to-br ${card.color} rounded-lg p-4 text-white border border-white/10 
+                              backdrop-blur-md shadow-lg hover:shadow-xl transition-all h-full flex flex-col`}
+                  >
+                    <div className="flex flex-col h-full">
+                      <div className="flex items-center mb-2">
+                        <div className="p-2 rounded-full bg-black/20 backdrop-blur-sm mr-3">
+                          {card.icon}
                         </div>
-                      </motion.div>
-                    </Link>
-                  ))}
-                </div>
-              </TabsContent>
-            ))}
+                        <h3 className="text-lg font-semibold">{card.title}</h3>
+                      </div>
+                      
+                      <p className="text-xs text-gray-200/90 mt-1">{card.description}</p>
+                      
+                      <div className="mt-auto pt-2 flex justify-end">
+                        <span className="text-white/80 flex items-center text-xs font-medium">
+                          Explore <span aria-hidden="true" className="ml-1">→</span>
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
+                </Link>
+              ))}
+            </div>
           </Tabs>
           
           {/* About Sacred Shifter section */}
-          <div className="mb-16 text-center">
+          <div className="mb-24 text-center">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -257,27 +269,36 @@ const SacredShifterLanding = () => {
             </motion.div>
           </div>
 
-          {/* Control panel for the geometric shape selection */}
-          <div className="relative z-20 max-w-md mx-auto mb-16 bg-black/70 backdrop-blur-md rounded-lg p-4 border border-purple-500/30">
-            <h2 className="text-xl font-semibold text-center mb-4">Sacred Geometries</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {Object.entries(shapeMapping).map(([name, value]) => (
-                <button
-                  key={name}
-                  onClick={() => setSelectedShape(value)}
-                  className={cn(
-                    "text-sm py-2 px-3 rounded-md transition-colors",
-                    selectedShape === value 
-                      ? "bg-purple-600 text-white" 
-                      : "bg-purple-900/40 text-purple-100 hover:bg-purple-800/60"
-                  )}
-                >
-                  {name}
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* Spacer to push content above the floating geometry selector */}
+          <div className="h-24"></div>
         </div>
+      </div>
+
+      {/* Floating Sacred Geometry Selector */}
+      <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 max-w-sm w-full">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-black/80 backdrop-blur-lg rounded-xl p-4 border border-purple-500/30 shadow-lg shadow-purple-900/20"
+        >
+          <h2 className="text-lg font-semibold text-center mb-3">Sacred Geometries</h2>
+          <div className="grid grid-cols-4 gap-2">
+            {Object.entries(shapeMapping).map(([name, value]) => (
+              <button
+                key={name}
+                onClick={() => setSelectedShape(value)}
+                className={cn(
+                  "text-xs py-2 px-2 rounded-md transition-colors text-center",
+                  selectedShape === value 
+                    ? "bg-purple-600 text-white" 
+                    : "bg-purple-900/40 text-purple-100 hover:bg-purple-800/60"
+                )}
+              >
+                {name}
+              </button>
+            ))}
+          </div>
+        </motion.div>
       </div>
 
       <ConsciousnessToggle />
