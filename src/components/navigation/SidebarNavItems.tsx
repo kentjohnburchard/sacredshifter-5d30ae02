@@ -1,4 +1,3 @@
-
 import React from 'react';
 import NavLink from './NavLink';
 import { useLocation } from 'react-router-dom';
@@ -128,19 +127,15 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
                   ? liftTheVeil
                     ? "text-pink-300"
                     : "text-purple-300"
-                  : "text-gray-200"
+                  : "text-white"
               )}
             />
             <span 
               className={cn(
-                "transition-all duration-300 ease-in-out text-white",
+                "transition-all duration-300 ease-in-out text-white font-medium",
                 isCollapsed 
                   ? "opacity-0 w-0 overflow-hidden" 
-                  : "opacity-100 w-auto",
-                isActive
-                  ? "font-medium"
-                  : "",
-                "text-sm"
+                  : "opacity-100 w-auto"
               )}
             >
               {item.label}
