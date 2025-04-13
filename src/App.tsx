@@ -3,7 +3,7 @@ import React from 'react';
 import { Routes, Route } from "react-router-dom";
 import { EasterEggProvider } from "@/context/EasterEggContext";
 import { ThemeProvider } from "@/context/ThemeContext";
-import Home from '@/pages/Home';
+import SacredShifterHome from '@/pages/SacredShifterHome';
 import Dashboard from '@/pages/Dashboard';
 import Meditations from '@/pages/Meditations';
 import HermeticPrinciples from '@/pages/HermeticPrinciples';
@@ -49,8 +49,8 @@ function App() {
         <ThemeEnhancer />
         <React.StrictMode>
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/home" element={<Home />} />
+            <Route path="/" element={<SacredShifterHome />} />
+            <Route path="/home" element={<SacredShifterHome />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/meditations" element={<Meditations />} />
             <Route path="/intentions" element={<Intentions />} />
