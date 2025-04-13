@@ -103,12 +103,12 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
             isMobile={false}
             onClick={onLinkClick}
             className={cn(
-              "flex items-center py-2 px-3 text-sm rounded-md transition-colors",
+              "flex items-center py-2 px-3 text-sm rounded-md transition-colors group",
               isActive
                 ? liftTheVeil 
                   ? "bg-pink-700/50 text-white" 
                   : "bg-purple-700/50 text-white"
-                : "text-white hover:bg-opacity-80", // Changed text color to white for better visibility
+                : "text-white hover:bg-opacity-80", 
               liftTheVeil && !isActive && "hover:bg-pink-800/50 hover:text-white",
               !liftTheVeil && !isActive && "hover:bg-purple-800/50 hover:text-white"
             )}
@@ -123,7 +123,16 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
                   : "text-gray-400"
               )}
             />
-            {!isCollapsed && <span>{item.label}</span>}
+            <span 
+              className={cn(
+                "transition-all duration-300 ease-in-out",
+                isCollapsed 
+                  ? "opacity-0 w-0 overflow-hidden" 
+                  : "opacity-100 w-auto"
+              )}
+            >
+              {item.label}
+            </span>
             {isCollapsed && (
               <ChevronRight className="h-4 w-4 ml-auto opacity-0 group-hover:opacity-100" />
             )}
@@ -135,3 +144,4 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
 };
 
 export default SidebarNavItems;
+
