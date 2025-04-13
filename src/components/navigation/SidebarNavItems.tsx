@@ -125,7 +125,7 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
             />
             <span 
               className={cn(
-                "transition-all duration-300 ease-in-out text-white", // Added text-white
+                "transition-all duration-300 ease-in-out text-white", // Explicitly set text-white
                 isCollapsed 
                   ? "opacity-0 w-0 overflow-hidden" 
                   : "opacity-100 w-auto",
