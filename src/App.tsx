@@ -4,6 +4,7 @@ import { Routes, Route } from "react-router-dom";
 import { EasterEggProvider } from "@/context/EasterEggContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import Home from '@/pages/Home';
+import Dashboard from '@/pages/Dashboard';
 import Meditations from '@/pages/Meditations';
 import HermeticPrinciples from '@/pages/HermeticPrinciples';
 import FrequencyShifting from '@/pages/FrequencyShifting';
@@ -34,6 +35,7 @@ import Contact from '@/pages/Contact';
 import PersonalVibeSettings from '@/pages/PersonalVibeSettings';
 import Journeys from '@/pages/Journeys';
 import PrimeHistory from '@/pages/PrimeHistory';
+import Intentions from '@/pages/Intentions';
 import { Toaster } from 'sonner';
 import OriginFlow from '@/components/sacred-geometry/OriginFlow';
 import ThemeEnhancer from '@/components/ThemeEnhancer';
@@ -47,9 +49,11 @@ function App() {
         <ThemeEnhancer />
         <React.StrictMode>
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/home" element={<Home />} />
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/home" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/meditations" element={<Meditations />} />
+            <Route path="/intentions" element={<Intentions />} />
             <Route path="/hermetic-principles" element={<HermeticPrinciples />} />
             <Route path="/hermetic-wisdom" element={<HermeticWisdom />} />
             <Route path="/frequency-shifting" element={<FrequencyShifting />} />
