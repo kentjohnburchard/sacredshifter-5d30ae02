@@ -14,7 +14,7 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
   density = 'medium', 
   opacity = 0.3, 
   isStatic = false,
-  starCount: propStarCount = 1500,
+  starCount = 1500,
   speed = 0.5
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -57,15 +57,15 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
     containerRef.current.innerHTML = '';
     containerRef.current.appendChild(renderer.domElement);
     
-    // Use the prop value directly instead of a function
-    const calculatedStarCount = propStarCount;
+    // Calculate star count
+    const calculatedStarCount = starCount;
     
-    // Create stars
+    // Create stars geometry first
     const starsGeometry = new THREE.BufferGeometry();
-    
     const positions = new Float32Array(calculatedStarCount * 3);
     const sizes = new Float32Array(calculatedStarCount);
     
+    // Fill with data
     for (let i = 0; i < calculatedStarCount; i++) {
       const i3 = i * 3;
       positions[i3] = (Math.random() - 0.5) * 100;
@@ -79,10 +79,13 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
     starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     starsGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
     
-    // Create star material with custom shaders for better looking stars
+    // Load texture first 
+    const pointTexture = new THREE.TextureLoader().load('/lovable-uploads/d26329c2-349c-4a0e-af05-875c3a5f2754.png');
+    
+    // Create star material with custom shaders
     const starsMaterial = new THREE.ShaderMaterial({
       uniforms: {
-        pointTexture: { value: new THREE.TextureLoader().load('/lovable-uploads/d26329c2-349c-4a0e-af05-875c3a5f2754.png') },
+        pointTexture: { value: pointTexture },
         opacity: { value: opacity }
       },
       vertexShader: `
@@ -109,6 +112,7 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
       transparent: true
     });
     
+    // Create stars points
     const stars = new THREE.Points(starsGeometry, starsMaterial);
     scene.add(stars);
     starsRef.current = stars;
@@ -226,7 +230,7 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
         rendererRef.current.dispose();
       }
     };
-  }, [density, opacity, isStatic, propStarCount, speed]);
+  }, [density, opacity, isStatic, starCount, speed]);
 
   return <div ref={containerRef} className="absolute inset-0 z-0" />;
 };
