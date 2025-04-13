@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route } from "react-router-dom";
 import { EasterEggProvider } from "@/context/EasterEggContext";
@@ -42,7 +41,7 @@ import PrimeHistory from '@/pages/PrimeHistory';
 import { Toaster } from 'sonner';
 import OriginFlow from '@/components/sacred-geometry/OriginFlow';
 import ThemeEnhancer from '@/components/ThemeEnhancer';
-import AboutSacredShifter from '@/components/AboutSacredShifter';
+import AboutSacredShifter from '@/pages/AboutSacredShifter';
 
 function App() {
   return (
@@ -54,7 +53,7 @@ function App() {
         <React.StrictMode>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/home" element={<CosmicDashboard />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/cosmic-dashboard" element={<CosmicDashboard />} />
             <Route path="/welcome" element={<Welcome />} />
