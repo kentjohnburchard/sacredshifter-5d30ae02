@@ -95,7 +95,7 @@ const AboutFounder = () => {
             <div className="w-full md:w-1/3">
               <Card className={`overflow-hidden ${liftTheVeil ? 'border-purple-400 shadow-purple-300/20 shadow-lg' : ''}`}>
                 <img 
-                  src="/lovable-uploads/09d5c002-7d5b-48cd-b5f5-77dc788b1781.png" 
+                  src="/lovable-uploads/8c0eebe4-41d3-4f82-9604-4eb14e468a6b.png" 
                   alt="Kent Burchard - Founder" 
                   className={`w-full h-auto transition-all duration-1000 ${liftTheVeil ? 'filter saturate-110 brightness-105' : ''}`}
                 />
