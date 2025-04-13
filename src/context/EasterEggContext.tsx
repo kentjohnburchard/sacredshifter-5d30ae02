@@ -22,6 +22,17 @@ export const EasterEggProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // Toggle function that updates both contexts
   const toggleEasterEggMode = () => {
     setLiftTheVeil(!liftTheVeil);
+    // Log status for debugging
+    console.log(`Sacred prime mode ${!liftTheVeil ? 'activated' : 'deactivated'}`);
+    
+    // Show toast notification when done via direct DOM manipulation since we're in a context
+    if (window.document) {
+      // This is a simple way to trigger a notification without importing toast in context
+      const event = new CustomEvent('toggleEasterEgg', {
+        detail: { isEasterEggMode: !liftTheVeil }
+      });
+      window.dispatchEvent(event);
+    }
   };
 
   return (

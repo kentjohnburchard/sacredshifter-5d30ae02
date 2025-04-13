@@ -45,7 +45,8 @@ const JourneyPreStartModal: React.FC<JourneyPreStartModalProps> = ({
       // Notify user that the journey has started
       toast.success(`${template.title} journey started`, {
         icon: <Sparkles className="text-purple-500" />,
-        duration: 3000
+        duration: 3000,
+        description: "Fractal visualizer activated. Tune in to the sacred prime sequence patterns."
       });
       
       // Close the modal since we don't need it anymore

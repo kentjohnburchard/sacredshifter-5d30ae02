@@ -103,6 +103,22 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     setShowVisualizer(prev => !prev);
   };
   
+  // Determine color scheme based on chakra
+  const getColorScheme = () => {
+    if (!chakra) return 'purple';
+    
+    switch (chakra.toLowerCase()) {
+      case 'root': return 'red';
+      case 'sacral': return 'gold';
+      case 'solar plexus': return 'gold';
+      case 'heart': return 'green';
+      case 'throat': return 'blue';
+      case 'third eye': return 'blue';
+      case 'crown': return 'rainbow';
+      default: return 'purple';
+    }
+  };
+  
   return (
     <div className="relative z-50">
       {showVisualizer && isPlaying && audioContext && analyser && (
@@ -111,11 +127,10 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
             audioContext={audioContext} 
             analyser={analyser} 
             isVisible={true}
-            colorScheme={chakra?.toLowerCase() === "heart" ? "gold" : 
-                      chakra?.toLowerCase() === "throat" ? "blue" : 
-                      chakra?.toLowerCase() === "crown" ? "rainbow" : 
-                      "purple"}
+            colorScheme={getColorScheme()}
             pauseWhenStopped={true}
+            frequency={frequency}
+            chakra={chakra}
           />
         </div>
       )}
