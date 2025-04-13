@@ -29,6 +29,7 @@ const OriginFlow: React.FC<OriginFlowProps> = ({
   const [showBeam, setShowBeam] = useState(false);
   const [step, setStep] = useState(0);
   const [primes] = useState<number[]>([2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37]);
+  const [isCompleting, setIsCompleting] = useState(false);
 
   // Canvas setup and animation
   useEffect(() => {
@@ -157,6 +158,8 @@ const OriginFlow: React.FC<OriginFlowProps> = ({
   
   // Handle completion
   const handleComplete = () => {
+    // Mark that we're in the completion process
+    setIsCompleting(true);
     setShowBeam(true);
     
     // Mark as seen
@@ -165,10 +168,18 @@ const OriginFlow: React.FC<OriginFlowProps> = ({
     // Delay to allow animation to play
     setTimeout(() => {
       setOpen(false);
+      
       if (onComplete) {
         onComplete();
       }
-      navigate('/cosmic-dashboard', { replace: true });
+      
+      // Only navigate if not already on cosmic-dashboard
+      if (location.pathname !== '/cosmic-dashboard') {
+        navigate('/cosmic-dashboard', { replace: true });
+      }
+      
+      // Reset completing state
+      setIsCompleting(false);
     }, 2000);
   };
   
@@ -178,6 +189,7 @@ const OriginFlow: React.FC<OriginFlowProps> = ({
       setStep(step - 1);
     } else {
       setOpen(false);
+      // If we're closing but haven't completed, don't mark as seen
     }
   };
   
@@ -211,10 +223,15 @@ const OriginFlow: React.FC<OriginFlowProps> = ({
   
   // Handle open/close
   const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen && !hasSeenOriginFlow) {
-      // Don't allow closing if they haven't seen it before
+    // Prevent automatic closing if we're in the completion process
+    if (isCompleting) return;
+    
+    // If the user is trying to close AND they haven't seen it before AND it's forced
+    if (!isOpen && !hasSeenOriginFlow && forceShow) {
+      // Don't allow closing if they haven't seen it before and it's forced
       return;
     }
+    
     setOpen(isOpen);
   };
 

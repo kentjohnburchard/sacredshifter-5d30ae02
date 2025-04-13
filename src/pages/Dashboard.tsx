@@ -19,12 +19,14 @@ const Dashboard: React.FC = () => {
     }
     
     // Track dashboard visits
-    setDashboardVisits((prev: number) => {
-      return prev + 1;
+    setDashboardVisits((prev) => {
+      // Need to ensure we're treating prev as a number
+      const currentVisits = typeof prev === 'number' ? prev : 0;
+      return currentVisits + 1;
     });
     
     // Show origin flow if this is one of the first three visits
-    if (dashboardVisits < 3) {
+    if ((typeof dashboardVisits === 'number' && dashboardVisits < 3)) {
       const timer = setTimeout(() => {
         setShowOriginFlow(true);
       }, 1000);

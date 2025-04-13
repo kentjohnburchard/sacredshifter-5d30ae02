@@ -41,21 +41,24 @@ const PrimeNumberDisplay: React.FC<PrimeNumberDisplayProps> = ({
     };
     
     // Add to history without duplicates
-    setPrimeHistory((prev: PrimeHistoryEntry[]) => {
+    setPrimeHistory((prev) => {
+      // Ensure prev is an array
+      const currentHistory = Array.isArray(prev) ? prev : [];
+      
       // Check if we already have this exact sequence saved recently
-      const isDuplicate = prev.some(entry => 
+      const isDuplicate = currentHistory.some(entry => 
         JSON.stringify(entry.primes) === JSON.stringify(primes) && 
         Date.now() - new Date(entry.timestamp).getTime() < 60000 // Within last minute
       );
       
       if (isDuplicate) {
         toast.info("This prime sequence is already saved in your recent history");
-        return prev;
+        return currentHistory;
       }
       
       // Keep history at a reasonable size
       const maxHistory = 50;
-      const updatedHistory = [newEntry, ...prev];
+      const updatedHistory = [newEntry, ...currentHistory];
       if (updatedHistory.length > maxHistory) {
         return updatedHistory.slice(0, maxHistory);
       }

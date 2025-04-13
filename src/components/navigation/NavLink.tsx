@@ -23,12 +23,12 @@ const NavLink: React.FC<NavLinkProps> = ({
   // CRITICAL FIX: Use explicit/specific Tailwind classes instead of opacity utility
   // This ensures classes don't get purged during production build
   const mobileActiveClass = isActive 
-    ? "bg-[#9966FF]/20 text-white font-bold" 
-    : "text-white font-bold hover:bg-[#9966FF]/15"; 
+    ? "bg-[#9966FF]/20 !text-white font-bold" 
+    : "!text-white font-bold hover:bg-[#9966FF]/15"; 
     
   const desktopActiveClass = isActive 
-    ? "text-white font-bold" 
-    : "text-white font-bold"; 
+    ? "!text-white font-bold" 
+    : "!text-white font-bold"; 
     
   const baseClass = isMobile 
     ? `text-lg px-4 py-2 rounded-md ${mobileActiveClass}` 
@@ -39,9 +39,12 @@ const NavLink: React.FC<NavLinkProps> = ({
       to={to} 
       className={`${baseClass} ${className} !opacity-100`}
       onClick={onClick}
-      style={{ opacity: 1 }} // Explicit inline style as extra safety
+      style={{ 
+        opacity: 1,
+        color: "white" 
+      }} // Explicit inline style as extra safety
     >
-      <span className="text-white !opacity-100">
+      <span className="!text-white !opacity-100 font-bold" style={{ color: "white", opacity: 1 }}>
         {children}
       </span>
     </Link>

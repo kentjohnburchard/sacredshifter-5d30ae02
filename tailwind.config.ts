@@ -29,6 +29,11 @@ export default {
     '!visible',
     '!text-white',
     '!opacity-100',
+    'z-40',
+    'z-50',
+    'flex',
+    'hidden',
+    'sm:flex',
   ],
   prefix: "",
   theme: {

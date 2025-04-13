@@ -16,7 +16,6 @@ interface SidebarProps {
 const AUTO_COLLAPSE_DELAY = 4000; // 4 seconds before auto-collapse
 
 const Sidebar: React.FC<SidebarProps> = ({ className }) => {
-  // CRITICAL FIX: Initialize state from localStorage or default, not from window measurements
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false); // For hydration safety
@@ -28,6 +27,8 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
   }, []);
   
   useEffect(() => {
+    if (!isMounted) return;
+    
     const handleResize = () => {
       if (window.innerWidth < 640) {
         setIsCollapsed(true);
@@ -37,15 +38,10 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
       }
     };
     
-    // Only add event listener after component mounts
-    if (isMounted) {
-      window.addEventListener('resize', handleResize);
-    }
+    window.addEventListener('resize', handleResize);
     
     return () => {
-      if (isMounted) {
-        window.removeEventListener('resize', handleResize);
-      }
+      window.removeEventListener('resize', handleResize);
     };
   }, [isMobileMenuOpen, isMounted]);
 
@@ -76,6 +72,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
 
   return (
     <>
+      {/* Mobile menu button */}
       <Button
         variant="ghost"
         size="sm"
@@ -86,6 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         <Menu className="h-5 w-5 !text-white" />
       </Button>
       
+      {/* Mobile overlay backdrop */}
       {isMobileMenuOpen && (
         <div 
           className="fixed inset-0 bg-black/50 z-40 sm:hidden"
@@ -93,7 +91,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         />
       )}
       
-      {/* CRITICAL FIX: Add !important visibility classes and explicit z-index */}
+      {/* Main sidebar - used for mobile and initial render */}
       <aside 
         className={cn(
           "fixed left-0 top-0 z-40 flex h-full flex-col border-r shadow-lg transition-all duration-300 sm:translate-x-0 !visible",
@@ -107,6 +105,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         )}
         style={{ display: "flex" }} // Force display flex
       >
+        {/* Desktop expand/collapse button */}
         <Button 
           variant="ghost" 
           size="sm" 
@@ -124,6 +123,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           )}
         </Button>
 
+        {/* Mobile close button */}
         <Button 
           variant="ghost" 
           size="sm" 
@@ -137,10 +137,12 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           <ChevronLeft className="h-5 w-5" />
         </Button>
 
+        {/* Logo */}
         <div className={`flex items-center justify-center py-3 sm:py-5 ${effectivelyCollapsed ? "px-2" : "px-4"}`}>
           <SidebarLogo className={effectivelyCollapsed ? "scale-75" : ""} />
         </div>
 
+        {/* Navigation items */}
         <ScrollArea className="flex-1 px-2 sm:px-3 py-2">
           <SidebarNavItems 
             isCollapsed={effectivelyCollapsed}
@@ -151,6 +153,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           />
         </ScrollArea>
 
+        {/* User dropdown */}
         <div className={cn(
           "border-t px-3 py-4", 
           liftTheVeil ? "border-pink-700" : "border-purple-700"
@@ -159,7 +162,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         </div>
       </aside>
       
-      {/* CRITICAL FIX: Add explicit width, height and z-index for the hover-activated sidebar */}
+      {/* Interactive hover sidebar for desktop only */}
       <aside 
         className={cn(
           "hidden sm:flex fixed left-0 top-0 z-40 h-full flex-col border-r shadow-md transition-all duration-300 !visible",
