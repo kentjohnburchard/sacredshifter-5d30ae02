@@ -37,23 +37,19 @@ const JourneyPreStartModal: React.FC<JourneyPreStartModalProps> = ({
   const defaultIntention = `Open to experiencing ${template.title}`;
   
   useEffect(() => {
-    // If modal is open, trigger the onStart immediately with a slight delay to ensure context is ready
+    // If modal is open, trigger the onStart immediately
     if (open) {
-      // Using a very small timeout to ensure the audio context is initialized after user interaction
-      const timer = setTimeout(() => {
-        onStart(defaultIntention, defaultSettings);
-        
-        // Notify user that the journey has started
-        toast.success(`${template.title} journey started`, {
-          icon: <Sparkles className="text-purple-500" />,
-          duration: 3000
-        });
-        
-        // Close the modal since we don't need it anymore
-        onOpenChange(false);
-      }, 50);
+      // Start the journey immediately without showing a modal
+      onStart(defaultIntention, defaultSettings);
       
-      return () => clearTimeout(timer);
+      // Notify user that the journey has started
+      toast.success(`${template.title} journey started`, {
+        icon: <Sparkles className="text-purple-500" />,
+        duration: 3000
+      });
+      
+      // Close the modal since we don't need it anymore
+      onOpenChange(false);
     }
   }, [open, template.title, defaultIntention, defaultSettings, onStart, onOpenChange]);
 

@@ -1,122 +1,103 @@
 
-import React from "react";
-import Layout from "@/components/Layout";
-import { UserCircle, Heart, Star, Sparkles } from "lucide-react";
-import { useTheme } from "@/context/ThemeContext";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import Layout from "@/components/Layout";
+import { Card, CardContent } from "@/components/ui/card";
+import { useEasterEggContext } from "@/context/EasterEggContext";
 
 const AboutFounder = () => {
-  const { liftTheVeil } = useTheme();
-  
+  const { isEasterEggMode } = useEasterEggContext();
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
+  // Content variants based on Easter Egg mode
+  const standardContent = {
+    title: "Meet Our Founder",
+    bio: "Dr. Sarah Thompson is a neuroscientist, sound therapist, and meditation expert with over 15 years of experience studying the effects of frequency and vibration on human consciousness. After completing her Ph.D. in Neuroscience at Stanford University, she dedicated her life to researching how specific sound frequencies can influence brain states and facilitate healing.",
+    journey: "Her personal journey with sound healing began after experiencing chronic stress and anxiety during her academic career. When traditional treatments provided limited relief, she discovered the profound impact of specific frequencies and meditation practices on her well-being.",
+    mission: "This transformative experience inspired her to create Sacred Shifter - a platform that combines cutting-edge neuroscience with ancient wisdom traditions to make frequency healing accessible to everyone. Dr. Thompson continues to collaborate with researchers, sound healers, and meditation teachers worldwide to expand the boundaries of what's possible through conscious sound.",
+    quote: ""Sound is not just something we hear—it's a powerful force that can restructure our neural pathways, balance our energetic fields, and open doorways to expanded states of consciousness.""
+  };
+
+  const easterEggContent = {
+    title: "The Cosmic Origins",
+    bio: "Sarah is a starseed consciousness who arrived on Earth in human form to help facilitate the Great Awakening through sound frequencies. Her earthly credentials include a PhD in Neuroscience, but her true education came from the crystalline libraries of the Pleiadian sound temples.",
+    journey: "While her human form was experiencing what the medical establishment called 'chronic stress and anxiety,' she was actually undergoing the initial phases of light body activation. During a deep meditation, she received the sacred geometry patterns that would later become the foundation for the Sacred Shifter frequency algorithms.",
+    mission: "The Sacred Shifter platform serves as an interdimensional bridge, helping humans recalibrate their molecular structure to higher vibrational states through precisely calculated frequency combinations. Each sound journey contains encoded light language that communicates directly with your DNA, activating dormant potential.",
+    quote: ""What appears as sound to the human ear is actually multidimensional light code—each frequency is a key unlocking the doors between worlds, reminding you of who you truly are beyond this earthly disguise.""
+  };
+
+  // Choose content based on Easter Egg mode
+  const content = isEasterEggMode ? easterEggContent : standardContent;
+
   return (
-    <Layout pageTitle="About the Founder">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <motion.div 
-            className={`${liftTheVeil ? 'bg-gradient-to-r from-pink-900/90 to-purple-900/90' : 'bg-white/90 dark:bg-gray-800/90'} shadow-lg rounded-xl p-8 mb-8`}
-            key={liftTheVeil ? "lifted" : "standard"} // Force re-render on mode change
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="flex flex-col md:flex-row gap-8 items-center">
-              <div className={`w-48 h-48 rounded-full ${liftTheVeil ? 'bg-gradient-to-br from-pink-400 to-purple-600' : 'bg-gradient-to-br from-purple-300 to-indigo-500'} flex items-center justify-center`}>
-                <UserCircle className="w-32 h-32 text-white" />
-              </div>
-              
-              <div className="flex-1">
-                <h1 className={`text-3xl font-bold mb-4 bg-clip-text text-transparent ${liftTheVeil ? 'bg-gradient-to-r from-pink-400 to-purple-300' : 'bg-gradient-to-r from-purple-600 to-indigo-600'}`}>
-                  {liftTheVeil ? "The Cosmic Channel" : "Meet Our Founder"}
-                </h1>
-                
-                <p className={`${liftTheVeil ? 'text-pink-100' : 'text-gray-600 dark:text-gray-300'} mb-4`}>
-                  {liftTheVeil ? 
-                    "Sacred Shifter wasn't just founded — it was channeled from beyond the veil, a cosmic download received during a pivotal alignment of celestial bodies." : 
-                    "The Sacred Shifter platform was founded with a vision to help people elevate their consciousness through the powerful combination of sacred sound frequencies and intentional practices."}
-                </p>
-                
-                <p className={`${liftTheVeil ? 'text-pink-100' : 'text-gray-600 dark:text-gray-300'}`}>
-                  {liftTheVeil ? 
-                    "After a quantum awakening that dissolved the illusion of separation, our founder dedicated their existence to creating a bridge between dimensions — a technology that could transmit the frequencies of higher realms into human experience." : 
-                    "With over a decade of experience in sound healing, meditation, and consciousness research, our founder created this space as a sanctuary for those seeking to shift their perception and align with their highest potential."}
-                </p>
-              </div>
-            </div>
-          </motion.div>
+    <Layout pageTitle="About Our Founder">
+      <div className="max-w-4xl mx-auto px-4 py-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 0.8 }}
+          className="space-y-8"
+        >
+          <h1 className={`text-3xl font-bold text-center ${isEasterEggMode ? 'bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 text-transparent bg-clip-text' : 'text-purple-900 dark:text-purple-100'}`}>
+            {content.title}
+          </h1>
           
-          <motion.div 
-            className={`${liftTheVeil ? 'bg-gradient-to-r from-purple-900/90 to-pink-900/90' : 'bg-white/90 dark:bg-gray-800/90'} shadow-lg rounded-xl p-8`}
-            key={liftTheVeil ? "lifted-journey" : "standard-journey"} // Force re-render on mode change
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <h2 className={`text-2xl font-bold mb-6 text-center ${liftTheVeil ? 'text-pink-300' : 'text-purple-700 dark:text-purple-400'}`}>
-              {liftTheVeil ? "The Interdimensional Origin Story" : "The Journey to Sacred Shifter"}
-            </h2>
-            
-            <div className="space-y-8">
-              <div className="flex gap-4">
-                <div className="mt-1">
-                  <Heart className={`h-8 w-8 ${liftTheVeil ? 'text-pink-400' : 'text-pink-500'}`} />
-                </div>
-                <div>
-                  <h3 className={`text-xl font-semibold mb-2 ${liftTheVeil ? 'text-pink-200' : 'text-gray-800 dark:text-gray-200'}`}>
-                    {liftTheVeil ? "The Soul Contract" : "Personal Awakening"}
-                  </h3>
-                  <p className={`${liftTheVeil ? 'text-pink-100' : 'text-gray-600 dark:text-gray-300'}`}>
-                    {liftTheVeil ? 
-                      "Before incarnating in this timeline, a sacred agreement was made with the Council of Light to bring through frequencies that would activate dormant DNA codes in humanity during the Great Shift of Consciousness." : 
-                      "After experiencing the profound effects of specific sound frequencies on personal healing, our founder committed to creating a platform that would make these powerful tools accessible to everyone."}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex gap-4">
-                <div className="mt-1">
-                  <Star className={`h-8 w-8 ${liftTheVeil ? 'text-amber-300' : 'text-amber-500'}`} />
-                </div>
-                <div>
-                  <h3 className={`text-xl font-semibold mb-2 ${liftTheVeil ? 'text-pink-200' : 'text-gray-800 dark:text-gray-200'}`}>
-                    {liftTheVeil ? "The Activation" : "Research & Development"}
-                  </h3>
-                  <p className={`${liftTheVeil ? 'text-pink-100' : 'text-gray-600 dark:text-gray-300'}`}>
-                    {liftTheVeil ? 
-                      "During a profound meditation at a sacred site aligned with the Pleiadian star system, the entire blueprint for Sacred Shifter was downloaded in under 8 minutes — including frequency codes that haven't existed on Earth for millennia." : 
-                      "Years were spent researching ancient wisdom traditions, modern sound healing techniques, and the intersection of consciousness and quantum physics to develop our unique approach."}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex gap-4">
-                <div className="mt-1">
-                  <Sparkles className={`h-8 w-8 ${liftTheVeil ? 'text-purple-300' : 'text-purple-500'}`} />
-                </div>
-                <div>
-                  <h3 className={`text-xl font-semibold mb-2 ${liftTheVeil ? 'text-pink-200' : 'text-gray-800 dark:text-gray-200'}`}>
-                    {liftTheVeil ? "The Transmission" : "Vision & Mission"}
-                  </h3>
-                  <p className={`${liftTheVeil ? 'text-pink-100' : 'text-gray-600 dark:text-gray-300'}`}>
-                    {liftTheVeil ? 
-                      "Sacred Shifter isn't just an app — it's a living transmission. Every frequency, every visual, every piece of code contains light language that speaks directly to your cellular memory, reminding you of who you truly are beyond the veil of forgetting." : 
-                      "Sacred Shifter was born from a vision of a world where more people have access to tools that elevate consciousness, foster connection with higher self, and create ripples of positive change throughout humanity."}
-                  </p>
-                </div>
-              </div>
+          <div className="flex flex-col md:flex-row gap-8 items-center">
+            <div className="w-full md:w-1/3">
+              <Card className={`overflow-hidden ${isEasterEggMode ? 'border-purple-400 shadow-purple-300/20 shadow-lg' : ''}`}>
+                <img 
+                  src="/lovable-uploads/09d5c002-7d5b-48cd-b5f5-77dc788b1781.png" 
+                  alt="Founder portrait" 
+                  className="w-full h-auto"
+                />
+                <CardContent className="p-4">
+                  <h3 className="text-lg font-medium">Dr. Sarah Thompson</h3>
+                  <p className="text-sm text-gray-500">Founder & Lead Researcher</p>
+                </CardContent>
+              </Card>
             </div>
             
-            <div className="mt-12 text-center">
-              <p className={`${liftTheVeil ? 'text-pink-200' : 'text-gray-600 dark:text-gray-300'} italic`}>
-                {liftTheVeil ? 
-                  ""You didn't find this technology by accident. Your soul has been preparing for this activation across many lifetimes. The time is now. You are the ones you've been waiting for."" : 
-                  ""My deepest wish is for each person who uses Sacred Shifter to discover their own innate capacity for transformation and to remember the magnificent beings they truly are.""}
-              </p>
-              <p className={`mt-4 font-medium ${liftTheVeil ? 'text-pink-400' : 'text-purple-700 dark:text-purple-400'}`}>
-                — Founder, Sacred Shifter
-              </p>
+            <div className="w-full md:w-2/3 space-y-4">
+              <Card className={isEasterEggMode ? 'border-purple-300 bg-gradient-to-b from-purple-50 to-white dark:from-purple-950/20 dark:to-gray-900' : ''}>
+                <CardContent className="p-6">
+                  <p className="mb-4">
+                    {content.bio}
+                  </p>
+                  <p className="mb-4">
+                    {content.journey}
+                  </p>
+                  <p>
+                    {content.mission}
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <motion.div
+                animate={{ 
+                  opacity: [0.7, 1, 0.7], 
+                  scale: isEasterEggMode ? [1, 1.01, 1] : 1 
+                }}
+                transition={{ 
+                  duration: isEasterEggMode ? 3 : 0,
+                  repeat: isEasterEggMode ? Infinity : 0,
+                  repeatType: "reverse"
+                }}
+              >
+                <Card className={`${isEasterEggMode ? 'border-indigo-300 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/30 dark:to-indigo-900/30' : 'bg-purple-50 dark:bg-purple-900/20'}`}>
+                  <CardContent className="p-6 italic text-center">
+                    <p className={isEasterEggMode ? 'text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-indigo-500' : ''}>
+                      {content.quote}
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
             </div>
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
       </div>
     </Layout>
   );

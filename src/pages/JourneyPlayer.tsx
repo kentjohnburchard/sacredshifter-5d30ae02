@@ -9,7 +9,21 @@ import { useJourneySongs } from '@/hooks/useJourneySongs';
 import FractalAudioVisualizer from '@/components/audio/FractalAudioVisualizer';
 import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
 import { Button } from '@/components/ui/button';
-import { Eye, EyeOff, Shuffle } from 'lucide-react';
+import { 
+  Eye, 
+  EyeOff, 
+  Shuffle, 
+  Play, 
+  Pause, 
+  ChevronDown, 
+  ChevronUp,
+  Info,
+  Music,
+  BookOpen
+} from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { motion } from 'framer-motion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
@@ -22,6 +36,7 @@ const JourneyPlayer = () => {
   const [visualizerMode, setVisualizerMode] = useState<'purple' | 'blue' | 'rainbow' | 'gold'>('purple');
   const [showVisualizer, setShowVisualizer] = useState(true);
   const [audioInitialized, setAudioInitialized] = useState(false);
+  const [infoExpanded, setInfoExpanded] = useState(false);
   
   // Create refs
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -51,7 +66,7 @@ const JourneyPlayer = () => {
     }
   }, []);
   
-  // Setup audio analyzer for visualizer - call the hook unconditionally
+  // Setup audio analyzer for visualizer
   const { audioContext, analyser } = useAudioAnalyzer(audioRef);
 
   // Store songs in ref to access in callbacks
@@ -69,23 +84,19 @@ const JourneyPlayer = () => {
       return null;
     }
     
-    // If only one song is available, return it
     if (songsRef.current.length === 1) {
       console.log("JourneyPlayer: Only one song available, returning it");
       return songsRef.current[0];
     }
     
-    // Get available indices excluding the lastPlayedIndex
     const availableIndices = Array.from(
       { length: songsRef.current.length },
       (_, i) => i
     ).filter(index => index !== lastPlayedIndex.current);
     
-    // Select a random index from available ones
     const randomIndex = Math.floor(Math.random() * availableIndices.length);
     const selectedIndex = availableIndices[randomIndex];
     
-    // Save this as the last played index
     lastPlayedIndex.current = selectedIndex;
     console.log(`JourneyPlayer: Selected song index ${selectedIndex} out of ${songsRef.current.length}`);
     
@@ -96,7 +107,6 @@ const JourneyPlayer = () => {
   useEffect(() => {
     if (!setOnEndedCallback) return;
     
-    // Configure the end of track handler to play another random track
     const handleTrackEnded = () => {
       console.log("JourneyPlayer: Track ended, selecting next random track");
       const nextSong = selectRandomSong();
@@ -104,7 +114,6 @@ const JourneyPlayer = () => {
       if (nextSong) {
         console.log("JourneyPlayer: Playing next random song:", nextSong);
         
-        // Make sure the URL is properly formatted
         let audioUrl = nextSong.audioUrl;
         if (audioUrl && !audioUrl.startsWith('http')) {
           audioUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioUrl}`;
@@ -133,7 +142,6 @@ const JourneyPlayer = () => {
 
   // Initialize journey and start audio playback
   useEffect(() => {
-    // Only proceed if journey ID is provided
     if (!journeyId) {
       navigate('/journey-templates');
       return;
@@ -141,19 +149,16 @@ const JourneyPlayer = () => {
 
     console.log(`JourneyPlayer: Loading journey player for journey ID: ${journeyId}`);
     
-    // Wait for templates to load before trying to find the journey
     if (loadingTemplates) {
       return;
     }
     
-    // Find the journey from our templates data
     const foundJourney = templates.find(j => j.id === journeyId);
     
     if (foundJourney) {
       console.log(`JourneyPlayer: Found journey:`, foundJourney);
       setJourney(foundJourney);
       
-      // Mark that we've finished loading journey data
       if (!loadingSongs) {
         setIsLoading(false);
       }
@@ -166,23 +171,17 @@ const JourneyPlayer = () => {
 
   // Handle audio playback initialization separately from journey loading
   useEffect(() => {
-    // Only attempt initialization once and when everything is loaded
     if (initializationAttemptedRef.current || audioInitialized || isLoading || loadingSongs) return;
     
-    // Only proceed if we have a journey and songs to play
     if (journey && songs && songs.length > 0) {
-      console.log("JourneyPlayer: Attempting to initialize audio playback");
       initializationAttemptedRef.current = true;
       
-      // Short delay to ensure audio context is ready
       setTimeout(() => {
-        // Select a random song to start with
         const selectedSong = selectRandomSong();
         
         if (selectedSong) {
           console.log(`JourneyPlayer: Playing initial random song for journey ${journeyId}:`, selectedSong);
           
-          // Make sure the URL is properly formatted
           let audioUrl = selectedSong.audioUrl;
           if (audioUrl && !audioUrl.startsWith('http')) {
             audioUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioUrl}`;
@@ -196,7 +195,6 @@ const JourneyPlayer = () => {
               source: audioUrl
             });
             
-            // Mark as initialized to prevent repeated playback attempts
             setAudioInitialized(true);
           } else {
             console.error("JourneyPlayer: Invalid audio URL");
@@ -232,7 +230,6 @@ const JourneyPlayer = () => {
       if (selectedSong) {
         console.log("JourneyPlayer: Force playing song:", selectedSong);
         
-        // Make sure the URL is properly formatted
         let audioUrl = selectedSong.audioUrl;
         if (audioUrl && !audioUrl.startsWith('http')) {
           audioUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioUrl}`;
@@ -250,9 +247,13 @@ const JourneyPlayer = () => {
         }
       }
     } else if (isPlaying) {
-      // Toggle pause if already playing
       togglePlayPause();
     }
+  };
+
+  // Toggle info panel expansion
+  const toggleInfoPanel = () => {
+    setInfoExpanded(!infoExpanded);
   };
 
   // Loading state - keep simple and focused on loading text
@@ -293,7 +294,6 @@ const JourneyPlayer = () => {
 
   return (
     <Layout pageTitle={journey?.title} useBlueWaveBackground={false} theme="cosmic">
-      {/* Fractal Audio Visualizer - only show when both conditions are true */}
       {showVisualizer && isPlaying && (
         <FractalAudioVisualizer
           audioContext={audioContext}
@@ -305,7 +305,7 @@ const JourneyPlayer = () => {
       )}
       
       <div className="max-w-5xl mx-auto pt-4 pb-12 relative z-10">
-        <h1 className="text-3xl font-bold text-center mb-6 text-purple-900 dark:text-purple-300">{journey.title}</h1>
+        <h1 className="text-3xl font-bold text-center mb-4 text-purple-900 dark:text-purple-300">{journey.title}</h1>
         
         <div className="absolute top-4 right-4 z-20 flex space-x-2">
           <Button
@@ -338,7 +338,7 @@ const JourneyPlayer = () => {
             onClick={forcePlayAudio}
             className="bg-white/30 backdrop-blur-sm"
           >
-            {isPlaying ? "Pause" : "Play"}
+            {isPlaying ? <><Pause className="h-4 w-4 mr-1" /> Pause</> : <><Play className="h-4 w-4 mr-1" /> Play</>}
           </Button>
         </div>
         
@@ -354,39 +354,122 @@ const JourneyPlayer = () => {
           )}
         </div>
         
-        <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-purple-100 dark:border-purple-800 shadow-lg">
-          <CardContent className="pt-6 px-6">
-            <div className="prose prose-purple dark:prose-invert max-w-none">
-              <p className="text-lg mb-6">{journey.description}</p>
-              
-              <div className="bg-purple-50 dark:bg-purple-900/30 p-6 rounded-lg mb-8">
-                <h3 className="text-xl font-medium text-purple-800 dark:text-purple-300 mb-4">Journey Intent</h3>
-                <p>{journey.purpose || "This journey is designed to help you connect with your inner wisdom and tap into the healing frequencies that resonate with your being."}</p>
+        <Collapsible 
+          open={infoExpanded} 
+          onOpenChange={setInfoExpanded}
+          className="mb-4"
+        >
+          <div className="flex justify-between items-center mb-2">
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
+                <Info className="h-4 w-4" />
+                Journey Information
+                {infoExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </Button>
+            </CollapsibleTrigger>
+          </div>
+          
+          <CollapsibleContent>
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-purple-100 dark:border-purple-800 mb-4">
+                <CardContent className="pt-4 px-5">
+                  <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="description">
+                      <AccordionTrigger className="py-2 text-purple-700 dark:text-purple-300">
+                        <span className="flex items-center gap-2">
+                          <Info className="h-4 w-4" />
+                          Description
+                        </span>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <p className="text-gray-700 dark:text-gray-300">{journey.description}</p>
+                      </AccordionContent>
+                    </AccordionItem>
+                    
+                    <AccordionItem value="purpose">
+                      <AccordionTrigger className="py-2 text-purple-700 dark:text-purple-300">
+                        <span className="flex items-center gap-2">
+                          <BookOpen className="h-4 w-4" />
+                          Journey Intent
+                        </span>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <p className="text-gray-700 dark:text-gray-300">
+                          {journey.purpose || "This journey is designed to help you connect with your inner wisdom and tap into the healing frequencies that resonate with your being."}
+                        </p>
+                      </AccordionContent>
+                    </AccordionItem>
+                    
+                    <AccordionItem value="guidance">
+                      <AccordionTrigger className="py-2 text-purple-700 dark:text-purple-300">
+                        <span className="flex items-center gap-2">
+                          <Music className="h-4 w-4" />
+                          Guidance
+                        </span>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="space-y-3">
+                          <p className="text-gray-700 dark:text-gray-300">
+                            Find a comfortable position where you can relax fully. This journey works best when you can give it your complete attention.
+                          </p>
+                          <p className="text-gray-700 dark:text-gray-300">
+                            Let the sounds wash over you and guide your consciousness to deeper levels of awareness.
+                          </p>
+                          
+                          {journey.guidedPrompt && (
+                            <div className="mt-4 bg-purple-50/50 dark:bg-purple-900/20 p-4 rounded-lg">
+                              <h4 className="text-sm font-medium text-purple-700 dark:text-purple-300 mb-2">Guided Prompt</h4>
+                              <p className="italic text-gray-700 dark:text-gray-300">{journey.guidedPrompt}</p>
+                            </div>
+                          )}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </CollapsibleContent>
+        </Collapsible>
+        
+        <div className="h-[60vh] flex items-center justify-center relative">
+          {!showVisualizer && (
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-indigo-900/20 to-blue-900/30 flex items-center justify-center">
+              <div className="text-center bg-white/20 dark:bg-black/20 p-6 rounded-lg backdrop-blur-sm">
+                <h3 className="text-xl text-purple-700 dark:text-purple-300 mb-2">Visualizer Hidden</h3>
+                <p className="text-gray-700 dark:text-gray-300">Click "Show Visual" to experience the full journey</p>
               </div>
+            </div>
+          )}
+        </div>
+
+        <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-purple-100 dark:border-purple-800 mt-4">
+          <CardContent className="py-4 px-5 flex flex-col sm:flex-row justify-between items-center">
+            <div className="text-center sm:text-left mb-4 sm:mb-0">
+              <h2 className="text-lg font-medium text-purple-800 dark:text-purple-300">{journey.title}</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Your audio is playing in the global player</p>
+            </div>
+            
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                className="border-purple-300 dark:border-purple-700"
+                onClick={toggleInfoPanel}
+              >
+                {infoExpanded ? "Hide Details" : "Show Details"}
+              </Button>
               
-              <div className="mb-8">
-                <h3 className="text-xl font-medium text-purple-800 dark:text-purple-300 mb-4">Guidance</h3>
-                <p>Find a comfortable position where you can relax fully. This journey works best when you can give it your complete attention.</p>
-                <p className="mt-3">Let the sounds wash over you and guide your consciousness to deeper levels of awareness.</p>
-                
-                {journey.guidedPrompt && (
-                  <div className="mt-4 bg-purple-50/50 dark:bg-purple-900/20 p-4 rounded-lg">
-                    <h4 className="text-lg font-medium text-purple-700 dark:text-purple-300 mb-2">Guided Prompt</h4>
-                    <p className="italic">{journey.guidedPrompt}</p>
-                  </div>
-                )}
-              </div>
-              
-              <div className="text-center mt-12 text-sm text-gray-500 dark:text-gray-400">
-                <p>Your audio is now playing in the global player.</p>
-                <p className="mt-1">You can continue browsing while listening to your journey.</p>
-                <button 
-                  className="mt-4 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
-                  onClick={() => navigate('/journey-templates')}
-                >
-                  Back to Journeys
-                </button>
-              </div>
+              <Button 
+                className="bg-purple-600 hover:bg-purple-700"
+                onClick={() => navigate('/journey-templates')}
+              >
+                Back to Journeys
+              </Button>
             </div>
           </CardContent>
         </Card>
