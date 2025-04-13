@@ -41,23 +41,20 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   // Get the global audio element - using document.querySelector to ensure we have a stable reference
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   
-  // Find the audio element in the DOM - IMPORTANT: do this only once on mount
+  // Find the audio element in the DOM - once on initial render
   useEffect(() => {
-    console.log("FrequencyPlayer: Looking for audio element");
     // Try to find the existing audio element
-    const globalAudio = document.querySelector('audio#global-audio-player');
+    const globalAudio = document.getElementById('global-audio-player') as HTMLAudioElement;
     if (globalAudio) {
-      audioRef.current = globalAudio as HTMLAudioElement;
-      console.log("FrequencyPlayer: Found audio element");
+      audioRef.current = globalAudio;
+      console.log("FrequencyPlayer: Found audio element", globalAudio);
     } else {
       console.log("FrequencyPlayer: Audio element not found");
     }
-    
-    // No cleanup - keep the reference
   }, []);
   
-  // Use the audio analyzer hook with the global audio element - pass null check for audioRef
-  const { audioContext, analyser } = useAudioAnalyzer(audioRef.current ? audioRef : null);
+  // Use the audio analyzer hook with the global audio element
+  const { audioContext, analyser } = useAudioAnalyzer(audioRef.current);
   
   // Check if this frequency is currently playing
   const isCurrentlyPlaying = React.useMemo(() => {

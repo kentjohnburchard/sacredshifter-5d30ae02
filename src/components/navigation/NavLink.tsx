@@ -20,7 +20,7 @@ const NavLink: React.FC<NavLinkProps> = ({
   const location = useLocation();
   const isActive = location.pathname === to;
   
-  // Updated classes with consistent font weight and full visibility
+  // IMPORTANT: Always ensure text is visible with opacity-100 and proper text-white color
   const mobileActiveClass = isActive 
     ? "bg-[#9966FF]/20 text-white font-bold" 
     : "text-white font-bold hover:bg-[#9966FF]/15"; 

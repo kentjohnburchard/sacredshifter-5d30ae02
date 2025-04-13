@@ -62,22 +62,8 @@ function useAudioAnalyzer(audioElement: HTMLAudioElement | React.RefObject<HTMLA
 
     // Cleanup function
     return () => {
-      if (audioContext && sourceNodeRef.current) {
-        try {
-          console.log("useAudioAnalyzer: Cleaning up audio analyzer");
-          
-          // Only disconnect if we have a source node
-          if (sourceNodeRef.current) {
-            sourceNodeRef.current.disconnect();
-          }
-          
-          // Only set to null if cleanup is actually happening
-          sourceNodeRef.current = null;
-          
-        } catch (error) {
-          console.error("useAudioAnalyzer: Error cleaning up audio analyzer", error);
-        }
-      }
+      // Don't disconnect or clean up on component unmount - the audio might still be playing
+      // We'll just let the browser clean up when the session ends
     };
   }, [audioElement]);
 

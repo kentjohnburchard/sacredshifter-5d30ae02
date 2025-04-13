@@ -1,12 +1,17 @@
 
-import React, { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { motion, AnimatePresence } from "framer-motion";
-import JourneySettings, { JourneySettingsValues } from "./JourneySettings";
+import React, { useState, useEffect } from "react";
 import { JourneyTemplate } from "@/data/journeyTemplates";
 import { useGlobalAudioPlayer } from "@/hooks/useGlobalAudioPlayer";
+import { toast } from "sonner";
+import { Sparkles } from "lucide-react";
+
+export interface JourneySettingsValues {
+  lowSensitivityMode: boolean;
+  useHeadphones: boolean;
+  pinkNoise: boolean;
+  sleepTimer: number;
+  saveToTimeline: boolean;
+}
 
 interface JourneyPreStartModalProps {
   open: boolean;
@@ -29,138 +34,30 @@ const JourneyPreStartModal: React.FC<JourneyPreStartModalProps> = ({
     saveToTimeline: true
   }
 }) => {
-  const [intention, setIntention] = useState("");
-  const [settings, setSettings] = useState<JourneySettingsValues>(defaultSettings);
-  const [currentStep, setCurrentStep] = useState<'intention' | 'guided' | 'settings'>('intention');
-  const { isPlaying } = useGlobalAudioPlayer();
+  // Set a default intention
+  const defaultIntention = `Open to experiencing ${template.title}`;
   
-  const handleStart = () => {
-    // Pass the intention and settings to the parent component
-    onStart(intention, settings);
-    // Close the modal
-    onOpenChange(false);
-    // Reset state for next time
-    setCurrentStep('intention');
-  };
-  
-  const handleSettingChange = (newSettings: Partial<JourneySettingsValues>) => {
-    setSettings(prev => ({ ...prev, ...newSettings }));
-  };
-  
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{template.title} Journey</DialogTitle>
-        </DialogHeader>
-        
-        <AnimatePresence mode="wait">
-          {currentStep === 'intention' && (
-            <motion.div
-              key="intention"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-4"
-            >
-              <h3 className="text-lg font-medium text-center">Set Your Intention</h3>
-              <p className="text-sm text-gray-600">
-                What would you like to experience or achieve during this journey?
-              </p>
-              <Textarea
-                placeholder="I am open to..."
-                value={intention}
-                onChange={(e) => setIntention(e.target.value)}
-                className="min-h-[120px]"
-              />
-              <Button 
-                onClick={() => setCurrentStep('guided')}
-                className="w-full"
-                disabled={!intention.trim()}
-              >
-                Continue
-              </Button>
-            </motion.div>
-          )}
-          
-          {currentStep === 'guided' && (
-            <motion.div
-              key="guided"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-4"
-            >
-              <h3 className="text-lg font-medium text-center">Guided Prompt</h3>
-              <div className="bg-purple-50 p-4 rounded-lg">
-                <p className="text-sm text-gray-700 whitespace-pre-line">
-                  {template.guidedPrompt || `Sit comfortably or lie down. 
-Let your awareness drop into your breath. 
-Imagine your intention as a frequency. 
-Each breath aligns you with this frequency.
-You are tuning yourself to a new vibration.`}
-                </p>
-              </div>
-              <div className="flex justify-between gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setCurrentStep('intention')}
-                >
-                  Back
-                </Button>
-                <Button 
-                  onClick={() => setCurrentStep('settings')}
-                  className="flex-1"
-                >
-                  Continue
-                </Button>
-              </div>
-            </motion.div>
-          )}
-          
-          {currentStep === 'settings' && (
-            <motion.div
-              key="settings"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-4"
-            >
-              <JourneySettings 
-                settings={settings}
-                onChange={handleSettingChange}
-              />
-              <div className="flex justify-between gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setCurrentStep('guided')}
-                >
-                  Back
-                </Button>
-                <Button 
-                  onClick={handleStart}
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600"
-                >
-                  Begin Journey
-                </Button>
-              </div>
-              
-              {/* Audio playback status indicator */}
-              {isPlaying && (
-                <div className="text-xs text-center text-purple-600 mt-2">
-                  <span className="inline-block h-2 w-2 rounded-full bg-green-500 mr-1 animate-pulse"></span>
-                  Audio is currently playing
-                </div>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </DialogContent>
-    </Dialog>
-  );
+  // Auto-start the journey when component mounts and is open
+  useEffect(() => {
+    if (open) {
+      // Small delay to ensure proper rendering/mounting
+      const timer = setTimeout(() => {
+        onStart(defaultIntention, defaultSettings);
+        // Notify user that the journey has started
+        toast.success(`${template.title} journey started`, {
+          icon: <Sparkles className="text-purple-500" />,
+          duration: 3000
+        });
+        // Close the "modal" (which will now actually just be a controller)
+        onOpenChange(false);
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [open, onStart, template.title, defaultSettings, onOpenChange]);
+
+  // Return an empty fragment as we're no longer showing a modal
+  return null;
 };
 
 export default JourneyPreStartModal;

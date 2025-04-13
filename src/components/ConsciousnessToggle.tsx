@@ -1,68 +1,81 @@
 
-import React, { useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { useTheme } from '@/context/ThemeContext';
-import { Sparkles } from 'lucide-react';
-import { toast } from 'sonner';
+import React, { useState, useEffect } from "react";
+import { useTheme } from "@/context/ThemeContext";
+import { AnimatePresence, motion } from "framer-motion";
+import { Sparkles } from "lucide-react";
+
+// Number of clicks needed to trigger the easter egg
+const CLICKS_TO_TRIGGER = 7;
+// Time window in milliseconds for the clicks (3 seconds)
+const CLICK_WINDOW = 3000;
 
 const ConsciousnessToggle: React.FC = () => {
-  const { liftTheVeil, setLiftTheVeil, currentTheme } = useTheme();
-
-  // Function to handle the consciousness mode toggle
-  const handleToggle = () => {
-    const newMode = !liftTheVeil;
-    setLiftTheVeil(newMode);
+  const { liftTheVeil, setLiftTheVeil } = useTheme();
+  const [clickCount, setClickCount] = useState(0);
+  const [showIndicator, setShowIndicator] = useState(false);
+  
+  // Reset click count after timeout
+  useEffect(() => {
+    if (clickCount > 0) {
+      const timer = setTimeout(() => {
+        setClickCount(0);
+      }, CLICK_WINDOW);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [clickCount]);
+  
+  // Handle click on the logo or secret area
+  const handleSecretClick = () => {
+    // Increment click counter
+    const newCount = clickCount + 1;
+    setClickCount(newCount);
     
-    // Show a toast to confirm the mode change
-    toast.success(
-      newMode ? "Veil Lifted! Welcome to heightened perception." : "Returning to standard consciousness",
-      { 
-        icon: <Sparkles className={newMode ? "text-pink-500" : "text-purple-500"} />,
-        duration: 3000
-      }
-    );
+    // Show progress indicator
+    if (newCount > 1 && newCount < CLICKS_TO_TRIGGER) {
+      setShowIndicator(true);
+      setTimeout(() => setShowIndicator(false), 1000);
+    }
     
-    // Change document theme class for global styles
-    if (newMode) {
-      document.documentElement.classList.add('veil-lifted');
-    } else {
-      document.documentElement.classList.remove('veil-lifted');
+    // If we reach the target click count, toggle easter egg mode
+    if (newCount >= CLICKS_TO_TRIGGER) {
+      setClickCount(0);
+      setLiftTheVeil(!liftTheVeil);
     }
   };
-
-  // Make sure document class is synced with state on mount
-  useEffect(() => {
-    if (liftTheVeil) {
-      document.documentElement.classList.add('veil-lifted');
-    } else {
-      document.documentElement.classList.remove('veil-lifted');
-    }
-  }, []);
-
+  
+  // Return a hidden interactive element for development and a small 
+  // visual indicator when the easter egg is being triggered
   return (
-    <motion.button
-      className={`fixed bottom-6 right-6 z-[1000] w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${
-        liftTheVeil
-          ? 'bg-gradient-to-r from-pink-500 to-pink-700 text-white'
-          : 'bg-black/60 backdrop-blur-md text-purple-300 border border-purple-500/30'
-      }`}
-      onClick={handleToggle}
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.9 }}
-      title={liftTheVeil ? 'Return to normal consciousness' : 'Lift the veil of perception'}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-    >
-      <Sparkles className={`h-5 w-5 ${liftTheVeil ? 'animate-pulse' : ''}`} />
-      {liftTheVeil && (
-        <motion.div
-          className="absolute -inset-2 bg-pink-500/20 rounded-full -z-10"
-          animate={{ scale: [1, 1.2, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        />
-      )}
-    </motion.button>
+    <>
+      {/* Hidden clickable area in bottom right - for logo or other secret area */}
+      <div 
+        className="fixed bottom-16 right-4 z-[1000] w-12 h-12 opacity-0"
+        onClick={handleSecretClick}
+        aria-hidden="true"
+      />
+      
+      {/* Visual feedback for click progress */}
+      <AnimatePresence>
+        {showIndicator && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed bottom-20 right-4 z-[1000] bg-black/80 text-white text-xs py-1 px-2 rounded-full"
+          >
+            {clickCount}/{CLICKS_TO_TRIGGER}
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Click trigger on Sacred Shifter logo in header */}
+      <div 
+        className="fixed top-2 left-1/2 transform -translate-x-1/2 z-[1000] w-40 h-10 opacity-0"
+        onClick={handleSecretClick}
+        aria-hidden="true"
+      />
+    </>
   );
 };
 
