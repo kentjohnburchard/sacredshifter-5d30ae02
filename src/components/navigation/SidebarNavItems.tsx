@@ -107,7 +107,7 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
                 ? liftTheVeil 
                   ? "bg-pink-700/50 text-white" 
                   : "bg-purple-700/50 text-white"
-                : "text-gray-200 hover:bg-opacity-80",
+                : "text-white hover:bg-opacity-80", // Changed text color to white for better visibility
               liftTheVeil && !isActive && "hover:bg-pink-800/50 hover:text-white",
               !liftTheVeil && !isActive && "hover:bg-purple-800/50 hover:text-white"
             )}
