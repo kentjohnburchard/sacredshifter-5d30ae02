@@ -25,6 +25,7 @@ import {
   Star,
   LayoutTemplate,
   LayoutDashboard,
+  ChevronRight,
 } from 'lucide-react';
 
 // Map of route paths to their corresponding icons
@@ -123,6 +124,9 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
               )}
             />
             {!isCollapsed && <span>{item.label}</span>}
+            {isCollapsed && (
+              <ChevronRight className="h-4 w-4 ml-auto opacity-0 group-hover:opacity-100" />
+            )}
           </NavLink>
         );
       })}
