@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -13,7 +12,7 @@ import {
   Eye, 
   EyeOff,
   BarChart4,
-  Waveform
+  Activity
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -32,7 +31,6 @@ interface SacredAudioPlayerProps {
   onPlayStateChange?: (isPlaying: boolean) => void;
 }
 
-// Array of visualizer modes with labels
 const VISUALIZER_MODES = [
   { value: 'purple', label: 'Fractal Flow' },
   { value: 'blue', label: 'Cosmic Ocean' },
@@ -40,7 +38,6 @@ const VISUALIZER_MODES = [
   { value: 'gold', label: 'Sacred Geometry' }
 ] as const;
 
-// Type for visualizer modes
 type VisualizerMode = typeof VISUALIZER_MODES[number]['value'];
 
 const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
@@ -80,31 +77,26 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     audioLoaded,
   } = useAudioPlayer();
   
-  // Get analyzer for visualization
   const { audioContext, analyser } = useAudioAnalyzer(audioRef.current);
   
-  // Update audio source when url changes
   useEffect(() => {
     if (audioUrl) {
       setAudioSource(audioUrl);
     }
   }, [audioUrl, setAudioSource]);
   
-  // Apply volume changes
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = isMuted ? 0 : volume;
     }
   }, [volume, isMuted, audioRef]);
   
-  // Notify parent component of play state changes
   useEffect(() => {
     if (onPlayStateChange) {
       onPlayStateChange(isAudioPlaying);
     }
   }, [isAudioPlaying, onPlayStateChange]);
 
-  // Update visualizer mode when theme changes
   useEffect(() => {
     if (liftTheVeil) {
       setVisualizerMode('rainbow');
@@ -113,29 +105,23 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     }
   }, [liftTheVeil, chakra]);
   
-  // Setup for tooltip display when prime numbers are detected
   useEffect(() => {
     if (primes.length > 0) {
-      // Get the last detected prime
       const latestPrime = primes[primes.length - 1];
       
-      // Only show tooltip for new primes
       if (latestPrime !== activeTooltipPrime) {
         setActiveTooltipPrime(latestPrime);
         
-        // Clear any existing timer
         if (tooltipTimerRef.current) {
           clearTimeout(tooltipTimerRef.current);
         }
         
-        // Set timer to hide tooltip after 3 seconds
         tooltipTimerRef.current = setTimeout(() => {
           setActiveTooltipPrime(null);
         }, 3000);
       }
     }
     
-    // Cleanup timer on unmount
     return () => {
       if (tooltipTimerRef.current) {
         clearTimeout(tooltipTimerRef.current);
@@ -143,12 +129,10 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     };
   }, [primes]);
   
-  // Toggle playback
   const handlePlayPause = () => {
     togglePlayPause();
   };
   
-  // Toggle expanded view
   const handleExpand = () => {
     setExpanded(!expanded);
     if (isFullscreen) {
@@ -156,23 +140,19 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     }
   };
   
-  // Toggle fullscreen view
   const handleFullscreen = () => {
     setIsFullscreen(!isFullscreen);
-    setExpanded(true); // Always expand when toggling fullscreen
+    setExpanded(true);
   };
   
-  // Toggle visualizer visibility
   const handleToggleVisualizer = () => {
     setShowVisualizer(!showVisualizer);
   };
   
-  // Toggle mute
   const handleToggleMute = () => {
     setIsMuted(!isMuted);
   };
   
-  // Change visualizer mode
   const handleChangeVisualizer = () => {
     const modes = VISUALIZER_MODES.map(m => m.value);
     const currentIndex = modes.indexOf(visualizerMode);
@@ -180,26 +160,22 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     setVisualizerMode(modes[nextIndex] as VisualizerMode);
   };
   
-  // Format time display (minutes:seconds)
   const formatTime = (time: number): string => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
   };
   
-  // Handle prime sequence updates from visualizer
   const handlePrimeSequence = (newPrimes: number[]) => {
     if (newPrimes.length > 0) {
       setPrimes(newPrimes);
     }
   };
   
-  // Handle frequency detection updates from visualizer
   const handleFrequencyDetected = (freq: number) => {
     setDetectedFrequency(freq);
   };
   
-  // Map chakra to visualizer mode
   function chakraToVisualMode(chakraName?: string): VisualizerMode | undefined {
     if (!chakraName) return undefined;
     
@@ -215,13 +191,11 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     }
   }
   
-  // Get current visualizer mode label
   const getCurrentVisualizerLabel = (): string => {
     const currentMode = VISUALIZER_MODES.find(m => m.value === visualizerMode);
     return currentMode?.label || 'Visualizer';
   };
   
-  // Determine chakra-specific color classes
   const getChakraColorClasses = (): {bg: string, text: string, border: string} => {
     if (liftTheVeil) {
       return {
@@ -239,7 +213,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
       };
     }
     
-    // Return chakra-specific colors
     switch(chakra.toLowerCase()) {
       case 'root':
         return {
@@ -310,7 +283,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           overflow-hidden shadow-lg relative
         `}
       >
-        {/* Visualizer container - positioned absolutely to fill the player */}
         <div 
           ref={visualizerRef}
           className={`absolute inset-0 z-0 transition-opacity duration-300 ${
@@ -344,7 +316,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           </AnimatePresence>
         </div>
         
-        {/* Prime number tooltip */}
         <AnimatePresence>
           {activeTooltipPrime && isAudioPlaying && (
             <motion.div
@@ -366,14 +337,12 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           )}
         </AnimatePresence>
         
-        {/* Player UI - with gradient background */}
         <div className={`
           relative z-10 flex flex-col bg-gradient-to-r ${colors.bg}
           ${(!showVisualizer || !isAudioPlaying) ? 'bg-opacity-100' : 'bg-opacity-50 backdrop-blur-sm'}
           ${isFullscreen ? 'h-full' : ''}
           border ${colors.border}
         `}>
-          {/* Player header */}
           <div className="px-4 py-3 flex items-center justify-between">
             <div className="flex items-center">
               <Button
@@ -442,159 +411,147 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
             </div>
           </div>
           
-          {/* Player content - only visible when expanded */}
-          {expanded && (
-            <div className="p-4 space-y-4 flex-1 flex flex-col">
-              {/* Frequency and chakra info */}
-              <div className="flex flex-wrap gap-2">
-                {frequency && (
-                  <Badge variant="outline" className={`border-white/20 ${colors.text}`}>
-                    {frequency} Hz
-                  </Badge>
-                )}
-                {chakra && (
-                  <Badge variant="outline" className={`border-white/20 ${colors.text}`}>
-                    {chakra} Chakra
-                  </Badge>
-                )}
-                {detectedFrequency && (
-                  <Badge variant="outline" className="border-white/20 text-white/80">
-                    Current: ~{detectedFrequency} Hz
-                  </Badge>
-                )}
-                {primes.length > 0 && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Badge className={`bg-white/20 hover:bg-white/30 cursor-help ${colors.text}`}>
-                        {primes.length} Primes Found
-                      </Badge>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="text-sm">Prime Harmonics Detected: {primes.slice(-5).join(', ')}</p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        Prime frequencies align with sacred harmonic fields for resonance with natural consciousness
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
-              </div>
-
-              {/* Audio player center area */}
-              <div className={`flex-1 flex flex-col justify-center items-center min-h-[200px] ${isFullscreen ? 'min-h-[60vh]' : ''}`}>
-                {/* Center play/pause button (shown when not playing or visualizer hidden) */}
-                {(!isAudioPlaying || !showVisualizer) && (
-                  <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className={`relative rounded-full ${liftTheVeil ? 'bg-pink-600/20' : 'bg-purple-600/20'} p-8`}
-                  >
-                    <Button
-                      variant="default"
-                      size="icon"
-                      className={`h-16 w-16 rounded-full ${liftTheVeil ? 'bg-pink-600 hover:bg-pink-700' : 'bg-purple-600 hover:bg-purple-700'}`}
-                      onClick={handlePlayPause}
-                      disabled={!audioLoaded}
-                    >
-                      {isAudioPlaying ? (
-                        <Pause className="h-8 w-8" />
-                      ) : (
-                        <Play className="h-8 w-8 ml-1" />
-                      )}
-                    </Button>
-                    <div className={`absolute inset-0 rounded-full ${liftTheVeil ? 'bg-pink-600/10' : 'bg-purple-600/10'} animate-ping`} />
-                  </motion.div>
-                )}
-                
-                {/* Visualizer player status indicator (minimized visualizer representation) */}
-                {isAudioPlaying && showVisualizer && (
-                  <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 z-30 pointer-events-none">
-                    <Badge 
-                      className={`px-3 py-1.5 flex items-center gap-2 ${
-                        liftTheVeil 
-                          ? 'bg-pink-700/50 text-pink-50' 
-                          : 'bg-purple-700/50 text-purple-50'
-                      } backdrop-blur-sm`}
-                    >
-                      <Waveform className="h-3 w-3 animate-pulse" />
-                      <span>{visualizerMode === 'rainbow' ? 'Full Spectrum' : 'Chakra Flow'}</span>
+          <div className="p-4 space-y-4 flex-1 flex flex-col">
+            <div className="flex flex-wrap gap-2">
+              {frequency && (
+                <Badge variant="outline" className={`border-white/20 ${colors.text}`}>
+                  {frequency} Hz
+                </Badge>
+              )}
+              {chakra && (
+                <Badge variant="outline" className={`border-white/20 ${colors.text}`}>
+                  {chakra} Chakra
+                </Badge>
+              )}
+              {detectedFrequency && (
+                <Badge variant="outline" className="border-white/20 text-white/80">
+                  Current: ~{detectedFrequency} Hz
+                </Badge>
+              )}
+              {primes.length > 0 && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge className={`bg-white/20 hover:bg-white/30 cursor-help ${colors.text}`}>
+                      {primes.length} Primes Found
                     </Badge>
-                  </div>
-                )}
-              </div>
-
-              {/* Audio controls */}
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs text-gray-300">
-                  <span>{formatTime(currentAudioTime)}</span>
-                  <span>{formatTime(duration)}</span>
-                </div>
-                <Slider
-                  value={[currentAudioTime]}
-                  max={duration || 100}
-                  step={0.1}
-                  onValueChange={(values) => seekTo(values[0])}
-                  className="w-full"
-                />
-              </div>
-
-              {/* Bottom controls */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-white/70 hover:text-white"
-                    onClick={handleToggleMute}
-                  >
-                    {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-                  </Button>
-                  
-                  <div className="w-20">
-                    <Slider
-                      value={[isMuted ? 0 : volume]}
-                      max={1}
-                      step={0.01}
-                      onValueChange={(values) => {
-                        setVolume(values[0]);
-                        if (values[0] > 0 && isMuted) {
-                          setIsMuted(false);
-                        }
-                      }}
-                    />
-                  </div>
-                </div>
-                
-                <Button
-                  variant="default"
-                  size="sm"
-                  className={`rounded-full ${liftTheVeil ? 'bg-pink-600 hover:bg-pink-700' : 'bg-purple-600 hover:bg-purple-700'}`}
-                  onClick={handlePlayPause}
-                  disabled={!audioLoaded}
-                >
-                  {isAudioPlaying ? (
-                    <Pause className="h-4 w-4 mr-2" />
-                  ) : (
-                    <Play className="h-4 w-4 mr-2 ml-0.5" />
-                  )}
-                  {isAudioPlaying ? 'Pause' : 'Play'}
-                </Button>
-              </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-sm">Prime Harmonics Detected: {primes.slice(-5).join(', ')}</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Prime frequencies align with sacred harmonic fields for resonance with natural consciousness
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
             </div>
-          )}
+            
+            <div className={`flex-1 flex flex-col justify-center items-center min-h-[200px] ${isFullscreen ? 'min-h-[60vh]' : ''}`}>
+              {(!isAudioPlaying || !showVisualizer) && (
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className={`relative rounded-full ${liftTheVeil ? 'bg-pink-600/20' : 'bg-purple-600/20'} p-8`}
+                >
+                  <Button
+                    variant="default"
+                    size="icon"
+                    className={`h-16 w-16 rounded-full ${liftTheVeil ? 'bg-pink-600 hover:bg-pink-700' : 'bg-purple-600 hover:bg-purple-700'}`}
+                    onClick={handlePlayPause}
+                    disabled={!audioLoaded}
+                  >
+                    {isAudioPlaying ? (
+                      <Pause className="h-8 w-8" />
+                    ) : (
+                      <Play className="h-8 w-8 ml-1" />
+                    )}
+                  </Button>
+                  <div className={`absolute inset-0 rounded-full ${liftTheVeil ? 'bg-pink-600/10' : 'bg-purple-600/10'} animate-ping`} />
+                </motion.div>
+              )}
+              
+              {isAudioPlaying && showVisualizer && (
+                <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 z-30 pointer-events-none">
+                  <Badge 
+                    className={`px-3 py-1.5 flex items-center gap-2 ${
+                      liftTheVeil 
+                        ? 'bg-pink-700/50 text-pink-50' 
+                        : 'bg-purple-700/50 text-purple-50'
+                    } backdrop-blur-sm`}
+                  >
+                    <Activity className="h-3 w-3 animate-pulse" />
+                    <span>{visualizerMode === 'rainbow' ? 'Full Spectrum' : 'Chakra Flow'}</span>
+                  </Badge>
+                </div>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs text-gray-300">
+                <span>{formatTime(currentAudioTime)}</span>
+                <span>{formatTime(duration)}</span>
+              </div>
+              <Slider
+                value={[currentAudioTime]}
+                max={duration || 100}
+                step={0.1}
+                onValueChange={(values) => seekTo(values[0])}
+                className="w-full"
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-white/70 hover:text-white"
+                  onClick={handleToggleMute}
+                >
+                  {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                </Button>
+                
+                <div className="w-20">
+                  <Slider
+                    value={[isMuted ? 0 : volume]}
+                    max={1}
+                    step={0.01}
+                    onValueChange={(values) => {
+                      setVolume(values[0]);
+                      if (values[0] > 0 && isMuted) {
+                        setIsMuted(false);
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+              
+              <Button
+                variant="default"
+                size="sm"
+                className={`rounded-full ${liftTheVeil ? 'bg-pink-600 hover:bg-pink-700' : 'bg-purple-600 hover:bg-purple-700'}`}
+                onClick={handlePlayPause}
+                disabled={!audioLoaded}
+              >
+                {isAudioPlaying ? (
+                  <Pause className="h-4 w-4 mr-2" />
+                ) : (
+                  <Play className="h-4 w-4 mr-2 ml-0.5" />
+                )}
+                {isAudioPlaying ? 'Pause' : 'Play'}
+              </Button>
+            </div>
+          </div>
           
-          {/* Minimized player controls - only visible when not expanded */}
           {!expanded && (
             <div className="p-2 flex items-center justify-center">
-              {/* Small pulsing waveform when playing */}
               {isAudioPlaying && showVisualizer && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
                   <div className={`w-8 h-8 ${liftTheVeil ? 'text-pink-400' : 'text-purple-400'} opacity-60`}>
-                    <Waveform className="w-full h-full animate-pulse" />
+                    <Activity className="w-full h-full animate-pulse" />
                   </div>
                 </div>
               )}
               
-              {/* Play/pause button */}
               <Button
                 variant="default"
                 size="icon"
