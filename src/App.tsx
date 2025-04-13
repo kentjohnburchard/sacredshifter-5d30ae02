@@ -49,8 +49,8 @@ function App() {
         <ThemeEnhancer />
         <React.StrictMode>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/home" element={<Dashboard />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/meditations" element={<Meditations />} />
             <Route path="/intentions" element={<Intentions />} />

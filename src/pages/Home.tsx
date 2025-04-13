@@ -1,29 +1,51 @@
 
 import React from "react";
-import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+import { Logo, AnimatedText, CallToAction } from "@/components/landing";
+import Layout from "@/components/Layout";
+import { Card, CardContent } from "@/components/ui/card";
 import { Music, Heart, Sparkles, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import Header from "@/components/navigation/Header";
-import Layout from "@/components/Layout";
-import { TrademarkedName } from "@/components/ip-protection";
-import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
-import ConsciousnessToggle from "@/components/ConsciousnessToggle";
 
 const Home: React.FC = () => {
   return (
-    <Layout>
+    <Layout pageTitle="Welcome" useBlueWaveBackground={true}>
       <div className="container mx-auto px-4 py-8 relative z-20">
-        <div className="mb-12 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-300 to-indigo-400 mb-4">
-            Welcome to Sacred Shifter
-          </h1>
-          <p className="text-xl text-purple-100 max-w-3xl mx-auto">
-            Experience the healing power of sacred frequencies and sound vibrations
-          </p>
+        <div className="flex flex-col items-center justify-center min-h-[70vh] text-center">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <Logo />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 1 }}
+            className="mt-6 mb-8"
+          >
+            <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-300 to-indigo-400 mb-4">
+              Welcome to Sacred Shifter
+            </h1>
+            <p className="text-xl text-purple-100 max-w-3xl mx-auto">
+              Experience the healing power of sacred frequencies and sound vibrations
+            </p>
+          </motion.div>
+
+          <div className="space-y-6 mb-12">
+            <AnimatedText text="Expand Your Consciousness" className="delay-300" />
+            <AnimatedText text="Elevate Your Frequency" className="delay-500" />
+            <AnimatedText text="Transform Your Energy" className="delay-700" />
+          </div>
+
+          <CallToAction to="/dashboard">
+            Begin Your Journey
+          </CallToAction>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16 mb-12">
           {[
             { 
               title: 'Sound Healing', 
@@ -54,60 +76,31 @@ const Home: React.FC = () => {
               color: 'border-blue-500/20'  
             },
           ].map(({ title, description, path, icon, color }) => (
-            <Card 
-              key={title} 
-              className={`bg-black/30 backdrop-blur-sm border ${color} hover:bg-black/40 transition-all`}
+            <motion.div
+              key={title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              whileHover={{ y: -5 }}
             >
-              <CardHeader>
-                <div className="p-3 mb-3 rounded-full bg-black/40 w-fit border border-purple-500/20">
-                  {icon}
-                </div>
-                <CardTitle>{title}</CardTitle>
-                <CardDescription className="text-gray-300">{description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Link to={path}>
-                  <Button className="w-full bg-purple-900/60 hover:bg-purple-800/80">
-                    Explore
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
+              <Card 
+                className={`bg-black/30 backdrop-blur-sm border ${color} hover:bg-black/40 transition-all h-full`}
+              >
+                <CardContent className="pt-6">
+                  <div className="p-3 mb-3 rounded-full bg-black/40 w-fit border border-purple-500/20">
+                    {icon}
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">{title}</h3>
+                  <p className="text-gray-300 mb-4">{description}</p>
+                  <Link to={path} className="text-purple-300 hover:text-purple-100 inline-flex items-center">
+                    Explore <span className="ml-1">→</span>
+                  </Link>
+                </CardContent>
+              </Card>
+            </motion.div>
           ))}
         </div>
-
-        <div className="max-w-4xl mx-auto">
-          <Card className="border-purple-500/20 bg-black/30 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Sparkles className="h-5 w-5 mr-2 text-purple-400" />
-                <TrademarkedName>Sacred Blueprint</TrademarkedName>
-              </CardTitle>
-              <CardDescription className="text-gray-300">
-                Discover your unique vibrational fingerprint that reveals your energetic signature,
-                spiritual identity, and soul purpose.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <p className="text-gray-200">
-                  Every frequency carries intention. The frequencies you're drawn to are often 
-                  the ones your energy body is seeking for balance.
-                </p>
-                <Link to="/sacred-blueprint">
-                  <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white">
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Reveal Your Blueprint
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
       </div>
-      
-      <SacredAudioPlayer />
-      <ConsciousnessToggle />
     </Layout>
   );
 };
