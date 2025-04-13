@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import SacredFlowerOfLife from '@/components/sacred-geometry/shapes/SacredFlowerOfLife';
 import MetatronsCube from '@/components/sacred-geometry/shapes/MetatronsCube';
@@ -9,7 +10,7 @@ import SriYantra from '@/components/sacred-geometry/shapes/SriYantra';
 import VesicaPiscis from '@/components/sacred-geometry/shapes/VesicaPiscis';
 import StarfieldBackground from '@/components/sacred-geometry/StarfieldBackground';
 import { Music, Heart, Sparkles, BookOpen, Star, Moon, LibraryBig, Wand2, Compass, Brain, Activity, Map } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import FixedFooter from '@/components/navigation/FixedFooter';
 import Sidebar from '@/components/Sidebar';
 import ConsciousnessToggle from '@/components/ConsciousnessToggle';
@@ -24,6 +25,160 @@ import AboutSacredShifter from '@/components/AboutSacredShifter';
 import ThemeEnhancer from '@/components/ThemeEnhancer';
 import SacredPulseBar from '@/components/sacred-geometry/SacredPulseBar';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
+import { calculatePrimeFactors, isPrime } from '@/utils/primeCalculations';
+
+// Enhanced particle effect component
+const EnhancedParticleField: React.FC<{ isAudioPlaying: boolean; liftTheVeil: boolean }> = ({ isAudioPlaying, liftTheVeil }) => {
+  const particleRef = useRef<HTMLDivElement>(null);
+  const primeNumbers = [2, 3, 5, 7, 11, 13, 17, 19, 23];
+  const particleCount = liftTheVeil ? primeNumbers[4] * primeNumbers[2] : primeNumbers[3] * primeNumbers[1]; // 55 or 21 particles
+
+  useEffect(() => {
+    if (!particleRef.current) return;
+    
+    const container = particleRef.current;
+    const width = container.offsetWidth;
+    const height = container.offsetHeight;
+    
+    // Clear existing particles
+    container.innerHTML = '';
+    
+    // Create new particles
+    for (let i = 0; i < particleCount; i++) {
+      const particle = document.createElement('div');
+      const size = Math.random() * 3 + 1;
+      const isPrimeIndex = isPrime(i + 1);
+      
+      // Base styles for all particles
+      particle.style.position = 'absolute';
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
+      particle.style.borderRadius = '50%';
+      particle.style.left = `${Math.random() * 100}%`;
+      particle.style.top = `${Math.random() * 100}%`;
+      
+      // Special styling for prime-indexed particles
+      if (isPrimeIndex) {
+        particle.style.background = liftTheVeil 
+          ? `rgba(255, 105, 180, ${Math.random() * 0.3 + 0.4})` 
+          : `rgba(147, 51, 234, ${Math.random() * 0.3 + 0.4})`;
+        particle.style.boxShadow = liftTheVeil 
+          ? '0 0 8px rgba(255, 105, 180, 0.7)' 
+          : '0 0 8px rgba(147, 51, 234, 0.7)';
+        
+        // Animation for prime particles
+        const animDuration = primeNumbers[i % primeNumbers.length] * 2;
+        particle.animate(
+          [
+            { transform: 'scale(1)', opacity: 0.7 },
+            { transform: 'scale(1.5)', opacity: 1 },
+            { transform: 'scale(1)', opacity: 0.7 }
+          ],
+          {
+            duration: animDuration * 1000,
+            iterations: Infinity,
+            direction: 'alternate',
+            easing: 'ease-in-out'
+          }
+        );
+      } else {
+        particle.style.background = liftTheVeil 
+          ? `rgba(255, 182, 193, ${Math.random() * 0.2 + 0.2})` 
+          : `rgba(167, 139, 250, ${Math.random() * 0.2 + 0.2})`;
+        
+        // Different animation for non-prime particles
+        const animDuration = 5 + Math.random() * 10;
+        particle.animate(
+          [
+            { transform: 'translateY(0px) scale(1)', opacity: 0.5 },
+            { transform: 'translateY(-15px) scale(1.1)', opacity: 0.8 },
+            { transform: 'translateY(0px) scale(1)', opacity: 0.5 }
+          ],
+          {
+            duration: animDuration * 1000,
+            iterations: Infinity,
+            direction: 'alternate',
+            easing: 'ease-in-out',
+            delay: Math.random() * 2000
+          }
+        );
+      }
+      
+      // Enhanced behavior when audio is playing
+      if (isAudioPlaying) {
+        const pulseAnimation = particle.animate(
+          [
+            { transform: 'scale(1)', opacity: 0.6 },
+            { transform: 'scale(1.3)', opacity: 1 },
+            { transform: 'scale(1)', opacity: 0.6 }
+          ],
+          {
+            duration: 1800,
+            iterations: Infinity,
+            direction: 'alternate',
+            easing: 'ease-in-out',
+            delay: i * 100 % 1000
+          }
+        );
+      }
+      
+      container.appendChild(particle);
+    }
+  }, [particleCount, isAudioPlaying, liftTheVeil]);
+
+  return (
+    <div 
+      ref={particleRef} 
+      className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
+      style={{ 
+        perspective: '1000px',
+        transform: 'translateZ(0)'
+      }}
+    />
+  );
+};
+
+// Sacred scroll reveal component
+const SacredScrollReveal: React.FC<{ liftTheVeil: boolean }> = ({ liftTheVeil }) => {
+  const { scrollYProgress } = useScroll();
+  const opacityProgress = useTransform(scrollYProgress, [0, 0.3, 0.8], [0, 1, 0]);
+  const scaleProgress = useTransform(scrollYProgress, [0, 0.3, 0.8], [0.8, 1.1, 0.9]);
+  const rotateProgress = useTransform(scrollYProgress, [0, 0.8], [0, 360]);
+  
+  return (
+    <motion.div 
+      className="fixed right-12 bottom-32 pointer-events-none z-10"
+      style={{ 
+        opacity: opacityProgress, 
+        scale: scaleProgress,
+        rotate: rotateProgress
+      }}
+    >
+      <div className={cn(
+        "w-24 h-24 rounded-full",
+        liftTheVeil 
+          ? "bg-gradient-to-r from-pink-500/30 to-purple-400/30 border-pink-500/50" 
+          : "bg-gradient-to-r from-purple-500/30 to-indigo-400/30 border-purple-500/50",
+        "border-2 flex items-center justify-center"
+      )}>
+        <div className={cn(
+          "w-16 h-16 rounded-full",
+          liftTheVeil 
+            ? "bg-gradient-to-br from-pink-500/40 to-pink-300/20 border-pink-400/60" 
+            : "bg-gradient-to-br from-purple-500/40 to-purple-300/20 border-purple-400/60",
+          "border flex items-center justify-center animate-spin-slow"
+        )}>
+          <div className={cn(
+            "text-2xl font-bold",
+            liftTheVeil ? "text-pink-200" : "text-purple-200"
+          )}>
+            φ
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
 
 const geometryComponents = {
   'Flower of Life': <SacredFlowerOfLife />,
@@ -45,7 +200,7 @@ const SacredShifterLanding = () => {
   const [showAboutComponent, setShowAboutComponent] = useState(false);
 
   useEffect(() => {
-    if (!isAudioPlaying) return; // Only auto-rotate when not playing audio
+    if (isAudioPlaying) return; // Only auto-rotate when not playing audio
     
     const shapes: ("flower-of-life" | "metatrons-cube" | "merkaba" | "torus" | "tree-of-life" | "sri-yantra" | "vesica-piscis")[] = [
       "flower-of-life", "metatrons-cube", "merkaba", "torus", "tree-of-life", "sri-yantra", "vesica-piscis"
@@ -254,14 +409,14 @@ const SacredShifterLanding = () => {
       "relative min-h-screen w-full bg-gradient-to-b from-black via-[#0a0118] to-black text-white font-sans overflow-hidden",
       liftTheVeil ? "border-pink-500 border-[6px]" : "border-purple-500 border-[6px]"
     )}>
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <StarfieldBackground density="high" opacity={0.8} isStatic={false} />
-      </div>
+      {/* Enhanced particle field instead of static stars */}
+      <EnhancedParticleField isAudioPlaying={isAudioPlaying} liftTheVeil={liftTheVeil} />
 
       <Sidebar />
       <Watermark />
       <GlobalWatermark />
       
+      {/* Sacred pulse bar enhanced with better visibility */}
       <AnimatePresence>
         {isAudioPlaying && (
           <motion.div 
@@ -270,20 +425,34 @@ const SacredShifterLanding = () => {
             exit={{ opacity: 0 }}
             className="fixed top-0 left-0 right-0 z-50"
           >
-            <SacredPulseBar />
+            <SacredPulseBar className="h-1.5" />
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* Sacred Scroll Reveal component */}
+      <SacredScrollReveal liftTheVeil={liftTheVeil} />
+
+      {/* Enhanced Origin Flow button with animation */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1, duration: 0.5 }}
         className="fixed left-6 top-[40%] z-50 cursor-pointer"
         onClick={toggleOriginFlow}
+        whileHover={{ scale: 1.1, rotate: 15 }}
+        whileTap={{ scale: 0.95 }}
       >
-        <div className="p-2 rounded-full bg-purple-900/30 hover:bg-purple-800/50 border border-purple-500/30 transition-colors">
-          <Compass className="h-5 w-5 text-purple-200" />
+        <div className={cn(
+          "p-2 rounded-full backdrop-blur-sm border transition-all duration-500",
+          liftTheVeil 
+            ? "bg-pink-900/30 hover:bg-pink-800/50 border-pink-500/30"
+            : "bg-purple-900/30 hover:bg-purple-800/50 border-purple-500/30"
+        )}>
+          <Compass className={cn(
+            "h-5 w-5",
+            liftTheVeil ? "text-pink-200" : "text-purple-200"
+          )} />
         </div>
       </motion.div>
 
@@ -294,15 +463,26 @@ const SacredShifterLanding = () => {
         onToggleAbout={toggleAboutComponent}
       />
 
+      {/* Enhanced top logo with subtle animation */}
       <div className="fixed top-0 left-0 right-0 pointer-events-none z-10 flex justify-center items-start">
-        <img 
+        <motion.img 
           src="/lovable-uploads/55c4de0c-9d48-42df-a6a2-1bb6520acb46.png" 
           alt="Sacred Shifter Top Watermark" 
-          className="max-w-[70%] max-h-[20%] object-contain opacity-[0.35] mt-12 app-logo" 
+          className="max-w-[70%] max-h-[20%] object-contain opacity-[0.35] mt-12 app-logo"
+          animate={isAudioPlaying ? {
+            opacity: [0.35, 0.45, 0.35],
+            scale: [1, 1.02, 1]
+          } : {}}
+          transition={{
+            duration: 4,
+            repeat: Infinity,
+            repeatType: "reverse"
+          }}
         />
       </div>
 
       <div className="ml-0 sm:ml-20">
+        {/* Enhanced sacred geometry visualizer */}
         <div className="fixed inset-0 z-5 pointer-events-none flex items-center justify-center">
           <motion.div 
             className="w-full h-full flex items-center justify-center"
@@ -328,21 +508,54 @@ const SacredShifterLanding = () => {
           </motion.div>
         </div>
 
+        {/* Content container with About section */}
         <div className="container mx-auto px-4 pt-16 md:pt-24 relative z-20">
+          {/* Enhanced welcome title with animated light rays */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="text-center mb-8 mt-24 max-w-4xl mx-auto"
+            className="text-center mb-8 mt-24 relative max-w-4xl mx-auto"
           >
-            <h1 className={`text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r ${liftTheVeil ? 'from-pink-400 via-fuchsia-300 to-purple-400 animate-sacred-shimmer' : 'from-purple-400 via-pink-300 to-indigo-400'} mb-2`}>
+            {/* Light rays behind text */}
+            <div className="absolute inset-0 -z-10">
+              <div className={cn(
+                "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] opacity-30 rounded-full",
+                liftTheVeil 
+                  ? "bg-gradient-radial from-pink-500/20 via-fuchsia-400/10 to-transparent" 
+                  : "bg-gradient-radial from-purple-500/20 via-indigo-400/10 to-transparent"
+              )}>
+                <motion.div 
+                  className="w-full h-full" 
+                  animate={{ 
+                    rotate: [0, 360],
+                    scale: [0.9, 1.1, 0.9]
+                  }}
+                  transition={{ 
+                    rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+                    scale: { duration: 8, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }
+                  }}
+                />
+              </div>
+            </div>
+
+            <h1 className={cn(
+              "text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r mb-2",
+              liftTheVeil 
+                ? "from-pink-400 via-fuchsia-300 to-purple-400 animate-sacred-shimmer" 
+                : "from-purple-400 via-pink-300 to-indigo-400"
+            )}>
               Welcome to Sacred Shifter
             </h1>
-            <p className={`text-xs md:text-sm ${liftTheVeil ? 'text-pink-100 animate-chromatic-shift' : 'text-purple-100'} max-w-xl mx-auto`}>
+            <p className={cn(
+              "text-xs md:text-sm max-w-xl mx-auto",
+              liftTheVeil ? "text-pink-100 animate-chromatic-shift" : "text-purple-100"
+            )}>
               Explore frequency healing and consciousness expansion
             </p>
           </motion.div>
 
+          {/* Feature tabs with enhanced animations */}
           <div className="mb-12">
             <Tabs 
               defaultValue={activeTab} 
@@ -366,6 +579,7 @@ const SacredShifterLanding = () => {
                 </TabsList>
               </div>
               
+              {/* Enhanced content tabs */}
               {Object.keys(categoryFeatures).map((category) => (
                 <TabsContent key={category} value={category} className="mt-6 animate-fade-in">
                   <motion.div 
@@ -383,7 +597,12 @@ const SacredShifterLanding = () => {
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.5, delay: index * 0.1 }}
-                          whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                          whileHover={{ 
+                            y: -5, 
+                            boxShadow: liftTheVeil 
+                              ? '0 10px 25px -5px rgba(255,105,180,0.3)' 
+                              : '0 10px 25px -5px rgba(147,51,234,0.3)' 
+                          }}
                         >
                           <div
                             className={`bg-gradient-to-br ${card.color} rounded-lg p-3 text-white border border-white/10 
@@ -391,18 +610,34 @@ const SacredShifterLanding = () => {
                           >
                             <div className="flex flex-col h-full">
                               <div className="flex items-center mb-1">
-                                <div className="p-1.5 rounded-full bg-black/20 backdrop-blur-sm mr-2 animate-pulse-slow">
+                                <motion.div 
+                                  className="p-1.5 rounded-full bg-black/20 backdrop-blur-sm mr-2" 
+                                  animate={{
+                                    scale: [1, 1.1, 1],
+                                    opacity: [0.7, 1, 0.7]
+                                  }}
+                                  transition={{
+                                    duration: 3, 
+                                    repeat: Infinity, 
+                                    repeatType: "reverse",
+                                    delay: index * 0.5
+                                  }}
+                                >
                                   {card.icon}
-                                </div>
+                                </motion.div>
                                 <h3 className={`text-base font-semibold ${liftTheVeil ? 'text-shimmer' : ''}`}>{card.title}</h3>
                               </div>
                               
                               <p className="text-xs text-gray-200/90 mt-1">{card.description}</p>
                               
                               <div className="mt-auto pt-1 flex justify-end">
-                                <span className="text-white/80 flex items-center text-xs font-medium">
+                                <motion.span 
+                                  className="text-white/80 flex items-center text-xs font-medium"
+                                  whileHover={{ x: 3 }}
+                                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                >
                                   Explore <span aria-hidden="true" className="ml-1">→</span>
-                                </span>
+                                </motion.span>
                               </div>
                             </div>
                           </div>
@@ -413,26 +648,45 @@ const SacredShifterLanding = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: index * 0.1 }}
-                            whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                            whileHover={{ 
+                              y: -5, 
+                              boxShadow: liftTheVeil 
+                                ? '0 10px 25px -5px rgba(255,105,180,0.3)' 
+                                : '0 10px 25px -5px rgba(147,51,234,0.3)' 
+                            }}
                             className={`bg-gradient-to-br ${card.color} rounded-lg p-3 text-white border border-white/10 
                                       backdrop-blur-md shadow-lg hover:shadow-xl transition-all h-full flex flex-col cosmic-card cosmic-glass-hover`}
                           >
                             <div className="flex flex-col h-full">
                               <div className="flex items-center mb-1">
-                                <div className="p-1.5 rounded-full bg-black/20 backdrop-blur-sm mr-2 animate-pulse-slow" style={{
-                                  animationDelay: `${index * 0.15}s`
-                                }}>
+                                <motion.div 
+                                  className="p-1.5 rounded-full bg-black/20 backdrop-blur-sm mr-2" 
+                                  animate={{
+                                    scale: [1, 1.1, 1],
+                                    opacity: [0.7, 1, 0.7]
+                                  }}
+                                  transition={{
+                                    duration: 3, 
+                                    repeat: Infinity, 
+                                    repeatType: "reverse",
+                                    delay: index * 0.5
+                                  }}
+                                >
                                   {card.icon}
-                                </div>
+                                </motion.div>
                                 <h3 className={`text-base font-semibold ${liftTheVeil ? 'text-shimmer' : ''}`}>{card.title}</h3>
                               </div>
                               
                               <p className="text-xs text-gray-200/90 mt-1">{card.description}</p>
                               
                               <div className="mt-auto pt-1 flex justify-end">
-                                <span className="text-white/80 flex items-center text-xs font-medium">
+                                <motion.span 
+                                  className="text-white/80 flex items-center text-xs font-medium"
+                                  whileHover={{ x: 3 }}
+                                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                >
                                   Explore <span aria-hidden="true" className="ml-1">→</span>
-                                </span>
+                                </motion.span>
                               </div>
                             </div>
                           </motion.div>
@@ -445,31 +699,152 @@ const SacredShifterLanding = () => {
             </Tabs>
           </div>
 
+          {/* About Sacred Shifter section - added per requirements */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.7 }}
+            className="mb-12 relative z-20"
+          >
+            <div className={cn(
+              "cosmic-glass p-6 rounded-xl border",
+              liftTheVeil ? "border-pink-500/20" : "border-purple-500/20"
+            )}>
+              <h2 className={cn(
+                "text-xl font-bold mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r",
+                liftTheVeil ? "from-pink-300 to-purple-300" : "from-purple-300 to-indigo-300"
+              )}>
+                About Sacred Shifter
+              </h2>
+              
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold mb-2 text-white/90">Our Mission</h3>
+                <p className="text-sm text-white/80">
+                  Sacred Shifter is dedicated to frequency healing and consciousness expansion through 
+                  sacred sound, ancient wisdom, and modern technology. We believe that every being has 
+                  the innate ability to harmonize their frequency to achieve optimal wellbeing and 
+                  spiritual growth.
+                </p>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold mb-2 text-white/90">The Sacred Code</h3>
+                <p className="text-sm text-white/80">
+                  Our work is rooted in the understanding that everything in existence is vibration. 
+                  The frequencies we interact with daily affect our physical, mental, and spiritual being. 
+                  By consciously working with sacred frequencies, we can restore harmony and balance,
+                  dissolve energetic blockages, and activate our highest potential.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Founder's Message */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className="mb-12 relative z-20"
+          >
+            <div className={cn(
+              "cosmic-glass p-6 rounded-xl border",
+              liftTheVeil ? "border-pink-500/20" : "border-purple-500/20"
+            )}>
+              <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+                <div className={cn(
+                  "rounded-full w-28 h-28 flex-shrink-0 border-2 overflow-hidden relative",
+                  liftTheVeil ? "border-pink-400/30" : "border-purple-400/30"
+                )}>
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/0 to-black/60" />
+                  <div className={cn(
+                    "absolute inset-0 rounded-full",
+                    liftTheVeil ? "bg-gradient-to-br from-pink-900/30 to-purple-800/30" : "bg-gradient-to-br from-purple-900/30 to-indigo-800/30"
+                  )} />
+                  <motion.div
+                    animate={{ 
+                      scale: [1, 1.05, 1],
+                      rotate: [0, 2, 0, -2, 0] 
+                    }}
+                    transition={{ 
+                      scale: { duration: 8, repeat: Infinity, repeatType: "reverse" },
+                      rotate: { duration: 12, repeat: Infinity, repeatType: "reverse" }
+                    }}
+                    className="w-full h-full flex items-center justify-center"
+                  >
+                    <Star className={cn(
+                      "w-12 h-12",
+                      liftTheVeil ? "text-pink-300" : "text-purple-300"
+                    )} />
+                  </motion.div>
+                </div>
+                
+                <div>
+                  <h3 className={cn(
+                    "text-lg font-semibold mb-2",
+                    liftTheVeil ? "text-pink-100" : "text-purple-100"
+                  )}>
+                    Founder's Message
+                  </h3>
+                  <p className="text-sm text-white/80 mb-4">
+                    "Sacred Shifter was born from a deep calling to create a space where ancient wisdom 
+                    meets modern technology. I experienced firsthand how frequency healing transformed my life
+                    during a period of profound challenge, and I knew I had to share these tools with others."
+                  </p>
+                  <p className="text-sm text-white/80">
+                    "Each feature has been designed with intention - to guide you on your personal journey of
+                    healing, awakening, and remembering who you truly are. This is more than an app; it's a 
+                    gateway to your highest expression."
+                  </p>
+                  <p className="text-right text-xs italic mt-2 text-white/60">- Vale, Founder</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+          
           <div className="h-24"></div>
         </div>
       </div>
 
+      {/* Enhanced geometry selector with animations */}
       <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-40 max-w-sm w-full">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-black/80 backdrop-blur-lg rounded-xl p-4 border border-purple-500/30 shadow-lg shadow-purple-900/20 mx-2 cosmic-glass"
+          className={cn(
+            "bg-black/80 backdrop-blur-lg rounded-xl p-4 border shadow-lg mx-2 cosmic-glass",
+            liftTheVeil ? "border-pink-500/30 shadow-pink-900/20" : "border-purple-500/30 shadow-purple-900/20"
+          )}
         >
           <h2 className="text-lg font-semibold text-center mb-3">Sacred Geometries</h2>
           <div className="grid grid-cols-4 gap-2">
             {Object.entries(shapeMapping).map(([name, value]) => (
-              <button
+              <motion.button
                 key={name}
                 onClick={() => setSelectedShape(value)}
                 className={cn(
-                  "text-xs py-2 px-2 rounded-md transition-colors text-center",
+                  "text-xs py-2 px-2 rounded-md transition-all text-center",
                   selectedShape === value 
-                    ? `${liftTheVeil ? 'bg-pink-600' : 'bg-purple-600'} text-white animate-pulse-slow` 
+                    ? liftTheVeil 
+                      ? 'bg-pink-600 text-white' 
+                      : 'bg-purple-600 text-white' 
                     : "bg-purple-900/40 text-purple-100 hover:bg-purple-800/60"
                 )}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                animate={selectedShape === value ? {
+                  scale: [1, 1.05, 1],
+                  boxShadow: [
+                    '0 0 0 rgba(0,0,0,0)',
+                    liftTheVeil 
+                      ? '0 0 10px rgba(255,105,180,0.5)' 
+                      : '0 0 10px rgba(147,51,234,0.5)',
+                    '0 0 0 rgba(0,0,0,0)'
+                  ]
+                } : {}}
+                transition={{ duration: 2, repeat: Infinity }}
               >
                 {name}
-              </button>
+              </motion.button>
             ))}
           </div>
         </motion.div>
@@ -477,6 +852,7 @@ const SacredShifterLanding = () => {
 
       <ConsciousnessToggle />
       
+      {/* Enhanced footer with pulse effect */}
       <FixedFooter />
     </div>
   );
