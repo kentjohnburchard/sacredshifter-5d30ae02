@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import SacredFlowerOfLife from '@/components/sacred-geometry/shapes/SacredFlowerOfLife';
 import MetatronsCube from '@/components/sacred-geometry/shapes/MetatronsCube';
@@ -12,6 +12,7 @@ import StarfieldBackground from '@/components/sacred-geometry/StarfieldBackgroun
 import { Music, Heart, Sparkles, BookOpen, Star, Moon, LibraryBig, Wand2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import FixedFooter from '@/components/navigation/FixedFooter';
+import BottomNavigation from '@/components/navigation/BottomNavigation';
 import Sidebar from '@/components/Sidebar';
 import ConsciousnessToggle from '@/components/ConsciousnessToggle';
 import Watermark from '@/components/Watermark';
@@ -23,6 +24,7 @@ import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import GlobalWatermark from '@/components/GlobalWatermark';
+import OriginFlow from '@/components/sacred-geometry/OriginFlow';
 
 const geometryComponents = {
   'Flower of Life': <SacredFlowerOfLife />,
@@ -40,6 +42,7 @@ const SacredShifterLanding = () => {
   const { setAudioSource } = useAudioPlayer();
   const [activeTab, setActiveTab] = useState("sound");
   const [showGeometrySelector, setShowGeometrySelector] = useState(false);
+  const [showOriginFlow, setShowOriginFlow] = useState(false);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -143,15 +146,24 @@ const SacredShifterLanding = () => {
     { label: "My Journey", icon: <Star className="h-5 w-5" />, value: "journey" },
   ];
 
-  // Get features for the active tab
-  const getActiveFeatures = () => {
-    return categoryFeatures[activeTab as keyof typeof categoryFeatures] || [];
+  // Toggle origin flow easter egg
+  const toggleOriginFlow = () => {
+    setShowOriginFlow(!showOriginFlow);
   };
 
-  // Toggle geometry selector
-  const toggleGeometrySelector = () => {
-    setShowGeometrySelector(!showGeometrySelector);
-  };
+  // Add a trigger for the Origin Flow easter egg
+  useEffect(() => {
+    // Add a small clickable area in the bottom left for Origin Flow 
+    const originTrigger = document.createElement('div');
+    originTrigger.className = 'fixed bottom-4 left-4 w-8 h-8 z-50 cursor-pointer opacity-20 hover:opacity-60';
+    originTrigger.innerHTML = '✧'; // Simple star symbol as a subtle indicator
+    originTrigger.addEventListener('click', toggleOriginFlow);
+    document.body.appendChild(originTrigger);
+    
+    return () => {
+      document.body.removeChild(originTrigger);
+    };
+  }, []);
 
   return (
     <div className={cn(
@@ -166,11 +178,14 @@ const SacredShifterLanding = () => {
       <Watermark />
       <GlobalWatermark />
 
+      {/* Origin Flow Easter Egg */}
+      {showOriginFlow && <OriginFlow forceShow={true} />}
+
       <div className="ml-0 sm:ml-20">
-        {/* Sacred geometry visualizer positioned more centrally in the page */}
-        <div className="fixed top-1/4 left-0 right-0 z-10 pointer-events-none flex items-center justify-center">
+        {/* Sacred geometry visualizer positioned more centrally and prominently */}
+        <div className="fixed inset-0 z-5 pointer-events-none flex items-center justify-center">
           <div className="w-full flex items-center justify-center">
-            <div className="w-[100vh] h-[100vh] max-w-none opacity-80">
+            <div className="w-[90vh] h-[90vh] max-w-none">
               <SacredGeometryVisualizer 
                 defaultShape={selectedShape}
                 size="xl"
@@ -215,11 +230,11 @@ const SacredShifterLanding = () => {
               ))}
             </TabsList>
             
-            {/* TabsContent for each tab value */}
-            {navigationTabs.map((tab) => (
-              <TabsContent key={tab.value} value={tab.value} className="animate-fade-in mt-6">
+            {/* TabsContent for each category */}
+            {Object.keys(categoryFeatures).map((category) => (
+              <TabsContent key={category} value={category} className="animate-fade-in mt-6">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-8">
-                  {allFeatures.map((card) => (
+                  {categoryFeatures[category as keyof typeof categoryFeatures].map((card) => (
                     <Link to={card.path} key={card.title} className="block">
                       <motion.div
                         whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
@@ -312,6 +327,7 @@ const SacredShifterLanding = () => {
 
       <ConsciousnessToggle />
       <FixedFooter />
+      <BottomNavigation />
     </div>
   );
 };
