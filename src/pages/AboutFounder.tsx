@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTheme } from "@/context/ThemeContext";
-import AboutSacredShifter from "@/components/AboutSacredShifter";
+import { Sparkles } from "lucide-react";
 
 const AboutFounder = () => {
   const { liftTheVeil } = useTheme();
@@ -42,7 +42,7 @@ const AboutFounder = () => {
   // Choose content based on consciousness mode
   const content = liftTheVeil ? advancedContent : standardContent;
   
-  // Quotes to display
+  // Quotes to display - reduced to two primary quotes
   const quotes = [
     "You are not here by accident. You're here because the Universe can't do this without you.",
     "The frequencies we work with are like keys that unlock dormant potentials..."
@@ -57,12 +57,40 @@ const AboutFounder = () => {
           transition={{ duration: 0.8 }}
           className="space-y-8"
         >
+          {/* Title Section */}
           <div className="flex items-center justify-between">
             <h1 className={`text-3xl font-bold ${liftTheVeil ? 'bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 text-transparent bg-clip-text' : 'text-purple-900 dark:text-purple-100'}`}>
               {content.title}
             </h1>
           </div>
           
+          {/* First Quote - Top */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className={`p-6 rounded-lg ${liftTheVeil 
+              ? 'bg-gradient-to-r from-indigo-900/20 to-purple-900/20 border border-pink-500/20' 
+              : 'bg-gradient-to-r from-purple-900/20 to-indigo-900/20 border border-purple-500/20'}`}
+          >
+            <motion.p 
+              animate={{ 
+                textShadow: liftTheVeil 
+                  ? ['0 0 3px rgba(236,72,153,0.3)', '0 0 7px rgba(236,72,153,0.5)', '0 0 3px rgba(236,72,153,0.3)']
+                  : ['0 0 3px rgba(147,51,234,0.3)', '0 0 7px rgba(147,51,234,0.5)', '0 0 3px rgba(147,51,234,0.3)']
+              }}
+              transition={{ 
+                duration: 4, 
+                repeat: Infinity, 
+                repeatType: "reverse" 
+              }}
+              className="text-center italic text-lg md:text-xl text-white"
+            >
+              "{quotes[0]}"
+            </motion.p>
+          </motion.div>
+          
+          {/* Main Founder Content */}
           <div className="flex flex-col md:flex-row gap-8 items-center">
             <div className="w-full md:w-1/3">
               <Card className={`overflow-hidden ${liftTheVeil ? 'border-purple-400 shadow-purple-300/20 shadow-lg' : ''}`}>
@@ -119,44 +147,40 @@ const AboutFounder = () => {
             </div>
           </div>
 
-          {/* Animated Quotes */}
-          <div className="mt-16 space-y-8">
-            {quotes.map((quote, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 + (index * 0.2), duration: 0.8 }}
-                className={`p-6 rounded-lg ${liftTheVeil 
-                  ? 'bg-gradient-to-r from-indigo-900/20 to-purple-900/20 border border-pink-500/20' 
-                  : 'bg-gradient-to-r from-purple-900/20 to-indigo-900/20 border border-purple-500/20'}`}
-              >
-                <motion.p 
-                  animate={{ 
-                    textShadow: liftTheVeil 
-                      ? ['0 0 3px rgba(236,72,153,0.3)', '0 0 7px rgba(236,72,153,0.5)', '0 0 3px rgba(236,72,153,0.3)']
-                      : ['0 0 3px rgba(147,51,234,0.3)', '0 0 7px rgba(147,51,234,0.5)', '0 0 3px rgba(147,51,234,0.3)']
-                  }}
-                  transition={{ 
-                    duration: 4, 
-                    repeat: Infinity, 
-                    repeatType: "reverse" 
-                  }}
-                  className="text-center italic text-lg md:text-xl text-white"
-                >
-                  "{quote}"
-                </motion.p>
-              </motion.div>
-            ))}
-          </div>
+          {/* Second Quote - Bottom */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7, duration: 0.8 }}
+            className={`p-6 rounded-lg ${liftTheVeil 
+              ? 'bg-gradient-to-r from-indigo-900/20 to-purple-900/20 border border-pink-500/20' 
+              : 'bg-gradient-to-r from-purple-900/20 to-indigo-900/20 border border-purple-500/20'}`}
+          >
+            <motion.p 
+              animate={{ 
+                textShadow: liftTheVeil 
+                  ? ['0 0 3px rgba(236,72,153,0.3)', '0 0 7px rgba(236,72,153,0.5)', '0 0 3px rgba(236,72,153,0.3)']
+                  : ['0 0 3px rgba(147,51,234,0.3)', '0 0 7px rgba(147,51,234,0.5)', '0 0 3px rgba(147,51,234,0.3)']
+              }}
+              transition={{ 
+                duration: 4, 
+                repeat: Infinity, 
+                repeatType: "reverse" 
+              }}
+              className="text-center italic text-lg md:text-xl text-white"
+            >
+              "{quotes[1]}"
+            </motion.p>
+            <div className="flex justify-center mt-4">
+              <Sparkles className={`h-5 w-5 ${liftTheVeil ? 'text-pink-400' : 'text-purple-400'} animate-pulse`} />
+            </div>
+          </motion.div>
 
-          {/* About Sacred Shifter Component */}
-          <div className="mt-16">
-            <h2 className={`text-2xl font-bold mb-8 ${liftTheVeil ? 'bg-gradient-to-r from-pink-400 to-purple-500 text-transparent bg-clip-text' : 'text-purple-900 dark:text-purple-100'}`}>
-              About Sacred Shifter
-            </h2>
-            
-            <AboutSacredShifter />
+          {/* Footer signature/branding - simple and elegant */}
+          <div className="mt-8 text-center">
+            <p className={`text-sm ${liftTheVeil ? 'text-pink-400' : 'text-purple-400'} italic`}>
+              Sacred Shifter — Remembering Our Truth Through Sound & Frequency
+            </p>
           </div>
         </motion.div>
       </div>
