@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route } from "react-router-dom";
 import { EasterEggProvider } from "@/context/EasterEggContext";
@@ -36,12 +37,15 @@ import Contact from '@/pages/Contact';
 import PersonalVibeSettings from '@/pages/PersonalVibeSettings';
 import Dashboard from '@/pages/Dashboard';
 import Journeys from '@/pages/Journeys';
+import PrimeHistory from '@/pages/PrimeHistory';
 import { Toaster } from 'sonner';
+import OriginFlow from '@/components/sacred-geometry/OriginFlow';
 
 function App() {
   return (
     <EasterEggProvider>
       <Toaster />
+      <OriginFlow />
       <React.StrictMode>
         <Routes>
           <Route path="/" element={<Index />} />
@@ -71,6 +75,7 @@ function App() {
           <Route path="/astrology" element={<Astrology />} />
           <Route path="/focus" element={<Focus />} />
           <Route path="/timeline" element={<Timeline />} />
+          <Route path="/prime-history" element={<PrimeHistory />} />
           <Route path="/harmonic-map" element={<HarmonicMap />} />
           <Route path="/heart-dashboard" element={<HeartDashboard />} />
           <Route path="/energy-check" element={<EnergyCheck />} />

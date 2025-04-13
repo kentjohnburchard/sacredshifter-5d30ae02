@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -6,16 +7,16 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { toast } from 'sonner';
 import { Clock, Save, Eye, EyeOff } from 'lucide-react';
 
-interface PrimeNumberDisplayProps {
-  primes: number[];
-  sessionId?: string;
-  journeyTitle?: string;
-}
-
 interface PrimeHistoryEntry {
   id: string;
   timestamp: string;
   primes: number[];
+  journeyTitle?: string;
+}
+
+interface PrimeNumberDisplayProps {
+  primes: number[];
+  sessionId?: string;
   journeyTitle?: string;
 }
 
@@ -36,7 +37,7 @@ const PrimeNumberDisplay: React.FC<PrimeNumberDisplayProps> = ({
     };
     
     // Add to history without duplicates
-    setPrimeHistory(prev => {
+    setPrimeHistory((prev: PrimeHistoryEntry[]) => {
       // Check if we already have this exact sequence saved recently
       const isDuplicate = prev.some(entry => 
         JSON.stringify(entry.primes) === JSON.stringify(primes) && 

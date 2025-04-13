@@ -4,9 +4,11 @@ import LandingPrompt from "@/components/LandingPrompt";
 import { motion } from "framer-motion";
 import SacredFlowerOfLife from "@/components/sacred-geometry/shapes/SacredFlowerOfLife";
 import StarfieldBackground from "@/components/sacred-geometry/StarfieldBackground";
+import OriginFlow from "@/components/sacred-geometry/OriginFlow";
 
 const Welcome: React.FC = () => {
   const [showContent, setShowContent] = useState(false);
+  const [showOriginFlow, setShowOriginFlow] = useState(false);
   
   useEffect(() => {
     console.log('Welcome page loaded');
@@ -15,7 +17,15 @@ const Welcome: React.FC = () => {
       setShowContent(true);
     }, 300);
     
-    return () => clearTimeout(timer);
+    // Show origin flow after a short delay
+    const originFlowTimer = setTimeout(() => {
+      setShowOriginFlow(true);
+    }, 1500);
+    
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(originFlowTimer);
+    };
   }, []);
   
   return (
@@ -91,6 +101,9 @@ const Welcome: React.FC = () => {
       >
         <LandingPrompt />
       </motion.div>
+      
+      {/* Origin Flow */}
+      {showOriginFlow && <OriginFlow forceShow={true} />}
     </div>
   );
 };
