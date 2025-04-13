@@ -231,7 +231,7 @@ const SacredShifterLanding = () => {
   const [activeTab, setActiveTab] = useState("sound");
   const [showGeometrySelector, setShowGeometrySelector] = useState(true);
   const [showOriginFlow, setShowOriginFlow] = useState(false);
-  const [showAboutComponent, setShowAboutComponent] = useState(false);
+  const [showAboutComponent, setShowAboutComponent] = useState(true); // Set to true by default now
 
   useEffect(() => {
     if (isAudioPlaying) return; // Only auto-rotate when not playing audio
@@ -518,54 +518,55 @@ const SacredShifterLanding = () => {
         />
       </div>
 
-      <div className="ml-0 sm:ml-20">
-        <div className="fixed inset-0 z-5 pointer-events-none flex items-center justify-center">
-          <motion.div 
-            className="w-full h-full flex items-center justify-center"
-            animate={isAudioPlaying ? {
-              scale: [1, 1.02, 1],
-              opacity: [0.8, 0.9, 0.8]
-            } : {}}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              repeatType: "reverse",
-              ease: "easeInOut"
-            }}
-          >
-            <div className={`w-[110vh] h-[110vh] max-w-[110%] max-h-[110%] ${isAudioPlaying ? 'animate-pulse-medium' : ''}`}>
-              <SacredGeometryVisualizer 
-                defaultShape={selectedShape}
-                size="xl"
-                showControls={false}
-                className={`opacity-90 ${isAudioPlaying ? 'is-playing' : ''}`}
-              />
-            </div>
-          </motion.div>
-        </div>
-
-        <div className="fixed bottom-0 right-0 z-4 pointer-events-none">
-          <motion.div
-            className="w-[40vh] h-[40vh] opacity-50"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 0.5, scale: 1 }}
-            transition={{ duration: 1, delay: 1 }}
-          >
+      <div className="fixed inset-0 z-5 pointer-events-none flex items-center justify-center">
+        <motion.div 
+          className="w-full h-full flex items-center justify-center"
+          animate={isAudioPlaying ? {
+            scale: [1, 1.02, 1],
+            opacity: [0.8, 0.9, 0.8]
+          } : {}}
+          transition={{
+            duration: 4,
+            repeat: Infinity,
+            repeatType: "reverse",
+            ease: "easeInOut"
+          }}
+        >
+          <div className={`w-[130vh] h-[130vh] max-w-[130%] max-h-[130%] ${isAudioPlaying ? 'animate-pulse-medium' : ''}`}>
             <SacredGeometryVisualizer 
-              defaultShape={selectedShape === 'flower-of-life' ? 'merkaba' : 'flower-of-life'}
-              size="md"
+              defaultShape={selectedShape}
+              size="xl"
               showControls={false}
-              className="opacity-70"
+              className={`opacity-90 ${isAudioPlaying ? 'is-playing' : ''}`}
             />
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
+      </div>
 
-        <div className="container mx-auto px-4 pt-16 md:pt-24 relative z-20">
+      <div className="fixed bottom-0 right-0 z-4 pointer-events-none">
+        <motion.div
+          className="w-[40vh] h-[40vh] opacity-50"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 0.5, scale: 1 }}
+          transition={{ duration: 1, delay: 1 }}
+        >
+          <SacredGeometryVisualizer 
+            defaultShape={selectedShape === 'flower-of-life' ? 'merkaba' : 'flower-of-life'}
+            size="md"
+            showControls={false}
+            className="opacity-70"
+          />
+        </motion.div>
+      </div>
+
+      <div className="ml-0 sm:ml-20">
+        <div className="container mx-auto px-4 pt-8 md:pt-12 relative z-20">
+          {/* Welcome Title Section - Now at the top with smaller margins */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="text-center mb-8 mt-24 relative max-w-4xl mx-auto"
+            className="text-center mb-4 mt-12 relative max-w-4xl mx-auto"
           >
             <div className="absolute inset-0 -z-10">
               <div className={cn(
@@ -589,7 +590,7 @@ const SacredShifterLanding = () => {
             </div>
 
             <h1 className={cn(
-              "text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r mb-2",
+              "text-3xl sm:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r mb-2",
               liftTheVeil 
                 ? "from-pink-400 via-fuchsia-300 to-purple-400 animate-sacred-shimmer" 
                 : "from-purple-400 via-pink-300 to-indigo-400"
@@ -597,13 +598,24 @@ const SacredShifterLanding = () => {
               Welcome to Sacred Shifter
             </h1>
             <p className={cn(
-              "text-xs md:text-sm max-w-xl mx-auto",
+              "text-sm md:text-base max-w-xl mx-auto",
               liftTheVeil ? "text-pink-100 animate-chromatic-shift" : "text-purple-100"
             )}>
               Explore frequency healing and consciousness expansion
             </p>
           </motion.div>
-
+          
+          {/* About Sacred Shifter Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="mb-6 relative z-20"
+          >
+            <AboutSacredShifter />
+          </motion.div>
+          
+          {/* Feature Tabs Section */}
           <div className="mb-12">
             <Tabs 
               defaultValue={activeTab} 
@@ -627,70 +639,20 @@ const SacredShifterLanding = () => {
                 </TabsList>
               </div>
               
-              <TabsContent key={category} value={category} className="mt-6 animate-fade-in">
-                <motion.div 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"
-                >
-                  {categoryFeatures[category as keyof typeof categoryFeatures].map((card, index) => (
-                    card.onClick ? (
-                      <motion.div 
-                        key={card.title} 
-                        onClick={card.onClick} 
-                        className="cursor-pointer cosmic-card"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: index * 0.1 }}
-                        whileHover={{ 
-                          y: -5, 
-                          boxShadow: liftTheVeil 
-                            ? '0 10px 25px -5px rgba(255,105,180,0.3)' 
-                            : '0 10px 25px -5px rgba(147,51,234,0.3)' 
-                        }}
-                      >
-                        <div
-                          className={`bg-gradient-to-br ${card.color} rounded-lg p-3 text-white border border-white/10 
-                                      backdrop-blur-md shadow-lg hover:shadow-xl transition-all h-full flex flex-col cosmic-glass-hover`}
-                        >
-                          <div className="flex flex-col h-full">
-                            <div className="flex items-center mb-1">
-                              <motion.div 
-                                className="p-1.5 rounded-full bg-black/20 backdrop-blur-sm mr-2" 
-                                animate={{
-                                  scale: [1, 1.1, 1],
-                                  opacity: [0.7, 1, 0.7]
-                                }}
-                                transition={{
-                                  duration: 3, 
-                                  repeat: Infinity, 
-                                  repeatType: "reverse",
-                                  delay: index * 0.5
-                                }}
-                              >
-                                {card.icon}
-                              </motion.div>
-                              <h3 className={`text-base font-semibold ${liftTheVeil ? 'text-shimmer' : ''}`}>{card.title}</h3>
-                            </div>
-                            
-                            <p className="text-xs text-gray-200/90 mt-1">{card.description}</p>
-                            
-                            <div className="mt-auto pt-1 flex justify-end">
-                              <motion.span 
-                                className="text-white/80 flex items-center text-xs font-medium"
-                                whileHover={{ x: 3 }}
-                                transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                              >
-                                Explore <span aria-hidden="true" className="ml-1">→</span>
-                              </motion.span>
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ) : (
-                      <Link to={card.path} key={card.title} className="block">
-                        <motion.div
+              {Object.keys(categoryFeatures).map((tabKey) => (
+                <TabsContent key={tabKey} value={tabKey} className="mt-6 animate-fade-in">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"
+                  >
+                    {categoryFeatures[tabKey as keyof typeof categoryFeatures].map((card, index) => (
+                      card.onClick ? (
+                        <motion.div 
+                          key={card.title} 
+                          onClick={card.onClick} 
+                          className="cursor-pointer cosmic-card"
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -700,101 +662,44 @@ const SacredShifterLanding = () => {
                               ? '0 10px 25px -5px rgba(255,105,180,0.3)' 
                               : '0 10px 25px -5px rgba(147,51,234,0.3)' 
                           }}
-                          className={`bg-gradient-to-br ${card.color} rounded-lg p-3 text-white border border-white/10 
-                                      backdrop-blur-md shadow-lg hover:shadow-xl transition-all h-full flex flex-col cosmic-card cosmic-glass-hover`}
                         >
-                          <div className="flex flex-col h-full">
-                            <div className="flex items-center mb-1">
-                              <motion.div 
-                                className="p-1.5 rounded-full bg-black/20 backdrop-blur-sm mr-2" 
-                                animate={{
-                                  scale: [1, 1.1, 1],
-                                  opacity: [0.7, 1, 0.7]
-                                }}
-                                transition={{
-                                  duration: 3, 
-                                  repeat: Infinity, 
-                                  repeatType: "reverse",
-                                  delay: index * 0.5
-                                }}
-                              >
-                                {card.icon}
-                              </motion.div>
-                              <h3 className={`text-base font-semibold ${liftTheVeil ? 'text-shimmer' : ''}`}>{card.title}</h3>
-                            </div>
-                            
-                            <p className="text-xs text-gray-200/90 mt-1">{card.description}</p>
-                            
-                            <div className="mt-auto pt-1 flex justify-end">
-                              <motion.span 
-                                className="text-white/80 flex items-center text-xs font-medium"
-                                whileHover={{ x: 3 }}
-                                transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                              >
-                                Explore <span aria-hidden="true" className="ml-1">→</span>
-                              </motion.span>
+                          <div
+                            className={`bg-gradient-to-br ${card.color} rounded-lg p-3 text-white border border-white/10 
+                                       backdrop-blur-md shadow-lg hover:shadow-xl transition-all h-full flex flex-col cosmic-glass-hover`}
+                          >
+                            <div className="flex flex-col h-full">
+                              <div className="flex items-center mb-1">
+                                <motion.div 
+                                  className="p-1.5 rounded-full bg-black/20 backdrop-blur-sm mr-2" 
+                                  animate={{
+                                    scale: [1, 1.1, 1],
+                                    opacity: [0.7, 1, 0.7]
+                                  }}
+                                  transition={{
+                                    duration: 3, 
+                                    repeat: Infinity, 
+                                    repeatType: "reverse",
+                                    delay: index * 0.5
+                                  }}
+                                >
+                                  {card.icon}
+                                </motion.div>
+                                <h3 className={`text-base font-semibold ${liftTheVeil ? 'text-shimmer' : ''}`}>{card.title}</h3>
+                              </div>
+                              
+                              <p className="text-xs text-gray-200/90 mt-1">{card.description}</p>
+                              
+                              <div className="mt-auto pt-1 flex justify-end">
+                                <motion.span 
+                                  className="text-white/80 flex items-center text-xs font-medium"
+                                  whileHover={{ x: 3 }}
+                                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                >
+                                  Explore <span aria-hidden="true" className="ml-1">→</span>
+                                </motion.span>
+                              </div>
                             </div>
                           </div>
                         </motion.div>
-                      </Link>
-                    )
-                  ))}
-                </motion.div>
-              </TabsContent>
-            </Tabs>
-          </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.7 }}
-            className="mb-12 relative z-20 max-w-3xl mx-auto"
-          >
-            <div className={cn(
-              "cosmic-glass p-6 rounded-xl border",
-              liftTheVeil ? "border-pink-500/20" : "border-purple-500/20"
-            )}>
-              <h2 className={cn(
-                "text-xl font-bold mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r",
-                liftTheVeil ? "from-pink-300 to-purple-300" : "from-purple-300 to-indigo-300"
-              )}>
-                About Sacred Shifter
-              </h2>
-              
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-2 text-white/90">Our Mission</h3>
-                <p className="text-sm text-white/80">
-                  Sacred Shifter is more than an app — it is a consciousness technology.<br/>
-                  We exist to help you remember who you are through frequency, prime awareness, and soul reconnection.
-                </p>
-              </div>
-              
-              <div>
-                <h3 className="text-lg font-semibold mb-2 text-white/90">The Sacred Code</h3>
-                <p className="text-sm text-white/80">
-                  Every tone. Every pattern. Every visual. It's encoded.<br/>
-                  Prime numbers are the silent architects of your reality.<br/>
-                  These sacred signatures unlock forgotten truths within your DNA.<br/>
-                  You're not here by accident. You're tuning yourself back into resonance.
-                </p>
-                <p className="text-sm text-white/80 mt-3 italic">
-                  "The person who was very aware had a foot in two worlds..."<br/>
-                  Now, you do too.
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-
-      <div className="relative z-40 mt-16">
-        <CosmicFooter showFrequencyBar={true} currentFrequency={528} currentChakra="Heart" />
-        <div className="mt-8">
-          <LegalFooter variant="standard" className="text-center max-w-3xl mx-auto mb-4" />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default SacredShifterLanding;
+                      ) : (
+                        <Link to={card.path} key={card.
