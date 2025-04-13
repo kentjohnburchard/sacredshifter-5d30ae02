@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 
@@ -13,7 +14,7 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
   density = 'medium', 
   opacity = 0.3, 
   isStatic = false,
-  starCount = 1500,
+  starCount: propStarCount = 1500,
   speed = 0.5
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -56,19 +57,16 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
     containerRef.current.innerHTML = '';
     containerRef.current.appendChild(renderer.domElement);
     
-    // Determine star count based on density (increased!)
-    const getStarCount = () => {
-      return starCount;
-    };
+    // Use the prop value directly instead of a function
+    const calculatedStarCount = propStarCount;
     
     // Create stars
     const starsGeometry = new THREE.BufferGeometry();
-    const starCount = getStarCount();
     
-    const positions = new Float32Array(starCount * 3);
-    const sizes = new Float32Array(starCount);
+    const positions = new Float32Array(calculatedStarCount * 3);
+    const sizes = new Float32Array(calculatedStarCount);
     
-    for (let i = 0; i < starCount; i++) {
+    for (let i = 0; i < calculatedStarCount; i++) {
       const i3 = i * 3;
       positions[i3] = (Math.random() - 0.5) * 100;
       positions[i3 + 1] = (Math.random() - 0.5) * 100;
@@ -131,7 +129,7 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
     
     // Create a few bright stars
     const createBrightStars = () => {
-      const brightStarCount = Math.floor(starCount * 0.05); // 5% of stars are bright
+      const brightStarCount = Math.floor(calculatedStarCount * 0.05); // 5% of stars are bright
       const brightGeometry = new THREE.BufferGeometry();
       const brightPositions = new Float32Array(brightStarCount * 3);
       
@@ -168,8 +166,8 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
       
       if (starsRef.current && !isStatic) {
         // Slower, more subtle rotation
-        starsRef.current.rotation.x += speed;
-        starsRef.current.rotation.y += speed;
+        starsRef.current.rotation.x += 0.0001 * speed;
+        starsRef.current.rotation.y += 0.0001 * speed;
         
         // Bright stars rotate slightly differently
         brightStars.rotation.x += 0.0001;
@@ -228,7 +226,7 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
         rendererRef.current.dispose();
       }
     };
-  }, [density, opacity, isStatic, starCount, speed]);
+  }, [density, opacity, isStatic, propStarCount, speed]);
 
   return <div ref={containerRef} className="absolute inset-0 z-0" />;
 };
