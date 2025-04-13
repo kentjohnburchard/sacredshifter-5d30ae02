@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import SacredFlowerOfLife from '@/components/sacred-geometry/shapes/SacredFlowerOfLife';
@@ -29,7 +28,6 @@ import { CosmicFooter } from '@/components/sacred-geometry';
 import { LegalFooter } from '@/components/ip-protection';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
-// Enhanced particle effect component
 const EnhancedParticleField: React.FC<{ isAudioPlaying: boolean; liftTheVeil: boolean }> = ({ isAudioPlaying, liftTheVeil }) => {
   const particleRef = useRef<HTMLDivElement>(null);
   const primeNumbers = [2, 3, 5, 7, 11, 13, 17, 19, 23];
@@ -42,16 +40,13 @@ const EnhancedParticleField: React.FC<{ isAudioPlaying: boolean; liftTheVeil: bo
     const width = container.offsetWidth;
     const height = container.offsetHeight;
     
-    // Clear existing particles
     container.innerHTML = '';
     
-    // Create new particles
     for (let i = 0; i < particleCount; i++) {
       const particle = document.createElement('div');
       const size = Math.random() * 3 + 1;
       const isPrimeIndex = isPrime(i + 1);
       
-      // Base styles for all particles
       particle.style.position = 'absolute';
       particle.style.width = `${size}px`;
       particle.style.height = `${size}px`;
@@ -59,7 +54,6 @@ const EnhancedParticleField: React.FC<{ isAudioPlaying: boolean; liftTheVeil: bo
       particle.style.left = `${Math.random() * 100}%`;
       particle.style.top = `${Math.random() * 100}%`;
       
-      // Special styling for prime-indexed particles
       if (isPrimeIndex) {
         particle.style.background = liftTheVeil 
           ? `rgba(255, 105, 180, ${Math.random() * 0.3 + 0.4})` 
@@ -68,7 +62,6 @@ const EnhancedParticleField: React.FC<{ isAudioPlaying: boolean; liftTheVeil: bo
           ? '0 0 8px rgba(255, 105, 180, 0.7)' 
           : '0 0 8px rgba(147, 51, 234, 0.7)';
         
-        // Animation for prime particles
         const animDuration = primeNumbers[i % primeNumbers.length] * 2;
         particle.animate(
           [
@@ -88,7 +81,6 @@ const EnhancedParticleField: React.FC<{ isAudioPlaying: boolean; liftTheVeil: bo
           ? `rgba(255, 182, 193, ${Math.random() * 0.2 + 0.2})` 
           : `rgba(167, 139, 250, ${Math.random() * 0.2 + 0.2})`;
         
-        // Different animation for non-prime particles
         const animDuration = 5 + Math.random() * 10;
         particle.animate(
           [
@@ -106,7 +98,6 @@ const EnhancedParticleField: React.FC<{ isAudioPlaying: boolean; liftTheVeil: bo
         );
       }
       
-      // Enhanced behavior when audio is playing
       if (isAudioPlaying) {
         const pulseAnimation = particle.animate(
           [
@@ -140,7 +131,6 @@ const EnhancedParticleField: React.FC<{ isAudioPlaying: boolean; liftTheVeil: bo
   );
 };
 
-// Sacred scroll reveal component
 const SacredScrollReveal: React.FC<{ liftTheVeil: boolean }> = ({ liftTheVeil }) => {
   const { scrollYProgress } = useScroll();
   const opacityProgress = useTransform(scrollYProgress, [0, 0.3, 0.8], [0, 1, 0]);
@@ -182,7 +172,6 @@ const SacredScrollReveal: React.FC<{ liftTheVeil: boolean }> = ({ liftTheVeil })
   );
 };
 
-// Shape selector component
 const ShapeSelector: React.FC<{
   selectedShape: string;
   onSelectShape: (shape: "flower-of-life" | "metatrons-cube" | "merkaba" | "torus" | "tree-of-life" | "sri-yantra" | "vesica-piscis") => void;
@@ -458,14 +447,12 @@ const SacredShifterLanding = () => {
       "relative min-h-screen w-full bg-gradient-to-b from-black via-[#0a0118] to-black text-white font-sans overflow-hidden",
       liftTheVeil ? "border-pink-500 border-[6px]" : "border-purple-500 border-[6px]"
     )}>
-      {/* Enhanced particle field instead of static stars */}
       <EnhancedParticleField isAudioPlaying={isAudioPlaying} liftTheVeil={liftTheVeil} />
 
       <Sidebar />
       <Watermark />
       <GlobalWatermark />
       
-      {/* Sacred pulse bar enhanced with better visibility */}
       <AnimatePresence>
         {isAudioPlaying && (
           <motion.div 
@@ -479,15 +466,12 @@ const SacredShifterLanding = () => {
         )}
       </AnimatePresence>
 
-      {/* Visualizer Shape Selector */}
       {showGeometrySelector && (
         <ShapeSelector selectedShape={selectedShape} onSelectShape={setSelectedShape} />
       )}
 
-      {/* Sacred Scroll Reveal component */}
       <SacredScrollReveal liftTheVeil={liftTheVeil} />
 
-      {/* Enhanced Origin Flow button with animation */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -517,7 +501,6 @@ const SacredShifterLanding = () => {
         onToggleAbout={toggleAboutComponent}
       />
 
-      {/* Enhanced top logo with subtle animation */}
       <div className="fixed top-0 left-0 right-0 pointer-events-none z-10 flex justify-center items-start">
         <motion.img 
           src="/lovable-uploads/55c4de0c-9d48-42df-a6a2-1bb6520acb46.png" 
@@ -536,7 +519,6 @@ const SacredShifterLanding = () => {
       </div>
 
       <div className="ml-0 sm:ml-20">
-        {/* Enhanced sacred geometry visualizer */}
         <div className="fixed inset-0 z-5 pointer-events-none flex items-center justify-center">
           <motion.div 
             className="w-full h-full flex items-center justify-center"
@@ -551,27 +533,40 @@ const SacredShifterLanding = () => {
               ease: "easeInOut"
             }}
           >
-            <div className={`w-[90vh] h-[90vh] max-w-[90%] max-h-[90%] ${isAudioPlaying ? 'animate-pulse-medium' : ''}`}>
+            <div className={`w-[110vh] h-[110vh] max-w-[110%] max-h-[110%] ${isAudioPlaying ? 'animate-pulse-medium' : ''}`}>
               <SacredGeometryVisualizer 
                 defaultShape={selectedShape}
                 size="xl"
                 showControls={false}
-                className={`opacity-80 ${isAudioPlaying ? 'is-playing' : ''}`}
+                className={`opacity-90 ${isAudioPlaying ? 'is-playing' : ''}`}
               />
             </div>
           </motion.div>
         </div>
 
-        {/* Content container with About section */}
+        <div className="fixed bottom-0 right-0 z-4 pointer-events-none">
+          <motion.div
+            className="w-[40vh] h-[40vh] opacity-50"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 0.5, scale: 1 }}
+            transition={{ duration: 1, delay: 1 }}
+          >
+            <SacredGeometryVisualizer 
+              defaultShape={selectedShape === 'flower-of-life' ? 'merkaba' : 'flower-of-life'}
+              size="md"
+              showControls={false}
+              className="opacity-70"
+            />
+          </motion.div>
+        </div>
+
         <div className="container mx-auto px-4 pt-16 md:pt-24 relative z-20">
-          {/* Enhanced welcome title with animated light rays */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
             className="text-center mb-8 mt-24 relative max-w-4xl mx-auto"
           >
-            {/* Light rays behind text */}
             <div className="absolute inset-0 -z-10">
               <div className={cn(
                 "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] opacity-30 rounded-full",
@@ -609,7 +604,6 @@ const SacredShifterLanding = () => {
             </p>
           </motion.div>
 
-          {/* Feature tabs with enhanced animations */}
           <div className="mb-12">
             <Tabs 
               defaultValue={activeTab} 
@@ -633,21 +627,70 @@ const SacredShifterLanding = () => {
                 </TabsList>
               </div>
               
-              {/* Enhanced content tabs */}
-              {Object.keys(categoryFeatures).map((category) => (
-                <TabsContent key={category} value={category} className="mt-6 animate-fade-in">
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"
-                  >
-                    {categoryFeatures[category as keyof typeof categoryFeatures].map((card, index) => (
-                      card.onClick ? (
-                        <motion.div 
-                          key={card.title} 
-                          onClick={card.onClick} 
-                          className="cursor-pointer cosmic-card"
+              <TabsContent key={category} value={category} className="mt-6 animate-fade-in">
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"
+                >
+                  {categoryFeatures[category as keyof typeof categoryFeatures].map((card, index) => (
+                    card.onClick ? (
+                      <motion.div 
+                        key={card.title} 
+                        onClick={card.onClick} 
+                        className="cursor-pointer cosmic-card"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                        whileHover={{ 
+                          y: -5, 
+                          boxShadow: liftTheVeil 
+                            ? '0 10px 25px -5px rgba(255,105,180,0.3)' 
+                            : '0 10px 25px -5px rgba(147,51,234,0.3)' 
+                        }}
+                      >
+                        <div
+                          className={`bg-gradient-to-br ${card.color} rounded-lg p-3 text-white border border-white/10 
+                                      backdrop-blur-md shadow-lg hover:shadow-xl transition-all h-full flex flex-col cosmic-glass-hover`}
+                        >
+                          <div className="flex flex-col h-full">
+                            <div className="flex items-center mb-1">
+                              <motion.div 
+                                className="p-1.5 rounded-full bg-black/20 backdrop-blur-sm mr-2" 
+                                animate={{
+                                  scale: [1, 1.1, 1],
+                                  opacity: [0.7, 1, 0.7]
+                                }}
+                                transition={{
+                                  duration: 3, 
+                                  repeat: Infinity, 
+                                  repeatType: "reverse",
+                                  delay: index * 0.5
+                                }}
+                              >
+                                {card.icon}
+                              </motion.div>
+                              <h3 className={`text-base font-semibold ${liftTheVeil ? 'text-shimmer' : ''}`}>{card.title}</h3>
+                            </div>
+                            
+                            <p className="text-xs text-gray-200/90 mt-1">{card.description}</p>
+                            
+                            <div className="mt-auto pt-1 flex justify-end">
+                              <motion.span 
+                                className="text-white/80 flex items-center text-xs font-medium"
+                                whileHover={{ x: 3 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                              >
+                                Explore <span aria-hidden="true" className="ml-1">→</span>
+                              </motion.span>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ) : (
+                      <Link to={card.path} key={card.title} className="block">
+                        <motion.div
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -657,103 +700,50 @@ const SacredShifterLanding = () => {
                               ? '0 10px 25px -5px rgba(255,105,180,0.3)' 
                               : '0 10px 25px -5px rgba(147,51,234,0.3)' 
                           }}
+                          className={`bg-gradient-to-br ${card.color} rounded-lg p-3 text-white border border-white/10 
+                                      backdrop-blur-md shadow-lg hover:shadow-xl transition-all h-full flex flex-col cosmic-card cosmic-glass-hover`}
                         >
-                          <div
-                            className={`bg-gradient-to-br ${card.color} rounded-lg p-3 text-white border border-white/10 
-                                      backdrop-blur-md shadow-lg hover:shadow-xl transition-all h-full flex flex-col cosmic-glass-hover`}
-                          >
-                            <div className="flex flex-col h-full">
-                              <div className="flex items-center mb-1">
-                                <motion.div 
-                                  className="p-1.5 rounded-full bg-black/20 backdrop-blur-sm mr-2" 
-                                  animate={{
-                                    scale: [1, 1.1, 1],
-                                    opacity: [0.7, 1, 0.7]
-                                  }}
-                                  transition={{
-                                    duration: 3, 
-                                    repeat: Infinity, 
-                                    repeatType: "reverse",
-                                    delay: index * 0.5
-                                  }}
-                                >
-                                  {card.icon}
-                                </motion.div>
-                                <h3 className={`text-base font-semibold ${liftTheVeil ? 'text-shimmer' : ''}`}>{card.title}</h3>
-                              </div>
-                              
-                              <p className="text-xs text-gray-200/90 mt-1">{card.description}</p>
-                              
-                              <div className="mt-auto pt-1 flex justify-end">
-                                <motion.span 
-                                  className="text-white/80 flex items-center text-xs font-medium"
-                                  whileHover={{ x: 3 }}
-                                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                                >
-                                  Explore <span aria-hidden="true" className="ml-1">→</span>
-                                </motion.span>
-                              </div>
+                          <div className="flex flex-col h-full">
+                            <div className="flex items-center mb-1">
+                              <motion.div 
+                                className="p-1.5 rounded-full bg-black/20 backdrop-blur-sm mr-2" 
+                                animate={{
+                                  scale: [1, 1.1, 1],
+                                  opacity: [0.7, 1, 0.7]
+                                }}
+                                transition={{
+                                  duration: 3, 
+                                  repeat: Infinity, 
+                                  repeatType: "reverse",
+                                  delay: index * 0.5
+                                }}
+                              >
+                                {card.icon}
+                              </motion.div>
+                              <h3 className={`text-base font-semibold ${liftTheVeil ? 'text-shimmer' : ''}`}>{card.title}</h3>
+                            </div>
+                            
+                            <p className="text-xs text-gray-200/90 mt-1">{card.description}</p>
+                            
+                            <div className="mt-auto pt-1 flex justify-end">
+                              <motion.span 
+                                className="text-white/80 flex items-center text-xs font-medium"
+                                whileHover={{ x: 3 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                              >
+                                Explore <span aria-hidden="true" className="ml-1">→</span>
+                              </motion.span>
                             </div>
                           </div>
                         </motion.div>
-                      ) : (
-                        <Link to={card.path} key={card.title} className="block">
-                          <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, delay: index * 0.1 }}
-                            whileHover={{ 
-                              y: -5, 
-                              boxShadow: liftTheVeil 
-                                ? '0 10px 25px -5px rgba(255,105,180,0.3)' 
-                                : '0 10px 25px -5px rgba(147,51,234,0.3)' 
-                            }}
-                            className={`bg-gradient-to-br ${card.color} rounded-lg p-3 text-white border border-white/10 
-                                      backdrop-blur-md shadow-lg hover:shadow-xl transition-all h-full flex flex-col cosmic-card cosmic-glass-hover`}
-                          >
-                            <div className="flex flex-col h-full">
-                              <div className="flex items-center mb-1">
-                                <motion.div 
-                                  className="p-1.5 rounded-full bg-black/20 backdrop-blur-sm mr-2" 
-                                  animate={{
-                                    scale: [1, 1.1, 1],
-                                    opacity: [0.7, 1, 0.7]
-                                  }}
-                                  transition={{
-                                    duration: 3, 
-                                    repeat: Infinity, 
-                                    repeatType: "reverse",
-                                    delay: index * 0.5
-                                  }}
-                                >
-                                  {card.icon}
-                                </motion.div>
-                                <h3 className={`text-base font-semibold ${liftTheVeil ? 'text-shimmer' : ''}`}>{card.title}</h3>
-                              </div>
-                              
-                              <p className="text-xs text-gray-200/90 mt-1">{card.description}</p>
-                              
-                              <div className="mt-auto pt-1 flex justify-end">
-                                <motion.span 
-                                  className="text-white/80 flex items-center text-xs font-medium"
-                                  whileHover={{ x: 3 }}
-                                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                                >
-                                  Explore <span aria-hidden="true" className="ml-1">→</span>
-                                </motion.span>
-                              </div>
-                            </div>
-                          </motion.div>
-                        </Link>
-                      )
-                    ))}
-                  </motion.div>
-                </TabsContent>
-              ))}
+                      </Link>
+                    )
+                  ))}
+                </motion.div>
+              </TabsContent>
             </Tabs>
           </div>
 
-          {/* About Sacred Shifter section - added per requirements */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -797,7 +787,6 @@ const SacredShifterLanding = () => {
         </div>
       </div>
 
-      {/* Footer Components */}
       <div className="relative z-40 mt-16">
         <CosmicFooter showFrequencyBar={true} currentFrequency={528} currentChakra="Heart" />
         <div className="mt-8">
