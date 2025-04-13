@@ -19,7 +19,9 @@ const Dashboard: React.FC = () => {
     }
     
     // Track dashboard visits
-    setDashboardVisits((prev: number) => prev + 1);
+    setDashboardVisits((prev: number) => {
+      return prev + 1;
+    });
     
     // Show origin flow if this is one of the first three visits
     if (dashboardVisits < 3) {

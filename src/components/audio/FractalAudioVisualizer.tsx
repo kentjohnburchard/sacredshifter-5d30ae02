@@ -326,186 +326,178 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
       }
     }
     
-    const createPrimeSpiral = () => {
-      const points = [];
+    const createFlowingPrimeSpiral = () => {
       const spiralGroup = new THREE.Group();
       
-      for (let i = 0; i < 200; i++) {
+      const curvePoints = [];
+      const segmentCount = 300;
+      
+      for (let i = 0; i < segmentCount; i++) {
         const prime = primes[i % primes.length];
-        const angle = i * 0.1 * Math.PI;
-        const radius = 0.02 * i;
+        const theta = i * 0.04 * Math.PI;
         
-        const x = Math.cos(angle * (prime % 7)) * radius;
-        const y = Math.sin(angle * (prime % 5)) * radius;
-        const z = (prime % 3) * 0.01;
+        const radius = 0.01 * Math.sqrt(i) * (1 + Math.sin(i * 0.05) * 0.2);
+        const x = Math.cos(theta) * radius * (1 + Math.sin(prime * 0.01) * 0.1);
+        const y = Math.sin(theta) * radius * (1 + Math.cos(prime * 0.01) * 0.1);
+        const z = Math.sin(i * 0.01) * 0.05;
         
-        points.push(new THREE.Vector3(x, y, z));
-        
-        if (i % 5 === 0) {
-          const dotGeometry = new THREE.SphereGeometry(0.02 + (prime % 5) * 0.01, 8, 8);
-          geometriesRef.current.push(dotGeometry);
-          
-          const dotMaterial = new THREE.MeshPhongMaterial({
-            color: colors.highlight,
-            emissive: colors.primary,
-            emissiveIntensity: 0.3,
-            transparent: true,
-            opacity: 0.8
-          });
-          materialsRef.current.push(dotMaterial);
-          
-          const dot = new THREE.Mesh(dotGeometry, dotMaterial);
-          dot.position.set(x, y, z);
-          spiralGroup.add(dot);
-        }
+        curvePoints.push(new THREE.Vector3(x, y, z));
       }
       
-      const curve = new THREE.CatmullRomCurve3(points);
-      const tubeGeometry = new THREE.TubeGeometry(curve, 200, 0.02, 8, false);
+      const curve = new THREE.CatmullRomCurve3(curvePoints);
+      curve.tension = 0.3;
+      
+      const tubeGeometry = new THREE.TubeGeometry(curve, 300, 0.015, 8, false);
       geometriesRef.current.push(tubeGeometry);
       
       const tubeMaterial = new THREE.MeshPhongMaterial({
         color: colors.primary,
         emissive: colors.accent,
-        emissiveIntensity: 0.5,
+        emissiveIntensity: 0.7,
         transparent: true,
-        opacity: 0.8,
-        shininess: 80
+        opacity: 0.7,
+        shininess: 100,
+        side: THREE.DoubleSide
       });
       materialsRef.current.push(tubeMaterial);
       
       const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
       spiralGroup.add(tube);
       
+      const particlesCount = 150;
+      const particlesMaterial = new THREE.PointsMaterial({
+        color: colors.highlight,
+        size: 0.03,
+        transparent: true,
+        opacity: 0.7,
+        blending: THREE.AdditiveBlending
+      });
+      materialsRef.current.push(particlesMaterial);
+      
+      const particlesGeometry = new THREE.BufferGeometry();
+      const particlePositions = new Float32Array(particlesCount * 3);
+      
+      for (let i = 0; i < particlesCount; i++) {
+        const curvePoint = curve.getPoint(i / particlesCount);
+        particlePositions[i * 3] = curvePoint.x;
+        particlePositions[i * 3 + 1] = curvePoint.y;
+        particlePositions[i * 3 + 2] = curvePoint.z;
+      }
+      
+      particlesGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+      geometriesRef.current.push(particlesGeometry);
+      
+      const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+      spiralGroup.add(particles);
+      
       return spiralGroup;
     };
     
-    const createPrimeRose = () => {
-      const roseGroup = new THREE.Group();
+    const createFlowerOfLifePattern = () => {
+      const flowerGroup = new THREE.Group();
+      const circleRadius = 0.12;
+      const circleDetail = 32;
       
-      const n = primes[3] % 7;
-      const d = primes[4] % 9;
-      
-      const points = [];
-      const segments = 500;
-      
-      for (let i = 0; i <= segments; i++) {
-        const theta = (i / segments) * Math.PI * 2 * d;
-        const radius = Math.cos(n / d * theta) * 1.2;
-        const x = radius * Math.cos(theta);
-        const y = radius * Math.sin(theta);
-        const z = 0;
+      const createCircleAt = (x: number, y: number, z: number, primeIndex: number) => {
+        const prime = primes[primeIndex % primes.length];
+        const variationFactor = (prime % 5) * 0.04;
         
-        points.push(new THREE.Vector3(x, y, z));
-      }
-      
-      const curve = new THREE.CatmullRomCurve3(points);
-      const tubeGeometry = new THREE.TubeGeometry(curve, 200, 0.03, 8, false);
-      geometriesRef.current.push(tubeGeometry);
-      
-      const tubeMaterial = new THREE.MeshPhongMaterial({
-        color: colors.accent,
-        emissive: colors.highlight,
-        emissiveIntensity: 0.5,
-        transparent: true,
-        opacity: 0.9,
-        shininess: 90
-      });
-      materialsRef.current.push(tubeMaterial);
-      
-      const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
-      roseGroup.add(tube);
-      
-      for (let i = 0; i < 20; i++) {
-        const prime = primes[i];
-        const index = prime % segments;
-        const point = points[index];
+        const circleGeometry = new THREE.TorusGeometry(
+          circleRadius * (1 + variationFactor), 
+          0.005, 
+          2, 
+          circleDetail
+        );
+        geometriesRef.current.push(circleGeometry);
         
-        if (point) {
-          const dotGeometry = new THREE.SphereGeometry(0.06, 12, 12);
-          geometriesRef.current.push(dotGeometry);
-          
-          const dotMaterial = new THREE.MeshPhongMaterial({
-            color: colors.highlight,
-            emissive: colors.highlight,
-            emissiveIntensity: 0.7,
-            transparent: true,
-            opacity: 0.9
-          });
-          materialsRef.current.push(dotMaterial);
-          
-          const dot = new THREE.Mesh(dotGeometry, dotMaterial);
-          dot.position.copy(point);
-          roseGroup.add(dot);
-        }
-      }
-      
-      return roseGroup;
-    };
-    
-    const createPrimeTree = () => {
-      const treeGroup = new THREE.Group();
-      
-      function createBranch(startPoint: THREE.Vector3, direction: THREE.Vector3, length: number, thickness: number, depth: number) {
-        if (depth <= 0) return;
-        
-        const endPoint = startPoint.clone().add(direction.clone().multiplyScalar(length));
-        
-        const branchGeometry = new THREE.CylinderGeometry(thickness * 0.5, thickness, length, 6, 1);
-        geometriesRef.current.push(branchGeometry);
-        
-        const branchMaterial = new THREE.MeshPhongMaterial({
-          color: colors.primary,
-          emissive: colors.accent,
-          emissiveIntensity: 0.2 + (depth / 5) * 0.5,
+        const circleMaterial = new THREE.MeshPhongMaterial({
+          color: colors.accent,
+          emissive: colors.highlight,
+          emissiveIntensity: 0.5,
           transparent: true,
-          opacity: 0.7 + depth * 0.05
+          opacity: 0.7,
+          side: THREE.DoubleSide
         });
-        materialsRef.current.push(branchMaterial);
+        materialsRef.current.push(circleMaterial);
         
-        const branch = new THREE.Mesh(branchGeometry, branchMaterial);
-        
-        const midPoint = startPoint.clone().add(endPoint.clone().sub(startPoint).multiplyScalar(0.5));
-        branch.position.copy(midPoint);
-        branch.lookAt(endPoint);
-        branch.rotateX(Math.PI / 2);
-        
-        treeGroup.add(branch);
-        
-        if (depth > 0) {
-          const prime1 = primes[depth % primes.length];
-          const prime2 = primes[(depth + 1) % primes.length];
-          
-          const branchCount = 2 + (depth % 3);
-          
-          for (let i = 0; i < branchCount; i++) {
-            const angle1 = (i * Math.PI * 2 / branchCount) + (prime1 % 10) * 0.05;
-            const angle2 = (prime2 % 10) * 0.05;
-            
-            const newDirection = direction.clone();
-            newDirection.applyAxisAngle(new THREE.Vector3(0, 1, 0), angle1);
-            newDirection.applyAxisAngle(new THREE.Vector3(1, 0, 0), angle2);
-            
-            const newLength = length * (0.6 + (prime1 % 10) * 0.01);
-            const newThickness = thickness * 0.7;
-            
-            createBranch(endPoint, newDirection, newLength, newThickness, depth - 1);
-          }
-        }
+        const circle = new THREE.Mesh(circleGeometry, circleMaterial);
+        circle.position.set(x, y, z);
+        flowerGroup.add(circle);
+      };
+      
+      createCircleAt(0, 0, 0, 0);
+      
+      for (let i = 0; i < 6; i++) {
+        const angle = (i / 6) * Math.PI * 2;
+        const x = Math.cos(angle) * circleRadius;
+        const y = Math.sin(angle) * circleRadius;
+        createCircleAt(x, y, 0, i + 1);
       }
       
-      const startPoint = new THREE.Vector3(0, -1.2, 0);
-      const direction = new THREE.Vector3(0, 1, 0);
-      const startLength = 0.8;
-      const startThickness = 0.06;
-      const maxDepth = 4;
+      for (let i = 0; i < 12; i++) {
+        const angle = (i / 12) * Math.PI * 2;
+        const x = Math.cos(angle) * circleRadius * 2;
+        const y = Math.sin(angle) * circleRadius * 2;
+        createCircleAt(x, y, 0, i + 7);
+      }
       
-      createBranch(startPoint, direction, startLength, startThickness, maxDepth);
-      
-      return treeGroup;
+      return flowerGroup;
     };
     
-    const createPrimeParticles = () => {
+    const createPrimePetals = () => {
+      const petalGroup = new THREE.Group();
+      
+      const petalCount = 12;
+      
+      for (let i = 0; i < petalCount; i++) {
+        const primeIndex = i % primes.length;
+        const prime = primes[primeIndex];
+        const nextPrime = primes[(primeIndex + 1) % primes.length];
+        
+        const startAngle = (i / petalCount) * Math.PI * 2;
+        const endAngle = ((i + 1) / petalCount) * Math.PI * 2;
+        
+        const curvePoints = [];
+        const segments = 20;
+        
+        for (let j = 0; j <= segments; j++) {
+          const t = j / segments;
+          const angle = startAngle * (1 - t) + endAngle * t;
+          
+          const radius = 0.6 * (1 - Math.abs(t - 0.5) * 1.8) * (prime % 7) / 7 + 0.2;
+          const x = Math.cos(angle) * radius;
+          const y = Math.sin(angle) * radius;
+          const z = (Math.sin(t * Math.PI) * 0.05) + ((nextPrime % 5) * 0.01);
+          
+          curvePoints.push(new THREE.Vector3(x, y, z));
+        }
+        
+        const curve = new THREE.CatmullRomCurve3(curvePoints);
+        curve.tension = 0.4;
+        
+        const tubeGeometry = new THREE.TubeGeometry(
+          curve, segments * 2, 0.01 + (prime % 5) * 0.002, 6, false
+        );
+        geometriesRef.current.push(tubeGeometry);
+        
+        const tubeMaterial = new THREE.MeshPhongMaterial({
+          color: i % 2 === 0 ? colors.primary : colors.accent,
+          emissive: colors.highlight,
+          emissiveIntensity: 0.3 + (i % 3) * 0.1,
+          transparent: true,
+          opacity: 0.65,
+          side: THREE.DoubleSide
+        });
+        materialsRef.current.push(tubeMaterial);
+        
+        const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
+        petalGroup.add(tube);
+      }
+      
+      return petalGroup;
+    };
+    
+    const createFlowingParticles = () => {
       const particleGroup = new THREE.Group();
       const particleCount = 300;
       
@@ -517,14 +509,16 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
       for (let i = 0; i < particleCount; i++) {
         const prime = primes[i % primes.length];
         
-        const angle = i * 0.1 * (prime % 5) * 0.1;
-        const radius = 0.1 * i * 0.02 * (prime % 3);
+        const t = i / particleCount;
+        const radius = 0.8 * Math.pow(t, 0.5) + (prime % 5) * 0.01;
+        const spiralT = t * 15 + (prime % 7) * 0.5;
+        const angle = spiralT * 2.4;
         
-        particlePositions[i * 3] = Math.cos(angle) * radius;
-        particlePositions[i * 3 + 1] = Math.sin(angle) * radius;
-        particlePositions[i * 3 + 2] = (prime % 7) * 0.01 - 0.03;
+        particlePositions[i * 3] = Math.cos(angle) * radius * (1 + Math.sin(prime * 0.01) * 0.1);
+        particlePositions[i * 3 + 1] = Math.sin(angle) * radius * (1 + Math.cos(prime * 0.01) * 0.1);
+        particlePositions[i * 3 + 2] = Math.sin(spiralT * 0.3) * 0.1;
         
-        particleSizes[i] = 0.04 + (prime % 7) * 0.01;
+        particleSizes[i] = 0.03 + (prime % 7) * 0.004;
         
         if (i % 3 === 0) {
           particleColors[i * 3] = colors.primary.r;
@@ -547,10 +541,10 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
       geometriesRef.current.push(particlesGeometry);
       
       const particleMaterial = new THREE.PointsMaterial({
-        size: 0.08,
+        size: 0.05,
         vertexColors: true,
         transparent: true,
-        opacity: 0.7,
+        opacity: 0.6,
         blending: THREE.AdditiveBlending
       });
       materialsRef.current.push(particleMaterial);
@@ -561,25 +555,21 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
       return particleGroup;
     };
     
-    const spiral = createPrimeSpiral();
-    const rose = createPrimeRose();
-    const tree = createPrimeTree();
-    const particles = createPrimeParticles();
+    const spiral = createFlowingPrimeSpiral();
+    const flower = createFlowerOfLifePattern();
+    const petals = createPrimePetals();
+    const particles = createFlowingParticles();
     
-    spiral.position.set(0, 0, 0);
-    rose.position.set(0, 0, 0.5);
-    tree.position.set(0, 0, -0.5);
-    
-    spiral.scale.set(1, 1, 1);
-    rose.scale.set(0.8, 0.8, 0.8);
-    tree.scale.set(0.6, 0.6, 0.6);
+    spiral.position.set(0, 0, 0.1);
+    flower.position.set(0, 0, -0.1);
+    petals.position.set(0, 0, 0);
     
     scene.add(spiral);
-    scene.add(rose);
-    scene.add(tree);
+    scene.add(flower);
+    scene.add(petals);
     scene.add(particles);
     
-    fractalsRef.current = [spiral, rose, tree, particles];
+    fractalsRef.current = [spiral, flower, petals, particles];
   };
   
   const detectBeat = (dataArray: Uint8Array): boolean => {

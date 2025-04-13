@@ -1,10 +1,11 @@
 
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, Eye, EyeOff } from "lucide-react";
+import { Play, Pause, Eye, EyeOff, Maximize2, Minimize2 } from "lucide-react";
 import FractalAudioVisualizer from "@/components/audio/FractalAudioVisualizer";
 import useAudioAnalyzer from "@/hooks/useAudioAnalyzer";
 import { useGlobalAudioPlayer } from "@/hooks/useGlobalAudioPlayer";
+import PrimeNumberDisplay from "@/components/prime-display/PrimeNumberDisplay";
 
 interface FrequencyPlayerProps {
   audioUrl?: string;
@@ -34,6 +35,8 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   // Create all state hooks at the top
   const [showVisualizer, setShowVisualizer] = useState(false);
   const [audioInitialized, setAudioInitialized] = useState(false);
+  const [expandedVisualizer, setExpandedVisualizer] = useState(false);
+  const [primeSequence, setPrimeSequence] = useState<number[]>([]);
   
   const effectiveAudioUrl = url || audioUrl;
   const { playAudio, togglePlayPause, currentAudio } = useGlobalAudioPlayer();
@@ -101,6 +104,19 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   const toggleVisualizer = () => {
     console.log("Toggling visualizer in FrequencyPlayer, current state:", showVisualizer);
     setShowVisualizer(prev => !prev);
+    if (expandedVisualizer) {
+      setExpandedVisualizer(false);
+    }
+  };
+  
+  // Toggle expanded visualizer state
+  const toggleExpandedVisualizer = () => {
+    setExpandedVisualizer(prev => !prev);
+  };
+  
+  // Handle prime sequence updates
+  const handlePrimeSequence = (primes: number[]) => {
+    setPrimeSequence(primes);
   };
   
   // Determine color scheme based on chakra
@@ -122,7 +138,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   return (
     <div className="relative z-50">
       {showVisualizer && isPlaying && audioContext && analyser && (
-        <div className="fixed inset-0 pointer-events-none z-40 flex items-center justify-center">
+        <div className={`${expandedVisualizer ? 'fixed inset-0 z-50' : 'fixed inset-0 pointer-events-none z-40'} flex items-center justify-center`}>
           <FractalAudioVisualizer 
             audioContext={audioContext} 
             analyser={analyser} 
@@ -131,8 +147,19 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
             pauseWhenStopped={true}
             frequency={frequency}
             chakra={chakra}
+            onPrimeSequence={handlePrimeSequence}
           />
         </div>
+      )}
+      
+      {primeSequence.length > 0 && isPlaying && showVisualizer && (
+        <PrimeNumberDisplay 
+          primes={primeSequence} 
+          sessionId={id || frequencyId} 
+          journeyTitle={title}
+          expanded={expandedVisualizer}
+          onToggleExpand={toggleExpandedVisualizer}
+        />
       )}
       
       <div className="flex items-center gap-2">
@@ -151,19 +178,37 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
         </Button>
         
         {isPlaying && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 rounded-full opacity-70 hover:opacity-100"
-            onClick={toggleVisualizer}
-            aria-label={showVisualizer ? "Hide visualizer" : "Show visualizer"}
-          >
-            {showVisualizer ? (
-              <Eye className="h-4 w-4" />
-            ) : (
-              <EyeOff className="h-4 w-4" />
+          <>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-full opacity-70 hover:opacity-100"
+              onClick={toggleVisualizer}
+              aria-label={showVisualizer ? "Hide visualizer" : "Show visualizer"}
+            >
+              {showVisualizer ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </Button>
+            
+            {showVisualizer && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full opacity-70 hover:opacity-100"
+                onClick={toggleExpandedVisualizer}
+                aria-label={expandedVisualizer ? "Minimize visualizer" : "Maximize visualizer"}
+              >
+                {expandedVisualizer ? (
+                  <Minimize2 className="h-4 w-4" />
+                ) : (
+                  <Maximize2 className="h-4 w-4" />
+                )}
+              </Button>
             )}
-          </Button>
+          </>
         )}
       </div>
     </div>
