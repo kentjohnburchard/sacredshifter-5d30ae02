@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -17,12 +18,13 @@ const JourneyPlayer = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { templates } = useJourneyTemplates();
   const [visualizerMode, setVisualizerMode] = useState<'fractal' | 'spiral' | 'mandala'>('fractal');
+  const [showVisualizer, setShowVisualizer] = useState(true);
   
   // Create a ref for the audio element used by the global player
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
-  // Setup audio analyzer for visualizer
-  const { audioContext, analyser } = useAudioAnalyzer(audioRef);
+  // Setup audio analyzer for visualizer - only if visualizer is shown
+  const { audioContext, analyser } = showVisualizer && isPlaying ? useAudioAnalyzer(audioRef) : { audioContext: null, analyser: null };
   
   // Get songs for this journey using the useJourneySongs hook
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
@@ -99,13 +101,10 @@ const JourneyPlayer = () => {
     zIndex: 50  // Higher z-index to float above content but below UI controls
   };
 
-  // Effect to set up any cleanup when leaving the journey page
-  useEffect(() => {
-    // No need to stop audio when leaving the page
-    return () => {
-      // Just clean up visualizer-related resources if needed
-    };
-  }, []);
+  // Toggle visualizer on/off to save resources
+  const toggleVisualizer = () => {
+    setShowVisualizer(prev => !prev);
+  };
 
   if (isLoading || loadingSongs) {
     return (
@@ -144,8 +143,8 @@ const JourneyPlayer = () => {
   return (
     <Layout pageTitle={journey?.title} useBlueWaveBackground={false} theme="cosmic">
       {/* Fixed container for the visualizer with explicit dimensions - floating above content */}
-      <div style={visualizerContainerStyle}>
-        {isPlaying && (
+      {showVisualizer && isPlaying && (
+        <div style={visualizerContainerStyle}>
           <SacredGeometryVisualizer 
             audioContext={audioContext}
             analyser={analyser}
@@ -154,8 +153,8 @@ const JourneyPlayer = () => {
             mode={visualizerMode}
             showControls={false}
           />
-        )}
-      </div>
+        </div>
+      )}
       
       <div className="max-w-5xl mx-auto pt-4 pb-12 relative z-10">
         <h1 className="text-3xl font-bold text-center mb-6 text-purple-900 dark:text-purple-300">{journey.title}</h1>

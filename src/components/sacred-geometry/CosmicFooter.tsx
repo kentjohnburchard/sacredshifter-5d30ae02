@@ -42,7 +42,7 @@ const CosmicFooter: React.FC<CosmicFooterProps> = ({
     <motion.footer
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`fixed bottom-0 w-full bg-black/70 backdrop-blur-lg border-t border-purple-900/50 text-white py-2 px-4 z-[999] ${className}`}
+      className={`fixed bottom-0 w-full bg-black/70 backdrop-blur-lg border-t border-purple-900/50 text-white py-2 px-4 z-30 ${className}`}
     >
       {showFrequencyBar && currentFrequency && (
         <motion.div

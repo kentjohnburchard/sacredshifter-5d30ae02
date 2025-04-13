@@ -1,5 +1,5 @@
 
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 
 type AudioInfo = {
   title: string;
@@ -17,6 +17,7 @@ let globalAudioState = {
 export function useGlobalAudioPlayer() {
   const [isPlaying, setIsPlaying] = useState(globalAudioState.isPlaying);
   const [currentAudio, setCurrentAudio] = useState<AudioInfo | null>(globalAudioState.currentAudio);
+  const eventsAttached = useRef(false);
 
   // Function to play audio through the global player
   const playAudio = useCallback((audioInfo: AudioInfo) => {
@@ -37,6 +38,9 @@ export function useGlobalAudioPlayer() {
 
   // Listen for global audio player state changes
   useEffect(() => {
+    // Only attach events once
+    if (eventsAttached.current) return;
+    
     const handleAudioStateChange = (event: CustomEvent) => {
       const newIsPlaying = event.detail.isPlaying;
       globalAudioState.isPlaying = newIsPlaying;
@@ -54,10 +58,12 @@ export function useGlobalAudioPlayer() {
 
     window.addEventListener('audioStateChange' as any, handleAudioStateChange as EventListener);
     window.addEventListener('audioInfoChange' as any, handleAudioInfoChange as EventListener);
+    eventsAttached.current = true;
 
     return () => {
       window.removeEventListener('audioStateChange' as any, handleAudioStateChange as EventListener);
       window.removeEventListener('audioInfoChange' as any, handleAudioInfoChange as EventListener);
+      eventsAttached.current = false;
     };
   }, []);
 

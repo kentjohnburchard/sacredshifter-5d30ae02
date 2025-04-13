@@ -10,7 +10,7 @@ const FixedFooter: React.FC = () => {
 
   return (
     <div 
-      className={`fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-[#9966FF]/10 to-[#bf99ff]/5 border-t border-purple-100 py-4 px-4 shadow-lg transition-transform duration-300 ${
+      className={`fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-r from-[#9966FF]/10 to-[#bf99ff]/5 border-t border-purple-100 py-4 px-4 shadow-lg transition-transform duration-300 ${
         isVisible ? 'translate-y-0' : 'translate-y-full'
       }`}
     >

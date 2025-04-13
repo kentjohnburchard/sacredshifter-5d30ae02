@@ -61,8 +61,8 @@ const Layout: React.FC<LayoutProps> = ({
 
       <div className="h-16"></div>
       
+      {/* Footer components with adjusted z-indices */}
       {showFooter && <FixedFooter />}
-      
       <GlobalWatermark />
       
       {/* Global Audio Player - Always render it regardless of page */}
@@ -71,8 +71,8 @@ const Layout: React.FC<LayoutProps> = ({
       {/* Add ConsciousnessToggle (Easter Egg) to every page */}
       <ConsciousnessToggle />
       
-      {/* Add CosmicFooter to every page with explicit z-index to ensure visibility */}
-      {showFooter && <CosmicFooter showFrequencyBar={false} className="z-[999]" />}
+      {/* Ensure CosmicFooter is positioned correctly */}
+      {showFooter && <CosmicFooter showFrequencyBar={false} className="z-30" />}
     </div>
   );
 
