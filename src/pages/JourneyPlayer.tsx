@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 import { useJourneySongs } from '@/hooks/useJourneySongs';
 import { SacredGeometryVisualizer } from '@/components/sacred-geometry';
 import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
+import { Button } from '@/components/ui/button';
+import { Eye, EyeOff } from 'lucide-react';
 
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
@@ -63,11 +65,10 @@ const JourneyPlayer = () => {
       if (!isCurrentJourneyPlaying) {
         // Wait for songs to load before trying to play
         if (!loadingSongs && songs.length > 0) {
-          // Choose a random song from the available ones
-          const randomIndex = Math.floor(Math.random() * songs.length);
-          const selectedSong = songs[randomIndex];
+          // Select the first song (likely the primary) instead of randomizing
+          const selectedSong = songs[0];
           
-          console.log(`Playing random song (${randomIndex + 1}/${songs.length}) for journey ${journeyId}:`, selectedSong);
+          console.log(`Playing song for journey ${journeyId}:`, selectedSong);
           
           playAudio({
             title: selectedSong.title || foundJourney.title,
@@ -159,6 +160,21 @@ const JourneyPlayer = () => {
       
       <div className="max-w-5xl mx-auto pt-4 pb-12 relative z-10">
         <h1 className="text-3xl font-bold text-center mb-6 text-purple-900 dark:text-purple-300">{journey.title}</h1>
+        
+        <div className="absolute top-4 right-4 z-20">
+          <Button
+            variant="outline"
+            size="sm"
+            className="bg-white/30 backdrop-blur-sm"
+            onClick={toggleVisualizer}
+          >
+            {showVisualizer ? (
+              <><Eye className="h-4 w-4 mr-2" /> Hide Visual</>
+            ) : (
+              <><EyeOff className="h-4 w-4 mr-2" /> Show Visual</>
+            )}
+          </Button>
+        </div>
         
         <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-purple-100 dark:border-purple-800 shadow-lg">
           <CardContent className="pt-6 px-6">
