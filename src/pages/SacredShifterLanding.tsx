@@ -143,6 +143,11 @@ const SacredShifterLanding = () => {
     { label: "My Journey", icon: <Star className="h-5 w-5" />, value: "journey" },
   ];
 
+  // Get features for the active tab
+  const getActiveFeatures = () => {
+    return categoryFeatures[activeTab as keyof typeof categoryFeatures] || [];
+  };
+
   // Toggle geometry selector
   const toggleGeometrySelector = () => {
     setShowGeometrySelector(!showGeometrySelector);
@@ -162,23 +167,23 @@ const SacredShifterLanding = () => {
       <GlobalWatermark />
 
       <div className="ml-0 sm:ml-20">
-        {/* Fixed position sacred geometry visualizer positioned lower on the page */}
-        <div className="fixed inset-0 z-10 pointer-events-none flex items-center justify-center mt-40">
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="w-[140vh] h-[140vh] max-w-none">
+        {/* Sacred geometry visualizer positioned more centrally in the page */}
+        <div className="fixed top-1/4 left-0 right-0 z-10 pointer-events-none flex items-center justify-center">
+          <div className="w-full flex items-center justify-center">
+            <div className="w-[100vh] h-[100vh] max-w-none opacity-80">
               <SacredGeometryVisualizer 
                 defaultShape={selectedShape}
                 size="xl"
                 showControls={false}
-                className="opacity-70"
+                className="opacity-90"
               />
             </div>
           </div>
         </div>
 
-        <div className="container mx-auto px-4 pt-24 md:pt-40 relative z-20">
+        <div className="container mx-auto px-4 pt-24 md:pt-32 relative z-20">
           {/* Hero section with Sacred Shifter title and tagline */}
-          <div className="text-center mb-16 md:mb-24 max-w-4xl mx-auto">
+          <div className="text-center mb-16 md:mb-20 max-w-4xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -195,7 +200,7 @@ const SacredShifterLanding = () => {
           </div>
 
           {/* Navigation Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-12">
+          <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="mb-12">
             <TabsList className="bg-black/60 backdrop-blur-sm rounded-full px-4 py-2 flex items-center mx-auto">
               {navigationTabs.map((tab) => (
                 <TabsTrigger 
@@ -210,39 +215,43 @@ const SacredShifterLanding = () => {
               ))}
             </TabsList>
             
-            {/* Feature Tiles Grid - All features shown */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-16 animate-fade-in">
-              {allFeatures.map((card) => (
-                <Link to={card.path} key={card.title} className="block">
-                  <motion.div
-                    whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
-                    className={`bg-gradient-to-br ${card.color} rounded-lg p-4 text-white border border-white/10 
-                              backdrop-blur-md shadow-lg hover:shadow-xl transition-all h-full flex flex-col`}
-                  >
-                    <div className="flex flex-col h-full">
-                      <div className="flex items-center mb-2">
-                        <div className="p-2 rounded-full bg-black/20 backdrop-blur-sm mr-3">
-                          {card.icon}
+            {/* TabsContent for each tab value */}
+            {navigationTabs.map((tab) => (
+              <TabsContent key={tab.value} value={tab.value} className="animate-fade-in mt-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-8">
+                  {allFeatures.map((card) => (
+                    <Link to={card.path} key={card.title} className="block">
+                      <motion.div
+                        whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
+                        className={`bg-gradient-to-br ${card.color} rounded-lg p-3 text-white border border-white/10 
+                                  backdrop-blur-md shadow-lg hover:shadow-xl transition-all h-full flex flex-col`}
+                      >
+                        <div className="flex flex-col h-full">
+                          <div className="flex items-center mb-1">
+                            <div className="p-1.5 rounded-full bg-black/20 backdrop-blur-sm mr-2">
+                              {card.icon}
+                            </div>
+                            <h3 className="text-base font-semibold">{card.title}</h3>
+                          </div>
+                          
+                          <p className="text-xs text-gray-200/90 mt-1">{card.description}</p>
+                          
+                          <div className="mt-auto pt-1 flex justify-end">
+                            <span className="text-white/80 flex items-center text-xs font-medium">
+                              Explore <span aria-hidden="true" className="ml-1">→</span>
+                            </span>
+                          </div>
                         </div>
-                        <h3 className="text-lg font-semibold">{card.title}</h3>
-                      </div>
-                      
-                      <p className="text-xs text-gray-200/90 mt-1">{card.description}</p>
-                      
-                      <div className="mt-auto pt-2 flex justify-end">
-                        <span className="text-white/80 flex items-center text-xs font-medium">
-                          Explore <span aria-hidden="true" className="ml-1">→</span>
-                        </span>
-                      </div>
-                    </div>
-                  </motion.div>
-                </Link>
-              ))}
-            </div>
+                      </motion.div>
+                    </Link>
+                  ))}
+                </div>
+              </TabsContent>
+            ))}
           </Tabs>
           
           {/* About Sacred Shifter section */}
-          <div className="mb-24 text-center">
+          <div className="mb-36 text-center">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
