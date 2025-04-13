@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import SacredFlowerOfLife from '@/components/sacred-geometry/shapes/SacredFlowerOfLife';
@@ -8,7 +9,7 @@ import TreeOfLife from '@/components/sacred-geometry/shapes/TreeOfLife';
 import SriYantra from '@/components/sacred-geometry/shapes/SriYantra';
 import VesicaPiscis from '@/components/sacred-geometry/shapes/VesicaPiscis';
 import StarfieldBackground from '@/components/sacred-geometry/StarfieldBackground';
-import { Music, Heart, Sparkles, BookOpen, Star, Moon, LibraryBig, Wand2, Compass, Brain, Activity, Map } from 'lucide-react';
+import { Music, Heart, Sparkles, BookOpen, Star, Moon, LibraryBig, Wand2, Compass, Brain, Activity, Map, ToggleLeft, EyeOff, Eye } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import Sidebar from '@/components/Sidebar';
 import ConsciousnessToggle from '@/components/ConsciousnessToggle';
@@ -23,15 +24,24 @@ import AboutSacredShifter from '@/components/AboutSacredShifter';
 import ThemeEnhancer from '@/components/ThemeEnhancer';
 import SacredPulseBar from '@/components/sacred-geometry/SacredPulseBar';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
-import { calculatePrimeFactors, isPrime } from '@/utils/primeCalculations';
+import { calculatePrimeFactors, isPrime, getFirstNPrimes } from '@/utils/primeCalculations';
 import { CosmicFooter } from '@/components/sacred-geometry';
 import { LegalFooter } from '@/components/ip-protection';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
-const EnhancedParticleField: React.FC<{ isAudioPlaying: boolean; liftTheVeil: boolean }> = ({ isAudioPlaying, liftTheVeil }) => {
+// Enhanced Particle Field that responds to audio and prime mode
+const EnhancedParticleField: React.FC<{ isAudioPlaying: boolean; liftTheVeil: boolean; primeMode: boolean }> = ({ isAudioPlaying, liftTheVeil, primeMode }) => {
   const particleRef = useRef<HTMLDivElement>(null);
   const primeNumbers = [2, 3, 5, 7, 11, 13, 17, 19, 23];
-  const particleCount = liftTheVeil ? primeNumbers[4] * primeNumbers[2] : primeNumbers[3] * primeNumbers[1]; // 55 or 21 particles
+  const particleCount = primeMode 
+    ? primeNumbers[4] * primeNumbers[2] // 55 particles in prime mode
+    : liftTheVeil 
+      ? primeNumbers[3] * primeNumbers[1] // 21 particles
+      : primeNumbers[2] * primeNumbers[1]; // 15 particles in standard mode
 
   useEffect(() => {
     if (!particleRef.current) return;
@@ -44,8 +54,10 @@ const EnhancedParticleField: React.FC<{ isAudioPlaying: boolean; liftTheVeil: bo
     
     for (let i = 0; i < particleCount; i++) {
       const particle = document.createElement('div');
-      const size = Math.random() * 3 + 1;
       const isPrimeIndex = isPrime(i + 1);
+      const size = isPrimeIndex ? 
+        (primeMode ? Math.random() * 5 + 2 : Math.random() * 3 + 1) : 
+        Math.random() * 3 + 1;
       
       particle.style.position = 'absolute';
       particle.style.width = `${size}px`;
@@ -55,18 +67,32 @@ const EnhancedParticleField: React.FC<{ isAudioPlaying: boolean; liftTheVeil: bo
       particle.style.top = `${Math.random() * 100}%`;
       
       if (isPrimeIndex) {
-        particle.style.background = liftTheVeil 
-          ? `rgba(255, 105, 180, ${Math.random() * 0.3 + 0.4})` 
-          : `rgba(147, 51, 234, ${Math.random() * 0.3 + 0.4})`;
-        particle.style.boxShadow = liftTheVeil 
-          ? '0 0 8px rgba(255, 105, 180, 0.7)' 
-          : '0 0 8px rgba(147, 51, 234, 0.7)';
+        // Special styling for prime index particles
+        particle.style.background = primeMode
+          ? liftTheVeil 
+            ? `rgba(255, 105, 180, ${Math.random() * 0.4 + 0.5})` // Brighter pink in prime mode + veil lifted
+            : `rgba(147, 51, 234, ${Math.random() * 0.4 + 0.5})` // Brighter purple in prime mode
+          : liftTheVeil 
+            ? `rgba(255, 105, 180, ${Math.random() * 0.3 + 0.4})` // Standard pink
+            : `rgba(147, 51, 234, ${Math.random() * 0.3 + 0.4})`; // Standard purple
         
-        const animDuration = primeNumbers[i % primeNumbers.length] * 2;
+        particle.style.boxShadow = primeMode
+          ? liftTheVeil 
+            ? '0 0 12px rgba(255, 105, 180, 0.8)' // Enhanced glow in prime mode + veil lifted
+            : '0 0 12px rgba(147, 51, 234, 0.8)' // Enhanced glow in prime mode
+          : liftTheVeil 
+            ? '0 0 8px rgba(255, 105, 180, 0.7)' // Standard glow
+            : '0 0 8px rgba(147, 51, 234, 0.7)'; // Standard glow
+        
+        // Animation for prime particles - more dynamic in prime mode
+        const animDuration = primeMode 
+          ? primeNumbers[i % primeNumbers.length] * 1.5 // Faster in prime mode
+          : primeNumbers[i % primeNumbers.length] * 2;
+        
         particle.animate(
           [
             { transform: 'scale(1)', opacity: 0.7 },
-            { transform: 'scale(1.5)', opacity: 1 },
+            { transform: primeMode ? 'scale(1.8)' : 'scale(1.5)', opacity: 1 },
             { transform: 'scale(1)', opacity: 0.7 }
           ],
           {
@@ -77,6 +103,7 @@ const EnhancedParticleField: React.FC<{ isAudioPlaying: boolean; liftTheVeil: bo
           }
         );
       } else {
+        // Non-prime particles
         particle.style.background = liftTheVeil 
           ? `rgba(255, 182, 193, ${Math.random() * 0.2 + 0.2})` 
           : `rgba(167, 139, 250, ${Math.random() * 0.2 + 0.2})`;
@@ -98,15 +125,16 @@ const EnhancedParticleField: React.FC<{ isAudioPlaying: boolean; liftTheVeil: bo
         );
       }
       
+      // Additional pulse animation when audio is playing
       if (isAudioPlaying) {
         const pulseAnimation = particle.animate(
           [
             { transform: 'scale(1)', opacity: 0.6 },
-            { transform: 'scale(1.3)', opacity: 1 },
+            { transform: primeMode ? 'scale(1.5)' : 'scale(1.3)', opacity: 1 },
             { transform: 'scale(1)', opacity: 0.6 }
           ],
           {
-            duration: 1800,
+            duration: primeMode ? 1500 : 1800,
             iterations: Infinity,
             direction: 'alternate',
             easing: 'ease-in-out',
@@ -117,7 +145,7 @@ const EnhancedParticleField: React.FC<{ isAudioPlaying: boolean; liftTheVeil: bo
       
       container.appendChild(particle);
     }
-  }, [particleCount, isAudioPlaying, liftTheVeil]);
+  }, [particleCount, isAudioPlaying, liftTheVeil, primeMode]);
 
   return (
     <div 
@@ -131,6 +159,63 @@ const EnhancedParticleField: React.FC<{ isAudioPlaying: boolean; liftTheVeil: bo
   );
 };
 
+// Prime Number Bar visualization
+const PrimeNumberBar: React.FC<{ isActive: boolean; isAudioPlaying: boolean; liftTheVeil: boolean }> = ({ 
+  isActive, isAudioPlaying, liftTheVeil 
+}) => {
+  const [primes, setPrimes] = useState<number[]>([]);
+  
+  useEffect(() => {
+    // Get first 15 prime numbers
+    setPrimes(getFirstNPrimes(15));
+  }, []);
+
+  if (!isActive) return null;
+
+  return (
+    <div className="fixed top-1.5 left-0 right-0 z-40 flex justify-center items-center">
+      <div className="relative max-w-4xl w-full flex items-center justify-center">
+        {/* Prime matrix label */}
+        <div className={cn(
+          "absolute left-3 top-1/2 -translate-y-1/2 px-2.5 py-1 text-xs rounded-full backdrop-blur-md flex items-center gap-1.5",
+          liftTheVeil 
+            ? "bg-pink-900/70 border border-pink-500/20" 
+            : "bg-purple-900/70 border border-purple-500/20"
+        )}>
+          <Sparkles className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Frequency Matrix Active</span>
+          <span className="sm:hidden">Matrix</span>
+        </div>
+        
+        {/* Prime number visualization */}
+        <div className="flex items-center justify-center gap-1 sm:gap-2 mx-auto">
+          {primes.map((prime, index) => (
+            <motion.div
+              key={prime}
+              className={cn(
+                "h-4 w-1.5 sm:w-2 rounded-full",
+                liftTheVeil ? "bg-pink-500" : "bg-purple-500"
+              )}
+              animate={isAudioPlaying ? {
+                height: ["16px", `${prime * 2}px`, "16px"],
+                opacity: [0.6, 1, 0.6]
+              } : {}}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                repeatType: "reverse",
+                delay: index * 0.1,
+                ease: "easeInOut"
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Sacred scroll reveal animation (spiral sigil in corner)
 const SacredScrollReveal: React.FC<{ liftTheVeil: boolean }> = ({ liftTheVeil }) => {
   const { scrollYProgress } = useScroll();
   const opacityProgress = useTransform(scrollYProgress, [0, 0.3, 0.8], [0, 1, 0]);
@@ -172,6 +257,7 @@ const SacredScrollReveal: React.FC<{ liftTheVeil: boolean }> = ({ liftTheVeil })
   );
 };
 
+// Shape selector component for the geometry visualizer
 const ShapeSelector: React.FC<{
   selectedShape: string;
   onSelectShape: (shape: "flower-of-life" | "metatrons-cube" | "merkaba" | "torus" | "tree-of-life" | "sri-yantra" | "vesica-piscis") => void;
@@ -214,6 +300,7 @@ const ShapeSelector: React.FC<{
   );
 };
 
+// Define the shape mapping
 const geometryComponents = {
   'Flower of Life': <SacredFlowerOfLife />,
   "Metatron's Cube": <MetatronsCube />,
@@ -224,15 +311,75 @@ const geometryComponents = {
   'Vesica Piscis': <VesicaPiscis />,
 };
 
-const SacredShifterLanding = () => {
+// About Sacred Shifter static content
+const AboutSacredContent: React.FC<{ liftTheVeil: boolean }> = ({ liftTheVeil }) => {
+  return (
+    <div className="mb-10 mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+      <div className={cn(
+        "cosmic-glass p-6 rounded-xl",
+        liftTheVeil 
+          ? "border border-pink-500/30 bg-gradient-to-br from-black/80 to-pink-950/20" 
+          : "border border-purple-500/30 bg-gradient-to-br from-black/80 to-purple-950/20"
+      )}>
+        <motion.h3 
+          className={cn(
+            "text-xl font-semibold mb-3",
+            liftTheVeil 
+              ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400" 
+              : "text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400"
+          )}
+          animate={{ opacity: [0.9, 1, 0.9] }}
+          transition={{ duration: 3, repeat: Infinity }}
+        >
+          About Sacred Shifter
+        </motion.h3>
+        <div className="space-y-3 text-sm">
+          <p className="text-gray-300">Sacred Shifter was created as a remembrance engine — a place to re-tune consciousness using prime-coded frequencies and visual truth.</p>
+          <p className="text-gray-300">We are not here to convince you. We are here to help you remember.</p>
+          <p className="text-gray-300">Everything in this app is encoded with intention.</p>
+        </div>
+      </div>
+      
+      <div className={cn(
+        "cosmic-glass p-6 rounded-xl",
+        liftTheVeil 
+          ? "border border-pink-500/30 bg-gradient-to-br from-black/80 to-pink-950/20" 
+          : "border border-purple-500/30 bg-gradient-to-br from-black/80 to-purple-950/20"
+      )}>
+        <motion.h3 
+          className={cn(
+            "text-xl font-semibold mb-3",
+            liftTheVeil 
+              ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400" 
+              : "text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400"
+          )}
+          animate={{ opacity: [0.9, 1,.9] }}
+          transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}
+        >
+          The Sacred Code
+        </motion.h3>
+        <div className="space-y-3 text-sm">
+          <p className="text-gray-300">These geometric shapes are not decorative — they are keys to the architecture of reality.</p>
+          <p className="text-gray-300">They speak in math, pulse in primes, and glow in alignment.</p>
+          <p className="text-gray-300">When the veil lifts, you'll feel it. You'll remember why you came here.</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const SacredShifterLanding: React.FC = () => {
+  // State management for various modes and features
   const [selectedShape, setSelectedShape] = useState<"flower-of-life" | "metatrons-cube" | "merkaba" | "torus" | "tree-of-life" | "sri-yantra" | "vesica-piscis">("flower-of-life");
-  const { liftTheVeil } = useTheme();
+  const { liftTheVeil, setLiftTheVeil } = useTheme();
   const { isAudioPlaying } = useAudioPlayer();
   const [activeTab, setActiveTab] = useState("sound");
   const [showGeometrySelector, setShowGeometrySelector] = useState(true);
   const [showOriginFlow, setShowOriginFlow] = useState(false);
-  const [showAboutComponent, setShowAboutComponent] = useState(true); // Set to true by default now
-
+  const [showAboutComponent, setShowAboutComponent] = useState(true);
+  const [primeMode, setPrimeMode] = useState(false);
+  
+  // Auto-cycle through shapes when not playing audio
   useEffect(() => {
     if (isAudioPlaying) return; // Only auto-rotate when not playing audio
     
@@ -250,6 +397,7 @@ const SacredShifterLanding = () => {
     return () => clearInterval(interval);
   }, [isAudioPlaying, selectedShape]);
 
+  // Helper function to scroll to sections
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -257,6 +405,7 @@ const SacredShifterLanding = () => {
     }
   };
 
+  // Shape mapping for the geometry visualizer
   const shapeMapping: Record<string, "flower-of-life" | "metatrons-cube" | "merkaba" | "torus" | "tree-of-life" | "sri-yantra" | "vesica-piscis"> = {
     'Flower of Life': 'flower-of-life',
     "Metatron's Cube": 'metatrons-cube',
@@ -267,6 +416,7 @@ const SacredShifterLanding = () => {
     'Vesica Piscis': 'vesica-piscis',
   };
 
+  // Feature categories for the navigation tabs
   const categoryFeatures = {
     sound: [
       {
@@ -414,6 +564,7 @@ const SacredShifterLanding = () => {
     ],
   };
 
+  // Combine all features for rendering
   const allFeatures = [
     ...categoryFeatures.sound,
     ...categoryFeatures.experiences, 
@@ -422,6 +573,7 @@ const SacredShifterLanding = () => {
     ...categoryFeatures.about
   ];
 
+  // Navigation tabs configuration
   const navigationTabs = [
     { label: "Sound Journeys", icon: <Music className="h-5 w-5" />, value: "sound" },
     { label: "Experiences", icon: <Sparkles className="h-5 w-5" />, value: "experiences" },
@@ -430,48 +582,98 @@ const SacredShifterLanding = () => {
     { label: "About", icon: <Compass className="h-5 w-5" />, value: "about" },
   ];
 
-  const toggleOriginFlow = () => {
-    setShowOriginFlow(!showOriginFlow);
-  };
-
-  const toggleAboutComponent = () => {
-    setShowAboutComponent(!showAboutComponent);
-  };
-
-  const toggleGeometrySelector = () => {
-    setShowGeometrySelector(!showGeometrySelector);
-  };
+  // Toggle functions
+  const toggleOriginFlow = () => setShowOriginFlow(!showOriginFlow);
+  const toggleAboutComponent = () => setShowAboutComponent(!showAboutComponent);
+  const toggleGeometrySelector = () => setShowGeometrySelector(!showGeometrySelector);
+  const togglePrimeMode = () => setPrimeMode(!primeMode);
+  const toggleVeilMode = () => setLiftTheVeil(!liftTheVeil);
 
   return (
     <div className={cn(
       "relative min-h-screen w-full bg-gradient-to-b from-black via-[#0a0118] to-black text-white font-sans overflow-hidden",
       liftTheVeil ? "border-pink-500 border-[6px]" : "border-purple-500 border-[6px]"
     )}>
-      <EnhancedParticleField isAudioPlaying={isAudioPlaying} liftTheVeil={liftTheVeil} />
+      {/* Enhanced particle field background */}
+      <EnhancedParticleField isAudioPlaying={isAudioPlaying} liftTheVeil={liftTheVeil} primeMode={primeMode} />
 
+      {/* Core UI components */}
       <Sidebar />
       <Watermark />
       <GlobalWatermark />
       
+      {/* Prime Number Bar visualization when prime mode is active */}
+      <PrimeNumberBar isActive={primeMode} isAudioPlaying={isAudioPlaying} liftTheVeil={liftTheVeil} />
+      
+      {/* Audio pulse bar when audio is playing */}
       <AnimatePresence>
         {isAudioPlaying && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed top-0 left-0 right-0 z-50"
+            className="fixed top-0 left-0 right-0 z-40"
           >
             <SacredPulseBar className="h-1.5" />
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* Shape selector UI */}
       {showGeometrySelector && (
         <ShapeSelector selectedShape={selectedShape} onSelectShape={setSelectedShape} />
       )}
 
+      {/* Sacred scroll reveal animation */}
       <SacredScrollReveal liftTheVeil={liftTheVeil} />
 
+      {/* Mode toggles */}
+      <div className="fixed right-6 top-24 z-50 flex flex-col gap-3">
+        {/* Prime Mode Toggle */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.5 }}
+          className={cn(
+            "p-2 rounded-lg backdrop-blur-sm border flex items-center gap-2 cursor-pointer",
+            primeMode 
+              ? (liftTheVeil ? "bg-pink-900/60 border-pink-500/40" : "bg-purple-900/60 border-purple-500/40")
+              : "bg-black/40 border-white/10"
+          )}
+          onClick={togglePrimeMode}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <Switch id="prime-mode" checked={primeMode} className={liftTheVeil ? "data-[state=checked]:bg-pink-500" : ""} />
+          <Label htmlFor="prime-mode" className="text-sm font-medium cursor-pointer flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4" />
+            <span>Prime Mode</span>
+          </Label>
+        </motion.div>
+        
+        {/* Veil Mode Toggle */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.7 }}
+          className={cn(
+            "p-2 rounded-lg backdrop-blur-sm border flex items-center gap-2 cursor-pointer",
+            liftTheVeil 
+              ? "bg-pink-900/60 border-pink-500/40"
+              : "bg-black/40 border-white/10"
+          )}
+          onClick={toggleVeilMode}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <div className="text-sm font-medium cursor-pointer flex items-center gap-1.5">
+            {liftTheVeil ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+            <span>Lift the Veil</span>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Origin Flow compass button */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -494,6 +696,7 @@ const SacredShifterLanding = () => {
         </div>
       </motion.div>
 
+      {/* Conditional components */}
       {showOriginFlow && <OriginFlow forceShow={true} />}
 
       <ThemeEnhancer
@@ -501,6 +704,7 @@ const SacredShifterLanding = () => {
         onToggleAbout={toggleAboutComponent}
       />
 
+      {/* Sacred Shifter logo */}
       <div className="fixed top-0 left-0 right-0 pointer-events-none z-10 flex justify-center items-start">
         <motion.img 
           src="/lovable-uploads/55c4de0c-9d48-42df-a6a2-1bb6520acb46.png" 
@@ -518,6 +722,7 @@ const SacredShifterLanding = () => {
         />
       </div>
 
+      {/* Main sacred geometry visualization */}
       <div className="fixed inset-0 z-5 pointer-events-none flex items-center justify-center">
         <motion.div 
           className="w-full h-full flex items-center justify-center"
@@ -532,17 +737,19 @@ const SacredShifterLanding = () => {
             ease: "easeInOut"
           }}
         >
-          <div className={`w-[130vh] h-[130vh] max-w-[130%] max-h-[130%] ${isAudioPlaying ? 'animate-pulse-medium' : ''}`}>
+          <div className={`w-[140vh] h-[140vh] max-w-[140%] max-h-[140%] ${isAudioPlaying ? 'animate-pulse-medium' : ''}`}>
             <SacredGeometryVisualizer 
               defaultShape={selectedShape}
               size="xl"
               showControls={false}
               className={`opacity-90 ${isAudioPlaying ? 'is-playing' : ''}`}
+              isAudioReactive={isAudioPlaying}
             />
           </div>
         </motion.div>
       </div>
 
+      {/* Secondary sacred geometry visualization */}
       <div className="fixed bottom-0 right-0 z-4 pointer-events-none">
         <motion.div
           className="w-[40vh] h-[40vh] opacity-50"
@@ -559,13 +766,15 @@ const SacredShifterLanding = () => {
         </motion.div>
       </div>
 
+      {/* Main content container */}
       <div className="ml-0 sm:ml-20">
         <div className="container mx-auto px-4 pt-8 md:pt-12 relative z-20">
+          {/* Welcome Title Section */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="text-center mb-4 mt-12 relative max-w-4xl mx-auto"
+            className="text-center mb-4 mt-8 relative max-w-4xl mx-auto"
           >
             <div className="absolute inset-0 -z-10">
               <div className={cn(
@@ -602,17 +811,46 @@ const SacredShifterLanding = () => {
             )}>
               Explore frequency healing and consciousness expansion
             </p>
+            
+            {/* Prime mode message */}
+            <AnimatePresence>
+              {primeMode && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className={cn(
+                    "mt-6 p-4 rounded-lg backdrop-blur-sm max-w-2xl mx-auto",
+                    liftTheVeil ? "bg-pink-950/30 border border-pink-500/20" : "bg-purple-950/30 border border-purple-500/20"
+                  )}
+                >
+                  <p className="italic text-sm">
+                    This visualizer is tuned to the vibration of Prime Numbers — the architects of symmetry. 
+                    Each bar, each pulse reflects a frequency that cannot be divided, only understood. 
+                    Welcome to the origin point.
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
           
+          {/* About Sacred Shifter Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
             className="mb-6 relative z-20"
           >
-            <AboutSacredShifter />
+            {/* Static About Content */}
+            <AboutSacredContent liftTheVeil={liftTheVeil} />
+            
+            {/* Expandable About Component */}
+            <div className="mt-4">
+              <AboutSacredShifter />
+            </div>
           </motion.div>
           
+          {/* Feature Tabs Section */}
           <div className="mb-12">
             <Tabs 
               defaultValue={activeTab} 
@@ -761,6 +999,7 @@ const SacredShifterLanding = () => {
         </div>
       </div>
       
+      {/* Footer sections */}
       <div className="relative z-20">
         <LegalFooter />
       </div>
