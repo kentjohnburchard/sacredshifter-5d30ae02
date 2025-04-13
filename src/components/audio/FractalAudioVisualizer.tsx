@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { isPrime } from '@/utils/primeCalculations';
@@ -66,6 +67,18 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
     analyser.fftSize = 2048; // Increased for better frequency resolution
     const bufferLength = analyser.frequencyBinCount;
     frequencyDataRef.current = new Uint8Array(bufferLength);
+    
+    // Helper to check if audio is active
+    const isAudioActive = (dataArray: Uint8Array): boolean => {
+      let sum = 0;
+      const sampleSize = Math.min(32, dataArray.length);
+      
+      for (let i = 0; i < sampleSize; i++) {
+        sum += dataArray[i];
+      }
+      
+      return (sum / sampleSize) > 5; // Consider active if average is above threshold
+    };
     
     // Function to detect prime number frequencies
     const detectPrimeFrequencies = (dataArray: Uint8Array) => {
@@ -171,18 +184,6 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
       }
     };
 
-    // Helper to check if audio is active
-    const isAudioActive = (dataArray: Uint8Array): boolean => {
-      let sum = 0;
-      const sampleSize = Math.min(32, dataArray.length);
-      
-      for (let i = 0; i < sampleSize; i++) {
-        sum += dataArray[i];
-      }
-      
-      return (sum / sampleSize) > 5; // Consider active if average is above threshold
-    };
-
     // Main animation function
     const animate = () => {
       if (!isVisible || !analyser || !frequencyDataRef.current) {
@@ -194,15 +195,15 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
       
       if (!ctx) return;
       
-      analyser.getByteFrequencyData(frequencyDataRef.current);
+      // Get frequency data
       const dataArray = frequencyDataRef.current;
+      analyser.getByteFrequencyData(dataArray);
       
       // Check if audio is active before continuing
       if (pauseWhenStopped && !isAudioActive(dataArray)) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        animationFrameRef.current = requestAnimationFrame(animate);
         return;
       }
       
