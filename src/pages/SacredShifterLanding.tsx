@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import SacredFlowerOfLife from '@/components/sacred-geometry/shapes/SacredFlowerOfLife';
@@ -39,15 +38,14 @@ const geometryComponents = {
 const SacredShifterLanding = () => {
   const [selectedShape, setSelectedShape] = useState<"flower-of-life" | "metatrons-cube" | "merkaba" | "torus" | "tree-of-life" | "sri-yantra" | "vesica-piscis">("flower-of-life");
   const { liftTheVeil } = useTheme();
-  const { isPlaying } = useAudioPlayer();
+  const { isAudioPlaying } = useAudioPlayer();
   const [activeTab, setActiveTab] = useState("sound");
   const [showGeometrySelector, setShowGeometrySelector] = useState(false);
   const [showOriginFlow, setShowOriginFlow] = useState(false);
   const [showAboutComponent, setShowAboutComponent] = useState(false);
 
-  // Auto-rotate through sacred geometries
   useEffect(() => {
-    if (!isPlaying) return; // Only auto-rotate when not playing audio
+    if (!isAudioPlaying) return; // Only auto-rotate when not playing audio
     
     const shapes: ("flower-of-life" | "metatrons-cube" | "merkaba" | "torus" | "tree-of-life" | "sri-yantra" | "vesica-piscis")[] = [
       "flower-of-life", "metatrons-cube", "merkaba", "torus", "tree-of-life", "sri-yantra", "vesica-piscis"
@@ -61,7 +59,7 @@ const SacredShifterLanding = () => {
     }, 15000); // Change every 15 seconds
     
     return () => clearInterval(interval);
-  }, [isPlaying, selectedShape]);
+  }, [isAudioPlaying, selectedShape]);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -256,7 +254,6 @@ const SacredShifterLanding = () => {
       "relative min-h-screen w-full bg-gradient-to-b from-black via-[#0a0118] to-black text-white font-sans overflow-hidden",
       liftTheVeil ? "border-pink-500 border-[6px]" : "border-purple-500 border-[6px]"
     )}>
-      {/* Enhanced starfield background with higher density */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <StarfieldBackground density="high" opacity={0.8} isStatic={false} />
       </div>
@@ -265,9 +262,8 @@ const SacredShifterLanding = () => {
       <Watermark />
       <GlobalWatermark />
       
-      {/* Sacred Pulse Bar */}
       <AnimatePresence>
-        {isPlaying && (
+        {isAudioPlaying && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -279,7 +275,6 @@ const SacredShifterLanding = () => {
         )}
       </AnimatePresence>
 
-      {/* Origin Flow toggle with enhanced visibility */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -294,13 +289,11 @@ const SacredShifterLanding = () => {
 
       {showOriginFlow && <OriginFlow forceShow={true} />}
 
-      {/* Use ThemeEnhancer instead of an inline implementation */}
       <ThemeEnhancer
         showAbout={showAboutComponent}
         onToggleAbout={toggleAboutComponent}
       />
 
-      {/* Sacred Shifter Watermark Logo - positioned at top */}
       <div className="fixed top-0 left-0 right-0 pointer-events-none z-10 flex justify-center items-start">
         <img 
           src="/lovable-uploads/55c4de0c-9d48-42df-a6a2-1bb6520acb46.png" 
@@ -310,11 +303,10 @@ const SacredShifterLanding = () => {
       </div>
 
       <div className="ml-0 sm:ml-20">
-        {/* Sacred Geometry Visualizer - Enhanced */}
         <div className="fixed inset-0 z-5 pointer-events-none flex items-center justify-center">
           <motion.div 
             className="w-full h-full flex items-center justify-center"
-            animate={isPlaying ? {
+            animate={isAudioPlaying ? {
               scale: [1, 1.02, 1],
               opacity: [0.8, 0.9, 0.8]
             } : {}}
@@ -325,19 +317,18 @@ const SacredShifterLanding = () => {
               ease: "easeInOut"
             }}
           >
-            <div className={`w-[90vh] h-[90vh] max-w-[90%] max-h-[90%] ${isPlaying ? 'animate-pulse-medium' : ''}`}>
+            <div className={`w-[90vh] h-[90vh] max-w-[90%] max-h-[90%] ${isAudioPlaying ? 'animate-pulse-medium' : ''}`}>
               <SacredGeometryVisualizer 
                 defaultShape={selectedShape}
                 size="xl"
                 showControls={false}
-                className={`opacity-80 ${isPlaying ? 'is-playing' : ''}`}
+                className={`opacity-80 ${isAudioPlaying ? 'is-playing' : ''}`}
               />
             </div>
           </motion.div>
         </div>
 
         <div className="container mx-auto px-4 pt-16 md:pt-24 relative z-20">
-          {/* Downsized welcome text and repositioned below top logo */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -352,7 +343,6 @@ const SacredShifterLanding = () => {
             </p>
           </motion.div>
 
-          {/* Improved responsive tab navigation */}
           <div className="mb-12">
             <Tabs 
               defaultValue={activeTab} 
@@ -455,12 +445,10 @@ const SacredShifterLanding = () => {
             </Tabs>
           </div>
 
-          {/* Spacer to ensure content doesn't overlap with footer */}
           <div className="h-24"></div>
         </div>
       </div>
 
-      {/* Sacred Geometries Selector - Enhanced */}
       <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-40 max-w-sm w-full">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

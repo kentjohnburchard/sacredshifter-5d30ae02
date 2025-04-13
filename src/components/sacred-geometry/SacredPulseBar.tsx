@@ -10,13 +10,13 @@ interface SacredPulseBarProps {
 
 const SacredPulseBar: React.FC<SacredPulseBarProps> = ({ className = '' }) => {
   const { liftTheVeil } = useTheme();
-  const { isPlaying, audioElement } = useAudioPlayer();
+  const { isAudioPlaying, audioRef } = useAudioPlayer();
   const [activeDigits, setActiveDigits] = useState<number[]>([]);
   const primeDigits = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61];
   
   // Create audio analyzer when audio is playing
   useEffect(() => {
-    if (!audioElement || !isPlaying) {
+    if (!audioRef.current || !isAudioPlaying) {
       setActiveDigits([]);
       return;
     }
@@ -30,7 +30,7 @@ const SacredPulseBar: React.FC<SacredPulseBarProps> = ({ className = '' }) => {
     try {
       audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       analyzer = audioContext.createAnalyser();
-      audioSource = audioContext.createMediaElementSource(audioElement);
+      audioSource = audioContext.createMediaElementSource(audioRef.current);
       audioSource.connect(analyzer);
       analyzer.connect(audioContext.destination);
       
@@ -75,9 +75,9 @@ const SacredPulseBar: React.FC<SacredPulseBarProps> = ({ className = '' }) => {
       if (audioSource) audioSource.disconnect();
       if (audioContext) audioContext.close();
     };
-  }, [audioElement, isPlaying]);
+  }, [audioRef, isAudioPlaying]);
   
-  if (!isPlaying) return null;
+  if (!isAudioPlaying) return null;
   
   return (
     <motion.div 
