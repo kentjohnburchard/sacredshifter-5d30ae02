@@ -1,15 +1,14 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import UserDashboard from "@/components/UserDashboard";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/context/AuthContext";
 import { cleanupUserPreferencesData } from "@/utils/cleanupPreferencesData";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import OriginFlow from "@/components/sacred-geometry/OriginFlow";
+import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
-  const [showOriginFlow, setShowOriginFlow] = useState(false);
   const [dashboardVisits, setDashboardVisits] = useLocalStorage<number>("dashboard-visit-count", 0);
   
   // Run the cleanup function once when the dashboard loads
@@ -20,14 +19,6 @@ const Dashboard: React.FC = () => {
     
     // Track dashboard visits - Fix TS error by using a non-function value
     setDashboardVisits(typeof dashboardVisits === 'number' ? dashboardVisits + 1 : 1);
-    
-    // Show origin flow if this is one of the first three visits
-    if ((typeof dashboardVisits === 'number' && dashboardVisits < 3)) {
-      const timer = setTimeout(() => {
-        setShowOriginFlow(true);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
   }, [user, dashboardVisits, setDashboardVisits]);
   
   return (
@@ -36,12 +27,8 @@ const Dashboard: React.FC = () => {
         <UserDashboard />
       </div>
       
-      {showOriginFlow && (
-        <OriginFlow 
-          forceShow={true}
-          onComplete={() => setShowOriginFlow(false)} 
-        />
-      )}
+      {/* Add Sacred Audio Player */}
+      <SacredAudioPlayer />
     </Layout>
   );
 };

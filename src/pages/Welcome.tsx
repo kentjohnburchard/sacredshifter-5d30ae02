@@ -1,109 +1,113 @@
 
-import React, { useState, useEffect } from "react";
-import LandingPrompt from "@/components/LandingPrompt";
-import { motion } from "framer-motion";
-import SacredFlowerOfLife from "@/components/sacred-geometry/shapes/SacredFlowerOfLife";
-import StarfieldBackground from "@/components/sacred-geometry/StarfieldBackground";
-import OriginFlow from "@/components/sacred-geometry/OriginFlow";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import StarfieldBackground from '@/components/sacred-geometry/StarfieldBackground';
+import SacredFlowerOfLife from '@/components/sacred-geometry/shapes/SacredFlowerOfLife';
 
-const Welcome: React.FC = () => {
-  const [showContent, setShowContent] = useState(false);
-  const [showOriginFlow, setShowOriginFlow] = useState(false);
-  
-  useEffect(() => {
-    console.log('Welcome page loaded');
-    // Fade in the content
-    const timer = setTimeout(() => {
-      setShowContent(true);
-    }, 300);
-    
-    // Show origin flow after a short delay
-    const originFlowTimer = setTimeout(() => {
-      setShowOriginFlow(true);
-    }, 1500);
-    
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(originFlowTimer);
-    };
-  }, []);
-  
+const Welcome = () => {
+  const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const welcomeSteps = [
+    {
+      title: "Welcome to Sacred Shifter",
+      description: "Step into a realm of frequency healing, consciousness exploration, and vibrational alignment.",
+      buttonText: "Begin Journey"
+    },
+    {
+      title: "Your Sacred Blueprint",
+      description: "Discover your unique energetic signature and find the frequencies that resonate with your being.",
+      buttonText: "Continue"
+    },
+    {
+      title: "Sacred Geometry & Sound",
+      description: "Experience the healing power of ancient geometrical patterns combined with sacred sound frequencies.",
+      buttonText: "Enter Sacred Space"
+    }
+  ];
+
+  const handleNextStep = () => {
+    if (currentStep < welcomeSteps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      navigate('/home');
+    }
+  };
+
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-black scroll-smooth">
-      {/* Sacred Geometry Background Layer */}
-      <div className="absolute inset-0 opacity-30">
-        <SacredFlowerOfLife />
+    <div className="relative min-h-screen w-full bg-black text-white overflow-hidden flex items-center justify-center">
+      {/* Starfield background */}
+      <StarfieldBackground density="high" opacity={0.6} isStatic={false} />
+      
+      {/* Sacred geometry background */}
+      <div className="absolute inset-0 flex items-center justify-center opacity-20">
+        <div className="w-[150vh] h-[150vh] animate-slow-spin">
+          <SacredFlowerOfLife />
+        </div>
       </div>
       
-      {/* Starfield Background */}
-      <div className="absolute inset-0 z-0">
-        <StarfieldBackground density="medium" opacity={0.6} isStatic={false} />
-      </div>
-      
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-purple-900/30 to-indigo-900/50 z-0"></div>
-      
-      {/* Sacred Floating Shapes */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        {/* Floating Circle */}
-        <motion.div 
-          className="absolute w-20 sm:w-32 h-20 sm:h-32 rounded-full border border-purple-500/20 bg-gradient-to-br from-purple-500/5 to-blue-500/5"
-          initial={{ x: "10%", y: "20%", opacity: 0 }}
-          animate={{ 
-            x: ["10%", "15%", "10%"], 
-            y: ["20%", "25%", "20%"], 
-            opacity: 0.3,
-            rotate: [0, 360]
-          }}
-          transition={{ 
-            duration: 30, 
-            repeat: Infinity, 
-            ease: "easeInOut" 
-          }}
-        />
-        
-        {/* Floating Triangle */}
-        <motion.div 
-          className="absolute w-24 sm:w-40 h-24 sm:h-40 left-3/4 top-1/4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.2, rotate: [0, 360] }}
-          transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+      {/* Content */}
+      <div className="relative z-10 max-w-2xl px-6 py-12">
+        <motion.div
+          key={currentStep}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.5 }}
+          className="bg-black/50 backdrop-blur-lg rounded-xl p-8 border border-purple-300/20"
         >
-          <div className="w-full h-full border border-indigo-400/30" 
-               style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }} />
-        </motion.div>
-        
-        {/* Floating Diamond */}
-        <motion.div 
-          className="absolute w-16 sm:w-24 h-16 sm:h-24 left-1/4 top-2/3"
-          initial={{ opacity: 0 }}
-          animate={{ 
-            opacity: 0.25, 
-            scale: [1, 1.1, 1],
-            rotate: [45, 90, 45]
-          }}
-          transition={{ 
-            duration: 20, 
-            repeat: Infinity, 
-            ease: "easeInOut"
-          }}
-        >
-          <div className="w-full h-full border border-blue-300/20 transform rotate-45" />
+          <div className="text-center">
+            <motion.h1 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-300 to-indigo-400 mb-6"
+            >
+              {welcomeSteps[currentStep].title}
+            </motion.h1>
+            
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-xl text-purple-100 mb-8"
+            >
+              {welcomeSteps[currentStep].description}
+            </motion.p>
+            
+            <div className="flex justify-center mt-12">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+              >
+                <Button 
+                  variant="default" 
+                  size="lg" 
+                  onClick={handleNextStep}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-lg px-8"
+                >
+                  {welcomeSteps[currentStep].buttonText}
+                </Button>
+              </motion.div>
+            </div>
+            
+            {/* Step indicators */}
+            <div className="flex justify-center space-x-2 mt-10">
+              {welcomeSteps.map((_, index) => (
+                <div 
+                  key={index} 
+                  className={`h-2 w-2 rounded-full ${
+                    index === currentStep ? 'bg-purple-400' : 'bg-purple-800'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
         </motion.div>
       </div>
-      
-      {/* Content Layer with Landing Prompt */}
-      <motion.div 
-        className="relative z-10 w-full h-full max-w-7xl mx-auto"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: showContent ? 1 : 0 }}
-        transition={{ duration: 1.2 }}
-      >
-        <LandingPrompt />
-      </motion.div>
-      
-      {/* Origin Flow */}
-      {showOriginFlow && <OriginFlow forceShow={true} />}
     </div>
   );
 };

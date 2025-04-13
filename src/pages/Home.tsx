@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,7 @@ import Layout from "@/components/Layout";
 import { TrademarkedName } from "@/components/ip-protection";
 import { SacredGeometryVisualizer } from "@/components/sacred-geometry";
 import { useTheme } from "@/context/ThemeContext";
+import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
 
 const Home: React.FC = () => {
   // Track the current sacred geometry shape
@@ -336,6 +336,9 @@ const Home: React.FC = () => {
           </motion.div>
         </div>
       </div>
+      
+      {/* Sacred Audio Player */}
+      <SacredAudioPlayer />
       
       {/* Fixed Consciousness Mode Toggle */}
       <ConsciousnessToggle />

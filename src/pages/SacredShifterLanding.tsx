@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SacredFlowerOfLife from '@/components/sacred-geometry/shapes/SacredFlowerOfLife';
@@ -18,6 +17,7 @@ import Watermark from '@/components/Watermark';
 import { useTheme } from '@/context/ThemeContext';
 import { cn } from '@/lib/utils';
 import { SacredGeometryVisualizer } from '@/components/sacred-geometry';
+import SacredAudioPlayer from '@/components/audio/SacredAudioPlayer';
 
 const geometryComponents = {
   'Flower of Life': <SacredFlowerOfLife />,
@@ -40,7 +40,6 @@ const SacredShifterLanding = () => {
     }
   };
 
-  // Map from UI selection to component prop type
   const shapeMapping: Record<string, "flower-of-life" | "metatrons-cube" | "merkaba" | "torus" | "tree-of-life" | "sri-yantra" | "vesica-piscis"> = {
     'Flower of Life': 'flower-of-life',
     "Metatron's Cube": 'metatrons-cube',
@@ -64,7 +63,6 @@ const SacredShifterLanding = () => {
       <Watermark />
 
       <div className="ml-20">
-        {/* Fixed position sacred geometry visualizer that floats above everything with higher z-index */}
         <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center">
           <div className="w-full h-full flex items-center justify-center">
             <div className="w-[140vh] h-[140vh] max-w-none">
@@ -79,7 +77,6 @@ const SacredShifterLanding = () => {
         </div>
 
         <div className="container mx-auto px-4 pt-24 relative z-10">
-          {/* Header section with about information - removed Sacred Shifter title */}
           <div className="text-center mb-16">
             <motion.h1
               initial={{ opacity: 0, y: -20 }}
@@ -97,7 +94,6 @@ const SacredShifterLanding = () => {
             </motion.p>
           </div>
 
-          {/* Feature Blocks */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
             {[
               { 
@@ -147,8 +143,7 @@ const SacredShifterLanding = () => {
               </motion.div>
             ))}
           </div>
-          
-          {/* Easter egg and about information below the tiles */}
+
           <div className="mb-16 text-center">
             <motion.div
               initial={{ opacity: 0 }}
@@ -171,7 +166,6 @@ const SacredShifterLanding = () => {
             </motion.div>
           </div>
 
-          {/* Control panel for the geometric shape selection - properly positioned inside the page */}
           <div className="relative z-20 max-w-md mx-auto mb-16 bg-black/70 backdrop-blur-md rounded-lg p-4 border border-purple-500/30">
             <h2 className="text-xl font-semibold text-center mb-4">Sacred Geometries</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -195,6 +189,7 @@ const SacredShifterLanding = () => {
       </div>
 
       <ConsciousnessToggle />
+      <SacredAudioPlayer />
       <FixedFooter />
     </div>
   );
