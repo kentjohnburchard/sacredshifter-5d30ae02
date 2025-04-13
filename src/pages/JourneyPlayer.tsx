@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -13,7 +12,7 @@ import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
   const navigate = useNavigate();
-  const { playAudio, isPlaying } = useGlobalAudioPlayer();
+  const { playAudio, isPlaying, currentAudio } = useGlobalAudioPlayer();
   const [journey, setJourney] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { templates } = useJourneyTemplates();
@@ -53,22 +52,29 @@ const JourneyPlayer = () => {
       console.log(`Found journey:`, foundJourney);
       setJourney(foundJourney);
       
-      // Wait for songs to load before trying to play
-      if (!loadingSongs && songs.length > 0) {
-        // Choose a random song from the available ones
-        const randomIndex = Math.floor(Math.random() * songs.length);
-        const selectedSong = songs[randomIndex];
-        
-        console.log(`Playing random song (${randomIndex + 1}/${songs.length}) for journey ${journeyId}:`, selectedSong);
-        
-        playAudio({
-          title: selectedSong.title || foundJourney.title,
-          artist: "Sacred Shifter",
-          source: selectedSong.audioUrl
-        });
-      } else if (!loadingSongs && songs.length === 0) {
-        console.error(`No songs found for journey ID: ${journeyId}`);
-        toast.error("No audio available for this journey");
+      // Check if we already have this journey playing
+      const isCurrentJourneyPlaying = currentAudio && 
+        currentAudio.title?.includes(foundJourney.title);
+      
+      // Only start a new audio if not already playing this journey's audio
+      if (!isCurrentJourneyPlaying) {
+        // Wait for songs to load before trying to play
+        if (!loadingSongs && songs.length > 0) {
+          // Choose a random song from the available ones
+          const randomIndex = Math.floor(Math.random() * songs.length);
+          const selectedSong = songs[randomIndex];
+          
+          console.log(`Playing random song (${randomIndex + 1}/${songs.length}) for journey ${journeyId}:`, selectedSong);
+          
+          playAudio({
+            title: selectedSong.title || foundJourney.title,
+            artist: "Sacred Shifter",
+            source: selectedSong.audioUrl
+          });
+        } else if (!loadingSongs && songs.length === 0) {
+          console.error(`No songs found for journey ID: ${journeyId}`);
+          toast.error("No audio available for this journey");
+        }
       }
     } else {
       console.error("Journey not found:", journeyId);
@@ -80,7 +86,7 @@ const JourneyPlayer = () => {
     if (!loadingSongs) {
       setIsLoading(false);
     }
-  }, [journeyId, navigate, playAudio, templates, songs, loadingSongs]);
+  }, [journeyId, navigate, playAudio, templates, songs, loadingSongs, currentAudio]);
 
   // Create a container style with explicit height for the visualizer that floats above all content
   const visualizerContainerStyle = {
@@ -92,6 +98,14 @@ const JourneyPlayer = () => {
     pointerEvents: 'none' as const,
     zIndex: 50  // Higher z-index to float above content but below UI controls
   };
+
+  // Effect to set up any cleanup when leaving the journey page
+  useEffect(() => {
+    // No need to stop audio when leaving the page
+    return () => {
+      // Just clean up visualizer-related resources if needed
+    };
+  }, []);
 
   if (isLoading || loadingSongs) {
     return (

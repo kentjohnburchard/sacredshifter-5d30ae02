@@ -46,6 +46,12 @@ const GlobalAudioPlayer = ({ initiallyExpanded = false }: GlobalAudioPlayerProps
       setAudioSource(audioInfo.source);
       setExpanded(true);
       
+      // Broadcast the audio info change
+      const infoChangeEvent = new CustomEvent('audioInfoChange', {
+        detail: { audioInfo }
+      });
+      window.dispatchEvent(infoChangeEvent);
+      
       // Auto play after source is set
       setTimeout(() => {
         if (!isAudioPlaying) {
@@ -61,6 +67,48 @@ const GlobalAudioPlayer = ({ initiallyExpanded = false }: GlobalAudioPlayerProps
       window.removeEventListener('playAudio' as any, handlePlayAudio as EventListener);
     };
   }, [setAudioSource, togglePlayPause, isAudioPlaying]);
+
+  // Store audio state in session storage to persist between page navigations
+  useEffect(() => {
+    const storeAudioInfo = () => {
+      if (currentAudio) {
+        sessionStorage.setItem('currentAudio', JSON.stringify(currentAudio));
+        sessionStorage.setItem('isAudioPlaying', isAudioPlaying.toString());
+      }
+    };
+
+    // Store when audio changes or play state changes
+    storeAudioInfo();
+
+    return () => {
+      // We don't clear storage on unmount, as we want to persist between navigations
+    };
+  }, [currentAudio, isAudioPlaying]);
+
+  // Restore audio state from session storage on mount
+  useEffect(() => {
+    const storedAudio = sessionStorage.getItem('currentAudio');
+    const storedIsPlaying = sessionStorage.getItem('isAudioPlaying');
+    
+    if (storedAudio) {
+      try {
+        const audioInfo = JSON.parse(storedAudio);
+        // Only restore if we don't already have current audio
+        if (!currentAudio && audioInfo) {
+          setCurrentAudio(audioInfo);
+          setAudioSource(audioInfo.source);
+          setExpanded(true);
+          
+          // If it was playing before, resume playback
+          if (storedIsPlaying === 'true' && !isAudioPlaying) {
+            setTimeout(() => togglePlayPause(), 100);
+          }
+        }
+      } catch (error) {
+        console.error('Error restoring audio state:', error);
+      }
+    }
+  }, []);
 
   // Dispatch audio state change events when isAudioPlaying changes
   useEffect(() => {
@@ -103,6 +151,8 @@ const GlobalAudioPlayer = ({ initiallyExpanded = false }: GlobalAudioPlayerProps
       togglePlayPause(); // Pause the audio
     }
     setCurrentAudio(null); // Clear current audio
+    sessionStorage.removeItem('currentAudio');
+    sessionStorage.removeItem('isAudioPlaying');
     setExpanded(false);
   };
   
