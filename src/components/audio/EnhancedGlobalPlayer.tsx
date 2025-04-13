@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
@@ -264,17 +263,9 @@ const EnhancedGlobalPlayer: React.FC<EnhancedGlobalPlayerProps> = ({ initiallyEx
   };
 
   // Apply theme-specific styling
-  const cardBgClass = liftTheVeil
-    ? 'bg-gradient-to-r from-purple-900/90 to-pink-900/90'
-    : 'bg-gradient-to-r from-indigo-900/90 to-purple-900/90';
-    
-  const headerBgClass = liftTheVeil
-    ? 'bg-gradient-to-r from-pink-900/50 to-purple-900/50'
-    : 'bg-gradient-to-r from-indigo-900/50 to-purple-900/50';
-    
-  const accentTextClass = liftTheVeil
-    ? 'text-pink-300'
-    : 'text-purple-300';
+  const cardBgClass = "bg-gradient-to-r from-purple-900/90 to-indigo-800/90";
+  const headerBgClass = "bg-gradient-to-r from-purple-900/50 to-indigo-900/50";
+  const accentTextClass = "text-purple-300";
 
   // Don't render if no audio has been set and not expanded
   if (!currentAudio && !expanded) return null;
@@ -306,7 +297,7 @@ const EnhancedGlobalPlayer: React.FC<EnhancedGlobalPlayerProps> = ({ initiallyEx
           ${isFullScreen 
             ? 'w-full h-full max-w-full rounded-none flex flex-col'
             : 'w-[320px] shadow-lg rounded-lg overflow-hidden'} 
-          border border-purple-200/20 dark:border-purple-900/20 transition-all duration-300
+          border border-purple-300/30 dark:border-purple-900/30 transition-all duration-300
           ${cardBgClass}
         `}>
           <div className={`px-4 py-3 flex items-center justify-between ${headerBgClass}`}>
@@ -320,7 +311,7 @@ const EnhancedGlobalPlayer: React.FC<EnhancedGlobalPlayerProps> = ({ initiallyEx
                 {expanded ? <MinusCircle className="h-4 w-4" /> : <Play className="h-4 w-4" />}
               </Button>
               <div className="truncate max-w-[200px]">
-                <p className={`font-medium text-sm ${liftTheVeil ? 'text-pink-100' : 'text-purple-100'} truncate`}>
+                <p className="font-medium text-sm text-purple-100 truncate">
                   {currentAudio?.title || "Sacred Sound"}
                 </p>
                 {currentAudio?.artist && (
@@ -332,7 +323,7 @@ const EnhancedGlobalPlayer: React.FC<EnhancedGlobalPlayerProps> = ({ initiallyEx
               <Button
                 variant="ghost"
                 size="icon"
-                className={`h-7 w-7 ${liftTheVeil ? 'text-pink-400' : 'text-purple-400'} hover:text-white`}
+                className={`h-7 w-7 text-purple-400 hover:text-white`}
                 onClick={toggleVisualizer}
                 title={showVisualizer ? "Hide visualizer" : "Show visualizer"}
               >
@@ -354,7 +345,7 @@ const EnhancedGlobalPlayer: React.FC<EnhancedGlobalPlayerProps> = ({ initiallyEx
               <Button
                 variant="ghost"
                 size="icon"
-                className={`h-7 w-7 ${liftTheVeil ? 'text-pink-400' : 'text-purple-400'} hover:text-white`}
+                className={`h-7 w-7 text-purple-400 hover:text-white`}
                 onClick={toggleFullScreen}
                 title={isFullScreen ? "Exit fullscreen" : "View fullscreen"}
               >
@@ -365,7 +356,7 @@ const EnhancedGlobalPlayer: React.FC<EnhancedGlobalPlayerProps> = ({ initiallyEx
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={`h-7 w-7 ${liftTheVeil ? 'text-pink-400' : 'text-purple-400'} hover:text-white`}
+                  className={`h-7 w-7 text-purple-400 hover:text-white`}
                   onClick={changeVisualizerMode}
                   title="Change visualizer style"
                 >
@@ -419,7 +410,7 @@ const EnhancedGlobalPlayer: React.FC<EnhancedGlobalPlayerProps> = ({ initiallyEx
                   max={duration || 100}
                   step={0.1}
                   onValueChange={(values) => seekTo(values[0])}
-                  className={`w-full ${liftTheVeil ? '[&>span]:bg-pink-400' : '[&>span]:bg-purple-400'}`}
+                  className="w-full [&>span]:bg-purple-400"
                 />
               </div>
 
@@ -437,11 +428,7 @@ const EnhancedGlobalPlayer: React.FC<EnhancedGlobalPlayerProps> = ({ initiallyEx
                   <Button
                     variant="default"
                     size="icon"
-                    className={`h-10 w-10 rounded-full ${
-                      isAudioPlaying 
-                        ? (liftTheVeil ? 'bg-pink-600' : 'bg-purple-600') 
-                        : (liftTheVeil ? 'bg-pink-700' : 'bg-purple-700')
-                    } hover:${liftTheVeil ? 'bg-pink-800' : 'bg-purple-800'}`}
+                    className="h-10 w-10 rounded-full bg-purple-600 hover:bg-purple-700"
                     onClick={togglePlayPause}
                     disabled={!audioLoaded}
                   >
@@ -482,7 +469,7 @@ const EnhancedGlobalPlayer: React.FC<EnhancedGlobalPlayerProps> = ({ initiallyEx
                     max={1}
                     step={0.01}
                     onValueChange={handleVolumeChange}
-                    className={`w-28 ${liftTheVeil ? '[&>span]:bg-pink-400' : '[&>span]:bg-purple-400'}`}
+                    className="w-28 [&>span]:bg-purple-400"
                   />
                 </div>
               </div>
