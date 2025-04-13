@@ -25,6 +25,9 @@ import ThemeEnhancer from '@/components/ThemeEnhancer';
 import SacredPulseBar from '@/components/sacred-geometry/SacredPulseBar';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { calculatePrimeFactors, isPrime } from '@/utils/primeCalculations';
+import { CosmicFooter } from '@/components/sacred-geometry';
+import { LegalFooter } from '@/components/ip-protection';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 // Enhanced particle effect component
 const EnhancedParticleField: React.FC<{ isAudioPlaying: boolean; liftTheVeil: boolean }> = ({ isAudioPlaying, liftTheVeil }) => {
@@ -179,6 +182,49 @@ const SacredScrollReveal: React.FC<{ liftTheVeil: boolean }> = ({ liftTheVeil })
   );
 };
 
+// Shape selector component
+const ShapeSelector: React.FC<{
+  selectedShape: string;
+  onSelectShape: (shape: "flower-of-life" | "metatrons-cube" | "merkaba" | "torus" | "tree-of-life" | "sri-yantra" | "vesica-piscis") => void;
+}> = ({ selectedShape, onSelectShape }) => {
+  const shapeOptions = [
+    { value: 'flower-of-life', label: 'Flower of Life' },
+    { value: 'metatrons-cube', label: 'Metatron\'s Cube' },
+    { value: 'merkaba', label: 'Merkaba' },
+    { value: 'torus', label: 'Torus' },
+    { value: 'tree-of-life', label: 'Tree of Life' },
+    { value: 'sri-yantra', label: 'Sri Yantra' },
+    { value: 'vesica-piscis', label: 'Vesica Piscis' },
+  ];
+
+  return (
+    <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-30">
+      <div className="bg-black/70 backdrop-blur-md rounded-lg p-2 shadow-lg">
+        <ToggleGroup 
+          type="single" 
+          value={selectedShape}
+          onValueChange={(value) => {
+            if (value) {
+              onSelectShape(value as any);
+            }
+          }}
+          className="flex flex-wrap justify-center"
+        >
+          {shapeOptions.map((option) => (
+            <ToggleGroupItem 
+              key={option.value} 
+              value={option.value}
+              className="px-2 py-1 text-xs text-white data-[state=on]:bg-purple-700 rounded m-0.5"
+            >
+              {option.label}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </div>
+    </div>
+  );
+};
+
 const geometryComponents = {
   'Flower of Life': <SacredFlowerOfLife />,
   "Metatron's Cube": <MetatronsCube />,
@@ -194,7 +240,7 @@ const SacredShifterLanding = () => {
   const { liftTheVeil } = useTheme();
   const { isAudioPlaying } = useAudioPlayer();
   const [activeTab, setActiveTab] = useState("sound");
-  const [showGeometrySelector, setShowGeometrySelector] = useState(false);
+  const [showGeometrySelector, setShowGeometrySelector] = useState(true);
   const [showOriginFlow, setShowOriginFlow] = useState(false);
   const [showAboutComponent, setShowAboutComponent] = useState(false);
 
@@ -403,6 +449,10 @@ const SacredShifterLanding = () => {
     setShowAboutComponent(!showAboutComponent);
   };
 
+  const toggleGeometrySelector = () => {
+    setShowGeometrySelector(!showGeometrySelector);
+  };
+
   return (
     <div className={cn(
       "relative min-h-screen w-full bg-gradient-to-b from-black via-[#0a0118] to-black text-white font-sans overflow-hidden",
@@ -428,6 +478,11 @@ const SacredShifterLanding = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Visualizer Shape Selector */}
+      {showGeometrySelector && (
+        <ShapeSelector selectedShape={selectedShape} onSelectShape={setSelectedShape} />
+      )}
 
       {/* Sacred Scroll Reveal component */}
       <SacredScrollReveal liftTheVeil={liftTheVeil} />
@@ -739,6 +794,14 @@ const SacredShifterLanding = () => {
               </div>
             </div>
           </motion.div>
+        </div>
+      </div>
+
+      {/* Footer Components */}
+      <div className="relative z-40 mt-16">
+        <CosmicFooter showFrequencyBar={true} currentFrequency={528} currentChakra="Heart" />
+        <div className="mt-8">
+          <LegalFooter variant="standard" className="text-center max-w-3xl mx-auto mb-4" />
         </div>
       </div>
     </div>
