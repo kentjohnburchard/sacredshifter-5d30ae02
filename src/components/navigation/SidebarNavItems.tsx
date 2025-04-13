@@ -1,4 +1,3 @@
-
 import React from 'react';
 import NavLink from './NavLink';
 import { useLocation } from 'react-router-dom';
@@ -26,6 +25,7 @@ import {
   LayoutTemplate,
   LayoutDashboard,
   ChevronRight,
+  Info,
 } from 'lucide-react';
 
 // Map of route paths to their corresponding icons
@@ -63,6 +63,7 @@ const iconMap: Record<string, React.FC<any>> = {
   '/profile': User,
   '/landing': LayoutDashboard,
   '/journey-player': Map,
+  '/about-sacred-shifter': Info,
 };
 
 interface SidebarNavItemsProps {

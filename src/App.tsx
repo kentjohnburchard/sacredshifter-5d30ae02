@@ -42,6 +42,7 @@ import PrimeHistory from '@/pages/PrimeHistory';
 import { Toaster } from 'sonner';
 import OriginFlow from '@/components/sacred-geometry/OriginFlow';
 import ThemeEnhancer from '@/components/ThemeEnhancer';
+import AboutSacredShifter from '@/components/AboutSacredShifter';
 
 function App() {
   return (
@@ -58,6 +59,7 @@ function App() {
             <Route path="/cosmic-dashboard" element={<CosmicDashboard />} />
             <Route path="/welcome" element={<Welcome />} />
             <Route path="/landing" element={<SacredShifterLanding />} />
+            <Route path="/about-sacred-shifter" element={<AboutSacredShifter />} />
             <Route path="/meditations" element={<Meditations />} />
             <Route path="/hermetic-principles" element={<HermeticPrinciples />} />
             <Route path="/hermetic-wisdom" element={<HermeticWisdom />} />

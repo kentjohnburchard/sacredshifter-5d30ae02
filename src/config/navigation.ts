@@ -1,4 +1,3 @@
-
 // Navigation config to manage which pages are active and should be displayed in navigation
 export const activePages = {
   home: true,
@@ -29,6 +28,7 @@ export const activePages = {
   journeyTemplates: true,
   astrology: true,
   siteMap: true,
+  aboutSacredShifter: true,
 };
 
 // Type definition for page configuration
@@ -37,7 +37,7 @@ export type PageKey = keyof typeof activePages;
 // Navigation items configuration
 export const navItems = [
   {
-    path: "/",
+    path: "/dashboard",
     key: "dashboard" as PageKey,
     icon: "LayoutDashboard",
     label: "Dashboard",
@@ -47,6 +47,12 @@ export const navItems = [
     key: "home" as PageKey,
     icon: "HomeIcon",
     label: "Home",
+  },
+  {
+    path: "/about-sacred-shifter",
+    key: "aboutSacredShifter" as PageKey,
+    icon: "Info",
+    label: "About Sacred Shifter",
   },
   {
     path: "/sacred-blueprint",

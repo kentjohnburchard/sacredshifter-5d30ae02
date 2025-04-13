@@ -25,9 +25,9 @@ const LandingPrompt: React.FC = () => {
     } else if (currentLine === lines.length - 1) {
       // After showing the last line, wait a moment and then navigate directly to the dashboard
       const redirectTimer = setTimeout(() => {
-        console.log('Completed intro, redirecting to cosmic dashboard');
-        // Navigate directly to the dashboard instead of index
-        navigate("/home", { replace: true });
+        console.log('Completed intro, redirecting to dashboard');
+        // Navigate directly to the dashboard instead of home
+        navigate("/dashboard", { replace: true });
       }, 4000); // Wait 4 seconds after showing the last line
       return () => clearTimeout(redirectTimer);
     }
