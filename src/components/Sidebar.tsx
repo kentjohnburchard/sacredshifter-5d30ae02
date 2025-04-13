@@ -24,6 +24,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 640) {
+        // On mobile, the sidebar should always be collapsed until manually opened
         setIsCollapsed(true);
         if (isMobileMenuOpen) {
           setIsMobileMenuOpen(false);
@@ -41,7 +42,8 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
   useEffect(() => {
     let timer: number | undefined;
     
-    if (!isCollapsed) {
+    // Only auto-collapse on desktop and if sidebar is expanded
+    if (!isCollapsed && window.innerWidth >= 640) {
       timer = window.setTimeout(() => {
         setIsCollapsed(true);
       }, AUTO_COLLAPSE_DELAY);
@@ -58,6 +60,9 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
+
+  // For mobile view, the sidebar is always fully expanded (not collapsed)
+  const effectivelyCollapsed = isMobileMenuOpen ? false : isCollapsed;
 
   return (
     <>
@@ -126,14 +131,14 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         </Button>
 
         {/* Logo and App Title */}
-        <div className={`flex items-center justify-center py-3 sm:py-5 ${isCollapsed && !isMobileMenuOpen ? "px-2" : "px-4"}`}>
-          <SidebarLogo className={isCollapsed && !isMobileMenuOpen ? "scale-75" : ""} />
+        <div className={`flex items-center justify-center py-3 sm:py-5 ${effectivelyCollapsed ? "px-2" : "px-4"}`}>
+          <SidebarLogo className={effectivelyCollapsed ? "scale-75" : ""} />
         </div>
 
         {/* Scrollable Navigation Items */}
         <ScrollArea className="flex-1 px-2 sm:px-3 py-2">
           <SidebarNavItems 
-            isCollapsed={isCollapsed && !isMobileMenuOpen}
+            isCollapsed={effectivelyCollapsed}
             onLinkClick={() => {
               setIsCollapsed(true);
               setIsMobileMenuOpen(false);
@@ -146,7 +151,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           "border-t px-3 py-4", 
           liftTheVeil ? "border-pink-700/50" : "border-purple-700/50"
         )}>
-          <SidebarUserDropdown isCollapsed={isCollapsed && !isMobileMenuOpen} />
+          <SidebarUserDropdown isCollapsed={effectivelyCollapsed} />
         </div>
       </aside>
       
