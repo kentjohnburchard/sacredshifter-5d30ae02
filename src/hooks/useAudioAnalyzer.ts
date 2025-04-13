@@ -12,6 +12,7 @@ const useAudioAnalyzer = (
   const sourceConnected = useRef<boolean>(false);
   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
   const connectionAttemptedRef = useRef<boolean>(false);
+  const connectionTimeoutRef = useRef<number | null>(null);
   
   useEffect(() => {
     // Only create audio context if it doesn't exist yet
@@ -30,6 +31,12 @@ const useAudioAnalyzer = (
     
     // Try to connect audio element to analyzer when both are available and not already connected
     const connectAudio = () => {
+      // Clear any existing timeout to prevent multiple attempts
+      if (connectionTimeoutRef.current) {
+        clearTimeout(connectionTimeoutRef.current);
+        connectionTimeoutRef.current = null;
+      }
+      
       // Only attempt connection if we have all required pieces and haven't already connected
       if (
         audioContext && 
@@ -59,13 +66,49 @@ const useAudioAnalyzer = (
       }
     };
     
-    // Only try to connect after a short delay to ensure audio element is ready
-    if (audioRef.current && !sourceConnected.current) {
-      const timer = setTimeout(connectAudio, 300);
-      return () => clearTimeout(timer);
+    // Only try to connect if all required pieces are available
+    if (audioRef.current && audioContext && analyser && !sourceConnected.current) {
+      // Use a shorter delay for connection attempt
+      connectionTimeoutRef.current = window.setTimeout(connectAudio, 100);
     }
     
+    return () => {
+      // Clean up timeout on unmount
+      if (connectionTimeoutRef.current) {
+        clearTimeout(connectionTimeoutRef.current);
+        connectionTimeoutRef.current = null;
+      }
+    };
   }, [audioRef.current, audioContext, analyser]);
+  
+  // Ensure the audio context is resumed when needed
+  useEffect(() => {
+    if (audioContext && audioContext.state === 'suspended') {
+      const resumeAudioContext = () => {
+        audioContext.resume().then(() => {
+          console.log('AudioContext resumed successfully');
+        }).catch(err => {
+          console.error('Failed to resume AudioContext:', err);
+        });
+      };
+      
+      // Try to resume on a user interaction event
+      const handleUserInteraction = () => {
+        resumeAudioContext();
+        // Clean up these event listeners after first interaction
+        document.removeEventListener('click', handleUserInteraction);
+        document.removeEventListener('touchstart', handleUserInteraction);
+      };
+      
+      document.addEventListener('click', handleUserInteraction);
+      document.addEventListener('touchstart', handleUserInteraction);
+      
+      return () => {
+        document.removeEventListener('click', handleUserInteraction);
+        document.removeEventListener('touchstart', handleUserInteraction);
+      };
+    }
+  }, [audioContext]);
   
   return { audioContext, analyser };
 };

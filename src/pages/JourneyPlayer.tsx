@@ -15,7 +15,7 @@ import { Eye, EyeOff, Shuffle } from 'lucide-react';
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
   const navigate = useNavigate();
-  const { playAudio, isPlaying, currentAudio, setOnEndedCallback } = useGlobalAudioPlayer();
+  const { playAudio, isPlaying, currentAudio, setOnEndedCallback, togglePlayPause } = useGlobalAudioPlayer();
   
   // Create all useState hooks first, before any conditional logic
   const [journey, setJourney] = useState<any>(null);
@@ -36,9 +36,6 @@ const JourneyPlayer = () => {
   
   // Get songs for this journey using the useJourneySongs hook
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
-  
-  // Setup audio analyzer for visualizer - call the hook unconditionally
-  const { audioContext, analyser } = useAudioAnalyzer(audioRef);
 
   // Find the audio element in the DOM after component mounts
   useEffect(() => {
@@ -51,6 +48,9 @@ const JourneyPlayer = () => {
       }
     }
   }, []);
+  
+  // Setup audio analyzer for visualizer - call the hook unconditionally
+  const { audioContext, analyser } = useAudioAnalyzer(audioRef);
 
   // Store songs in ref to access in callbacks
   useEffect(() => {
@@ -138,11 +138,11 @@ const JourneyPlayer = () => {
 
   // Handle audio playback initialization separately from journey loading
   useEffect(() => {
-    // Only attempt initialization once
-    if (initializationAttemptedRef.current || audioInitialized) return;
+    // Only attempt initialization once and when everything is loaded
+    if (initializationAttemptedRef.current || audioInitialized || isLoading || loadingSongs) return;
     
-    // Only start playing audio if we have songs loaded and we're not playing anything
-    if (!loadingSongs && songs.length > 0 && !isLoading && journey) {
+    // Only proceed if we have a journey and songs to play
+    if (journey && songs.length > 0) {
       console.log("Attempting to initialize audio playback");
       initializationAttemptedRef.current = true;
       
@@ -154,10 +154,16 @@ const JourneyPlayer = () => {
         if (selectedSong) {
           console.log(`Playing initial random song for journey ${journeyId}:`, selectedSong);
           
+          // Make sure the URL is properly formatted
+          let audioUrl = selectedSong.audioUrl;
+          if (!audioUrl.startsWith('http')) {
+            audioUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioUrl}`;
+          }
+          
           playAudio({
             title: selectedSong.title || journey.title,
             artist: "Sacred Shifter",
-            source: selectedSong.audioUrl
+            source: audioUrl
           });
           
           // Mark as initialized to prevent repeated playback attempts
@@ -180,6 +186,32 @@ const JourneyPlayer = () => {
     const nextIndex = (currentIndex + 1) % modes.length;
     setVisualizerMode(modes[nextIndex]);
     toast.info(`Visualizer mode: ${modes[nextIndex]}`);
+  };
+
+  // Manually restart audio if it isn't playing
+  const forcePlayAudio = () => {
+    if (!isPlaying && songsRef.current.length > 0 && journey) {
+      const selectedSong = selectRandomSong();
+      
+      if (selectedSong) {
+        console.log("Force playing song:", selectedSong);
+        
+        // Make sure the URL is properly formatted
+        let audioUrl = selectedSong.audioUrl;
+        if (!audioUrl.startsWith('http')) {
+          audioUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioUrl}`;
+        }
+        
+        playAudio({
+          title: selectedSong.title || journey.title,
+          artist: "Sacred Shifter",
+          source: audioUrl
+        });
+      }
+    } else if (isPlaying) {
+      // Toggle pause if already playing
+      togglePlayPause();
+    }
   };
 
   if (isLoading || loadingSongs) {
@@ -231,7 +263,7 @@ const JourneyPlayer = () => {
       <div className="max-w-5xl mx-auto pt-4 pb-12 relative z-10">
         <h1 className="text-3xl font-bold text-center mb-6 text-purple-900 dark:text-purple-300">{journey.title}</h1>
         
-        <div className="absolute top-4 right-4 z-20">
+        <div className="absolute top-4 right-4 z-20 flex space-x-2">
           <Button
             variant="outline"
             size="sm"
@@ -249,12 +281,21 @@ const JourneyPlayer = () => {
             <Button
               variant="outline"
               size="sm"
-              className="ml-2 bg-white/30 backdrop-blur-sm"
+              className="bg-white/30 backdrop-blur-sm"
               onClick={cycleVisualizerMode}
             >
               Change Style
             </Button>
           )}
+          
+          <Button
+            variant={isPlaying ? "destructive" : "default"}
+            size="sm"
+            onClick={forcePlayAudio}
+            className="bg-white/30 backdrop-blur-sm"
+          >
+            {isPlaying ? "Pause" : "Play"}
+          </Button>
         </div>
         
         <div className="absolute top-4 left-4 z-20 flex items-center">

@@ -77,6 +77,8 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
         formattedUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${formattedUrl}`;
       }
       
+      console.log("Playing frequency with URL:", formattedUrl);
+      
       playAudio({
         title: title || `${frequency ? `${frequency}Hz` : 'Sacred'} Frequency`,
         artist: chakra ? `${chakra} Chakra` : "Sacred Shifter",

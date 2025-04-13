@@ -54,6 +54,9 @@ export function useGlobalAudioPlayer() {
     setCurrentAudio(audioInfo);
     setIsPlaying(true);
     
+    // Log the audio that's about to be played
+    console.log("Changing to new song:", audioInfo.title, "URL:", audioInfo.source);
+    
     // Dispatch event to notify the global player
     const event = new CustomEvent('playAudio', {
       detail: { audioInfo }
