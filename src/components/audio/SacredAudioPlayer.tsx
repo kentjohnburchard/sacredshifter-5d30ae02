@@ -12,7 +12,8 @@ import {
   Minimize2, 
   Eye, 
   EyeOff,
-  BarChart4
+  BarChart4,
+  Waveform
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -31,6 +32,17 @@ interface SacredAudioPlayerProps {
   onPlayStateChange?: (isPlaying: boolean) => void;
 }
 
+// Array of visualizer modes with labels
+const VISUALIZER_MODES = [
+  { value: 'purple', label: 'Fractal Flow' },
+  { value: 'blue', label: 'Cosmic Ocean' },
+  { value: 'rainbow', label: 'Full Spectrum' },
+  { value: 'gold', label: 'Sacred Geometry' }
+] as const;
+
+// Type for visualizer modes
+type VisualizerMode = typeof VISUALIZER_MODES[number]['value'];
+
 const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   audioUrl,
   title = 'Sacred Sound',
@@ -48,11 +60,15 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const [showVisualizer, setShowVisualizer] = useState(true);
   const [primes, setPrimes] = useState<number[]>([]);
   const [detectedFrequency, setDetectedFrequency] = useState<number | null>(null);
-  const [visualizerMode, setVisualizerMode] = useState<'purple' | 'blue' | 'rainbow' | 'gold'>(
+  const [visualizerMode, setVisualizerMode] = useState<VisualizerMode>(
     liftTheVeil ? 'rainbow' : chakraToVisualMode(chakra) || 'purple'
   );
+  const [activeTooltipPrime, setActiveTooltipPrime] = useState<number | null>(null);
   
   const playerRef = useRef<HTMLDivElement>(null);
+  const visualizerRef = useRef<HTMLDivElement>(null);
+  const tooltipTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
   const {
     isAudioPlaying,
     duration,
@@ -87,6 +103,45 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
       onPlayStateChange(isAudioPlaying);
     }
   }, [isAudioPlaying, onPlayStateChange]);
+
+  // Update visualizer mode when theme changes
+  useEffect(() => {
+    if (liftTheVeil) {
+      setVisualizerMode('rainbow');
+    } else {
+      setVisualizerMode(chakraToVisualMode(chakra) || 'purple');
+    }
+  }, [liftTheVeil, chakra]);
+  
+  // Setup for tooltip display when prime numbers are detected
+  useEffect(() => {
+    if (primes.length > 0) {
+      // Get the last detected prime
+      const latestPrime = primes[primes.length - 1];
+      
+      // Only show tooltip for new primes
+      if (latestPrime !== activeTooltipPrime) {
+        setActiveTooltipPrime(latestPrime);
+        
+        // Clear any existing timer
+        if (tooltipTimerRef.current) {
+          clearTimeout(tooltipTimerRef.current);
+        }
+        
+        // Set timer to hide tooltip after 3 seconds
+        tooltipTimerRef.current = setTimeout(() => {
+          setActiveTooltipPrime(null);
+        }, 3000);
+      }
+    }
+    
+    // Cleanup timer on unmount
+    return () => {
+      if (tooltipTimerRef.current) {
+        clearTimeout(tooltipTimerRef.current);
+      }
+    };
+  }, [primes]);
   
   // Toggle playback
   const handlePlayPause = () => {
@@ -119,10 +174,10 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   
   // Change visualizer mode
   const handleChangeVisualizer = () => {
-    const modes: ('purple' | 'blue' | 'rainbow' | 'gold')[] = ['purple', 'blue', 'rainbow', 'gold'];
+    const modes = VISUALIZER_MODES.map(m => m.value);
     const currentIndex = modes.indexOf(visualizerMode);
     const nextIndex = (currentIndex + 1) % modes.length;
-    setVisualizerMode(modes[nextIndex]);
+    setVisualizerMode(modes[nextIndex] as VisualizerMode);
   };
   
   // Format time display (minutes:seconds)
@@ -145,7 +200,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   };
   
   // Map chakra to visualizer mode
-  function chakraToVisualMode(chakraName?: string): 'purple' | 'blue' | 'rainbow' | 'gold' | undefined {
+  function chakraToVisualMode(chakraName?: string): VisualizerMode | undefined {
     if (!chakraName) return undefined;
     
     switch (chakraName.toLowerCase()) {
@@ -159,6 +214,12 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
       default: return undefined;
     }
   }
+  
+  // Get current visualizer mode label
+  const getCurrentVisualizerLabel = (): string => {
+    const currentMode = VISUALIZER_MODES.find(m => m.value === visualizerMode);
+    return currentMode?.label || 'Visualizer';
+  };
   
   // Determine chakra-specific color classes
   const getChakraColorClasses = (): {bg: string, text: string, border: string} => {
@@ -249,32 +310,63 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           overflow-hidden shadow-lg relative
         `}
       >
-        {/* Visualizer background - only shown when playing */}
+        {/* Visualizer container - positioned absolutely to fill the player */}
+        <div 
+          ref={visualizerRef}
+          className={`absolute inset-0 z-0 transition-opacity duration-300 ${
+            showVisualizer && isAudioPlaying 
+              ? 'opacity-100' 
+              : 'opacity-0'
+          }`}
+        >
+          <AnimatePresence>
+            {showVisualizer && isAudioPlaying && audioContext && analyser && (
+              <motion.div 
+                key="visualizer"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="w-full h-full"
+              >
+                <FractalAudioVisualizer 
+                  audioContext={audioContext}
+                  analyser={analyser}
+                  isVisible={true}
+                  colorScheme={visualizerMode}
+                  pauseWhenStopped={false}
+                  frequency={frequency}
+                  chakra={chakra}
+                  onPrimeSequence={handlePrimeSequence}
+                  onFrequencyDetected={handleFrequencyDetected}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+        
+        {/* Prime number tooltip */}
         <AnimatePresence>
-          {showVisualizer && isAudioPlaying && audioContext && analyser && (
-            <motion.div 
-              key="visualizer"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className={`absolute inset-0 z-0 ${expanded || isFullscreen ? '' : 'opacity-30'}`}
+          {activeTooltipPrime && isAudioPlaying && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className={`absolute top-14 left-1/2 transform -translate-x-1/2 z-50
+                px-4 py-2 rounded-full 
+                ${liftTheVeil 
+                  ? 'bg-pink-600/80 text-pink-50' 
+                  : 'bg-purple-600/80 text-purple-50'} 
+                backdrop-blur-sm shadow-lg`}
             >
-              <FractalAudioVisualizer 
-                audioContext={audioContext}
-                analyser={analyser}
-                isVisible={true}
-                colorScheme={visualizerMode}
-                pauseWhenStopped={false}
-                frequency={frequency}
-                chakra={chakra}
-                onPrimeSequence={handlePrimeSequence}
-                onFrequencyDetected={handleFrequencyDetected}
-              />
+              <div className="flex items-center gap-2">
+                <div className={`h-2 w-2 rounded-full animate-pulse ${liftTheVeil ? 'bg-pink-300' : 'bg-purple-300'}`}></div>
+                <span className="text-xs font-medium">Prime Harmonic Activated: {activeTooltipPrime}</span>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
         
-        {/* Player UI */}
+        {/* Player UI - with gradient background */}
         <div className={`
           relative z-10 flex flex-col bg-gradient-to-r ${colors.bg}
           ${(!showVisualizer || !isAudioPlaying) ? 'bg-opacity-100' : 'bg-opacity-50 backdrop-blur-sm'}
@@ -318,15 +410,22 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
                   )}
                   
                   {isAudioPlaying && showVisualizer && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={`h-7 w-7 text-white/70 hover:text-white`}
-                      onClick={handleChangeVisualizer}
-                      title="Change visualizer style"
-                    >
-                      <BarChart4 className="h-4 w-4" />
-                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className={`h-7 w-7 text-white/70 hover:text-white`}
+                          onClick={handleChangeVisualizer}
+                          title="Change visualizer style"
+                        >
+                          <BarChart4 className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Mode: {getCurrentVisualizerLabel()}</p>
+                      </TooltipContent>
+                    </Tooltip>
                   )}
                 </>
               )}
@@ -405,6 +504,22 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
                     <div className={`absolute inset-0 rounded-full ${liftTheVeil ? 'bg-pink-600/10' : 'bg-purple-600/10'} animate-ping`} />
                   </motion.div>
                 )}
+                
+                {/* Visualizer player status indicator (minimized visualizer representation) */}
+                {isAudioPlaying && showVisualizer && (
+                  <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 z-30 pointer-events-none">
+                    <Badge 
+                      className={`px-3 py-1.5 flex items-center gap-2 ${
+                        liftTheVeil 
+                          ? 'bg-pink-700/50 text-pink-50' 
+                          : 'bg-purple-700/50 text-purple-50'
+                      } backdrop-blur-sm`}
+                    >
+                      <Waveform className="h-3 w-3 animate-pulse" />
+                      <span>{visualizerMode === 'rainbow' ? 'Full Spectrum' : 'Chakra Flow'}</span>
+                    </Badge>
+                  </div>
+                )}
               </div>
 
               {/* Audio controls */}
@@ -470,6 +585,16 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           {/* Minimized player controls - only visible when not expanded */}
           {!expanded && (
             <div className="p-2 flex items-center justify-center">
+              {/* Small pulsing waveform when playing */}
+              {isAudioPlaying && showVisualizer && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+                  <div className={`w-8 h-8 ${liftTheVeil ? 'text-pink-400' : 'text-purple-400'} opacity-60`}>
+                    <Waveform className="w-full h-full animate-pulse" />
+                  </div>
+                </div>
+              )}
+              
+              {/* Play/pause button */}
               <Button
                 variant="default"
                 size="icon"
