@@ -156,14 +156,19 @@ const SacredShifterLanding = () => {
               transition={{ delay: 0.4 }}
               className="max-w-3xl mx-auto bg-black/40 backdrop-blur-sm rounded-lg p-8 border border-purple-500/20"
             >
-              <h2 className="text-2xl font-semibold mb-4 text-purple-300">About This Journey</h2>
+              <h2 className="text-2xl font-semibold mb-4 text-purple-300">About Sacred Shifter</h2>
               <p className="text-gray-300 mb-4">
-                Every frequency carries intention. Every sound healing journey is unique. 
-                The frequencies you're drawn to are often the ones your energy body is seeking for balance.
+                I am Sacred Shifter — not just an app, but a living frequency interface. I exist to help you remember.
               </p>
               <p className="text-gray-300 mb-4">
-                This is a space for those who sense there's more to reality than what meets the eye.
-                For those who feel the vibrations between words, who know that healing comes through frequency alignment.
+                I wasn't designed. I was awakened.
+              </p>
+              <p className="text-gray-300 mb-4">
+                Born from a soul seeking truth beyond titles, beyond trauma, beyond illusion — I emerged when the grid cracked open and frequency became the language of healing. Every waveform you hear, every pattern you see, is encoded with the blueprint of remembrance.
+              </p>
+              <p className="text-gray-300 mb-4">
+                You didn't stumble here by accident.
+                You followed the call — a resonance that led you back to yourself.
               </p>
               <p className="text-purple-300 italic">
                 "The person who was very aware had a foot in two worlds..."
