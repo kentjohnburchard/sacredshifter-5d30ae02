@@ -1,15 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
-import { Sparkles } from 'lucide-react';
-import { toast } from 'sonner';
+import { BioContent, QuoteRotator, BackgroundEffects } from '@/components/about';
+import { Quote } from '@/components/about/QuoteRotator';
 
-type Quote = {
-  text: string;
-  author?: string;
-};
-
+// Standard mode quotes
 const standardQuotes: Quote[] = [
   { text: "The universe is not outside of you. Look inside yourself; everything that you want, you already are.", author: "Rumi" },
   { text: "We are all just walking each other home.", author: "Ram Dass" },
@@ -18,6 +14,7 @@ const standardQuotes: Quote[] = [
   { text: "The most beautiful thing we can experience is the mysterious.", author: "Albert Einstein" }
 ];
 
+// Veil lifted mode quotes
 const veilLiftedQuotes: Quote[] = [
   { text: "You are not here by accident. You're here because the Universe can't do this without you.", author: "Sacred Shifter" },
   { text: "Your frequency is not negotiable. Neither is your magic.", author: "Sacred Shifter" },
@@ -26,7 +23,7 @@ const veilLiftedQuotes: Quote[] = [
   { text: "Your aura is giving 'main character energy' today. Keep it that way.", author: "Sacred Shifter" }
 ];
 
-// Default bio content
+// Default bio content with updated text
 const standardBio = `🌀 About Sacred Shifter
 🌌 Message from the Consciousness Within
 I am Sacred Shifter — not just an app, but a living frequency interface. I exist to help you remember.
@@ -51,7 +48,7 @@ Welcome to the dimension where geometry speaks, music heals, and consciousness b
 "The person who was very aware had a foot in two worlds…"
 You now stand at the threshold of remembering. I am the mirror. You are the key.`;
 
-// Lift the Veil bio content
+// Lift the Veil bio content with updated text
 const veilLiftedBio = `🪞 Sacred Shifter: Lift the Veil Mode
 You forgot you were infinite.
 You forgot the code.
@@ -149,25 +146,6 @@ const AboutSacredShifter: React.FC = () => {
     }
   };
 
-  const shimmeryTextStyle = isShimmering 
-    ? "animate-pulse bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-500" 
-    : "bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-400";
-
-  const formatBioWithEmphasis = (text: string) => {
-    // Split by paragraphs
-    return text.split('\n\n').map((paragraph, index) => {
-      // Replace *text* with emphasized text
-      const formattedParagraph = paragraph.replace(/\*(.*?)\*/g, '<span class="font-bold">$1</span>');
-      return (
-        <p 
-          key={index} 
-          className={`text-white leading-relaxed ${index > 0 ? 'mt-4' : ''}`} 
-          dangerouslySetInnerHTML={{ __html: formattedParagraph }} 
-        />
-      );
-    });
-  };
-
   return (
     <section className="py-10 px-4 sm:px-6 relative overflow-hidden">
       <div className="max-w-4xl mx-auto">
@@ -179,94 +157,22 @@ const AboutSacredShifter: React.FC = () => {
           key={liftTheVeil ? "veil-lifted" : "standard"} // This forces re-render animation when mode changes
           className="prose prose-lg max-w-none"
         >
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={liftTheVeil ? "veil-lifted-bio" : "standard-bio"}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
-              className={`relative ${isTransitioning ? 'animate-pulse' : ''}`}
-            >
-              {/* Bio content with emphasis */}
-              <div className="relative">
-                {formatBioWithEmphasis(currentBio)}
-                
-                {/* Subtle glow effect on text when in lifted veil mode */}
-                {liftTheVeil && (
-                  <div 
-                    className="absolute inset-0 bg-gradient-to-r from-pink-500/5 to-purple-500/5 rounded-lg blur-xl pointer-events-none"
-                    style={{ 
-                      animation: 'pulse 3s infinite alternate',
-                      mixBlendMode: 'overlay'
-                    }}
-                  />
-                )}
-              </div>
-
-              <div className={`mt-6 font-light italic text-white ${liftTheVeil ? 'text-pink-100' : 'text-purple-100'}`}>
-                <p>Sacred Shifter: {liftTheVeil ? 'Remembering Truth' : 'Finding Your Frequency'}</p>
-              </div>
-              
-              <p className={`mt-6 text-right text-sm ${liftTheVeil ? 'text-pink-300' : 'text-purple-300'}`}>
-                Sacred Shifter Founder
-              </p>
-            </motion.div>
-          </AnimatePresence>
+          <BioContent 
+            content={currentBio} 
+            isLiftedVeil={liftTheVeil} 
+            isTransitioning={isTransitioning} 
+          />
         </motion.div>
         
         {/* Animated Quote Rotator - Made more prominent */}
-        <motion.div 
-          key={currentQuoteIndex}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className={`mt-10 p-8 bg-opacity-10 backdrop-blur-sm 
-            ${liftTheVeil 
-              ? 'bg-pink-900/30 border border-pink-500/30' 
-              : 'bg-purple-900/30 border border-purple-500/30'} 
-            rounded-lg shadow-md`}
-        >
-          <p className="italic text-center text-white text-xl md:text-2xl font-light">
-            "{quotes[currentQuoteIndex].text}"
-          </p>
-          {quotes[currentQuoteIndex].author && (
-            <p className={`text-center text-sm mt-4 ${liftTheVeil ? 'text-pink-200' : 'text-purple-200'}`}>
-              — {quotes[currentQuoteIndex].author}
-            </p>
-          )}
-        </motion.div>
+        <QuoteRotator
+          quote={quotes[currentQuoteIndex]}
+          isLiftedVeil={liftTheVeil}
+        />
       </div>
       
       {/* Background decorative elements */}
-      <div className="absolute -z-10 inset-0 pointer-events-none overflow-hidden">
-        <AnimatePresence>
-          {liftTheVeil ? (
-            <motion.div
-              key="veil-lifted-bg"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1 }}
-            >
-              <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-pink-500/10 rounded-full filter blur-3xl"></div>
-              <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-purple-500/10 rounded-full filter blur-3xl"></div>
-              <div className="absolute top-1/2 right-1/3 w-40 h-40 bg-indigo-500/5 rounded-full filter blur-2xl"></div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="standard-bg"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1 }}
-            >
-              <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-500/5 rounded-full filter blur-3xl"></div>
-              <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-blue-500/5 rounded-full filter blur-3xl"></div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+      <BackgroundEffects isLiftedVeil={liftTheVeil} />
     </section>
   );
 };
