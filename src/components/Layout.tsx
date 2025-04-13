@@ -7,9 +7,10 @@ import GlobalWatermark from './GlobalWatermark';
 import { AnimatedBackground } from '@/components/sacred-geometry';
 import { useTheme } from '@/context/ThemeContext';
 import { cn } from '@/lib/utils';
-import GlobalAudioPlayer from './audio/GlobalAudioPlayer';
+import SacredAudioPlayer from './audio/SacredAudioPlayer';
 import ConsciousnessToggle from './ConsciousnessToggle';
 import CosmicFooter from './sacred-geometry/CosmicFooter';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 interface LayoutProps {
   children: ReactNode;
@@ -63,8 +64,16 @@ const Layout: React.FC<LayoutProps> = ({
       {showFooter && <FixedFooter />}
       <GlobalWatermark />
       
-      {/* Global Audio Player - Always render it regardless of page */}
-      <GlobalAudioPlayer initiallyExpanded={false} />
+      {/* Sacred Audio Player - SINGLE INSTANCE for the entire app */}
+      <TooltipProvider>
+        <SacredAudioPlayer
+          audioUrl="https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/432hz_meditation.mp3"
+          title="Sacred Frequency Journey"
+          artist="Sacred Shifter"
+          frequency={432}
+          chakra="Heart"
+        />
+      </TooltipProvider>
       
       {/* Add ConsciousnessToggle (Easter Egg) to every page */}
       <ConsciousnessToggle />

@@ -12,14 +12,13 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 const queryClient = new QueryClient()
 
 // Order of providers: BrowserRouter -> QueryClientProvider -> AuthProvider -> TooltipProvider -> App
+// The TooltipProvider needs to be moved inside Layout since audio player also needs tooltips
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <TooltipProvider>
-            <App />
-          </TooltipProvider>
+          <App />
         </AuthProvider>
       </QueryClientProvider>
     </BrowserRouter>
