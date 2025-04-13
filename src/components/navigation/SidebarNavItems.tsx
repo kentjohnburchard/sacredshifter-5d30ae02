@@ -125,7 +125,6 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
               liftTheVeil && !isActive && "hover:bg-pink-800/70 hover:!text-white",
               !liftTheVeil && !isActive && "hover:bg-purple-800/70 hover:!text-white"
             )}
-            style={{ color: "white" }} // Add explicit inline color
           >
             {/* Active item indicator - subtle glow effect */}
             {isActive && (

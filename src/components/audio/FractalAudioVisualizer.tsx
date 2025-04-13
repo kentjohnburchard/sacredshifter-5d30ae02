@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import * as THREE from 'three';
@@ -38,8 +39,10 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
   const primeIndexRef = useRef<number>(0);
   const beatDetectedRef = useRef<boolean>(false);
   const timeRef = useRef<number>(0);
+  const lastAudioDataRef = useRef<{ bass: number, mid: number, high: number }>({ bass: 0.1, mid: 0.1, high: 0.1 });
   const [activePrimes, setActivePrimes] = useState<number[]>([]);
   
+  // Generate prime numbers sequence
   const primes = useMemo(() => {
     const primeArray: number[] = [];
     let num = 2;
@@ -66,6 +69,7 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
     return primeArray;
   }, []);
 
+  // Initialize prime sequence
   useEffect(() => {
     if (isVisible && onPrimeSequence) {
       const initialPrimes = primes.slice(0, 5);
@@ -74,6 +78,7 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
     }
   }, [isVisible, primes, onPrimeSequence]);
 
+  // Update active primes periodically
   useEffect(() => {
     const updateActivePrimes = () => {
       if (!isVisible || !onPrimeSequence) return;
@@ -93,6 +98,7 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
     return () => clearInterval(interval);
   }, [isVisible, primes, onPrimeSequence]);
 
+  // Get appropriate color scheme based on chakra or selected color
   const getColorScheme = () => {
     if (chakra) {
       switch (chakra.toLowerCase()) {
@@ -181,6 +187,7 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
     }
   };
 
+  // Get color based on frequency
   const getFrequencyColor = (freq: number) => {
     if (!freq) return null;
     
@@ -195,47 +202,78 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
     return null;
   };
 
+  // Set up Three.js scene
   useEffect(() => {
     if (!isVisible || !containerRef.current) return;
     
     console.log("FractalVisualizer: Initializing Three.js scene");
     visualizerActiveRef.current = true;
     
+    // Create scene
     const scene = new THREE.Scene();
     sceneRef.current = scene;
     
+    // Camera setup with appropriate field of view for immersion
     const camera = new THREE.PerspectiveCamera(
-      75, 
+      60, 
       window.innerWidth / window.innerHeight, 
       0.1, 
-      1000
+      2000
     );
-    camera.position.z = 5;
+    camera.position.z = 10;
     cameraRef.current = camera;
     
+    // Create WebGL renderer with anti-aliasing for smooth edges
     const renderer = new THREE.WebGLRenderer({ 
       antialias: true, 
-      alpha: true 
+      alpha: true,
+      powerPreference: 'high-performance'
     });
+    
+    // Set pixel ratio for sharper rendering on high-DPI displays
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setClearColor(0x000000, 0);
+    
+    // Make renderer fill entire container
     renderer.setSize(window.innerWidth, window.innerHeight);
     rendererRef.current = renderer;
     
+    // Append renderer to DOM
     containerRef.current.appendChild(renderer.domElement);
     
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    // Apply styles to make the container fill available space
+    if (containerRef.current) {
+      containerRef.current.style.width = '100%';
+      containerRef.current.style.height = '100%';
+      containerRef.current.style.position = 'absolute';
+      containerRef.current.style.top = '0';
+      containerRef.current.style.left = '0';
+      containerRef.current.style.right = '0';
+      containerRef.current.style.bottom = '0';
+      containerRef.current.style.overflow = 'hidden';
+    }
+    
+    // Set up lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
     
     const colors = getColorScheme();
     
-    const pointLight1 = new THREE.PointLight(colors.accent, 1.5);
+    // Create dynamic point lights for a richer look
+    const pointLight1 = new THREE.PointLight(colors.accent, 2);
     pointLight1.position.set(5, 5, 5);
     scene.add(pointLight1);
     
-    const pointLight2 = new THREE.PointLight(colors.highlight, 1.5);
+    const pointLight2 = new THREE.PointLight(colors.highlight, 2);
     pointLight2.position.set(-5, -5, 2);
     scene.add(pointLight2);
+
+    // Create a subtle point light for additional depth
+    const pointLight3 = new THREE.PointLight(colors.primary, 1.5);
+    pointLight3.position.set(0, 0, 8);
+    scene.add(pointLight3);
     
+    // Set up audio analyzer
     if (analyser) {
       console.log("FractalVisualizer: Analyzer available, creating data buffer");
       dataArrayRef.current = new Uint8Array(analyser.frequencyBinCount);
@@ -243,22 +281,29 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
       console.log("FractalVisualizer: No analyzer provided");
     }
     
-    createPrimeFractals();
+    // Create fractal objects
+    createFractals();
     
+    // Handle window resizing
     const handleResize = () => {
       if (!cameraRef.current || !rendererRef.current || !containerRef.current) return;
       
-      cameraRef.current.aspect = window.innerWidth / window.innerHeight;
+      const width = containerRef.current.clientWidth || window.innerWidth;
+      const height = containerRef.current.clientHeight || window.innerHeight;
+      
+      cameraRef.current.aspect = width / height;
       cameraRef.current.updateProjectionMatrix();
-      rendererRef.current.setSize(window.innerWidth, window.innerHeight);
+      rendererRef.current.setSize(width, height);
     };
     
     window.addEventListener('resize', handleResize);
     
+    // Start animation loop if visible
     if (isVisible) {
       animate();
     }
     
+    // Cleanup function
     return () => {
       visualizerActiveRef.current = false;
       window.removeEventListener('resize', handleResize);
@@ -277,6 +322,7 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
         }
       }
       
+      // Dispose of all geometries and materials to prevent memory leaks
       geometriesRef.current.forEach(geometry => {
         geometry.dispose();
       });
@@ -285,6 +331,7 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
         material.dispose();
       });
       
+      // Remove objects from scene
       if (sceneRef.current) {
         fractalsRef.current.forEach(obj => {
           sceneRef.current?.remove(obj);
@@ -295,12 +342,14 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
     };
   }, [isVisible, colorScheme, chakra]);
   
-  const createPrimeFractals = () => {
+  // Create fractal objects with enhanced geometry and materials
+  const createFractals = () => {
     if (!sceneRef.current) return;
     
     const scene = sceneRef.current;
     const colors = getColorScheme();
     
+    // Clean up existing objects
     fractalsRef.current.forEach(obj => {
       scene.remove(obj);
     });
@@ -317,6 +366,7 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
     geometriesRef.current = [];
     materialsRef.current = [];
     
+    // Use frequency to modify colors if available
     if (frequency) {
       const freqColor = getFrequencyColor(frequency);
       if (freqColor) {
@@ -326,37 +376,48 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
       }
     }
     
-    const createFlowingPrimeSpiral = () => {
+    // Create a flowing spiral based on prime numbers
+    const createFlowingSpiral = () => {
       const spiralGroup = new THREE.Group();
       
+      // Create a much smoother curve with more points
       const curvePoints = [];
-      const segmentCount = 300;
+      const segmentCount = 500; // Increased for smoothness
       
       for (let i = 0; i < segmentCount; i++) {
         const prime = primes[i % primes.length];
         const theta = i * 0.04 * Math.PI;
         
-        const radius = 0.01 * Math.sqrt(i) * (1 + Math.sin(i * 0.05) * 0.2);
-        const x = Math.cos(theta) * radius * (1 + Math.sin(prime * 0.01) * 0.1);
-        const y = Math.sin(theta) * radius * (1 + Math.cos(prime * 0.01) * 0.1);
-        const z = Math.sin(i * 0.01) * 0.05;
+        // Golden spiral inspired formula
+        const phi = (1 + Math.sqrt(5)) / 2; // Golden ratio
+        const radius = 0.02 * Math.pow(phi, i * 0.02) * (1 + Math.sin(i * 0.05) * 0.1);
+        
+        const x = Math.cos(theta) * radius * (1 + Math.sin(prime * 0.01) * 0.05);
+        const y = Math.sin(theta) * radius * (1 + Math.cos(prime * 0.01) * 0.05);
+        const z = Math.sin(i * 0.01) * 0.1; // Subtle depth variation
         
         curvePoints.push(new THREE.Vector3(x, y, z));
       }
       
+      // Create a smooth curve through the points
       const curve = new THREE.CatmullRomCurve3(curvePoints);
-      curve.tension = 0.3;
+      curve.tension = 0.2; // Lower tension for smoother curves
       
-      const tubeGeometry = new THREE.TubeGeometry(curve, 300, 0.015, 8, false);
+      // Create a tube geometry with more radial segments for smoothness
+      const tubeGeometry = new THREE.TubeGeometry(curve, 400, 0.03, 12, false);
       geometriesRef.current.push(tubeGeometry);
       
-      const tubeMaterial = new THREE.MeshPhongMaterial({
+      // Create a glossy material with bloom potential
+      const tubeMaterial = new THREE.MeshPhysicalMaterial({
         color: colors.primary,
         emissive: colors.accent,
         emissiveIntensity: 0.7,
         transparent: true,
-        opacity: 0.7,
-        shininess: 100,
+        opacity: 0.8,
+        roughness: 0.2,
+        metalness: 0.8,
+        clearcoat: 0.5,
+        clearcoatRoughness: 0.2,
         side: THREE.DoubleSide
       });
       materialsRef.current.push(tubeMaterial);
@@ -364,13 +425,15 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
       const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
       spiralGroup.add(tube);
       
-      const particlesCount = 150;
+      // Add glow particles along the spiral
+      const particlesCount = 300;
       const particlesMaterial = new THREE.PointsMaterial({
         color: colors.highlight,
-        size: 0.03,
+        size: 0.05,
         transparent: true,
-        opacity: 0.7,
-        blending: THREE.AdditiveBlending
+        opacity: 0.8,
+        blending: THREE.AdditiveBlending,
+        sizeAttenuation: true
       });
       materialsRef.current.push(particlesMaterial);
       
@@ -393,30 +456,37 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
       return spiralGroup;
     };
     
+    // Create a flower of life pattern with smoother circles
     const createFlowerOfLifePattern = () => {
       const flowerGroup = new THREE.Group();
-      const circleRadius = 0.12;
-      const circleDetail = 32;
+      const circleRadius = 0.25; // Larger radius
+      const circleDetail = 64; // Much higher detail for smoother circles
       
       const createCircleAt = (x: number, y: number, z: number, primeIndex: number) => {
         const prime = primes[primeIndex % primes.length];
-        const variationFactor = (prime % 5) * 0.04;
+        const variationFactor = (prime % 7) * 0.02; // Subtle variation
         
+        // Use TorusGeometry for smoother rings
         const circleGeometry = new THREE.TorusGeometry(
           circleRadius * (1 + variationFactor), 
-          0.005, 
-          2, 
-          circleDetail
+          0.01, // Thinner tube for elegance
+          16, // Tube segments
+          circleDetail // Radial segments
         );
         geometriesRef.current.push(circleGeometry);
         
-        const circleMaterial = new THREE.MeshPhongMaterial({
+        // Use physically-based material for better light interaction
+        const circleMaterial = new THREE.MeshPhysicalMaterial({
           color: colors.accent,
           emissive: colors.highlight,
           emissiveIntensity: 0.5,
           transparent: true,
-          opacity: 0.7,
-          side: THREE.DoubleSide
+          opacity: 0.75,
+          side: THREE.DoubleSide,
+          roughness: 0.3,
+          metalness: 0.7,
+          clearcoat: 1.0,
+          clearcoatRoughness: 0.1
         });
         materialsRef.current.push(circleMaterial);
         
@@ -425,30 +495,63 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
         flowerGroup.add(circle);
       };
       
+      // Create center circle
       createCircleAt(0, 0, 0, 0);
       
+      // First ring - 6 circles
       for (let i = 0; i < 6; i++) {
         const angle = (i / 6) * Math.PI * 2;
-        const x = Math.cos(angle) * circleRadius;
-        const y = Math.sin(angle) * circleRadius;
+        const x = Math.cos(angle) * circleRadius * 2;
+        const y = Math.sin(angle) * circleRadius * 2;
         createCircleAt(x, y, 0, i + 1);
       }
       
+      // Second ring - 12 circles
       for (let i = 0; i < 12; i++) {
         const angle = (i / 12) * Math.PI * 2;
+        const x = Math.cos(angle) * circleRadius * 4;
+        const y = Math.sin(angle) * circleRadius * 4;
+        createCircleAt(x, y, 0, i + 7);
+      }
+      
+      // Add connecting lines between circles for structure
+      const createConnectingLine = (x1: number, y1: number, x2: number, y2: number) => {
+        const points = [];
+        points.push(new THREE.Vector3(x1, y1, 0));
+        points.push(new THREE.Vector3(x2, y2, 0));
+        
+        const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+        geometriesRef.current.push(lineGeometry);
+        
+        const lineMaterial = new THREE.LineBasicMaterial({ 
+          color: colors.primary,
+          transparent: true,
+          opacity: 0.3
+        });
+        materialsRef.current.push(lineMaterial);
+        
+        const line = new THREE.Line(lineGeometry, lineMaterial);
+        flowerGroup.add(line);
+      };
+      
+      // Connect center to first ring
+      for (let i = 0; i < 6; i++) {
+        const angle = (i / 6) * Math.PI * 2;
         const x = Math.cos(angle) * circleRadius * 2;
         const y = Math.sin(angle) * circleRadius * 2;
-        createCircleAt(x, y, 0, i + 7);
+        createConnectingLine(0, 0, x, y);
       }
       
       return flowerGroup;
     };
     
-    const createPrimePetals = () => {
-      const petalGroup = new THREE.Group();
+    // Create a mandala-like pattern with flowing petals
+    const createMandala = () => {
+      const mandalaGroup = new THREE.Group();
       
-      const petalCount = 12;
+      const petalCount = 18; // More petals for detail
       
+      // Create petals in a circular arrangement
       for (let i = 0; i < petalCount; i++) {
         const primeIndex = i % primes.length;
         const prime = primes[primeIndex];
@@ -458,49 +561,93 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
         const endAngle = ((i + 1) / petalCount) * Math.PI * 2;
         
         const curvePoints = [];
-        const segments = 20;
+        const segments = 30;
         
+        // Create a more complex petal shape
         for (let j = 0; j <= segments; j++) {
           const t = j / segments;
           const angle = startAngle * (1 - t) + endAngle * t;
           
-          const radius = 0.6 * (1 - Math.abs(t - 0.5) * 1.8) * (prime % 7) / 7 + 0.2;
+          // Base radius modulated by prime number
+          const baseRadius = 0.7 + ((prime % 11) * 0.02);
+          
+          // Shape the petal with a sine curve
+          const radiusFactor = Math.sin(t * Math.PI) * 0.8 + 0.2;
+          const radius = baseRadius * radiusFactor;
+          
           const x = Math.cos(angle) * radius;
           const y = Math.sin(angle) * radius;
-          const z = (Math.sin(t * Math.PI) * 0.05) + ((nextPrime % 5) * 0.01);
+          
+          // Create depth variations using prime numbers
+          const depthFactor = Math.sin(t * Math.PI * 2) * ((nextPrime % 7) * 0.01);
+          const z = depthFactor;
           
           curvePoints.push(new THREE.Vector3(x, y, z));
         }
         
+        // Create a smooth curve through points
         const curve = new THREE.CatmullRomCurve3(curvePoints);
-        curve.tension = 0.4;
+        curve.tension = 0.3;
         
-        const tubeGeometry = new THREE.TubeGeometry(
-          curve, segments * 2, 0.01 + (prime % 5) * 0.002, 6, false
-        );
+        // Create a tube with varying thickness
+        const thickness = 0.02 + (prime % 7) * 0.003;
+        const tubeGeometry = new THREE.TubeGeometry(curve, 48, thickness, 8, false);
         geometriesRef.current.push(tubeGeometry);
         
-        const tubeMaterial = new THREE.MeshPhongMaterial({
-          color: i % 2 === 0 ? colors.primary : colors.accent,
-          emissive: colors.highlight,
-          emissiveIntensity: 0.3 + (i % 3) * 0.1,
-          transparent: true,
-          opacity: 0.65,
-          side: THREE.DoubleSide
-        });
+        // Alternate colors for visual interest
+        const colorIndex = i % 3;
+        let tubeMaterial;
+        
+        if (colorIndex === 0) {
+          tubeMaterial = new THREE.MeshPhysicalMaterial({
+            color: colors.primary,
+            emissive: colors.primary.clone().multiplyScalar(0.5),
+            emissiveIntensity: 0.5,
+            transparent: true,
+            opacity: 0.85,
+            roughness: 0.3,
+            metalness: 0.6,
+            side: THREE.DoubleSide
+          });
+        } else if (colorIndex === 1) {
+          tubeMaterial = new THREE.MeshPhysicalMaterial({
+            color: colors.accent,
+            emissive: colors.accent.clone().multiplyScalar(0.5),
+            emissiveIntensity: 0.5,
+            transparent: true,
+            opacity: 0.85,
+            roughness: 0.3,
+            metalness: 0.6,
+            side: THREE.DoubleSide
+          });
+        } else {
+          tubeMaterial = new THREE.MeshPhysicalMaterial({
+            color: colors.highlight,
+            emissive: colors.highlight.clone().multiplyScalar(0.5),
+            emissiveIntensity: 0.5,
+            transparent: true,
+            opacity: 0.85,
+            roughness: 0.3,
+            metalness: 0.6,
+            side: THREE.DoubleSide
+          });
+        }
+        
         materialsRef.current.push(tubeMaterial);
         
         const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
-        petalGroup.add(tube);
+        mandalaGroup.add(tube);
       }
       
-      return petalGroup;
+      return mandalaGroup;
     };
     
-    const createFlowingParticles = () => {
+    // Create particles for additional visual interest and depth
+    const createAmbientParticles = () => {
       const particleGroup = new THREE.Group();
-      const particleCount = 300;
+      const particleCount = 500;
       
+      // Create a geometry with individual particle positions
       const particlesGeometry = new THREE.BufferGeometry();
       const particlePositions = new Float32Array(particleCount * 3);
       const particleSizes = new Float32Array(particleCount);
@@ -509,17 +656,19 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
       for (let i = 0; i < particleCount; i++) {
         const prime = primes[i % primes.length];
         
-        const t = i / particleCount;
-        const radius = 0.8 * Math.pow(t, 0.5) + (prime % 5) * 0.01;
-        const spiralT = t * 15 + (prime % 7) * 0.5;
-        const angle = spiralT * 2.4;
+        // Distribute particles in a spherical volume
+        const radius = 5 + (prime % 11) * 0.2;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
         
-        particlePositions[i * 3] = Math.cos(angle) * radius * (1 + Math.sin(prime * 0.01) * 0.1);
-        particlePositions[i * 3 + 1] = Math.sin(angle) * radius * (1 + Math.cos(prime * 0.01) * 0.1);
-        particlePositions[i * 3 + 2] = Math.sin(spiralT * 0.3) * 0.1;
+        particlePositions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+        particlePositions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+        particlePositions[i * 3 + 2] = radius * Math.cos(phi) * 0.5; // Flatten slightly
         
-        particleSizes[i] = 0.03 + (prime % 7) * 0.004;
+        // Vary particle sizes
+        particleSizes[i] = 0.05 + Math.random() * 0.15;
         
+        // Assign colors from the color scheme
         if (i % 3 === 0) {
           particleColors[i * 3] = colors.primary.r;
           particleColors[i * 3 + 1] = colors.primary.g;
@@ -540,12 +689,14 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
       particlesGeometry.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
       geometriesRef.current.push(particlesGeometry);
       
+      // Create a point material with custom point size and texture
       const particleMaterial = new THREE.PointsMaterial({
-        size: 0.05,
+        size: 0.1,
         vertexColors: true,
         transparent: true,
-        opacity: 0.6,
-        blending: THREE.AdditiveBlending
+        opacity: 0.7,
+        blending: THREE.AdditiveBlending,
+        sizeAttenuation: true
       });
       materialsRef.current.push(particleMaterial);
       
@@ -555,55 +706,95 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
       return particleGroup;
     };
     
-    const spiral = createFlowingPrimeSpiral();
+    // Create and add all fractal elements
+    const spiral = createFlowingSpiral();
     const flower = createFlowerOfLifePattern();
-    const petals = createPrimePetals();
-    const particles = createFlowingParticles();
+    const mandala = createMandala();
+    const particles = createAmbientParticles();
     
-    spiral.position.set(0, 0, 0.1);
-    flower.position.set(0, 0, -0.1);
-    petals.position.set(0, 0, 0);
+    // Position elements for depth and layering
+    spiral.position.set(0, 0, 0.5);
+    flower.position.set(0, 0, -0.5);
+    mandala.position.set(0, 0, 0);
+    particles.position.set(0, 0, -2);
     
+    // Add elements to scene
     scene.add(spiral);
     scene.add(flower);
-    scene.add(petals);
+    scene.add(mandala);
     scene.add(particles);
     
-    fractalsRef.current = [spiral, flower, petals, particles];
+    // Store references for animation
+    fractalsRef.current = [spiral, flower, mandala, particles];
   };
   
-  const detectBeat = (dataArray: Uint8Array): boolean => {
-    const bassSum = dataArray.slice(0, 5).reduce((sum, val) => sum + val, 0);
-    const bassAvg = bassSum / 5;
+  // Enhanced beat detection with frequency analysis
+  const analyzeAudio = (dataArray: Uint8Array): { 
+    bassEnergy: number, 
+    midEnergy: number, 
+    highEnergy: number, 
+    beatDetected: boolean 
+  } => {
+    // Frequency ranges (approximate)
+    const bassRange = [0, 10];   // Low frequencies
+    const midRange = [10, 30];   // Mid frequencies
+    const highRange = [30, 50];  // High frequencies
     
-    const threshold = 150;
+    // Calculate energy in each frequency range
+    let bassSum = 0;
+    for (let i = bassRange[0]; i < Math.min(bassRange[1], dataArray.length); i++) {
+      bassSum += dataArray[i];
+    }
+    const bassAvg = bassSum / (bassRange[1] - bassRange[0]);
+    const bassEnergy = bassAvg / 255; // Normalize to 0-1
     
-    return bassAvg > threshold;
+    let midSum = 0;
+    for (let i = midRange[0]; i < Math.min(midRange[1], dataArray.length); i++) {
+      midSum += dataArray[i];
+    }
+    const midAvg = midSum / (midRange[1] - midRange[0]);
+    const midEnergy = midAvg / 255; // Normalize to 0-1
+    
+    let highSum = 0;
+    for (let i = highRange[0]; i < Math.min(highRange[1], dataArray.length); i++) {
+      highSum += dataArray[i];
+    }
+    const highAvg = highSum / (highRange[1] - highRange[0]);
+    const highEnergy = highAvg / 255; // Normalize to 0-1
+    
+    // Beat detection (bass threshold adjusted for better sensitivity)
+    const beatThreshold = 0.6;
+    const beatDetected = bassEnergy > beatThreshold;
+    
+    return { bassEnergy, midEnergy, highEnergy, beatDetected };
   };
   
+  // Animation loop with audio reactivity
   const animate = () => {
     if (!sceneRef.current || !cameraRef.current || !rendererRef.current || !visualizerActiveRef.current) return;
     
-    timeRef.current += 0.01;
+    timeRef.current += 0.005; // Slower time progression for more graceful movement
     animationFrameRef.current = requestAnimationFrame(animate);
     
-    let audioDataAvailable = false;
-    let frequencyData = new Array(128).fill(0);
-    let beatDetected = false;
+    // Default values if no audio data
+    let audioAnalysis = {
+      bassEnergy: 0.1,
+      midEnergy: 0.1,
+      highEnergy: 0.1,
+      beatDetected: false
+    };
     
+    // Get audio data if available
     if (analyser && dataArrayRef.current) {
       analyser.getByteFrequencyData(dataArrayRef.current);
-      audioDataAvailable = true;
+      audioAnalysis = analyzeAudio(dataArrayRef.current);
       
-      for (let i = 0; i < dataArrayRef.current.length && i < frequencyData.length; i++) {
-        frequencyData[i] = dataArrayRef.current[i] / 255;
-      }
-      
-      beatDetected = detectBeat(dataArrayRef.current);
-      if (beatDetected && !beatDetectedRef.current) {
+      // Track beat detection
+      if (audioAnalysis.beatDetected && !beatDetectedRef.current) {
         beatDetectedRef.current = true;
         primeIndexRef.current = (primeIndexRef.current + 1) % primes.length;
         
+        // Update prime sequence on beat
         if (onPrimeSequence) {
           const currentPrimes = [
             primes[primeIndexRef.current % primes.length],
@@ -615,80 +806,106 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
           setActivePrimes(currentPrimes);
           onPrimeSequence(currentPrimes);
         }
-      } else if (!beatDetected && beatDetectedRef.current) {
+      } else if (!audioAnalysis.beatDetected && beatDetectedRef.current) {
         beatDetectedRef.current = false;
       }
     }
     
-    const bassFreq = audioDataAvailable ? 
-      frequencyData.slice(0, 10).reduce((sum, val) => sum + val, 0) / 10 : 
-      0.1;
+    // Apply lerp (linear interpolation) for smooth transitions
+    const lerpFactor = 0.1; // Lower for smoother transitions
     
-    const midFreq = audioDataAvailable ? 
-      frequencyData.slice(10, 40).reduce((sum, val) => sum + val, 0) / 30 : 
-      0.1;
+    lastAudioDataRef.current = {
+      bass: lastAudioDataRef.current.bass + (audioAnalysis.bassEnergy - lastAudioDataRef.current.bass) * lerpFactor,
+      mid: lastAudioDataRef.current.mid + (audioAnalysis.midEnergy - lastAudioDataRef.current.mid) * lerpFactor,
+      high: lastAudioDataRef.current.high + (audioAnalysis.highEnergy - lastAudioDataRef.current.high) * lerpFactor
+    };
     
-    const highFreq = audioDataAvailable ? 
-      frequencyData.slice(40, 100).reduce((sum, val) => sum + val, 0) / 60 : 
-      0.1;
+    // Use smoothed audio data for animations
+    const { bass, mid, high } = lastAudioDataRef.current;
     
-    const currentPrime = primes[primeIndexRef.current];
+    // Get current prime for additional modulation
+    const currentPrime = primes[primeIndexRef.current % primes.length];
+    const primeModulation = (currentPrime % 13) * 0.001; // Very subtle modulation
     
+    // Animate each fractal element
     fractalsRef.current.forEach((fractal, index) => {
+      // Spiral animation (index 0)
       if (index === 0) {
-        fractal.rotation.z += 0.001 + bassFreq * 0.005 * intensity;
-        fractal.rotation.x = Math.sin(timeRef.current * 0.3) * 0.1 * midFreq;
+        // Base rotation speed with audio reactivity
+        fractal.rotation.z += 0.001 + (bass * 0.01 * intensity);
         
-        if (beatDetected) {
+        // Subtle undulation
+        fractal.rotation.x = Math.sin(timeRef.current * 0.2) * 0.1 * mid;
+        
+        // Beat reaction
+        if (audioAnalysis.beatDetected) {
+          // Pulse on beat
           fractal.scale.set(
-            1 + bassFreq * 0.2 * intensity,
-            1 + bassFreq * 0.2 * intensity,
-            1 + bassFreq * 0.2 * intensity
+            1 + bass * 0.3 * intensity,
+            1 + bass * 0.3 * intensity,
+            1 + bass * 0.3 * intensity
           );
         } else {
-          fractal.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
+          // Smoothly return to original scale
+          fractal.scale.lerp(new THREE.Vector3(1, 1, 1), 0.05);
         }
         
+        // Add prime number based rotation
         fractal.rotation.y += 0.0003 * (currentPrime % 7);
       }
+      // Flower of Life animation (index 1)
       else if (index === 1) {
-        fractal.rotation.z -= 0.002 + midFreq * 0.008 * intensity;
+        // Counter-rotate for interesting effect
+        fractal.rotation.z -= 0.001 + (mid * 0.005 * intensity);
         
-        const scaleFactor = 0.8 + highFreq * 0.2 * intensity;
-        fractal.scale.lerp(new THREE.Vector3(scaleFactor, scaleFactor, scaleFactor), 0.1);
+        // Scale with high frequencies
+        const targetScale = 0.7 + high * 0.4 * intensity;
+        fractal.scale.lerp(
+          new THREE.Vector3(targetScale, targetScale, targetScale), 
+          0.05
+        );
         
-        fractal.position.x = Math.sin(timeRef.current * 0.2) * 0.1 * (currentPrime % 5) * 0.01;
-        fractal.position.y = Math.cos(timeRef.current * 0.3) * 0.1 * (currentPrime % 3) * 0.01;
+        // Gentle undulation
+        fractal.position.x = Math.sin(timeRef.current * 0.15) * 0.1 * (currentPrime % 5) * 0.02;
+        fractal.position.y = Math.cos(timeRef.current * 0.2) * 0.1 * (currentPrime % 3) * 0.02;
       }
+      // Mandala animation (index 2)
       else if (index === 2) {
-        fractal.rotation.y += 0.001 + midFreq * 0.002 * intensity;
+        // Slow rotation
+        fractal.rotation.y += 0.0005 + (mid * 0.001 * intensity);
         
-        const breatheScale = 0.6 + Math.sin(timeRef.current * 0.5) * 0.05 + bassFreq * 0.1;
+        // "Breathing" effect
+        const breatheScale = 0.6 + Math.sin(timeRef.current * 0.3) * 0.05 + (bass * 0.2);
         fractal.scale.set(breatheScale, breatheScale, breatheScale);
         
-        fractal.position.z = -0.5 + Math.sin(timeRef.current * 0.1) * (currentPrime % 11) * 0.01;
+        // Z-position variation for depth
+        fractal.position.z = Math.sin(timeRef.current * 0.1) * (currentPrime % 11) * 0.01;
       }
+      // Particle cloud animation (index 3)
       else if (index === 3) {
-        fractal.rotation.y += 0.0005 + highFreq * 0.003 * intensity;
-        fractal.rotation.x += 0.0003 + midFreq * 0.002 * intensity;
+        // Very slow rotation
+        fractal.rotation.y += 0.0002 + (high * 0.001 * intensity);
+        fractal.rotation.x += 0.0001 + (mid * 0.001 * intensity);
         
-        if (beatDetected) {
+        // Change particle size and opacity on beat
+        if (audioAnalysis.beatDetected) {
           const particles = fractal.children[0];
           if (particles instanceof THREE.Points) {
             const material = particles.material as THREE.PointsMaterial;
-            material.size = 0.08 + bassFreq * 0.1;
-            material.opacity = 0.7 + bassFreq * 0.3;
+            // Pulse particle size with bass
+            material.size = 0.1 + bass * 0.2;
+            // Increase opacity with beat
+            material.opacity = 0.5 + bass * 0.5;
           }
         }
       }
       
-      if (audioDataAvailable && index < 3) {
-        const modFactor = (currentPrime % 13) * 0.0001;
-        fractal.rotation.z += modFactor;
-        fractal.rotation.x += modFactor * 0.7;
-      }
+      // Add subtle prime-number-based modulation to all objects
+      fractal.rotation.z += primeModulation;
+      fractal.rotation.x += primeModulation * 0.7;
     });
     
+    // Render the scene
     rendererRef.current.render(sceneRef.current, cameraRef.current);
   };
   
@@ -697,11 +914,21 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
   return (
     <motion.div 
       ref={containerRef} 
-      className="fixed inset-0 pointer-events-none"
+      className="fixed inset-0 pointer-events-none w-full h-full"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
+      style={{
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        overflow: 'hidden'
+      }}
     />
   );
 };
