@@ -67,8 +67,9 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         size="sm"
         onClick={toggleMobileMenu}
         className="fixed top-4 left-4 z-50 sm:hidden"
+        aria-label="Toggle menu"
       >
-        <Menu className="h-5 w-5" />
+        <Menu className="h-5 w-5 text-white" />
       </Button>
       
       {/* Mobile Menu Overlay */}
@@ -86,8 +87,8 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full",
           isCollapsed ? "w-20" : "w-64",
           liftTheVeil 
-            ? "bg-gradient-to-b from-pink-900/90 via-pink-800/80 to-pink-900/90 border-pink-700/50" 
-            : "bg-gradient-to-b from-purple-900/95 via-purple-800/85 to-purple-900/95 border-purple-700/50",
+            ? "bg-gradient-to-b from-pink-900/95 via-pink-800/90 to-pink-900/95 border-pink-700/50" 
+            : "bg-gradient-to-b from-purple-900/95 via-purple-800/90 to-purple-900/95 border-purple-700/50",
           "sm:translate-x-0", // Always show on sm breakpoint and up
           className
         )}
@@ -98,9 +99,10 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           size="sm" 
           onClick={() => setIsCollapsed(!isCollapsed)}
           className={cn(
-            "absolute -right-3 top-6 h-6 w-6 rounded-full border bg-white p-0 shadow-md hidden sm:flex",
+            "absolute -right-3 top-6 h-6 w-6 rounded-full border bg-white p-0 shadow-md hidden sm:flex items-center justify-center",
             liftTheVeil ? "border-pink-300" : "border-purple-300"
           )}
+          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {isCollapsed ? (
             <ChevronRight className={cn("h-4 w-4", liftTheVeil ? "text-pink-500" : "text-purple-500")} />
@@ -118,6 +120,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
             "absolute right-2 top-2 h-8 w-8 rounded-full sm:hidden",
             liftTheVeil ? "text-pink-300" : "text-purple-300"
           )}
+          aria-label="Close menu"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
@@ -153,8 +156,8 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           "hidden sm:flex fixed left-0 top-0 z-40 h-full flex-col border-r shadow-md transition-all duration-300",
           isCollapsed ? "w-20" : "w-64",
           liftTheVeil 
-            ? "bg-gradient-to-b from-pink-900/90 via-pink-800/80 to-pink-900/90 border-pink-700/50" 
-            : "bg-gradient-to-b from-purple-900/95 via-purple-800/85 to-purple-900/95 border-purple-700/50",
+            ? "bg-gradient-to-b from-pink-900/95 via-pink-800/90 to-pink-900/95 border-pink-700/50" 
+            : "bg-gradient-to-b from-purple-900/95 via-purple-800/90 to-purple-900/95 border-purple-700/50",
           className
         )}
         onMouseEnter={() => setIsCollapsed(false)}

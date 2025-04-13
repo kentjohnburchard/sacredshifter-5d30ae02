@@ -18,7 +18,7 @@ const SidebarUserDropdown: React.FC<SidebarUserDropdownProps> = ({ isCollapsed =
     return (
       <div className="flex flex-col items-center justify-center space-y-2">
         <Link to="/auth" className="w-full">
-          <Button variant="outline" className="w-full">Sign In</Button>
+          <Button variant="outline" className="w-full text-white border-white/20 hover:bg-white/10 hover:text-white">Sign In</Button>
         </Link>
       </div>
     );
@@ -29,7 +29,7 @@ const SidebarUserDropdown: React.FC<SidebarUserDropdownProps> = ({ isCollapsed =
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className={`w-full flex items-center justify-${isCollapsed ? 'center' : 'start'} p-2`}>
+        <Button variant="ghost" className={`w-full flex items-center justify-${isCollapsed ? 'center' : 'start'} p-2 text-white hover:bg-white/10`}>
           <Avatar className="h-8 w-8 mr-2">
             <AvatarImage src={user.user_metadata?.avatar_url} />
             <AvatarFallback className="bg-purple-100 text-purple-800">
@@ -38,8 +38,8 @@ const SidebarUserDropdown: React.FC<SidebarUserDropdownProps> = ({ isCollapsed =
           </Avatar>
           {!isCollapsed && (
             <div className="flex flex-col items-start">
-              <p className="text-sm font-medium">{user.user_metadata?.full_name || user.email}</p>
-              <p className="text-xs text-muted-foreground truncate max-w-[140px]">
+              <p className="text-sm font-medium text-white">{user.user_metadata?.full_name || user.email}</p>
+              <p className="text-xs text-gray-300 truncate max-w-[140px]">
                 {user.email}
               </p>
             </div>

@@ -23,6 +23,17 @@ import Astrology from '@/pages/Astrology';
 import Focus from '@/pages/Focus';
 import Timeline from '@/pages/Timeline';
 import FrequencyDetailPage from '@/pages/FrequencyDetailPage';
+import HarmonicMap from '@/pages/HarmonicMap';
+import HeartDashboard from '@/pages/HeartDashboard';
+import EnergyCheck from '@/pages/EnergyCheck';
+import Alignment from '@/pages/Alignment';
+import Profile from '@/pages/Profile';
+import Subscription from '@/pages/Subscription';
+import TrinityGateway from '@/pages/TrinityGateway';
+import HermeticWisdom from '@/pages/HermeticWisdom';
+import AboutFounder from '@/pages/AboutFounder';
+import Contact from '@/pages/Contact';
+import PersonalVibeSettings from '@/pages/PersonalVibeSettings';
 
 function App() {
   return (
@@ -30,11 +41,12 @@ function App() {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/home" element={<CosmicDashboard />} />
+        <Route path="/dashboard" element={<CosmicDashboard />} />
         <Route path="/welcome" element={<Welcome />} />
         <Route path="/landing" element={<SacredShifterLanding />} />
         <Route path="/meditations" element={<Meditations />} />
         <Route path="/hermetic-principles" element={<HermeticPrinciples />} />
-        <Route path="/hermetic-wisdom" element={<HermeticPrinciples />} />
+        <Route path="/hermetic-wisdom" element={<HermeticWisdom />} />
         <Route path="/frequency-shifting" element={<FrequencyShifting />} />
         <Route path="/frequency-library" element={<Frequencies />} />
         <Route path="/frequencies" element={<Frequencies />} />
@@ -52,6 +64,16 @@ function App() {
         <Route path="/astrology" element={<Astrology />} />
         <Route path="/focus" element={<Focus />} />
         <Route path="/timeline" element={<Timeline />} />
+        <Route path="/harmonic-map" element={<HarmonicMap />} />
+        <Route path="/heart-dashboard" element={<HeartDashboard />} />
+        <Route path="/energy-check" element={<EnergyCheck />} />
+        <Route path="/alignment" element={<Alignment />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/subscription" element={<Subscription />} />
+        <Route path="/trinity-gateway" element={<TrinityGateway />} />
+        <Route path="/about-founder" element={<AboutFounder />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/personal-vibe" element={<PersonalVibeSettings />} />
       </Routes>
     </React.StrictMode>
   );

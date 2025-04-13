@@ -105,11 +105,11 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
               "flex items-center py-2 px-3 text-sm rounded-md transition-colors",
               isActive
                 ? liftTheVeil 
-                  ? "bg-pink-700/50 text-pink-100" 
-                  : "bg-purple-700/50 text-purple-100"
-                : "text-gray-300 hover:bg-opacity-80",
-              liftTheVeil && !isActive && "hover:bg-pink-800/50 hover:text-pink-200",
-              !liftTheVeil && !isActive && "hover:bg-purple-800/50 hover:text-purple-200"
+                  ? "bg-pink-700/50 text-white" 
+                  : "bg-purple-700/50 text-white"
+                : "text-gray-200 hover:bg-opacity-80",
+              liftTheVeil && !isActive && "hover:bg-pink-800/50 hover:text-white",
+              !liftTheVeil && !isActive && "hover:bg-purple-800/50 hover:text-white"
             )}
           >
             <IconComponent
