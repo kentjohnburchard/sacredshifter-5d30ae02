@@ -1,10 +1,10 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { Navigate } from "react-router-dom";
 
 const Home: React.FC = () => {
-  // This component now just redirects to the SacredShifterHome component
-  return <Navigate to="/" replace />;
+  // Redirect to the SacredShifterHome component but avoid infinite loop
+  return <Navigate to="/dashboard" replace />;
 };
 
 export default Home;

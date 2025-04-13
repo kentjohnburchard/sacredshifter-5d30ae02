@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { FrequencyLibraryItem } from '@/types/frequencies';
 import { Card, CardContent } from '@/components/ui/card';
@@ -26,7 +25,6 @@ import FractalAudioVisualizer from '@/components/audio/FractalAudioVisualizer';
 import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
 import { useRef } from 'react';
 
-// Add JourneySettings interface to match what's used in JourneyPlayer.tsx
 interface JourneySettings {
   lowSensitivityMode: boolean;
   useHeadphones: boolean;
@@ -64,11 +62,9 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
   const [visualizerMode, setVisualizerMode] = useState<'purple' | 'blue' | 'rainbow' | 'gold'>('purple');
   const [showVisualizer, setShowVisualizer] = useState<boolean>(true);
   
-  // Audio analyzer setup for visualizer
   const audioRef = useRef<HTMLAudioElement>(null);
   const { audioContext, analyser } = useAudioAnalyzer(audioRef);
   
-  // For demo purposes, automatically start after 1 second
   useEffect(() => {
     if (sessionStarted || !intention) return;
     
@@ -122,25 +118,22 @@ export const JourneyPlayer: React.FC<JourneyPlayerProps> = ({
     toast.info(`Visualizer mode: ${modes[nextIndex]}`);
   };
 
-  // Get frequency display values
   const frequencyValue = frequency?.frequency || 0;
   const frequencyTitle = frequency?.title || `${frequencyValue}Hz Journey`;
   const chakraName = frequency?.chakra || '';
   const description = frequency?.description || `Experience the healing vibrations of ${frequencyValue}Hz frequency.`;
 
-  // Check journey settings for low sensitivity mode
   const isLowSensitivityMode = journeySettings?.lowSensitivityMode || false;
 
   return (
     <div className="max-w-4xl mx-auto relative">
-      {/* Fractal Audio Visualizer - replaceing sacred geometry visualizer */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <FractalAudioVisualizer
           audioContext={audioContext}
           analyser={analyser}
           isVisible={showVisualizer && isAudioPlaying}
           colorScheme={visualizerMode}
-          intensity={isLowSensitivityMode ? 0.5 : 1}
+          pauseWhenStopped={isLowSensitivityMode}
         />
       </div>
       
