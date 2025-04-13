@@ -10,12 +10,12 @@ import { useJourneySongs } from '@/hooks/useJourneySongs';
 import { SacredGeometryVisualizer } from '@/components/sacred-geometry';
 import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
 import { Button } from '@/components/ui/button';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Shuffle } from 'lucide-react';
 
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
   const navigate = useNavigate();
-  const { playAudio, isPlaying, currentAudio } = useGlobalAudioPlayer();
+  const { playAudio, isPlaying, currentAudio, setOnEndedCallback } = useGlobalAudioPlayer();
   const [journey, setJourney] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { templates } = useJourneyTemplates();
@@ -25,9 +25,20 @@ const JourneyPlayer = () => {
   // Create a ref for the audio element used by the global player
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
+  // Track management refs
+  const lastPlayedIndex = useRef<number | null>(null);
+  const songsRef = useRef<any[]>([]);
+  
   // Get songs for this journey using the useJourneySongs hook
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
 
+  // Store songs in ref to access in callbacks
+  useEffect(() => {
+    if (songs && songs.length > 0) {
+      songsRef.current = songs;
+    }
+  }, [songs]);
+  
   // Find the audio element in the DOM after component mounts
   useEffect(() => {
     // Find the audio element being used by the global player
@@ -40,6 +51,53 @@ const JourneyPlayer = () => {
   // Setup audio analyzer for visualizer - only if visualizer is shown and audio is playing
   const shouldUseAudioAnalyzer = showVisualizer && isPlaying && audioRef.current !== null;
   const { audioContext, analyser } = shouldUseAudioAnalyzer ? useAudioAnalyzer(audioRef) : { audioContext: null, analyser: null };
+
+  // Function to select a random song that's not the last played one
+  const selectRandomSong = () => {
+    if (!songsRef.current || songsRef.current.length === 0) return null;
+    
+    // If only one song is available, return it
+    if (songsRef.current.length === 1) return songsRef.current[0];
+    
+    // Get available indices excluding the lastPlayedIndex
+    const availableIndices = Array.from(
+      { length: songsRef.current.length },
+      (_, i) => i
+    ).filter(index => index !== lastPlayedIndex.current);
+    
+    // Select a random index from available ones
+    const randomIndex = Math.floor(Math.random() * availableIndices.length);
+    const selectedIndex = availableIndices[randomIndex];
+    
+    // Save this as the last played index
+    lastPlayedIndex.current = selectedIndex;
+    
+    return songsRef.current[selectedIndex];
+  };
+
+  // Set up track completion callback
+  useEffect(() => {
+    // Configure the end of track handler to play another random track
+    const handleTrackEnded = () => {
+      console.log("Track ended, selecting next random track");
+      const nextSong = selectRandomSong();
+      
+      if (nextSong) {
+        console.log("Playing next random song:", nextSong);
+        playAudio({
+          title: nextSong.title || (journey?.title + " (continued)"),
+          artist: "Sacred Shifter",
+          source: nextSong.audioUrl
+        });
+      }
+    };
+    
+    // Register the callback with the global audio player
+    setOnEndedCallback(handleTrackEnded);
+    
+    // Cleanup the callback when component unmounts
+    return () => setOnEndedCallback(null);
+  }, [journey, playAudio, setOnEndedCallback]);
 
   useEffect(() => {
     if (!journeyId) {
@@ -65,16 +123,18 @@ const JourneyPlayer = () => {
       if (!isCurrentJourneyPlaying) {
         // Wait for songs to load before trying to play
         if (!loadingSongs && songs.length > 0) {
-          // Select the first song (likely the primary) instead of randomizing
-          const selectedSong = songs[0];
+          // Select a random song to start with
+          const selectedSong = selectRandomSong();
           
-          console.log(`Playing song for journey ${journeyId}:`, selectedSong);
-          
-          playAudio({
-            title: selectedSong.title || foundJourney.title,
-            artist: "Sacred Shifter",
-            source: selectedSong.audioUrl
-          });
+          if (selectedSong) {
+            console.log(`Playing initial random song for journey ${journeyId}:`, selectedSong);
+            
+            playAudio({
+              title: selectedSong.title || foundJourney.title,
+              artist: "Sacred Shifter",
+              source: selectedSong.audioUrl
+            });
+          }
         } else if (!loadingSongs && songs.length === 0) {
           console.error(`No songs found for journey ID: ${journeyId}`);
           toast.error("No audio available for this journey");
@@ -174,6 +234,18 @@ const JourneyPlayer = () => {
               <><EyeOff className="h-4 w-4 mr-2" /> Show Visual</>
             )}
           </Button>
+        </div>
+        
+        <div className="absolute top-4 left-4 z-20 flex items-center">
+          <span className="text-xs text-purple-700 dark:text-purple-300 mr-2 bg-white/30 dark:bg-black/30 px-2 py-1 rounded-full backdrop-blur-sm">
+            <Shuffle className="h-3 w-3 inline mr-1" />
+            Random Tracks
+          </span>
+          {songs.length > 0 && (
+            <span className="text-xs bg-white/30 dark:bg-black/30 px-2 py-1 rounded-full backdrop-blur-sm">
+              {songs.length} {songs.length === 1 ? 'track' : 'tracks'}
+            </span>
+          )}
         </div>
         
         <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-purple-100 dark:border-purple-800 shadow-lg">
