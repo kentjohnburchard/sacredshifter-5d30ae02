@@ -18,7 +18,8 @@ const AUTO_COLLAPSE_DELAY = 4000; // 4 seconds before auto-collapse
 const Sidebar: React.FC<SidebarProps> = ({ className }) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isMounted, setIsMounted] = useState(false); // For hydration safety
+  const [isMounted, setIsMounted] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
   const { liftTheVeil } = useTheme();
   
   // Mount safety for SSR/hydration
@@ -48,7 +49,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
   useEffect(() => {
     let timer: number | undefined;
     
-    if (!isCollapsed && isMounted && window.innerWidth >= 640) {
+    if (!isCollapsed && isMounted && window.innerWidth >= 640 && !isHovering) {
       timer = window.setTimeout(() => {
         setIsCollapsed(true);
       }, AUTO_COLLAPSE_DELAY);
@@ -59,13 +60,19 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         clearTimeout(timer);
       }
     };
-  }, [isCollapsed, isMounted]);
+  }, [isCollapsed, isMounted, isHovering]);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  // Calculate sidebar state based on device and interaction
   const effectivelyCollapsed = isMobileMenuOpen ? false : isCollapsed;
+  
+  // Background and border colors based on theme
+  const themeClasses = liftTheVeil 
+    ? "bg-gradient-to-b from-pink-900 via-pink-800 to-pink-900 border-pink-700" 
+    : "bg-gradient-to-b from-purple-900 via-purple-800 to-purple-900 border-purple-700";
 
   // Don't render UI during SSR to avoid hydration mismatch
   if (!isMounted) return null;
@@ -80,7 +87,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         className="fixed top-4 left-4 z-50 sm:hidden"
         aria-label="Toggle menu"
       >
-        <Menu className="h-5 w-5 !text-white" />
+        <Menu className="h-5 w-5 text-white" />
       </Button>
       
       {/* Mobile overlay backdrop */}
@@ -91,19 +98,26 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         />
       )}
       
-      {/* Main sidebar - used for mobile and initial render */}
+      {/* Unified sidebar for both mobile and desktop */}
       <aside 
         className={cn(
-          "fixed left-0 top-0 z-40 flex h-full flex-col border-r shadow-lg transition-all duration-300 sm:translate-x-0 !visible",
-          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full",
-          isMobileMenuOpen ? "w-64" : (isCollapsed ? "w-20" : "w-64"),
-          liftTheVeil 
-            ? "bg-gradient-to-b from-pink-900 via-pink-800 to-pink-900 border-pink-700" 
-            : "bg-gradient-to-b from-purple-900 via-purple-800 to-purple-900 border-purple-700",
-          "sm:translate-x-0",
+          "fixed left-0 top-0 z-40 flex h-full flex-col border-r shadow-lg transition-all duration-300 sm:translate-x-0",
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full sm:translate-x-0",
+          effectivelyCollapsed ? "w-20" : "w-64",
+          themeClasses,
           className
         )}
-        style={{ display: "flex" }} // Force display flex
+        onMouseEnter={() => {
+          if (window.innerWidth >= 640) {
+            setIsHovering(true);
+            setIsCollapsed(false);
+          }
+        }}
+        onMouseLeave={() => {
+          if (window.innerWidth >= 640) {
+            setIsHovering(false);
+          }
+        }}
       >
         {/* Desktop expand/collapse button */}
         <Button 
@@ -161,21 +175,6 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           <SidebarUserDropdown isCollapsed={effectivelyCollapsed} />
         </div>
       </aside>
-      
-      {/* Interactive hover sidebar for desktop only */}
-      <aside 
-        className={cn(
-          "hidden sm:flex fixed left-0 top-0 z-40 h-full flex-col border-r shadow-md transition-all duration-300 !visible",
-          isCollapsed ? "w-20" : "w-64",
-          liftTheVeil 
-            ? "bg-gradient-to-b from-pink-900 via-pink-800 to-pink-900 border-pink-700" 
-            : "bg-gradient-to-b from-purple-900 via-purple-800 to-purple-900 border-purple-700",
-          className
-        )}
-        style={{ display: "flex" }} // Force display flex
-        onMouseEnter={() => setIsCollapsed(false)}
-        onMouseLeave={() => setIsCollapsed(true)}
-      />
     </>
   );
 };

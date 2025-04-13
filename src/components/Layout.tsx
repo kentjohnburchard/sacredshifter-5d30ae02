@@ -29,8 +29,6 @@ const Layout: React.FC<LayoutProps> = ({
   const location = useLocation();
   const { liftTheVeil } = useTheme();
   const isAuthPage = location.pathname === '/auth';
-  const isJourneyPage = location.pathname.includes('/journey/');
-  const useCosmicTheme = !useBlueWaveBackground;
 
   // Update document title
   useEffect(() => {
