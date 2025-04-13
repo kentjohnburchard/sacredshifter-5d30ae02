@@ -53,7 +53,8 @@ function App() {
         <ThemeEnhancer />
         <React.StrictMode>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<SacredShifterLanding />} />
+            <Route path="/index" element={<Index />} />
             <Route path="/home" element={<Home />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/cosmic-dashboard" element={<CosmicDashboard />} />
