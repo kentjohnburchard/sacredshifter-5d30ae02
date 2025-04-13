@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,7 @@ import Layout from "@/components/Layout";
 import { TrademarkedName } from "@/components/ip-protection";
 import { SacredGeometryVisualizer } from "@/components/sacred-geometry";
 import { useTheme } from "@/context/ThemeContext";
+import { cn } from "@/lib/utils";
 
 const Home: React.FC = () => {
   // Track the current sacred geometry shape
