@@ -1,162 +1,87 @@
 
 import { useState, useEffect, useRef } from 'react';
 
-const useAudioAnalyzer = (
-  audioRef: React.MutableRefObject<HTMLAudioElement | null>
-) => {
-  // Initialize all state first, before any conditional logic
+interface AudioAnalyzerResult {
+  audioContext: AudioContext | null;
+  analyser: AnalyserNode | null;
+}
+
+function useAudioAnalyzer(audioElement: HTMLAudioElement | React.RefObject<HTMLAudioElement> | null): AudioAnalyzerResult {
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
   const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
-  
-  // Track if we've already connected this audio element
-  const sourceConnected = useRef<boolean>(false);
   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
-  const connectionAttemptedRef = useRef<boolean>(false);
-  const connectionTimeoutRef = useRef<number | null>(null);
-  const audioElementRef = useRef<HTMLAudioElement | null>(null);
-  
-  // Check if the audio element exists globally
+  const initialized = useRef(false);
+
   useEffect(() => {
-    // Only create audio context if it doesn't exist yet
-    if (!audioContext) {
+    // Helper to get the actual HTMLAudioElement from various possible inputs
+    const getAudioElement = (): HTMLAudioElement | null => {
+      if (!audioElement) return null;
+      
+      // If audioElement is a ref object
+      if ('current' in audioElement) {
+        return audioElement.current;
+      }
+      
+      // If audioElement is an actual HTMLAudioElement
+      return audioElement;
+    };
+
+    const audio = getAudioElement();
+    
+    // Only initialize if we have an audio element and haven't initialized yet
+    if (audio && !initialized.current) {
+      console.log("useAudioAnalyzer: Initializing with audio element", audio);
+      
       try {
-        console.log("Creating new AudioContext");
-        const context = new (window.AudioContext || (window as any).webkitAudioContext)();
-        setAudioContext(context);
+        // Create audio context
+        const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        setAudioContext(ctx);
         
-        const newAnalyser = context.createAnalyser();
-        newAnalyser.fftSize = 2048;
-        setAnalyser(newAnalyser);
+        // Create analyser node
+        const analyserNode = ctx.createAnalyser();
+        analyserNode.fftSize = 2048;
+        analyserNode.smoothingTimeConstant = 0.8;
+        setAnalyser(analyserNode);
         
-        // IMPORTANT: Don't connect to destination here - this creates a parallel audio path
-        // That will cause the original audio path to be disconnected
+        // Create source node from the audio element
+        const sourceNode = ctx.createMediaElementSource(audio);
+        sourceNodeRef.current = sourceNode;
+        
+        // Connect the nodes: sourceNode -> analyserNode -> destination
+        sourceNode.connect(analyserNode);
+        analyserNode.connect(ctx.destination);
+        
+        // Mark as initialized to prevent duplicate initialization
+        initialized.current = true;
+        
+        console.log("useAudioAnalyzer: Audio analyzer setup complete");
       } catch (error) {
-        console.error("Failed to initialize audio context:", error);
+        console.error("useAudioAnalyzer: Error setting up audio analyzer", error);
       }
     }
-    
-    // Try to connect audio element to analyzer when both are available and not already connected
-    const connectAudio = () => {
-      // Clear any existing timeout to prevent multiple attempts
-      if (connectionTimeoutRef.current) {
-        clearTimeout(connectionTimeoutRef.current);
-        connectionTimeoutRef.current = null;
-      }
-      
-      // Only attempt connection if we have all required pieces and haven't already connected
-      // Also check if the audio element has changed since last connection
-      if (
-        audioContext && 
-        analyser && 
-        audioRef.current && 
-        (!sourceConnected.current || audioElementRef.current !== audioRef.current)
-      ) {
-        console.log("Audio element available for connection:", audioRef.current);
-        
-        // Save reference to current audio element
-        audioElementRef.current = audioRef.current;
-        
-        // IMPORTANT: Always resume the audio context first
-        if (audioContext.state === 'suspended') {
-          audioContext.resume().then(() => {
-            console.log("AudioContext resumed successfully");
-          }).catch(err => {
-            console.error("Failed to resume AudioContext:", err);
-          });
-        }
-        
-        try {
-          // Create a source node ONLY if we haven't already
-          if (!sourceNodeRef.current) {
-            console.log("Creating new MediaElementAudioSourceNode");
-            sourceNodeRef.current = audioContext.createMediaElementSource(audioRef.current);
-            
-            // CRITICAL CHANGE: Create a gain node to preserve the original audio path
-            const gainNode = audioContext.createGain();
-            gainNode.gain.value = 1.0; // Keep original volume
-            
-            // Connect in this order: source -> gain -> destination (for audio playback)
-            sourceNodeRef.current.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            // Also connect to analyzer as a side chain (doesn't interrupt the audio flow)
-            sourceNodeRef.current.connect(analyser);
-            
-            console.log("Successfully connected audio source to analyzer and preserved audio path");
-            sourceConnected.current = true;
-          } else if (audioElementRef.current !== audioRef.current) {
-            // If the audio element changed but we already have a source node,
-            // we need to disconnect the old one and create a new one
-            console.log("Audio element changed, recreating connection");
-            sourceNodeRef.current = null;
-            sourceConnected.current = false;
-            // Try connecting again on the next tick
-            setTimeout(connectAudio, 0);
-          }
-        } catch (error) {
-          console.log("Audio connection error (might already be connected):", error);
-          // Most likely the audio element is already connected to another audio context
-          // Mark as connected to prevent further attempts
-          sourceConnected.current = true;
-        }
-      } else {
-        console.log("Cannot connect audio yet:", {
-          hasContext: !!audioContext,
-          hasAnalyser: !!analyser,
-          hasAudioRef: !!audioRef.current,
-          alreadyConnected: sourceConnected.current,
-          sameAudioElement: audioElementRef.current === audioRef.current
-        });
-      }
-    };
-    
-    // Try connecting immediately if we have everything we need
-    if (audioRef.current && audioContext && analyser) {
-      connectionTimeoutRef.current = window.setTimeout(connectAudio, 100);
-    }
-    
+
+    // Cleanup function
     return () => {
-      // Clean up timeout on unmount
-      if (connectionTimeoutRef.current) {
-        clearTimeout(connectionTimeoutRef.current);
+      if (audioContext && sourceNodeRef.current) {
+        try {
+          console.log("useAudioAnalyzer: Cleaning up audio analyzer");
+          
+          // Only disconnect if we have a source node
+          if (sourceNodeRef.current) {
+            sourceNodeRef.current.disconnect();
+          }
+          
+          // Only set to null if cleanup is actually happening
+          sourceNodeRef.current = null;
+          
+        } catch (error) {
+          console.error("useAudioAnalyzer: Error cleaning up audio analyzer", error);
+        }
       }
     };
-  }, [audioRef.current, audioContext, analyser]);
-  
-  // Ensure the audio context is resumed when needed - especially on user interaction
-  useEffect(() => {
-    if (audioContext && audioContext.state === 'suspended') {
-      const resumeAudioContext = () => {
-        console.log("Attempting to resume AudioContext after user interaction");
-        audioContext.resume().then(() => {
-          console.log('AudioContext resumed successfully');
-        }).catch(err => {
-          console.error('Failed to resume AudioContext:', err);
-        });
-      };
-      
-      // Try to resume on a user interaction event
-      const handleUserInteraction = () => {
-        resumeAudioContext();
-        // Clean up these event listeners after first interaction
-        document.removeEventListener('click', handleUserInteraction);
-        document.removeEventListener('touchstart', handleUserInteraction);
-      };
-      
-      document.addEventListener('click', handleUserInteraction);
-      document.addEventListener('touchstart', handleUserInteraction);
-      
-      // Also try to resume immediately (might work if this runs after a user gesture)
-      resumeAudioContext();
-      
-      return () => {
-        document.removeEventListener('click', handleUserInteraction);
-        document.removeEventListener('touchstart', handleUserInteraction);
-      };
-    }
-  }, [audioContext]);
-  
+  }, [audioElement]);
+
   return { audioContext, analyser };
-};
+}
 
 export default useAudioAnalyzer;

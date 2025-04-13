@@ -30,8 +30,8 @@ const NavLink: React.FC<NavLinkProps> = ({
     : "text-white font-bold"; 
     
   const baseClass = isMobile 
-    ? `text-lg transition-colors px-4 py-2 rounded-md ${mobileActiveClass}` 
-    : `text-sm transition-colors ${desktopActiveClass}`;
+    ? `text-lg opacity-100 transition-colors px-4 py-2 rounded-md ${mobileActiveClass}` 
+    : `text-sm opacity-100 transition-colors ${desktopActiveClass}`;
     
   return (
     <Link 

@@ -62,6 +62,7 @@ const iconMap: Record<string, React.FC<any>> = {
   '/site-map': Map,
   '/profile': User,
   '/landing': LayoutDashboard,
+  '/journey-player': Map,
 };
 
 interface SidebarNavItemsProps {
@@ -90,10 +91,21 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
     return true;
   });
 
+  // Helper to check if path is active, including partially matching routes like journey-player
+  const isPathActive = (path: string) => {
+    // Check for exact match
+    if (location.pathname === path) return true;
+    
+    // Special case for journey player routes
+    if (path === '/journey-player' && location.pathname.startsWith('/journey-player/')) return true;
+    
+    return false;
+  };
+
   return (
     <div className="space-y-1">
       {filteredNavItems.map((item) => {
-        const isActive = location.pathname === item.path;
+        const isActive = isPathActive(item.path);
         const IconComponent = iconMap[item.path] || LayoutDashboard;
         
         return (
@@ -108,7 +120,7 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
                 ? liftTheVeil 
                   ? "bg-pink-700/80 text-white font-bold" 
                   : "bg-purple-700/80 text-white font-bold"
-                : "text-white font-bold hover:bg-opacity-80", 
+                : "text-white font-bold opacity-100", 
               liftTheVeil && !isActive && "hover:bg-pink-800/70 hover:text-white",
               !liftTheVeil && !isActive && "hover:bg-purple-800/70 hover:text-white"
             )}
@@ -126,17 +138,12 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
                 className="h-5 w-5 mr-3 text-white"
               />
               <span 
-                className={cn(
-                  "text-white font-bold opacity-100",
-                  isCollapsed 
-                    ? "opacity-100 w-auto" // Changed from opacity-0 to opacity-100
-                    : "opacity-100 w-auto"
-                )}
+                className="text-white font-bold opacity-100 w-auto"
               >
                 {item.label}
               </span>
               {isCollapsed && (
-                <ChevronRight className="h-4 w-4 ml-auto text-white" /> // Removed opacity-0 from this element
+                <ChevronRight className="h-4 w-4 ml-auto text-white" />
               )}
             </div>
           </NavLink>

@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";
 import JourneySettings, { JourneySettingsValues } from "./JourneySettings";
 import { JourneyTemplate } from "@/data/journeyTemplates";
+import { useGlobalAudioPlayer } from "@/hooks/useGlobalAudioPlayer";
 
 interface JourneyPreStartModalProps {
   open: boolean;
@@ -31,9 +32,12 @@ const JourneyPreStartModal: React.FC<JourneyPreStartModalProps> = ({
   const [intention, setIntention] = useState("");
   const [settings, setSettings] = useState<JourneySettingsValues>(defaultSettings);
   const [currentStep, setCurrentStep] = useState<'intention' | 'guided' | 'settings'>('intention');
+  const { isPlaying } = useGlobalAudioPlayer();
   
   const handleStart = () => {
+    // Pass the intention and settings to the parent component
     onStart(intention, settings);
+    // Close the modal
     onOpenChange(false);
     // Reset state for next time
     setCurrentStep('intention');
@@ -143,6 +147,14 @@ You are tuning yourself to a new vibration.`}
                   Begin Journey
                 </Button>
               </div>
+              
+              {/* Audio playback status indicator */}
+              {isPlaying && (
+                <div className="text-xs text-center text-purple-600 mt-2">
+                  <span className="inline-block h-2 w-2 rounded-full bg-green-500 mr-1 animate-pulse"></span>
+                  Audio is currently playing
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
