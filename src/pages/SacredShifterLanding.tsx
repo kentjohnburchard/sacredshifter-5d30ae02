@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import SacredFlowerOfLife from '@/components/sacred-geometry/shapes/SacredFlowerOfLife';
@@ -702,4 +703,46 @@ const SacredShifterLanding = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.7 }}
-            className="mb-12 relative z
+            className="mb-12 relative z-20 max-w-3xl mx-auto"
+          >
+            <div className={cn(
+              "cosmic-glass p-6 rounded-xl border",
+              liftTheVeil ? "border-pink-500/20" : "border-purple-500/20"
+            )}>
+              <h2 className={cn(
+                "text-xl font-bold mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r",
+                liftTheVeil ? "from-pink-300 to-purple-300" : "from-purple-300 to-indigo-300"
+              )}>
+                About Sacred Shifter
+              </h2>
+              
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold mb-2 text-white/90">Our Mission</h3>
+                <p className="text-sm text-white/80">
+                  Sacred Shifter is more than an app — it is a consciousness technology.<br/>
+                  We exist to help you remember who you are through frequency, prime awareness, and soul reconnection.
+                </p>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold mb-2 text-white/90">The Sacred Code</h3>
+                <p className="text-sm text-white/80">
+                  Every tone. Every pattern. Every visual. It's encoded.<br/>
+                  Prime numbers are the silent architects of your reality.<br/>
+                  These sacred signatures unlock forgotten truths within your DNA.<br/>
+                  You're not here by accident. You're tuning yourself back into resonance.
+                </p>
+                <p className="text-sm text-white/80 mt-3 italic">
+                  "The person who was very aware had a foot in two worlds..."<br/>
+                  Now, you do too.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SacredShifterLanding;
