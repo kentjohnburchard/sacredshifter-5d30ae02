@@ -6,7 +6,6 @@ import Layout from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Music, Heart, Sparkles, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
-import EnhancedGlobalPlayer from "@/components/audio/EnhancedGlobalPlayer";
 import EnhancedGeometryVisualizer from "@/components/sacred-geometry/EnhancedGeometryVisualizer";
 import { useTheme } from "@/context/ThemeContext";
 import ConsciousnessToggle from "@/components/ConsciousnessToggle";
@@ -155,11 +154,6 @@ const SacredShifterHome: React.FC = () => {
             </motion.div>
           ))}
         </div>
-      </div>
-      
-      {/* Global Audio Player */}
-      <div className={`fixed bottom-0 right-0 z-50 transition-all duration-300 ${geometryExpanded ? 'opacity-30' : 'opacity-100'}`}>
-        <EnhancedGlobalPlayer initiallyExpanded={false} />
       </div>
     </Layout>
   );

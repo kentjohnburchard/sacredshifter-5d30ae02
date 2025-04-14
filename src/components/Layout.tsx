@@ -66,13 +66,7 @@ const Layout: React.FC<LayoutProps> = ({
       
       {/* Sacred Audio Player - SINGLE INSTANCE for the entire app */}
       <TooltipProvider>
-        <SacredAudioPlayer
-          audioUrl="https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/432hz_meditation.mp3"
-          title="Sacred Frequency Journey"
-          artist="Sacred Shifter"
-          frequency={432}
-          chakra="Heart"
-        />
+        <SacredAudioPlayer initiallyExpanded={false} />
       </TooltipProvider>
       
       {/* Add ConsciousnessToggle (Easter Egg) to every page */}

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -733,6 +734,13 @@ const drawPurpleVisualizer = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasE
   ctx.lineWidth = 2;
   ctx.stroke();
   
+  // Calculate bass level for ring animation
+  let bassLevel = 0;
+  for (let i = 0; i < 10; i++) {
+    bassLevel += frequencyData[i] / 255;
+  }
+  bassLevel = bassLevel / 10;
+  
   for (let ring = 0; ring < 3; ring++) {
     const ringRadius = maxRadius * (0.2 + (ring * 0.15)) * (0.8 + bassLevel * 0.2);
     
@@ -780,6 +788,7 @@ const drawBlueVisualizer = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasEle
   const waveSegments = 100;
   const segmentWidth = waveWidth / waveSegments;
   
+  // Calculate energy level for wave animation
   let energy = 0;
   for (let i = 0; i < 20; i++) {
     energy += frequencyData[i];
