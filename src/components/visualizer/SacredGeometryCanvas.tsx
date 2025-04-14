@@ -337,8 +337,8 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
     );
     
     const baseColor = getBaseColor();
-    gradient.addColorStop(0, `${baseColor}55`);
-    gradient.addColorStop(0.5, `${baseColor}33`);
+    gradient.addColorStop(0, baseColor.replace(')', ', 0.33)'));
+    gradient.addColorStop(0.5, baseColor.replace(')', ', 0.2)'));
     gradient.addColorStop(1, 'transparent');
     
     ctx.fillStyle = gradient;

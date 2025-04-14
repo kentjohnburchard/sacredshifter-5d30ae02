@@ -87,11 +87,15 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
     return <div className="w-full h-full bg-black bg-opacity-20"></div>;
   }
 
-  // Fixed: Proper positioning for expanded mode with fixed positioning filling entire viewport
   return (
     <div 
       className={`relative ${expanded ? 'fixed inset-0 z-50' : 'w-full h-full'}`} 
-      style={{ overflow: 'hidden' }}
+      style={{ 
+        overflow: 'hidden',
+        position: expanded ? 'fixed' : 'relative',
+        width: '100%',
+        height: '100%'
+      }}
     >
       <SacredGeometryCanvas
         audioAnalyser={analyser}
