@@ -16,13 +16,15 @@ export default defineConfig(({ mode }) => ({
     componentTagger(),
   ].filter(Boolean),
   optimizeDeps: {
-    include: ['three'],
+    include: ['three', 'zustand', 'use-sync-external-store'],
     exclude: ['@react-three/fiber']
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "zustand": path.resolve(__dirname, "node_modules/zustand"),
+      "use-sync-external-store": path.resolve(__dirname, "node_modules/use-sync-external-store"),
     },
-    dedupe: ['three']
+    dedupe: ['three', 'react', 'react-dom', 'zustand', 'use-sync-external-store']
   },
 }));
