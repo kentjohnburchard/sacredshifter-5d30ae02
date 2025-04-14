@@ -87,6 +87,7 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
     return <div className="w-full h-full bg-black bg-opacity-20"></div>;
   }
 
+  // Fixed: Proper positioning for expanded mode with fixed positioning filling entire viewport
   return (
     <div 
       className={`relative ${expanded ? 'fixed inset-0 z-50' : 'w-full h-full'}`} 
