@@ -39,11 +39,29 @@ export const SimplifiedVisualizer: React.FC<VisualizerProps> = ({
   
   // Confirm THREE is available at component mount
   useEffect(() => {
-    if (typeof THREE !== 'undefined' && THREE) {
-      console.log("THREE is available in SimplifiedVisualizer:", THREE.REVISION);
-      setThreeJsLoaded(true);
-    } else {
-      console.error("THREE is not available in SimplifiedVisualizer");
+    const checkThreeAvailability = () => {
+      if (typeof THREE !== 'undefined' && THREE) {
+        console.log("THREE is available in SimplifiedVisualizer:", THREE.REVISION);
+        setThreeJsLoaded(true);
+        return true;
+      } else {
+        console.warn("THREE is not available in SimplifiedVisualizer, waiting...");
+        return false;
+      }
+    };
+    
+    // First check
+    if (!checkThreeAvailability()) {
+      // If THREE isn't available immediately, try again after a short delay
+      const timer = setTimeout(() => {
+        if (checkThreeAvailability()) {
+          clearTimeout(timer);
+        } else {
+          console.error("THREE failed to initialize after delay");
+        }
+      }, 500);
+      
+      return () => clearTimeout(timer);
     }
   }, []);
 
@@ -76,12 +94,6 @@ export const SimplifiedVisualizer: React.FC<VisualizerProps> = ({
     if (!containerRef.current || !threeJsLoaded) return;
 
     try {
-      // Verify THREE is available globally
-      if (!window.THREE && typeof THREE === 'undefined') {
-        console.error("THREE is not properly defined. Cannot initialize scene.");
-        return;
-      }
-      
       // Create scene
       const scene = new THREE.Scene();
       sceneRef.current = scene;
