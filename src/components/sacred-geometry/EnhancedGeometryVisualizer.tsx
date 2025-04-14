@@ -26,6 +26,7 @@ interface EnhancedGeometryVisualizerProps {
   sensitivity?: number;
   expandable?: boolean;
   onExpandStateChange?: (expanded: boolean) => void;
+  colorScheme?: string; // Add colorScheme prop
 }
 
 const EnhancedGeometryVisualizer: React.FC<EnhancedGeometryVisualizerProps> = ({
@@ -43,6 +44,7 @@ const EnhancedGeometryVisualizer: React.FC<EnhancedGeometryVisualizerProps> = ({
   sensitivity = 1,
   expandable = false,
   onExpandStateChange,
+  colorScheme = 'purple', // Default colorScheme
 }) => {
   const { liftTheVeil } = useTheme();
   const [currentShape, setCurrentShape] = useState<GeometryShape>(defaultShape);
@@ -103,12 +105,52 @@ const EnhancedGeometryVisualizer: React.FC<EnhancedGeometryVisualizerProps> = ({
     : `w-full h-[60vw] max-h-[400px] sm:h-[300px] lg:h-[384px] ${className}`;
 
   // Apply mode-specific styles
-  const bgClass = liftTheVeil 
-    ? 'bg-pink-900/10' 
-    : 'bg-purple-900/10';
+  const getBaseColor = () => {
+    if (liftTheVeil) return 'bg-pink-900/10';
+    
+    switch (colorScheme) {
+      case 'blue': return 'bg-blue-900/10';
+      case 'gold': return 'bg-amber-900/10';
+      default: return 'bg-purple-900/10';
+    }
+  };
+
+  const getButtonColor = () => {
+    if (liftTheVeil) return 'bg-pink-900/40 hover:bg-pink-900/60';
+    
+    switch (colorScheme) {
+      case 'blue': return 'bg-blue-900/40 hover:bg-blue-900/60';
+      case 'gold': return 'bg-amber-900/40 hover:bg-amber-900/60';
+      default: return 'bg-purple-900/40 hover:bg-purple-900/60';
+    }
+  };
+
+  const getToggleActiveColor = () => {
+    if (liftTheVeil) return 'data-[state=on]:bg-pink-700';
+    
+    switch (colorScheme) {
+      case 'blue': return 'data-[state=on]:bg-blue-700';
+      case 'gold': return 'data-[state=on]:bg-amber-700';
+      default: return 'data-[state=on]:bg-purple-700';
+    }
+  };
+
+  const getButtonOutlineColor = () => {
+    if (liftTheVeil) 
+      return 'bg-pink-900/30 border-pink-400/30 text-pink-100 hover:bg-pink-900/50';
+    
+    switch (colorScheme) {
+      case 'blue': 
+        return 'bg-blue-900/30 border-blue-400/30 text-blue-100 hover:bg-blue-900/50';
+      case 'gold': 
+        return 'bg-amber-900/30 border-amber-400/30 text-amber-100 hover:bg-amber-900/50';
+      default: 
+        return 'bg-purple-900/30 border-purple-400/30 text-purple-100 hover:bg-purple-900/50';
+    }
+  };
 
   return (
-    <div className={`${containerBaseClass} ${containerSizeClass} ${bgClass}`}>
+    <div className={`${containerBaseClass} ${containerSizeClass} ${getBaseColor()}`}>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -120,11 +162,7 @@ const EnhancedGeometryVisualizer: React.FC<EnhancedGeometryVisualizerProps> = ({
             variant="ghost"
             size="icon"
             onClick={toggleExpand}
-            className={`
-              absolute top-2 right-2 z-30 
-              ${liftTheVeil ? 'bg-pink-900/40 hover:bg-pink-900/60' : 'bg-purple-900/40 hover:bg-purple-900/60'} 
-              text-white
-            `}
+            className={`absolute top-2 right-2 z-30 ${getButtonColor()} text-white`}
             title={expanded ? "Minimize" : "Maximize"}
           >
             {expanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -133,7 +171,7 @@ const EnhancedGeometryVisualizer: React.FC<EnhancedGeometryVisualizerProps> = ({
         
         <div className={expanded ? "w-full h-[80vh]" : "w-full h-full"}>
           <motion.div
-            key={`${currentShape}-${visualizerMode}`}
+            key={`${currentShape}-${visualizerMode}-${colorScheme}`}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
@@ -150,6 +188,7 @@ const EnhancedGeometryVisualizer: React.FC<EnhancedGeometryVisualizerProps> = ({
               mode={visualizerMode}
               sensitivity={sensitivity}
               liftedVeil={liftTheVeil}
+              colorScheme={colorScheme}
             />
           </motion.div>
         </div>
@@ -170,10 +209,7 @@ const EnhancedGeometryVisualizer: React.FC<EnhancedGeometryVisualizerProps> = ({
                 <ToggleGroupItem 
                   key={option.value} 
                   value={option.value}
-                  className={`
-                    px-3 py-1 text-xs text-white rounded flex items-center gap-2
-                    data-[state=on]:${liftTheVeil ? 'bg-pink-700' : 'bg-purple-700'}
-                  `}
+                  className={`px-3 py-1 text-xs text-white rounded flex items-center gap-2 ${getToggleActiveColor()}`}
                 >
                   {option.icon} {option.label}
                 </ToggleGroupItem>
@@ -204,10 +240,7 @@ const EnhancedGeometryVisualizer: React.FC<EnhancedGeometryVisualizerProps> = ({
                   <ToggleGroupItem 
                     key={option.value} 
                     value={option.value}
-                    className={`
-                      px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs text-white rounded
-                      data-[state=on]:${liftTheVeil ? 'bg-pink-700' : 'bg-purple-700'}
-                    `}
+                    className={`px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs text-white rounded ${getToggleActiveColor()}`}
                   >
                     {option.label}
                   </ToggleGroupItem>
@@ -222,11 +255,7 @@ const EnhancedGeometryVisualizer: React.FC<EnhancedGeometryVisualizerProps> = ({
             <Button
               variant="outline"
               onClick={toggleExpand}
-              className={`
-                ${liftTheVeil 
-                  ? 'bg-pink-900/30 border-pink-400/30 text-pink-100 hover:bg-pink-900/50' 
-                  : 'bg-purple-900/30 border-purple-400/30 text-purple-100 hover:bg-purple-900/50'}
-              `}
+              className={getButtonOutlineColor()}
             >
               Return to Player
             </Button>

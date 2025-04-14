@@ -7,10 +7,13 @@ interface PrimeAudioVisualizerProps {
   audioContext?: AudioContext;
   analyser?: AnalyserNode;
   isPlaying: boolean;
-  colorMode?: 'standard' | 'veil-lifted';
+  colorMode?: 'standard' | 'veil-lifted' | 'chakra'; // Updated to include chakra
+  colorScheme?: string;
   visualMode?: 'prime' | 'regular';
   layout?: 'radial' | 'vertical';
   onPrimeDetected?: (prime: number) => void;
+  sensitivity?: number;
+  chakra?: string;
 }
 
 const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
@@ -18,9 +21,12 @@ const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
   analyser,
   isPlaying,
   colorMode = 'standard',
+  colorScheme = 'purple',
   visualMode = 'prime',
   layout = 'vertical',
-  onPrimeDetected
+  onPrimeDetected,
+  sensitivity = 1,
+  chakra
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
@@ -161,6 +167,63 @@ const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
     }
   };
 
+  // Get color based on colorMode and chakra
+  const getBaseColor = () => {
+    if (colorMode === 'veil-lifted') {
+      return { r: 236, g: 72, b: 153 }; // Pink for lifted veil
+    } else if (colorMode === 'chakra' && chakra) {
+      switch(chakra) {
+        case 'root': return { r: 255, g: 0, b: 0 };
+        case 'sacral': return { r: 255, g: 165, b: 0 };
+        case 'solar': return { r: 255, g: 255, b: 0 };
+        case 'heart': return { r: 0, g: 255, b: 0 };
+        case 'throat': return { r: 0, g: 255, b: 255 };
+        case 'third-eye': return { r: 0, g: 0, b: 255 };
+        case 'crown': return { r: 238, g: 130, b: 238 };
+        default: return { r: 139, g: 92, b: 246 };
+      }
+    } else if (colorScheme) {
+      switch(colorScheme) {
+        case 'blue': return { r: 59, g: 130, b: 246 };
+        case 'gold': return { r: 245, g: 158, b: 11 };
+        case 'rainbow': 
+          // Dynamic color based on time for rainbow
+          const hue = (Date.now() / 50) % 360;
+          const rgb = hslToRgb(hue/360, 0.8, 0.6);
+          return { r: rgb[0], g: rgb[1], b: rgb[2] };
+        default: return { r: 139, g: 92, b: 246 }; // Purple default
+      }
+    } else {
+      return { r: 139, g: 92, b: 246 }; // Standard purple
+    }
+  };
+
+  // Helper function to convert HSL to RGB
+  const hslToRgb = (h: number, s: number, l: number): [number, number, number] => {
+    let r, g, b;
+
+    if (s === 0) {
+      r = g = b = l; // achromatic
+    } else {
+      const hue2rgb = (p: number, q: number, t: number) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1/6) return p + (q - p) * 6 * t;
+        if (t < 1/2) return q;
+        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+      };
+
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1/3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1/3);
+    }
+
+    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+  };
+
   const drawVerticalBars = (
     ctx: CanvasRenderingContext2D, 
     canvas: HTMLCanvasElement, 
@@ -168,9 +231,7 @@ const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
   ) => {
     const barWidth = canvas.width / Math.min(64, frequencyData.length);
     const barGap = 2;
-    const baseColor = colorMode === 'standard' ? 
-      { r: 139, g: 92, b: 246 } : // purple
-      { r: 236, g: 72, b: 153 };  // pink
+    const baseColor = getBaseColor();
 
     // Add subtle background glow
     const glow = ctx.createRadialGradient(
@@ -178,20 +239,15 @@ const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
       canvas.width / 2, canvas.height / 2, canvas.width / 2
     );
     
-    if (colorMode === 'standard') {
-      glow.addColorStop(0, 'rgba(139, 92, 246, 0.05)');
-      glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    } else {
-      glow.addColorStop(0, 'rgba(236, 72, 153, 0.05)');
-      glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    }
+    glow.addColorStop(0, `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, 0.05)`);
+    glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
     
     ctx.fillStyle = glow;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     for (let i = 0; i < Math.min(64, frequencyData.length); i++) {
-      const value = frequencyData[i];
-      const percent = value / 255;
+      const value = frequencyData[i] * (sensitivity || 1);
+      const percent = Math.min(value / 255, 1);
       const barHeight = canvas.height * percent * 0.8;
       
       // Determine if this bar index is a prime number or in the prime array
@@ -220,24 +276,23 @@ const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
             // Rainbow effect
             const hue = (Date.now() * 0.05 + i * 10) % 360;
             color = `hsla(${hue}, 100%, 70%, ${alpha})`;
+          } else if (colorMode === 'chakra' && chakra) {
+            // Chakra-specific color with brightness
+            color = `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, ${alpha})`;
+          } else if (colorScheme === 'rainbow') {
+            // Rainbow color scheme
+            const hue = (Date.now() * 0.05 + i * 10) % 360;
+            color = `hsla(${hue}, 100%, 70%, ${alpha})`;
           } else {
-            // Extra bright purple for active prime
-            color = `rgba(159, 122, 255, ${alpha})`;
+            // Standard color for active prime
+            color = `rgba(${baseColor.r + 20}, ${baseColor.g + 20}, ${baseColor.b + 20}, ${alpha})`;
           }
         } else {
-          if (colorMode === 'standard') {
-            color = `rgba(139, 92, 246, ${alpha})`; // Brighter purple for primes
-          } else {
-            color = `rgba(236, 72, 153, ${alpha})`; // Brighter pink for primes
-          }
+          color = `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, ${alpha})`;
         }
       } else {
         // Regular bars have lower opacity
-        if (colorMode === 'standard') {
-          color = `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, ${alpha * 0.7})`;
-        } else {
-          color = `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, ${alpha * 0.7})`;
-        }
+        color = `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, ${alpha * 0.7})`;
       }
       
       // Draw the bar
@@ -260,28 +315,18 @@ const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
       // Add glow effect for prime bars
       if (isPrimeIndex && percent > 0.1) {
         ctx.shadowBlur = 15 * glowIntensity;
-        ctx.shadowColor = colorMode === 'standard' ? 'rgba(139, 92, 246, 0.8)' : 'rgba(236, 72, 153, 0.8)';
-        ctx.fill();
+        ctx.shadowColor = color;
+        ctx.fillRect(
+          x, 
+          canvas.height - barHeight, 
+          barWidth - barGap, 
+          barHeight
+        );
         ctx.shadowBlur = 0;
-        
-        // Add a glow trail for prime bars
-        const trailHeight = barHeight * 0.4 * pulseFactor;
-        const trailGradient = ctx.createLinearGradient(0, canvas.height - barHeight, 0, canvas.height - barHeight - trailHeight);
-        
-        if (colorMode === 'standard') {
-          trailGradient.addColorStop(0, 'rgba(139, 92, 246, 0.4)');
-          trailGradient.addColorStop(1, 'rgba(139, 92, 246, 0)');
-        } else {
-          trailGradient.addColorStop(0, 'rgba(236, 72, 153, 0.4)');
-          trailGradient.addColorStop(1, 'rgba(236, 72, 153, 0)');
-        }
-        
-        ctx.fillStyle = trailGradient;
-        ctx.fillRect(x, canvas.height - barHeight - trailHeight, barWidth, trailHeight);
       }
     }
   };
-  
+
   const drawRadialBars = (
     ctx: CanvasRenderingContext2D, 
     canvas: HTMLCanvasElement, 
@@ -289,48 +334,67 @@ const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
   ) => {
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
-    const radius = Math.min(centerX, centerY) * 0.7;
-    const barCount = Math.min(64, frequencyData.length);
-    const angleStep = (Math.PI * 2) / barCount;
-    const baseColor = colorMode === 'standard' ? 
-      { r: 139, g: 92, b: 246 } : // purple
-      { r: 236, g: 72, b: 153 };  // pink
+    const baseRadius = Math.min(centerX, centerY) * 0.2;
+    const maxBarHeight = Math.min(centerX, centerY) * 0.6;
+    const totalBars = Math.min(64, frequencyData.length);
+    const angleStep = (Math.PI * 2) / totalBars;
+    const baseColor = getBaseColor();
     
     // Add subtle background glow
     const glow = ctx.createRadialGradient(
       centerX, centerY, 0,
-      centerX, centerY, radius
+      centerX, centerY, Math.max(centerX, centerY)
     );
     
-    if (colorMode === 'standard') {
-      glow.addColorStop(0, 'rgba(139, 92, 246, 0.05)');
-      glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    } else {
-      glow.addColorStop(0, 'rgba(236, 72, 153, 0.05)');
-      glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    }
+    glow.addColorStop(0, `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, 0.05)`);
+    glow.addColorStop(0.5, `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, 0.02)`);
+    glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
     
     ctx.fillStyle = glow;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Draw a subtle center circle
+    // Draw center circle
     ctx.beginPath();
-    ctx.arc(centerX, centerY, 5, 0, Math.PI * 2);
-    ctx.fillStyle = colorMode === 'standard' ? 'rgba(139, 92, 246, 0.8)' : 'rgba(236, 72, 153, 0.8)';
+    ctx.arc(centerX, centerY, baseRadius, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, 0.3)`;
     ctx.fill();
     
-    for (let i = 0; i < barCount; i++) {
-      const value = frequencyData[i];
-      const percent = value / 255;
-      const barHeight = radius * percent * 0.5;
+    // Draw time-based orbital rings
+    const time = Date.now() * 0.001;
+    const ringCount = 3;
+    
+    for (let i = 0; i < ringCount; i++) {
+      const ringRadius = baseRadius + maxBarHeight * (0.4 + i * 0.2);
+      const ringThickness = 2 + Math.sin(time * (1 + i * 0.2)) * 1;
+      const ringOpacity = 0.2 + Math.sin(time * (0.5 + i * 0.3)) * 0.1;
+      
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, ringRadius, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, ${ringOpacity})`;
+      ctx.lineWidth = ringThickness;
+      ctx.stroke();
+    }
+    
+    // Draw the frequency bars in a radial pattern
+    for (let i = 0; i < totalBars; i++) {
+      const value = frequencyData[i] * (sensitivity || 1);
+      const percent = Math.min(value / 255, 1);
+      const barHeight = maxBarHeight * percent;
+      const angle = i * angleStep;
       
       // Determine if this bar index is a prime number
       const isPrimeIndex = visualMode === 'prime' ? 
         (primeArray.includes(i) || isPrime(i)) : 
         false;
       
+      // Calculate start and end points for the bar
+      const startX = centerX + Math.cos(angle) * baseRadius;
+      const startY = centerY + Math.sin(angle) * baseRadius;
+      const endX = centerX + Math.cos(angle) * (baseRadius + barHeight);
+      const endY = centerY + Math.sin(angle) * (baseRadius + barHeight);
+      
       // Create pulse animation based on time
-      const pulseOffset = Date.now() * 0.001 + i * 0.2;
+      const pulseOffset = time + i * 0.2;
       const pulseFactor = 0.5 + 0.5 * Math.sin(pulseOffset);
       
       // Calculate color based on whether this is a prime index
@@ -339,124 +403,82 @@ const PrimeAudioVisualizer: React.FC<PrimeAudioVisualizerProps> = ({
       let glowIntensity = 0;
       
       if (isPrimeIndex) {
-        // Make prime bars brighter and more saturated with pulsing effect
+        // Make prime bars brighter
         glowIntensity = 0.2 + 0.8 * pulseFactor;
         alpha = 0.7 + 0.3 * glowIntensity;
         
         // Special highlight for the active prime
         if (activePrime !== null && (i === activePrime || i % activePrime === 0)) {
-          // Create a rainbow effect for "lift the veil" mode when prime is active
           if (colorMode === 'veil-lifted') {
-            // Rainbow effect
-            const hue = (Date.now() * 0.05 + i * 10) % 360;
+            // Rainbow effect for lifted veil
+            const hue = (time * 100 + i * 10) % 360;
+            color = `hsla(${hue}, 100%, 70%, ${alpha})`;
+          } else if (colorMode === 'chakra' && chakra) {
+            // Chakra color with brightness
+            color = `rgba(${baseColor.r + 30}, ${baseColor.g + 30}, ${baseColor.b + 30}, ${alpha})`;
+          } else if (colorScheme === 'rainbow') {
+            // Rainbow color scheme
+            const hue = (time * 100 + i * 10) % 360;
             color = `hsla(${hue}, 100%, 70%, ${alpha})`;
           } else {
-            // Extra bright purple for active prime
-            color = `rgba(159, 122, 255, ${alpha})`;
+            // Brighter version of base color
+            color = `rgba(${baseColor.r + 30}, ${baseColor.g + 30}, ${baseColor.b + 30}, ${alpha})`;
           }
         } else {
-          if (colorMode === 'standard') {
-            color = `rgba(139, 92, 246, ${alpha})`; // Brighter purple for primes
-          } else {
-            color = `rgba(236, 72, 153, ${alpha})`; // Brighter pink for primes
-          }
+          color = `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, ${alpha})`;
         }
       } else {
-        // Regular bars have lower opacity
-        if (colorMode === 'standard') {
-          color = `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, ${alpha * 0.7})`;
-        } else {
-          color = `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, ${alpha * 0.7})`;
-        }
+        // Regular bars
+        color = `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, ${alpha * 0.7})`;
       }
       
-      const angle = i * angleStep;
-      const innerRadius = radius * 0.3;
-      const outerRadius = innerRadius + barHeight;
-      
-      const x1 = centerX + Math.cos(angle) * innerRadius;
-      const y1 = centerY + Math.sin(angle) * innerRadius;
-      const x2 = centerX + Math.cos(angle) * outerRadius;
-      const y2 = centerY + Math.sin(angle) * outerRadius;
-      
-      // Draw the line with varying thickness based on frequency
-      const lineWidth = 2 + percent * 4;
-      
+      // Draw the bar
       ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
-      ctx.lineWidth = lineWidth;
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(endX, endY);
+      ctx.lineWidth = 4 + Math.sin(pulseOffset) * 2;
       ctx.strokeStyle = color;
-      ctx.stroke();
+      ctx.lineCap = 'round';
       
-      // Add glow effect for prime bars
-      if (isPrimeIndex && percent > 0.1) {
-        ctx.shadowBlur = 15 * glowIntensity;
-        ctx.shadowColor = colorMode === 'standard' ? 'rgba(139, 92, 246, 0.8)' : 'rgba(236, 72, 153, 0.8)';
-        ctx.stroke();
-        ctx.shadowBlur = 0;
-        
-        // Add a small dot at the end of prime bars
+      // Add glow for prime bars
+      if (isPrimeIndex) {
+        ctx.shadowBlur = 10 * glowIntensity;
+        ctx.shadowColor = color;
+      }
+      
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      
+      // Add dot at the end of bar for primes
+      if (isPrimeIndex && percent > 0.3) {
         ctx.beginPath();
-        ctx.arc(x2, y2, lineWidth * 0.8, 0, Math.PI * 2);
-        ctx.fillStyle = colorMode === 'standard' ? 'rgba(139, 92, 246, 0.9)' : 'rgba(236, 72, 153, 0.9)';
+        ctx.arc(endX, endY, 3 + pulseFactor * 2, 0, Math.PI * 2);
+        ctx.fillStyle = color;
         ctx.fill();
-        
-        // Connect prime nodes with subtle arcs
-        if (isPrimeIndex && i > 0) {
-          // Find previous prime index
-          for (let j = i - 1; j >= 0; j--) {
-            if (primeArray.includes(j) || isPrime(j)) {
-              const prevAngle = j * angleStep;
-              const prevX = centerX + Math.cos(prevAngle) * outerRadius;
-              const prevY = centerY + Math.sin(prevAngle) * outerRadius;
-              
-              // Draw subtle connection line
-              ctx.beginPath();
-              ctx.moveTo(x2, y2);
-              
-              // Draw arc between prime points
-              const arcRadius = Math.sqrt(Math.pow(x2 - prevX, 2) + Math.pow(y2 - prevY, 2)) / 2;
-              ctx.strokeStyle = colorMode === 'standard' ? 
-                `rgba(139, 92, 246, ${0.1 * pulseFactor})` : 
-                `rgba(236, 72, 153, ${0.1 * pulseFactor})`;
-              ctx.lineWidth = 1;
-              ctx.lineTo(prevX, prevY);
-              ctx.stroke();
-              break;
-            }
-          }
-        }
       }
     }
     
-    // Draw prime frequency label when active
+    // Highlight active prime number
     if (activePrime !== null) {
-      const fontSize = Math.min(canvas.width, canvas.height) * 0.08;
-      ctx.font = `${fontSize}px 'Inter', sans-serif`;
+      ctx.font = `bold ${Math.min(canvas.width, canvas.height) / 15}px Arial`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = colorMode === 'standard' ? 
-        'rgba(139, 92, 246, 0.8)' : 
-        'rgba(236, 72, 153, 0.8)';
-      ctx.fillText(`Prime ${activePrime}`, centerX, centerY + radius * 0.8);
+      ctx.fillStyle = `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, ${0.7 + Math.sin(time * 3) * 0.3})`;
+      ctx.fillText(`${activePrime}`, centerX, centerY);
       
-      // Add glow to text
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = colorMode === 'standard' ? 
-        'rgba(139, 92, 246, 0.8)' : 
-        'rgba(236, 72, 153, 0.8)';
-      ctx.fillText(`Prime ${activePrime}`, centerX, centerY + radius * 0.8);
-      ctx.shadowBlur = 0;
+      // Animate rings around active prime
+      const ringSize = baseRadius * (0.5 + Math.sin(time * 2) * 0.2);
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, ringSize, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, ${0.5 + Math.sin(time * 3) * 0.3})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
     }
   };
 
   return (
     <div className="w-full h-full">
-      <canvas 
-        ref={canvasRef} 
-        className="w-full h-full"
-      />
+      <canvas ref={canvasRef} className="w-full h-full" />
     </div>
   );
 };
