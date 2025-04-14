@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -58,7 +57,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const [showVisualizer, setShowVisualizer] = useState(true);
   const [primes, setPrimes] = useState<number[]>([]);
   const [detectedFrequency, setDetectedFrequency] = useState<number | null>(null);
-  const [visualizerMode, setVisualizerMode] = useState<VisualizerMode>(
+  const [visualizerMode, setVisualizerMode] = useState<'purple' | 'blue' | 'rainbow' | 'gold'>(
     liftTheVeil ? 'rainbow' : chakraToVisualMode(chakra) || 'purple'
   );
   const [activeTooltipPrime, setActiveTooltipPrime] = useState<number | null>(null);
@@ -80,28 +79,24 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   
   const { audioContext, analyser } = useAudioAnalyzer(audioRef.current);
   
-  // Effect to set the audio source when the component mounts
   useEffect(() => {
     if (audioUrl) {
       setAudioSource(audioUrl);
     }
   }, [audioUrl, setAudioSource]);
   
-  // Effect to update the audio volume when it changes
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = isMuted ? 0 : volume;
     }
   }, [volume, isMuted, audioRef]);
   
-  // Effect to notify the parent when the play state changes
   useEffect(() => {
     if (onPlayStateChange) {
       onPlayStateChange(isAudioPlaying);
     }
   }, [isAudioPlaying, onPlayStateChange]);
 
-  // Effect to update visualizer mode based on theme
   useEffect(() => {
     if (liftTheVeil) {
       setVisualizerMode('rainbow');
@@ -110,7 +105,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     }
   }, [liftTheVeil, chakra]);
   
-  // Effect to manage the active tooltip for prime numbers
   useEffect(() => {
     if (primes.length > 0) {
       const latestPrime = primes[primes.length - 1];
@@ -202,6 +196,8 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     return currentMode?.label || 'Visualizer';
   };
 
+  const themeClass = liftTheVeil ? 'theme-lifted' : 'theme-standard';
+  
   return (
     <div ref={playerRef} className={`fixed bottom-4 right-4 z-50 ${isFullscreen ? 'fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm' : ''}`}>
       <motion.div 
@@ -215,20 +211,19 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
               ? 'w-full md:w-[600px] rounded-lg' 
               : 'w-full max-w-[320px] rounded-lg'
           } 
-          overflow-hidden shadow-lg relative
+          overflow-hidden shadow-lg relative sacred-audio-player
         `}
       >
-        {/* Visualizer - CONTAINED WITHIN THE PLAYER */}
         <div 
           ref={visualizerRef}
           className={`absolute inset-0 z-0 transition-opacity duration-300 overflow-hidden ${
             showVisualizer && isAudioPlaying 
               ? 'opacity-100' 
               : 'opacity-0'
-          }`}
+          } player-visualizer`}
         >
           <AnimatePresence>
-            {showVisualizer && isAudioPlaying && audioContext && analyser && (
+            {showVisualizer && isAudioPlaying && (
               <motion.div 
                 key="visualizer"
                 initial={{ opacity: 0 }}
@@ -242,53 +237,41 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           </AnimatePresence>
         </div>
         
-        {/* Prime number tooltip */}
         <AnimatePresence>
           {activeTooltipPrime && isAudioPlaying && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className={`absolute top-14 left-1/2 transform -translate-x-1/2 z-50
-                px-4 py-2 rounded-full 
-                ${liftTheVeil 
-                  ? 'bg-pink-600/80 text-pink-50' 
-                  : 'bg-purple-600/80 text-purple-50'} 
-                backdrop-blur-sm shadow-lg`}
+              className="absolute top-14 left-1/2 transform -translate-x-1/2 z-50
+                px-4 py-2 rounded-full backdrop-blur-sm shadow-lg player-text"
             >
               <div className="flex items-center gap-2">
-                <div className={`h-2 w-2 rounded-full animate-pulse ${liftTheVeil ? 'bg-pink-300' : 'bg-purple-300'}`}></div>
+                <div className="h-2 w-2 rounded-full animate-pulse player-highlight"></div>
                 <span className="text-xs font-medium">Prime Harmonic Activated: {activeTooltipPrime}</span>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
         
-        {/* Player UI */}
-        <div className={`
-          relative z-10 flex flex-col 
-          bg-gradient-to-r from-purple-900/90 to-indigo-800/90
-          ${(!showVisualizer || !isAudioPlaying) ? 'bg-opacity-100' : 'bg-opacity-70 backdrop-blur-sm'}
-          ${isFullscreen ? 'h-full' : ''}
-          border border-purple-700
-        `}>
-          <div className="px-4 py-3 flex items-center justify-between bg-gradient-to-r from-purple-900/90 to-indigo-900/90">
+        <div className="relative z-10 flex flex-col border h-full">
+          <div className="px-4 py-3 flex items-center justify-between">
             <div className="flex items-center">
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-purple-200 mr-2"
+                className="h-8 w-8 player-text mr-2"
                 onClick={handleExpand}
                 title={expanded ? "Minimize" : "Expand"}
               >
                 {expanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
               </Button>
               <div className="truncate max-w-[200px]">
-                <p className="font-medium text-sm text-purple-100 truncate">
+                <p className="font-medium text-sm player-text truncate">
                   {title}
                 </p>
                 {artist && (
-                  <p className="text-xs text-gray-300 truncate">{artist}</p>
+                  <p className="text-xs player-text opacity-80 truncate">{artist}</p>
                 )}
               </div>
             </div>
@@ -299,7 +282,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7 text-white/70 hover:text-white"
+                      className="h-7 w-7 player-text hover:player-text"
                       onClick={handleToggleVisualizer}
                       title={showVisualizer ? "Hide visualizer" : "Show visualizer"}
                     >
@@ -313,7 +296,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 text-white/70 hover:text-white"
+                          className="h-7 w-7 player-text hover:player-text"
                           onClick={handleChangeVisualizer}
                           title="Change visualizer style"
                         >
@@ -331,7 +314,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 text-white/70 hover:text-white"
+                className="h-7 w-7 player-text hover:player-text"
                 onClick={handleFullscreen}
                 title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
               >
@@ -343,24 +326,24 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           <div className="p-4 space-y-4 flex-1 flex flex-col">
             <div className="flex flex-wrap gap-2">
               {frequency && (
-                <Badge variant="outline" className="border-purple-400/30 text-purple-200">
+                <Badge variant="outline" className="player-text border-opacity-30">
                   {frequency} Hz
                 </Badge>
               )}
               {chakra && (
-                <Badge variant="outline" className="border-purple-400/30 text-purple-200">
+                <Badge variant="outline" className="player-text border-opacity-30">
                   {chakra} Chakra
                 </Badge>
               )}
               {detectedFrequency && (
-                <Badge variant="outline" className="border-purple-400/30 text-white/80">
+                <Badge variant="outline" className="player-text border-opacity-30">
                   Current: ~{detectedFrequency} Hz
                 </Badge>
               )}
               {primes.length > 0 && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Badge className="bg-purple-700/60 hover:bg-purple-700/80 cursor-help text-purple-100">
+                    <Badge className="player-button cursor-help player-text">
                       {primes.length} Primes Found
                     </Badge>
                   </TooltipTrigger>
@@ -379,12 +362,12 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
                 <motion.div
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  className="relative rounded-full bg-purple-600/20 p-8"
+                  className="relative rounded-full bg-opacity-20 p-8"
                 >
                   <Button
                     variant="default"
                     size="icon"
-                    className="h-16 w-16 rounded-full bg-purple-600 hover:bg-purple-700"
+                    className="h-16 w-16 rounded-full player-button hover:player-button-hover"
                     onClick={handlePlayPause}
                     disabled={!audioLoaded}
                   >
@@ -394,14 +377,14 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
                       <Play className="h-8 w-8 ml-1" />
                     )}
                   </Button>
-                  <div className="absolute inset-0 rounded-full bg-purple-600/10 animate-ping" />
+                  <div className="absolute inset-0 rounded-full player-button opacity-10 animate-ping" />
                 </motion.div>
               )}
               
               {isAudioPlaying && showVisualizer && (
                 <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 z-30 pointer-events-none">
                   <Badge 
-                    className="px-3 py-1.5 flex items-center gap-2 bg-purple-700/50 text-purple-50 backdrop-blur-sm"
+                    className="px-3 py-1.5 flex items-center gap-2 player-button opacity-70 backdrop-blur-sm player-text"
                   >
                     <Activity className="h-3 w-3 animate-pulse" />
                     <span>{visualizerMode === 'rainbow' ? 'Full Spectrum' : 'Chakra Flow'}</span>
@@ -411,7 +394,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
             </div>
             
             <div className="space-y-2">
-              <div className="flex justify-between text-xs text-gray-300">
+              <div className="flex justify-between text-xs player-text opacity-80">
                 <span>{formatTime(currentAudioTime)}</span>
                 <span>{formatTime(duration)}</span>
               </div>
@@ -428,7 +411,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
               <Button
                 variant="default"
                 size="icon"
-                className="h-10 w-10 rounded-full bg-purple-600 hover:bg-purple-700"
+                className="h-10 w-10 rounded-full player-button hover:player-button-hover"
                 onClick={handlePlayPause}
                 disabled={!audioLoaded}
               >
@@ -443,7 +426,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-gray-300 hover:text-white"
+                  className="h-8 w-8 player-text opacity-80 hover:opacity-100"
                   onClick={handleToggleMute}
                 >
                   {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}

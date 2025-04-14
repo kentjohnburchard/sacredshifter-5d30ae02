@@ -1,6 +1,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { useTheme } from '@/context/ThemeContext';
 
 interface SacredGeometryCanvasProps {
   colorScheme: 'purple' | 'blue' | 'rainbow' | 'gold';
@@ -9,6 +10,7 @@ interface SacredGeometryCanvasProps {
 const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({ 
   colorScheme = 'purple'
 }) => {
+  const { liftTheVeil } = useTheme();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -16,20 +18,21 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
   const animationFrameRef = useRef<number | null>(null);
   const rafIdRef = useRef<number | null>(null);
   
-  // Find the global audio element
+  // Use document.getElementById directly, and handle the audioElement not being found more gracefully
   useEffect(() => {
     const setupAudioContext = () => {
       try {
+        // Get the global audio element
         const audioElement = document.getElementById('global-audio-player') as HTMLAudioElement;
         
         if (!audioElement) {
-          console.error('SacredGeometryCanvas: Global audio player not found');
+          console.error('SacredGeometryCanvas: Global audio player not found, will retry');
           return false;
         }
         
         // Create audio context if it doesn't exist
         if (!audioCtxRef.current) {
-          audioCtxRef.current = new AudioContext();
+          audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
         }
         
         // Create analyzer if it doesn't exist
@@ -41,12 +44,23 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
           // Create data array for frequency data
           const bufferLength = analyser.frequencyBinCount;
           dataArrayRef.current = new Uint8Array(bufferLength);
+          
+          // Connect audio element to analyzer only if not already connected
+          try {
+            const source = audioCtxRef.current.createMediaElementSource(audioElement);
+            source.connect(analyserRef.current);
+            analyserRef.current.connect(audioCtxRef.current.destination);
+            console.log('SacredGeometryCanvas: Audio context setup complete');
+          } catch (error) {
+            // If we get an error about already being connected, we can ignore it
+            if (error instanceof DOMException && error.name === 'InvalidStateError') {
+              console.log('SacredGeometryCanvas: Audio node already connected, reusing connection');
+              return true;
+            }
+            console.error('SacredGeometryCanvas: Error connecting audio elements:', error);
+            return false;
+          }
         }
-        
-        // Connect audio element to analyzer
-        const source = audioCtxRef.current.createMediaElementSource(audioElement);
-        source.connect(analyserRef.current);
-        analyserRef.current.connect(audioCtxRef.current.destination);
         
         return true;
       } catch (error) {
@@ -56,20 +70,27 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
     };
     
     // Try to set up audio context after a delay to ensure audio element is loaded
-    setTimeout(() => {
+    const initialSetupTimeout = setTimeout(() => {
       const success = setupAudioContext();
       if (success) {
         startVisualization();
       } else {
         // Retry after a longer delay if initial setup fails
-        setTimeout(() => {
-          setupAudioContext();
-          startVisualization();
+        const retryTimeout = setTimeout(() => {
+          const retrySuccess = setupAudioContext();
+          if (retrySuccess) {
+            startVisualization();
+          } else {
+            console.warn('SacredGeometryCanvas: Failed to setup audio after retry');
+          }
         }, 2000);
+        
+        return () => clearTimeout(retryTimeout);
       }
     }, 500);
     
     return () => {
+      clearTimeout(initialSetupTimeout);
       if (rafIdRef.current) {
         cancelAnimationFrame(rafIdRef.current);
       }
