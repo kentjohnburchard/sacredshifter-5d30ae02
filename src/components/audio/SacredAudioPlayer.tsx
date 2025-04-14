@@ -21,7 +21,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useTheme } from '@/context/ThemeContext';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
-import SacredGeometryCanvas from '@/components/visualizer/SacredGeometryCanvas';
+import FractalAudioVisualizer from '../visualizer/FractalAudioVisualizer';
+import FrequencyEqualizer from '../visualizer/FrequencyEqualizer';
 
 interface SacredAudioPlayerProps {
   audioUrl?: string;
@@ -34,10 +35,12 @@ interface SacredAudioPlayerProps {
 }
 
 const VISUALIZER_MODES = [
-  { value: 'purple', label: 'Fractal Flow' },
-  { value: 'blue', label: 'Cosmic Ocean' },
-  { value: 'rainbow', label: 'Full Spectrum' },
-  { value: 'gold', label: 'Sacred Geometry' }
+  { value: 'fractal-flow', label: 'Fractal Flow' },
+  { value: 'cosmic-ocean', label: 'Cosmic Ocean' },
+  { value: 'flower-of-life', label: 'Flower of Life' },
+  { value: 'merkaba', label: 'Merkaba' },
+  { value: 'vesica-piscis', label: 'Vesica Piscis' },
+  { value: 'sri-yantra', label: 'Sri Yantra' },
 ] as const;
 
 type VisualizerMode = typeof VISUALIZER_MODES[number]['value'];
@@ -60,13 +63,16 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const [primes, setPrimes] = useState<number[]>([]);
   const [detectedFrequency, setDetectedFrequency] = useState<number | null>(null);
   const [visualizerMode, setVisualizerMode] = useState<VisualizerMode>(
-    liftTheVeil ? 'rainbow' : chakraToVisualMode(chakra) || 'purple'
+    getDefaultVisualizerMode(chakra, liftTheVeil)
   );
   const [activeTooltipPrime, setActiveTooltipPrime] = useState<number | null>(null);
+  const [showEqualizer, setShowEqualizer] = useState(true);
+  const [frequencyData, setFrequencyData] = useState<Uint8Array | null>(null);
   
   const playerRef = useRef<HTMLDivElement>(null);
   const visualizerRef = useRef<HTMLDivElement>(null);
   const tooltipTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const audioDataRef = useRef<Uint8Array | null>(null);
   
   const {
     isAudioPlaying,
@@ -100,12 +106,37 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   }, [isAudioPlaying, onPlayStateChange]);
 
   useEffect(() => {
-    if (liftTheVeil) {
-      setVisualizerMode('rainbow');
-    } else {
-      setVisualizerMode(chakraToVisualMode(chakra) || 'purple');
-    }
+    setVisualizerMode(getDefaultVisualizerMode(chakra, liftTheVeil));
   }, [liftTheVeil, chakra]);
+  
+  // Effect for audio data processing
+  useEffect(() => {
+    if (!analyser || !isAudioPlaying || !showVisualizer) {
+      return;
+    }
+    
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    
+    let animationFrameId: number;
+    
+    const updateData = () => {
+      analyser.getByteFrequencyData(dataArray);
+      
+      // Create a copy of the data for components that need it
+      const dataCopy = new Uint8Array(dataArray);
+      audioDataRef.current = dataCopy;
+      setFrequencyData(dataCopy);
+      
+      animationFrameId = requestAnimationFrame(updateData);
+    };
+    
+    updateData();
+    
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [analyser, isAudioPlaying, showVisualizer]);
   
   useEffect(() => {
     if (primes.length > 0) {
@@ -150,6 +181,10 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const handleToggleVisualizer = () => {
     setShowVisualizer(!showVisualizer);
   };
+
+  const handleToggleEqualizer = () => {
+    setShowEqualizer(!showEqualizer);
+  };
   
   const handleToggleMute = () => {
     setIsMuted(!isMuted);
@@ -182,18 +217,20 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     setDetectedFrequency(freq);
   };
   
-  function chakraToVisualMode(chakraName?: string): VisualizerMode | undefined {
-    if (!chakraName) return undefined;
+  function getDefaultVisualizerMode(chakraName?: string, veilLifted = false): VisualizerMode {
+    if (veilLifted) return 'fractal-flow';
+    
+    if (!chakraName) return 'cosmic-ocean';
     
     switch (chakraName.toLowerCase()) {
-      case 'root': return 'purple';
-      case 'sacral': 
-      case 'solar plexus': return 'gold';
-      case 'heart': return 'purple';
-      case 'throat':
-      case 'third eye': return 'blue';
-      case 'crown': return 'rainbow';
-      default: return undefined;
+      case 'root': return 'vesica-piscis';
+      case 'sacral': return 'flower-of-life';
+      case 'solar plexus': return 'sri-yantra';
+      case 'heart': return 'flower-of-life';
+      case 'throat': return 'cosmic-ocean';
+      case 'third eye': return 'merkaba';
+      case 'crown': return 'fractal-flow';
+      default: return 'cosmic-ocean';
     }
   }
   
@@ -206,12 +243,12 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const getBgStyle = () => {
     if (liftTheVeil) {
       return isFullscreen 
-        ? 'bg-black' 
-        : 'bg-gradient-to-r from-pink-900 to-purple-900 shadow-lg shadow-pink-900/50';
+        ? 'bg-black bg-opacity-95' 
+        : 'bg-gradient-to-r from-pink-900/95 to-purple-900/95 shadow-lg shadow-pink-900/50';
     } else {
       return isFullscreen 
-        ? 'bg-black'
-        : 'bg-gradient-to-r from-purple-900 to-indigo-900 shadow-lg shadow-purple-900/50';
+        ? 'bg-black bg-opacity-95'
+        : 'bg-gradient-to-r from-purple-900/95 to-indigo-900/95 shadow-lg shadow-purple-900/50';
     }
   };
 
@@ -228,6 +265,21 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     // Hide player - optional if you have a parent component that controls visibility
     if (playerRef.current) {
       playerRef.current.style.display = 'none';
+    }
+  };
+  
+  const getChakraColor = () => {
+    if (!chakra) return 'purple';
+    
+    switch (chakra.toLowerCase()) {
+      case 'root': return 'red';
+      case 'sacral': return 'orange';
+      case 'solar plexus': return 'yellow';
+      case 'heart': return 'green';
+      case 'throat': return 'blue';
+      case 'third eye': return 'indigo';
+      case 'crown': return 'violet';
+      default: return 'purple';
     }
   };
   
@@ -254,6 +306,11 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
               ? 'opacity-100' 
               : 'opacity-0'
           }`}
+          style={{
+            background: isFullscreen 
+              ? 'radial-gradient(circle at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.8) 100%)' 
+              : 'radial-gradient(circle at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%)'
+          }}
         >
           <AnimatePresence>
             {showVisualizer && isAudioPlaying && (
@@ -264,24 +321,16 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
                 exit={{ opacity: 0 }}
                 className="w-full h-full"
               >
-                <SacredGeometryCanvas 
+                <FractalAudioVisualizer 
                   audioAnalyser={analyser} 
-                  colorScheme={visualizerMode}
                   chakra={chakra}
                   frequency={frequency}
+                  visualizerMode={visualizerMode}
                   onPrimeDetected={handlePrimeSequence}
-                  onFrequencyDataAvailable={(data) => {
-                    // Calculate approximate dominant frequency if needed
-                    if (data.length > 0) {
-                      const max = Math.max(...data);
-                      const idx = data.indexOf(max);
-                      // Rough approximation: idx * (22050 / data.length)
-                      const approximateFreq = Math.round(idx * (22050 / data.length));
-                      if (approximateFreq > 20) { // Only update for audible frequencies
-                        handleFrequencyDetected(approximateFreq);
-                      }
-                    }
-                  }}
+                  onFrequencyDataAvailable={handleFrequencyDetected}
+                  isPlaying={isAudioPlaying}
+                  audioData={audioDataRef.current}
+                  liftedVeil={liftTheVeil}
                 />
               </motion.div>
             )}
@@ -299,7 +348,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
             >
               <div className="flex items-center gap-2">
                 <div className="h-2 w-2 rounded-full animate-pulse bg-purple-400"></div>
-                <span className="text-xs font-medium">Prime Harmonic Activated: {activeTooltipPrime}</span>
+                <span className="text-xs font-medium">✨ Prime Harmonic Activated: {activeTooltipPrime}</span>
               </div>
             </motion.div>
           )}
@@ -372,7 +421,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
                 {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
               </Button>
               
-              {/* Close button */}
               <Button
                 variant="ghost"
                 size="icon"
@@ -454,6 +502,17 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
                 </div>
               )}
             </div>
+            
+            {/* Equalizer section */}
+            {isAudioPlaying && showVisualizer && frequencyData && (
+              <div className={`h-16 w-full ${showEqualizer ? 'block' : 'hidden'}`}>
+                <FrequencyEqualizer 
+                  frequencyData={frequencyData} 
+                  chakraColor={getChakraColor()}
+                  isLiftedVeil={liftTheVeil}
+                />
+              </div>
+            )}
             
             <div className="space-y-2">
               <div className="flex justify-between text-xs text-white">
