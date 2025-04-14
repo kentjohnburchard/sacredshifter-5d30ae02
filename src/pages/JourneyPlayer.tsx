@@ -23,23 +23,18 @@ const JourneyPlayer = () => {
   const navigate = useNavigate();
   const { playAudio, isPlaying, currentAudio, setOnEndedCallback, togglePlayPause } = useGlobalAudioPlayer();
   
-  // Create all useState hooks first, before any conditional logic
   const [journey, setJourney] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [infoExpanded, setInfoExpanded] = useState(false);
   
-  // Create refs
   const lastPlayedIndex = useRef<number | null>(null);
   const songsRef = useRef<any[]>([]);
   const audioPlayAttemptedRef = useRef(false);
   
-  // Get templates
   const { templates, loading: loadingTemplates } = useJourneyTemplates();
   
-  // Get songs for this journey using the useJourneySongs hook
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
 
-  // Store songs in ref to access in callbacks
   useEffect(() => {
     if (songs && songs.length > 0) {
       songsRef.current = songs;
@@ -47,7 +42,6 @@ const JourneyPlayer = () => {
     }
   }, [songs]);
 
-  // Function to select a random song that's not the last played one
   const selectRandomSong = () => {
     if (!songsRef.current || songsRef.current.length === 0) {
       console.log("JourneyPlayer: No songs available");
@@ -73,7 +67,6 @@ const JourneyPlayer = () => {
     return songsRef.current[selectedIndex];
   };
 
-  // Set up track completion callback
   useEffect(() => {
     if (!setOnEndedCallback) return;
     
@@ -110,7 +103,6 @@ const JourneyPlayer = () => {
     };
   }, [journey, playAudio, setOnEndedCallback]);
 
-  // Initialize journey and start audio playback
   useEffect(() => {
     if (!journeyId) {
       navigate('/journey-templates');
@@ -139,18 +131,14 @@ const JourneyPlayer = () => {
     }
   }, [journeyId, navigate, templates, loadingSongs, loadingTemplates]);
 
-  // Handle audio playback initialization separately from journey loading
   useEffect(() => {
-    // Only attempt initialization once and only if we have the necessary data
     if (audioPlayAttemptedRef.current || isLoading || loadingSongs || !journey || !songs || songs.length === 0) {
       return;
     }
     
-    // Mark that we've attempted audio initialization to prevent multiple tries
     audioPlayAttemptedRef.current = true;
     console.log("JourneyPlayer: Attempting to initialize audio playback");
     
-    // Start playback with a slight delay to ensure DOM is ready
     setTimeout(() => {
       const selectedSong = selectRandomSong();
       
@@ -178,11 +166,9 @@ const JourneyPlayer = () => {
       } else {
         console.log("JourneyPlayer: No song selected for initialization");
       }
-    }, 500); // Increased delay for better stability
-    
+    }, 500);
   }, [journey, songs, loadingSongs, isLoading, playAudio, journeyId]);
 
-  // Loading state - keep simple and focused on loading text
   if (isLoading || loadingSongs || loadingTemplates) {
     return (
       <Layout pageTitle="Loading Journey">
@@ -196,7 +182,6 @@ const JourneyPlayer = () => {
     );
   }
 
-  // Handle the case where the journey is not found, but make sure templates have loaded first
   if (!journey && !loadingTemplates) {
     return (
       <Layout pageTitle="Journey Not Found">
