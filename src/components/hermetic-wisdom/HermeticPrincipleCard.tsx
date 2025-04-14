@@ -3,17 +3,29 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface HermeticPrincipleProps {
+  id?: string;  // Make id optional
   title: string;
   description: string;
   iconSrc?: string;
   color?: string;
+  // Add any other props needed by components that use this
+  quote?: string;
+  affirmation?: string;
+  frequency?: number;
+  frequencyName?: string;
+  animation?: string;
+  tag?: string;
+  icon?: React.ElementType;
+  onClick?: () => void;
 }
 
 const HermeticPrincipleCard: React.FC<HermeticPrincipleProps> = ({
   title,
   description,
   iconSrc,
-  color = 'purple'
+  color = 'purple',
+  icon: Icon,
+  // We don't need to destructure other props as they're not used in this component
 }) => {
   // Define allowed colors and their corresponding CSS classes
   const colorClasses: Record<string, string> = {
@@ -40,6 +52,7 @@ const HermeticPrincipleCard: React.FC<HermeticPrincipleProps> = ({
               className="w-8 h-8"
             />
           )}
+          {Icon && <Icon className="w-6 h-6" />}
           <h3 className="text-lg font-semibold">{title}</h3>
         </div>
         <p className="text-sm opacity-90">{description}</p>

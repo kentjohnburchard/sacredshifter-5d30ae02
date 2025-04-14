@@ -360,10 +360,31 @@ const SacredThreeVisualizer: React.FC<SacredThreeVisualizerProps> = ({
   const cameraPosition: [number, number, number] = fullscreen ? [0, 0, 5] : [0, 0, 4];
   const cameraFov = fullscreen ? 75 : 60;
   
+  // Add a check to make sure THREE is available
+  const [threeLoaded, setThreeLoaded] = useState(false);
+  
+  // Check if THREE is properly loaded
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.THREE) {
+      console.log("THREE is available in SacredThreeVisualizer:", window.THREE.REVISION);
+      setThreeLoaded(true);
+    } else {
+      console.warn("THREE is not available in SacredThreeVisualizer component");
+    }
+  }, []);
+  
   if (!shouldRender || !audioData) {
     return (
       <div className="w-full h-full bg-black/50 rounded-lg flex items-center justify-center">
         <p className="text-white/50 text-xs">Visualizer paused</p>
+      </div>
+    );
+  }
+  
+  if (!threeLoaded) {
+    return (
+      <div className="w-full h-full bg-black/50 rounded-lg flex items-center justify-center">
+        <p className="text-white/50 text-xs">Loading 3D engine...</p>
       </div>
     );
   }
@@ -391,5 +412,10 @@ const SacredThreeVisualizer: React.FC<SacredThreeVisualizerProps> = ({
     </Canvas>
   );
 };
+
+// Add a named window global variable to help with troubleshooting
+if (typeof window !== 'undefined') {
+  window.SacredThreeVisualizerLoaded = true;
+}
 
 export default SacredThreeVisualizer;
