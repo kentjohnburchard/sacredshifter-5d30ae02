@@ -147,7 +147,7 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       }
     };
     
-    let angle = 0;
+    let rotationAngle = 0; // Define a separate angle variable for rotation
     let particles: { x: number, y: number, size: number, color: string, speed: number }[] = [];
     
     const drawVisualization = () => {
@@ -248,8 +248,8 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       ctx.translate(centerX, centerY);
       
       // Animate overall rotation for more movement
-      angle += 0.005 + (averageFrequency / 10000);
-      ctx.rotate(angle);
+      rotationAngle += 0.005 + (averageFrequency / 10000);
+      ctx.rotate(rotationAngle);
       
       // Draw geometric patterns - ENHANCED
       const sides = 6 + Math.floor(bassLevel / 40); // More sides with more bass
@@ -276,7 +276,7 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       const innerRadius = radius * 0.6;
       ctx.beginPath();
       for (let i = 0; i < sides; i++) {
-        const angle = ((i / sides) * Math.PI * 2) + (Math.PI / sides) + (angle * 0.5); // Added rotation
+        const angle = ((i / sides) * Math.PI * 2) + (Math.PI / sides) + (rotationAngle * 0.5); // Added rotation
         const x = Math.cos(angle) * innerRadius;
         const y = Math.sin(angle) * innerRadius;
         
