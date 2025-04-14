@@ -109,3 +109,12 @@ export const isPerfectNumber = (num: number): boolean => {
   
   return sum === num;
 };
+
+/**
+ * Generates a sequence of prime numbers for visualization or other uses
+ * @param length The length of the sequence to generate
+ * @returns Array of prime numbers
+ */
+export const generatePrimeSequence = (length: number): number[] => {
+  return getFirstNPrimes(length);
+};
