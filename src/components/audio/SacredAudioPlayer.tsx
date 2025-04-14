@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { motion } from 'framer-motion';
@@ -7,21 +6,12 @@ import { useTheme } from '@/context/ThemeContext';
 import { Slider } from '@/components/ui/slider';
 import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
 import { isPrime } from '@/lib/mathUtils';
-import PrimeAudioVisualizer from './PrimeAudioVisualizer';
 import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import SimpleFallbackVisualizer from '../visualizer/SimpleFallbackVisualizer';
-import SacredGeometryVisualizer from '../sacred-geometry/EnhancedGeometryVisualizer';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from '@/components/ui/dropdown-menu';
-import FrequencyEqualizer from '../visualizer/FrequencyEqualizer';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
-
-type GeometryShape = 'flower-of-life' | 'seed-of-life' | 'metatrons-cube' | 
-                     'merkaba' | 'torus' | 'tree-of-life' | 'sri-yantra' | 
-                     'vesica-piscis' | 'sphere';
-
-type VisualizerMode = 'canvas' | 'sacred-geometry' | 'prime';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 
 type ColorScheme = 'purple' | 'blue' | 'rainbow' | 'gold' | 'chakra';
 
@@ -36,9 +26,8 @@ const SacredAudioPlayer: React.FC = () => {
     seekTo
   } = useAudioPlayer();
   
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const animationFrameRef = useRef<number>(0);
   const { liftTheVeil } = useTheme();
+  const location = useLocation();
   
   const [expanded, setExpanded] = useState(true);
   const [fullscreen, setFullscreen] = useState(false);
@@ -46,108 +35,12 @@ const SacredAudioPlayer: React.FC = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [showVolume, setShowVolume] = useState(false);
   const [controlsExpanded, setControlsExpanded] = useState(false);
-  
-  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
-  const circlesRef = useRef<Array<{x: number, y: number, radius: number, opacity: number, color: string}>>([]);
-  const primeNumbers = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
-  
-  const [currentGeometry, setCurrentGeometry] = useState<GeometryShape>('flower-of-life');
-  const [visualizerMode, setVisualizerMode] = useState<VisualizerMode>('canvas');
   const [colorScheme, setColorScheme] = useState<ColorScheme>('purple');
   const [visualizerSensitivity, setVisualizerSensitivity] = useState<number>(1.5);
   
   const containerRef = useRef<HTMLDivElement>(null);
-  
-  const [detectedPrimes, setDetectedPrimes] = useState<number[]>([]);
-  const [activePrime, setActivePrime] = useState<number | null>(null);
-  
-  const location = useLocation();
-
-  const changeVisualizerMode = (mode: VisualizerMode) => {
-    setVisualizerMode(mode);
-  };
-
-  const changeGeometricPattern = (pattern: GeometryShape) => {
-    setCurrentGeometry(pattern);
-  };
-
-  const changeColorScheme = (scheme: ColorScheme) => {
-    setColorScheme(scheme);
-  };
-  
-  const chakraColors = {
-    root: '#FF0000',
-    sacral: '#FFA500',
-    solar: '#FFFF00',
-    heart: '#00FF00',
-    throat: '#00FFFF',
-    thirdEye: '#0000FF',
-    crown: '#EE82EE'
-  };
-
   const { audioContext, analyser } = useAudioAnalyzer(audioRef);
   const [audioData, setAudioData] = useState<Uint8Array | null>(null);
-
-  const getColorByScheme = (scheme: ColorScheme) => {
-    switch(scheme) {
-      case 'purple': return '#8B5CF6';
-      case 'blue': return '#3B82F6';
-      case 'rainbow': return 'rainbow';
-      case 'gold': return '#F59E0B';
-      case 'chakra':
-        if (currentTrack?.customData?.chakra) {
-          const chakra = currentTrack.customData.chakra;
-          switch(chakra) {
-            case 'root': return '#FF0000';
-            case 'sacral': return '#FFA500';
-            case 'solar': return '#FFFF00';
-            case 'heart': return '#00FF00';
-            case 'throat': return '#00FFFF';
-            case 'third-eye': return '#0000FF';
-            case 'crown': return '#EE82EE';
-            default: return '#8B5CF6';
-          }
-        }
-        return '#8B5CF6';
-      default: return '#8B5CF6';
-    }
-  };
-
-  useEffect(() => {
-    if (!canvasRef.current) return;
-    
-    const updateCanvasSize = () => {
-      if (!canvasRef.current) return;
-      
-      const canvas = canvasRef.current;
-      const container = canvas.parentElement;
-      
-      if (container) {
-        const { width, height } = container.getBoundingClientRect();
-        canvas.width = width;
-        canvas.height = height;
-        setCanvasSize({ width, height });
-      }
-    };
-    
-    updateCanvasSize();
-    
-    const resizeObserver = new ResizeObserver(updateCanvasSize);
-    const container = canvasRef.current.parentElement;
-    if (container) {
-      resizeObserver.observe(container);
-    }
-    
-    window.addEventListener('resize', updateCanvasSize);
-    
-    return () => {
-      if (container) {
-        resizeObserver.unobserve(container);
-      }
-      resizeObserver.disconnect();
-      window.removeEventListener('resize', updateCanvasSize);
-    };
-  }, [expanded, fullscreen]);
 
   useEffect(() => {
     if (!analyser || !isPlaying) return;
@@ -166,7 +59,6 @@ const SacredAudioPlayer: React.FC = () => {
 
   useEffect(() => {
     if (!audioRef.current) return;
-    
     audioRef.current.volume = isMuted ? 0 : volume;
   }, [volume, isMuted, audioRef]);
   
@@ -195,14 +87,6 @@ const SacredAudioPlayer: React.FC = () => {
     setExpanded(prev => !prev);
   };
   
-  const handlePrimeDetected = (prime: number) => {
-    setActivePrime(prime);
-    
-    if (!detectedPrimes.includes(prime)) {
-      setDetectedPrimes(prev => [...prev, prime]);
-    }
-  };
-  
   const toggleFullscreen = () => {
     if (!fullscreen) {
       if (containerRef.current?.requestFullscreen) {
@@ -223,7 +107,7 @@ const SacredAudioPlayer: React.FC = () => {
       setExpanded(true);
     }
   };
-  
+
   useEffect(() => {
     const handleFullscreenChange = () => {
       const isCurrentlyFullscreen = !!document.fullscreenElement;
@@ -238,29 +122,12 @@ const SacredAudioPlayer: React.FC = () => {
 
   const isJourneyPlayerRoute = location.pathname.includes('/journey-player');
 
-  const geometryOptions = [
-    { value: 'flower-of-life', label: 'Flower of Life' },
-    { value: 'seed-of-life', label: 'Seed of Life' },
-    { value: 'metatrons-cube', label: 'Metatron\'s Cube' },
-    { value: 'merkaba', label: 'Merkaba' },
-    { value: 'torus', label: 'Torus' },
-    { value: 'tree-of-life', label: 'Tree of Life' },
-    { value: 'sri-yantra', label: 'Sri Yantra' },
-    { value: 'vesica-piscis', label: 'Vesica Piscis' },
-  ];
-  
   const colorOptions = [
     { value: 'purple', label: 'Purple' },
     { value: 'blue', label: 'Blue' },
     { value: 'rainbow', label: 'Rainbow' },
     { value: 'gold', label: 'Gold' },
     { value: 'chakra', label: 'Chakra-based' },
-  ];
-  
-  const modeOptions = [
-    { value: 'canvas', label: 'Sacred Canvas', icon: <Volume2 size={16} /> },
-    { value: 'sacred-geometry', label: 'Sacred Geometry', icon: <Maximize size={16} /> },
-    { value: 'prime', label: 'Prime Visualizer', icon: <Volume2 size={16} /> },
   ];
 
   const getSchemeClasses = (scheme: ColorScheme, type: 'bg' | 'border' | 'text') => {
@@ -316,44 +183,6 @@ const SacredAudioPlayer: React.FC = () => {
 
           <div className="space-y-4">
             <div>
-              <div className="text-xs font-semibold text-white/90 mb-2">Visualizer Mode</div>
-              <div className="grid grid-cols-3 gap-2">
-                {modeOptions.map(mode => (
-                  <button
-                    key={mode.value}
-                    className={`text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2
-                      ${visualizerMode === mode.value 
-                        ? getSchemeClasses(colorScheme, 'bg') + ' text-white' 
-                        : 'bg-black/50 text-white/70 hover:bg-white/10'}`}
-                    onClick={() => changeVisualizerMode(mode.value as VisualizerMode)}
-                  >
-                    {mode.icon} {mode.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {visualizerMode === 'sacred-geometry' && (
-              <div>
-                <div className="text-xs font-semibold text-white/90 mb-2">Geometric Pattern</div>
-                <div className="grid grid-cols-2 gap-2">
-                  {geometryOptions.map(pattern => (
-                    <button
-                      key={pattern.value}
-                      className={`text-xs px-3 py-2 rounded-lg
-                        ${currentGeometry === pattern.value 
-                          ? getSchemeClasses(colorScheme, 'bg') + ' text-white' 
-                          : 'bg-black/50 text-white/70 hover:bg-white/10'}`}
-                      onClick={() => changeGeometricPattern(pattern.value as GeometryShape)}
-                    >
-                      {pattern.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div>
               <div className="text-xs font-semibold text-white/90 mb-2">Color Scheme</div>
               <div className="grid grid-cols-3 gap-2">
                 {colorOptions.map(color => (
@@ -363,7 +192,7 @@ const SacredAudioPlayer: React.FC = () => {
                       ${colorScheme === color.value 
                         ? getSchemeClasses(colorScheme, 'bg') + ' text-white' 
                         : 'bg-black/50 text-white/70 hover:bg-white/10'}`}
-                    onClick={() => changeColorScheme(color.value as ColorScheme)}
+                    onClick={() => setColorScheme(color.value as ColorScheme)}
                   >
                     {color.label}
                   </button>
@@ -411,51 +240,12 @@ const SacredAudioPlayer: React.FC = () => {
       >
         <div className="relative w-full h-full">
           <div className="absolute inset-0 w-full h-full">
-            {visualizerMode === 'canvas' && (expanded || fullscreen) && (
-              <div className="absolute inset-0 w-full h-full">
-                <SimpleFallbackVisualizer
-                  audioData={audioData || undefined}
-                  colorScheme={colorScheme}
-                  sensitivity={visualizerSensitivity}
-                />
-              </div>
-            )}
-            
-            {visualizerMode === 'prime' && (expanded || fullscreen) && (
-              <div className="absolute inset-0 w-full h-full">
-                <PrimeAudioVisualizer 
-                  audioContext={audioContext} 
-                  analyser={analyser} 
-                  isPlaying={isPlaying}
-                  colorMode={liftTheVeil ? 'veil-lifted' : colorScheme === 'chakra' ? 'chakra' : 'standard'}
-                  colorScheme={colorScheme}
-                  visualMode="prime"
-                  layout={fullscreen ? 'radial' : 'vertical'}
-                  onPrimeDetected={handlePrimeDetected}
-                  sensitivity={visualizerSensitivity}
-                  chakra={currentTrack?.customData?.chakra}
-                />
-              </div>
-            )}
-            
-            {visualizerMode === 'sacred-geometry' && (expanded || fullscreen) && (
-              <div className="absolute inset-0 w-full h-full">
-                <SacredGeometryVisualizer
-                  defaultShape={currentGeometry}
-                  size={fullscreen ? 'xl' : 'lg'}
-                  showControls={false}
-                  isAudioReactive={true}
-                  audioContext={audioContext}
-                  analyser={analyser}
-                  isVisible={true}
-                  chakra={currentTrack?.customData?.chakra}
-                  frequency={currentTrack?.customData?.frequency}
-                  expandable={false}
-                  mode={fullscreen ? 'spiral' : 'fractal'} 
-                  sensitivity={visualizerSensitivity}
-                  colorScheme={colorScheme}
-                />
-              </div>
+            {(expanded || fullscreen) && (
+              <SimpleFallbackVisualizer
+                audioData={audioData || undefined}
+                colorScheme={colorScheme}
+                sensitivity={visualizerSensitivity}
+              />
             )}
           </div>
           
@@ -514,40 +304,6 @@ const SacredAudioPlayer: React.FC = () => {
                 <div 
                   className={`h-full rounded-full ${getSchemeClasses(colorScheme, 'bg')}`}
                   style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
-                />
-              </div>
-            )}
-            
-            {(expanded || fullscreen) && detectedPrimes.length > 0 && (
-              <div className="flex gap-1 flex-wrap mb-2 max-w-full">
-                {detectedPrimes.slice(0, 5).map(prime => (
-                  <span 
-                    key={prime}
-                    className={`text-xs px-1.5 py-0.5 rounded-full ${
-                      activePrime === prime 
-                        ? liftTheVeil ? 'bg-pink-500 text-white' : getSchemeClasses(colorScheme, 'bg') + ' text-white'
-                        : liftTheVeil ? 'bg-pink-500/20 text-pink-200' : getSchemeClasses(colorScheme, 'bg').replace('bg-', 'bg-') + '/20 text-white/80'
-                    }`}
-                  >
-                    {prime}
-                  </span>
-                ))}
-                {detectedPrimes.length > 5 && (
-                  <span className="text-xs px-1.5 py-0.5 rounded-full bg-white/10 text-white/70">
-                    +{detectedPrimes.length - 5}
-                  </span>
-                )}
-              </div>
-            )}
-            
-            {(expanded || fullscreen) && audioData && (
-              <div className="w-full h-16 mb-2">
-                <FrequencyEqualizer 
-                  frequencyData={audioData}
-                  barCount={32}
-                  chakraColor={currentTrack?.customData?.chakra || colorScheme}
-                  isLiftedVeil={liftTheVeil}
-                  colorScheme={colorScheme}
                 />
               </div>
             )}
