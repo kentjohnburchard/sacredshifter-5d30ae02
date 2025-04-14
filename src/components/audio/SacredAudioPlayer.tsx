@@ -23,13 +23,12 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useTheme } from '@/context/ThemeContext';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
-import FrequencyEqualizer from '../visualizer/FrequencyEqualizer';
 
 const VISUALIZER_MODES = [
-  { value: 'purple', label: 'Purple Flow' },
-  { value: 'blue', label: 'Blue Ocean' },
-  { value: 'rainbow', label: 'Rainbow' },
-  { value: 'gold', label: 'Golden Light' }
+  { value: 'flower', label: 'Flower of Life' },
+  { value: 'merkaba', label: 'Merkaba' },
+  { value: 'metatron', label: "Metatron's Cube" },
+  { value: 'fractal', label: 'Fractal Flow' }
 ] as const;
 
 type VisualizerMode = typeof VISUALIZER_MODES[number]['value'];
@@ -49,26 +48,27 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
   const [primes, setPrimes] = useState<number[]>([]);
   const [detectedFrequency, setDetectedFrequency] = useState<number | null>(null);
   const [visualizerMode, setVisualizerMode] = useState<VisualizerMode>(
-    liftTheVeil ? 'rainbow' : 'purple'
+    liftTheVeil ? 'fractal' : 'flower'
   );
   const [activeTooltipPrime, setActiveTooltipPrime] = useState<number | null>(null);
-  const [showEqualizer, setShowEqualizer] = useState(true);
-  const [frequencyData, setFrequencyData] = useState<Uint8Array | null>(null);
   const onEndedCallbackRef = useRef<(() => void) | null>(null);
   const audioInitializedRef = useRef(false);
   
   const playerRef = useRef<HTMLDivElement>(null);
-  const visualizerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const tooltipTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const audioDataRef = useRef<Uint8Array | null>(null);
+  const requestAnimationRef = useRef<number | null>(null);
+  const lastFrameTimeRef = useRef<number>(0);
   
   const [currentAudio, setCurrentAudio] = useState<{
     title: string;
     artist?: string;
     imageUrl?: string;
     source: string;
-    frequency?: number;
-    chakra?: string;
+    customData?: {
+      frequency?: number;
+      chakra?: string;
+    };
   } | null>(null);
   
   const {
@@ -196,65 +196,138 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
   }, [isAudioPlaying]);
   
   useEffect(() => {
-    setVisualizerMode(liftTheVeil ? 'rainbow' : 'purple');
+    setVisualizerMode(liftTheVeil ? 'fractal' : 'flower');
   }, [liftTheVeil]);
   
   useEffect(() => {
-    if (!analyser || !isAudioPlaying || !showVisualizer) {
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume;
+    }
+  }, [volume, isMuted, audioRef]);
+  
+  // Sacred geometry visualization
+  useEffect(() => {
+    if (!analyser || !canvasRef.current || !showVisualizer || !isAudioPlaying) {
+      if (requestAnimationRef.current) {
+        cancelAnimationFrame(requestAnimationRef.current);
+        requestAnimationRef.current = null;
+      }
       return;
     }
-    
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Set canvas size based on container
+    const updateCanvasSize = () => {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+    };
+
+    updateCanvasSize();
+    window.addEventListener('resize', updateCanvasSize);
+
+    // Create frequency data array
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
     
-    let animationFrameId: number;
-    let primeFoundThisFrame = false;
-    let lastDetectedPrime = 0;
+    // Cache of prime numbers for quick lookup
+    const primeCache: Record<number, boolean> = {};
     
+    // Function to check if a number is prime
     const isPrime = (num: number): boolean => {
-      if (num <= 1) return false;
-      if (num <= 3) return true;
-      if (num % 2 === 0 || num % 3 === 0) return false;
+      if (primeCache[num] !== undefined) return primeCache[num];
+      
+      if (num <= 1) {
+        primeCache[num] = false;
+        return false;
+      }
+      if (num <= 3) {
+        primeCache[num] = true;
+        return true;
+      }
+      if (num % 2 === 0 || num % 3 === 0) {
+        primeCache[num] = false;
+        return false;
+      }
       
       let i = 5;
       while (i * i <= num) {
-        if (num % i === 0 || num % (i + 2) === 0) return false;
+        if (num % i === 0 || num % (i + 2) === 0) {
+          primeCache[num] = false;
+          return false;
+        }
         i += 6;
       }
+      
+      primeCache[num] = true;
       return true;
     };
     
-    const updateData = () => {
+    // Animation loop
+    const animate = (timestamp: number) => {
+      // Calculate time delta for smooth animations regardless of frame rate
+      const elapsed = timestamp - lastFrameTimeRef.current;
+      lastFrameTimeRef.current = timestamp;
+      const deltaTime = Math.min(elapsed / 16.67, 2); // 16.67ms is roughly 60fps
+      
+      // Get frequency data
       analyser.getByteFrequencyData(dataArray);
       
-      const dataCopy = new Uint8Array(dataArray);
-      audioDataRef.current = dataCopy;
-      setFrequencyData(dataCopy);
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       
+      // Detect dominant frequency
       let maxValue = 0;
       let maxIndex = 0;
+      let bassEnergy = 0;
+      let midEnergy = 0;
+      let highEnergy = 0;
       
+      // Calculate energy in different frequency bands
       for (let i = 0; i < dataArray.length; i++) {
-        if (dataArray[i] > maxValue) {
-          maxValue = dataArray[i];
+        const value = dataArray[i] / 255; // Normalize to 0-1
+        
+        if (value > maxValue) {
+          maxValue = value;
           maxIndex = i;
+        }
+        
+        if (i < dataArray.length / 3) {
+          bassEnergy += value;
+        } else if (i < dataArray.length * 2/3) {
+          midEnergy += value;
+        } else {
+          highEnergy += value;
         }
       }
       
-      if (audioContext && maxValue > 20) {
-        const nyquist = audioContext.sampleRate / 2;
-        const estimatedFrequency = Math.round(maxIndex * nyquist / dataArray.length);
+      bassEnergy /= (dataArray.length / 3);
+      midEnergy /= (dataArray.length / 3);
+      highEnergy /= (dataArray.length / 3);
+      
+      // Calculate approximate frequency value from FFT bin index
+      if (audioContext && maxValue > 0.2) {
+        const sampleRate = audioContext.sampleRate;
+        const binCount = analyser.frequencyBinCount;
+        const dominantFreq = Math.round(maxIndex * sampleRate / (2 * binCount));
         
-        setDetectedFrequency(estimatedFrequency);
+        setDetectedFrequency(dominantFreq);
         
-        if (estimatedFrequency > 20 && estimatedFrequency < 1000) {
-          const roundedFreq = Math.round(estimatedFrequency);
-          
-          if (isPrime(roundedFreq) && roundedFreq !== lastDetectedPrime) {
-            lastDetectedPrime = roundedFreq;
-            setPrimes(prev => [...prev, roundedFreq]);
+        // If we detect a prime frequency that's audible, show notification and add to list
+        if (isPrime(dominantFreq) && dominantFreq > 20 && dominantFreq < 2000 && maxValue > 0.5) {
+          const currentTime = Date.now();
+          const shouldAddPrime = primes.length === 0 || 
+            primes[primes.length - 1] !== dominantFreq ||
+            (currentTime - (tooltipTimerRef.current ? currentTime : 0) > 3000);
             
-            setActiveTooltipPrime(roundedFreq);
+          if (shouldAddPrime) {
+            setPrimes(prev => [...prev.slice(-10), dominantFreq]);
+            setActiveTooltipPrime(dominantFreq);
             
             if (tooltipTimerRef.current) {
               clearTimeout(tooltipTimerRef.current);
@@ -262,29 +335,525 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
             
             tooltipTimerRef.current = setTimeout(() => {
               setActiveTooltipPrime(null);
+              tooltipTimerRef.current = null;
             }, 3000);
           }
         }
       }
       
-      animationFrameId = requestAnimationFrame(updateData);
+      // Draw the appropriate sacred geometry visualization based on mode
+      const width = canvas.width / window.devicePixelRatio;
+      const height = canvas.height / window.devicePixelRatio;
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const radius = Math.min(width, height) * 0.45;
+      
+      // Draw background gradient
+      const backgroundColor = liftTheVeil ? 
+        `rgba(25, 10, 40, ${0.7 + bassEnergy * 0.3})` : 
+        `rgba(20, 10, 30, ${0.7 + bassEnergy * 0.3})`;
+        
+      ctx.fillStyle = backgroundColor;
+      ctx.fillRect(0, 0, width, height);
+      
+      // Get colors based on chakra or mode
+      const getBaseColor = () => {
+        if (currentAudio?.customData?.chakra) {
+          switch (currentAudio.customData.chakra.toLowerCase()) {
+            case 'root': 
+              return `rgba(255, 25, 25, ${0.8 + Math.sin(timestamp * 0.002) * 0.2})`;
+            case 'sacral': 
+              return `rgba(255, 127, 0, ${0.8 + Math.sin(timestamp * 0.002) * 0.2})`;
+            case 'solar plexus': 
+              return `rgba(255, 215, 0, ${0.8 + Math.sin(timestamp * 0.002) * 0.2})`;
+            case 'heart': 
+              return `rgba(10, 215, 80, ${0.8 + Math.sin(timestamp * 0.002) * 0.2})`;
+            case 'throat': 
+              return `rgba(0, 191, 255, ${0.8 + Math.sin(timestamp * 0.002) * 0.2})`;
+            case 'third eye': 
+              return `rgba(138, 43, 226, ${0.8 + Math.sin(timestamp * 0.002) * 0.2})`;
+            case 'crown': 
+              return `rgba(186, 85, 211, ${0.8 + Math.sin(timestamp * 0.002) * 0.2})`;
+            default: 
+              return `rgba(159, 122, 235, ${0.8 + Math.sin(timestamp * 0.002) * 0.2})`;
+          }
+        }
+        
+        return liftTheVeil ? 
+          `rgba(255, 105, 180, ${0.8 + Math.sin(timestamp * 0.002) * 0.2})` : 
+          `rgba(159, 122, 235, ${0.8 + Math.sin(timestamp * 0.002) * 0.2})`;
+      };
+      
+      const getHighlightColor = () => {
+        if (currentAudio?.customData?.chakra) {
+          switch (currentAudio.customData.chakra.toLowerCase()) {
+            case 'root': return 'rgba(255, 65, 65, 1)';
+            case 'sacral': return 'rgba(255, 165, 0, 1)';
+            case 'solar plexus': return 'rgba(255, 255, 0, 1)';
+            case 'heart': return 'rgba(50, 255, 150, 1)';
+            case 'throat': return 'rgba(80, 220, 255, 1)';
+            case 'third eye': return 'rgba(191, 64, 255, 1)';
+            case 'crown': return 'rgba(236, 100, 255, 1)';
+            default: return 'rgba(212, 122, 255, 1)';
+          }
+        }
+        
+        return liftTheVeil ? 'rgba(255, 105, 180, 1)' : 'rgba(212, 122, 255, 1)';
+      };
+      
+      // Color cycling for rainbow effects
+      const hue = (timestamp * 0.05) % 360;
+      const getRainbowColor = (offset = 0) => {
+        return `hsl(${(hue + offset) % 360}, 100%, 70%)`;
+      };
+      
+      // Calculate rotation and pulsing based on audio
+      const rotation = timestamp * 0.0003 * (1 + midEnergy * 0.5);
+      const pulseFactor = 1 + Math.sin(timestamp * 0.002) * 0.05 + bassEnergy * 0.2;
+      const scaledRadius = radius * pulseFactor;
+      
+      // Draw a subtle ambient glow at the center
+      const ambient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius * 1.5);
+      ambient.addColorStop(0, getBaseColor().replace(')', ', 0.3)'));
+      ambient.addColorStop(1, 'transparent');
+      ctx.fillStyle = ambient;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius * 1.8, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(rotation);
+      
+      // Draw sacred geometry based on selected mode
+      switch (visualizerMode) {
+        case 'flower':
+          drawFlowerOfLife(ctx, scaledRadius, bassEnergy, midEnergy, highEnergy);
+          break;
+        case 'merkaba':
+          drawMerkaba(ctx, scaledRadius, bassEnergy, midEnergy, highEnergy);
+          break;
+        case 'metatron':
+          drawMetatronCube(ctx, scaledRadius, bassEnergy, midEnergy, highEnergy);
+          break;
+        case 'fractal':
+          drawFractal(ctx, scaledRadius, bassEnergy, midEnergy, highEnergy, timestamp);
+          break;
+      }
+      
+      ctx.restore();
+      
+      // Helper functions for drawing the different sacred geometries
+      function drawFlowerOfLife(
+        ctx: CanvasRenderingContext2D, 
+        radius: number, 
+        bassEnergy: number, 
+        midEnergy: number, 
+        highEnergy: number
+      ) {
+        const baseColor = liftTheVeil ? getRainbowColor() : getBaseColor();
+        const highlightColor = getHighlightColor();
+        
+        ctx.strokeStyle = baseColor;
+        ctx.lineWidth = 1.5 + highEnergy * 3;
+        
+        // Center circle
+        ctx.beginPath();
+        ctx.arc(0, 0, radius * 0.3, 0, Math.PI * 2);
+        ctx.stroke();
+        
+        // Apply glow effect when energy is high
+        if (midEnergy > 0.4) {
+          ctx.shadowColor = highlightColor;
+          ctx.shadowBlur = 15 * midEnergy;
+        }
+        
+        // First ring of circles
+        const circleCount = 6;
+        const innerRadius = radius * 0.55;
+        
+        for (let i = 0; i < circleCount; i++) {
+          const angle = (i / circleCount) * Math.PI * 2;
+          const x = Math.cos(angle) * innerRadius;
+          const y = Math.sin(angle) * innerRadius;
+          
+          if (liftTheVeil) {
+            ctx.strokeStyle = getRainbowColor(i * 60);
+          }
+          
+          ctx.beginPath();
+          ctx.arc(x, y, radius * (0.3 + bassEnergy * 0.1), 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        
+        // Second ring - petal formation between the circles
+        if (midEnergy > 0.2) {
+          for (let i = 0; i < circleCount; i++) {
+            const angle1 = (i / circleCount) * Math.PI * 2;
+            const angle2 = ((i + 1) % circleCount / circleCount) * Math.PI * 2;
+            
+            const x1 = Math.cos(angle1) * innerRadius;
+            const y1 = Math.sin(angle1) * innerRadius;
+            const x2 = Math.cos(angle2) * innerRadius;
+            const y2 = Math.sin(angle2) * innerRadius;
+            
+            const midX = (x1 + x2) / 2;
+            const midY = (y1 + y2) / 2;
+            const dist = Math.sqrt(midX * midX + midY * midY);
+            const normMidX = midX / dist * innerRadius;
+            const normMidY = midY / dist * innerRadius;
+            
+            if (liftTheVeil) {
+              ctx.strokeStyle = getRainbowColor(i * 60 + 30);
+            } else {
+              ctx.strokeStyle = highlightColor;
+            }
+            
+            ctx.globalAlpha = 0.5 + midEnergy * 0.5;
+            ctx.beginPath();
+            ctx.arc(normMidX, normMidY, radius * (0.3 + highEnergy * 0.1), 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.globalAlpha = 1.0;
+          }
+        }
+        
+        // Outer ring for high energy
+        if (bassEnergy > 0.3) {
+          const outerCircleCount = 12;
+          const outerRadius = radius * 0.85;
+          
+          ctx.globalAlpha = Math.min(1.0, bassEnergy);
+          
+          for (let i = 0; i < outerCircleCount; i++) {
+            const angle = (i / outerCircleCount) * Math.PI * 2;
+            const x = Math.cos(angle) * outerRadius;
+            const y = Math.sin(angle) * outerRadius;
+            
+            if (liftTheVeil) {
+              ctx.strokeStyle = getRainbowColor(i * 30);
+            }
+            
+            const circleRadius = radius * (0.2 + ((dataArray[i * 2] || 0) / 255) * 0.15);
+            
+            ctx.beginPath();
+            ctx.arc(x, y, circleRadius, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+          
+          ctx.globalAlpha = 1.0;
+        }
+        
+        // Reset shadow
+        ctx.shadowBlur = 0;
+      }
+      
+      function drawMerkaba(
+        ctx: CanvasRenderingContext2D,
+        radius: number,
+        bassEnergy: number,
+        midEnergy: number,
+        highEnergy: number
+      ) {
+        const baseColor = liftTheVeil ? getRainbowColor() : getBaseColor();
+        const highlightColor = getHighlightColor();
+        
+        ctx.lineWidth = 2 + highEnergy * 4;
+        
+        // Apply glow effect based on energy levels
+        if (midEnergy > 0.3) {
+          ctx.shadowColor = highlightColor;
+          ctx.shadowBlur = 15 * midEnergy;
+        }
+        
+        // Star of David (two triangles) - the Merkaba
+        const triangleRadius = radius * 0.8;
+        const pulseUp = 1 + bassEnergy * 0.3;
+        const pulseDown = 1 + midEnergy * 0.2;
+        
+        // Upward triangle
+        ctx.beginPath();
+        for (let i = 0; i < 3; i++) {
+          const angle = (i / 3) * Math.PI * 2 + Math.PI / 6;
+          const x = Math.cos(angle) * triangleRadius * pulseUp;
+          const y = Math.sin(angle) * triangleRadius * pulseUp;
+          
+          if (i === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+        }
+        ctx.closePath();
+        ctx.strokeStyle = liftTheVeil ? getRainbowColor() : baseColor;
+        ctx.stroke();
+        
+        // Downward triangle
+        ctx.beginPath();
+        for (let i = 0; i < 3; i++) {
+          const angle = (i / 3) * Math.PI * 2 + Math.PI / 2;
+          const x = Math.cos(angle) * triangleRadius * pulseDown;
+          const y = Math.sin(angle) * triangleRadius * pulseDown;
+          
+          if (i === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+        }
+        ctx.closePath();
+        ctx.strokeStyle = liftTheVeil ? getRainbowColor(180) : highlightColor;
+        ctx.stroke();
+        
+        // Inner connections - only visible with higher energy
+        if (highEnergy > 0.2) {
+          ctx.globalAlpha = highEnergy;
+          ctx.lineWidth = 1 + highEnergy * 2;
+          
+          for (let i = 0; i < 3; i++) {
+            const angle1 = (i / 3) * Math.PI * 2 + Math.PI / 6;
+            const angle2 = ((i + 1) % 3 / 3) * Math.PI * 2 + Math.PI / 2;
+            
+            const x1 = Math.cos(angle1) * triangleRadius * pulseUp;
+            const y1 = Math.sin(angle1) * triangleRadius * pulseUp;
+            
+            const x2 = Math.cos(angle2) * triangleRadius * pulseDown;
+            const y2 = Math.sin(angle2) * triangleRadius * pulseDown;
+            
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            
+            ctx.strokeStyle = liftTheVeil ? getRainbowColor(i * 120) : 
+              `rgba(${255 * midEnergy}, ${200 * bassEnergy}, ${255 * highEnergy}, ${highEnergy})`;
+            
+            ctx.stroke();
+          }
+          
+          ctx.globalAlpha = 1.0;
+        }
+        
+        // Center circle for balance
+        ctx.beginPath();
+        ctx.arc(0, 0, radius * 0.15 * (1 + midEnergy * 0.3), 0, Math.PI * 2);
+        ctx.strokeStyle = liftTheVeil ? getRainbowColor(270) : highlightColor;
+        ctx.stroke();
+        
+        // Reset shadow
+        ctx.shadowBlur = 0;
+      }
+      
+      function drawMetatronCube(
+        ctx: CanvasRenderingContext2D,
+        radius: number,
+        bassEnergy: number,
+        midEnergy: number,
+        highEnergy: number
+      ) {
+        const baseColor = liftTheVeil ? getRainbowColor() : getBaseColor();
+        const highlightColor = getHighlightColor();
+        
+        ctx.lineWidth = 1.5 + highEnergy * 3;
+        
+        // Apply glow effect
+        if (midEnergy > 0.25) {
+          ctx.shadowColor = highlightColor;
+          ctx.shadowBlur = 10 * midEnergy;
+        }
+        
+        // Center circle (the Bindu point)
+        ctx.beginPath();
+        ctx.arc(0, 0, radius * 0.15 * (1 + bassEnergy * 0.2), 0, Math.PI * 2);
+        ctx.strokeStyle = liftTheVeil ? getRainbowColor() : baseColor;
+        ctx.stroke();
+        
+        // Generate circle points in perfect Metatron's Cube arrangement
+        const points = [];
+        
+        // First ring - 6 points
+        const innerRadius = radius * 0.5;
+        for (let i = 0; i < 6; i++) {
+          const angle = i * Math.PI / 3;
+          const x = Math.cos(angle) * innerRadius;
+          const y = Math.sin(angle) * innerRadius;
+          points.push({ x, y });
+          
+          // Draw circles at each point
+          ctx.beginPath();
+          ctx.arc(x, y, radius * 0.1 * (1 + midEnergy * 0.2), 0, Math.PI * 2);
+          ctx.strokeStyle = liftTheVeil ? getRainbowColor(i * 60) : baseColor;
+          ctx.stroke();
+        }
+        
+        // Outer ring - 6 more points
+        const outerRadius = radius * 0.75;
+        for (let i = 0; i < 6; i++) {
+          const angle = i * Math.PI / 3 + Math.PI / 6;
+          const x = Math.cos(angle) * outerRadius;
+          const y = Math.sin(angle) * outerRadius;
+          points.push({ x, y });
+          
+          // Draw circles at each point
+          ctx.beginPath();
+          ctx.arc(x, y, radius * 0.08 * (1 + highEnergy * 0.2), 0, Math.PI * 2);
+          ctx.strokeStyle = liftTheVeil ? getRainbowColor(i * 60 + 30) : highlightColor;
+          ctx.stroke();
+        }
+        
+        // Connect inner points
+        if (bassEnergy > 0.2) {
+          ctx.lineWidth = 1 + bassEnergy * 2;
+          ctx.globalAlpha = 0.7 + bassEnergy * 0.3;
+          
+          // Connect inner hexagon
+          ctx.beginPath();
+          for (let i = 0; i < 6; i++) {
+            const point = points[i];
+            if (i === 0) {
+              ctx.moveTo(point.x, point.y);
+            } else {
+              ctx.lineTo(point.x, point.y);
+            }
+          }
+          ctx.closePath();
+          ctx.strokeStyle = liftTheVeil ? getRainbowColor(120) : baseColor;
+          ctx.stroke();
+          
+          ctx.globalAlpha = 1.0;
+        }
+        
+        // Connect with energy-based visibility
+        if (midEnergy > 0.25 || highEnergy > 0.3) {
+          // Calculate what connections to draw based on energy
+          const connectCount = Math.floor(midEnergy * 30) + Math.floor(highEnergy * 30);
+          
+          ctx.lineWidth = 0.7 + midEnergy * 1.5;
+          ctx.globalAlpha = 0.5 + midEnergy * 0.5;
+          
+          // Create interesting patterns by connecting specific points
+          for (let i = 0; i < Math.min(points.length, connectCount); i++) {
+            for (let j = i + 1; j < Math.min(points.length, connectCount); j++) {
+              // Skip some connections based on energy to create evolving patterns
+              if ((i + j) % Math.max(1, Math.floor(7 - midEnergy * 6)) !== 0) continue;
+              
+              const p1 = points[i];
+              const p2 = points[j];
+              
+              ctx.beginPath();
+              ctx.moveTo(p1.x, p1.y);
+              ctx.lineTo(p2.x, p2.y);
+              
+              ctx.strokeStyle = liftTheVeil ? 
+                getRainbowColor((i * j) % 360) : 
+                `rgba(${Math.floor(159 + midEnergy * 96)}, ${Math.floor(122 + highEnergy * 133)}, 255, 0.7)`;
+                
+              ctx.stroke();
+            }
+          }
+          
+          ctx.globalAlpha = 1.0;
+        }
+        
+        // Reset shadow
+        ctx.shadowBlur = 0;
+      }
+      
+      function drawFractal(
+        ctx: CanvasRenderingContext2D,
+        radius: number,
+        bassEnergy: number,
+        midEnergy: number,
+        highEnergy: number,
+        timestamp: number
+      ) {
+        const iterations = Math.min(7, 3 + Math.floor(highEnergy * 5));
+        const angleOffset = timestamp * 0.0005;
+        
+        // Apply glow effect
+        ctx.shadowColor = liftTheVeil ? getRainbowColor() : getHighlightColor();
+        ctx.shadowBlur = 10 + highEnergy * 20;
+        
+        // Fractal recursion function
+        function drawFractalCircles(x: number, y: number, radius: number, depth: number) {
+          if (depth <= 0 || radius < 3) return;
+          
+          // Draw current circle
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          
+          // Color based on depth and energy
+          if (liftTheVeil) {
+            ctx.strokeStyle = getRainbowColor(depth * 45 + timestamp * 0.05);
+          } else {
+            const depthColor = depth / iterations;
+            ctx.strokeStyle = `rgba(${Math.floor(159 + depthColor * 96)}, ${Math.floor(122 + midEnergy * 133)}, 255, ${0.7 + depthColor * 0.3})`;
+          }
+          
+          ctx.lineWidth = 2 - depth * 0.25;
+          ctx.stroke();
+          
+          // Number of child circles based on energy
+          const numChildren = depth == iterations ? 6 : Math.max(3, Math.floor(4 + midEnergy * 3));
+          const childRadius = radius * (0.35 + midEnergy * 0.15);
+          
+          for (let i = 0; i < numChildren; i++) {
+            const angle = angleOffset + (i / numChildren) * Math.PI * 2;
+            const distance = radius * (0.7 + bassEnergy * 0.2);
+            const childX = x + Math.cos(angle) * distance;
+            const childY = y + Math.sin(angle) * distance;
+            
+            // Recursive call for child circles
+            drawFractalCircles(childX, childY, childRadius, depth - 1);
+          }
+        }
+        
+        // Start the recursion from the center
+        drawFractalCircles(0, 0, radius * 0.5 * (0.8 + bassEnergy * 0.4), iterations);
+        
+        // Reset shadow
+        ctx.shadowBlur = 0;
+        
+        // Add particles for high energy moments
+        if (highEnergy > 0.5) {
+          const particleCount = Math.floor(highEnergy * 30);
+          
+          for (let i = 0; i < particleCount; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.random() * radius;
+            const x = Math.cos(angle) * distance;
+            const y = Math.sin(angle) * distance;
+            const size = 1 + Math.random() * 3 * highEnergy;
+            
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fillStyle = liftTheVeil ? getRainbowColor(i * 20) : getHighlightColor();
+            ctx.globalAlpha = Math.random() * 0.7 + 0.3;
+            ctx.fill();
+          }
+          
+          ctx.globalAlpha = 1.0;
+        }
+      }
+      
+      // Continue animation
+      requestAnimationRef.current = requestAnimationFrame(animate);
     };
     
-    updateData();
+    // Start animation
+    requestAnimationRef.current = requestAnimationFrame(animate);
     
+    // Cleanup on unmount or when dependencies change
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      if (requestAnimationRef.current) {
+        cancelAnimationFrame(requestAnimationRef.current);
+        requestAnimationRef.current = null;
+      }
+      window.removeEventListener('resize', updateCanvasSize);
       if (tooltipTimerRef.current) {
         clearTimeout(tooltipTimerRef.current);
+        tooltipTimerRef.current = null;
       }
     };
-  }, [analyser, isAudioPlaying, showVisualizer, audioContext]);
-  
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = isMuted ? 0 : volume;
-    }
-  }, [volume, isMuted, audioRef]);
+  }, [analyser, canvasRef.current, showVisualizer, isAudioPlaying, visualizerMode, liftTheVeil, currentAudio]);
 
   const formatTime = (time: number): string => {
     const minutes = Math.floor(time / 60);
@@ -344,9 +913,9 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
   };
   
   const getChakraColor = (): string => {
-    if (!currentAudio?.chakra) return 'purple';
+    if (!currentAudio?.customData?.chakra) return 'purple';
     
-    switch (currentAudio.chakra.toLowerCase()) {
+    switch (currentAudio.customData.chakra.toLowerCase()) {
       case 'root': return 'red';
       case 'sacral': return 'orange';
       case 'solar plexus': return 'yellow';
@@ -372,24 +941,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
 
   if (!currentAudio) return null;
 
-  const getCanvasStyle = () => {
-    const baseStyle = {
-      position: 'absolute' as const,
-      inset: 0,
-      width: '100%',
-      height: '100%',
-    };
-    
-    if (!showVisualizer || !isAudioPlaying) {
-      return { 
-        ...baseStyle,
-        display: 'none'
-      };
-    }
-    
-    return baseStyle;
-  };
-
   return (
     <div className={`fixed ${isFullscreen ? 'inset-0 z-[100]' : 'bottom-4 right-4 z-50'} flex items-center justify-center`}>
       {activeTooltipPrime && isAudioPlaying && (
@@ -407,40 +958,11 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
         relative rounded-lg overflow-hidden shadow-xl border border-white/10 ${getBgStyle()}
         ${isFullscreen ? '' : 'transition-all duration-300 ease-in-out'}
       `}>
-        <div id="visualizer-container" className="absolute inset-0 z-0 overflow-hidden">
+        <div className="absolute inset-0 z-0 overflow-hidden">
           {showVisualizer && isAudioPlaying && (
             <canvas 
-              id="sacred-audio-visualizer-canvas"
-              style={getCanvasStyle()}
-              ref={(canvas) => {
-                if (!canvas) return;
-                
-                const ctx = canvas.getContext('2d');
-                if (!ctx || !frequencyData) return;
-                
-                const dpr = window.devicePixelRatio || 1;
-                const rect = canvas.getBoundingClientRect();
-                canvas.width = rect.width * dpr;
-                canvas.height = rect.height * dpr;
-                ctx.scale(dpr, dpr);
-                
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                switch(visualizerMode) {
-                  case 'purple':
-                    drawPurpleVisualizer(ctx, canvas, frequencyData);
-                    break;
-                  case 'blue':
-                    drawBlueVisualizer(ctx, canvas, frequencyData);
-                    break;
-                  case 'rainbow':
-                    drawRainbowVisualizer(ctx, canvas, frequencyData);
-                    break;
-                  case 'gold':
-                    drawGoldVisualizer(ctx, canvas, frequencyData);
-                    break;
-                }
-              }}
+              ref={canvasRef}
+              className="w-full h-full"
             />
           )}
         </div>
@@ -519,16 +1041,16 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
 
           {expanded && (
             <div className="p-4 space-y-4">
-              {(currentAudio.frequency || detectedFrequency || primes.length > 0) && (
+              {(currentAudio.customData?.frequency || detectedFrequency || primes.length > 0) && (
                 <div className="flex flex-wrap gap-2">
-                  {currentAudio.frequency && (
+                  {currentAudio.customData?.frequency && (
                     <Badge variant="outline" className="text-white border-white/30 bg-white/10">
-                      {currentAudio.frequency} Hz
+                      {currentAudio.customData.frequency} Hz
                     </Badge>
                   )}
-                  {currentAudio.chakra && (
+                  {currentAudio.customData?.chakra && (
                     <Badge variant="outline" className="text-white border-white/30 bg-white/10">
-                      {currentAudio.chakra} Chakra
+                      {currentAudio.customData.chakra} Chakra
                     </Badge>
                   )}
                   {detectedFrequency && (
@@ -593,16 +1115,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
                     </Button>
                     <div className={`absolute inset-0 rounded-full ${liftTheVeil ? 'bg-pink-500' : 'bg-purple-500'} opacity-10 animate-ping`} />
                   </div>
-                </div>
-              )}
-              
-              {isAudioPlaying && showVisualizer && frequencyData && (
-                <div className="h-24 w-full mt-4">
-                  <FrequencyEqualizer 
-                    frequencyData={frequencyData} 
-                    chakraColor={getChakraColor()}
-                    isLiftedVeil={liftTheVeil}
-                  />
                 </div>
               )}
               
@@ -689,362 +1201,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
       </div>
     </div>
   );
-};
-
-const drawPurpleVisualizer = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, frequencyData: Uint8Array) => {
-  const width = canvas.width / window.devicePixelRatio;
-  const height = canvas.height / window.devicePixelRatio;
-  
-  const gradient = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, width);
-  gradient.addColorStop(0, 'rgba(139, 92, 246, 0.2)');
-  gradient.addColorStop(1, 'rgba(76, 29, 149, 0)');
-  
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, width, height);
-  
-  const centerX = width / 2;
-  const centerY = height / 2;
-  const maxRadius = Math.min(width, height) * 0.45;
-  const numPoints = Math.min(128, frequencyData.length / 4);
-  const angleStep = (2 * Math.PI) / numPoints;
-  
-  ctx.beginPath();
-  for (let i = 0; i < numPoints; i++) {
-    const normalizedValue = frequencyData[i * 4] / 255;
-    const radius = maxRadius * (0.6 + normalizedValue * 0.4);
-    const angle = i * angleStep;
-    
-    const x = centerX + radius * Math.cos(angle);
-    const y = centerY + radius * Math.sin(angle);
-    
-    if (i === 0) {
-      ctx.moveTo(x, y);
-    } else {
-      ctx.lineTo(x, y);
-    }
-  }
-  ctx.closePath();
-  
-  const strokeGradient = ctx.createLinearGradient(0, 0, width, height);
-  strokeGradient.addColorStop(0, 'rgba(167, 139, 250, 0.7)');
-  strokeGradient.addColorStop(0.5, 'rgba(139, 92, 246, 0.7)');
-  strokeGradient.addColorStop(1, 'rgba(91, 33, 182, 0.7)');
-  
-  ctx.strokeStyle = strokeGradient;
-  ctx.lineWidth = 2;
-  ctx.stroke();
-  
-  // Calculate bass level for ring animation
-  let bassLevel = 0;
-  for (let i = 0; i < 10; i++) {
-    bassLevel += frequencyData[i] / 255;
-  }
-  bassLevel = bassLevel / 10;
-  
-  for (let ring = 0; ring < 3; ring++) {
-    const ringRadius = maxRadius * (0.2 + (ring * 0.15)) * (0.8 + bassLevel * 0.2);
-    
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, ringRadius, 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(139, 92, 246, ${0.4 - ring * 0.1})`;
-    ctx.lineWidth = 1;
-    ctx.stroke();
-  }
-  
-  ctx.strokeStyle = 'rgba(167, 139, 250, 0.3)';
-  ctx.lineWidth = 1;
-  
-  for (let i = 0; i < numPoints; i += 6) {
-    if (frequencyData[i * 4] > 50) {
-      const normalizedValue = frequencyData[i * 4] / 255;
-      const radius = maxRadius * (0.6 + normalizedValue * 0.4);
-      const angle = i * angleStep;
-      
-      const x = centerX + radius * Math.cos(angle);
-      const y = centerY + radius * Math.sin(angle);
-      
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY);
-      ctx.lineTo(x, y);
-      ctx.stroke();
-    }
-  }
-};
-
-const drawBlueVisualizer = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, frequencyData: Uint8Array) => {
-  const width = canvas.width / window.devicePixelRatio;
-  const height = canvas.height / window.devicePixelRatio;
-  
-  const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
-  bgGradient.addColorStop(0, 'rgba(7, 89, 133, 0.2)');
-  bgGradient.addColorStop(1, 'rgba(12, 74, 110, 0)');
-  
-  ctx.fillStyle = bgGradient;
-  ctx.fillRect(0, 0, width, height);
-  
-  const waveHeight = height * 0.6;
-  const waveBase = height * 0.8;
-  const waveWidth = width;
-  const waveSegments = 100;
-  const segmentWidth = waveWidth / waveSegments;
-  
-  // Calculate energy level for wave animation
-  let energy = 0;
-  for (let i = 0; i < 20; i++) {
-    energy += frequencyData[i];
-  }
-  energy = energy / (20 * 255);
-  
-  ctx.beginPath();
-  ctx.moveTo(0, waveBase);
-  
-  for (let i = 0; i <= waveSegments; i++) {
-    const x = i * segmentWidth;
-    const frequencyIndex = Math.floor(i * frequencyData.length / waveSegments);
-    const frequencyValue = frequencyData[frequencyIndex] || 0;
-    const normalizedValue = frequencyValue / 255;
-    
-    const waveAmplitude = waveHeight * 0.2 * (0.5 + energy);
-    const baseY = waveBase - normalizedValue * waveHeight * 0.3;
-    const y = baseY - Math.sin(i / waveSegments * Math.PI * 6) * waveAmplitude;
-    
-    ctx.lineTo(x, y);
-  }
-  
-  ctx.lineTo(waveWidth, height);
-  ctx.lineTo(0, height);
-  ctx.closePath();
-  
-  const waveGradient = ctx.createLinearGradient(0, waveBase - waveHeight * 0.5, 0, height);
-  waveGradient.addColorStop(0, 'rgba(56, 189, 248, 0.3)');
-  waveGradient.addColorStop(1, 'rgba(14, 116, 144, 0.1)');
-  
-  ctx.fillStyle = waveGradient;
-  ctx.fill();
-  
-  ctx.beginPath();
-  ctx.moveTo(0, waveBase);
-  
-  for (let i = 0; i <= waveSegments; i += 2) {
-    const x = i * segmentWidth;
-    const frequencyIndex = Math.floor(i * frequencyData.length / waveSegments);
-    const frequencyValue = frequencyData[frequencyIndex] || 0;
-    const normalizedValue = frequencyValue / 255;
-    
-    if (normalizedValue > 0.2 && i % 8 === 0) {
-      const lineHeight = normalizedValue * waveHeight * 0.8;
-      const startY = waveBase - lineHeight;
-      
-      ctx.moveTo(x, startY);
-      ctx.lineTo(x, waveBase - 5);
-    }
-  }
-  
-  ctx.strokeStyle = 'rgba(125, 211, 252, 0.5)';
-  ctx.lineWidth = 1;
-  ctx.stroke();
-  
-  for (let i = 0; i < 10; i++) {
-    const circleIndex = Math.floor(Math.random() * frequencyData.length);
-    const circleValue = frequencyData[circleIndex] || 0;
-    
-    if (circleValue > 50) {
-      const normalizedValue = circleValue / 255;
-      const radius = Math.max(2, normalizedValue * 15);
-      const x = Math.random() * width;
-      const y = waveBase - Math.random() * waveHeight * 1.2;
-      
-      ctx.beginPath();
-      ctx.arc(x, y, radius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(186, 230, 253, ${normalizedValue * 0.4})`;
-      ctx.fill();
-    }
-  }
-};
-
-const drawRainbowVisualizer = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, frequencyData: Uint8Array) => {
-  const width = canvas.width / window.devicePixelRatio;
-  const height = canvas.height / window.devicePixelRatio;
-  
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-  ctx.fillRect(0, 0, width, height);
-  
-  const centerX = width / 2;
-  const centerY = height / 2;
-  const minDimension = Math.min(width, height);
-  
-  const numRings = 5;
-  const numSegments = 20;
-  const maxRadius = minDimension * 0.4;
-  
-  let avgLevel = 0;
-  for (let i = 0; i < Math.min(32, frequencyData.length); i++) {
-    avgLevel += frequencyData[i] / 255;
-  }
-  avgLevel /= Math.min(32, frequencyData.length);
-  
-  const time = Date.now() / 2000;
-  const rotationSpeed = 0.05 + avgLevel * 0.1;
-  
-  for (let ring = 0; ring < numRings; ring++) {
-    const ringRadius = maxRadius * (0.2 + ring * 0.2);
-    const ringWidth = maxRadius * 0.05;
-    const segmentAngle = (2 * Math.PI) / numSegments;
-    
-    const direction = ring % 2 === 0 ? 1 : -1;
-    const rotation = time * rotationSpeed * direction;
-    
-    for (let segment = 0; segment < numSegments; segment++) {
-      const freqIndex = (ring * numSegments + segment) % frequencyData.length;
-      const freqValue = frequencyData[freqIndex] || 0;
-      const normalizedValue = freqValue / 255;
-      
-      const dynamicRadius = Math.max(0.1, ringRadius * (0.8 + normalizedValue * 0.4));
-      
-      const startAngle = segment * segmentAngle + rotation;
-      const endAngle = startAngle + segmentAngle;
-      
-      const hue = (segment / numSegments * 360 + ring * 25) % 360;
-      const saturation = 70 + normalizedValue * 30;
-      const lightness = 40 + normalizedValue * 20;
-      const alpha = 0.6 + normalizedValue * 0.4;
-      
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, dynamicRadius, startAngle, endAngle);
-      ctx.arc(centerX, centerY, Math.max(0.1, dynamicRadius - ringWidth), endAngle, startAngle, true);
-      ctx.closePath();
-      
-      ctx.fillStyle = `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`;
-      ctx.fill();
-    }
-  }
-  
-  const glowRadius = maxRadius * 0.2 * (0.8 + avgLevel * 0.4);
-  const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, glowRadius);
-  gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
-  gradient.addColorStop(0.5, 'rgba(255, 220, 255, 0.3)');
-  gradient.addColorStop(1, 'rgba(255, 220, 255, 0)');
-  
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, glowRadius, 0, Math.PI * 2);
-  ctx.fillStyle = gradient;
-  ctx.fill();
-};
-
-const drawGoldVisualizer = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, frequencyData: Uint8Array) => {
-  const width = canvas.width / window.devicePixelRatio;
-  const height = canvas.height / window.devicePixelRatio;
-  
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-  ctx.fillRect(0, 0, width, height);
-  
-  const centerX = width / 2;
-  const centerY = height / 2;
-  
-  let energy = 0;
-  for (let i = 0; i < 32; i++) {
-    energy += frequencyData[i];
-  }
-  energy = energy / (32 * 255);
-  
-  const maxRadius = Math.min(width, height) * 0.85 * (0.9 + energy * 0.2);
-  const phi = (1 + Math.sqrt(5)) / 2;
-  const turns = 5;
-  const pointsPerTurn = 60;
-  const totalPoints = turns * pointsPerTurn;
-  
-  ctx.beginPath();
-  let prevX = centerX;
-  let prevY = centerY;
-  
-  for (let i = 1; i <= totalPoints; i++) {
-    const angle = i * 0.1;
-    const scale = Math.pow(phi, angle / Math.PI);
-    const radius = maxRadius * (1 - Math.exp(-angle / 10));
-    
-    const x = centerX + radius * Math.cos(angle) / scale;
-    const y = centerY + radius * Math.sin(angle) / scale;
-    
-    const freqIndex = Math.floor(i * frequencyData.length / totalPoints) % frequencyData.length;
-    const freqValue = frequencyData[freqIndex] || 0;
-    const normalizedValue = freqValue / 255;
-    
-    if (i === 1) {
-      ctx.moveTo(x, y);
-    } else {
-      ctx.lineTo(x, y);
-    }
-    
-    prevX = x;
-    prevY = y;
-  }
-  
-  const gradient = ctx.createLinearGradient(0, 0, width, height);
-  gradient.addColorStop(0, 'rgba(255, 215, 0, 0.8)');
-  gradient.addColorStop(0.5, 'rgba(218, 165, 32, 0.7)');
-  gradient.addColorStop(1, 'rgba(184, 134, 11, 0.6)');
-  
-  ctx.strokeStyle = gradient;
-  ctx.lineWidth = 2 + energy * 4;
-  ctx.stroke();
-  
-  const numParticles = Math.floor(30 + energy * 30);
-  
-  for (let i = 0; i < numParticles; i++) {
-    const angle = i * turns * Math.PI * 2 / numParticles;
-    const scale = Math.pow(phi, angle / Math.PI);
-    const radius = maxRadius * (1 - Math.exp(-angle / 10)) * Math.random();
-    
-    const x = centerX + radius * Math.cos(angle) / scale;
-    const y = centerY + radius * Math.sin(angle) / scale;
-    
-    const freqIndex = Math.floor(i * frequencyData.length / numParticles);
-    const freqValue = frequencyData[freqIndex] || 0;
-    const normalizedValue = freqValue / 255;
-    
-    const particleSize = 1 + normalizedValue * 6;
-    const gradient = ctx.createRadialGradient(x, y, 0, x, y, particleSize);
-    gradient.addColorStop(0, 'rgba(255, 255, 200, 0.9)');
-    gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
-    
-    ctx.beginPath();
-    ctx.arc(x, y, particleSize, 0, Math.PI * 2);
-    ctx.fillStyle = gradient;
-    ctx.fill();
-  }
-  
-  const centerSize = Math.max(5, energy * 40);
-  const centerGlow = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, centerSize);
-  centerGlow.addColorStop(0, 'rgba(255, 255, 200, 0.9)');
-  centerGlow.addColorStop(0.6, 'rgba(255, 215, 0, 0.4)');
-  centerGlow.addColorStop(1, 'rgba(255, 215, 0, 0)');
-  
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, centerSize, 0, Math.PI * 2);
-  ctx.fillStyle = centerGlow;
-  ctx.fill();
-  
-  const geometrySize = maxRadius * 0.3 * (0.8 + energy * 0.4);
-  const points = 6;
-  
-  ctx.beginPath();
-  for (let i = 0; i < points * 2; i++) {
-    const radius = i % 2 === 0 ? geometrySize : geometrySize * 0.5;
-    const angle = i * Math.PI / points;
-    const x = centerX + radius * Math.cos(angle);
-    const y = centerY + radius * Math.sin(angle);
-    
-    if (i === 0) {
-      ctx.moveTo(x, y);
-    } else {
-      ctx.lineTo(x, y);
-    }
-  }
-  ctx.closePath();
-  
-  ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
 };
 
 export default SacredAudioPlayer;
