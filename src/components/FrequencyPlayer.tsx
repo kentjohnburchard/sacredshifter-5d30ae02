@@ -6,19 +6,22 @@ import { Slider } from '@/components/ui/slider';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 
 interface FrequencyPlayerProps {
-  audioUrl: string | null;
+  audioUrl?: string | null;
   frequency?: number;
   isPlaying?: boolean;
   onPlayToggle?: () => void;
   size?: 'sm' | 'md' | 'lg';
   showFrequency?: boolean;
-  // Add the new props that were causing errors
+  // Add all the props that were causing errors
   url?: string;
   id?: string;
   frequencyId?: string;
   groupId?: string; 
   title?: string;
   description?: string;
+  onPlayStateChange?: (isPlaying: boolean) => void;
+  interval?: any; // For HarmonicInterval
+  chakra?: string;
 }
 
 const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
@@ -33,7 +36,10 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   frequencyId,
   groupId,
   title,
-  description
+  description,
+  onPlayStateChange,
+  interval,
+  chakra
 }) => {
   const [volume, setVolume] = useState(0.7);
   const [isMuted, setIsMuted] = useState(false);
@@ -58,7 +64,8 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
           customData: { 
             frequency,
             frequencyId,
-            groupId
+            groupId,
+            chakra
           }
         });
       }
@@ -66,6 +73,10 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
 
     if (onPlayToggle) {
       onPlayToggle();
+    }
+    
+    if (onPlayStateChange) {
+      onPlayStateChange(!isPlaying);
     }
   };
 
@@ -98,13 +109,13 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     sm: 'h-8 w-8',
     md: 'h-10 w-10',
     lg: 'h-12 w-12'
-  }[size];
+  }[size] || 'h-10 w-10';
 
   const iconSizeClass = {
     sm: 'h-3.5 w-3.5',
     md: 'h-5 w-5',
     lg: 'h-6 w-6'
-  }[size];
+  }[size] || 'h-5 w-5';
 
   return (
     <div className="flex flex-col items-center gap-1">

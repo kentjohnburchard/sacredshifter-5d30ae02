@@ -1,15 +1,18 @@
 
 import React from "react";
-import Navbar from "./Navbar";
-import Footer from "./Footer";
+import Navbar from "@/components/navigation/Navbar";
+import Footer from "@/components/navigation/Footer";
 import SacredAudioPlayer from "./audio/SacredAudioPlayer";
 import { useGlobalAudioPlayer } from "@/hooks/useGlobalAudioPlayer";
 
 interface LayoutProps {
   children: React.ReactNode;
+  pageTitle?: string;
+  theme?: string;
+  useBlueWaveBackground?: boolean;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+const Layout: React.FC<LayoutProps> = ({ children, pageTitle, theme, useBlueWaveBackground }) => {
   // Use the global audio player to ensure the audio continues across route changes
   const { isPlaying } = useGlobalAudioPlayer();
   

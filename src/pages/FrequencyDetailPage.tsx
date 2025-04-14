@@ -20,7 +20,7 @@ const FrequencyDetailPage = () => {
         
         <FrequencyExperiencePlayer 
           audioUrl="/frequencies/528hz-love.mp3"
-          frequencyId={frequencyId}
+          frequency={frequencyId ? parseInt(frequencyId, 10) : 528}
         />
       </div>
     </Layout>
