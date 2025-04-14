@@ -212,7 +212,7 @@ const VisualizerScene = ({
         else shapeType = 'flowerOfLife';
         
         // Determine position based on audio data and randomness
-        const position = [
+        const position: [number, number, number] = [
           (Math.random() - 0.5) * 5,
           (Math.random() - 0.5) * 5,
           (Math.random() - 0.5) * 5
@@ -239,7 +239,7 @@ const VisualizerScene = ({
           id: Date.now() + Math.random(),
           type: shapeType,
           position,
-          rotation: [Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI],
+          rotation: [Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI] as [number, number, number],
           scale: 0.1 + amplitude * 0.5,
           color,
           opacity: 0.8
@@ -324,7 +324,7 @@ const SacredThreeVisualizer: React.FC<SacredThreeVisualizerProps> = ({
     <Canvas className="rounded-lg" shadows>
       <PerspectiveCamera 
         makeDefault
-        position={cameraPosition}
+        position={cameraPosition as [number, number, number]}
         fov={cameraFov}
       />
       <VisualizerScene
