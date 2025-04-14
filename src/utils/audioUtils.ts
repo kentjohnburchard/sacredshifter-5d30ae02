@@ -116,6 +116,80 @@ export function solfeggioFrequency(index: number): number {
 }
 
 /**
+ * Create a tone with the specified frequency
+ * @param frequency - The frequency in Hz to generate
+ * @param duration - Duration in seconds (default: 2)
+ * @param volume - Volume from 0 to 1 (default: 0.5)
+ * @returns An object with play and stop methods
+ */
+export function createTone(frequency: number, duration: number = 2, volume: number = 0.5) {
+  // Create audio context
+  const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+  const audioCtx = new AudioContext();
+  
+  // Create oscillator
+  const oscillator = audioCtx.createOscillator();
+  oscillator.type = 'sine';
+  oscillator.frequency.value = frequency;
+  
+  // Create gain node for volume control
+  const gainNode = audioCtx.createGain();
+  gainNode.gain.value = volume;
+  
+  // Connect nodes
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+  
+  let isPlaying = false;
+  let stopTimeout: number | null = null;
+  
+  return {
+    // Play the tone
+    play: () => {
+      if (isPlaying) return;
+      
+      oscillator.start();
+      isPlaying = true;
+      
+      // Auto-stop after duration
+      if (duration > 0) {
+        stopTimeout = window.setTimeout(() => {
+          if (isPlaying) {
+            oscillator.stop();
+            isPlaying = false;
+          }
+        }, duration * 1000);
+      }
+    },
+    
+    // Stop the tone
+    stop: () => {
+      if (!isPlaying) return;
+      
+      if (stopTimeout) {
+        clearTimeout(stopTimeout);
+      }
+      
+      oscillator.stop();
+      isPlaying = false;
+    },
+    
+    // Check if tone is playing
+    isPlaying: () => isPlaying,
+    
+    // Change frequency of the tone
+    setFrequency: (newFrequency: number) => {
+      oscillator.frequency.value = newFrequency;
+    },
+    
+    // Change volume of the tone
+    setVolume: (newVolume: number) => {
+      gainNode.gain.value = newVolume;
+    }
+  };
+}
+
+/**
  * Smoothly fade in audio for pleasing transition
  * @param audioElement - The audio element to fade in
  * @param duration - Fade duration in milliseconds

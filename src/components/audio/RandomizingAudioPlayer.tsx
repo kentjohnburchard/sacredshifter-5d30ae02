@@ -59,7 +59,7 @@ const RandomizingAudioPlayer: React.FC<RandomizingAudioPlayerProps> = ({
           const formattedTracks = data.map(track => ({
             id: track.id,
             audioUrl: track.audio_url || '',
-            title: track.title || `Track ${track.id}`
+            title: track.description || `Track ${track.id}`
           }));
           
           const sortedTracks = [...formattedTracks].sort((a, b) => {

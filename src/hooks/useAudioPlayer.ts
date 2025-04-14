@@ -14,17 +14,17 @@ interface Track {
 }
 
 export function useAudioPlayer() {
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
-  const [currentAudioTime, setCurrentAudioTime] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
   const [audioLoaded, setAudioLoaded] = useState(false);
   const [audioError, setAudioError] = useState<string | null>(null);
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const audioSourceRef = useRef<string | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const audioSourceConnectedRef = useRef<boolean>(false);
   
   // Initialize the audio element and audio context
   useEffect(() => {
@@ -64,7 +64,7 @@ export function useAudioPlayer() {
     const audio = audioRef.current;
     
     const handleTimeUpdate = () => {
-      setCurrentAudioTime(audio.currentTime);
+      setCurrentTime(audio.currentTime);
     };
     
     const handleLoadedMetadata = () => {
@@ -76,7 +76,7 @@ export function useAudioPlayer() {
     
     const handlePlay = () => {
       console.log("Audio play event detected");
-      setIsAudioPlaying(true);
+      setIsPlaying(true);
       
       // Notify any listeners about the state change
       const event = new CustomEvent('audioPlayStateChange', {
@@ -87,7 +87,7 @@ export function useAudioPlayer() {
     
     const handlePause = () => {
       console.log("Audio pause event detected");
-      setIsAudioPlaying(false);
+      setIsPlaying(false);
       
       // Notify any listeners about the state change
       const event = new CustomEvent('audioPlayStateChange', {
@@ -153,7 +153,7 @@ export function useAudioPlayer() {
     };
     
     const handleTogglePlayPause = () => {
-      togglePlayPause();
+      togglePlay();
     };
     
     window.addEventListener('playAudio', handlePlayAudio as EventListener);
@@ -172,8 +172,7 @@ export function useAudioPlayer() {
     console.log("Setting audio source to:", source);
     
     // Only change the source if it's different from current
-    if (audioSourceRef.current !== source) {
-      audioSourceRef.current = source;
+    if (audioRef.current.src !== source) {
       audioRef.current.src = source;
       audioRef.current.load();
       setAudioLoaded(false);
@@ -182,12 +181,12 @@ export function useAudioPlayer() {
   };
 
   // Function to toggle play/pause
-  const togglePlayPause = () => {
+  const togglePlay = () => {
     if (!audioRef.current) return;
     
-    console.log("Toggle play/pause called, current state:", isAudioPlaying);
+    console.log("Toggle play called, current state:", isPlaying);
     
-    if (isAudioPlaying) {
+    if (isPlaying) {
       audioRef.current.pause();
     } else {
       // Ensure we have a src before playing
@@ -213,19 +212,19 @@ export function useAudioPlayer() {
     if (!audioRef.current) return;
     
     audioRef.current.currentTime = time;
-    setCurrentAudioTime(time);
+    setCurrentTime(time);
   };
   
   // Function to set the current time
-  const setCurrentTime = (time: number) => {
+  const setCurrentTimeValue = (time: number) => {
     seekTo(time);
   };
 
   return {
-    isAudioPlaying,
+    isPlaying,
     duration,
-    currentAudioTime,
-    togglePlayPause,
+    currentTime,
+    togglePlay,
     seekTo,
     setAudioSource,
     audioRef,
@@ -233,6 +232,6 @@ export function useAudioPlayer() {
     audioError,
     audioContext: audioContextRef.current,
     currentTrack,
-    setCurrentTime
+    setCurrentTime: setCurrentTimeValue
   };
 }

@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { useTheme } from '@/context/ThemeContext';
 import { motion } from 'framer-motion';
+import { Pause, Play } from 'lucide-react';
 
 const chakraColors: Record<string, string> = {
   root: '#FF0000',
@@ -20,10 +21,10 @@ const SacredAudioPlayer: React.FC = () => {
   const {
     audioRef,
     currentTrack,
-    isAudioPlaying,
-    togglePlayPause,
+    isPlaying,
+    togglePlay,
     duration,
-    currentAudioTime,
+    currentTime,
     setCurrentTime,
     audioContext,
   } = useAudioPlayer();
@@ -31,13 +32,16 @@ const SacredAudioPlayer: React.FC = () => {
   const { liftTheVeil } = useTheme();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const audioSourceConnectedRef = useRef<boolean>(false);
+  const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
+  const circlesRef = useRef<any[]>([]);
+  const audioNodeConnectedRef = useRef<boolean>(false);
+  const maxCircles = 50;
 
-  // Set up audio analyzer only once when the audio context is available
+  // Setup audio analyser
   useEffect(() => {
-    if (!audioContext || !audioRef.current || audioSourceConnectedRef.current) return;
-
+    // Only connect once
+    if (audioNodeConnectedRef.current || !audioContext || !audioRef.current) return;
+    
     try {
       console.log("Setting up audio analyzer");
       const analyserNode = audioContext.createAnalyser();
@@ -48,16 +52,21 @@ const SacredAudioPlayer: React.FC = () => {
       source.connect(analyserNode);
       analyserNode.connect(audioContext.destination);
       
-      analyserRef.current = analyserNode;
-      audioSourceConnectedRef.current = true;
+      setAnalyser(analyserNode);
+      audioNodeConnectedRef.current = true;
     } catch (error) {
       console.error("Error setting up audio analyzer:", error);
     }
+    
+    return () => {
+      // Cleanup function - we don't disconnect because the audio element persists
+      // and we only want to connect once during the app's lifetime
+      console.log("SacredAudioPlayer component unmounting, but keeping audio context connected");
+    };
   }, [audioContext, audioRef]);
 
-  // Animation loop for the canvas
+  // Canvas animation effect
   useEffect(() => {
-    const analyser = analyserRef.current;
     if (!analyser || !canvasRef.current) return;
 
     const canvas = canvasRef.current;
@@ -66,6 +75,8 @@ const SacredAudioPlayer: React.FC = () => {
     
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
+    const width = canvas.width;
+    const height = canvas.height;
 
     const draw = () => {
       const animationId = requestAnimationFrame(draw);
@@ -77,42 +88,50 @@ const SacredAudioPlayer: React.FC = () => {
       }
       
       analyser.getByteFrequencyData(dataArray);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, width, height);
 
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
-      const radiusBase = Math.min(centerX, centerY) * 0.8;
-      const numPoints = bufferLength;
-      const angleStep = (2 * Math.PI) / numPoints;
+      const centerX = width / 2;
+      const centerY = height / 2;
 
-      ctx.save();
-      ctx.translate(centerX, centerY);
+      // Add new circle for prime frequency or at intervals
+      const maxValue = Math.max(...Array.from(dataArray));
+      const dominantIndex = Array.from(dataArray).indexOf(maxValue);
+      const dominantFreq = Math.round(dominantIndex * (audioContext.sampleRate / 2) / bufferLength);
 
-      for (let i = 0; i < numPoints; i++) {
-        const value = dataArray[i];
-        const angle = i * angleStep;
-        const magnitude = (value / 255);
-        const radius = radiusBase * (0.4 + magnitude * 0.6);
+      const isPrime = primeNumbers.includes(dominantFreq);
 
-        const x = Math.cos(angle) * radius;
-        const y = Math.sin(angle) * radius;
-
-        const freq = Math.round(i * (audioContext.sampleRate / 2) / bufferLength);
-        const isPrime = primeNumbers.includes(freq);
-
-        ctx.beginPath();
-        ctx.arc(x, y, 2 + magnitude * 3, 0, Math.PI * 2);
-        ctx.fillStyle = isPrime
-          ? liftTheVeil
-            ? '#FF69B4AA'
-            : '#A855F7AA'
-          : liftTheVeil
-          ? `hsla(${(i * 12) % 360}, 100%, 70%, 0.7)`
-          : 'rgba(255, 255, 255, 0.14)';
-        ctx.fill();
+      if (isPrime && circlesRef.current.length < maxCircles) {
+        circlesRef.current.push({
+          x: centerX,
+          y: centerY,
+          radius: 10,
+          opacity: 1,
+          color: liftTheVeil ? '#FF69B4' : '#A855F7'
+        });
       }
 
-      ctx.restore();
+      // Update and draw each circle
+      circlesRef.current.forEach((circle, index) => {
+        circle.radius += 1;
+        circle.opacity -= 0.01;
+        if (circle.opacity <= 0) {
+          circlesRef.current.splice(index, 1);
+          return;
+        }
+        
+        ctx.beginPath();
+        ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI);
+        ctx.strokeStyle = `${circle.color}${Math.floor(circle.opacity * 255).toString(16).padStart(2, '0')}`;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      });
+
+      // Bonus: draw flower of life origin circle
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, 30 + Math.sin(Date.now() / 400) * 5, 0, 2 * Math.PI);
+      ctx.strokeStyle = liftTheVeil ? '#FF69B4' : '#A855F7';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
     };
 
     const animationId = requestAnimationFrame(draw);
@@ -120,7 +139,7 @@ const SacredAudioPlayer: React.FC = () => {
     return () => {
       cancelAnimationFrame(animationId);
     };
-  }, [analyserRef.current, liftTheVeil, audioContext]);
+  }, [analyser, liftTheVeil, audioContext]);
 
   return (
     <div
@@ -140,17 +159,25 @@ const SacredAudioPlayer: React.FC = () => {
         </div>
         <motion.button
           whileTap={{ scale: 0.9 }}
-          onClick={togglePlayPause}
-          className="px-3 py-1 bg-white text-black rounded"
+          onClick={togglePlay}
+          className="px-3 py-1 bg-white text-black rounded flex items-center gap-1"
         >
-          {isAudioPlaying ? 'Pause' : 'Play'}
+          {isPlaying ? (
+            <>
+              <Pause size={14} /> <span>Pause</span>
+            </>
+          ) : (
+            <>
+              <Play size={14} /> <span>Play</span>
+            </>
+          )}
         </motion.button>
       </div>
       <input
         type="range"
         min={0}
         max={duration || 0}
-        value={currentAudioTime}
+        value={currentTime}
         onChange={(e) => setCurrentTime(parseFloat(e.target.value))}
         className="w-full mt-2"
       />
