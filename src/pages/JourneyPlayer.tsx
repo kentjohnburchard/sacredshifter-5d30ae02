@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -7,6 +8,7 @@ import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import { toast } from 'sonner';
 import { useJourneySongs } from '@/hooks/useJourneySongs';
 import { Button } from '@/components/ui/button';
+import SimplifiedVisualizer from '@/components/sacred-geometry/SimplifiedVisualizer';
 import { 
   ChevronDown, 
   ChevronUp,
@@ -14,7 +16,6 @@ import {
   Music,
   BookOpen
 } from 'lucide-react';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
@@ -32,7 +33,6 @@ const JourneyPlayer = () => {
   const audioPlayAttemptedRef = useRef(false);
   
   const { templates, loading: loadingTemplates } = useJourneyTemplates();
-  
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
 
   useEffect(() => {
@@ -190,12 +190,13 @@ const JourneyPlayer = () => {
             <CardContent className="pt-6">
               <h2 className="text-2xl font-bold text-red-600 mb-4">Journey Not Found</h2>
               <p className="text-gray-600 mb-6">The journey you're looking for doesn't exist or has been removed.</p>
-              <button 
-                className="bg-purple-600 text-white px-4 py-2 rounded"
+              <Button 
+                variant="default"
+                className="bg-purple-600 text-white"
                 onClick={() => navigate('/journey-templates')}
               >
                 Return to Journeys
-              </button>
+              </Button>
             </CardContent>
           </Card>
         </div>
@@ -206,6 +207,16 @@ const JourneyPlayer = () => {
   return (
     <Layout pageTitle={journey?.title || "Sacred Journey"}>
       <div className="max-w-4xl mx-auto p-4 relative z-10">
+        {/* Simplified visualizer */}
+        <div className="w-full h-64 mb-6">
+          <SimplifiedVisualizer 
+            size="lg" 
+            isAudioReactive={true}
+            colorScheme={journey?.colorScheme || "purple"}
+            chakra={journey?.chakras?.[0] || undefined}
+          />
+        </div>
+
         <Card className="backdrop-blur-sm border border-purple-200/30 dark:border-purple-900/30 bg-white/80 dark:bg-black/60">
           <CardContent className="p-6">
             <div className="flex justify-between items-center mb-6">

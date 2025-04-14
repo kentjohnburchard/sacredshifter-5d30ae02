@@ -10,6 +10,7 @@ import { AuthProvider } from './context/AuthContext.tsx'
 // Create a client
 const queryClient = new QueryClient()
 
+// Use createRoot API
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
