@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { useJourneySongs } from '@/hooks/useJourneySongs';
 import { Button } from '@/components/ui/button';
 import SimplifiedVisualizer from '@/components/sacred-geometry/SimplifiedVisualizer';
+import SimpleFallbackVisualizer from '@/components/visualizer/SimpleFallbackVisualizer';
 import { 
   ChevronDown, 
   ChevronUp,
@@ -28,6 +29,8 @@ const JourneyPlayer = () => {
   const [infoExpanded, setInfoExpanded] = useState(false);
   const [audioAnalyser, setAudioAnalyser] = useState<AnalyserNode | null>(null);
   const [audioInitialized, setAudioInitialized] = useState(false);
+  const [visualizerError, setVisualizerError] = useState<string | null>(null);
+  const [audioData, setAudioData] = useState<Uint8Array | undefined>();
   
   const lastPlayedIndex = useRef<number | null>(null);
   const songsRef = useRef<any[]>([]);
@@ -79,19 +82,31 @@ const JourneyPlayer = () => {
               analyser.connect(audioCtx.destination);
               console.log("Connected audio analyzer to audio element");
               setAudioInitialized(true);
+              
+              const dataArray = new Uint8Array(analyser.frequencyBinCount);
+              const updateAudioData = () => {
+                analyser.getByteFrequencyData(dataArray);
+                setAudioData(new Uint8Array(dataArray));
+                requestAnimationFrame(updateAudioData);
+              };
+              updateAudioData();
+              
             } catch (connectionError: any) {
               if (connectionError.toString().includes('already connected')) {
                 console.log("Audio element already connected to context");
                 setAudioInitialized(true);
               } else {
                 console.error("Error connecting analyzer:", connectionError);
+                setVisualizerError("Error connecting audio analyzer");
               }
             }
           }
         } catch (error) {
           console.error("Error connecting to audio element:", error);
-          if (error.toString && error.toString().includes('already connected')) {
+          if (error instanceof Error && error.toString().includes('already connected')) {
             setAudioInitialized(true);
+          } else {
+            setVisualizerError("Error with audio element connection");
           }
         }
       };
@@ -109,6 +124,7 @@ const JourneyPlayer = () => {
       };
     } catch (error) {
       console.error("Failed to initialize audio analyzer:", error);
+      setVisualizerError("Failed to initialize audio analyzer");
     }
   }, []);
 
@@ -285,13 +301,20 @@ const JourneyPlayer = () => {
     <Layout pageTitle={journey?.title || "Sacred Journey"}>
       <div className="max-w-4xl mx-auto p-4 relative z-10">
         <div className="w-full h-64 mb-6">
-          <SimplifiedVisualizer 
-            size="lg" 
-            isAudioReactive={true}
-            analyser={audioAnalyser}
-            colorScheme={journey?.colorScheme || "purple"}
-            chakra={journey?.chakras?.[0] || undefined}
-          />
+          {visualizerError ? (
+            <SimpleFallbackVisualizer 
+              audioData={audioData}
+              colorScheme={journey?.colorScheme || "purple"}
+            />
+          ) : (
+            <SimplifiedVisualizer 
+              size="lg" 
+              isAudioReactive={true}
+              analyser={audioAnalyser}
+              colorScheme={journey?.colorScheme || "purple"}
+              chakra={journey?.chakras?.[0] || undefined}
+            />
+          )}
         </div>
 
         <Card className="backdrop-blur-sm border border-purple-200/30 dark:border-purple-900/30 bg-white/80 dark:bg-black/60">

@@ -368,31 +368,30 @@ const SacredThreeVisualizer: React.FC<SacredThreeVisualizerProps> = ({
   // Use a ref to track initialization attempts
   const initAttemptedRef = useRef(false);
   
-  // Check if THREE is properly loaded
+  // Verify global THREE is available before rendering
   useEffect(() => {
-    if (initAttemptedRef.current) return;
+    if (typeof window === 'undefined' || initAttemptedRef.current) return;
+    
     initAttemptedRef.current = true;
     
     try {
-      // Check if THREE is available globally
-      if (typeof window !== 'undefined' && window.THREE) {
+      if (!window.THREE) {
+        // If not globally available yet, try to set it
+        console.log("Setting up THREE globally in SacredThreeVisualizer");
+        window.THREE = THREE;
+      }
+      
+      if (window.THREE) {
         console.log("THREE is available in SacredThreeVisualizer:", window.THREE.REVISION);
-        setThreeLoaded(true);
-      } else if (typeof THREE !== 'undefined') {
-        // Use imported THREE if global is not available
-        console.log("Using imported THREE in SacredThreeVisualizer:", THREE.REVISION);
-        // Set THREE globally if it doesn't exist
-        if (typeof window !== 'undefined' && !window.THREE) {
-          window.THREE = THREE;
-        }
+        window.SacredThreeVisualizerLoaded = true;
         setThreeLoaded(true);
       } else {
-        console.warn("THREE is not available in SacredThreeVisualizer component");
-        setThreeError("THREE.js could not be initialized");
+        console.error("THREE is still not available globally after attempt to set it");
+        setThreeError("Failed to initialize THREE.js");
       }
     } catch (error) {
       console.error("Error initializing THREE:", error);
-      setThreeError("Error initializing 3D engine");
+      setThreeError(`THREE.js initialization error: ${error instanceof Error ? error.message : String(error)}`);
     }
   }, []);
   
@@ -406,6 +405,7 @@ const SacredThreeVisualizer: React.FC<SacredThreeVisualizerProps> = ({
   }
   
   if (threeError || !threeLoaded) {
+    console.warn("Using 2D fallback due to THREE.js issue:", threeError);
     // Fallback to 2D canvas-based visualizer
     return (
       <SacredGeometryCanvas 
@@ -417,28 +417,31 @@ const SacredThreeVisualizer: React.FC<SacredThreeVisualizerProps> = ({
     );
   }
 
+  // Only create Canvas if THREE is properly loaded
   return (
     <div className="w-full h-full rounded-lg overflow-hidden">
-      <Canvas className="rounded-lg" shadows>
-        <PerspectiveCamera 
-          makeDefault
-          position={cameraPosition}
-          fov={cameraFov}
-        />
-        <VisualizerScene
-          audioData={audioData}
-          isPlaying={isPlaying}
-          liftTheVeil={liftTheVeil}
-        />
-        <OrbitControls 
-          enableZoom={fullscreen}
-          enablePan={fullscreen}
-          enableRotate
-          rotateSpeed={0.5}
-          maxDistance={20}
-          minDistance={3}
-        />
-      </Canvas>
+      {threeLoaded && (
+        <Canvas className="rounded-lg" shadows>
+          <PerspectiveCamera 
+            makeDefault
+            position={cameraPosition}
+            fov={cameraFov}
+          />
+          <VisualizerScene
+            audioData={audioData}
+            isPlaying={isPlaying}
+            liftTheVeil={liftTheVeil}
+          />
+          <OrbitControls 
+            enableZoom={fullscreen}
+            enablePan={fullscreen}
+            enableRotate
+            rotateSpeed={0.5}
+            maxDistance={20}
+            minDistance={3}
+          />
+        </Canvas>
+      )}
     </div>
   );
 };
