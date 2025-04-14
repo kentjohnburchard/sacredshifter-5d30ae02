@@ -1,10 +1,11 @@
+
 import React, { useRef, useState, useEffect, RefObject } from 'react';
 import { Button } from "@/components/ui/button";
 import { Pause, Play, Volume2, VolumeX, SkipForward, Loader2 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
+import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 
 interface RandomizingAudioPlayerProps {
   audioRef?: RefObject<HTMLAudioElement>;
@@ -16,83 +17,27 @@ interface RandomizingAudioPlayerProps {
 }
 
 const RandomizingAudioPlayer: React.FC<RandomizingAudioPlayerProps> = ({
-  audioRef: providedAudioRef,
   audioUrl,
   groupId,
   frequency,
   autoPlay = false,
   onPlayStateChange
 }) => {
-  // Use provided audioRef or create our own
-  const internalAudioRef = useRef<HTMLAudioElement | null>(null);
-  const audioRef = providedAudioRef || internalAudioRef;
+  const { playAudio, togglePlayPause, isPlaying } = useGlobalAudioPlayer();
   
-  const [isPlaying, setIsPlaying] = useState(autoPlay);
   const [volume, setVolume] = useState(0.7);
   const [isMuted, setIsMuted] = useState(false);
-  const [tracks, setTracks] = useState<{id: string, audioUrl: string}[]>([]);
+  const [tracks, setTracks] = useState<{id: string, audioUrl: string, title?: string}[]>([]);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const prevAutoPlayRef = useRef(autoPlay);
-  
-  // Initialize audio element
-  useEffect(() => {
-    if (!audioRef.current) {
-      if (internalAudioRef.current === null) {
-        internalAudioRef.current = new Audio();
-      }
-      // For the provided ref, we can't modify it directly
-      if (providedAudioRef && !providedAudioRef.current) {
-        console.warn("Provided audioRef is null, using internal audio element");
-      }
-    }
-
-    const audio = audioRef.current || internalAudioRef.current;
-    
-    if (audio) {
-      audio.volume = volume;
-      audio.muted = isMuted;
-
-      const handleEnded = () => {
-        if (tracks.length > 1) {
-          skipToNextTrack();
-        } else {
-          setIsPlaying(false);
-          if (onPlayStateChange) onPlayStateChange(false);
-        }
-      };
-
-      audio.addEventListener('ended', handleEnded);
-      
-      return () => {
-        audio.removeEventListener('ended', handleEnded);
-        audio.pause();
-      };
-    }
-  }, [audioRef, tracks]);
-  
-  // Handle volume changes
-  useEffect(() => {
-    const audio = audioRef.current || internalAudioRef.current;
-    if (audio) {
-      audio.volume = volume;
-    }
-  }, [volume, audioRef]);
-  
-  // Handle mute/unmute
-  useEffect(() => {
-    const audio = audioRef.current || internalAudioRef.current;
-    if (audio) {
-      audio.muted = isMuted;
-    }
-  }, [isMuted, audioRef]);
   
   // Fetch tracks if groupId is provided
   useEffect(() => {
     const fetchTracks = async () => {
       if (!groupId) {
         if (audioUrl) {
-          setTracks([{id: 'single', audioUrl}]);
+          setTracks([{id: 'single', audioUrl, title: `Frequency ${frequency || ''}`}]);
         }
         return;
       }
@@ -113,7 +58,8 @@ const RandomizingAudioPlayer: React.FC<RandomizingAudioPlayerProps> = ({
           
           const formattedTracks = data.map(track => ({
             id: track.id,
-            audioUrl: track.audio_url || ''
+            audioUrl: track.audio_url || '',
+            title: track.title || `Track ${track.id}`
           }));
           
           const sortedTracks = [...formattedTracks].sort((a, b) => {
@@ -127,12 +73,12 @@ const RandomizingAudioPlayer: React.FC<RandomizingAudioPlayerProps> = ({
           
           setTracks(sortedTracks);
         } else if (audioUrl) {
-          setTracks([{id: 'single', audioUrl}]);
+          setTracks([{id: 'single', audioUrl, title: `Frequency ${frequency || ''}`}]);
         }
       } catch (error) {
         console.error("Error fetching tracks:", error);
         if (audioUrl) {
-          setTracks([{id: 'single', audioUrl}]);
+          setTracks([{id: 'single', audioUrl, title: `Frequency ${frequency || ''}`}]);
         }
       } finally {
         setIsLoading(false);
@@ -140,90 +86,46 @@ const RandomizingAudioPlayer: React.FC<RandomizingAudioPlayerProps> = ({
     };
     
     fetchTracks();
-  }, [groupId, audioUrl]);
-  
-  // Set audio source when tracks/currentTrackIndex change
-  useEffect(() => {
-    const setAudioSource = () => {
-      const audio = audioRef.current || internalAudioRef.current;
-      if (!audio || tracks.length === 0) return;
-      
-      const currentTrack = tracks[currentTrackIndex];
-      if (!currentTrack) return;
-      
-      let url = currentTrack.audioUrl;
-      console.log("Setting audio source to:", url);
-      
-      if (!url.startsWith('http')) {
-        url = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${url}`;
-      }
-      
-      if (url.includes(' ') || url.includes('(') || url.includes(')')) {
-        url = encodeURI(url);
-      }
-      
-      audio.src = url;
-      audio.load();
-    };
-    
-    setAudioSource();
-  }, [tracks, currentTrackIndex, audioRef]);
+  }, [groupId, audioUrl, frequency]);
   
   // Handle autoPlay prop changes
   useEffect(() => {
     if (autoPlay !== prevAutoPlayRef.current) {
       prevAutoPlayRef.current = autoPlay;
-      setIsPlaying(autoPlay);
       
-      if (autoPlay) {
-        const audio = audioRef.current || internalAudioRef.current;
-        if (audio) {
-          audio.play().catch(err => {
-            console.error("Failed to autoplay:", err);
-            setIsPlaying(false);
-            if (onPlayStateChange) onPlayStateChange(false);
+      if (autoPlay && tracks.length > 0) {
+        const currentTrack = tracks[currentTrackIndex];
+        if (currentTrack) {
+          playAudio({
+            title: currentTrack.title || `Track ${currentTrackIndex + 1}`,
+            source: currentTrack.audioUrl,
+            customData: { frequency }
           });
         }
-      } else {
-        const audio = audioRef.current || internalAudioRef.current;
-        if (audio) {
-          audio.pause();
-        }
       }
     }
-  }, [autoPlay, onPlayStateChange, audioRef]);
+  }, [autoPlay, tracks, currentTrackIndex, playAudio, frequency]);
   
-  // Handle play state changes
+  // Notify parent component of play state changes
   useEffect(() => {
-    const audio = audioRef.current || internalAudioRef.current;
-    if (!audio || tracks.length === 0) return;
-    
-    if (isPlaying) {
-      const playPromise = audio.play();
-      
-      if (playPromise !== undefined) {
-        playPromise.catch(error => {
-          console.error("Play error:", error);
-          setIsPlaying(false);
-          if (onPlayStateChange) onPlayStateChange(false);
-          toast.error("Could not play audio. Please try again or check your browser permissions.");
-        });
-      }
-    } else {
-      audio.pause();
-    }
-    
     if (onPlayStateChange) {
       onPlayStateChange(isPlaying);
     }
-  }, [isPlaying, tracks, onPlayStateChange, audioRef]);
+  }, [isPlaying, onPlayStateChange]);
   
-  const togglePlayPause = () => {
-    setIsPlaying(prev => !prev);
-  };
-  
-  const toggleMute = () => {
-    setIsMuted(prev => !prev);
+  const handleTogglePlayPause = () => {
+    if (tracks.length === 0) return;
+    
+    if (!isPlaying) {
+      const currentTrack = tracks[currentTrackIndex];
+      playAudio({
+        title: currentTrack.title || `Track ${currentTrackIndex + 1}`,
+        source: currentTrack.audioUrl,
+        customData: { frequency }
+      });
+    } else {
+      togglePlayPause();
+    }
   };
   
   const handleVolumeChange = (value: number[]) => {
@@ -231,28 +133,36 @@ const RandomizingAudioPlayer: React.FC<RandomizingAudioPlayerProps> = ({
     if (value[0] > 0 && isMuted) {
       setIsMuted(false);
     }
+    
+    // Update volume of the global audio player
+    const audioElement = document.getElementById('global-audio-player') as HTMLAudioElement;
+    if (audioElement) {
+      audioElement.volume = value[0];
+    }
+  };
+  
+  const toggleMute = () => {
+    setIsMuted(prev => !prev);
+    
+    // Update mute status of the global audio player
+    const audioElement = document.getElementById('global-audio-player') as HTMLAudioElement;
+    if (audioElement) {
+      audioElement.muted = !isMuted;
+    }
   };
   
   const skipToNextTrack = () => {
     if (tracks.length <= 1) return;
     
-    setCurrentTrackIndex(prev => {
-      const nextIndex = (prev + 1) % tracks.length;
-      return nextIndex;
-    });
+    const nextIndex = (currentTrackIndex + 1) % tracks.length;
+    setCurrentTrackIndex(nextIndex);
     
-    if (isPlaying) {
-      const audio = audioRef.current || internalAudioRef.current;
-      if (audio) {
-        const playPromise = audio.play();
-        
-        if (playPromise !== undefined) {
-          playPromise.catch(error => {
-            console.error("Error playing next track:", error);
-          });
-        }
-      }
-    }
+    const nextTrack = tracks[nextIndex];
+    playAudio({
+      title: nextTrack.title || `Track ${nextIndex + 1}`,
+      source: nextTrack.audioUrl,
+      customData: { frequency }
+    });
   };
   
   return (
@@ -262,7 +172,7 @@ const RandomizingAudioPlayer: React.FC<RandomizingAudioPlayerProps> = ({
           variant="outline"
           size="icon"
           disabled={isLoading || tracks.length === 0}
-          onClick={togglePlayPause}
+          onClick={handleTogglePlayPause}
           className={`h-10 w-10 rounded-full ${isPlaying ? 'bg-purple-100' : 'bg-white'}`}
         >
           {isLoading ? (
