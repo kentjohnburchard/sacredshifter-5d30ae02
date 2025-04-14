@@ -1,16 +1,23 @@
 
 import React, { useRef, useEffect, useState } from 'react';
+import { isPrime } from '@/lib/mathUtils';
 
 interface SimpleFallbackVisualizerProps {
   audioData?: Uint8Array;
   colorScheme?: string;
   sensitivity?: number;
+  showPrimeIndicators?: boolean;
+  geometryComplexity?: 'simple' | 'medium' | 'complex';
+  activePrimes?: number[];
 }
 
 const SimpleFallbackVisualizer: React.FC<SimpleFallbackVisualizerProps> = ({
   audioData,
   colorScheme = 'purple',
-  sensitivity = 1.0
+  sensitivity = 1.0,
+  showPrimeIndicators = true,
+  geometryComplexity = 'medium',
+  activePrimes = []
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
@@ -25,6 +32,7 @@ const SimpleFallbackVisualizer: React.FC<SimpleFallbackVisualizerProps> = ({
     opacity: number;
     hue: number;
     sides: number;
+    isPrime?: boolean;
   }>>([]);
   
   const [windowSize, setWindowSize] = useState({
@@ -58,19 +66,27 @@ const SimpleFallbackVisualizer: React.FC<SimpleFallbackVisualizerProps> = ({
 
   // Initialize particles
   useEffect(() => {
-    particlesRef.current = Array(20).fill(0).map(() => ({
-      x: Math.random() * windowSize.width,
-      y: Math.random() * windowSize.height,
-      size: 5 + Math.random() * 10,
-      speed: 0.2 + Math.random() * 0.5,
-      angle: Math.random() * Math.PI * 2,
-      rotation: Math.random() * Math.PI * 2,
-      rotationSpeed: (0.002 + Math.random() * 0.01) * (Math.random() > 0.5 ? 1 : -1),
-      opacity: 0.4 + Math.random() * 0.4,
-      hue: getBaseColor().hue + (Math.random() * 60 - 30),
-      sides: Math.floor(Math.random() * 5) + 3 // 3-7 sides for polygons
-    }));
-  }, [windowSize]);
+    // Determine number of particles based on complexity
+    const particleCount = geometryComplexity === 'simple' ? 20 : 
+                         geometryComplexity === 'medium' ? 35 : 50;
+    
+    particlesRef.current = Array(particleCount).fill(0).map((_, i) => {
+      const isPrimeParticle = i % 10 === 0; // Make some particles prime-related
+      return {
+        x: Math.random() * windowSize.width,
+        y: Math.random() * windowSize.height,
+        size: 5 + Math.random() * 10,
+        speed: 0.2 + Math.random() * 0.5,
+        angle: Math.random() * Math.PI * 2,
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: (0.002 + Math.random() * 0.01) * (Math.random() > 0.5 ? 1 : -1),
+        opacity: 0.4 + Math.random() * 0.4,
+        hue: getBaseColor().hue + (Math.random() * 60 - 30),
+        sides: Math.floor(Math.random() * 5) + 3, // 3-7 sides for polygons
+        isPrime: isPrimeParticle
+      };
+    });
+  }, [windowSize, geometryComplexity]);
 
   // Draw a polygon with specified sides
   const drawPolygon = (ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, sides: number, rotation: number) => {
@@ -89,6 +105,7 @@ const SimpleFallbackVisualizer: React.FC<SimpleFallbackVisualizerProps> = ({
     ctx.closePath();
   };
   
+  // Draw a sacred geometry mandala
   const drawMandala = (ctx: CanvasRenderingContext2D, x: number, y: number, outerRadius: number, innerRadius: number, petals: number, rotation: number, color: string) => {
     ctx.save();
     ctx.translate(x, y);
@@ -123,6 +140,7 @@ const SimpleFallbackVisualizer: React.FC<SimpleFallbackVisualizerProps> = ({
     ctx.restore();
   };
   
+  // Draw flower of life pattern - a sacred geometry classic
   const drawSacredFlower = (ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, layers: number, rotation: number, color: string) => {
     ctx.save();
     ctx.translate(x, y);
@@ -155,6 +173,163 @@ const SimpleFallbackVisualizer: React.FC<SimpleFallbackVisualizerProps> = ({
     ctx.arc(0, 0, radius * 0.3, 0, Math.PI * 2);
     ctx.fillStyle = color;
     ctx.fill();
+    
+    ctx.restore();
+  };
+
+  // Draw Sri Yantra - more complex sacred geometry
+  const drawSriYantra = (ctx: CanvasRenderingContext2D, x: number, y: number, size: number, rotation: number, color: string) => {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rotation);
+    
+    const drawTriangle = (innerPct: number, outerPct: number, pointUp: boolean) => {
+      const innerSize = size * innerPct;
+      const outerSize = size * outerPct;
+      
+      ctx.beginPath();
+      if (pointUp) {
+        ctx.moveTo(0, -outerSize); // Top point
+        ctx.lineTo(innerSize, innerSize/1.5); // Bottom right
+        ctx.lineTo(-innerSize, innerSize/1.5); // Bottom left
+      } else {
+        ctx.moveTo(0, outerSize); // Bottom point
+        ctx.lineTo(innerSize, -innerSize/1.5); // Top right
+        ctx.lineTo(-innerSize, -innerSize/1.5); // Top left
+      }
+      ctx.closePath();
+      ctx.strokeStyle = color;
+      ctx.stroke();
+    };
+    
+    // Draw multiple triangles
+    for (let i = 0; i < 5; i++) {
+      // Upward triangles
+      drawTriangle(0.4 + i * 0.1, 0.7 - i * 0.05, true);
+      // Downward triangles
+      drawTriangle(0.4 + i * 0.1, 0.7 - i * 0.05, false);
+    }
+    
+    // Draw central dot (bindu)
+    ctx.beginPath();
+    ctx.arc(0, 0, size * 0.05, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    
+    // Draw circles
+    for (let i = 1; i <= 3; i++) {
+      ctx.beginPath();
+      ctx.arc(0, 0, size * (0.2 * i), 0, Math.PI * 2);
+      ctx.strokeStyle = color;
+      ctx.stroke();
+    }
+    
+    ctx.restore();
+  };
+  
+  // Draw fractal tree - recursive
+  const drawFractalTree = (ctx: CanvasRenderingContext2D, x: number, y: number, length: number, angle: number, depth: number, branchWidth: number, color: string) => {
+    if (depth === 0) return;
+    
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    
+    // Draw branch
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(0, -length);
+    ctx.lineWidth = branchWidth;
+    ctx.strokeStyle = color;
+    ctx.stroke();
+    
+    if (depth === 1) {
+      // Draw leaf at endpoints
+      ctx.beginPath();
+      ctx.arc(0, -length, length * 0.2, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.globalAlpha = 0.5;
+      ctx.fill();
+      ctx.globalAlpha = 1.0;
+    } else {
+      // Recursively draw branches
+      const newLength = length * 0.67;
+      const newWidth = branchWidth * 0.7;
+      
+      // Right branch
+      drawFractalTree(
+        ctx, 
+        0, 
+        -length, 
+        newLength, 
+        angle + 0.4, 
+        depth - 1, 
+        newWidth,
+        color
+      );
+      
+      // Left branch
+      drawFractalTree(
+        ctx, 
+        0, 
+        -length, 
+        newLength, 
+        angle - 0.4, 
+        depth - 1, 
+        newWidth,
+        color
+      );
+    }
+    
+    ctx.restore();
+  };
+
+  // Draw Metatron's Cube - advanced sacred geometry
+  const drawMetatronsCube = (ctx: CanvasRenderingContext2D, x: number, y: number, size: number, rotation: number, color: string) => {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rotation);
+    
+    // Draw 13 circles (Fruit of Life pattern)
+    const drawCircle = (offsetX: number, offsetY: number) => {
+      ctx.beginPath();
+      ctx.arc(offsetX * size, offsetY * size, size * 0.2, 0, Math.PI * 2);
+      ctx.strokeStyle = color;
+      ctx.stroke();
+    };
+    
+    // Center circle
+    drawCircle(0, 0);
+    
+    // First ring - 6 circles
+    for (let i = 0; i < 6; i++) {
+      const angle = Math.PI * 2 * (i / 6);
+      drawCircle(Math.cos(angle) * 0.4, Math.sin(angle) * 0.4);
+    }
+    
+    // Connect lines of cube
+    ctx.beginPath();
+    
+    // Draw the platonic solids embedded in the pattern
+    const points = [];
+    for (let i = 0; i < 10; i++) {
+      const angle = Math.PI * 2 * (i / 10);
+      points.push({
+        x: Math.cos(angle) * size * 0.8,
+        y: Math.sin(angle) * size * 0.8
+      });
+    }
+    
+    // Connect all points
+    for (let i = 0; i < points.length; i++) {
+      for (let j = i + 1; j < points.length; j++) {
+        ctx.beginPath();
+        ctx.moveTo(points[i].x, points[i].y);
+        ctx.lineTo(points[j].x, points[j].y);
+        ctx.strokeStyle = `${color}40`; // Semi-transparent
+        ctx.stroke();
+      }
+    }
     
     ctx.restore();
   };
@@ -212,11 +387,7 @@ const SimpleFallbackVisualizer: React.FC<SimpleFallbackVisualizerProps> = ({
         audioAmplitude = (bassValue + midValue + trebleValue) / 3;
         
         // Check for prime frequency energy peaks
-        const primes = [2, 3, 5, 7, 11, 13, 17, 19, 23];
-        isPrimeFrequency = primes.some(prime => {
-          const index = Math.floor((prime / 30) * audioData.length);
-          return index < audioData.length && (audioData[index] / 255) > 0.7;
-        });
+        isPrimeFrequency = activePrimes.length > 0;
       }
       
       // Apply sensitivity multiplier
@@ -313,6 +484,57 @@ const SimpleFallbackVisualizer: React.FC<SimpleFallbackVisualizerProps> = ({
         );
       }
       
+      // Draw more complex geometry based on complexity setting
+      if (geometryComplexity === 'complex') {
+        // Draw Metatron's Cube
+        if (colorScheme === 'rainbow') {
+          const cycleHue = ((time * 20) + 180) % 360;
+          const hueString = `hsla(${cycleHue}, 100%, 70%, 0.3)`;
+          drawMetatronsCube(
+            ctx,
+            centerX,
+            centerY,
+            reactiveRadius * 0.9,
+            time * 0.1,
+            hueString
+          );
+        } else {
+          const colorString = `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, 0.3)`;
+          drawMetatronsCube(
+            ctx,
+            centerX,
+            centerY,
+            reactiveRadius * 0.9,
+            time * 0.1,
+            colorString
+          );
+        }
+      } else if (geometryComplexity === 'medium') {
+        // Draw Sri Yantra for medium complexity
+        if (colorScheme === 'rainbow') {
+          const cycleHue = ((time * 20) + 240) % 360;
+          const hueString = `hsla(${cycleHue}, 100%, 70%, 0.3)`;
+          drawSriYantra(
+            ctx,
+            centerX,
+            centerY,
+            reactiveRadius * 0.8,
+            time * 0.05,
+            hueString
+          );
+        } else {
+          const colorString = `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, 0.3)`;
+          drawSriYantra(
+            ctx,
+            centerX,
+            centerY,
+            reactiveRadius * 0.8,
+            time * 0.05,
+            colorString
+          );
+        }
+      }
+      
       // Draw frequency bands
       if (audioData && audioData.length > 0) {
         const totalBars = Math.min(32, audioData.length / 4);
@@ -337,16 +559,19 @@ const SimpleFallbackVisualizer: React.FC<SimpleFallbackVisualizerProps> = ({
           const x2 = centerX + Math.cos(angle) * (distance + barHeight);
           const y2 = centerY + Math.sin(angle) * (distance + barHeight);
           
+          // Highlight prime frequencies
+          const isCurrentFreqPrime = isPrime(i + 2);
+          
           // Create line gradient
           const lineGradient = ctx.createLinearGradient(x1, y1, x2, y2);
           
           if (colorScheme === 'rainbow') {
             const hue = (i / totalBars * 360 + time * 10) % 360;
             lineGradient.addColorStop(0, `hsla(${hue}, 100%, 50%, 0.1)`);
-            lineGradient.addColorStop(1, `hsla(${hue}, 100%, 70%, 0.7)`);
+            lineGradient.addColorStop(1, `hsla(${hue}, 100%, 70%, ${isCurrentFreqPrime && showPrimeIndicators ? 0.9 : 0.7})`);
           } else {
             lineGradient.addColorStop(0, `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, 0.1)`);
-            lineGradient.addColorStop(1, `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, 0.7)`);
+            lineGradient.addColorStop(1, `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, ${isCurrentFreqPrime && showPrimeIndicators ? 0.9 : 0.7})`);
           }
           
           ctx.beginPath();
@@ -391,22 +616,61 @@ const SimpleFallbackVisualizer: React.FC<SimpleFallbackVisualizerProps> = ({
           ctx.fillStyle = `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, ${particle.opacity})`;
         }
         
-        drawPolygon(
-          ctx, 
-          particle.x, 
-          particle.y, 
-          reactiveSize, 
-          particle.sides, 
-          particle.rotation
-        );
-        
-        ctx.fill();
+        // If prime particle, draw a special shape
+        if (particle.isPrime && showPrimeIndicators && isPrimeFrequency) {
+          if (geometryComplexity === 'complex') {
+            // Draw mini fractal trees
+            drawFractalTree(
+              ctx, 
+              particle.x, 
+              particle.y, 
+              reactiveSize * 2, 
+              0, 
+              3, 
+              1.5, 
+              ctx.fillStyle
+            );
+          } else {
+            // Draw a star
+            const points = 5;
+            const outerRadius = reactiveSize;
+            const innerRadius = reactiveSize * 0.5;
+            
+            ctx.beginPath();
+            for (let i = 0; i < points * 2; i++) {
+              const radius = i % 2 === 0 ? outerRadius : innerRadius;
+              const angle = (i * Math.PI) / points + particle.rotation;
+              
+              const x = particle.x + radius * Math.cos(angle);
+              const y = particle.y + radius * Math.sin(angle);
+              
+              if (i === 0) {
+                ctx.moveTo(x, y);
+              } else {
+                ctx.lineTo(x, y);
+              }
+            }
+            ctx.closePath();
+            ctx.fill();
+          }
+        } else {
+          drawPolygon(
+            ctx, 
+            particle.x, 
+            particle.y, 
+            reactiveSize, 
+            particle.sides, 
+            particle.rotation
+          );
+          
+          ctx.fill();
+        }
       });
       
       ctx.restore();
       
       // Special effect for prime frequencies
-      if (isPrimeFrequency) {
+      if (isPrimeFrequency && showPrimeIndicators) {
         ctx.save();
         ctx.globalCompositeOperation = 'screen';
         
@@ -416,16 +680,18 @@ const SimpleFallbackVisualizer: React.FC<SimpleFallbackVisualizerProps> = ({
           centerX, centerY, primeRadius
         );
         
+        // Strong pink/magenta pulse for prime frequencies
+        const pulseIntensity = 0.4 + 0.2 * Math.sin(time * 6);
+        
         if (colorScheme === 'rainbow') {
           const hue = (time * 100) % 360;
-          primeGradient.addColorStop(0, `hsla(${hue}, 100%, 70%, 0.4)`);
-          primeGradient.addColorStop(0.7, `hsla(${(hue + 60) % 360}, 100%, 60%, 0.2)`);
-          primeGradient.addColorStop(1, `hsla(${(hue + 120) % 360}, 100%, 50%, 0)`);
+          primeGradient.addColorStop(0, `hsla(300, 100%, 70%, ${pulseIntensity})`);
+          primeGradient.addColorStop(0.7, `hsla(330, 100%, 60%, ${pulseIntensity * 0.5})`);
+          primeGradient.addColorStop(1, `hsla(350, 100%, 50%, 0)`);
         } else {
-          const colorString = `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}`;
-          primeGradient.addColorStop(0, `${colorString}, 0.4)`);
-          primeGradient.addColorStop(0.7, `${colorString}, 0.2)`);
-          primeGradient.addColorStop(1, `${colorString}, 0)`);
+          primeGradient.addColorStop(0, `rgba(255, 105, 180, ${pulseIntensity})`);
+          primeGradient.addColorStop(0.7, `rgba(238, 130, 238, ${pulseIntensity * 0.5})`);
+          primeGradient.addColorStop(1, `rgba(199, 21, 133, 0)`);
         }
         
         ctx.fillStyle = primeGradient;
@@ -463,10 +729,45 @@ const SimpleFallbackVisualizer: React.FC<SimpleFallbackVisualizerProps> = ({
             const hue = (i / burstPoints * 360 + time * 50) % 360;
             ctx.fillStyle = `hsla(${hue}, 100%, 70%, 0.6)`;
           } else {
-            ctx.fillStyle = `rgba(${baseColor.r}, ${baseColor.g}, ${baseColor.b}, 0.6)`;
+            ctx.fillStyle = `rgba(255, 105, 180, 0.6)`;
           }
           
           ctx.fill();
+        }
+        
+        // Draw active prime numbers as visual elements
+        if (activePrimes.length > 0) {
+          ctx.font = `bold ${Math.floor(reactiveRadius * 0.1)}px sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          
+          activePrimes.forEach((prime, idx) => {
+            const angle = (idx / activePrimes.length) * Math.PI * 2;
+            const distance = reactiveRadius * 0.5;
+            const x = centerX + Math.cos(angle) * distance;
+            const y = centerY + Math.sin(angle) * distance;
+            
+            // Draw a glowing circle behind the text
+            const glowRadius = reactiveRadius * 0.08;
+            
+            const glowGradient = ctx.createRadialGradient(
+              x, y, 0,
+              x, y, glowRadius
+            );
+            
+            glowGradient.addColorStop(0, `rgba(255, 255, 255, 0.9)`);
+            glowGradient.addColorStop(0.7, `rgba(255, 105, 180, 0.6)`);
+            glowGradient.addColorStop(1, `rgba(255, 20, 147, 0)`);
+            
+            ctx.fillStyle = glowGradient;
+            ctx.beginPath();
+            ctx.arc(x, y, glowRadius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw the prime number
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(prime.toString(), x, y);
+          });
         }
         
         ctx.restore();
@@ -483,7 +784,7 @@ const SimpleFallbackVisualizer: React.FC<SimpleFallbackVisualizerProps> = ({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [audioData, colorScheme, sensitivity]);
+  }, [audioData, colorScheme, sensitivity, showPrimeIndicators, geometryComplexity, activePrimes]);
   
   return (
     <canvas 

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { motion } from 'framer-motion';
@@ -37,10 +38,13 @@ const SacredAudioPlayer: React.FC = () => {
   const [controlsExpanded, setControlsExpanded] = useState(false);
   const [colorScheme, setColorScheme] = useState<ColorScheme>('purple');
   const [visualizerSensitivity, setVisualizerSensitivity] = useState<number>(1.5);
+  const [showPrimeIndicators, setShowPrimeIndicators] = useState<boolean>(true);
+  const [geometryComplexity, setGeometryComplexity] = useState<'simple' | 'medium' | 'complex'>('medium');
   
   const containerRef = useRef<HTMLDivElement>(null);
   const { audioContext, analyser } = useAudioAnalyzer(audioRef);
   const [audioData, setAudioData] = useState<Uint8Array | null>(null);
+  const [activePrimes, setActivePrimes] = useState<number[]>([]);
 
   useEffect(() => {
     if (!analyser || !isPlaying) return;
@@ -50,12 +54,22 @@ const SacredAudioPlayer: React.FC = () => {
     const updateAudioData = () => {
       analyser.getByteFrequencyData(dataArray);
       setAudioData(dataArray);
+      
+      // Detect prime frequency energy
+      if (showPrimeIndicators) {
+        const primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
+        const newActivePrimes = primes.filter(prime => {
+          const index = Math.floor((prime / 50) * dataArray.length);
+          return index < dataArray.length && (dataArray[index] / 255) > 0.7;
+        });
+        setActivePrimes(newActivePrimes);
+      }
     };
     
     const intervalId = setInterval(updateAudioData, 30);
     
     return () => clearInterval(intervalId);
-  }, [analyser, isPlaying]);
+  }, [analyser, isPlaying, showPrimeIndicators]);
 
   useEffect(() => {
     if (!audioRef.current) return;
@@ -201,6 +215,36 @@ const SacredAudioPlayer: React.FC = () => {
             </div>
             
             <div>
+              <div className="text-xs font-semibold text-white/90 mb-2">Sacred Geometry Complexity</div>
+              <div className="grid grid-cols-3 gap-2">
+                {['simple', 'medium', 'complex'].map((level) => (
+                  <button
+                    key={level}
+                    className={`text-xs px-3 py-2 rounded-lg
+                      ${geometryComplexity === level
+                        ? getSchemeClasses(colorScheme, 'bg') + ' text-white' 
+                        : 'bg-black/50 text-white/70 hover:bg-white/10'}`}
+                    onClick={() => setGeometryComplexity(level as 'simple' | 'medium' | 'complex')}
+                  >
+                    {level.charAt(0).toUpperCase() + level.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="text-xs font-semibold text-white/90">Prime Number Indicators</div>
+              <div 
+                className={`w-10 h-5 rounded-full relative cursor-pointer ${showPrimeIndicators ? 'bg-purple-600' : 'bg-gray-700'}`}
+                onClick={() => setShowPrimeIndicators(!showPrimeIndicators)}
+              >
+                <div 
+                  className={`absolute w-4 h-4 rounded-full bg-white top-0.5 transform transition-transform duration-200 ${showPrimeIndicators ? 'translate-x-5' : 'translate-x-0.5'}`}
+                ></div>
+              </div>
+            </div>
+            
+            <div>
               <div className="text-xs font-semibold text-white/90 mb-2">Visualization Sensitivity</div>
               <Slider
                 value={[visualizerSensitivity * 10]}
@@ -216,6 +260,22 @@ const SacredAudioPlayer: React.FC = () => {
                 <span>Intense</span>
               </div>
             </div>
+            
+            {showPrimeIndicators && activePrimes.length > 0 && (
+              <div>
+                <div className="text-xs font-semibold text-white/90 mb-2">Active Prime Frequencies</div>
+                <div className="flex flex-wrap gap-1">
+                  {activePrimes.map(prime => (
+                    <span 
+                      key={prime} 
+                      className="px-2 py-1 bg-pink-600/30 text-pink-300 text-xs rounded-md animate-pulse"
+                    >
+                      {prime}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </motion.div>
       )}
@@ -245,6 +305,9 @@ const SacredAudioPlayer: React.FC = () => {
                 audioData={audioData || undefined}
                 colorScheme={colorScheme}
                 sensitivity={visualizerSensitivity}
+                showPrimeIndicators={showPrimeIndicators}
+                geometryComplexity={geometryComplexity}
+                activePrimes={activePrimes}
               />
             )}
           </div>
@@ -375,3 +438,4 @@ const SacredAudioPlayer: React.FC = () => {
 };
 
 export default SacredAudioPlayer;
+
