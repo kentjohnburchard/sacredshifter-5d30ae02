@@ -2,11 +2,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { motion } from 'framer-motion';
-import { Pause, Play, Volume2, VolumeX, Maximize2, Minimize2 } from 'lucide-react';
+import { Pause, Play, Volume2, VolumeX, Maximize2, Minimize2, Maximize } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { Slider } from '@/components/ui/slider';
 import { Progress } from '@/components/ui/progress';
 import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
+import { isPrime } from '@/lib/mathUtils';
+import PrimeAudioVisualizer from './PrimeAudioVisualizer';
+import { useLocation } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 
 const SacredAudioPlayer: React.FC = () => {
   const {
@@ -25,6 +29,7 @@ const SacredAudioPlayer: React.FC = () => {
   
   // Player state
   const [expanded, setExpanded] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
   const [volume, setVolume] = useState(0.7);
   const [isMuted, setIsMuted] = useState(false);
   const [showVolume, setShowVolume] = useState(false);
@@ -33,6 +38,16 @@ const SacredAudioPlayer: React.FC = () => {
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const circlesRef = useRef<Array<{x: number, y: number, radius: number, opacity: number, color: string}>>([]);
   const primeNumbers = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
+  
+  // Fullscreen container ref
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Track detected primes
+  const [detectedPrimes, setDetectedPrimes] = useState<number[]>([]);
+  const [activePrime, setActivePrime] = useState<number | null>(null);
+  
+  // URL location
+  const location = useLocation();
   
   // Chakra colors
   const chakraColors = {
@@ -87,7 +102,7 @@ const SacredAudioPlayer: React.FC = () => {
       resizeObserver.disconnect();
       window.removeEventListener('resize', updateCanvasSize);
     };
-  }, [expanded]);
+  }, [expanded, fullscreen]);
 
   // Draw the sacred geometry visualizer
   const drawVisualizer = () => {
@@ -243,6 +258,25 @@ const SacredAudioPlayer: React.FC = () => {
     // Reset shadow for other elements
     ctx.shadowBlur = 0;
     
+    // Draw prime frequency visualizations
+    if (activePrime) {
+      // Draw special prime indicators
+      const primeRingRadius = seedRadius * 3;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, primeRingRadius, 0, Math.PI * 2);
+      ctx.strokeStyle = liftTheVeil 
+        ? `rgba(255, 54, 171, ${0.3 + Math.sin(time * 3) * 0.2})` 
+        : `rgba(139, 92, 246, ${0.3 + Math.sin(time * 3) * 0.2})`;
+      ctx.lineWidth = 3 + Math.sin(time * 2) * 2;
+      ctx.stroke();
+      
+      // Add text label for active prime
+      ctx.font = `${fullscreen ? 20 : 14}px 'Inter', sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillStyle = liftTheVeil ? 'rgba(255, 54, 171, 0.8)' : 'rgba(139, 92, 246, 0.8)';
+      ctx.fillText(`Prime ${activePrime}`, centerX, fullscreen ? centerY + 60 : centerY + 40);
+    }
+    
     // Continue animation loop
     animationFrameRef.current = requestAnimationFrame(drawVisualizer);
   };
@@ -312,49 +346,139 @@ const SacredAudioPlayer: React.FC = () => {
   const toggleExpanded = () => {
     setExpanded(prev => !prev);
   };
+  
+  // Handle prime detection callback
+  const handlePrimeDetected = (prime: number) => {
+    setActivePrime(prime);
+    
+    // Add to detected primes array if not already there
+    if (!detectedPrimes.includes(prime)) {
+      setDetectedPrimes(prev => [...prev, prime]);
+    }
+  };
+  
+  // Toggle fullscreen
+  const toggleFullscreen = () => {
+    if (!fullscreen) {
+      if (containerRef.current?.requestFullscreen) {
+        containerRef.current.requestFullscreen().catch(err => {
+          console.error("Error attempting to enable fullscreen:", err);
+        });
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(err => {
+          console.error("Error attempting to exit fullscreen:", err);
+        });
+      }
+    }
+    
+    setFullscreen(!fullscreen);
+    if (!expanded) {
+      setExpanded(true);
+    }
+  };
+  
+  // Listen for fullscreen changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement && fullscreen) {
+        setFullscreen(false);
+      }
+    };
+    
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, [fullscreen]);
+
+  // Special positioning for journey-player routes 
+  const isJourneyPlayerRoute = location.pathname.includes('/journey-player');
 
   return (
     <motion.div 
-      className={`fixed bottom-4 right-4 z-[1000] rounded-xl overflow-hidden sacred-audio-player ${isPlaying ? 'is-playing' : ''} ${liftTheVeil ? 'veil-lifted' : ''}`}
+      ref={containerRef}
+      className={cn(
+        `fixed z-[1000] rounded-xl overflow-hidden sacred-audio-player ${isPlaying ? 'is-playing' : ''} ${liftTheVeil ? 'veil-lifted' : ''}`,
+        fullscreen ? 'inset-0 rounded-none' : isJourneyPlayerRoute ? 'bottom-4 left-1/2 -translate-x-1/2' : 'bottom-4 right-4',
+      )}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       style={{ 
-        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+        backgroundColor: fullscreen ? 'black' : 'rgba(0, 0, 0, 0.75)',
         boxShadow: `0 0 20px ${liftTheVeil ? 'rgba(255, 105, 180, 0.7)' : 'rgba(139, 92, 246, 0.7)'}`,
-        width: expanded ? '300px' : '160px',
-        height: expanded ? '200px' : '80px',
-        transition: 'width 0.3s ease, height 0.3s ease'
+        width: fullscreen ? '100%' : expanded ? '300px' : '160px',
+        height: fullscreen ? '100%' : expanded ? '200px' : '80px',
+        transition: 'width 0.3s ease, height 0.3s ease, left 0.3s ease, right 0.3s ease'
       }}
     >
       <div className="relative w-full h-full">
         {/* Canvas layer for visualization */}
-        <canvas 
-          ref={canvasRef}
-          className="absolute inset-0 w-full h-full sacred-geometry-canvas rounded-lg"
-          style={{ opacity: 0.9 }}
-        />
+        <div className="absolute inset-0 w-full h-full">
+          {/* Regular canvas visualizer */}
+          <canvas 
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full sacred-geometry-canvas rounded-lg"
+            style={{ opacity: 0.9 }}
+          />
+          
+          {/* Prime Audio Visualizer */}
+          {(expanded || fullscreen) && (
+            <div className="absolute inset-0 w-full h-full">
+              <PrimeAudioVisualizer 
+                audioContext={audioContext} 
+                analyser={analyser} 
+                isPlaying={isPlaying}
+                colorMode={liftTheVeil ? 'veil-lifted' : 'standard'}
+                visualMode="prime"
+                layout={fullscreen ? 'radial' : 'vertical'}
+                onPrimeDetected={handlePrimeDetected}
+              />
+            </div>
+          )}
+        </div>
         
         {/* Controls layer */}
         <div className="relative z-10 flex flex-col p-2 h-full">
-          {expanded && (
+          {(expanded || fullscreen) && (
             <div className="flex justify-between items-center mb-2">
               <div className="text-white text-xs truncate max-w-[200px]">
                 {currentTrack?.title || 'Sacred Audio'}
                 {currentTrack?.artist && <span className="opacity-70"> • {currentTrack.artist}</span>}
               </div>
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={toggleExpanded}
-                className="p-1 text-white/70 hover:text-white"
-              >
-                <Minimize2 size={16} />
-              </motion.button>
+              <div className="flex gap-1">
+                {fullscreen ? (
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={toggleFullscreen}
+                    className="p-1 text-white/70 hover:text-white"
+                  >
+                    <Minimize2 size={16} />
+                  </motion.button>
+                ) : (
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={toggleFullscreen}
+                    className="p-1 text-white/70 hover:text-white"
+                  >
+                    <Maximize size={16} />
+                  </motion.button>
+                )}
+                {!fullscreen && (
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={toggleExpanded}
+                    className="p-1 text-white/70 hover:text-white"
+                  >
+                    <Minimize2 size={16} />
+                  </motion.button>
+                )}
+              </div>
             </div>
           )}
           
           {/* Progress bar (expanded view only) */}
-          {expanded && (
+          {(expanded || fullscreen) && (
             <div 
               className="w-full h-2 bg-white/20 rounded-full cursor-pointer mb-3"
               onClick={handleSeek}
@@ -366,34 +490,57 @@ const SacredAudioPlayer: React.FC = () => {
             </div>
           )}
           
+          {/* Prime number detected indicators */}
+          {(expanded || fullscreen) && detectedPrimes.length > 0 && (
+            <div className="flex gap-1 flex-wrap mb-2 max-w-full">
+              {detectedPrimes.slice(0, 5).map(prime => (
+                <span 
+                  key={prime}
+                  className={`text-xs px-1.5 py-0.5 rounded-full ${
+                    activePrime === prime 
+                      ? liftTheVeil ? 'bg-pink-500 text-white' : 'bg-purple-500 text-white'
+                      : liftTheVeil ? 'bg-pink-500/20 text-pink-200' : 'bg-purple-500/20 text-purple-200'
+                  }`}
+                >
+                  {prime}
+                </span>
+              ))}
+              {detectedPrimes.length > 5 && (
+                <span className="text-xs px-1.5 py-0.5 rounded-full bg-white/10 text-white/70">
+                  +{detectedPrimes.length - 5}
+                </span>
+              )}
+            </div>
+          )}
+          
           {/* Main controls */}
-          <div className={`flex ${expanded ? 'justify-between' : 'justify-center'} items-center h-${expanded ? 'auto' : 'full'}`}>
+          <div className={`flex ${expanded || fullscreen ? 'justify-between' : 'justify-center'} items-center h-${expanded || fullscreen ? 'auto' : 'full'}`}>
             {/* Play/Pause button */}
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={togglePlay}
-              className={`${expanded ? 'px-4 py-2' : 'px-3 py-1.5'} bg-white text-black rounded flex items-center gap-1 hover:bg-opacity-90`}
+              className={`${expanded || fullscreen ? 'px-4 py-2' : 'px-3 py-1.5'} bg-white text-black rounded flex items-center gap-1 hover:bg-opacity-90`}
             >
               {isPlaying ? (
                 <>
-                  <Pause size={expanded ? 16 : 14} /> <span>{expanded ? 'Pause' : ''}</span>
+                  <Pause size={expanded || fullscreen ? 16 : 14} /> <span>{(expanded || fullscreen) ? 'Pause' : ''}</span>
                 </>
               ) : (
                 <>
-                  <Play size={expanded ? 16 : 14} /> <span>{expanded ? 'Play' : ''}</span>
+                  <Play size={expanded || fullscreen ? 16 : 14} /> <span>{(expanded || fullscreen) ? 'Play' : ''}</span>
                 </>
               )}
             </motion.button>
             
             {/* Time display (expanded view only) */}
-            {expanded && (
+            {(expanded || fullscreen) && (
               <div className="text-white text-xs">
                 {formatTime(currentTime)} / {formatTime(duration || 0)}
               </div>
             )}
             
             {/* Volume control (expanded view only) */}
-            {expanded && (
+            {(expanded || fullscreen) && (
               <div className="relative flex items-center">
                 <motion.button
                   whileTap={{ scale: 0.9 }}
@@ -424,7 +571,7 @@ const SacredAudioPlayer: React.FC = () => {
             )}
             
             {/* Expand button (collapsed view only) */}
-            {!expanded && (
+            {!expanded && !fullscreen && (
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={toggleExpanded}
