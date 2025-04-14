@@ -35,6 +35,17 @@ export const SimplifiedVisualizer: React.FC<VisualizerProps> = ({
   const frameIdRef = useRef<number | null>(null);
   const [audioData, setAudioData] = useState<Uint8Array | undefined>();
   const animationRef = useRef<number | null>(null);
+  const [threeJsLoaded, setThreeJsLoaded] = useState<boolean>(false);
+  
+  // Confirm THREE is available at component mount
+  useEffect(() => {
+    if (typeof THREE !== 'undefined' && THREE) {
+      console.log("THREE is available in SimplifiedVisualizer:", THREE.REVISION);
+      setThreeJsLoaded(true);
+    } else {
+      console.error("THREE is not available in SimplifiedVisualizer");
+    }
+  }, []);
 
   // Get color based on chakra or colorScheme
   const getColor = () => {
@@ -62,7 +73,7 @@ export const SimplifiedVisualizer: React.FC<VisualizerProps> = ({
 
   // Initialize Three.js scene
   const initializeScene = () => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || !threeJsLoaded) return;
 
     try {
       // Verify THREE is available globally
@@ -211,22 +222,19 @@ export const SimplifiedVisualizer: React.FC<VisualizerProps> = ({
 
   // Initialize scene on mount
   useEffect(() => {
-    // Ensure THREE is available before initializing
-    if (typeof THREE === 'undefined' || !THREE) {
-      console.error("THREE is not available. Cannot initialize visualizer.");
-      return;
+    // Only initialize when THREE is confirmed to be loaded
+    if (threeJsLoaded) {
+      const cleanup = initializeScene();
+      return cleanup;
     }
-    
-    const cleanup = initializeScene();
-    return cleanup;
-  }, []);
+  }, [threeJsLoaded]);
 
   // Update colors when props change
   useEffect(() => {
-    if (materialRef.current) {
+    if (materialRef.current && threeJsLoaded) {
       (materialRef.current as THREE.MeshStandardMaterial).color = new THREE.Color(getColor());
     }
-  }, [colorScheme, chakra, liftedVeil]);
+  }, [colorScheme, chakra, liftedVeil, threeJsLoaded]);
 
   // Set canvas size based on prop
   const canvasSizeClass = {

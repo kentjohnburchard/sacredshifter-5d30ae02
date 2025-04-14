@@ -8,8 +8,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from './context/AuthContext.tsx'
 import * as THREE from 'three'
 
-// Ensure THREE is available globally - fixed initialization to prevent errors
+// Ensure THREE is available globally - better initialization to prevent errors
 window.THREE = THREE;
+
+// Make sure the THREE instance is fully loaded before continuing
+console.log("THREE.js initialized:", THREE.REVISION);
 
 // Create a client
 const queryClient = new QueryClient()

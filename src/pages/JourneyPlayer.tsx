@@ -27,37 +27,64 @@ const JourneyPlayer = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [infoExpanded, setInfoExpanded] = useState(false);
   const [audioAnalyser, setAudioAnalyser] = useState<AnalyserNode | null>(null);
+  const [audioInitialized, setAudioInitialized] = useState(false);
   
   const lastPlayedIndex = useRef<number | null>(null);
   const songsRef = useRef<any[]>([]);
   const audioPlayAttemptedRef = useRef(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
   
   const { templates, loading: loadingTemplates } = useJourneyTemplates();
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
 
   useEffect(() => {
     try {
-      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      if (audioInitialized) return;
+
+      console.log("Initializing audio analyzer");
+      
+      const audioCtx = audioContextRef.current || 
+        new (window.AudioContext || (window as any).webkitAudioContext)();
+      audioContextRef.current = audioCtx;
+      
       const analyser = audioCtx.createAnalyser();
       analyser.fftSize = 256;
-      
       setAudioAnalyser(analyser);
       
       const connectAudio = () => {
-        const audioElement = document.querySelector('audio');
-        if (audioElement && audioCtx && analyser) {
-          const source = audioCtx.createMediaElementSource(audioElement);
-          source.connect(analyser);
-          analyser.connect(audioCtx.destination);
-          console.log("Connected audio analyzer to audio element");
+        try {
+          const audioElement = document.querySelector('audio');
+          
+          if (!audioElement) {
+            console.log("Audio element not found, will retry");
+            setTimeout(connectAudio, 1000);
+            return;
+          }
+          
+          if (audioCtx && analyser) {
+            const source = audioCtx.createMediaElementSource(audioElement);
+            source.connect(analyser);
+            analyser.connect(audioCtx.destination);
+            console.log("Connected audio analyzer to audio element");
+            setAudioInitialized(true);
+          }
+        } catch (error) {
+          console.error("Error connecting to audio element:", error);
+          if (error.toString().includes('already connected')) {
+            setAudioInitialized(true);
+          }
         }
       };
       
       setTimeout(connectAudio, 1000);
       
       return () => {
-        if (audioCtx) {
-          audioCtx.close().catch(console.error);
+        if (audioCtx && audioCtx.state !== 'closed') {
+          try {
+            audioCtx.close().catch(console.error);
+          } catch (e) {
+            console.error("Error closing audio context:", e);
+          }
         }
       };
     } catch (error) {
