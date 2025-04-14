@@ -10,18 +10,18 @@ import { isPrime } from '@/lib/mathUtils';
 import PrimeAudioVisualizer from './PrimeAudioVisualizer';
 import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import SimpleFallbackVisualizer from '../visualizer/SimpleFallbackVisualizer';
 import SacredGeometryVisualizer from '../sacred-geometry/EnhancedGeometryVisualizer';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import FrequencyEqualizer from '../visualizer/FrequencyEqualizer';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
-import SacredThreeVisualizer from '../visualizer/SacredThreeVisualizer';
 
 type GeometryShape = 'flower-of-life' | 'seed-of-life' | 'metatrons-cube' | 
                      'merkaba' | 'torus' | 'tree-of-life' | 'sri-yantra' | 
                      'vesica-piscis' | 'sphere';
 
-type VisualizerMode = 'threejs' | 'sacred-geometry' | 'prime';
+type VisualizerMode = 'canvas' | 'sacred-geometry' | 'prime';
 
 type ColorScheme = 'purple' | 'blue' | 'rainbow' | 'gold' | 'chakra';
 
@@ -52,7 +52,7 @@ const SacredAudioPlayer: React.FC = () => {
   const primeNumbers = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
   
   const [currentGeometry, setCurrentGeometry] = useState<GeometryShape>('flower-of-life');
-  const [visualizerMode, setVisualizerMode] = useState<VisualizerMode>('threejs');
+  const [visualizerMode, setVisualizerMode] = useState<VisualizerMode>('canvas');
   const [colorScheme, setColorScheme] = useState<ColorScheme>('purple');
   const [visualizerSensitivity, setVisualizerSensitivity] = useState<number>(1.5);
   
@@ -149,158 +149,6 @@ const SacredAudioPlayer: React.FC = () => {
     };
   }, [expanded, fullscreen]);
 
-  const drawVisualizer = () => {
-    if (!canvasRef.current || !audioData) return;
-    
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    let sum = 0;
-    for (let i = 0; i < audioData.length; i++) {
-      sum += audioData[i];
-    }
-    const averageAmplitude = sum / audioData.length / 255;
-    
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    
-    const seedRadius = Math.min(canvas.width, canvas.height) * 0.1 * (1 + averageAmplitude * 0.3);
-    
-    let mainColor;
-    if (liftTheVeil) {
-      const gradientColor = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-      gradientColor.addColorStop(0, 'rgba(255, 54, 171, 0.7)');
-      gradientColor.addColorStop(0.5, 'rgba(255, 112, 233, 0.7)');
-      gradientColor.addColorStop(1, 'rgba(185, 103, 255, 0.7)');
-      mainColor = gradientColor;
-    } else {
-      let frequencyColor = '#8B5CF6';
-      
-      if (currentTrack?.customData?.frequency) {
-        const freq = currentTrack.customData.frequency;
-        if (freq < 250) frequencyColor = chakraColors.root;
-        else if (freq < 350) frequencyColor = chakraColors.sacral;
-        else if (freq < 450) frequencyColor = chakraColors.solar;
-        else if (freq < 550) frequencyColor = chakraColors.heart;
-        else if (freq < 650) frequencyColor = chakraColors.throat;
-        else if (freq < 750) frequencyColor = chakraColors.thirdEye;
-        else frequencyColor = chakraColors.crown;
-      }
-      
-      mainColor = frequencyColor;
-    }
-    
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, seedRadius, 0, Math.PI * 2);
-    ctx.fillStyle = typeof mainColor === 'string' ? `${mainColor}80` : mainColor;
-    ctx.fill();
-    
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = typeof mainColor === 'string' ? mainColor : '#8B5CF6';
-    
-    for (let i = 0; i < 6; i++) {
-      const angle = (Math.PI * 2 / 6) * i;
-      const distance = seedRadius;
-      const x = centerX + Math.cos(angle) * distance;
-      const y = centerY + Math.sin(angle) * distance;
-      
-      ctx.beginPath();
-      ctx.arc(x, y, seedRadius * (0.5 + averageAmplitude * 0.5), 0, Math.PI * 2);
-      ctx.fillStyle = typeof mainColor === 'string' 
-        ? `${mainColor}40`
-        : mainColor;
-      ctx.fill();
-    }
-    
-    const time = performance.now() / 1000;
-    const pulseFactor = 1 + Math.sin(time * 2) * 0.1;
-    
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, seedRadius * 2 * pulseFactor, 0, Math.PI * 2);
-    ctx.strokeStyle = typeof mainColor === 'string' ? mainColor : '#8B5CF6';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    
-    if (isPlaying && audioData) {
-      const currentFrequency = currentTrack?.customData?.frequency || 0;
-      const isPrimeOrClose = primeNumbers.some(prime => 
-        Math.abs(currentFrequency - prime) < 5 || 
-        Math.abs(currentFrequency % prime) < 5
-      );
-      
-      if (isPrimeOrClose && Math.random() > 0.9) {
-        const angle = Math.random() * Math.PI * 2;
-        const distance = seedRadius * (1 + Math.random());
-        
-        circlesRef.current.push({
-          x: centerX + Math.cos(angle) * distance,
-          y: centerY + Math.sin(angle) * distance,
-          radius: seedRadius * (0.3 + Math.random() * 0.3),
-          opacity: 0.7,
-          color: liftTheVeil 
-            ? `hsla(${Math.random() * 360}, 100%, 70%, 0.7)`
-            : typeof mainColor === 'string' ? mainColor : '#8B5CF6'
-        });
-      }
-      
-      if (averageAmplitude > 0.4 && Math.random() > 0.8) {
-        circlesRef.current.push({
-          x: centerX,
-          y: centerY,
-          radius: seedRadius * 0.8,
-          opacity: 0.5,
-          color: typeof mainColor === 'string' ? mainColor : '#8B5CF6'
-        });
-      }
-    }
-    
-    circlesRef.current = circlesRef.current.filter(circle => {
-      circle.radius += 1;
-      circle.opacity -= 0.01;
-      
-      if (circle.opacity <= 0 || circle.radius > Math.min(canvas.width, canvas.height) / 2) {
-        return false;
-      }
-      
-      ctx.beginPath();
-      ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
-      
-      const colorString = circle.color.startsWith('hsl') 
-        ? circle.color.replace(')', `, ${circle.opacity})`)
-        : circle.color.startsWith('rgb')
-          ? circle.color.replace(')', `, ${circle.opacity})`)
-          : `${circle.color}${Math.floor(circle.opacity * 255).toString(16).padStart(2, '0')}`;
-      
-      ctx.fillStyle = colorString;
-      ctx.fill();
-      
-      return true;
-    });
-    
-    ctx.shadowBlur = 0;
-    
-    if (activePrime) {
-      const primeRingRadius = seedRadius * 3;
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, primeRingRadius, 0, Math.PI * 2);
-      ctx.strokeStyle = liftTheVeil 
-        ? `rgba(255, 54, 171, ${0.3 + Math.sin(time * 3) * 0.2})`
-        : `rgba(139, 92, 246, ${0.3 + Math.sin(time * 3) * 0.2})`;
-      ctx.lineWidth = 3 + Math.sin(time * 2) * 2;
-      ctx.stroke();
-      
-      ctx.font = `${fullscreen ? 20 : 14}px 'Inter', sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.fillStyle = liftTheVeil ? 'rgba(255, 54, 171, 0.8)' : 'rgba(139, 92, 246, 0.8)';
-      ctx.fillText(`Prime ${activePrime}`, centerX, fullscreen ? centerY + 60 : centerY + 40);
-    }
-    
-    animationFrameRef.current = requestAnimationFrame(drawVisualizer);
-  };
-
   useEffect(() => {
     if (!analyser || !isPlaying) return;
     
@@ -315,18 +163,6 @@ const SacredAudioPlayer: React.FC = () => {
     
     return () => clearInterval(intervalId);
   }, [analyser, isPlaying]);
-
-  useEffect(() => {
-    if (isPlaying && canvasRef.current) {
-      animationFrameRef.current = requestAnimationFrame(drawVisualizer);
-    }
-    
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [isPlaying, canvasSize, audioData]);
 
   useEffect(() => {
     if (!audioRef.current) return;
@@ -422,7 +258,7 @@ const SacredAudioPlayer: React.FC = () => {
   ];
   
   const modeOptions = [
-    { value: 'threejs', label: '3D Visualizer', icon: <Maximize2 size={16} /> },
+    { value: 'canvas', label: 'Sacred Canvas', icon: <Volume2 size={16} /> },
     { value: 'sacred-geometry', label: 'Sacred Geometry', icon: <Maximize size={16} /> },
     { value: 'prime', label: 'Prime Visualizer', icon: <Volume2 size={16} /> },
   ];
@@ -575,13 +411,12 @@ const SacredAudioPlayer: React.FC = () => {
       >
         <div className="relative w-full h-full">
           <div className="absolute inset-0 w-full h-full">
-            {visualizerMode === 'threejs' && (expanded || fullscreen) && (
+            {visualizerMode === 'canvas' && (expanded || fullscreen) && (
               <div className="absolute inset-0 w-full h-full">
-                <SacredThreeVisualizer
-                  isPlaying={isPlaying}
-                  audioData={audioData}
-                  liftTheVeil={liftTheVeil}
-                  fullscreen={fullscreen}
+                <SimpleFallbackVisualizer
+                  audioData={audioData || undefined}
+                  colorScheme={colorScheme}
+                  sensitivity={visualizerSensitivity}
                 />
               </div>
             )}
