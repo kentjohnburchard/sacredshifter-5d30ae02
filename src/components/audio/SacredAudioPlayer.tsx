@@ -12,7 +12,8 @@ import {
   Eye, 
   EyeOff,
   BarChart4,
-  Activity
+  Activity,
+  X
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -197,6 +198,20 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   };
 
   const themeClass = liftTheVeil ? 'theme-lifted' : 'theme-standard';
+
+  const handleClose = () => {
+    // Stop audio playback
+    if (isAudioPlaying) {
+      togglePlayPause();
+    }
+    
+    // Clear current audio state
+    // setCurrentAudio(null);
+    
+    // Clear session storage
+    sessionStorage.removeItem('currentAudio');
+    sessionStorage.removeItem('isAudioPlaying');
+  };
   
   return (
     <div ref={playerRef} className={`fixed bottom-4 right-4 z-50 ${isFullscreen ? 'fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm' : ''}`}>
@@ -276,49 +291,15 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
               </div>
             </div>
             <div className="flex items-center space-x-1">
-              {expanded && (
-                <>
-                  {isAudioPlaying && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 player-text hover:player-text"
-                      onClick={handleToggleVisualizer}
-                      title={showVisualizer ? "Hide visualizer" : "Show visualizer"}
-                    >
-                      {showVisualizer ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
-                  )}
-                  
-                  {isAudioPlaying && showVisualizer && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 player-text hover:player-text"
-                          onClick={handleChangeVisualizer}
-                          title="Change visualizer style"
-                        >
-                          <BarChart4 className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Mode: {getCurrentVisualizerLabel()}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
-                </>
-              )}
-              
+              {/* Add close button */}
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 player-text hover:player-text"
-                onClick={handleFullscreen}
-                title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+                className="h-7 w-7 player-text hover:text-destructive"
+                onClick={handleClose}
+                title="Close Player"
               >
-                {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                <X className="h-4 w-4" />
               </Button>
             </div>
           </div>
