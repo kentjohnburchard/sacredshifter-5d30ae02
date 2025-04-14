@@ -5,4 +5,3 @@ interface Window {
   THREE: typeof import('three');
   SacredThreeVisualizerLoaded?: boolean;
 }
-

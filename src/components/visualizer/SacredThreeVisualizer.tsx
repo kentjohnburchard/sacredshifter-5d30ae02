@@ -1,7 +1,9 @@
+
 import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Stars, OrbitControls, useHelper, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
+import SacredGeometryCanvas from './SacredGeometryCanvas';
 
 // Sacred geometry components
 const Merkaba = ({ position, rotation, scale, color, opacity }) => {
@@ -359,19 +361,42 @@ const SacredThreeVisualizer: React.FC<SacredThreeVisualizerProps> = ({
   const cameraPosition: [number, number, number] = fullscreen ? [0, 0, 5] : [0, 0, 4];
   const cameraFov = fullscreen ? 75 : 60;
   
-  // Add a check to make sure THREE is available
+  // Track THREE.js availability and errors
   const [threeLoaded, setThreeLoaded] = useState(false);
+  const [threeError, setThreeError] = useState<string | null>(null);
+  
+  // Use a ref to track initialization attempts
+  const initAttemptedRef = useRef(false);
   
   // Check if THREE is properly loaded
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.THREE) {
-      console.log("THREE is available in SacredThreeVisualizer:", window.THREE.REVISION);
-      setThreeLoaded(true);
-    } else {
-      console.warn("THREE is not available in SacredThreeVisualizer component");
+    if (initAttemptedRef.current) return;
+    initAttemptedRef.current = true;
+    
+    try {
+      // Check if THREE is available globally
+      if (typeof window !== 'undefined' && window.THREE) {
+        console.log("THREE is available in SacredThreeVisualizer:", window.THREE.REVISION);
+        setThreeLoaded(true);
+      } else if (typeof THREE !== 'undefined') {
+        // Use imported THREE if global is not available
+        console.log("Using imported THREE in SacredThreeVisualizer:", THREE.REVISION);
+        // Set THREE globally if it doesn't exist
+        if (typeof window !== 'undefined' && !window.THREE) {
+          window.THREE = THREE;
+        }
+        setThreeLoaded(true);
+      } else {
+        console.warn("THREE is not available in SacredThreeVisualizer component");
+        setThreeError("THREE.js could not be initialized");
+      }
+    } catch (error) {
+      console.error("Error initializing THREE:", error);
+      setThreeError("Error initializing 3D engine");
     }
   }, []);
   
+  // Use 2D canvas fallback if THREE.js fails to load or when not rendering
   if (!shouldRender || !audioData) {
     return (
       <div className="w-full h-full bg-black/50 rounded-lg flex items-center justify-center">
@@ -380,41 +405,42 @@ const SacredThreeVisualizer: React.FC<SacredThreeVisualizerProps> = ({
     );
   }
   
-  if (!threeLoaded) {
+  if (threeError || !threeLoaded) {
+    // Fallback to 2D canvas-based visualizer
     return (
-      <div className="w-full h-full bg-black/50 rounded-lg flex items-center justify-center">
-        <p className="text-white/50 text-xs">Loading 3D engine...</p>
-      </div>
+      <SacredGeometryCanvas 
+        audioAnalyser={null}
+        colorScheme="purple"
+        chakra={undefined}
+        expanded={fullscreen}
+      />
     );
   }
 
   return (
-    <Canvas className="rounded-lg" shadows>
-      <PerspectiveCamera 
-        makeDefault
-        position={cameraPosition}
-        fov={cameraFov}
-      />
-      <VisualizerScene
-        audioData={audioData}
-        isPlaying={isPlaying}
-        liftTheVeil={liftTheVeil}
-      />
-      <OrbitControls 
-        enableZoom={fullscreen}
-        enablePan={fullscreen}
-        enableRotate
-        rotateSpeed={0.5}
-        maxDistance={20}
-        minDistance={3}
-      />
-    </Canvas>
+    <div className="w-full h-full rounded-lg overflow-hidden">
+      <Canvas className="rounded-lg" shadows>
+        <PerspectiveCamera 
+          makeDefault
+          position={cameraPosition}
+          fov={cameraFov}
+        />
+        <VisualizerScene
+          audioData={audioData}
+          isPlaying={isPlaying}
+          liftTheVeil={liftTheVeil}
+        />
+        <OrbitControls 
+          enableZoom={fullscreen}
+          enablePan={fullscreen}
+          enableRotate
+          rotateSpeed={0.5}
+          maxDistance={20}
+          minDistance={3}
+        />
+      </Canvas>
+    </div>
   );
 };
-
-// Add a named window global variable to help with troubleshooting
-if (typeof window !== 'undefined') {
-  window.SacredThreeVisualizerLoaded = true;
-}
 
 export default SacredThreeVisualizer;
