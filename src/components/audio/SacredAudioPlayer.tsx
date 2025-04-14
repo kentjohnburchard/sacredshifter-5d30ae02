@@ -61,7 +61,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
   const tooltipTimerRef = useRef<NodeJS.Timeout | null>(null);
   const audioDataRef = useRef<Uint8Array | null>(null);
   
-  // State to track the current playing audio info
   const [currentAudio, setCurrentAudio] = useState<{
     title: string;
     artist?: string;
@@ -85,7 +84,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
   
   const { audioContext, analyser } = useAudioAnalyzer(audioRef);
 
-  // Set up the audio ended event listener
   useEffect(() => {
     if (!audioRef.current) return;
     
@@ -95,9 +93,7 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
       }
     };
     
-    // Remove any existing ended listeners to prevent duplicates
     audioRef.current.removeEventListener('ended', handleAudioEnded);
-    // Add the listener
     audioRef.current.addEventListener('ended', handleAudioEnded);
     
     return () => {
@@ -107,31 +103,26 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
     };
   }, [audioRef.current]);
   
-  // Listen for custom events to control the global player
   useEffect(() => {
     const handlePlayAudio = (event: CustomEvent) => {
       const { audioInfo } = event.detail;
       if (!audioInfo || !audioInfo.source) return;
       
-      // Check if we're trying to play the same audio that's already playing
       const isSameSource = currentAudio?.source === audioInfo.source;
       if (isSameSource && isAudioPlaying) {
         console.log("Already playing this audio, skipping replay");
         return;
       }
       
-      // Update current audio info
       setCurrentAudio(audioInfo);
       setAudioSource(audioInfo.source);
       setExpanded(true);
       
-      // Broadcast the audio info change
       const infoChangeEvent = new CustomEvent('audioInfoChange', {
         detail: { audioInfo }
       });
       window.dispatchEvent(infoChangeEvent);
       
-      // Auto play after source is set
       setTimeout(() => {
         if (!isAudioPlaying) {
           togglePlayPause();
@@ -148,7 +139,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
       onEndedCallbackRef.current = callback;
     };
 
-    // Add event listeners with type assertion
     window.addEventListener('playAudio' as any, handlePlayAudio as EventListener);
     window.addEventListener('togglePlayPause' as any, handleTogglePlayPause as EventListener);
     window.addEventListener('audioCallbackChange' as any, handleCallbackChange as EventListener);
@@ -160,7 +150,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
     };
   }, [setAudioSource, togglePlayPause, isAudioPlaying, currentAudio]);
 
-  // Store audio state in session storage to persist between page navigations
   useEffect(() => {
     const storeAudioInfo = () => {
       if (currentAudio) {
@@ -169,13 +158,10 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
       }
     };
 
-    // Store when audio changes or play state changes
     storeAudioInfo();
   }, [currentAudio, isAudioPlaying]);
 
-  // Restore audio state from session storage on mount
   useEffect(() => {
-    // Only run once on initial mount
     if (!audioInitializedRef.current) {
       const storedAudio = sessionStorage.getItem('currentAudio');
       const storedIsPlaying = sessionStorage.getItem('isAudioPlaying');
@@ -183,15 +169,12 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
       if (storedAudio) {
         try {
           const audioInfo = JSON.parse(storedAudio);
-          // Only restore if we don't already have current audio
           if (!currentAudio && audioInfo) {
             setCurrentAudio(audioInfo);
             setAudioSource(audioInfo.source);
             setExpanded(true);
             
-            // If it was playing before, resume playback
             if (storedIsPlaying === 'true' && !isAudioPlaying) {
-              // Delay to ensure audio source is set
               setTimeout(() => togglePlayPause(), 100);
             }
           }
@@ -204,7 +187,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
     }
   }, []);
 
-  // Dispatch audio state change events when isAudioPlaying changes
   useEffect(() => {
     const event = new CustomEvent('audioStateChange', {
       detail: { isPlaying: isAudioPlaying }
@@ -216,7 +198,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
     setVisualizerMode(liftTheVeil ? 'rainbow' : 'purple');
   }, [liftTheVeil]);
   
-  // Effect for audio data processing and spectrum analysis
   useEffect(() => {
     if (!analyser || !isAudioPlaying || !showVisualizer) {
       return;
@@ -229,7 +210,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
     let primeFoundThisFrame = false;
     let lastDetectedPrime = 0;
     
-    // Helper to check if a number is prime
     const isPrime = (num: number): boolean => {
       if (num <= 1) return false;
       if (num <= 3) return true;
@@ -246,12 +226,10 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
     const updateData = () => {
       analyser.getByteFrequencyData(dataArray);
       
-      // Create a copy of the data for components that need it
       const dataCopy = new Uint8Array(dataArray);
       audioDataRef.current = dataCopy;
       setFrequencyData(dataCopy);
       
-      // Find dominant frequency for visualization
       let maxValue = 0;
       let maxIndex = 0;
       
@@ -262,30 +240,25 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
         }
       }
       
-      if (audioContext && maxValue > 20) { // Threshold to avoid background noise
+      if (audioContext && maxValue > 20) {
         const nyquist = audioContext.sampleRate / 2;
         const estimatedFrequency = Math.round(maxIndex * nyquist / dataArray.length);
         
         setDetectedFrequency(estimatedFrequency);
         
-        // Check for prime numbers in frequency ranges that matter
         if (estimatedFrequency > 20 && estimatedFrequency < 1000) {
-          // Round to nearest integer and check if prime
           const roundedFreq = Math.round(estimatedFrequency);
           
           if (isPrime(roundedFreq) && roundedFreq !== lastDetectedPrime) {
             lastDetectedPrime = roundedFreq;
             setPrimes(prev => [...prev, roundedFreq]);
             
-            // Set the active tooltip prime
             setActiveTooltipPrime(roundedFreq);
             
-            // Clear any existing tooltip timer
             if (tooltipTimerRef.current) {
               clearTimeout(tooltipTimerRef.current);
             }
             
-            // Set new timer to hide tooltip
             tooltipTimerRef.current = setTimeout(() => {
               setActiveTooltipPrime(null);
             }, 3000);
@@ -306,14 +279,12 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
     };
   }, [analyser, isAudioPlaying, showVisualizer, audioContext]);
   
-  // Update volume when it changes
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = isMuted ? 0 : volume;
     }
   }, [volume, isMuted, audioRef]);
 
-  // Format time display (minutes:seconds)
   const formatTime = (time: number): string => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
@@ -352,9 +323,9 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
   
   const handleClose = () => {
     if (isAudioPlaying) {
-      togglePlayPause(); // Pause the audio
+      togglePlayPause();
     }
-    setCurrentAudio(null); // Clear current audio
+    setCurrentAudio(null);
     sessionStorage.removeItem('currentAudio');
     sessionStorage.removeItem('isAudioPlaying');
     setExpanded(false);
@@ -371,7 +342,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
     setExpanded(true);
   };
   
-  // Get chakra color based on the current audio
   const getChakraColor = (): string => {
     if (!currentAudio?.chakra) return 'purple';
     
@@ -387,7 +357,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
     }
   };
 
-  // Dynamically compute background styles
   const getBgStyle = () => {
     if (liftTheVeil) {
       return isFullscreen 
@@ -400,10 +369,8 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
     }
   };
 
-  // Don't render if no audio has been set
   if (!currentAudio) return null;
-  
-  // Generate canvas styles based on visualizer mode
+
   const getCanvasStyle = () => {
     const baseStyle = {
       position: 'absolute' as const,
@@ -424,7 +391,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
 
   return (
     <div className={`fixed ${isFullscreen ? 'inset-0 z-[100]' : 'bottom-4 right-4 z-50'} flex items-center justify-center`}>
-      {/* Prime number detection tooltip */}
       {activeTooltipPrime && isAudioPlaying && (
         <div className="fixed top-14 left-1/2 transform -translate-x-1/2 z-[101]
           px-4 py-2 rounded-full backdrop-blur-sm shadow-lg text-white bg-black/70">
@@ -440,7 +406,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
         relative rounded-lg overflow-hidden shadow-xl border border-white/10 ${getBgStyle()}
         ${isFullscreen ? '' : 'transition-all duration-300 ease-in-out'}
       `}>
-        {/* Visualizer background */}
         <div id="visualizer-container" className="absolute inset-0 z-0 overflow-hidden">
           {showVisualizer && isAudioPlaying && (
             <canvas 
@@ -452,17 +417,14 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
                 const ctx = canvas.getContext('2d');
                 if (!ctx || !frequencyData) return;
                 
-                // Match canvas dimensions to container
                 const dpr = window.devicePixelRatio || 1;
                 const rect = canvas.getBoundingClientRect();
                 canvas.width = rect.width * dpr;
                 canvas.height = rect.height * dpr;
                 ctx.scale(dpr, dpr);
                 
-                // Clear previous frame
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
-                // Draw based on visualizer mode
                 switch(visualizerMode) {
                   case 'purple':
                     drawPurpleVisualizer(ctx, canvas, frequencyData);
@@ -482,7 +444,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
           )}
         </div>
 
-        {/* Control overlay */}
         <div className="relative z-10 flex flex-col h-full">
           <div className="px-4 py-3 flex items-center justify-between border-b border-white/10">
             <div className="flex items-center">
@@ -557,7 +518,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
 
           {expanded && (
             <div className="p-4 space-y-4">
-              {/* Frequency and Prime information */}
               {(currentAudio.frequency || detectedFrequency || primes.length > 0) && (
                 <div className="flex flex-wrap gap-2">
                   {currentAudio.frequency && (
@@ -593,7 +553,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
                 </div>
               )}
   
-              {/* Album art if available */}
               {currentAudio.imageUrl && (
                 <div className="w-full h-40 bg-gray-900 dark:bg-gray-800 rounded-md overflow-hidden mb-4">
                   <img 
@@ -604,7 +563,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
                 </div>
               )}
               
-              {/* Visualizer status indicator */}
               {isAudioPlaying && showVisualizer && (
                 <div className="absolute top-16 left-1/2 transform -translate-x-1/2 z-20 pointer-events-none">
                   <Badge 
@@ -616,7 +574,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
                 </div>
               )}
               
-              {/* Central play button when visualizer is hidden */}
               {(!isAudioPlaying || !showVisualizer) && (
                 <div className="flex justify-center my-6">
                   <div className="relative">
@@ -637,8 +594,7 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
                   </div>
                 </div>
               )}
-
-              {/* Frequency equalizer display */}
+              
               {isAudioPlaying && showVisualizer && frequencyData && (
                 <div className="h-24 w-full mt-4">
                   <FrequencyEqualizer 
@@ -649,7 +605,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
                 </div>
               )}
               
-              {/* Time & seek controls */}
               <div className="space-y-2">
                 <div className="flex justify-between text-xs text-white/70">
                   <span>{formatTime(currentAudioTime)}</span>
@@ -664,7 +619,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
                 />
               </div>
 
-              {/* Playback controls */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <Button
@@ -700,7 +654,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
                   </Button>
                 </div>
                 
-                {/* Volume controls */}
                 <div className="flex items-center space-x-2">
                   <Button
                     variant="ghost"
@@ -726,7 +679,6 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
                 </div>
               </div>
               
-              {/* Error message */}
               {audioError && (
                 <p className="text-red-500 text-xs mt-2">Error: {audioError}</p>
               )}
@@ -738,31 +690,27 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
   );
 };
 
-// Visualizer Drawing Functions - FIX HERE for the negative radius issue
 const drawPurpleVisualizer = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, frequencyData: Uint8Array) => {
   const width = canvas.width / window.devicePixelRatio;
   const height = canvas.height / window.devicePixelRatio;
   
-  // Create a circular gradient from center
   const gradient = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, width);
-  gradient.addColorStop(0, 'rgba(139, 92, 246, 0.2)'); // Purple with low opacity
-  gradient.addColorStop(1, 'rgba(76, 29, 149, 0)');    // Darker purple with no opacity
+  gradient.addColorStop(0, 'rgba(139, 92, 246, 0.2)');
+  gradient.addColorStop(1, 'rgba(76, 29, 149, 0)');
   
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width, height);
   
-  // Parameters for the visualizer
   const centerX = width / 2;
   const centerY = height / 2;
   const maxRadius = Math.min(width, height) * 0.45;
   const numPoints = Math.min(128, frequencyData.length / 4);
   const angleStep = (2 * Math.PI) / numPoints;
   
-  // Draw outer frequency circle
   ctx.beginPath();
   for (let i = 0; i < numPoints; i++) {
     const normalizedValue = frequencyData[i * 4] / 255;
-    const radius = maxRadius * (0.6 + normalizedValue * 0.4); // Base radius plus variation
+    const radius = maxRadius * (0.6 + normalizedValue * 0.4);
     const angle = i * angleStep;
     
     const x = centerX + radius * Math.cos(angle);
@@ -776,18 +724,14 @@ const drawPurpleVisualizer = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasE
   }
   ctx.closePath();
   
-  // Apply gradient to the circle
   const strokeGradient = ctx.createLinearGradient(0, 0, width, height);
-  strokeGradient.addColorStop(0, 'rgba(167, 139, 250, 0.7)');  // Lighter purple
-  strokeGradient.addColorStop(0.5, 'rgba(139, 92, 246, 0.7)'); // Medium purple
-  strokeGradient.addColorStop(1, 'rgba(91, 33, 182, 0.7)');    // Darker purple
+  strokeGradient.addColorStop(0, 'rgba(167, 139, 250, 0.7)');
+  strokeGradient.addColorStop(0.5, 'rgba(139, 92, 246, 0.7)');
+  strokeGradient.addColorStop(1, 'rgba(91, 33, 182, 0.7)');
   
   ctx.strokeStyle = strokeGradient;
   ctx.lineWidth = 2;
   ctx.stroke();
-  
-  // Draw inner rings that pulse with bass frequencies
-  const bassLevel = Math.max(...Array.from(frequencyData.slice(0, 10))) / 255;
   
   for (let ring = 0; ring < 3; ring++) {
     const ringRadius = maxRadius * (0.2 + (ring * 0.15)) * (0.8 + bassLevel * 0.2);
@@ -799,12 +743,11 @@ const drawPurpleVisualizer = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasE
     ctx.stroke();
   }
   
-  // Draw connecting lines for some frequency points
   ctx.strokeStyle = 'rgba(167, 139, 250, 0.3)';
   ctx.lineWidth = 1;
   
   for (let i = 0; i < numPoints; i += 6) {
-    if (frequencyData[i * 4] > 50) { // Only connect lines for stronger frequencies
+    if (frequencyData[i * 4] > 50) {
       const normalizedValue = frequencyData[i * 4] / 255;
       const radius = maxRadius * (0.6 + normalizedValue * 0.4);
       const angle = i * angleStep;
@@ -824,7 +767,6 @@ const drawBlueVisualizer = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasEle
   const width = canvas.width / window.devicePixelRatio;
   const height = canvas.height / window.devicePixelRatio;
   
-  // Fill with gradient background
   const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
   bgGradient.addColorStop(0, 'rgba(7, 89, 133, 0.2)');
   bgGradient.addColorStop(1, 'rgba(12, 74, 110, 0)');
@@ -832,25 +774,268 @@ const drawBlueVisualizer = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasEle
   ctx.fillStyle = bgGradient;
   ctx.fillRect(0, 0, width, height);
   
-  // Create a waveform effect at the bottom third of the canvas
-  const waveHeight = height * 0.6;  // Wave starts at 60% from top
-  const waveBase = height * 0.8;    // Base line for the wave
+  const waveHeight = height * 0.6;
+  const waveBase = height * 0.8;
   const waveWidth = width;
   const waveSegments = 100;
   const segmentWidth = waveWidth / waveSegments;
   
-  // Calculate overall energy to make waves react to beat
   let energy = 0;
   for (let i = 0; i < 20; i++) {
     energy += frequencyData[i];
   }
-  energy = energy / (20 * 255); // Normalize to 0-1
+  energy = energy / (20 * 255);
   
-  // Draw main wave
   ctx.beginPath();
   ctx.moveTo(0, waveBase);
   
   for (let i = 0; i <= waveSegments; i++) {
     const x = i * segmentWidth;
     const frequencyIndex = Math.floor(i * frequencyData.length / waveSegments);
-    const
+    const frequencyValue = frequencyData[frequencyIndex] || 0;
+    const normalizedValue = frequencyValue / 255;
+    
+    const waveAmplitude = waveHeight * 0.2 * (0.5 + energy);
+    const baseY = waveBase - normalizedValue * waveHeight * 0.3;
+    const y = baseY - Math.sin(i / waveSegments * Math.PI * 6) * waveAmplitude;
+    
+    ctx.lineTo(x, y);
+  }
+  
+  ctx.lineTo(waveWidth, height);
+  ctx.lineTo(0, height);
+  ctx.closePath();
+  
+  const waveGradient = ctx.createLinearGradient(0, waveBase - waveHeight * 0.5, 0, height);
+  waveGradient.addColorStop(0, 'rgba(56, 189, 248, 0.3)');
+  waveGradient.addColorStop(1, 'rgba(14, 116, 144, 0.1)');
+  
+  ctx.fillStyle = waveGradient;
+  ctx.fill();
+  
+  ctx.beginPath();
+  ctx.moveTo(0, waveBase);
+  
+  for (let i = 0; i <= waveSegments; i += 2) {
+    const x = i * segmentWidth;
+    const frequencyIndex = Math.floor(i * frequencyData.length / waveSegments);
+    const frequencyValue = frequencyData[frequencyIndex] || 0;
+    const normalizedValue = frequencyValue / 255;
+    
+    if (normalizedValue > 0.2 && i % 8 === 0) {
+      const lineHeight = normalizedValue * waveHeight * 0.8;
+      const startY = waveBase - lineHeight;
+      
+      ctx.moveTo(x, startY);
+      ctx.lineTo(x, waveBase - 5);
+    }
+  }
+  
+  ctx.strokeStyle = 'rgba(125, 211, 252, 0.5)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  
+  for (let i = 0; i < 10; i++) {
+    const circleIndex = Math.floor(Math.random() * frequencyData.length);
+    const circleValue = frequencyData[circleIndex] || 0;
+    
+    if (circleValue > 50) {
+      const normalizedValue = circleValue / 255;
+      const radius = Math.max(2, normalizedValue * 15);
+      const x = Math.random() * width;
+      const y = waveBase - Math.random() * waveHeight * 1.2;
+      
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(186, 230, 253, ${normalizedValue * 0.4})`;
+      ctx.fill();
+    }
+  }
+};
+
+const drawRainbowVisualizer = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, frequencyData: Uint8Array) => {
+  const width = canvas.width / window.devicePixelRatio;
+  const height = canvas.height / window.devicePixelRatio;
+  
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+  ctx.fillRect(0, 0, width, height);
+  
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const minDimension = Math.min(width, height);
+  
+  const numRings = 5;
+  const numSegments = 20;
+  const maxRadius = minDimension * 0.4;
+  
+  let avgLevel = 0;
+  for (let i = 0; i < Math.min(32, frequencyData.length); i++) {
+    avgLevel += frequencyData[i] / 255;
+  }
+  avgLevel /= Math.min(32, frequencyData.length);
+  
+  const time = Date.now() / 2000;
+  const rotationSpeed = 0.05 + avgLevel * 0.1;
+  
+  for (let ring = 0; ring < numRings; ring++) {
+    const ringRadius = maxRadius * (0.2 + ring * 0.2);
+    const ringWidth = maxRadius * 0.05;
+    const segmentAngle = (2 * Math.PI) / numSegments;
+    
+    const direction = ring % 2 === 0 ? 1 : -1;
+    const rotation = time * rotationSpeed * direction;
+    
+    for (let segment = 0; segment < numSegments; segment++) {
+      const freqIndex = (ring * numSegments + segment) % frequencyData.length;
+      const freqValue = frequencyData[freqIndex] || 0;
+      const normalizedValue = freqValue / 255;
+      
+      const dynamicRadius = Math.max(0.1, ringRadius * (0.8 + normalizedValue * 0.4));
+      
+      const startAngle = segment * segmentAngle + rotation;
+      const endAngle = startAngle + segmentAngle;
+      
+      const hue = (segment / numSegments * 360 + ring * 25) % 360;
+      const saturation = 70 + normalizedValue * 30;
+      const lightness = 40 + normalizedValue * 20;
+      const alpha = 0.6 + normalizedValue * 0.4;
+      
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, dynamicRadius, startAngle, endAngle);
+      ctx.arc(centerX, centerY, Math.max(0.1, dynamicRadius - ringWidth), endAngle, startAngle, true);
+      ctx.closePath();
+      
+      ctx.fillStyle = `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`;
+      ctx.fill();
+    }
+  }
+  
+  const glowRadius = maxRadius * 0.2 * (0.8 + avgLevel * 0.4);
+  const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, glowRadius);
+  gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+  gradient.addColorStop(0.5, 'rgba(255, 220, 255, 0.3)');
+  gradient.addColorStop(1, 'rgba(255, 220, 255, 0)');
+  
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, glowRadius, 0, Math.PI * 2);
+  ctx.fillStyle = gradient;
+  ctx.fill();
+};
+
+const drawGoldVisualizer = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, frequencyData: Uint8Array) => {
+  const width = canvas.width / window.devicePixelRatio;
+  const height = canvas.height / window.devicePixelRatio;
+  
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+  ctx.fillRect(0, 0, width, height);
+  
+  const centerX = width / 2;
+  const centerY = height / 2;
+  
+  let energy = 0;
+  for (let i = 0; i < 32; i++) {
+    energy += frequencyData[i];
+  }
+  energy = energy / (32 * 255);
+  
+  const maxRadius = Math.min(width, height) * 0.85 * (0.9 + energy * 0.2);
+  const phi = (1 + Math.sqrt(5)) / 2;
+  const turns = 5;
+  const pointsPerTurn = 60;
+  const totalPoints = turns * pointsPerTurn;
+  
+  ctx.beginPath();
+  let prevX = centerX;
+  let prevY = centerY;
+  
+  for (let i = 1; i <= totalPoints; i++) {
+    const angle = i * 0.1;
+    const scale = Math.pow(phi, angle / Math.PI);
+    const radius = maxRadius * (1 - Math.exp(-angle / 10));
+    
+    const x = centerX + radius * Math.cos(angle) / scale;
+    const y = centerY + radius * Math.sin(angle) / scale;
+    
+    const freqIndex = Math.floor(i * frequencyData.length / totalPoints) % frequencyData.length;
+    const freqValue = frequencyData[freqIndex] || 0;
+    const normalizedValue = freqValue / 255;
+    
+    if (i === 1) {
+      ctx.moveTo(x, y);
+    } else {
+      ctx.lineTo(x, y);
+    }
+    
+    prevX = x;
+    prevY = y;
+  }
+  
+  const gradient = ctx.createLinearGradient(0, 0, width, height);
+  gradient.addColorStop(0, 'rgba(255, 215, 0, 0.8)');
+  gradient.addColorStop(0.5, 'rgba(218, 165, 32, 0.7)');
+  gradient.addColorStop(1, 'rgba(184, 134, 11, 0.6)');
+  
+  ctx.strokeStyle = gradient;
+  ctx.lineWidth = 2 + energy * 4;
+  ctx.stroke();
+  
+  const numParticles = Math.floor(30 + energy * 30);
+  
+  for (let i = 0; i < numParticles; i++) {
+    const angle = i * turns * Math.PI * 2 / numParticles;
+    const scale = Math.pow(phi, angle / Math.PI);
+    const radius = maxRadius * (1 - Math.exp(-angle / 10)) * Math.random();
+    
+    const x = centerX + radius * Math.cos(angle) / scale;
+    const y = centerY + radius * Math.sin(angle) / scale;
+    
+    const freqIndex = Math.floor(i * frequencyData.length / numParticles);
+    const freqValue = frequencyData[freqIndex] || 0;
+    const normalizedValue = freqValue / 255;
+    
+    const particleSize = 1 + normalizedValue * 6;
+    const gradient = ctx.createRadialGradient(x, y, 0, x, y, particleSize);
+    gradient.addColorStop(0, 'rgba(255, 255, 200, 0.9)');
+    gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+    
+    ctx.beginPath();
+    ctx.arc(x, y, particleSize, 0, Math.PI * 2);
+    ctx.fillStyle = gradient;
+    ctx.fill();
+  }
+  
+  const centerSize = Math.max(5, energy * 40);
+  const centerGlow = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, centerSize);
+  centerGlow.addColorStop(0, 'rgba(255, 255, 200, 0.9)');
+  centerGlow.addColorStop(0.6, 'rgba(255, 215, 0, 0.4)');
+  centerGlow.addColorStop(1, 'rgba(255, 215, 0, 0)');
+  
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, centerSize, 0, Math.PI * 2);
+  ctx.fillStyle = centerGlow;
+  ctx.fill();
+  
+  const geometrySize = maxRadius * 0.3 * (0.8 + energy * 0.4);
+  const points = 6;
+  
+  ctx.beginPath();
+  for (let i = 0; i < points * 2; i++) {
+    const radius = i % 2 === 0 ? geometrySize : geometrySize * 0.5;
+    const angle = i * Math.PI / points;
+    const x = centerX + radius * Math.cos(angle);
+    const y = centerY + radius * Math.sin(angle);
+    
+    if (i === 0) {
+      ctx.moveTo(x, y);
+    } else {
+      ctx.lineTo(x, y);
+    }
+  }
+  ctx.closePath();
+  
+  ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+};
+
+export default SacredAudioPlayer;
