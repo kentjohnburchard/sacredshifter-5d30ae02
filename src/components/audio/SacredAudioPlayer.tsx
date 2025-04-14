@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { motion } from 'framer-motion';
@@ -13,7 +14,7 @@ import { cn } from '@/lib/utils';
 import SacredGeometryVisualizer from '../sacred-geometry/SacredGeometryVisualizer';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import FrequencyEqualizer from '../visualizer/FrequencyEqualizer';
-import Button from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
 
 type GeometryShape = 'flower-of-life' | 'seed-of-life' | 'metatrons-cube' | 
