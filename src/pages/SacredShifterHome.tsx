@@ -1,29 +1,20 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Logo, AnimatedText, CallToAction } from "@/components/landing";
 import Layout from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Music, Heart, Sparkles, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
-import EnhancedGeometryVisualizer from "@/components/sacred-geometry/EnhancedGeometryVisualizer";
 import { useTheme } from "@/context/ThemeContext";
 import ConsciousnessToggle from "@/components/ConsciousnessToggle";
 
 const SacredShifterHome: React.FC = () => {
   const { liftTheVeil, currentQuote } = useTheme();
-  const [showVisualizer, setShowVisualizer] = useState(true);
-  const [geometryExpanded, setGeometryExpanded] = useState(false);
   
   // Determine background classes based on mode
   const bgClasses = liftTheVeil 
     ? "bg-gradient-to-b from-pink-900/30 to-purple-900/30"
     : "bg-gradient-to-b from-indigo-900/30 to-purple-900/30";
-    
-  // Handle visualizer expand/collapse state change
-  const handleVisualizerExpandChange = (expanded: boolean) => {
-    setGeometryExpanded(expanded);
-  };
 
   return (
     <Layout pageTitle="Sacred Shifter" useBlueWaveBackground={!liftTheVeil}>
@@ -33,7 +24,7 @@ const SacredShifterHome: React.FC = () => {
         
         <div className="flex flex-col items-center justify-center min-h-[70vh] text-center relative">
           {/* Main Content */}
-          <div className={`transition-all duration-500 ${geometryExpanded ? 'opacity-20' : 'opacity-100'}`}>
+          <div className="transition-all duration-500">
             {/* Logo with Animation */}
             <motion.div
               initial={{ opacity: 0, y: -20 }}
@@ -85,21 +76,10 @@ const SacredShifterHome: React.FC = () => {
               Begin Your Journey
             </CallToAction>
           </div>
-          
-          {/* Sacred Geometry Visualizer */}
-          <div className={`w-full max-w-4xl mx-auto mt-8 mb-16 ${geometryExpanded ? 'z-30' : 'z-10'}`}>
-            <EnhancedGeometryVisualizer 
-              showControls={true}
-              isAudioReactive={true}
-              expandable={true}
-              onExpandStateChange={handleVisualizerExpandChange}
-              mode={liftTheVeil ? 'spiral' : 'fractal'}
-            />
-          </div>
         </div>
 
         {/* Feature Cards */}
-        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16 mb-24 transition-opacity duration-500 ${geometryExpanded ? 'opacity-0' : 'opacity-100'}`}>
+        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16 mb-24 transition-opacity duration-500`}>
           {[
             { 
               title: 'Sound Healing', 

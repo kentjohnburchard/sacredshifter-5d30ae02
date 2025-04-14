@@ -2,7 +2,6 @@
 import React from "react";
 import Footer from "@/components/navigation/Footer";
 import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
-import { useGlobalAudioPlayer } from "@/hooks/useGlobalAudioPlayer";
 import Sidebar from "@/components/Sidebar";
 
 interface LayoutProps {
@@ -13,9 +12,6 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, pageTitle, theme, useBlueWaveBackground }) => {
-  // Use the global audio player to ensure the audio continues across route changes
-  const { isPlaying } = useGlobalAudioPlayer();
-  
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-purple-50">
       <div className="flex flex-grow">
