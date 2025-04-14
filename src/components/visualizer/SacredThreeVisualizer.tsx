@@ -1,5 +1,4 @@
-
-import React, { useRef, useState, useEffect, useMemo } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Stars, OrbitControls, useHelper, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
@@ -16,11 +15,6 @@ const Merkaba = ({ position, rotation, scale, color, opacity }) => {
     }
   });
 
-  const merkaba = useMemo(() => {
-    const geometry = new THREE.TetrahedronGeometry(1, 0);
-    return geometry;
-  }, []);
-
   return (
     <mesh 
       ref={meshRef} 
@@ -28,7 +22,7 @@ const Merkaba = ({ position, rotation, scale, color, opacity }) => {
       rotation={rotation as [number, number, number]} 
       scale={scale}
     >
-      <primitive object={merkaba} />
+      <tetrahedronGeometry args={[1, 0]} />
       <meshStandardMaterial 
         color={color} 
         transparent={true} 
@@ -200,9 +194,6 @@ const VisualizerScene: React.FC<VisualizerSceneProps> = ({
   const directionalLightRef = useRef<THREE.DirectionalLight>(null);
   const pointLightRef = useRef<THREE.PointLight>(null);
   
-  // Helper for directional light (visible only during development)
-  // useHelper(directionalLightRef, THREE.DirectionalLightHelper, 0.5, 'white');
-  
   useFrame((state) => {
     // Gentle camera movement
     if (camera && isPlaying) {
@@ -222,7 +213,6 @@ const VisualizerScene: React.FC<VisualizerSceneProps> = ({
     );
   });
 
-  // Process audio data and create shapes based on dominant frequencies
   useEffect(() => {
     if (!audioData || !isPlaying) return;
     
@@ -362,40 +352,13 @@ const SacredThreeVisualizer: React.FC<SacredThreeVisualizerProps> = ({
   const cameraFov = fullscreen ? 75 : 60;
   
   // Track THREE.js availability and errors
-  const [threeLoaded, setThreeLoaded] = useState(false);
+  const [threeLoaded, setThreeLoaded] = useState(true);
   const [threeError, setThreeError] = useState<string | null>(null);
   
   // Use a ref to track initialization attempts
   const initAttemptedRef = useRef(false);
-  
-  // Verify global THREE is available before rendering
-  useEffect(() => {
-    if (typeof window === 'undefined' || initAttemptedRef.current) return;
-    
-    initAttemptedRef.current = true;
-    
-    try {
-      if (!window.THREE) {
-        // If not globally available yet, try to set it
-        console.log("Setting up THREE globally in SacredThreeVisualizer");
-        window.THREE = THREE;
-      }
-      
-      if (window.THREE) {
-        console.log("THREE is available in SacredThreeVisualizer:", window.THREE.REVISION);
-        window.SacredThreeVisualizerLoaded = true;
-        setThreeLoaded(true);
-      } else {
-        console.error("THREE is still not available globally after attempt to set it");
-        setThreeError("Failed to initialize THREE.js");
-      }
-    } catch (error) {
-      console.error("Error initializing THREE:", error);
-      setThreeError(`THREE.js initialization error: ${error instanceof Error ? error.message : String(error)}`);
-    }
-  }, []);
-  
-  // Use 2D canvas fallback if THREE.js fails to load or when not rendering
+
+  // Only create Canvas if THREE is properly loaded
   if (!shouldRender || !audioData) {
     return (
       <div className="w-full h-full bg-black/50 rounded-lg flex items-center justify-center">
@@ -404,7 +367,7 @@ const SacredThreeVisualizer: React.FC<SacredThreeVisualizerProps> = ({
     );
   }
   
-  if (threeError || !threeLoaded) {
+  if (threeError) {
     console.warn("Using 2D fallback due to THREE.js issue:", threeError);
     // Fallback to 2D canvas-based visualizer
     return (
@@ -417,31 +380,28 @@ const SacredThreeVisualizer: React.FC<SacredThreeVisualizerProps> = ({
     );
   }
 
-  // Only create Canvas if THREE is properly loaded
   return (
     <div className="w-full h-full rounded-lg overflow-hidden">
-      {threeLoaded && (
-        <Canvas className="rounded-lg" shadows>
-          <PerspectiveCamera 
-            makeDefault
-            position={cameraPosition}
-            fov={cameraFov}
-          />
-          <VisualizerScene
-            audioData={audioData}
-            isPlaying={isPlaying}
-            liftTheVeil={liftTheVeil}
-          />
-          <OrbitControls 
-            enableZoom={fullscreen}
-            enablePan={fullscreen}
-            enableRotate
-            rotateSpeed={0.5}
-            maxDistance={20}
-            minDistance={3}
-          />
-        </Canvas>
-      )}
+      <Canvas className="rounded-lg" shadows>
+        <PerspectiveCamera 
+          makeDefault
+          position={cameraPosition}
+          fov={cameraFov}
+        />
+        <VisualizerScene
+          audioData={audioData}
+          isPlaying={isPlaying}
+          liftTheVeil={liftTheVeil}
+        />
+        <OrbitControls 
+          enableZoom={fullscreen}
+          enablePan={fullscreen}
+          enableRotate
+          rotateSpeed={0.5}
+          maxDistance={20}
+          minDistance={3}
+        />
+      </Canvas>
     </div>
   );
 };
