@@ -1,609 +1,748 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
 
 interface SacredGeometryCanvasProps {
-  colorScheme: 'purple' | 'blue' | 'rainbow' | 'gold';
+  audioAnalyser?: AnalyserNode | null;
+  colorScheme?: 'purple' | 'blue' | 'rainbow' | 'gold';
+  chakra?: string;
+  frequency?: number;
+  onPrimeDetected?: (prime: number) => void;
+  onFrequencyDataAvailable?: (frequencies: number[]) => void;
 }
 
-const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({ 
-  colorScheme = 'purple'
+const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
+  audioAnalyser,
+  colorScheme = 'purple',
+  chakra,
+  frequency,
+  onPrimeDetected,
+  onFrequencyDataAvailable
 }) => {
-  const { liftTheVeil } = useTheme();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const dataArrayRef = useRef<Uint8Array | null>(null);
-  const animationFrameRef = useRef<number | null>(null);
-  const rafIdRef = useRef<number | null>(null);
-  const prevColorSchemeRef = useRef<string>(colorScheme);
+  const animationRef = useRef<number | null>(null);
+  const { liftTheVeil } = useTheme();
+  
+  // Tracking state for frequency data and prime detection
+  const [averageFrequency, setAverageFrequency] = useState<number>(0);
+  const [dominantFrequency, setDominantFrequency] = useState<number | null>(null);
   const [primeNumbers, setPrimeNumbers] = useState<number[]>([]);
   
-  // Use document.getElementById directly, and handle the audioElement not being found more gracefully
-  useEffect(() => {
-    const setupAudioContext = () => {
-      try {
-        // Get the global audio element
-        const audioElement = document.getElementById('global-audio-player') as HTMLAudioElement;
-        
-        if (!audioElement) {
-          console.error('SacredGeometryCanvas: Global audio player not found, will retry');
-          return false;
-        }
-        
-        // Create audio context if it doesn't exist
-        if (!audioCtxRef.current) {
-          audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-        }
-        
-        // Create analyzer if it doesn't exist
-        if (!analyserRef.current && audioCtxRef.current) {
-          const analyser = audioCtxRef.current.createAnalyser();
-          analyser.fftSize = 2048;
-          analyserRef.current = analyser;
-          
-          // Create data array for frequency data
-          const bufferLength = analyser.frequencyBinCount;
-          dataArrayRef.current = new Uint8Array(bufferLength);
-          
-          // Connect audio element to analyzer only if not already connected
-          try {
-            const source = audioCtxRef.current.createMediaElementSource(audioElement);
-            source.connect(analyserRef.current);
-            analyserRef.current.connect(audioCtxRef.current.destination);
-            console.log('SacredGeometryCanvas: Audio context setup complete');
-          } catch (error) {
-            // If we get an error about already being connected, we can proceed
-            if (error instanceof DOMException && error.name === 'InvalidStateError') {
-              console.log('SacredGeometryCanvas: Audio node already connected, reusing connection');
-              return true;
-            }
-            console.error('SacredGeometryCanvas: Error connecting audio elements:', error);
-            return false;
-          }
-        }
-        
-        return true;
-      } catch (error) {
-        console.error('Error setting up audio context:', error);
-        return false;
+  // Settings for visualization
+  const [particles, setParticles] = useState<Particle[]>([]);
+  const [rotationSpeed, setRotationSpeed] = useState<number>(0.001);
+  const [baseRotation, setBaseRotation] = useState<number>(0);
+  const [scale, setScale] = useState<number>(1);
+  const [lastPrimeDetectionTime, setLastPrimeDetectionTime] = useState<number>(0);
+  
+  // Cache for prime number calculation
+  const primeCache = useRef<Record<number, boolean>>({});
+  
+  // Particle class for visualization
+  interface Particle {
+    x: number;
+    y: number;
+    radius: number;
+    color: string;
+    velocity: number;
+    angle: number;
+    opacity: number;
+    life: number;
+    maxLife: number;
+  }
+  
+  // Get color from chakra or colorScheme
+  const getBaseColor = (): string => {
+    if (chakra) {
+      switch (chakra.toLowerCase()) {
+        case 'root': return '#ea384c'; // Red
+        case 'sacral': return '#F97316'; // Orange
+        case 'solar plexus': return '#eab308'; // Yellow
+        case 'heart': return '#16a34a'; // Green
+        case 'throat': return '#1EAEDB'; // Blue
+        case 'third eye': return '#9b87f5'; // Indigo
+        case 'crown': return '#7E69AB'; // Violet
+        default: break;
       }
-    };
-    
-    // Try to set up audio context immediately
-    const success = setupAudioContext();
-    if (success) {
-      startVisualization();
-    } else {
-      // Retry after a delay if initial setup fails
-      const retryTimeout = setTimeout(() => {
-        const retrySuccess = setupAudioContext();
-        if (retrySuccess) {
-          startVisualization();
-        } else {
-          console.warn('SacredGeometryCanvas: Failed to setup audio after retry, trying once more...');
-          // Try one more time after another delay
-          const finalRetry = setTimeout(() => {
-            if (setupAudioContext()) {
-              startVisualization();
-            }
-          }, 1000);
-          return () => clearTimeout(finalRetry);
-        }
-      }, 500);
-      
-      return () => clearTimeout(retryTimeout);
     }
     
-    return () => {
-      if (rafIdRef.current) {
-        cancelAnimationFrame(rafIdRef.current);
-      }
-    };
-  }, []);
-  
-  // Effect to handle color scheme changes
-  useEffect(() => {
-    if (prevColorSchemeRef.current !== colorScheme) {
-      prevColorSchemeRef.current = colorScheme;
-      // Force redraw with new color scheme
-      if (rafIdRef.current) {
-        cancelAnimationFrame(rafIdRef.current);
-        rafIdRef.current = null;
-      }
-      startVisualization();
+    // Fall back to colorScheme if no chakra
+    switch (colorScheme) {
+      case 'purple': return '#9b87f5';
+      case 'blue': return '#1EAEDB';
+      case 'rainbow': return '#FF0000'; // Rainbow will use gradient in rendering
+      case 'gold': return '#eab308';
+      default: return '#9b87f5';
     }
-  }, [colorScheme]);
+  };
   
-  // Prime number detection function
+  // Get highlight color for particles and effects
+  const getHighlightColor = (): string => {
+    // Brighter version of base color for highlights
+    if (chakra) {
+      switch (chakra.toLowerCase()) {
+        case 'root': return '#ff5a6e'; // Bright Red
+        case 'sacral': return '#ff9438'; // Bright Orange
+        case 'solar plexus': return '#ffd028'; // Bright Yellow
+        case 'heart': return '#36c368'; // Bright Green
+        case 'throat': return '#3eceff'; // Bright Blue
+        case 'third eye': return '#bba7ff'; // Bright Indigo
+        case 'crown': return '#9e89cb'; // Bright Violet
+        default: break;
+      }
+    }
+    
+    switch (colorScheme) {
+      case 'purple': return '#bba7ff';
+      case 'blue': return '#3eceff';
+      case 'rainbow': return '#FFFFFF';
+      case 'gold': return '#ffd028';
+      default: return '#bba7ff';
+    }
+  };
+
+  // Prime number detection
   const isPrime = (num: number): boolean => {
-    if (num <= 1) return false;
-    if (num <= 3) return true;
-    if (num % 2 === 0 || num % 3 === 0) return false;
+    // Check cache first
+    if (primeCache.current[num] !== undefined) {
+      return primeCache.current[num];
+    }
+    
+    // Handle edge cases
+    if (num <= 1) {
+      primeCache.current[num] = false;
+      return false;
+    }
+    if (num <= 3) {
+      primeCache.current[num] = true;
+      return true;
+    }
+    if (num % 2 === 0 || num % 3 === 0) {
+      primeCache.current[num] = false;
+      return false;
+    }
+    
+    // Check for primality using 6k+-1 optimization
     let i = 5;
     while (i * i <= num) {
-      if (num % i === 0 || num % (i + 2) === 0) return false;
+      if (num % i === 0 || num % (i + 2) === 0) {
+        primeCache.current[num] = false;
+        return false;
+      }
       i += 6;
     }
+    
+    primeCache.current[num] = true;
     return true;
   };
-  
-  // Find prime numbers in frequency data
-  const detectPrimeFrequencies = (dataArray: Uint8Array): number[] => {
-    const primes: number[] = [];
-    const threshold = 150; // Only detect strong frequencies
+
+  // Create particles for effects
+  const createParticles = (
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    count: number,
+    color: string
+  ) => {
+    const newParticles: Particle[] = [];
     
-    for (let i = 20; i < dataArray.length; i++) {
-      if (dataArray[i] > threshold) {
-        // Convert frequency bin to approximate Hz
-        const frequency = Math.round(i * audioCtxRef.current!.sampleRate / (dataArray.length * 2));
-        if (isPrime(frequency) && !primes.includes(frequency)) {
-          primes.push(frequency);
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const velocity = 0.5 + Math.random() * 1.5;
+      const maxLife = 50 + Math.random() * 100;
+      
+      newParticles.push({
+        x,
+        y,
+        radius: 1 + Math.random() * 3,
+        color,
+        velocity,
+        angle,
+        opacity: 0.8,
+        life: 0,
+        maxLife
+      });
+    }
+    
+    setParticles(prevParticles => [...prevParticles, ...newParticles]);
+  };
+
+  // Draw sacred geometry based on frequency data
+  const drawSacredGeometry = (
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+    frequencyData: Uint8Array | null,
+    time: number
+  ) => {
+    const centerX = width / 2;
+    const centerY = height / 2;
+    
+    // Clear the canvas with a semi-transparent background for better visibility
+    ctx.fillStyle = liftTheVeil 
+      ? 'rgba(10, 10, 10, 0.9)' 
+      : 'rgba(20, 20, 30, 0.9)';
+    ctx.fillRect(0, 0, width, height);
+    
+    // Base radius for geometric shapes
+    const baseRadius = Math.min(width, height) * 0.25;
+    
+    // Calculate visualization parameters from audio data
+    let bassEnergy = 0;
+    let midEnergy = 0;
+    let highEnergy = 0;
+    let dominantFreqBin = 0;
+    let maxEnergy = 0;
+    
+    if (frequencyData && frequencyData.length > 0) {
+      // Calculate energy in different frequency ranges
+      for (let i = 0; i < frequencyData.length; i++) {
+        const normalized = frequencyData[i] / 255; // Normalize to 0-1
+        
+        if (i < frequencyData.length / 3) {
+          // Bass frequencies (first third)
+          bassEnergy += normalized;
+        } else if (i < frequencyData.length * 2/3) {
+          // Mid frequencies (second third)
+          midEnergy += normalized;
+        } else {
+          // High frequencies (last third)
+          highEnergy += normalized;
         }
+        
+        // Find dominant frequency bin
+        if (normalized > maxEnergy) {
+          maxEnergy = normalized;
+          dominantFreqBin = i;
+        }
+      }
+      
+      // Average energies
+      bassEnergy = bassEnergy / (frequencyData.length / 3);
+      midEnergy = midEnergy / (frequencyData.length / 3);
+      highEnergy = highEnergy / (frequencyData.length / 3);
+      
+      // Get frequency from bin index (44.1kHz sample rate / 2 / fftSize)
+      // Assuming typical sample rate and fft size of 2048
+      const audioContext = audioAnalyser?.context;
+      if (audioContext) {
+        const sampleRate = audioContext.sampleRate;
+        const binCount = audioAnalyser?.frequencyBinCount || 1024;
+        const dominantFreq = Math.round(dominantFreqBin * sampleRate / (2 * binCount * 2));
+        
+        setDominantFrequency(dominantFreq);
+        
+        // Check for prime frequencies and notify
+        const currentTime = Date.now();
+        if (isPrime(dominantFreq) && currentTime - lastPrimeDetectionTime > 1000) {
+          if (onPrimeDetected) {
+            onPrimeDetected(dominantFreq);
+            setPrimeNumbers(prev => [...prev, dominantFreq]);
+            // Create particle burst for prime detection
+            createParticles(ctx, centerX, centerY, 30, getHighlightColor());
+            setLastPrimeDetectionTime(currentTime);
+          }
+        }
+      }
+      
+      // Update rotation speed based on mid-frequencies
+      setRotationSpeed(0.001 + midEnergy * 0.01);
+      
+      // Update scale based on bass (low frequencies)
+      const targetScale = 0.8 + bassEnergy * 0.6;
+      setScale(prev => prev * 0.9 + targetScale * 0.1); // Smooth transition
+      
+      // Calculate average for display
+      const averageLevel = (bassEnergy + midEnergy + highEnergy) / 3;
+      setAverageFrequency(averageLevel * 100);
+      
+      // Notify parent component about frequency data
+      if (onFrequencyDataAvailable) {
+        const normalizedData = Array.from(frequencyData).map(val => val / 255);
+        onFrequencyDataAvailable(normalizedData);
       }
     }
     
-    return primes;
+    // Update rotation
+    setBaseRotation(prev => prev + rotationSpeed);
+    const currentRotation = baseRotation;
+    const pulseFactor = 1 + Math.sin(time * 0.003) * 0.05; // Subtle pulse
+    
+    // Draw background glow
+    const gradient = ctx.createRadialGradient(
+      centerX, centerY, 0,
+      centerX, centerY, baseRadius * 1.5
+    );
+    
+    const baseColor = getBaseColor();
+    gradient.addColorStop(0, `${baseColor}33`);
+    gradient.addColorStop(0.5, `${baseColor}11`);
+    gradient.addColorStop(1, 'transparent');
+    
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, baseRadius * 1.5, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Draw sacred geometry
+    const radius = baseRadius * scale * pulseFactor;
+    
+    // Select geometry type based on chakra or default
+    const geometryType = chakra ? chakraToGeometryType(chakra) : 'flower-of-life';
+    
+    ctx.save();
+    ctx.translate(centerX, centerY);
+    ctx.rotate(currentRotation);
+    
+    switch (geometryType) {
+      case 'flower-of-life':
+        drawFlowerOfLife(ctx, radius, bassEnergy, midEnergy, highEnergy);
+        break;
+      case 'merkaba':
+        drawMerkaba(ctx, radius, bassEnergy, midEnergy, highEnergy);
+        break;
+      case 'metatrons-cube':
+        drawMetatronsCube(ctx, radius, bassEnergy, midEnergy, highEnergy);
+        break;
+      case 'sri-yantra':
+        drawSriYantra(ctx, radius, bassEnergy, midEnergy, highEnergy);
+        break;
+      default:
+        drawFlowerOfLife(ctx, radius, bassEnergy, midEnergy, highEnergy);
+    }
+    
+    ctx.restore();
+    
+    // Draw particles
+    updateAndDrawParticles(ctx);
+    
+    // Draw frequency info
+    if (dominantFrequency) {
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '12px Arial';
+      ctx.textAlign = 'left';
+      ctx.fillText(`${dominantFrequency}Hz`, 20, 30);
+    }
   };
   
-  const startVisualization = () => {
-    if (!canvasRef.current || !analyserRef.current || !dataArrayRef.current) {
-      console.warn('SacredGeometryCanvas: Required refs not initialized yet');
-      return;
-    }
-    
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    
-    if (!ctx) {
-      console.error('SacredGeometryCanvas: Could not get 2d context');
-      return;
-    }
-    
-    // Set canvas to container size
-    const resize = () => {
-      if (canvas.parentElement) {
-        canvas.width = canvas.parentElement.clientWidth;
-        canvas.height = canvas.parentElement.clientHeight;
-      } else {
-        canvas.width = 400;
-        canvas.height = 300;
-      }
-    };
-    
-    // Call resize initially and add event listener
-    resize();
-    window.addEventListener('resize', resize);
-    
-    // Determine color scheme
-    const getColor = (value: number): string => {
-      value = Math.min(255, Math.max(0, value)); // Clamp value between 0-255
+  // Update and draw particles
+  const updateAndDrawParticles = (ctx: CanvasRenderingContext2D) => {
+    const updatedParticles = particles.filter(p => p.life < p.maxLife).map(particle => {
+      // Update particle
+      const updatedParticle = { ...particle };
+      updatedParticle.x += Math.cos(particle.angle) * particle.velocity;
+      updatedParticle.y += Math.sin(particle.angle) * particle.velocity;
+      updatedParticle.life += 1;
+      updatedParticle.opacity = 1 - (particle.life / particle.maxLife);
       
-      switch (colorScheme) {
-        case 'blue':
-          return `hsla(210, 100%, ${30 + value / 4}%, ${0.9 + value / 400})`;
-        case 'gold':
-          return `hsla(45, 100%, ${30 + value / 4}%, ${0.9 + value / 400})`;
-        case 'rainbow':
-          return `hsla(${value}, 100%, 50%, ${0.9 + value / 400})`;
-        case 'purple':
-        default:
-          return `hsla(280, 100%, ${30 + value / 4}%, ${0.9 + value / 400})`;
-      }
-    };
-    
-    let rotationAngle = 0; // Define a separate angle variable for rotation
-    let particles: { x: number, y: number, size: number, color: string, speed: number, life: number, maxLife: number }[] = [];
-    let primeParticles: { x: number, y: number, size: number, color: string, speed: number, life: number, maxLife: number, prime: number }[] = [];
-    
-    const drawVisualization = () => {
-      if (!analyserRef.current || !dataArrayRef.current) return;
-      
-      const analyser = analyserRef.current;
-      const dataArray = dataArrayRef.current;
-      
-      // Clear canvas with solid background for less transparency issues
-      ctx.fillStyle = colorScheme === 'rainbow' 
-        ? 'rgba(0, 0, 0, 0.9)' 
-        : colorScheme === 'blue' 
-          ? 'rgba(0, 5, 20, 0.9)' 
-          : colorScheme === 'gold' 
-            ? 'rgba(20, 10, 0, 0.9)' 
-            : 'rgba(10, 0, 20, 0.9)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      // Get frequency data
-      analyser.getByteFrequencyData(dataArray);
-      
-      // Check for prime frequencies
-      const newPrimes = detectPrimeFrequencies(dataArray);
-      if (newPrimes.length > 0 && newPrimes.some(prime => !primeNumbers.includes(prime))) {
-        // Update state with new primes
-        setPrimeNumbers(prev => {
-          const combined = [...prev, ...newPrimes.filter(p => !prev.includes(p))];
-          return combined.slice(-10); // Keep only the 10 most recent primes
-        });
-        
-        // Create special particles for prime frequencies
-        newPrimes.forEach(prime => {
-          const angle = Math.random() * Math.PI * 2;
-          const distance = 30 + Math.random() * 100;
-          primeParticles.push({
-            x: Math.cos(angle) * distance,
-            y: Math.sin(angle) * distance,
-            size: 5 + Math.random() * 10, // Larger particles for primes
-            color: colorScheme === 'rainbow' ? `hsl(${Math.random() * 360}, 100%, 50%)` : getColor(255),
-            speed: 2 + Math.random() * 4,
-            life: 1.0,
-            maxLife: 2 + Math.random() * 3,
-            prime: prime
-          });
-        });
-      }
-      
-      // Calculate average frequency and bass levels for effects
-      const frequencySum = dataArray.reduce((sum, value) => sum + value, 0);
-      const averageFrequency = frequencySum / dataArray.length;
-      
-      // Calculate bass level (lower frequencies)
-      let bassSum = 0;
-      const bassRange = Math.min(30, dataArray.length / 8); // Lower frequencies
-      for (let i = 0; i < bassRange; i++) {
-        bassSum += dataArray[i];
-      }
-      const bassLevel = bassSum / bassRange;
-      
-      // Calculate mid level (mid frequencies)
-      let midSum = 0;
-      const midStart = Math.floor(dataArray.length / 8);
-      const midEnd = Math.floor(dataArray.length / 3);
-      for (let i = midStart; i < midEnd; i++) {
-        midSum += dataArray[i];
-      }
-      const midLevel = midSum / (midEnd - midStart);
-      
-      // Calculate treble level (higher frequencies)
-      let trebleSum = 0;
-      const trebleStart = Math.floor(dataArray.length / 2);
-      for (let i = trebleStart; i < dataArray.length; i++) {
-        trebleSum += dataArray[i];
-      }
-      const trebleLevel = trebleSum / (dataArray.length - trebleStart);
-      
-      // Center point
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
-      
-      // Draw centered circles that respond to bass
-      const numCircles = 5;
-      for (let i = 0; i < numCircles; i++) {
-        const radius = (60 + i * 30) + bassLevel * (i + 1) / 3; // Enhanced size multiplier
-        const alpha = 0.7 - i * 0.05; // Enhanced alpha
-        
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        ctx.strokeStyle = getColor(bassLevel);
-        ctx.lineWidth = 3 + (bassLevel / 70); // Line width responds to bass
-        ctx.setLineDash([5, bassLevel / 8]);
-        ctx.globalAlpha = alpha;
-        ctx.stroke();
-        ctx.globalAlpha = 1.0;
-      }
-      
-      // Draw equalizer bars
-      const barWidth = Math.max(6, Math.min(10, canvas.width / 48)); // Wider bars
-      const barSpacing = 2;
-      const barCount = Math.floor(dataArray.length / 8); // Use more of the spectrum
-      const barHeightMultiplier = canvas.height / 600; // Scale the bars appropriately
-      
-      ctx.save();
-      ctx.translate(centerX, centerY);
-      
-      // Draw circular equalizer that responds to music
-      for (let i = 0; i < barCount; i++) {
-        const value = dataArray[i * 2];
-        const barHeight = value * barHeightMultiplier * 2.0; // Increased height multiplier
-        const angle = (i / barCount) * Math.PI * 2;
-        
-        const innerRadius = 80 + (bassLevel / 4) + (Math.sin(Date.now() / 1000 + i / 10) * 5);
-        const outerRadius = innerRadius + barHeight;
-        
-        const x1 = Math.cos(angle) * innerRadius;
-        const y1 = Math.sin(angle) * innerRadius;
-        const x2 = Math.cos(angle) * outerRadius;
-        const y2 = Math.sin(angle) * outerRadius;
-        
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.lineWidth = barWidth;
-        ctx.strokeStyle = getColor(value);
-        ctx.globalAlpha = 0.8 + (value / 255) * 0.2;
-        ctx.stroke();
-        ctx.globalAlpha = 1.0;
-      }
-      
-      ctx.restore();
-      
-      // Create sacred geometry patterns based on audio
-      ctx.save();
-      ctx.translate(centerX, centerY);
-      
-      // Animate overall rotation for more movement - responds to audio levels
-      rotationAngle += 0.005 + (averageFrequency / 5000);
-      ctx.rotate(rotationAngle);
-      
-      // Draw geometric patterns - ENHANCED & RESPONSIVE
-      const sides = 6 + Math.floor(bassLevel / 30); // More sides with more bass
-      const radius = 70 + (midLevel / 2) + (Math.sin(Date.now() / 1000) * 10); // Pulsing radius
-      
+      // Draw particle
+      ctx.globalAlpha = updatedParticle.opacity;
+      ctx.fillStyle = updatedParticle.color;
       ctx.beginPath();
-      for (let i = 0; i < sides; i++) {
-        const angle = (i / sides) * Math.PI * 2;
-        const x = Math.cos(angle) * radius;
-        const y = Math.sin(angle) * radius;
-        
-        if (i === 0) {
-          ctx.moveTo(x, y);
-        } else {
-          ctx.lineTo(x, y);
-        }
-      }
-      ctx.closePath();
-      ctx.strokeStyle = getColor(midLevel);
-      ctx.lineWidth = 3 + trebleLevel / 30; // Thicker lines with higher frequencies
-      ctx.globalAlpha = 0.8 + (midLevel / 255) * 0.2;
-      ctx.stroke();
-      ctx.globalAlpha = 1.0;
+      ctx.arc(updatedParticle.x, updatedParticle.y, updatedParticle.radius, 0, Math.PI * 2);
+      ctx.fill();
       
-      // Secondary geometric pattern - ENHANCED & RESPONSIVE
-      const innerRadius = radius * (0.5 + (bassLevel / 1000));
-      ctx.beginPath();
-      for (let i = 0; i < sides; i++) {
-        const innerAngle = ((i / sides) * Math.PI * 2) + (Math.PI / sides) + (rotationAngle * 0.5); // Added rotation
-        const x = Math.cos(innerAngle) * innerRadius;
-        const y = Math.sin(innerAngle) * innerRadius;
-        
-        if (i === 0) {
-          ctx.moveTo(x, y);
-        } else {
-          ctx.lineTo(x, y);
-        }
-      }
-      ctx.closePath();
-      ctx.strokeStyle = getColor(midLevel - 30);
-      ctx.lineWidth = 2 + trebleLevel / 40;
-      ctx.globalAlpha = 0.7 + (midLevel / 255) * 0.3;
-      ctx.stroke();
-      ctx.globalAlpha = 1.0;
+      return updatedParticle;
+    });
+    
+    ctx.globalAlpha = 1;
+    setParticles(updatedParticles);
+  };
+
+  // Draw Flower of Life pattern
+  const drawFlowerOfLife = (
+    ctx: CanvasRenderingContext2D, 
+    radius: number,
+    bassEnergy: number,
+    midEnergy: number,
+    highEnergy: number
+  ) => {
+    const circleCount = 7;
+    const baseColor = getBaseColor();
+    const highlightColor = getHighlightColor();
+    
+    // Draw central circle
+    ctx.strokeStyle = colorScheme === 'rainbow' ? getRainbowColor(0, circleCount) : baseColor;
+    ctx.lineWidth = 1.5 + highEnergy * 3;
+    
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * (0.5 + bassEnergy * 0.3), 0, Math.PI * 2);
+    ctx.stroke();
+    
+    // Apply glowing effect for central circle
+    ctx.shadowColor = highlightColor;
+    ctx.shadowBlur = 10 + midEnergy * 15;
+    
+    // Create surrounding circles for Flower of Life pattern
+    for (let ring = 1; ring <= 2; ring++) {
+      const ringRadius = radius * ring * 0.35;
+      const circlesInRing = ring === 1 ? 6 : 12;
       
-      // Draw connecting lines - ENHANCED & RESPONSIVE
-      ctx.beginPath();
-      for (let i = 0; i < sides; i++) {
-        const angle1 = (i / sides) * Math.PI * 2;
-        const x1 = Math.cos(angle1) * radius;
-        const y1 = Math.sin(angle1) * radius;
+      for (let i = 0; i < circlesInRing; i++) {
+        const rotationAngle = (i / circlesInRing) * Math.PI * 2;
+        const x = Math.cos(rotationAngle) * ringRadius;
+        const y = Math.sin(rotationAngle) * ringRadius;
         
-        const angle2 = ((i / sides) * Math.PI * 2) + (Math.PI / sides);
-        const x2 = Math.cos(angle2) * innerRadius;
-        const y2 = Math.sin(angle2) * innerRadius;
+        // Color varies with position in rainbow mode
+        ctx.strokeStyle = colorScheme === 'rainbow' 
+          ? getRainbowColor(i, circlesInRing) 
+          : baseColor;
         
-        // Pulse the center based on bass
-        const centerOffset = Math.sin(Date.now() / 500) * (bassLevel / 30);
-        
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(centerOffset, centerOffset); // Connect to slightly offset center
-        
-        if (i % 2 === 0) { // Only some lines for cleaner look
-          ctx.moveTo(x2, y2);
-          ctx.lineTo(-centerOffset, -centerOffset);
-        }
-      }
-      ctx.strokeStyle = getColor(trebleLevel);
-      ctx.lineWidth = 1 + trebleLevel / 70;
-      ctx.globalAlpha = 0.6 + (trebleLevel / 255) * 0.4;
-      ctx.stroke();
-      ctx.globalAlpha = 1.0;
-      
-      // Add more particles for higher frequencies - respond to treble
-      if (trebleLevel > 30 && Math.random() > 0.5) { // More particles
-        const particleAngle = Math.random() * Math.PI * 2;
-        const distance = 30 + Math.random() * 100; // Wider particle distribution
-        
-        particles.push({
-          x: Math.cos(particleAngle) * distance,
-          y: Math.sin(particleAngle) * distance,
-          size: 2 + Math.random() * 5 + (trebleLevel / 100), // Size responds to treble
-          color: getColor(trebleLevel + Math.random() * 50),
-          speed: 1 + Math.random() * 4 + (trebleLevel / 100), // Speed responds to treble
-          life: 1.0,
-          maxLife: 1 + Math.random() * 2
-        });
-      }
-      
-      // Update and draw normal particles
-      particles.forEach((particle, index) => {
-        particle.size -= 0.05;
-        particle.life -= 0.01 + Math.random() * 0.02;
-        
-        // Remove particles that are too small or dead
-        if (particle.size <= 0 || particle.life <= 0) {
-          particles.splice(index, 1);
-          return;
-        }
-        
-        // Move particles outward
-        const particleAngle = Math.atan2(particle.y, particle.x);
-        particle.x += Math.cos(particleAngle) * particle.speed * (0.5 + averageFrequency / 500);
-        particle.y += Math.sin(particleAngle) * particle.speed * (0.5 + averageFrequency / 500);
-        
-        // Draw particle - ENHANCED
         ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fillStyle = particle.color;
-        ctx.globalAlpha = particle.life * 0.9; // Fade out based on life
-        ctx.fill();
-        ctx.globalAlpha = 1.0;
-      });
-      
-      // Update and draw prime number particles
-      primeParticles.forEach((particle, index) => {
-        particle.life -= 0.005; // Slower fade for prime particles
-        
-        // Remove dead particles
-        if (particle.life <= 0) {
-          primeParticles.splice(index, 1);
-          return;
-        }
-        
-        // Special movement for prime particles - orbit around center
-        const orbitSpeed = 0.01 + (particle.prime % 7) * 0.002;
-        const currentAngle = Math.atan2(particle.y, particle.x);
-        const distance = Math.sqrt(particle.x * particle.x + particle.y * particle.y);
-        const newAngle = currentAngle + orbitSpeed;
-        
-        particle.x = Math.cos(newAngle) * distance;
-        particle.y = Math.sin(newAngle) * distance;
-        
-        // Draw prime particle with special effects
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fillStyle = particle.color;
-        ctx.globalAlpha = particle.life * 0.9;
-        ctx.fill();
-        
-        // Add glow effect for prime particles
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size * 1.5, 0, Math.PI * 2);
-        const gradient = ctx.createRadialGradient(
-          particle.x, particle.y, particle.size * 0.5,
-          particle.x, particle.y, particle.size * 1.5
+        ctx.arc(
+          x, 
+          y, 
+          radius * (0.3 + bassEnergy * 0.2) * (1 + Math.sin(rotationAngle + midEnergy * 10) * 0.1),
+          0, 
+          Math.PI * 2
         );
-        gradient.addColorStop(0, particle.color);
-        gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = gradient;
-        ctx.globalAlpha = particle.life * 0.5;
-        ctx.fill();
-        ctx.globalAlpha = 1.0;
-        
-        // Draw prime number text
-        ctx.font = `${Math.min(16, particle.size * 2)}px Arial`;
-        ctx.fillStyle = '#ffffff';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.globalAlpha = particle.life * 0.9;
-        ctx.fillText(`${particle.prime}`, particle.x, particle.y);
-        ctx.globalAlpha = 1.0;
-      });
-      
-      // Limit number of particles
-      if (particles.length > 150) { // Allow more particles
-        particles = particles.slice(-150);
+        ctx.stroke();
       }
-      if (primeParticles.length > 50) {
-        primeParticles = primeParticles.slice(-50);
-      }
+    }
+    
+    // Reset shadow for other elements
+    ctx.shadowBlur = 0;
+  };
+
+  // Draw Merkaba (Star Tetrahedron)
+  const drawMerkaba = (
+    ctx: CanvasRenderingContext2D, 
+    radius: number,
+    bassEnergy: number,
+    midEnergy: number,
+    highEnergy: number
+  ) => {
+    const baseColor = getBaseColor();
+    const highlightColor = getHighlightColor();
+    
+    ctx.strokeStyle = baseColor;
+    ctx.lineWidth = 1.5 + highEnergy * 3;
+    
+    // Apply glow effect
+    ctx.shadowColor = highlightColor;
+    ctx.shadowBlur = 5 + midEnergy * 10;
+    
+    // Draw upward tetrahedron
+    ctx.beginPath();
+    const upScale = 1 + bassEnergy * 0.3;
+    const triangleRadius = radius * 0.8 * upScale;
+    
+    // First triangle
+    ctx.moveTo(0, -triangleRadius);
+    ctx.lineTo(triangleRadius * Math.cos(Math.PI * 2 / 3), triangleRadius * Math.sin(Math.PI * 2 / 3));
+    ctx.lineTo(triangleRadius * Math.cos(Math.PI * 4 / 3), triangleRadius * Math.sin(Math.PI * 4 / 3));
+    ctx.closePath();
+    ctx.stroke();
+    
+    // Second triangle (rotated)
+    ctx.beginPath();
+    ctx.strokeStyle = colorScheme === 'rainbow' ? getRainbowColor(1, 2) : highlightColor;
+    const downScale = 1 + midEnergy * 0.3;
+    
+    ctx.moveTo(0, triangleRadius * downScale);
+    ctx.lineTo(triangleRadius * Math.cos(Math.PI * 1 / 3) * downScale, triangleRadius * Math.sin(Math.PI * 1 / 3) * downScale);
+    ctx.lineTo(triangleRadius * Math.cos(Math.PI * 5 / 3) * downScale, triangleRadius * Math.sin(Math.PI * 5 / 3) * downScale);
+    ctx.closePath();
+    ctx.stroke();
+    
+    // Inner lines connecting vertices
+    ctx.beginPath();
+    ctx.strokeStyle = colorScheme === 'rainbow' ? getRainbowColor(2, 3) : baseColor;
+    ctx.globalAlpha = 0.6 + highEnergy * 0.4;
+    
+    // Connect points
+    for (let i = 0; i < 3; i++) {
+      const angle1 = Math.PI * 2 * i / 3;
+      const angle2 = Math.PI * (2 * i + 1) / 3;
       
-      ctx.restore();
-      
-      // Draw waveform at the bottom - ENHANCED & RESPONSIVE
-      const sliceWidth = canvas.width / (dataArray.length / 2); // Use half of data for more detail
-      const waveHeight = canvas.height / 6 + (bassLevel / 10); // Taller, responds to bass
-      const waveY = canvas.height - (canvas.height / 7);
+      ctx.moveTo(
+        triangleRadius * Math.cos(angle1),
+        triangleRadius * Math.sin(angle1)
+      );
+      ctx.lineTo(
+        triangleRadius * Math.cos(angle2) * downScale,
+        triangleRadius * Math.sin(angle2) * downScale
+      );
+    }
+    
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    
+    // Reset shadow
+    ctx.shadowBlur = 0;
+  };
+
+  // Draw Metatron's Cube
+  const drawMetatronsCube = (
+    ctx: CanvasRenderingContext2D, 
+    radius: number,
+    bassEnergy: number,
+    midEnergy: number,
+    highEnergy: number
+  ) => {
+    const baseColor = getBaseColor();
+    const highlightColor = getHighlightColor();
+    
+    ctx.lineWidth = 1 + highEnergy * 2;
+    ctx.shadowColor = highlightColor;
+    ctx.shadowBlur = 5 + midEnergy * 8;
+    
+    // Draw central circle
+    ctx.beginPath();
+    ctx.strokeStyle = baseColor;
+    ctx.arc(0, 0, radius * 0.15, 0, Math.PI * 2);
+    ctx.stroke();
+    
+    // Draw first ring of 6 circles
+    const innerRadius = radius * 0.4;
+    const points = [];
+    
+    for (let i = 0; i < 6; i++) {
+      const angle = Math.PI / 3 * i;
+      const x = Math.cos(angle) * innerRadius;
+      const y = Math.sin(angle) * innerRadius;
+      points.push({x, y});
       
       ctx.beginPath();
-      ctx.moveTo(0, waveY);
-      
-      analyser.getByteTimeDomainData(dataArray);
-      
-      for (let i = 0; i < dataArray.length / 2; i++) { // Use half of data points for more detail
-        const v = dataArray[i] / 128.0;
-        const y = waveY + (v - 1) * waveHeight;
-        const x = i * sliceWidth;
-        
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-      }
-      
-      ctx.strokeStyle = getColor(210);
-      ctx.lineWidth = 3 + (averageFrequency / 100); // Thickness responds to frequency
+      ctx.strokeStyle = colorScheme === 'rainbow' ? getRainbowColor(i, 6) : baseColor;
+      const pulseRadius = radius * (0.15 + bassEnergy * 0.1 * Math.sin(angle + Date.now() * 0.001));
+      ctx.arc(x, y, pulseRadius, 0, Math.PI * 2);
       ctx.stroke();
+    }
+    
+    // Draw outer ring of points
+    const outerRadius = radius * (0.8 + bassEnergy * 0.2);
+    const outerPoints = [];
+    
+    for (let i = 0; i < 6; i++) {
+      const angle = Math.PI / 3 * (i + 0.5);
+      const x = Math.cos(angle) * outerRadius;
+      const y = Math.sin(angle) * outerRadius;
+      outerPoints.push({x, y});
       
-      // Draw classic equalizer bars at the bottom - ENHANCED & RESPONSIVE
-      const eqBarWidth = Math.max(10, Math.min(16, canvas.width / 32)); // Wider bars
-      const eqBarCount = Math.min(32, Math.floor(canvas.width / (eqBarWidth + 2)));
-      const eqBarSpacing = 2;
-      const eqBarMaxHeight = canvas.height / 3.5 + (averageFrequency / 10); // Taller bars, responds to sound
-      const eqY = canvas.height - 10;
+      ctx.beginPath();
+      ctx.strokeStyle = colorScheme === 'rainbow' ? getRainbowColor(i + 6, 12) : highlightColor;
+      ctx.arc(x, y, radius * 0.1, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    
+    // Draw connection lines
+    ctx.lineWidth = 0.5 + highEnergy * 1.5;
+    ctx.globalAlpha = 0.7 + midEnergy * 0.3;
+    
+    // Inner connections
+    for (let i = 0; i < points.length; i++) {
+      for (let j = i + 1; j < points.length; j++) {
+        ctx.beginPath();
+        ctx.strokeStyle = colorScheme === 'rainbow' 
+          ? getRainbowColor(i + j, points.length * 2) 
+          : baseColor;
+        ctx.moveTo(points[i].x, points[i].y);
+        ctx.lineTo(points[j].x, points[j].y);
+        ctx.stroke();
+      }
+    }
+    
+    // Connect inner to outer
+    for (let i = 0; i < points.length; i++) {
+      for (let j = 0; j < outerPoints.length; j++) {
+        // Only draw some lines for cleaner look
+        if ((i + j) % 3 === 0) {
+          ctx.beginPath();
+          ctx.strokeStyle = colorScheme === 'rainbow' 
+            ? getRainbowColor(i + j, points.length + outerPoints.length) 
+            : highlightColor;
+          ctx.moveTo(points[i].x, points[i].y);
+          ctx.lineTo(outerPoints[j].x, outerPoints[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+  };
+
+  // Draw Sri Yantra
+  const drawSriYantra = (
+    ctx: CanvasRenderingContext2D, 
+    radius: number,
+    bassEnergy: number,
+    midEnergy: number,
+    highEnergy: number
+  ) => {
+    const baseColor = getBaseColor();
+    const highlightColor = getHighlightColor();
+    
+    ctx.lineWidth = 1 + highEnergy * 2;
+    ctx.shadowColor = highlightColor;
+    ctx.shadowBlur = 5 + midEnergy * 8;
+    
+    // Draw outer circle
+    ctx.beginPath();
+    ctx.strokeStyle = baseColor;
+    ctx.arc(0, 0, radius, 0, Math.PI * 2);
+    ctx.stroke();
+    
+    // Draw triangles
+    const triangleLevels = 5;
+    const triangleScale = 0.85 + bassEnergy * 0.15;
+    
+    for (let level = 0; level < triangleLevels; level++) {
+      const levelRadius = radius * (0.3 + (level / triangleLevels) * 0.7) * triangleScale;
+      const inverted = level % 2 === 1;
       
-      for (let i = 0; i < eqBarCount; i++) {
-        // Use a logarithmic distribution to focus more on lower frequencies
-        const dataIndex = Math.floor(Math.pow(i / eqBarCount, 1.5) * (dataArray.length / 4));
-        const value = dataArray[dataIndex];
-        const eqBarHeight = (value / 255) * eqBarMaxHeight;
+      ctx.beginPath();
+      ctx.strokeStyle = colorScheme === 'rainbow' 
+        ? getRainbowColor(level, triangleLevels) 
+        : (inverted ? highlightColor : baseColor);
+      
+      // Draw triangle
+      for (let i = 0; i < 3; i++) {
+        const angle = (Math.PI * 2 * i / 3) + (inverted ? Math.PI / 3 : 0);
+        const x = Math.cos(angle) * levelRadius;
+        const y = Math.sin(angle) * levelRadius;
         
-        const x = (i * (eqBarWidth + eqBarSpacing)) + (canvas.width - eqBarCount * (eqBarWidth + eqBarSpacing)) / 2;
-        
-        ctx.fillStyle = getColor(value);
-        ctx.fillRect(x, eqY - eqBarHeight, eqBarWidth, eqBarHeight);
-        
-        // Add a stronger glow effect
-        ctx.shadowColor = getColor(value);
-        ctx.shadowBlur = 12;
-        ctx.fillRect(x, eqY - eqBarHeight, eqBarWidth, eqBarHeight);
-        ctx.shadowBlur = 0;
-        
-        // Add peak indicator
-        if (value > 200) {
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(x, eqY - eqBarHeight - 3, eqBarWidth, 2);
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
         }
       }
       
-      // Continue animation loop
-      rafIdRef.current = requestAnimationFrame(drawVisualization);
+      ctx.closePath();
+      ctx.stroke();
+    }
+    
+    // Draw center dot (bindu)
+    ctx.beginPath();
+    ctx.fillStyle = highlightColor;
+    const binduSize = radius * (0.05 + midEnergy * 0.05);
+    ctx.arc(0, 0, binduSize, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Draw lotus petals
+    const petalCount = 8 + Math.floor(highEnergy * 8);
+    const petalRadius = radius * 0.6;
+    
+    for (let i = 0; i < petalCount; i++) {
+      const angle = (Math.PI * 2 * i) / petalCount;
+      const petalSize = radius * (0.15 + bassEnergy * 0.1);
+      
+      ctx.strokeStyle = colorScheme === 'rainbow' 
+        ? getRainbowColor(i, petalCount) 
+        : baseColor;
+      
+      // Draw stylized lotus petal
+      ctx.beginPath();
+      ctx.ellipse(
+        Math.cos(angle) * petalRadius,
+        Math.sin(angle) * petalRadius,
+        petalSize,
+        petalSize / 2,
+        angle,
+        0,
+        Math.PI * 2
+      );
+      ctx.stroke();
+    }
+    
+    ctx.shadowBlur = 0;
+  };
+
+  // Map chakra to geometry type
+  const chakraToGeometryType = (chakraName: string): string => {
+    switch (chakraName.toLowerCase()) {
+      case 'root':
+        return 'flower-of-life';
+      case 'sacral':
+        return 'sri-yantra';
+      case 'solar plexus':
+        return 'metatrons-cube';
+      case 'heart':
+        return 'flower-of-life';
+      case 'throat':
+        return 'sri-yantra';
+      case 'third eye':
+        return 'metatrons-cube';
+      case 'crown':
+        return 'merkaba';
+      default:
+        return 'flower-of-life';
+    }
+  };
+
+  // Generate colors for rainbow mode
+  const getRainbowColor = (index: number, total: number): string => {
+    const hue = (index / total) * 360;
+    return `hsl(${hue}, 100%, 70%)`;
+  };
+
+  // Animation loop
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    let frequencyData: Uint8Array | null = null;
+    
+    if (audioAnalyser) {
+      frequencyData = new Uint8Array(audioAnalyser.frequencyBinCount);
+    }
+    
+    const animate = (time: number) => {
+      const canvas = canvasRef.current;
+      if (!canvas || !ctx) return;
+      
+      // Adjust canvas size if needed
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      
+      if (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.scale(dpr, dpr);
+      }
+      
+      // Get frequency data if available
+      if (audioAnalyser && frequencyData) {
+        audioAnalyser.getByteFrequencyData(frequencyData);
+      }
+      
+      // Draw frame
+      drawSacredGeometry(ctx, rect.width, rect.height, frequencyData, time);
+      
+      // Schedule next frame
+      animationRef.current = requestAnimationFrame(animate);
     };
     
-    drawVisualization();
+    // Start animation loop
+    animationRef.current = requestAnimationFrame(animate);
     
-    // Clean up function
+    // Cleanup
     return () => {
-      window.removeEventListener('resize', resize);
-      if (rafIdRef.current) {
-        cancelAnimationFrame(rafIdRef.current);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
       }
     };
-  };
-  
+  }, [audioAnalyser, colorScheme, chakra, liftTheVeil]);
+
+  // Expose the canvas with proper sizing
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 1 }}
-      className="w-full h-full overflow-hidden relative"
-    >
-      <canvas 
-        ref={canvasRef} 
-        className="w-full h-full"
-      />
-      
-      {/* Add subtle sacred geometry overlay elements */}
-      <div className="absolute inset-0 pointer-events-none mix-blend-screen">
-        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40%] h-[40%] ${
-          colorScheme === 'purple' ? 'bg-purple-500/15' :
-          colorScheme === 'blue' ? 'bg-blue-500/15' :
-          colorScheme === 'rainbow' ? 'bg-pink-500/15' :
-          'bg-amber-500/15'
-        } rounded-full animate-pulse-slow`}></div>
-        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] border ${
-          colorScheme === 'purple' ? 'border-purple-400/30' :
-          colorScheme === 'blue' ? 'border-blue-400/30' :
-          colorScheme === 'rainbow' ? 'border-pink-400/30' :
-          'border-amber-400/30'
-        } rounded-full animate-spin-slow`}></div>
-      </div>
-    </motion.div>
+    <canvas 
+      ref={canvasRef}
+      className="w-full h-full absolute inset-0"
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0
+      }}
+    />
   );
 };
 

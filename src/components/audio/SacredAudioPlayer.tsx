@@ -59,7 +59,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const [showVisualizer, setShowVisualizer] = useState(true);
   const [primes, setPrimes] = useState<number[]>([]);
   const [detectedFrequency, setDetectedFrequency] = useState<number | null>(null);
-  const [visualizerMode, setVisualizerMode] = useState<'purple' | 'blue' | 'rainbow' | 'gold'>(
+  const [visualizerMode, setVisualizerMode] = useState<VisualizerMode>(
     liftTheVeil ? 'rainbow' : chakraToVisualMode(chakra) || 'purple'
   );
   const [activeTooltipPrime, setActiveTooltipPrime] = useState<number | null>(null);
@@ -168,10 +168,14 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     return `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
   };
   
-  const handlePrimeSequence = (newPrimes: number[]) => {
-    if (newPrimes.length > 0) {
-      setPrimes(newPrimes);
-    }
+  const handlePrimeSequence = (newPrime: number) => {
+    setPrimes(prev => {
+      // Only add if it's a new prime
+      if (prev.length === 0 || prev[prev.length - 1] !== newPrime) {
+        return [...prev, newPrime];
+      }
+      return prev;
+    });
   };
   
   const handleFrequencyDetected = (freq: number) => {
@@ -198,8 +202,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     return currentMode?.label || 'Visualizer';
   };
 
-  const themeClass = liftTheVeil ? 'theme-lifted' : 'theme-standard';
-  
   // Dynamically compute background styles to prevent transparency issues
   const getBgStyle = () => {
     if (liftTheVeil) {
@@ -247,7 +249,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
       >
         <div 
           ref={visualizerRef}
-          className={`absolute inset-0 z-0 transition-opacity duration-300 overflow-hidden ${
+          className={`absolute inset-0 z-0 overflow-hidden ${
             showVisualizer && isAudioPlaying 
               ? 'opacity-100' 
               : 'opacity-0'
@@ -262,7 +264,25 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
                 exit={{ opacity: 0 }}
                 className="w-full h-full"
               >
-                <SacredGeometryCanvas colorScheme={visualizerMode} />
+                <SacredGeometryCanvas 
+                  audioAnalyser={analyser} 
+                  colorScheme={visualizerMode}
+                  chakra={chakra}
+                  frequency={frequency}
+                  onPrimeDetected={handlePrimeSequence}
+                  onFrequencyDataAvailable={(data) => {
+                    // Calculate approximate dominant frequency if needed
+                    if (data.length > 0) {
+                      const max = Math.max(...data);
+                      const idx = data.indexOf(max);
+                      // Rough approximation: idx * (22050 / data.length)
+                      const approximateFreq = Math.round(idx * (22050 / data.length));
+                      if (approximateFreq > 20) { // Only update for audible frequencies
+                        handleFrequencyDetected(approximateFreq);
+                      }
+                    }
+                  }}
+                />
               </motion.div>
             )}
           </AnimatePresence>
