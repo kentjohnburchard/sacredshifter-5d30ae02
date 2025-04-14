@@ -58,7 +58,7 @@ const EnhancedGeometryVisualizer: React.FC<EnhancedGeometryVisualizerProps> = ({
     if (defaultShape !== currentShape) {
       setCurrentShape(defaultShape);
     }
-  }, [defaultShape]);
+  }, [defaultShape, currentShape]);
 
   // Update mode when theme changes
   useEffect(() => {
@@ -101,7 +101,7 @@ const EnhancedGeometryVisualizer: React.FC<EnhancedGeometryVisualizerProps> = ({
   // Container classes based on expanded state
   const containerBaseClass = "sacred-geometry-container rounded-xl shadow-xl relative";
   const containerSizeClass = expanded 
-    ? "fixed inset-0 z-50 flex flex-col justify-center items-center bg-black/80 pt-12" 
+    ? "fixed inset-0 z-50 flex flex-col justify-center items-center bg-black/95 pt-12" 
     : `w-full h-[60vw] max-h-[400px] sm:h-[300px] lg:h-[384px] ${className}`;
 
   // Apply mode-specific styles
@@ -176,6 +176,7 @@ const EnhancedGeometryVisualizer: React.FC<EnhancedGeometryVisualizerProps> = ({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.5 }}
+            className="w-full h-full"
           >
             <SacredVisualizer 
               shape={currentShape} 
@@ -194,7 +195,7 @@ const EnhancedGeometryVisualizer: React.FC<EnhancedGeometryVisualizerProps> = ({
         </div>
         
         {showControls && expanded && (
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20">
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50">
             <ToggleGroup 
               type="single" 
               value={visualizerMode}
@@ -209,6 +210,7 @@ const EnhancedGeometryVisualizer: React.FC<EnhancedGeometryVisualizerProps> = ({
                 <ToggleGroupItem 
                   key={option.value} 
                   value={option.value}
+                  aria-label={option.label}
                   className={`px-3 py-1 text-xs text-white rounded flex items-center gap-2 ${getToggleActiveColor()}`}
                 >
                   {option.icon} {option.label}
@@ -219,7 +221,7 @@ const EnhancedGeometryVisualizer: React.FC<EnhancedGeometryVisualizerProps> = ({
         )}
         
         {showControls && (
-          <div className={`${expanded ? "absolute bottom-8" : "absolute bottom-2 sm:bottom-4"} left-1/2 transform -translate-x-1/2 z-20 w-full px-2 sm:px-0 max-w-full sm:max-w-md`}>
+          <div className={`${expanded ? "absolute bottom-8" : "absolute bottom-2 sm:bottom-4"} left-1/2 transform -translate-x-1/2 ${expanded ? "z-50" : "z-20"} w-full px-2 sm:px-0 max-w-full sm:max-w-md`}>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -240,6 +242,7 @@ const EnhancedGeometryVisualizer: React.FC<EnhancedGeometryVisualizerProps> = ({
                   <ToggleGroupItem 
                     key={option.value} 
                     value={option.value}
+                    aria-label={option.label}
                     className={`px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs text-white rounded ${getToggleActiveColor()}`}
                   >
                     {option.label}
