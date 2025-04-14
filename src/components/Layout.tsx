@@ -71,9 +71,7 @@ const Layout: React.FC<LayoutProps> = ({
       {showFooter && <CosmicFooter showFrequencyBar={false} className="z-30" />}
       
       {/* Sacred Audio Player - SINGLE INSTANCE for the entire app */}
-      <TooltipProvider>
-        <SacredAudioPlayer initiallyExpanded={false} />
-      </TooltipProvider>
+      <SacredAudioPlayer />
     </div>
   );
 

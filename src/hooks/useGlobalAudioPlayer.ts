@@ -1,5 +1,6 @@
 
 import { useCallback, useState, useEffect } from 'react';
+import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 
 // Define the AudioInfo interface
 interface AudioInfo {
@@ -25,20 +26,29 @@ interface AudioInfo {
 export function useGlobalAudioPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<AudioInfo | null>(null);
+  const { setAudioSource, togglePlayPause } = useAudioPlayer();
 
   /**
    * Play audio with the provided information
    * This will route all audio through the single SacredAudioPlayer
    */
   const playAudio = useCallback((audioInfo: AudioInfo) => {
+    if (!audioInfo || !audioInfo.source) {
+      console.error("Invalid audio info provided to playAudio");
+      return;
+    }
+
     setCurrentAudio(audioInfo);
     setIsPlaying(true);
+    
+    // Set the audio source in the useAudioPlayer hook
+    setAudioSource(audioInfo.source);
     
     const event = new CustomEvent('playAudio', {
       detail: { audioInfo }
     });
     window.dispatchEvent(event);
-  }, []);
+  }, [setAudioSource]);
   
   /**
    * Toggle play/pause state of the current audio
