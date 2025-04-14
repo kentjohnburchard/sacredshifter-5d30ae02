@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { createFlowerOfLife, createSeedOfLife, createMetatronsCube, createSriYantra, 
@@ -15,6 +16,7 @@ interface SacredVisualizerProps {
   mode?: 'fractal' | 'spiral' | 'mandala';
   sensitivity?: number;
   liftedVeil?: boolean;
+  colorScheme?: string;
 }
 
 const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
@@ -27,7 +29,8 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
   frequency,
   mode = 'fractal',
   sensitivity = 1,
-  liftedVeil = false
+  liftedVeil = false,
+  colorScheme = 'purple'
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -40,6 +43,57 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
   const [fractalProgress, setFractalProgress] = useState<number>(0);
   const [audioData, setAudioData] = useState<number[]>([]);
   const [isExpanding, setIsExpanding] = useState<boolean>(true);
+  const [replicatedShapes, setReplicatedShapes] = useState<THREE.Object3D[]>([]);
+
+  // Get the base color for visualizations based on colorScheme
+  const getBaseColor = () => {
+    if (liftedVeil) return new THREE.Color(0xff36ab); // Pink for lifted veil
+    
+    switch(colorScheme) {
+      case 'purple': return new THREE.Color(0x8b5cf6);
+      case 'blue': return new THREE.Color(0x3b82f6);
+      case 'gold': return new THREE.Color(0xf59e0b);
+      case 'rainbow': return new THREE.Color(0xffffff); // Will be handled specially in animation
+      case 'chakra':
+        switch(chakra) {
+          case 'root': return new THREE.Color(0xff0000);
+          case 'sacral': return new THREE.Color(0xffa500);
+          case 'solar': return new THREE.Color(0xffff00);
+          case 'heart': return new THREE.Color(0x00ff00);
+          case 'throat': return new THREE.Color(0x00ffff);
+          case 'third-eye': return new THREE.Color(0x0000ff);
+          case 'crown': return new THREE.Color(0xee82ee);
+          default: return new THREE.Color(0x8b5cf6);
+        }
+      default:
+        return new THREE.Color(0x8b5cf6);
+    }
+  };
+  
+  // Get emissive color (usually a darker variant of base color)
+  const getEmissiveColor = () => {
+    if (liftedVeil) return new THREE.Color(0xd946ef); // Darker pink for lifted veil
+    
+    switch(colorScheme) {
+      case 'purple': return new THREE.Color(0x6f42c1);
+      case 'blue': return new THREE.Color(0x1e40af);
+      case 'gold': return new THREE.Color(0xd97706);
+      case 'rainbow': return new THREE.Color(0x000000); // Will be handled specially in animation
+      case 'chakra':
+        switch(chakra) {
+          case 'root': return new THREE.Color(0x8B0000);
+          case 'sacral': return new THREE.Color(0xD2691E);
+          case 'solar': return new THREE.Color(0xFFD700);
+          case 'heart': return new THREE.Color(0x008000);
+          case 'throat': return new THREE.Color(0x008B8B);
+          case 'third-eye': return new THREE.Color(0x0000CD);
+          case 'crown': return new THREE.Color(0x9400D3);
+          default: return new THREE.Color(0x6f42c1);
+        }
+      default:
+        return new THREE.Color(0x6f42c1);
+    }
+  };
 
   useEffect(() => {
     console.log("SacredVisualizer mounting shape:", shape);
@@ -47,6 +101,7 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     setIsExpanding(true);
     setFractalProgress(0);
     clockRef.current.start();
+    setReplicatedShapes([]);
     
     if (frameIdRef.current) {
       cancelAnimationFrame(frameIdRef.current);
@@ -97,11 +152,15 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     directionalLight.position.set(0, 1, 2);
     scene.add(directionalLight);
     
-    const pointLight1 = new THREE.PointLight(0xff00ff, 2.0);
+    // Dynamic colors based on color scheme
+    const colorSchemeColor = getBaseColor();
+    const primaryColor = liftedVeil ? 0xff36ab : colorSchemeColor.getHex();
+    
+    const pointLight1 = new THREE.PointLight(primaryColor, 2.0);
     pointLight1.position.set(3, 3, 3);
     scene.add(pointLight1);
     
-    const pointLight2 = new THREE.PointLight(0x00ffff, 2.0);
+    const pointLight2 = new THREE.PointLight(primaryColor, 2.0);
     pointLight2.position.set(-3, -3, 3);
     scene.add(pointLight2);
 
@@ -135,15 +194,41 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
         const scale = 0.01 + easeOutElastic(fractalProgress) * 0.99;
         shapeRef.current.scale.set(scale, scale, scale);
         
+        // Add more organic, flowing motion during expansion
         shapeRef.current.rotation.x += delta * Math.sin(time * 3) * 0.3;
         shapeRef.current.rotation.y += delta * Math.cos(time * 2) * 0.4;
         
         if (cameraRef.current) {
           cameraRef.current.position.z = 5 - (easeOutElastic(fractalProgress) * 1.5);
         }
+        
+        // Replicate the shape when it reaches certain expansion thresholds
+        if (
+          mode === 'spiral' && 
+          shapeRef.current && 
+          replicatedShapes.length < 8 && 
+          fractalProgress > 0.4 && 
+          Math.random() > 0.97
+        ) {
+          const replicaGeometry = shapeRef.current.clone();
+          const scale = 0.1 + Math.random() * 0.3;
+          replicaGeometry.scale.set(scale, scale, scale);
+          
+          const radius = 1 + Math.random() * 2;
+          const theta = Math.random() * Math.PI * 2;
+          const phi = Math.random() * Math.PI;
+          
+          replicaGeometry.position.x = radius * Math.sin(phi) * Math.cos(theta);
+          replicaGeometry.position.y = radius * Math.sin(phi) * Math.sin(theta);
+          replicaGeometry.position.z = radius * Math.cos(phi);
+          
+          sceneRef.current.add(replicaGeometry);
+          setReplicatedShapes(prev => [...prev, replicaGeometry]);
+        }
       } else {
-        const pulseAmount = Math.sin(time * 2) * 0.1;
-        const baseScale = 1 + pulseAmount;
+        // Audio reactivity for main shape
+        let pulseAmount = Math.sin(time * 2) * 0.1;
+        let baseScale = 1 + pulseAmount;
         
         if (isAudioReactive && audioData.length > 0) {
           const averageAmplitude = audioData.reduce((sum, val) => sum + val, 0) / audioData.length;
@@ -151,26 +236,97 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
           const finalScale = baseScale + reactivePulse;
           shapeRef.current.scale.set(finalScale, finalScale, finalScale);
           
-          shapeRef.current.rotation.x += 0.002 + (averageAmplitude * 0.01);
-          shapeRef.current.rotation.y += 0.002 + (averageAmplitude * 0.01);
+          // More dramatic rotation based on audio intensity
+          shapeRef.current.rotation.x += 0.002 + (averageAmplitude * 0.01 * sensitivity);
+          shapeRef.current.rotation.y += 0.002 + (averageAmplitude * 0.01 * sensitivity);
+          
+          // Dynamic color based on frequency spectrum for rainbow mode
+          if (colorScheme === 'rainbow' && shapeRef.current) {
+            // Sample different frequency bands
+            const bassLevel = audioData.slice(0, Math.floor(audioData.length/6)).reduce((sum, val) => sum + val, 0) 
+              / Math.floor(audioData.length/6);
+            const midLevel = audioData.slice(Math.floor(audioData.length/6), Math.floor(audioData.length/2)).reduce((sum, val) => sum + val, 0) 
+              / (Math.floor(audioData.length/2) - Math.floor(audioData.length/6));
+            const highLevel = audioData.slice(Math.floor(audioData.length/2)).reduce((sum, val) => sum + val, 0) 
+              / (audioData.length - Math.floor(audioData.length/2));
+              
+            // Create a color that shifts based on frequency spectrum
+            const hue = (time * 20) % 360; // Base hue rotation over time
+            const saturation = 0.5 + midLevel * 0.5;
+            const lightness = 0.4 + highLevel * 0.4;
+            
+            // Update material colors across the shape
+            shapeRef.current.traverse((child) => {
+              if (child instanceof THREE.Mesh) {
+                if (child.material instanceof THREE.MeshStandardMaterial) {
+                  // HSL to RGB conversion happens in the material
+                  child.material.color.setHSL(hue/360, saturation, lightness);
+                  child.material.emissive.setHSL(hue/360, saturation * 0.8, lightness * 0.5);
+                }
+                if (child.material instanceof THREE.LineBasicMaterial) {
+                  child.material.color.setHSL((hue + 180) % 360 / 360, saturation, lightness);
+                }
+              }
+            });
+          }
+          
+          // Animate replicated shapes based on audio
+          replicatedShapes.forEach((replica, index) => {
+            const individualFreq = audioData[index % audioData.length] || 0.5; 
+            const scaleMultiplier = 0.5 + (individualFreq * 0.5);
+            const rotationSpeed = 0.005 + (individualFreq * 0.01);
+            
+            replica.rotation.x += rotationSpeed;
+            replica.rotation.y += rotationSpeed * 0.7;
+            
+            // Orbit around main shape
+            const orbitRadius = 1.5 + (individualFreq * 0.5);
+            const orbitSpeed = time * (0.2 + index * 0.1);
+            
+            replica.position.x = Math.cos(orbitSpeed) * orbitRadius;
+            replica.position.y = Math.sin(orbitSpeed) * orbitRadius * 0.8;
+            replica.position.z = Math.sin(time + index) * 0.5;
+            
+            // Pulse scale with audio
+            const replicaScale = 0.2 + (individualFreq * 0.2);
+            replica.scale.set(replicaScale, replicaScale, replicaScale);
+          });
         } else {
           shapeRef.current.scale.set(baseScale, baseScale, baseScale);
           shapeRef.current.rotation.x += 0.002;
           shapeRef.current.rotation.y += 0.002;
+          
+          // Animate replicated shapes with gentle pulsing
+          replicatedShapes.forEach((replica, index) => {
+            const orbitSpeed = time * (0.2 + index * 0.1);
+            const orbitRadius = 1.5;
+            
+            replica.position.x = Math.cos(orbitSpeed) * orbitRadius;
+            replica.position.y = Math.sin(orbitSpeed) * orbitRadius * 0.8;
+            replica.position.z = Math.sin(time + index) * 0.5;
+            
+            replica.rotation.x += 0.005;
+            replica.rotation.y += 0.003;
+          });
         }
         
+        // Natural flowing motion for main shape
         shapeRef.current.position.y = Math.sin(time) * 0.1;
         shapeRef.current.position.x = Math.cos(time * 0.8) * 0.1;
       }
       
+      // Enhance material glow and pulsing
       if (shapeRef.current) {
+        // Create harmonic pulsing using prime number frequencies
         const primePulse = (
           Math.sin(time * 2) * 0.02 +
           Math.sin(time * 3) * 0.015 +
           Math.sin(time * 5) * 0.01 +
-          Math.sin(time * 7) * 0.005
+          Math.sin(time * 7) * 0.005 +
+          Math.sin(time * 11) * 0.003
         );
         
+        // Apply harmonics to all children
         if (shapeRef.current.children.length > 0) {
           shapeRef.current.children.forEach(child => {
             if (child instanceof THREE.Mesh && child.material instanceof THREE.Material) {
@@ -216,13 +372,21 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
         shapeRef.current = null;
       }
       
+      // Also remove any replicated shapes
+      replicatedShapes.forEach(replica => {
+        if (sceneRef.current) {
+          sceneRef.current.remove(replica);
+        }
+      });
+      setReplicatedShapes([]);
+      
       if (rendererRef.current && mountRef.current && mountRef.current.contains(rendererRef.current.domElement)) {
         mountRef.current.removeChild(rendererRef.current.domElement);
         rendererRef.current.dispose();
         rendererRef.current = null;
       }
     };
-  }, [shape]);
+  }, [shape, colorScheme]);
 
   useEffect(() => {
     if (!isAudioReactive || !audioContext || !analyser) return;
@@ -251,9 +415,12 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
       shapeRef.current = null;
     }
 
+    const baseColor = getBaseColor();
+    const emissiveColor = getEmissiveColor();
+
     const material = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(0xae94f6),
-      emissive: new THREE.Color(0x6f42c1),
+      color: baseColor,
+      emissive: emissiveColor,
       emissiveIntensity: 0.5,
       metalness: 0.7,
       roughness: 0.3,
@@ -264,7 +431,7 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
     });
     
     const wireframeMaterial = new THREE.LineBasicMaterial({
-      color: 0xb794f6,
+      color: baseColor,
       transparent: true, 
       opacity: 0.8
     });
@@ -378,7 +545,7 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
       const originGeometry = new THREE.SphereGeometry(0.05, 16, 16);
       const originMaterial = new THREE.MeshPhongMaterial({
         color: 0xffffff,
-        emissive: 0xb794f6,
+        emissive: baseColor,
         emissiveIntensity: 1.0
       });
       const origin = new THREE.Mesh(originGeometry, originMaterial);

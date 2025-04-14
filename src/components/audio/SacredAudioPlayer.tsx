@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { motion } from 'framer-motion';
@@ -11,7 +10,7 @@ import { isPrime } from '@/lib/mathUtils';
 import PrimeAudioVisualizer from './PrimeAudioVisualizer';
 import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import SacredGeometryVisualizer from '../sacred-geometry/SacredGeometryVisualizer';
+import SacredGeometryVisualizer from '../sacred-geometry/EnhancedGeometryVisualizer';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import FrequencyEqualizer from '../visualizer/FrequencyEqualizer';
 import { Button } from '@/components/ui/button';
@@ -54,6 +53,7 @@ const SacredAudioPlayer: React.FC = () => {
   const [currentGeometry, setCurrentGeometry] = useState<GeometryShape>('flower-of-life');
   const [visualizerMode, setVisualizerMode] = useState<VisualizerMode>('classic');
   const [colorScheme, setColorScheme] = useState<ColorScheme>('purple');
+  const [visualizerSensitivity, setVisualizerSensitivity] = useState<number>(1.5);
   
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -86,6 +86,31 @@ const SacredAudioPlayer: React.FC = () => {
 
   const { audioContext, analyser } = useAudioAnalyzer(audioRef);
   const [audioData, setAudioData] = useState<Uint8Array | null>(null);
+
+  const getColorByScheme = (scheme: ColorScheme) => {
+    switch(scheme) {
+      case 'purple': return '#8B5CF6';
+      case 'blue': return '#3B82F6';
+      case 'rainbow': return 'rainbow';
+      case 'gold': return '#F59E0B';
+      case 'chakra':
+        if (currentTrack?.customData?.chakra) {
+          const chakra = currentTrack.customData.chakra;
+          switch(chakra) {
+            case 'root': return '#FF0000';
+            case 'sacral': return '#FFA500';
+            case 'solar': return '#FFFF00';
+            case 'heart': return '#00FF00';
+            case 'throat': return '#00FFFF';
+            case 'third-eye': return '#0000FF';
+            case 'crown': return '#EE82EE';
+            default: return '#8B5CF6';
+          }
+        }
+        return '#8B5CF6';
+      default: return '#8B5CF6';
+    }
+  };
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -285,7 +310,7 @@ const SacredAudioPlayer: React.FC = () => {
       setAudioData(dataArray);
     };
     
-    const intervalId = setInterval(updateAudioData, 50);
+    const intervalId = setInterval(updateAudioData, 30);
     
     return () => clearInterval(intervalId);
   }, [analyser, isPlaying]);
@@ -364,8 +389,9 @@ const SacredAudioPlayer: React.FC = () => {
   
   useEffect(() => {
     const handleFullscreenChange = () => {
-      if (!document.fullscreenElement && fullscreen) {
-        setFullscreen(false);
+      const isCurrentlyFullscreen = !!document.fullscreenElement;
+      if (fullscreen !== isCurrentlyFullscreen) {
+        setFullscreen(isCurrentlyFullscreen);
       }
     };
     
@@ -400,16 +426,44 @@ const SacredAudioPlayer: React.FC = () => {
     { value: 'prime', label: 'Prime Visualizer', icon: <Volume2 size={16} /> },
   ];
 
+  const getSchemeClasses = (scheme: ColorScheme, type: 'bg' | 'border' | 'text') => {
+    const baseClass = type === 'bg' ? 'bg-' : type === 'border' ? 'border-' : 'text-';
+    
+    switch(scheme) {
+      case 'purple': return `${baseClass}purple-600`;
+      case 'blue': return `${baseClass}blue-500`;
+      case 'rainbow': return `${baseClass}gradient-to-r from-red-500 via-green-500 to-blue-500`;
+      case 'gold': return `${baseClass}amber-500`;
+      case 'chakra':
+        if (currentTrack?.customData?.chakra) {
+          const chakra = currentTrack.customData.chakra;
+          switch(chakra) {
+            case 'root': return `${baseClass}red-500`;
+            case 'sacral': return `${baseClass}orange-500`;
+            case 'solar': return `${baseClass}yellow-500`;
+            case 'heart': return `${baseClass}green-500`;
+            case 'throat': return `${baseClass}blue-400`;
+            case 'third-eye': return `${baseClass}indigo-500`;
+            case 'crown': return `${baseClass}purple-500`;
+            default: return `${baseClass}purple-500`;
+          }
+        }
+        return `${baseClass}purple-500`;
+      default: return `${baseClass}purple-500`;
+    }
+  };
+
   return (
     <>
       {controlsExpanded && (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          className={`fixed ${fullscreen ? 'inset-x-0 top-0' : 'right-4 bottom-[280px]'} 
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+          className={`fixed ${fullscreen ? 'inset-x-0 top-16' : 'right-4 bottom-[280px]'} 
             bg-black/90 backdrop-blur-md rounded-t-xl p-4 z-[1003] mx-auto
-            ${fullscreen ? 'w-full' : 'w-[350px]'}`}
+            ${fullscreen ? 'w-full sm:w-[80%] sm:mx-auto' : 'w-[350px]'}`}
         >
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-white text-sm font-medium">Visualization Controls</h3>
@@ -432,8 +486,8 @@ const SacredAudioPlayer: React.FC = () => {
                     key={mode.value}
                     className={`text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2
                       ${visualizerMode === mode.value 
-                        ? 'bg-purple-600 text-white' 
-                        : 'bg-black/50 text-white/70 hover:bg-purple-800/50'}`}
+                        ? getSchemeClasses(colorScheme, 'bg') + ' text-white' 
+                        : 'bg-black/50 text-white/70 hover:bg-white/10'}`}
                     onClick={() => changeVisualizerMode(mode.value as VisualizerMode)}
                   >
                     {mode.icon} {mode.label}
@@ -451,8 +505,8 @@ const SacredAudioPlayer: React.FC = () => {
                       key={pattern.value}
                       className={`text-xs px-3 py-2 rounded-lg
                         ${currentGeometry === pattern.value 
-                          ? 'bg-purple-600 text-white' 
-                          : 'bg-black/50 text-white/70 hover:bg-purple-800/50'}`}
+                          ? getSchemeClasses(colorScheme, 'bg') + ' text-white' 
+                          : 'bg-black/50 text-white/70 hover:bg-white/10'}`}
                       onClick={() => changeGeometricPattern(pattern.value as GeometryShape)}
                     >
                       {pattern.label}
@@ -470,13 +524,30 @@ const SacredAudioPlayer: React.FC = () => {
                     key={color.value}
                     className={`text-xs px-3 py-2 rounded-lg
                       ${colorScheme === color.value 
-                        ? 'bg-purple-600 text-white' 
-                        : 'bg-black/50 text-white/70 hover:bg-purple-800/50'}`}
+                        ? getSchemeClasses(colorScheme, 'bg') + ' text-white' 
+                        : 'bg-black/50 text-white/70 hover:bg-white/10'}`}
                     onClick={() => changeColorScheme(color.value as ColorScheme)}
                   >
                     {color.label}
                   </button>
                 ))}
+              </div>
+            </div>
+            
+            <div>
+              <div className="text-xs font-semibold text-white/90 mb-2">Visualization Sensitivity</div>
+              <Slider
+                value={[visualizerSensitivity * 10]}
+                min={5}
+                max={30}
+                step={5}
+                onValueChange={(value) => setVisualizerSensitivity(value[0] / 10)}
+                className={`w-full ${getSchemeClasses(colorScheme, 'bg')}`}
+              />
+              <div className="flex justify-between text-[10px] text-white/60 mt-1">
+                <span>Subtle</span>
+                <span>Balanced</span>
+                <span>Intense</span>
               </div>
             </div>
           </div>
@@ -517,10 +588,13 @@ const SacredAudioPlayer: React.FC = () => {
                   audioContext={audioContext} 
                   analyser={analyser} 
                   isPlaying={isPlaying}
-                  colorMode={liftTheVeil ? 'veil-lifted' : 'standard'}
+                  colorMode={liftTheVeil ? 'veil-lifted' : colorScheme === 'chakra' ? 'chakra' : 'standard'}
+                  colorScheme={colorScheme}
                   visualMode="prime"
                   layout={fullscreen ? 'radial' : 'vertical'}
                   onPrimeDetected={handlePrimeDetected}
+                  sensitivity={visualizerSensitivity}
+                  chakra={currentTrack?.customData?.chakra}
                 />
               </div>
             )}
@@ -538,6 +612,9 @@ const SacredAudioPlayer: React.FC = () => {
                   chakra={currentTrack?.customData?.chakra}
                   frequency={currentTrack?.customData?.frequency}
                   expandable={false}
+                  mode={fullscreen ? 'spiral' : 'fractal'} 
+                  sensitivity={visualizerSensitivity}
+                  colorScheme={colorScheme}
                 />
               </div>
             )}
@@ -596,7 +673,7 @@ const SacredAudioPlayer: React.FC = () => {
                 onClick={handleSeek}
               >
                 <div 
-                  className="h-full bg-white/70 rounded-full"
+                  className={`h-full rounded-full ${getSchemeClasses(colorScheme, 'bg')}`}
                   style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
                 />
               </div>
@@ -609,8 +686,8 @@ const SacredAudioPlayer: React.FC = () => {
                     key={prime}
                     className={`text-xs px-1.5 py-0.5 rounded-full ${
                       activePrime === prime 
-                        ? liftTheVeil ? 'bg-pink-500 text-white' : 'bg-purple-500 text-white'
-                        : liftTheVeil ? 'bg-pink-500/20 text-pink-200' : 'bg-purple-500/20 text-purple-200'
+                        ? liftTheVeil ? 'bg-pink-500 text-white' : getSchemeClasses(colorScheme, 'bg') + ' text-white'
+                        : liftTheVeil ? 'bg-pink-500/20 text-pink-200' : getSchemeClasses(colorScheme, 'bg').replace('bg-', 'bg-') + '/20 text-white/80'
                     }`}
                   >
                     {prime}
@@ -629,8 +706,9 @@ const SacredAudioPlayer: React.FC = () => {
                 <FrequencyEqualizer 
                   frequencyData={audioData}
                   barCount={32}
-                  chakraColor={currentTrack?.customData?.chakra || 'purple'}
+                  chakraColor={currentTrack?.customData?.chakra || colorScheme}
                   isLiftedVeil={liftTheVeil}
+                  colorScheme={colorScheme}
                 />
               </div>
             )}
@@ -677,7 +755,7 @@ const SacredAudioPlayer: React.FC = () => {
                       min={0}
                       max={100}
                       step={1}
-                      className="w-24"
+                      className={`w-24 ${getSchemeClasses(colorScheme, 'bg')}`}
                       onValueChange={(value) => setVolume(value[0] / 100)}
                     />
                   </div>
