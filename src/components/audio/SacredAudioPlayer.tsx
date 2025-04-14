@@ -305,17 +305,25 @@ const SacredAudioPlayer: React.FC = () => {
     }
   }, [currentTrack, isPlaying, liftTheVeil]);
 
+  // Make sure the component is always visible
   return (
-    <div className={`fixed bottom-4 right-4 z-50 p-4 rounded-xl sacred-audio-player ${isPlaying ? 'is-playing' : ''}`}>
+    <div className={`fixed bottom-4 right-4 z-[1000] p-4 rounded-xl sacred-audio-player ${isPlaying ? 'is-playing' : ''}`}
+         style={{ 
+           backgroundColor: 'rgba(0, 0, 0, 0.75)',
+           boxShadow: '0 0 20px rgba(139, 92, 246, 0.5)',
+           width: '160px',
+           height: '80px'
+         }}>
       <div className="relative w-full h-full">
         {/* Canvas layer for visualization */}
         <canvas 
           ref={canvasRef}
           className="absolute inset-0 w-full h-full rounded-lg sacred-geometry-canvas"
+          style={{ opacity: 0.9 }}
         />
         
         {/* Controls layer */}
-        <div className="relative z-10">
+        <div className="relative z-10 flex items-center justify-center h-full">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={togglePlay}
