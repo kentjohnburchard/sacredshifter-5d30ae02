@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Stars, OrbitControls, useHelper, PerspectiveCamera } from '@react-three/drei';
@@ -354,10 +355,29 @@ const SacredThreeVisualizer: React.FC<SacredThreeVisualizerProps> = ({
   // Track THREE.js availability and errors
   const [threeLoaded, setThreeLoaded] = useState(true);
   const [threeError, setThreeError] = useState<string | null>(null);
-  
-  // Use a ref to track initialization attempts
-  const initAttemptedRef = useRef(false);
 
+  // Error boundary for THREE.js
+  useEffect(() => {
+    const handleError = (error: ErrorEvent) => {
+      console.error("THREE.js error detected:", error);
+      // Check if error might be THREE.js related
+      if (error.message.includes('THREE') || 
+          error.message.includes('WebGL') || 
+          error.message.includes('Canvas') ||
+          error.message.includes('react-reconciler') ||
+          error.message.includes('does not provide an export')) {
+        setThreeError(error.message);
+        setThreeLoaded(false);
+      }
+    };
+
+    window.addEventListener('error', handleError);
+    
+    return () => {
+      window.removeEventListener('error', handleError);
+    };
+  }, []);
+  
   // Only create Canvas if THREE is properly loaded
   if (!shouldRender || !audioData) {
     return (
@@ -367,7 +387,7 @@ const SacredThreeVisualizer: React.FC<SacredThreeVisualizerProps> = ({
     );
   }
   
-  if (threeError) {
+  if (threeError || !threeLoaded) {
     console.warn("Using 2D fallback due to THREE.js issue:", threeError);
     // Fallback to 2D canvas-based visualizer
     return (
