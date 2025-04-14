@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Eye, EyeOff, Maximize2, Minimize2 } from "lucide-react";
@@ -32,7 +31,6 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   chakra,
   title = "Sacred Frequency"
 }) => {
-  // Create all state hooks at the top
   const [showVisualizer, setShowVisualizer] = useState(false);
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [expandedVisualizer, setExpandedVisualizer] = useState(false);
@@ -41,12 +39,9 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   const effectiveAudioUrl = url || audioUrl;
   const { playAudio, togglePlayPause, currentAudio } = useGlobalAudioPlayer();
   
-  // Get the global audio element - using document.querySelector to ensure we have a stable reference
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   
-  // Find the audio element in the DOM - once on initial render
   useEffect(() => {
-    // Try to find the existing audio element
     const globalAudio = document.getElementById('global-audio-player') as HTMLAudioElement;
     if (globalAudio) {
       audioRef.current = globalAudio;
@@ -56,16 +51,13 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     }
   }, []);
   
-  // Use the audio analyzer hook with the global audio element
   const { audioContext, analyser } = useAudioAnalyzer(audioRef.current);
   
-  // Check if this frequency is currently playing
   const isCurrentlyPlaying = React.useMemo(() => {
     if (!currentAudio || !effectiveAudioUrl) return false;
     return currentAudio.source === effectiveAudioUrl && isPlaying;
   }, [currentAudio, effectiveAudioUrl, isPlaying]);
   
-  // Handle play/pause button click
   const handlePlayPauseClick = () => {
     onPlayToggle();
     
@@ -78,7 +70,6 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     }
   };
   
-  // Play this specific frequency
   const playFrequency = () => {
     if (effectiveAudioUrl) {
       let formattedUrl = effectiveAudioUrl;
@@ -94,13 +85,11 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
         source: formattedUrl
       });
       
-      // Show visualizer automatically when playing
       setShowVisualizer(true);
       setAudioInitialized(true);
     }
   };
   
-  // Toggle visualizer visibility
   const toggleVisualizer = () => {
     console.log("Toggling visualizer in FrequencyPlayer, current state:", showVisualizer);
     setShowVisualizer(prev => !prev);
@@ -109,25 +98,22 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     }
   };
   
-  // Toggle expanded visualizer state
   const toggleExpandedVisualizer = () => {
     setExpandedVisualizer(prev => !prev);
   };
   
-  // Handle prime sequence updates
   const handlePrimeSequence = (primes: number[]) => {
     setPrimeSequence(primes);
   };
   
-  // Determine color scheme based on chakra
   const getColorScheme = (): "purple" | "blue" | "rainbow" | "gold" => {
     if (!chakra) return 'purple';
     
     switch (chakra.toLowerCase()) {
-      case 'root': return 'purple'; // Changed from 'red' to 'purple'
+      case 'root': return 'purple';
       case 'sacral': return 'gold';
       case 'solar plexus': return 'gold';
-      case 'heart': return 'purple'; // Changed from 'green' to 'purple'
+      case 'heart': return 'purple';
       case 'throat': return 'blue';
       case 'third eye': return 'blue';
       case 'crown': return 'rainbow';
@@ -148,6 +134,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
             frequency={frequency}
             chakra={chakra}
             onPrimeSequence={handlePrimeSequence}
+            expanded={expandedVisualizer}
           />
         </div>
       )}

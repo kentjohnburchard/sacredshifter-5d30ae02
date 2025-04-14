@@ -42,10 +42,8 @@ const EnhancedGlobalPlayer: React.FC<EnhancedGlobalPlayerProps> = ({ initiallyEx
     audioError,
   } = useAudioPlayer();
 
-  // Get analyzer for visualization
   const { audioContext, analyser } = useAudioAnalyzer(audioRef);
 
-  // State to track the current playing audio info
   const [currentAudio, setCurrentAudio] = useState<{
     title: string;
     artist?: string;
@@ -53,12 +51,10 @@ const EnhancedGlobalPlayer: React.FC<EnhancedGlobalPlayerProps> = ({ initiallyEx
     source: string;
   } | null>(null);
 
-  // Update theme-based visuals when theme changes
   useEffect(() => {
     setVisualizerMode(liftTheVeil ? 'rainbow' : 'purple');
   }, [liftTheVeil]);
   
-  // Handle prime sequence updates from visualizer
   const handlePrimeSequence = (newPrimes: number[]) => {
     if (newPrimes.length > 0) {
       setPrimes(prev => {
@@ -70,12 +66,10 @@ const EnhancedGlobalPlayer: React.FC<EnhancedGlobalPlayerProps> = ({ initiallyEx
     }
   };
   
-  // Handle frequency detection updates from visualizer
   const handleFrequencyDetected = (freq: number) => {
     setFrequencyDetected(freq);
   };
 
-  // Set up the audio ended event listener
   useEffect(() => {
     if (!audioRef.current) return;
     
@@ -85,9 +79,7 @@ const EnhancedGlobalPlayer: React.FC<EnhancedGlobalPlayerProps> = ({ initiallyEx
       }
     };
     
-    // Remove any existing ended listeners to prevent duplicates
     audioRef.current.removeEventListener('ended', handleAudioEnded);
-    // Add the listener
     audioRef.current.addEventListener('ended', handleAudioEnded);
     
     return () => {
@@ -97,32 +89,26 @@ const EnhancedGlobalPlayer: React.FC<EnhancedGlobalPlayerProps> = ({ initiallyEx
     };
   }, [audioRef.current]);
 
-  // Listen for custom events to control the global player
   useEffect(() => {
-    // Function to prevent duplicate initialization
     const handlePlayAudio = (event: CustomEvent) => {
       const { audioInfo } = event.detail;
       if (!audioInfo || !audioInfo.source) return;
       
-      // Check if we're trying to play the same audio that's already playing
       const isSameSource = currentAudio?.source === audioInfo.source;
       if (isSameSource && isAudioPlaying) {
         console.log("Already playing this audio, skipping replay");
         return;
       }
       
-      // Update current audio info
       setCurrentAudio(audioInfo);
       setAudioSource(audioInfo.source);
       setExpanded(true);
       
-      // Broadcast the audio info change
       const infoChangeEvent = new CustomEvent('audioInfoChange', {
         detail: { audioInfo }
       });
       window.dispatchEvent(infoChangeEvent);
       
-      // Auto play after source is set
       setTimeout(() => {
         if (!isAudioPlaying) {
           togglePlayPause();
@@ -139,7 +125,6 @@ const EnhancedGlobalPlayer: React.FC<EnhancedGlobalPlayerProps> = ({ initiallyEx
       onEndedCallbackRef.current = callback;
     };
 
-    // Add event listeners with type assertion
     window.addEventListener('playAudio' as any, handlePlayAudio as EventListener);
     window.addEventListener('togglePlayPause' as any, handleTogglePlayPause as EventListener);
     window.addEventListener('audioCallbackChange' as any, handleCallbackChange as EventListener);
@@ -151,7 +136,6 @@ const EnhancedGlobalPlayer: React.FC<EnhancedGlobalPlayerProps> = ({ initiallyEx
     };
   }, [setAudioSource, togglePlayPause, isAudioPlaying, currentAudio]);
 
-  // Store audio state in session storage to persist between page navigations
   useEffect(() => {
     const storeAudioInfo = () => {
       if (currentAudio) {
@@ -160,42 +144,35 @@ const EnhancedGlobalPlayer: React.FC<EnhancedGlobalPlayerProps> = ({ initiallyEx
       }
     };
 
-    // Store when audio changes or play state changes
     storeAudioInfo();
   }, [currentAudio, isAudioPlaying]);
 
-  // Restore audio state from session storage on mount
   useEffect(() => {
-    // Only run once on initial mount
-    if (audioInitializedRef.current) return;
-    
-    const storedAudio = sessionStorage.getItem('currentAudio');
-    const storedIsPlaying = sessionStorage.getItem('isAudioPlaying');
-    
-    if (storedAudio) {
-      try {
-        const audioInfo = JSON.parse(storedAudio);
-        // Only restore if we don't already have current audio
-        if (!currentAudio && audioInfo) {
-          setCurrentAudio(audioInfo);
-          setAudioSource(audioInfo.source);
-          setExpanded(true);
-          
-          // If it was playing before, resume playback
-          if (storedIsPlaying === 'true' && !isAudioPlaying) {
-            // Delay to ensure audio source is set
-            setTimeout(() => togglePlayPause(), 100);
+    if (!audioInitializedRef.current) {
+      const storedAudio = sessionStorage.getItem('currentAudio');
+      const storedIsPlaying = sessionStorage.getItem('isAudioPlaying');
+      
+      if (storedAudio) {
+        try {
+          const audioInfo = JSON.parse(storedAudio);
+          if (!currentAudio && audioInfo) {
+            setCurrentAudio(audioInfo);
+            setAudioSource(audioInfo.source);
+            setExpanded(true);
+            
+            if (storedIsPlaying === 'true' && !isAudioPlaying) {
+              setTimeout(() => togglePlayPause(), 100);
+            }
           }
+        } catch (error) {
+          console.error('Error restoring audio state:', error);
         }
-      } catch (error) {
-        console.error('Error restoring audio state:', error);
       }
+      
+      audioInitializedRef.current = true;
     }
-    
-    audioInitializedRef.current = true;
   }, []);
 
-  // Dispatch audio state change events when isAudioPlaying changes
   useEffect(() => {
     const event = new CustomEvent('audioStateChange', {
       detail: { isPlaying: isAudioPlaying }
@@ -203,14 +180,12 @@ const EnhancedGlobalPlayer: React.FC<EnhancedGlobalPlayerProps> = ({ initiallyEx
     window.dispatchEvent(event);
   }, [isAudioPlaying]);
 
-  // Update volume when it changes
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = isMuted ? 0 : volume;
     }
   }, [volume, isMuted, audioRef]);
 
-  // Format time display (minutes:seconds)
   const formatTime = (time: number): string => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
@@ -246,9 +221,9 @@ const EnhancedGlobalPlayer: React.FC<EnhancedGlobalPlayerProps> = ({ initiallyEx
   
   const handleClose = () => {
     if (isAudioPlaying) {
-      togglePlayPause(); // Pause the audio
+      togglePlayPause();
     }
-    setCurrentAudio(null); // Clear current audio
+    setCurrentAudio(null);
     sessionStorage.removeItem('currentAudio');
     sessionStorage.removeItem('isAudioPlaying');
     setExpanded(false);
@@ -262,17 +237,14 @@ const EnhancedGlobalPlayer: React.FC<EnhancedGlobalPlayerProps> = ({ initiallyEx
     setIsFullScreen(!isFullScreen);
   };
 
-  // Apply theme-specific styling
   const cardBgClass = "bg-gradient-to-r from-purple-900/90 to-indigo-800/90";
   const headerBgClass = "bg-gradient-to-r from-purple-900/50 to-indigo-900/50";
   const accentTextClass = "text-purple-300";
 
-  // Don't render if no audio has been set and not expanded
   if (!currentAudio && !expanded) return null;
 
   return (
     <>
-      {/* Fractal Audio Visualizer - only show when playing and visualizer is enabled */}
       {showVisualizer && isAudioPlaying && (
         <div className={`fixed inset-0 pointer-events-none z-40 ${isFullScreen ? 'pointer-events-auto' : ''}`}>
           <FractalAudioVisualizer 
@@ -283,6 +255,7 @@ const EnhancedGlobalPlayer: React.FC<EnhancedGlobalPlayerProps> = ({ initiallyEx
             pauseWhenStopped={false}
             onPrimeSequence={handlePrimeSequence}
             onFrequencyDetected={handleFrequencyDetected}
+            expanded={isFullScreen}
           />
         </div>
       )}
@@ -391,7 +364,6 @@ const EnhancedGlobalPlayer: React.FC<EnhancedGlobalPlayerProps> = ({ initiallyEx
                 </div>
               )}
               
-              {/* Prime number visualizer */}
               <div className={`w-full ${isFullScreen ? 'h-32' : 'h-16'} mb-2`}>
                 <EnhancedPrimeVisualizer 
                   primes={primes} 

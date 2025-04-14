@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { useTheme } from '@/context/ThemeContext';
 
@@ -8,6 +9,7 @@ interface SacredGeometryCanvasProps {
   frequency?: number;
   onPrimeDetected?: (prime: number) => void;
   onFrequencyDataAvailable?: (frequencies: number[]) => void;
+  expanded?: boolean;
 }
 
 const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
@@ -16,7 +18,8 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
   chakra,
   frequency,
   onPrimeDetected,
-  onFrequencyDataAvailable
+  onFrequencyDataAvailable,
+  expanded = false
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
@@ -639,7 +642,17 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       if (!canvas || !ctx) return;
       
       const dpr = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
+      
+      // When expanded, use window dimensions instead of container dimensions
+      let rect;
+      if (expanded) {
+        rect = {
+          width: window.innerWidth,
+          height: window.innerHeight
+        };
+      } else {
+        rect = canvas.getBoundingClientRect();
+      }
       
       if (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
         canvas.width = rect.width * dpr;
@@ -664,14 +677,14 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
         animationRef.current = null;
       }
     };
-  }, [audioAnalyser, colorScheme, chakra, liftTheVeil]);
+  }, [audioAnalyser, colorScheme, chakra, liftTheVeil, expanded]);
 
   return (
     <canvas 
       ref={canvasRef}
-      className="w-full h-full absolute inset-0"
+      className={`w-full h-full ${expanded ? 'fixed inset-0 z-50' : 'absolute inset-0'}`}
       style={{
-        position: 'absolute',
+        position: expanded ? 'fixed' : 'absolute',
         top: 0,
         left: 0,
         right: 0,
