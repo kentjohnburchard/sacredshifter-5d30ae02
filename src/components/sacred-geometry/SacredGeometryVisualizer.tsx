@@ -53,7 +53,7 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
     if (defaultShape !== currentShape) {
       setCurrentShape(defaultShape);
     }
-  }, [defaultShape]);
+  }, [defaultShape, currentShape]);
 
   const shouldShow = isVisible !== false;
   
