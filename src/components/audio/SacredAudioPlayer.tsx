@@ -400,7 +400,7 @@ const SacredAudioPlayer: React.FC = () => {
     <motion.div 
       ref={containerRef}
       className={cn(
-        `fixed z-[1000] rounded-xl overflow-hidden sacred-audio-player ${isPlaying ? 'is-playing' : ''} ${liftTheVeil ? 'veil-lifted' : ''}`,
+        `fixed z-[1000] rounded-xl overflow-visible sacred-audio-player ${isPlaying ? 'is-playing' : ''} ${liftTheVeil ? 'veil-lifted' : ''}`,
         fullscreen ? 'inset-0 rounded-none' : isJourneyPlayerRoute ? 'bottom-4 left-1/2 -translate-x-1/2' : 'bottom-4 right-4',
       )}
       initial={{ opacity: 0, y: 20 }}
@@ -456,7 +456,7 @@ const SacredAudioPlayer: React.FC = () => {
           )}
         </div>
         
-        <div className="relative z-10 flex flex-col p-2 h-full">
+        <div className="relative z-[1001] flex flex-col p-2 h-full">
           {(expanded || fullscreen) && (
             <div className="flex justify-between items-center mb-2">
               <div className="text-white text-xs truncate max-w-[200px]">
@@ -468,13 +468,16 @@ const SacredAudioPlayer: React.FC = () => {
                   <DropdownMenuTrigger asChild>
                     <motion.button
                       whileTap={{ scale: 0.9 }}
-                      className="p-1 text-white/70 hover:text-white"
+                      className="p-1 text-white/70 hover:text-white relative"
                       title="Customize Visualizer"
                     >
                       <Palette size={16} />
                     </motion.button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56 bg-black/80 text-white border-white/10">
+                  <DropdownMenuContent 
+                    align="end" 
+                    className="bg-black/90 backdrop-blur-md border-white/10 z-[1002] w-72 shadow-xl"
+                  >
                     <div className="p-2">
                       <div className="text-xs font-semibold mb-1">Visualizer Mode</div>
                       <div className="grid grid-cols-3 gap-1 mb-2">

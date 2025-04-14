@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { motion } from 'framer-motion';
@@ -88,10 +87,10 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
     return null;
   }
   
-  // Container classes based on expanded state
+  // Update container classes based on expanded state
   const containerBaseClass = "sacred-geometry-container rounded-xl shadow-xl bg-black/20 relative";
   const containerSizeClass = expanded 
-    ? "fixed inset-0 z-50 flex flex-col justify-center items-center bg-black/80 pt-12" 
+    ? "fixed inset-0 z-40 flex flex-col justify-center items-center bg-black/80 pt-12" 
     : `w-full h-[60vw] max-h-[400px] sm:h-[300px] lg:h-[384px] ${className}`;
 
   return (
@@ -129,7 +128,7 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
         </div>
         
         {showControls && expanded && (
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20">
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50">
             <ToggleGroup 
               type="single" 
               value={visualizerMode}
@@ -154,7 +153,7 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
         )}
         
         {showControls && (
-          <div className={`${expanded ? "absolute bottom-8" : "absolute bottom-2 sm:bottom-4"} left-1/2 transform -translate-x-1/2 z-20 w-full px-2 sm:px-0 max-w-full sm:max-w-md`}>
+          <div className={`${expanded ? "absolute bottom-8" : "absolute bottom-2 sm:bottom-4"} left-1/2 transform -translate-x-1/2 z-50 w-full px-2 sm:px-0 max-w-full sm:max-w-md`}>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
