@@ -1,36 +1,62 @@
-
 import React from 'react';
 import { useTheme } from '@/context/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 
+interface FrequencyPlayerProps {
+  frequency: number;
+  title?: string;
+  description?: string;
+  audioUrl: string;
+  
+  // Additional props needed by various components
+  isPlaying?: boolean;
+  onPlayToggle?: () => void;
+  url?: string;
+  frequencyId?: string;
+  groupId?: string;
+  id?: string;
+}
+
 const FrequencyPlayer = ({ 
   frequency, 
   title, 
   description, 
-  audioUrl 
-}: { 
-  frequency: number, 
-  title: string, 
-  description?: string, 
-  audioUrl: string 
-}) => {
+  audioUrl,
+  isPlaying,
+  onPlayToggle,
+  url,
+  frequencyId,
+  groupId,
+  id
+}: FrequencyPlayerProps) => {
   const { liftTheVeil } = useTheme();
-  const { playAudio, isPlaying, togglePlayPause } = useGlobalAudioPlayer();
+  const { playAudio, isPlaying: globalIsPlaying, togglePlayPause } = useGlobalAudioPlayer();
   
   const handlePlay = () => {
-    // Play the audio using the global audio player
+    // If external control is provided, use that
+    if (onPlayToggle) {
+      onPlayToggle();
+      return;
+    }
+    
+    // Otherwise, play the audio using the global audio player
     playAudio({
       title: title || `${frequency}Hz Frequency`,
       artist: "Sacred Shifter",
-      source: audioUrl,
+      source: audioUrl || url || '',
       // Pass these as custom properties
       customData: {
         frequency,
-        chakra: description
+        chakra: description,
+        frequencyId,
+        groupId
       }
     });
   };
+  
+  // Use external isPlaying state if provided, otherwise use global state
+  const actuallyPlaying = isPlaying !== undefined ? isPlaying : globalIsPlaying;
   
   return (
     <div className="w-full">
@@ -41,8 +67,9 @@ const FrequencyPlayer = ({
         <Button
           onClick={handlePlay}
           className={liftTheVeil ? 'bg-pink-600 hover:bg-pink-700' : 'bg-purple-600 hover:bg-purple-700'}
+          id={id}
         >
-          Play Frequency
+          {actuallyPlaying ? 'Pause' : 'Play'} Frequency
         </Button>
       </div>
       {description && (

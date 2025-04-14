@@ -1,5 +1,5 @@
 
-import { useCallback } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 
 // Define the AudioInfo interface
 interface AudioInfo {
@@ -10,6 +10,8 @@ interface AudioInfo {
   customData?: {
     frequency?: number;
     chakra?: string;
+    frequencyId?: string;
+    groupId?: string;
     [key: string]: any;
   };
 }
@@ -19,10 +21,16 @@ interface AudioInfo {
  * This is a facade over the native audio element to ensure consistency
  */
 export function useGlobalAudioPlayer() {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentAudio, setCurrentAudio] = useState<AudioInfo | null>(null);
+
   /**
    * Play audio with the provided information
    */
   const playAudio = useCallback((audioInfo: AudioInfo) => {
+    setCurrentAudio(audioInfo);
+    setIsPlaying(true);
+    
     const event = new CustomEvent('playAudio', {
       detail: { audioInfo }
     });
@@ -33,6 +41,8 @@ export function useGlobalAudioPlayer() {
    * Toggle play/pause state of the current audio
    */
   const togglePlayPause = useCallback(() => {
+    setIsPlaying(prev => !prev);
+    
     const event = new CustomEvent('togglePlayPause');
     window.dispatchEvent(event);
   }, []);
@@ -47,12 +57,25 @@ export function useGlobalAudioPlayer() {
     window.dispatchEvent(event);
   }, []);
 
+  // Listen for audio state changes from the player
+  useEffect(() => {
+    const handlePlayStateChange = (event: CustomEvent) => {
+      setIsPlaying(event.detail.isPlaying);
+    };
+
+    window.addEventListener('audioPlayStateChange', handlePlayStateChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('audioPlayStateChange', handlePlayStateChange as EventListener);
+    };
+  }, []);
+
   // Return the audio player interface
   return {
     playAudio,
     togglePlayPause,
     setOnEndedCallback,
-    isPlaying: false, // This is a placeholder, actual state is managed by SacredAudioPlayer
-    currentAudio: null // This is a placeholder, actual state is managed by SacredAudioPlayer
+    isPlaying,
+    currentAudio
   };
 }
