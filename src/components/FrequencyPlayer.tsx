@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useTheme } from '@/context/ThemeContext';
 import { Button } from '@/components/ui/button';
@@ -24,40 +23,51 @@ const FrequencyPlayer = ({
   title, 
   description, 
   audioUrl,
-  isPlaying,
-  onPlayToggle,
+  isPlaying: externalIsPlaying,
+  onPlayToggle: externalPlayToggle,
   url,
   frequencyId,
   groupId,
   id
 }: FrequencyPlayerProps) => {
   const { liftTheVeil } = useTheme();
-  const { playAudio, isPlaying: globalIsPlaying, togglePlayPause } = useGlobalAudioPlayer();
+  const { playAudio, currentAudio, togglePlayPause } = useGlobalAudioPlayer();
+  
+  // Determine if this specific frequency is currently playing
+  const audioSource = audioUrl || url || '';
+  const isThisPlaying = currentAudio?.source === audioSource && currentAudio?.customData?.frequency === frequency;
+  
+  // Use external control if provided, otherwise use internal control
+  const actuallyPlaying = externalIsPlaying !== undefined ? externalIsPlaying : isThisPlaying;
   
   const handlePlay = () => {
     // If external control is provided, use that
-    if (onPlayToggle) {
-      onPlayToggle();
+    if (externalPlayToggle) {
+      externalPlayToggle();
       return;
     }
     
-    // Otherwise, play the audio using the global audio player
-    playAudio({
-      title: title || `${frequency}Hz Frequency`,
-      artist: "Sacred Shifter",
-      source: audioUrl || url || '',
-      // Pass these as custom properties
-      customData: {
-        frequency,
-        chakra: description,
-        frequencyId,
-        groupId
-      }
-    });
+    // If this frequency is already playing, toggle it
+    if (isThisPlaying) {
+      togglePlayPause();
+      return;
+    }
+    
+    // Otherwise, play this audio using the global player
+    if (audioSource) {
+      playAudio({
+        title: title || `${frequency}Hz Frequency`,
+        artist: "Sacred Shifter",
+        source: audioSource,
+        customData: {
+          frequency,
+          chakra: description,
+          frequencyId,
+          groupId
+        }
+      });
+    }
   };
-  
-  // Use external isPlaying state if provided, otherwise use global state
-  const actuallyPlaying = isPlaying !== undefined ? isPlaying : globalIsPlaying;
   
   return (
     <div className="w-full">

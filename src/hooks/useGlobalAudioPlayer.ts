@@ -12,6 +12,7 @@ interface AudioInfo {
     chakra?: string;
     frequencyId?: string;
     groupId?: string;
+    phaseId?: string;
     [key: string]: any;
   };
 }
@@ -19,6 +20,7 @@ interface AudioInfo {
 /**
  * Hook for managing global audio playback across the application
  * This is a facade over the native audio element to ensure consistency
+ * and centralize all audio playback through the SacredAudioPlayer
  */
 export function useGlobalAudioPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -26,6 +28,7 @@ export function useGlobalAudioPlayer() {
 
   /**
    * Play audio with the provided information
+   * This will route all audio through the single SacredAudioPlayer
    */
   const playAudio = useCallback((audioInfo: AudioInfo) => {
     setCurrentAudio(audioInfo);
@@ -61,6 +64,11 @@ export function useGlobalAudioPlayer() {
   useEffect(() => {
     const handlePlayStateChange = (event: CustomEvent) => {
       setIsPlaying(event.detail.isPlaying);
+      
+      // If audio was stopped/changed, also update currentAudio
+      if (event.detail.currentAudio) {
+        setCurrentAudio(event.detail.currentAudio);
+      }
     };
 
     window.addEventListener('audioPlayStateChange', handlePlayStateChange as EventListener);

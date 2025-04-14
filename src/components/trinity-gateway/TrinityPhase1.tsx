@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import FrequencyPlayer from "@/components/FrequencyPlayer";
 import { toast } from "sonner";
+import { useGlobalAudioPlayer } from "@/hooks/useGlobalAudioPlayer";
 
 interface TrinityPhase1Props {
   onComplete: () => void;
@@ -14,28 +15,49 @@ interface TrinityPhase1Props {
 }
 
 const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete, skipPhase }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [secondsElapsed, setSecondsElapsed] = useState(0);
   const [teslaQuoteShown, setTeslaQuoteShown] = useState(false);
+  const { currentAudio, playAudio, isPlaying, togglePlayPause } = useGlobalAudioPlayer();
   
   const PHASE_DURATION = 180; // 3 minutes in seconds
+  const AUDIO_URL = "/frequencies/396hz-root.mp3";
+  
+  // Check if this specific frequency is playing
+  const isThisFrequencyPlaying = 
+    isPlaying && 
+    currentAudio?.source === AUDIO_URL && 
+    currentAudio?.customData?.frequency === 396;
   
   // Toggle audio playback
   const togglePlayback = useCallback(() => {
-    setIsPlaying(!isPlaying);
-    if (!isPlaying) {
+    if (isThisFrequencyPlaying) {
+      togglePlayPause();
+    } else {
+      playAudio({
+        title: "Phase 1: Release (396Hz)",
+        artist: "Sacred Shifter",
+        source: AUDIO_URL,
+        customData: {
+          frequency: 396,
+          chakra: "Root",
+          phaseId: "trinity-phase-1"
+        }
+      });
+    }
+    
+    if (!isThisFrequencyPlaying) {
       toast.info("Beginning Phase 1: Release (396Hz)");
     } else {
       toast.info("Frequency paused");
     }
-  }, [isPlaying]);
+  }, [isThisFrequencyPlaying, playAudio, togglePlayPause]);
   
   // Track progress and show Tesla quote at specific time
   useEffect(() => {
     let timer: NodeJS.Timeout;
     
-    if (isPlaying) {
+    if (isThisFrequencyPlaying) {
       timer = setInterval(() => {
         setSecondsElapsed(prev => {
           const newSeconds = prev + 1;
@@ -49,7 +71,9 @@ const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete, skipPhase }) 
           
           // Auto-advance when phase is complete
           if (newSeconds >= PHASE_DURATION) {
-            setIsPlaying(false);
+            if (isThisFrequencyPlaying) {
+              togglePlayPause();
+            }
             setTimeout(() => onComplete(), 1000);
             toast.success("Phase 1 complete: Root chakra released");
             return PHASE_DURATION;
@@ -63,7 +87,7 @@ const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete, skipPhase }) 
     return () => {
       clearInterval(timer);
     };
-  }, [isPlaying, onComplete, teslaQuoteShown]);
+  }, [isThisFrequencyPlaying, onComplete, teslaQuoteShown, togglePlayPause]);
   
   // Format time as MM:SS
   const formatTime = (seconds: number) => {
@@ -94,8 +118,8 @@ const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete, skipPhase }) 
           <div className="flex justify-center mb-4">
             <motion.div
               animate={{
-                rotate: isPlaying ? [0, 360] : 0,
-                scale: isPlaying ? [1, 1.05, 1] : 1
+                rotate: isThisFrequencyPlaying ? [0, 360] : 0,
+                scale: isThisFrequencyPlaying ? [1, 1.05, 1] : 1
               }}
               transition={{
                 rotate: { duration: 20, repeat: Infinity, ease: "linear" },
@@ -115,10 +139,12 @@ const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete, skipPhase }) 
           <div className="flex justify-center mb-6">
             <FrequencyPlayer
               frequencyId="396hz"
-              isPlaying={isPlaying}
+              isPlaying={isThisFrequencyPlaying}
               onPlayToggle={togglePlayback}
               frequency={396}
-              audioUrl="/frequencies/396hz-root.mp3"
+              audioUrl={AUDIO_URL}
+              title="Phase 1: Release (396Hz)"
+              description="Root Chakra"
             />
           </div>
           
