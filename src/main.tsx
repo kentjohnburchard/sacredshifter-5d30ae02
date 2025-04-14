@@ -6,6 +6,10 @@ import './index.css'
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from './context/AuthContext.tsx'
+import * as THREE from 'three'
+
+// Ensure THREE is available globally
+window.THREE = THREE;
 
 // Create a client
 const queryClient = new QueryClient()
