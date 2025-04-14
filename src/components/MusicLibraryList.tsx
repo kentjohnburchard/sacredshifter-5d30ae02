@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Play, Pause, Download, Trash2, Music } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import RandomizingAudioPlayer from '@/components/audio/RandomizingAudioPlayer';
+import FrequencyPlayer from '@/components/FrequencyPlayer';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -145,10 +145,10 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
             
             {playingId === music.id && (
               <div className="mt-2 pt-2 border-t border-gray-100">
-                <RandomizingAudioPlayer
+                <FrequencyPlayer
                   audioUrl={music.audio_url}
                   groupId={music.group_id}
-                  onPlayStateChange={(isPlaying) => {
+                  onPlayStateChange={(isPlaying: boolean) => {
                     if (!isPlaying) {
                       setPlayingId(null);
                     }

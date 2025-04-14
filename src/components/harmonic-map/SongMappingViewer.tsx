@@ -10,7 +10,7 @@ import songMappings, {
   functionalityDescriptions, 
   getSongsByFunctionality 
 } from '@/utils/songMappings';
-import RandomizingAudioPlayer from '@/components/audio/RandomizingAudioPlayer';
+import FrequencyPlayer from '@/components/FrequencyPlayer';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -125,11 +125,11 @@ const SongMappingViewer = () => {
                       
                       {selectedSong?.id === song.id && (
                         <div className="mt-3 pt-3 border-t border-gray-100">
-                          <RandomizingAudioPlayer
+                          <FrequencyPlayer
                             audioUrl={song.audioUrl}
                             frequency={song.frequency}
-                            autoPlay={isPlaying}
-                            onPlayStateChange={setIsPlaying}
+                            isPlaying={isPlaying}
+                            onPlayToggle={() => setIsPlaying(!isPlaying)}
                           />
                         </div>
                       )}

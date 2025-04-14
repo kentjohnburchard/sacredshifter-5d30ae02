@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
@@ -12,15 +12,28 @@ interface FrequencyPlayerProps {
   onPlayToggle?: () => void;
   size?: 'sm' | 'md' | 'lg';
   showFrequency?: boolean;
+  // Add the new props that were causing errors
+  url?: string;
+  id?: string;
+  frequencyId?: string;
+  groupId?: string; 
+  title?: string;
+  description?: string;
 }
 
 const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   audioUrl,
+  url,
   frequency = 432,
   isPlaying = false,
   onPlayToggle,
   size = 'md',
   showFrequency = true,
+  id,
+  frequencyId,
+  groupId,
+  title,
+  description
 }) => {
   const [volume, setVolume] = useState(0.7);
   const [isMuted, setIsMuted] = useState(false);
@@ -29,18 +42,24 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
 
   // Check if this player's audioUrl matches the current playing audio
   const isThisAudioPlaying = () => {
-    return currentAudio?.source === audioUrl && isPlaying;
+    const effectiveUrl = audioUrl || url || '';
+    return currentAudio?.source === effectiveUrl && isPlaying;
   };
 
   const handlePlayPause = () => {
-    if (audioUrl) {
+    const effectiveUrl = audioUrl || url || '';
+    if (effectiveUrl) {
       if (isThisAudioPlaying()) {
         togglePlayPause();
       } else {
         playAudio({
-          title: `Frequency ${frequency}Hz`,
-          source: audioUrl,
-          customData: { frequency }
+          title: title || `Frequency ${frequency}Hz`,
+          source: effectiveUrl,
+          customData: { 
+            frequency,
+            frequencyId,
+            groupId
+          }
         });
       }
     }
@@ -93,7 +112,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
         <Button
           variant="outline"
           size="icon"
-          disabled={!audioUrl}
+          disabled={!audioUrl && !url}
           onClick={handlePlayPause}
           className={`${buttonSizeClass} rounded-full ${isThisAudioPlaying() ? 'bg-purple-100' : 'bg-white'}`}
         >
