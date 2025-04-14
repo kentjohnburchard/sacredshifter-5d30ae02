@@ -90,10 +90,15 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       return;
     }
     
-    // Set canvas to full viewport size
+    // Set canvas to container size
     const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      if (canvas.parentElement) {
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+      } else {
+        canvas.width = 400;
+        canvas.height = 300;
+      }
     };
     
     // Call resize initially and add event listener
@@ -113,7 +118,7 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
           return `hsla(${value}, 100%, 50%, ${0.5 + value / 500})`;
         case 'purple':
         default:
-          return `hsla(270, 100%, ${30 + value / 4}%, ${0.4 + value / 600})`;
+          return `hsla(280, 100%, ${30 + value / 4}%, ${0.4 + value / 600})`;
       }
     };
     
@@ -167,7 +172,7 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       // Draw centered circles that respond to bass
       const numCircles = 5;
       for (let i = 0; i < numCircles; i++) {
-        const radius = (100 + i * 50) + bassLevel * (i + 1) / 5;
+        const radius = (60 + i * 30) + bassLevel * (i + 1) / 6;
         const alpha = 0.3 - i * 0.05;
         
         ctx.beginPath();
@@ -179,10 +184,10 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       }
       
       // Draw equalizer bars
-      const barWidth = canvas.width / 128;
+      const barWidth = Math.max(4, Math.min(8, canvas.width / 64));
       const barSpacing = 2;
-      const barCount = Math.floor(dataArray.length / 8); // Use only part of the spectrum
-      const barHeightMultiplier = canvas.height / 512; // Scale the bars appropriately
+      const barCount = Math.floor(dataArray.length / 10); // Use only part of the spectrum
+      const barHeightMultiplier = canvas.height / 768; // Scale the bars appropriately
       
       ctx.save();
       ctx.translate(centerX, centerY);
@@ -193,7 +198,7 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
         const barHeight = value * barHeightMultiplier;
         const angle = (i / barCount) * Math.PI * 2;
         
-        const innerRadius = 120 + (bassLevel / 5);
+        const innerRadius = 80 + (bassLevel / 5);
         const outerRadius = innerRadius + barHeight;
         
         const x1 = Math.cos(angle) * innerRadius;
@@ -217,7 +222,7 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       
       // Draw geometric patterns
       const sides = 6 + Math.floor(bassLevel / 50); // More sides with more bass
-      const radius = 100 + midLevel;
+      const radius = 60 + midLevel;
       
       ctx.beginPath();
       for (let i = 0; i < sides; i++) {
@@ -239,7 +244,7 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       // Add some particles for higher frequencies
       if (trebleLevel > 50 && Math.random() > 0.7) {
         const particleAngle = Math.random() * Math.PI * 2;
-        const distance = 100 + Math.random() * 100;
+        const distance = 60 + Math.random() * 60;
         
         particles.push({
           x: Math.cos(particleAngle) * distance,
@@ -281,8 +286,8 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       
       // Draw waveform at the bottom
       const sliceWidth = canvas.width / dataArray.length;
-      const waveHeight = 50;
-      const waveY = canvas.height - 100;
+      const waveHeight = canvas.height / 8;
+      const waveY = canvas.height - (canvas.height / 6);
       
       ctx.beginPath();
       ctx.moveTo(0, waveY);
@@ -300,6 +305,25 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       ctx.strokeStyle = getColor(200);
       ctx.lineWidth = 2;
       ctx.stroke();
+      
+      // Draw classic equalizer bars at the bottom
+      const eqBarWidth = Math.max(8, Math.min(16, canvas.width / 32));
+      const eqBarCount = Math.min(32, Math.floor(canvas.width / (eqBarWidth + 2)));
+      const eqBarSpacing = 2;
+      const eqBarMaxHeight = canvas.height / 4;
+      const eqY = canvas.height - 10;
+      
+      for (let i = 0; i < eqBarCount; i++) {
+        // Use a logarithmic distribution to focus more on lower frequencies
+        const dataIndex = Math.floor(Math.pow(i / eqBarCount, 1.5) * (dataArray.length / 4));
+        const value = dataArray[dataIndex];
+        const eqBarHeight = (value / 255) * eqBarMaxHeight;
+        
+        const x = (i * (eqBarWidth + eqBarSpacing)) + (canvas.width - eqBarCount * (eqBarWidth + eqBarSpacing)) / 2;
+        
+        ctx.fillStyle = getColor(value);
+        ctx.fillRect(x, eqY - eqBarHeight, eqBarWidth, eqBarHeight);
+      }
       
       // Continue animation loop
       rafIdRef.current = requestAnimationFrame(drawVisualization);
@@ -322,7 +346,7 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 1 }}
-      className="absolute inset-0 overflow-hidden z-0"
+      className="w-full h-full overflow-hidden relative"
     >
       <canvas 
         ref={canvasRef} 
@@ -331,8 +355,8 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       
       {/* Add subtle sacred geometry overlay elements */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[30vw] h-[30vw] bg-purple-500/10 rounded-full animate-pulse-slow"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40vw] h-[40vw] border border-purple-400/20 rounded-full animate-spin-slow"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[30%] h-[30%] bg-purple-500/10 rounded-full animate-pulse-slow"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40%] h-[40%] border border-purple-400/20 rounded-full animate-spin-slow"></div>
       </div>
     </motion.div>
   );

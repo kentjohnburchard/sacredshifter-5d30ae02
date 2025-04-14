@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -18,7 +17,6 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import SacredGeometryCanvas from '@/components/visualizer/SacredGeometryCanvas';
 
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
@@ -29,7 +27,6 @@ const JourneyPlayer = () => {
   const [journey, setJourney] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [infoExpanded, setInfoExpanded] = useState(false);
-  const [showVisualizer, setShowVisualizer] = useState(true);
   
   // Create refs
   const lastPlayedIndex = useRef<number | null>(null);
@@ -222,30 +219,16 @@ const JourneyPlayer = () => {
   }
 
   return (
-    <Layout pageTitle={journey?.title || "Silent Tune"}>
-      {isPlaying && showVisualizer && (
-        <div className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center overflow-hidden">
-          <SacredGeometryCanvas colorScheme="purple" />
-        </div>
-      )}
-      
+    <Layout pageTitle={journey?.title || "Sacred Journey"}>
       <div className="max-w-4xl mx-auto p-4 relative z-10">
         <Card className="backdrop-blur-sm border border-purple-200/30 dark:border-purple-900/30 bg-white/80 dark:bg-black/60">
           <CardContent className="p-6">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-3xl font-bold text-purple-900 dark:text-purple-300">
-                {journey?.title || "Silent Tune"}
+                {journey?.title || "Sacred Journey"}
               </h1>
               
               <div className="flex space-x-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowVisualizer(!showVisualizer)}
-                  className="flex items-center gap-2"
-                >
-                  {showVisualizer ? "Hide Visuals" : "Show Visuals"}
-                </Button>
-                
                 <Button
                   variant="outline"
                   onClick={() => setInfoExpanded(!infoExpanded)}
@@ -261,12 +244,6 @@ const JourneyPlayer = () => {
                 >
                   Back to Journeys
                 </Button>
-              </div>
-            </div>
-            
-            <div className="text-center p-8">
-              <div className="text-lg text-purple-700 dark:text-purple-300">
-                Your audio is playing in the global player
               </div>
             </div>
             
@@ -328,7 +305,7 @@ const JourneyPlayer = () => {
                             </div>
                           ))}
                           <p className="text-sm text-gray-500 mt-2">
-                            Tracks play in random order for a unique experience each time
+                            Tracks will continue playing in the Sacred Audio Player
                           </p>
                         </div>
                       ) : (

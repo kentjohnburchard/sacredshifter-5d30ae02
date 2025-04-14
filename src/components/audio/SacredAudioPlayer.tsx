@@ -20,7 +20,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useTheme } from '@/context/ThemeContext';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
-import FractalAudioVisualizer from './FractalAudioVisualizer';
+import SacredGeometryCanvas from '@/components/visualizer/SacredGeometryCanvas';
 
 interface SacredAudioPlayerProps {
   audioUrl?: string;
@@ -273,7 +273,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   
   const colors = getChakraColorClasses();
   
-  // Only return the component if we're on the home page or if we're viewing a journey
   return (
     <div ref={playerRef} className={`fixed bottom-4 right-4 z-50 ${isFullscreen ? 'fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm' : ''}`}>
       <motion.div 
@@ -290,10 +289,10 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           overflow-hidden shadow-lg relative
         `}
       >
-        {/* Visualizer */}
+        {/* Visualizer - CONTAINED WITHIN THE PLAYER */}
         <div 
           ref={visualizerRef}
-          className={`absolute inset-0 z-0 transition-opacity duration-300 ${
+          className={`absolute inset-0 z-0 transition-opacity duration-300 overflow-hidden ${
             showVisualizer && isAudioPlaying 
               ? 'opacity-100' 
               : 'opacity-0'
@@ -308,17 +307,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
                 exit={{ opacity: 0 }}
                 className="w-full h-full"
               >
-                <FractalAudioVisualizer 
-                  audioContext={audioContext}
-                  analyser={analyser}
-                  isVisible={true}
-                  colorScheme={visualizerMode}
-                  pauseWhenStopped={false}
-                  frequency={frequency}
-                  chakra={chakra}
-                  onPrimeSequence={handlePrimeSequence}
-                  onFrequencyDetected={handleFrequencyDetected}
-                />
+                <SacredGeometryCanvas colorScheme={visualizerMode} />
               </motion.div>
             )}
           </AnimatePresence>
