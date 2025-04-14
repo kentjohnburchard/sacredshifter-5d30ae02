@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -28,7 +27,6 @@ export const HarmonicMapViewer: React.FC = () => {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Interactive Map */}
         <div className="lg:w-3/5 relative">
           <div className="aspect-square relative">
             <div className="absolute inset-0 flex items-center justify-center">
@@ -36,7 +34,6 @@ export const HarmonicMapViewer: React.FC = () => {
                 viewBox="0 0 500 500" 
                 className="w-full h-full"
               >
-                {/* Background circles - concentric rings */}
                 {[5, 4, 3, 2, 1].map((ring, idx) => (
                   <circle 
                     key={`circle-${ring}`}
@@ -50,7 +47,6 @@ export const HarmonicMapViewer: React.FC = () => {
                   />
                 ))}
 
-                {/* Center point */}
                 <circle 
                   cx="250" 
                   cy="250" 
@@ -59,11 +55,9 @@ export const HarmonicMapViewer: React.FC = () => {
                   className="animate-pulse"
                 />
                 
-                {/* Map the harmonic intervals as points on the circles */}
                 {harmonicIntervals.map((interval, index) => {
-                  // Calculate position on the circle
-                  const ring = Math.ceil((index + 1) / 4); // Determine which ring (1-5)
-                  const segmentAngle = ((index % 4) * 90) + (ring * 15); // Distribute around the circle
+                  const ring = Math.ceil((index + 1) / 4);
+                  const segmentAngle = ((index % 4) * 90) + (ring * 15);
                   const radius = 40 + (ring * 40);
                   const x = 250 + radius * Math.cos(segmentAngle * Math.PI / 180);
                   const y = 250 + radius * Math.sin(segmentAngle * Math.PI / 180);
@@ -73,7 +67,6 @@ export const HarmonicMapViewer: React.FC = () => {
                   
                   return (
                     <g key={interval.id}>
-                      {/* Connection line */}
                       <line 
                         x1="250" 
                         y1="250" 
@@ -84,7 +77,6 @@ export const HarmonicMapViewer: React.FC = () => {
                         className="transition-all duration-300"
                       />
                       
-                      {/* Label */}
                       <text 
                         x={x + (x > 250 ? 15 : -15)} 
                         y={y + (y > 250 ? 15 : -15)} 
@@ -96,7 +88,6 @@ export const HarmonicMapViewer: React.FC = () => {
                         {interval.ratio} {interval.name}
                       </text>
                       
-                      {/* Interactive node */}
                       <circle 
                         cx={x} 
                         cy={y} 
@@ -110,7 +101,6 @@ export const HarmonicMapViewer: React.FC = () => {
                         onMouseLeave={() => setHoveredId(null)}
                       />
                       
-                      {/* Frequency */}
                       <text 
                         x={x} 
                         y={y} 
@@ -126,12 +116,10 @@ export const HarmonicMapViewer: React.FC = () => {
                   );
                 })}
                 
-                {/* Add Tesla 3-6-9 highlights */}
                 {teslaThreeSixNine.principles.map((principle) => {
                   const interval = harmonicIntervals.find(i => principle.frequencies.includes(i.hertz as number));
                   if (!interval) return null;
                   
-                  // Find this interval's position
                   const index = harmonicIntervals.findIndex(i => i.id === interval.id);
                   const ring = Math.ceil((index + 1) / 4);
                   const segmentAngle = ((index % 4) * 90) + (ring * 15);
@@ -166,7 +154,6 @@ export const HarmonicMapViewer: React.FC = () => {
                   );
                 })}
 
-                {/* Image attribution */}
                 <text 
                   x="250" 
                   y="480" 
@@ -178,7 +165,6 @@ export const HarmonicMapViewer: React.FC = () => {
                 </text>
               </svg>
               
-              {/* Overlay the original image */}
               <img 
                 src="/lovable-uploads/09d5c002-7d5b-48cd-b5f5-77dc788b1781.png" 
                 alt="Map of the Harmonic Sequence" 
@@ -187,7 +173,6 @@ export const HarmonicMapViewer: React.FC = () => {
             </div>
           </div>
           
-          {/* Legends */}
           <div className="mt-4 grid grid-cols-3 gap-4 text-xs">
             <div className="flex flex-col items-center">
               <div className="w-4 h-4 rounded-full bg-amber-400 mb-1"></div>
@@ -204,7 +189,6 @@ export const HarmonicMapViewer: React.FC = () => {
           </div>
         </div>
 
-        {/* Detail panel */}
         <div className="lg:w-2/5">
           {selectedInterval ? (
             <Card>
@@ -292,7 +276,12 @@ export const HarmonicMapViewer: React.FC = () => {
                       <span className="font-medium">{selectedInterval.hertz} Hz</span>
                       <span className="text-gray-500 text-xs ml-1">Pure Tone</span>
                     </div>
-                    <HarmonicIntervalTonePlayer interval={selectedInterval} />
+                    <HarmonicIntervalTonePlayer 
+                      baseFrequency={selectedInterval.hertz as number}
+                      ratio="1:1"
+                      intervalName={selectedInterval.name}
+                      color={selectedInterval.color}
+                    />
                   </div>
                 </div>
               </CardContent>

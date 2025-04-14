@@ -1,7 +1,7 @@
 
 import React from "react";
-import Navbar from "@/components/navigation/Navbar";
-import Footer from "@/components/navigation/Footer";
+import Navbar from "./navigation/Navbar";
+import Footer from "./navigation/Footer";
 import SacredAudioPlayer from "./audio/SacredAudioPlayer";
 import { useGlobalAudioPlayer } from "@/hooks/useGlobalAudioPlayer";
 

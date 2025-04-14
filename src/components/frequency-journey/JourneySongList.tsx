@@ -13,12 +13,20 @@ interface JourneySongListProps {
   songs: JourneySong[];
   onSongSelect?: (song: JourneySong) => void;
   selectedSongId?: string;
+  journeyId?: string;
+  journeyTitle?: string;
+  loading?: boolean;
+  onAddSongClick?: () => void;
 }
 
 const JourneySongList: React.FC<JourneySongListProps> = ({
   songs,
   onSongSelect,
-  selectedSongId
+  selectedSongId,
+  journeyId,
+  journeyTitle,
+  loading,
+  onAddSongClick
 }) => {
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
   const { playAudio, togglePlayPause, isPlaying, currentAudio } = useGlobalAudioPlayer();
@@ -45,11 +53,33 @@ const JourneySongList: React.FC<JourneySongListProps> = ({
     }
   };
 
+  if (loading) {
+    return (
+      <div className="text-center p-6 text-gray-500">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="h-12 w-12 bg-gray-200 rounded-full mb-3"></div>
+          <div className="h-4 w-32 bg-gray-200 rounded mb-2"></div>
+          <div className="h-3 w-24 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
   if (songs.length === 0) {
     return (
       <div className="text-center p-6 text-gray-500">
         <Music className="h-12 w-12 mx-auto opacity-40 mb-3" />
         <p>No songs available for this frequency journey</p>
+        {onAddSongClick && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="mt-4"
+            onClick={onAddSongClick}
+          >
+            Add a song
+          </Button>
+        )}
       </div>
     );
   }

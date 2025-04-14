@@ -9,13 +9,15 @@ interface HarmonicIntervalTonePlayerProps {
   ratio: string;
   intervalName: string;
   color: string;
+  interval?: any; // Add the interval prop
 }
 
 const HarmonicIntervalTonePlayer: React.FC<HarmonicIntervalTonePlayerProps> = ({ 
   baseFrequency, 
   ratio, 
   intervalName, 
-  color 
+  color,
+  interval
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
