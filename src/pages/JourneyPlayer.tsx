@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -27,6 +26,7 @@ const JourneyPlayer = () => {
   const [journey, setJourney] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [infoExpanded, setInfoExpanded] = useState(false);
+  const [audioAnalyser, setAudioAnalyser] = useState<AnalyserNode | null>(null);
   
   const lastPlayedIndex = useRef<number | null>(null);
   const songsRef = useRef<any[]>([]);
@@ -34,6 +34,36 @@ const JourneyPlayer = () => {
   
   const { templates, loading: loadingTemplates } = useJourneyTemplates();
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
+
+  useEffect(() => {
+    try {
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 256;
+      
+      setAudioAnalyser(analyser);
+      
+      const connectAudio = () => {
+        const audioElement = document.querySelector('audio');
+        if (audioElement && audioCtx && analyser) {
+          const source = audioCtx.createMediaElementSource(audioElement);
+          source.connect(analyser);
+          analyser.connect(audioCtx.destination);
+          console.log("Connected audio analyzer to audio element");
+        }
+      };
+      
+      setTimeout(connectAudio, 1000);
+      
+      return () => {
+        if (audioCtx) {
+          audioCtx.close().catch(console.error);
+        }
+      };
+    } catch (error) {
+      console.error("Failed to initialize audio analyzer:", error);
+    }
+  }, []);
 
   useEffect(() => {
     if (songs && songs.length > 0) {
@@ -207,11 +237,11 @@ const JourneyPlayer = () => {
   return (
     <Layout pageTitle={journey?.title || "Sacred Journey"}>
       <div className="max-w-4xl mx-auto p-4 relative z-10">
-        {/* Simplified visualizer */}
         <div className="w-full h-64 mb-6">
           <SimplifiedVisualizer 
             size="lg" 
             isAudioReactive={true}
+            analyser={audioAnalyser}
             colorScheme={journey?.colorScheme || "purple"}
             chakra={journey?.chakras?.[0] || undefined}
           />

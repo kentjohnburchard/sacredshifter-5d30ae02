@@ -64,113 +64,128 @@ export const SimplifiedVisualizer: React.FC<VisualizerProps> = ({
   const initializeScene = () => {
     if (!containerRef.current) return;
 
-    // Create scene
-    const scene = new THREE.Scene();
-    sceneRef.current = scene;
+    try {
+      // Verify THREE is available globally
+      if (!window.THREE && typeof THREE === 'undefined') {
+        console.error("THREE is not properly defined. Cannot initialize scene.");
+        return;
+      }
+      
+      // Create scene
+      const scene = new THREE.Scene();
+      sceneRef.current = scene;
 
-    // Create camera
-    const camera = new THREE.PerspectiveCamera(
-      75,
-      containerRef.current.clientWidth / containerRef.current.clientHeight,
-      0.1,
-      1000
-    );
-    camera.position.z = 5;
-    cameraRef.current = camera;
+      // Create camera
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        containerRef.current.clientWidth / containerRef.current.clientHeight,
+        0.1,
+        1000
+      );
+      camera.position.z = 5;
+      cameraRef.current = camera;
 
-    // Create renderer
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
-    renderer.setClearColor(0x000000, 0);
-    containerRef.current.appendChild(renderer.domElement);
-    rendererRef.current = renderer;
+      // Create renderer
+      const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+      renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
+      renderer.setClearColor(0x000000, 0);
+      containerRef.current.appendChild(renderer.domElement);
+      rendererRef.current = renderer;
 
-    // Add lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
+      // Add lights
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);
 
-    const pointLight = new THREE.PointLight(getColor(), 1);
-    pointLight.position.set(10, 10, 10);
-    scene.add(pointLight);
+      const pointLight = new THREE.PointLight(getColor(), 1);
+      pointLight.position.set(10, 10, 10);
+      scene.add(pointLight);
 
-    // Create geometry based on shape
-    let geometry;
-    
-    switch (shape) {
-      case 'flower-of-life':
-      case 'seed-of-life':
-        geometry = new THREE.SphereGeometry(1.5, 32, 32);
-        break;
-      case 'merkaba':
-        geometry = new THREE.OctahedronGeometry(1.5);
-        break;
-      case 'torus':
-        geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
-        break;
-      default:
-        geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
-    }
-    
-    geometryRef.current = geometry;
+      // Create geometry based on shape
+      let geometry;
+      
+      switch (shape) {
+        case 'flower-of-life':
+        case 'seed-of-life':
+          geometry = new THREE.SphereGeometry(1.5, 32, 32);
+          break;
+        case 'merkaba':
+          geometry = new THREE.OctahedronGeometry(1.5);
+          break;
+        case 'torus':
+          geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
+          break;
+        default:
+          geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
+      }
+      
+      geometryRef.current = geometry;
 
-    // Create material
-    const material = new THREE.MeshStandardMaterial({
-      color: getColor(),
-      metalness: 0.7,
-      roughness: 0.2
-    });
-    materialRef.current = material;
+      // Create material
+      const material = new THREE.MeshStandardMaterial({
+        color: getColor(),
+        metalness: 0.7,
+        roughness: 0.2
+      });
+      materialRef.current = material;
 
-    // Create mesh and add to scene
-    const mesh = new THREE.Mesh(geometry, material);
-    scene.add(mesh);
-    meshRef.current = mesh;
+      // Create mesh and add to scene
+      const mesh = new THREE.Mesh(geometry, material);
+      scene.add(mesh);
+      meshRef.current = mesh;
 
-    // Start animation
-    const animate = () => {
-      if (meshRef.current && sceneRef.current && cameraRef.current && rendererRef.current) {
-        meshRef.current.rotation.x += 0.01;
-        meshRef.current.rotation.y += 0.01;
-        
-        // Apply audio reactivity if available
-        if (audioData && audioData.length > 0) {
-          const average = Array.from(audioData).reduce((sum, value) => sum + value, 0) / audioData.length;
-          const scale = 1 + (average / 255) * 0.3;
-          meshRef.current.scale.set(scale, scale, scale);
+      // Start animation
+      const animate = () => {
+        if (meshRef.current && sceneRef.current && cameraRef.current && rendererRef.current) {
+          meshRef.current.rotation.x += 0.01;
+          meshRef.current.rotation.y += 0.01;
+          
+          // Apply audio reactivity if available
+          if (audioData && audioData.length > 0) {
+            const average = Array.from(audioData).reduce((sum, value) => sum + value, 0) / audioData.length;
+            const scale = 1 + (average / 255) * 0.3;
+            meshRef.current.scale.set(scale, scale, scale);
+          }
+          
+          rendererRef.current.render(sceneRef.current, cameraRef.current);
         }
-        
-        rendererRef.current.render(sceneRef.current, cameraRef.current);
-      }
+        frameIdRef.current = requestAnimationFrame(animate);
+      };
+      
       frameIdRef.current = requestAnimationFrame(animate);
-    };
-    
-    frameIdRef.current = requestAnimationFrame(animate);
 
-    // Handle window resize
-    const handleResize = () => {
-      if (containerRef.current && cameraRef.current && rendererRef.current) {
-        const width = containerRef.current.clientWidth;
-        const height = containerRef.current.clientHeight;
-        
-        cameraRef.current.aspect = width / height;
-        cameraRef.current.updateProjectionMatrix();
-        
-        rendererRef.current.setSize(width, height);
-      }
-    };
-    
-    window.addEventListener('resize', handleResize);
+      // Handle window resize
+      const handleResize = () => {
+        if (containerRef.current && cameraRef.current && rendererRef.current) {
+          const width = containerRef.current.clientWidth;
+          const height = containerRef.current.clientHeight;
+          
+          cameraRef.current.aspect = width / height;
+          cameraRef.current.updateProjectionMatrix();
+          
+          rendererRef.current.setSize(width, height);
+        }
+      };
+      
+      window.addEventListener('resize', handleResize);
 
-    // Return cleanup function
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      if (frameIdRef.current !== null) {
-        cancelAnimationFrame(frameIdRef.current);
-      }
-      if (rendererRef.current && containerRef.current) {
-        containerRef.current.removeChild(rendererRef.current.domElement);
-      }
-    };
+      // Return cleanup function
+      return () => {
+        window.removeEventListener('resize', handleResize);
+        if (frameIdRef.current !== null) {
+          cancelAnimationFrame(frameIdRef.current);
+        }
+        if (rendererRef.current && containerRef.current) {
+          try {
+            containerRef.current.removeChild(rendererRef.current.domElement);
+          } catch (e) {
+            console.error("Error cleaning up Three.js renderer:", e);
+          }
+        }
+      };
+    } catch (error) {
+      console.error("Error initializing Three.js scene:", error);
+      return undefined;
+    }
   };
 
   // Process audio data if audio reactive is enabled
@@ -196,6 +211,12 @@ export const SimplifiedVisualizer: React.FC<VisualizerProps> = ({
 
   // Initialize scene on mount
   useEffect(() => {
+    // Ensure THREE is available before initializing
+    if (typeof THREE === 'undefined' || !THREE) {
+      console.error("THREE is not available. Cannot initialize visualizer.");
+      return;
+    }
+    
     const cleanup = initializeScene();
     return cleanup;
   }, []);
