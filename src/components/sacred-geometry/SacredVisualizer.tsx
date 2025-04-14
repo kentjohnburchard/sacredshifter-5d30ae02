@@ -91,7 +91,7 @@ const GeometryShape: React.FC<{
 }> = ({ shape, audioData, frequency, mode = 'fractal', baseColor, accentColor }) => {
   const groupRef = useRef<Group>(null);
   const shapeRef = useRef<Group>(null);
-  const particlesRef = useRef<Mesh[]>([]);
+  const particlesRef = useRef<THREE.Mesh[]>([]);
   const frameCount = useRef(0);
   
   const { camera } = useThree();
@@ -197,8 +197,8 @@ const GeometryShape: React.FC<{
                 break;
             }
             
-            // Update particle material based on audio if available
-            if (particle && audioData && 'material' in particle && particle.material instanceof MeshStandardMaterial) {
+            // Fix TypeScript errors by properly checking if particle is a Mesh with material
+            if (particle instanceof THREE.Mesh && particle.material instanceof THREE.MeshStandardMaterial && audioData) {
               const energyFactor = bassEnergy * 0.5 + midEnergy * 0.3 + highEnergy * 0.2;
               particle.material.emissiveIntensity = 0.5 + energyFactor * 2;
             }
@@ -210,7 +210,7 @@ const GeometryShape: React.FC<{
 
   // Create particles for the visualization
   const createParticles = () => {
-    const particles = [];
+    const particles: THREE.Mesh[] = [];
     const count = 30;
     const particleGeometry = new THREE.SphereGeometry(0.08, 16, 16);
     
@@ -924,7 +924,7 @@ const Line: React.FC<{
       }
       
       if (ref.current.material && 'dispose' in ref.current.material) {
-        ref.current.material.dispose();
+        (ref.current.material as THREE.Material).dispose();
       }
       
       ref.current.geometry = geometry;
