@@ -1,10 +1,10 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { motion } from 'framer-motion';
 import { Pause, Play, Volume2, VolumeX, Maximize2, Minimize2, Maximize, Palette } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { Slider } from '@/components/ui/slider';
-import { Progress } from '@/components/ui/progress';
 import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
 import { isPrime } from '@/lib/mathUtils';
 import PrimeAudioVisualizer from './PrimeAudioVisualizer';
@@ -15,12 +15,13 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuIte
 import FrequencyEqualizer from '../visualizer/FrequencyEqualizer';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
+import SacredThreeVisualizer from '../visualizer/SacredThreeVisualizer';
 
 type GeometryShape = 'flower-of-life' | 'seed-of-life' | 'metatrons-cube' | 
                      'merkaba' | 'torus' | 'tree-of-life' | 'sri-yantra' | 
                      'vesica-piscis' | 'sphere';
 
-type VisualizerMode = 'classic' | 'sacred-geometry' | 'prime';
+type VisualizerMode = 'threejs' | 'sacred-geometry' | 'prime';
 
 type ColorScheme = 'purple' | 'blue' | 'rainbow' | 'gold' | 'chakra';
 
@@ -51,7 +52,7 @@ const SacredAudioPlayer: React.FC = () => {
   const primeNumbers = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
   
   const [currentGeometry, setCurrentGeometry] = useState<GeometryShape>('flower-of-life');
-  const [visualizerMode, setVisualizerMode] = useState<VisualizerMode>('classic');
+  const [visualizerMode, setVisualizerMode] = useState<VisualizerMode>('threejs');
   const [colorScheme, setColorScheme] = useState<ColorScheme>('purple');
   const [visualizerSensitivity, setVisualizerSensitivity] = useState<number>(1.5);
   
@@ -421,7 +422,7 @@ const SacredAudioPlayer: React.FC = () => {
   ];
   
   const modeOptions = [
-    { value: 'classic', label: 'Classic', icon: <Maximize2 size={16} /> },
+    { value: 'threejs', label: '3D Visualizer', icon: <Maximize2 size={16} /> },
     { value: 'sacred-geometry', label: 'Sacred Geometry', icon: <Maximize size={16} /> },
     { value: 'prime', label: 'Prime Visualizer', icon: <Volume2 size={16} /> },
   ];
@@ -574,12 +575,15 @@ const SacredAudioPlayer: React.FC = () => {
       >
         <div className="relative w-full h-full">
           <div className="absolute inset-0 w-full h-full">
-            {visualizerMode === 'classic' && (
-              <canvas 
-                ref={canvasRef}
-                className="absolute inset-0 w-full h-full sacred-geometry-canvas rounded-lg"
-                style={{ opacity: 0.9 }}
-              />
+            {visualizerMode === 'threejs' && (expanded || fullscreen) && (
+              <div className="absolute inset-0 w-full h-full">
+                <SacredThreeVisualizer
+                  isPlaying={isPlaying}
+                  audioData={audioData}
+                  liftTheVeil={liftTheVeil}
+                  fullscreen={fullscreen}
+                />
+              </div>
             )}
             
             {visualizerMode === 'prime' && (expanded || fullscreen) && (
