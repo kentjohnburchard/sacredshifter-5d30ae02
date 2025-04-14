@@ -13,6 +13,8 @@ import { cn } from '@/lib/utils';
 import SacredGeometryVisualizer from '../sacred-geometry/SacredGeometryVisualizer';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import FrequencyEqualizer from '../visualizer/FrequencyEqualizer';
+import Button from '@/components/ui/button';
+import { ChevronDown } from 'lucide-react';
 
 type GeometryShape = 'flower-of-life' | 'seed-of-life' | 'metatrons-cube' | 
                      'merkaba' | 'torus' | 'tree-of-life' | 'sri-yantra' | 
@@ -42,6 +44,7 @@ const SacredAudioPlayer: React.FC = () => {
   const [volume, setVolume] = useState(0.7);
   const [isMuted, setIsMuted] = useState(false);
   const [showVolume, setShowVolume] = useState(false);
+  const [controlsExpanded, setControlsExpanded] = useState(false);
   
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const circlesRef = useRef<Array<{x: number, y: number, radius: number, opacity: number, color: string}>>([]);
@@ -391,283 +394,309 @@ const SacredAudioPlayer: React.FC = () => {
   ];
   
   const modeOptions = [
-    { value: 'classic', label: 'Classic' },
-    { value: 'sacred-geometry', label: 'Sacred Geometry' },
-    { value: 'prime', label: 'Prime Visualizer' },
+    { value: 'classic', label: 'Classic', icon: <Maximize2 size={16} /> },
+    { value: 'sacred-geometry', label: 'Sacred Geometry', icon: <Maximize size={16} /> },
+    { value: 'prime', label: 'Prime Visualizer', icon: <Volume2 size={16} /> },
   ];
 
   return (
-    <motion.div 
-      ref={containerRef}
-      className={cn(
-        `fixed z-[1000] rounded-xl overflow-visible sacred-audio-player ${isPlaying ? 'is-playing' : ''} ${liftTheVeil ? 'veil-lifted' : ''}`,
-        fullscreen ? 'inset-0 rounded-none' : isJourneyPlayerRoute ? 'bottom-4 left-1/2 -translate-x-1/2' : 'bottom-4 right-4',
-      )}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      style={{ 
-        backgroundColor: fullscreen ? 'black' : 'rgba(0, 0, 0, 0.75)',
-        boxShadow: `0 0 20px ${liftTheVeil ? 'rgba(255, 105, 180, 0.7)' : 'rgba(139, 92, 246, 0.7)'}`,
-        width: fullscreen ? '100%' : expanded ? '350px' : '180px',
-        height: fullscreen ? '100%' : expanded ? '250px' : '80px',
-        transition: 'width 0.3s ease, height 0.3s ease, left 0.3s ease, right 0.3s ease'
-      }}
-    >
-      <div className="relative w-full h-full">
-        <div className="absolute inset-0 w-full h-full">
-          {visualizerMode === 'classic' && (
-            <canvas 
-              ref={canvasRef}
-              className="absolute inset-0 w-full h-full sacred-geometry-canvas rounded-lg"
-              style={{ opacity: 0.9 }}
-            />
-          )}
-          
-          {visualizerMode === 'prime' && (expanded || fullscreen) && (
-            <div className="absolute inset-0 w-full h-full">
-              <PrimeAudioVisualizer 
-                audioContext={audioContext} 
-                analyser={analyser} 
-                isPlaying={isPlaying}
-                colorMode={liftTheVeil ? 'veil-lifted' : 'standard'}
-                visualMode="prime"
-                layout={fullscreen ? 'radial' : 'vertical'}
-                onPrimeDetected={handlePrimeDetected}
-              />
-            </div>
-          )}
-          
-          {visualizerMode === 'sacred-geometry' && (expanded || fullscreen) && (
-            <div className="absolute inset-0 w-full h-full">
-              <SacredGeometryVisualizer
-                defaultShape={currentGeometry}
-                size={fullscreen ? 'xl' : 'lg'}
-                showControls={false}
-                isAudioReactive={true}
-                audioContext={audioContext}
-                analyser={analyser}
-                isVisible={true}
-                chakra={currentTrack?.customData?.chakra}
-                frequency={currentTrack?.customData?.frequency}
-                expandable={false}
-              />
-            </div>
-          )}
-        </div>
-        
-        <div className="relative z-[1001] flex flex-col p-2 h-full">
-          {(expanded || fullscreen) && (
-            <div className="flex justify-between items-center mb-2">
-              <div className="text-white text-xs truncate max-w-[200px]">
-                {currentTrack?.title || 'Sacred Audio'}
-                {currentTrack?.artist && <span className="opacity-70"> • {currentTrack.artist}</span>}
+    <>
+      {controlsExpanded && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          className={`fixed ${fullscreen ? 'inset-x-0 top-0' : 'right-4 bottom-[280px]'} 
+            bg-black/90 backdrop-blur-md rounded-t-xl p-4 z-[1003] mx-auto
+            ${fullscreen ? 'w-full' : 'w-[350px]'}`}
+        >
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-white text-sm font-medium">Visualization Controls</h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setControlsExpanded(false)}
+              className="text-white/70 hover:text-white"
+            >
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <div className="text-xs font-semibold text-white/90 mb-2">Visualizer Mode</div>
+              <div className="grid grid-cols-3 gap-2">
+                {modeOptions.map(mode => (
+                  <button
+                    key={mode.value}
+                    className={`text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2
+                      ${visualizerMode === mode.value 
+                        ? 'bg-purple-600 text-white' 
+                        : 'bg-black/50 text-white/70 hover:bg-purple-800/50'}`}
+                    onClick={() => changeVisualizerMode(mode.value as VisualizerMode)}
+                  >
+                    {mode.icon} {mode.label}
+                  </button>
+                ))}
               </div>
-              <div className="flex gap-1">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <motion.button
-                      whileTap={{ scale: 0.9 }}
-                      className="p-1 text-white/70 hover:text-white relative"
-                      title="Customize Visualizer"
+            </div>
+
+            {visualizerMode === 'sacred-geometry' && (
+              <div>
+                <div className="text-xs font-semibold text-white/90 mb-2">Geometric Pattern</div>
+                <div className="grid grid-cols-2 gap-2">
+                  {geometryOptions.map(pattern => (
+                    <button
+                      key={pattern.value}
+                      className={`text-xs px-3 py-2 rounded-lg
+                        ${currentGeometry === pattern.value 
+                          ? 'bg-purple-600 text-white' 
+                          : 'bg-black/50 text-white/70 hover:bg-purple-800/50'}`}
+                      onClick={() => changeGeometricPattern(pattern.value as GeometryShape)}
                     >
-                      <Palette size={16} />
-                    </motion.button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent 
-                    align="end" 
-                    className="bg-black/90 backdrop-blur-md border-white/10 z-[1002] w-72 shadow-xl"
+                      {pattern.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div>
+              <div className="text-xs font-semibold text-white/90 mb-2">Color Scheme</div>
+              <div className="grid grid-cols-3 gap-2">
+                {colorOptions.map(color => (
+                  <button
+                    key={color.value}
+                    className={`text-xs px-3 py-2 rounded-lg
+                      ${colorScheme === color.value 
+                        ? 'bg-purple-600 text-white' 
+                        : 'bg-black/50 text-white/70 hover:bg-purple-800/50'}`}
+                    onClick={() => changeColorScheme(color.value as ColorScheme)}
                   >
-                    <div className="p-2">
-                      <div className="text-xs font-semibold mb-1">Visualizer Mode</div>
-                      <div className="grid grid-cols-3 gap-1 mb-2">
-                        {modeOptions.map(mode => (
-                          <button
-                            key={mode.value}
-                            className={`text-xs px-2 py-1 rounded ${
-                              visualizerMode === mode.value ? 'bg-purple-600' : 'bg-black/50 hover:bg-purple-800/50'
-                            }`}
-                            onClick={() => changeVisualizerMode(mode.value as VisualizerMode)}
-                          >
-                            {mode.label}
-                          </button>
-                        ))}
-                      </div>
-                      
-                      {visualizerMode === 'sacred-geometry' && (
-                        <>
-                          <div className="text-xs font-semibold mb-1">Geometric Pattern</div>
-                          <div className="grid grid-cols-2 gap-1 mb-2">
-                            {geometryOptions.map(pattern => (
-                              <button
-                                key={pattern.value}
-                                className={`text-xs px-2 py-1 rounded ${
-                                  currentGeometry === pattern.value ? 'bg-purple-600' : 'bg-black/50 hover:bg-purple-800/50'
-                                }`}
-                                onClick={() => changeGeometricPattern(pattern.value as GeometryShape)}
-                              >
-                                {pattern.label}
-                              </button>
-                            ))}
-                          </div>
-                        </>
-                      )}
-                      
-                      <div className="text-xs font-semibold mb-1">Color Scheme</div>
-                      <div className="grid grid-cols-3 gap-1">
-                        {colorOptions.map(color => (
-                          <button
-                            key={color.value}
-                            className={`text-xs px-2 py-1 rounded ${
-                              colorScheme === color.value ? 'bg-purple-600' : 'bg-black/50 hover:bg-purple-800/50'
-                            }`}
-                            onClick={() => changeColorScheme(color.value as ColorScheme)}
-                          >
-                            {color.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                
-                {fullscreen ? (
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    onClick={toggleFullscreen}
-                    className="p-1 text-white/70 hover:text-white"
-                  >
-                    <Minimize2 size={16} />
-                  </motion.button>
-                ) : (
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    onClick={toggleFullscreen}
-                    className="p-1 text-white/70 hover:text-white"
-                  >
-                    <Maximize size={16} />
-                  </motion.button>
-                )}
-                {!fullscreen && (
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    onClick={toggleExpanded}
-                    className="p-1 text-white/70 hover:text-white"
-                  >
-                    {expanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-                  </motion.button>
-                )}
+                    {color.label}
+                  </button>
+                ))}
               </div>
             </div>
-          )}
-          
-          {(expanded || fullscreen) && (
-            <div 
-              className="w-full h-2 bg-white/20 rounded-full cursor-pointer mb-3"
-              onClick={handleSeek}
-            >
-              <div 
-                className="h-full bg-white/70 rounded-full"
-                style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
+          </div>
+        </motion.div>
+      )}
+
+      <motion.div 
+        ref={containerRef}
+        className={cn(
+          `fixed z-[1000] rounded-xl overflow-visible sacred-audio-player 
+          ${isPlaying ? 'is-playing' : ''} ${liftTheVeil ? 'veil-lifted' : ''}`,
+          fullscreen ? 'inset-0 rounded-none' : isJourneyPlayerRoute ? 'bottom-4 left-1/2 -translate-x-1/2' : 'bottom-4 right-4'
+        )}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        style={{ 
+          backgroundColor: fullscreen ? 'black' : 'rgba(0, 0, 0, 0.75)',
+          boxShadow: `0 0 20px ${liftTheVeil ? 'rgba(255, 105, 180, 0.7)' : 'rgba(139, 92, 246, 0.7)'}`,
+          width: fullscreen ? '100%' : expanded ? '350px' : '180px',
+          height: fullscreen ? '100%' : expanded ? '250px' : '80px',
+          transition: 'width 0.3s ease, height 0.3s ease, left 0.3s ease, right 0.3s ease'
+        }}
+      >
+        <div className="relative w-full h-full">
+          <div className="absolute inset-0 w-full h-full">
+            {visualizerMode === 'classic' && (
+              <canvas 
+                ref={canvasRef}
+                className="absolute inset-0 w-full h-full sacred-geometry-canvas rounded-lg"
+                style={{ opacity: 0.9 }}
               />
-            </div>
-          )}
-          
-          {(expanded || fullscreen) && detectedPrimes.length > 0 && (
-            <div className="flex gap-1 flex-wrap mb-2 max-w-full">
-              {detectedPrimes.slice(0, 5).map(prime => (
-                <span 
-                  key={prime}
-                  className={`text-xs px-1.5 py-0.5 rounded-full ${
-                    activePrime === prime 
-                      ? liftTheVeil ? 'bg-pink-500 text-white' : 'bg-purple-500 text-white'
-                      : liftTheVeil ? 'bg-pink-500/20 text-pink-200' : 'bg-purple-500/20 text-purple-200'
-                  }`}
-                >
-                  {prime}
-                </span>
-              ))}
-              {detectedPrimes.length > 5 && (
-                <span className="text-xs px-1.5 py-0.5 rounded-full bg-white/10 text-white/70">
-                  +{detectedPrimes.length - 5}
-                </span>
-              )}
-            </div>
-          )}
-          
-          {(expanded || fullscreen) && audioData && (
-            <div className="w-full h-16 mb-2">
-              <FrequencyEqualizer 
-                frequencyData={audioData}
-                barCount={32}
-                chakraColor={currentTrack?.customData?.chakra || 'purple'}
-                isLiftedVeil={liftTheVeil}
-              />
-            </div>
-          )}
-          
-          <div className={`flex ${expanded || fullscreen ? 'justify-between' : 'justify-center'} items-center h-${expanded || fullscreen ? 'auto' : 'full'}`}>
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={togglePlay}
-              className={`${expanded || fullscreen ? 'px-4 py-2' : 'px-3 py-1.5'} bg-white text-black rounded flex items-center gap-1 hover:bg-opacity-90`}
-            >
-              {isPlaying ? (
-                <>
-                  <Pause size={expanded || fullscreen ? 16 : 14} /> <span>{(expanded || fullscreen) ? 'Pause' : ''}</span>
-                </>
-              ) : (
-                <>
-                  <Play size={expanded || fullscreen ? 16 : 14} /> <span>{(expanded || fullscreen) ? 'Play' : ''}</span>
-                </>
-              )}
-            </motion.button>
+            )}
             
-            <div className="text-white text-xs">
-              {formatTime(currentTime)} / {formatTime(duration || 0)}
-            </div>
+            {visualizerMode === 'prime' && (expanded || fullscreen) && (
+              <div className="absolute inset-0 w-full h-full">
+                <PrimeAudioVisualizer 
+                  audioContext={audioContext} 
+                  analyser={analyser} 
+                  isPlaying={isPlaying}
+                  colorMode={liftTheVeil ? 'veil-lifted' : 'standard'}
+                  visualMode="prime"
+                  layout={fullscreen ? 'radial' : 'vertical'}
+                  onPrimeDetected={handlePrimeDetected}
+                />
+              </div>
+            )}
             
-            <div className="relative flex items-center">
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={toggleMute}
-                className="p-1 text-white"
-                onMouseEnter={() => setShowVolume(true)}
-              >
-                {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-              </motion.button>
-              
-              {showVolume && (
-                <div 
-                  className="absolute bottom-full right-0 p-2 bg-black/80 rounded-lg mb-2"
-                  onMouseEnter={() => setShowVolume(true)}
-                  onMouseLeave={() => setShowVolume(false)}
-                >
-                  <Slider
-                    value={[volume * 100]}
-                    min={0}
-                    max={100}
-                    step={1}
-                    className="w-24"
-                    onValueChange={(value) => setVolume(value[0] / 100)}
-                  />
-                </div>
-              )}
-            </div>
-            
-            {!expanded && !fullscreen && (
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={toggleExpanded}
-                className="ml-2 p-1 text-white/70 hover:text-white"
-              >
-                <Maximize2 size={14} />
-              </motion.button>
+            {visualizerMode === 'sacred-geometry' && (expanded || fullscreen) && (
+              <div className="absolute inset-0 w-full h-full">
+                <SacredGeometryVisualizer
+                  defaultShape={currentGeometry}
+                  size={fullscreen ? 'xl' : 'lg'}
+                  showControls={false}
+                  isAudioReactive={true}
+                  audioContext={audioContext}
+                  analyser={analyser}
+                  isVisible={true}
+                  chakra={currentTrack?.customData?.chakra}
+                  frequency={currentTrack?.customData?.frequency}
+                  expandable={false}
+                />
+              </div>
             )}
           </div>
+          
+          <div className="relative z-[1001] flex flex-col p-2 h-full">
+            {(expanded || fullscreen) && (
+              <div className="flex justify-between items-center mb-2">
+                <div className="text-white text-xs truncate max-w-[200px]">
+                  {currentTrack?.title || 'Sacred Audio'}
+                  {currentTrack?.artist && <span className="opacity-70"> • {currentTrack.artist}</span>}
+                </div>
+                <div className="flex gap-1">
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setControlsExpanded(!controlsExpanded)}
+                    className="p-1 text-white/70 hover:text-white relative"
+                    title="Visualization Settings"
+                  >
+                    <Palette size={16} />
+                  </motion.button>
+                  
+                  {fullscreen ? (
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      onClick={toggleFullscreen}
+                      className="p-1 text-white/70 hover:text-white"
+                    >
+                      <Minimize2 size={16} />
+                    </motion.button>
+                  ) : (
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      onClick={toggleFullscreen}
+                      className="p-1 text-white/70 hover:text-white"
+                    >
+                      <Maximize size={16} />
+                    </motion.button>
+                  )}
+                  {!fullscreen && (
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      onClick={toggleExpanded}
+                      className="p-1 text-white/70 hover:text-white"
+                    >
+                      {expanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+                    </motion.button>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {(expanded || fullscreen) && (
+              <div 
+                className="w-full h-2 bg-white/20 rounded-full cursor-pointer mb-3"
+                onClick={handleSeek}
+              >
+                <div 
+                  className="h-full bg-white/70 rounded-full"
+                  style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
+                />
+              </div>
+            )}
+            
+            {(expanded || fullscreen) && detectedPrimes.length > 0 && (
+              <div className="flex gap-1 flex-wrap mb-2 max-w-full">
+                {detectedPrimes.slice(0, 5).map(prime => (
+                  <span 
+                    key={prime}
+                    className={`text-xs px-1.5 py-0.5 rounded-full ${
+                      activePrime === prime 
+                        ? liftTheVeil ? 'bg-pink-500 text-white' : 'bg-purple-500 text-white'
+                        : liftTheVeil ? 'bg-pink-500/20 text-pink-200' : 'bg-purple-500/20 text-purple-200'
+                    }`}
+                  >
+                    {prime}
+                  </span>
+                ))}
+                {detectedPrimes.length > 5 && (
+                  <span className="text-xs px-1.5 py-0.5 rounded-full bg-white/10 text-white/70">
+                    +{detectedPrimes.length - 5}
+                  </span>
+                )}
+              </div>
+            )}
+            
+            {(expanded || fullscreen) && audioData && (
+              <div className="w-full h-16 mb-2">
+                <FrequencyEqualizer 
+                  frequencyData={audioData}
+                  barCount={32}
+                  chakraColor={currentTrack?.customData?.chakra || 'purple'}
+                  isLiftedVeil={liftTheVeil}
+                />
+              </div>
+            )}
+            
+            <div className={`flex ${expanded || fullscreen ? 'justify-between' : 'justify-center'} items-center h-${expanded || fullscreen ? 'auto' : 'full'}`}>
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={togglePlay}
+                className={`${expanded || fullscreen ? 'px-4 py-2' : 'px-3 py-1.5'} bg-white text-black rounded flex items-center gap-1 hover:bg-opacity-90`}
+              >
+                {isPlaying ? (
+                  <>
+                    <Pause size={expanded || fullscreen ? 16 : 14} /> <span>{(expanded || fullscreen) ? 'Pause' : ''}</span>
+                  </>
+                ) : (
+                  <>
+                    <Play size={expanded || fullscreen ? 16 : 14} /> <span>{(expanded || fullscreen) ? 'Play' : ''}</span>
+                  </>
+                )}
+              </motion.button>
+              
+              <div className="text-white text-xs">
+                {formatTime(currentTime)} / {formatTime(duration || 0)}
+              </div>
+              
+              <div className="relative flex items-center">
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={toggleMute}
+                  className="p-1 text-white"
+                  onMouseEnter={() => setShowVolume(true)}
+                >
+                  {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                </motion.button>
+                
+                {showVolume && (
+                  <div 
+                    className="absolute bottom-full right-0 p-2 bg-black/80 rounded-lg mb-2"
+                    onMouseEnter={() => setShowVolume(true)}
+                    onMouseLeave={() => setShowVolume(false)}
+                  >
+                    <Slider
+                      value={[volume * 100]}
+                      min={0}
+                      max={100}
+                      step={1}
+                      className="w-24"
+                      onValueChange={(value) => setVolume(value[0] / 100)}
+                    />
+                  </div>
+                )}
+              </div>
+              
+              {!expanded && !fullscreen && (
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={toggleExpanded}
+                  className="ml-2 p-1 text-white/70 hover:text-white"
+                >
+                  <Maximize2 size={14} />
+                </motion.button>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </>
   );
 };
 

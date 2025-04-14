@@ -113,9 +113,10 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
       frameIdRef.current = requestAnimationFrame(animate);
       
       const delta = clockRef.current.getDelta();
+      const time = clockRef.current.getElapsedTime();
       
       if (isExpanding) {
-        const progressDelta = delta * (0.5 + fractalProgress * 0.5);
+        const progressDelta = delta * (0.3 + fractalProgress * 0.4);
         setFractalProgress(prev => {
           const newProgress = prev + progressDelta;
           if (newProgress >= 1) {
@@ -125,29 +126,44 @@ const SacredVisualizer: React.FC<SacredVisualizerProps> = ({
           return newProgress;
         });
         
-        const easeOutCubic = 1 - Math.pow(1 - fractalProgress, 3);
-        const scale = 0.01 + easeOutCubic * 0.99;
+        const easeOutElastic = (x: number): number => {
+          const c4 = (2 * Math.PI) / 3;
+          return x === 0 ? 0 : x === 1 ? 1
+            : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1;
+        };
+        
+        const scale = 0.01 + easeOutElastic(fractalProgress) * 0.99;
         shapeRef.current.scale.set(scale, scale, scale);
         
-        shapeRef.current.rotation.x += delta * 0.2;
-        shapeRef.current.rotation.y += delta * 0.3;
+        shapeRef.current.rotation.x += delta * Math.sin(time * 3) * 0.3;
+        shapeRef.current.rotation.y += delta * Math.cos(time * 2) * 0.4;
         
         if (cameraRef.current) {
-          cameraRef.current.position.z = 5 - (easeOutCubic * 1.5);
+          cameraRef.current.position.z = 5 - (easeOutElastic(fractalProgress) * 1.5);
         }
       } else {
-        shapeRef.current.rotation.x += 0.005;
-        shapeRef.current.rotation.y += 0.005;
+        const pulseAmount = Math.sin(time * 2) * 0.1;
+        const baseScale = 1 + pulseAmount;
         
         if (isAudioReactive && audioData.length > 0) {
           const averageAmplitude = audioData.reduce((sum, val) => sum + val, 0) / audioData.length;
-          const scaleFactor = 1 + (averageAmplitude * 0.3 * (sensitivity || 1));
-          shapeRef.current.scale.set(scaleFactor, scaleFactor, scaleFactor);
+          const reactivePulse = averageAmplitude * 0.3 * (sensitivity || 1);
+          const finalScale = baseScale + reactivePulse;
+          shapeRef.current.scale.set(finalScale, finalScale, finalScale);
+          
+          shapeRef.current.rotation.x += 0.002 + (averageAmplitude * 0.01);
+          shapeRef.current.rotation.y += 0.002 + (averageAmplitude * 0.01);
+        } else {
+          shapeRef.current.scale.set(baseScale, baseScale, baseScale);
+          shapeRef.current.rotation.x += 0.002;
+          shapeRef.current.rotation.y += 0.002;
         }
+        
+        shapeRef.current.position.y = Math.sin(time) * 0.1;
+        shapeRef.current.position.x = Math.cos(time * 0.8) * 0.1;
       }
       
       if (shapeRef.current) {
-        const time = clockRef.current.getElapsedTime();
         const primePulse = (
           Math.sin(time * 2) * 0.02 +
           Math.sin(time * 3) * 0.015 +
