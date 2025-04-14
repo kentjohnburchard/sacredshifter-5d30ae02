@@ -1,6 +1,5 @@
 
 import React from "react";
-import Navbar from "@/components/navigation/Navbar";
 import Footer from "@/components/navigation/Footer";
 import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
 import { useGlobalAudioPlayer } from "@/hooks/useGlobalAudioPlayer";
@@ -19,8 +18,7 @@ const Layout: React.FC<LayoutProps> = ({ children, pageTitle, theme, useBlueWave
   
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-purple-50">
-      <Navbar />
-      <div className="flex flex-grow pt-16">
+      <div className="flex flex-grow">
         <Sidebar />
         <main className="flex-grow ml-0 sm:ml-20">{children}</main>
       </div>
