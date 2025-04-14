@@ -26,7 +26,7 @@ interface AudioInfo {
 export function useGlobalAudioPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<AudioInfo | null>(null);
-  const { setAudioSource, togglePlayPause } = useAudioPlayer();
+  const { setAudioSource, togglePlayPause: audioPlayerTogglePlayPause } = useAudioPlayer();
 
   /**
    * Play audio with the provided information
@@ -54,11 +54,15 @@ export function useGlobalAudioPlayer() {
    * Toggle play/pause state of the current audio
    */
   const togglePlayPause = useCallback(() => {
+    // Call the underlying audio player's toggle function
+    audioPlayerTogglePlayPause();
+    
+    // The state will be updated via the event listener, but this makes the UI more responsive
     setIsPlaying(prev => !prev);
     
     const event = new CustomEvent('togglePlayPause');
     window.dispatchEvent(event);
-  }, []);
+  }, [audioPlayerTogglePlayPause]);
 
   /**
    * Set a callback to be run when audio finishes playing

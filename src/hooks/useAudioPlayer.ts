@@ -24,11 +24,13 @@ export function useAudioPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioSourceRef = useRef<string | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
   
   // Initialize the audio element and audio context
   useEffect(() => {
     // Create audio element if it doesn't exist
     if (!audioRef.current) {
+      console.log("Initializing audio element");
       const audioElement = document.querySelector('audio#global-audio-player') as HTMLAudioElement || document.createElement('audio');
       audioElement.id = 'global-audio-player';
       audioElement.style.display = 'none';
@@ -43,6 +45,7 @@ export function useAudioPlayer() {
     
     // Initialize the AudioContext
     if (!audioContextRef.current) {
+      console.log("Initializing audio context");
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
       if (AudioContext) {
         audioContextRef.current = new AudioContext();
@@ -65,12 +68,14 @@ export function useAudioPlayer() {
     };
     
     const handleLoadedMetadata = () => {
+      console.log("Audio loaded, duration:", audio.duration);
       setDuration(audio.duration);
       setAudioLoaded(true);
       setAudioError(null);
     };
     
     const handlePlay = () => {
+      console.log("Audio play event detected");
       setIsAudioPlaying(true);
       
       // Notify any listeners about the state change
@@ -81,6 +86,7 @@ export function useAudioPlayer() {
     };
     
     const handlePause = () => {
+      console.log("Audio pause event detected");
       setIsAudioPlaying(false);
       
       // Notify any listeners about the state change
@@ -163,6 +169,8 @@ export function useAudioPlayer() {
   const setAudioSource = (source: string) => {
     if (!audioRef.current) return;
     
+    console.log("Setting audio source to:", source);
+    
     // Only change the source if it's different from current
     if (audioSourceRef.current !== source) {
       audioSourceRef.current = source;
@@ -177,6 +185,8 @@ export function useAudioPlayer() {
   const togglePlayPause = () => {
     if (!audioRef.current) return;
     
+    console.log("Toggle play/pause called, current state:", isAudioPlaying);
+    
     if (isAudioPlaying) {
       audioRef.current.pause();
     } else {
@@ -185,7 +195,11 @@ export function useAudioPlayer() {
         // Set volume to ensure it's audible
         audioRef.current.volume = 0.7;
         
+        console.log("Attempting to play audio...");
         audioRef.current.play()
+          .then(() => {
+            console.log("Audio playback started successfully");
+          })
           .catch(error => {
             console.error("Error playing audio:", error);
             setAudioError("Failed to play audio");

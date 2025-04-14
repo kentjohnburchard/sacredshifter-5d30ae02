@@ -31,30 +31,52 @@ const SacredAudioPlayer: React.FC = () => {
   const { liftTheVeil } = useTheme();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const audioSourceConnectedRef = useRef<boolean>(false);
 
+  // Set up audio analyzer only once when the audio context is available
   useEffect(() => {
-    if (!audioContext || !audioRef.current) return;
-    const source = audioContext.createMediaElementSource(audioRef.current);
-    const analyserNode = audioContext.createAnalyser();
-    analyserNode.fftSize = 256;
-    source.connect(analyserNode);
-    analyserNode.connect(audioContext.destination);
-    setAnalyser(analyserNode);
-  }, [audioContext]);
+    if (!audioContext || !audioRef.current || audioSourceConnectedRef.current) return;
 
+    try {
+      console.log("Setting up audio analyzer");
+      const analyserNode = audioContext.createAnalyser();
+      analyserNode.fftSize = 256;
+      
+      // Create media element source only if not already connected
+      const source = audioContext.createMediaElementSource(audioRef.current);
+      source.connect(analyserNode);
+      analyserNode.connect(audioContext.destination);
+      
+      analyserRef.current = analyserNode;
+      audioSourceConnectedRef.current = true;
+    } catch (error) {
+      console.error("Error setting up audio analyzer:", error);
+    }
+  }, [audioContext, audioRef]);
+
+  // Animation loop for the canvas
   useEffect(() => {
+    const analyser = analyserRef.current;
     if (!analyser || !canvasRef.current) return;
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
 
     const draw = () => {
-      requestAnimationFrame(draw);
+      const animationId = requestAnimationFrame(draw);
+      
+      // If component is unmounted or hidden, stop the animation
+      if (!canvas.isConnected) {
+        cancelAnimationFrame(animationId);
+        return;
+      }
+      
       analyser.getByteFrequencyData(dataArray);
-      if (!ctx) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const centerX = canvas.width / 2;
@@ -85,16 +107,20 @@ const SacredAudioPlayer: React.FC = () => {
             ? '#FF69B4AA'
             : '#A855F7AA'
           : liftTheVeil
-          ? `hsl(${(i * 12) % 360}, 100%, 70%)`
-          : '#ffffff22';
+          ? `hsla(${(i * 12) % 360}, 100%, 70%, 0.7)`
+          : 'rgba(255, 255, 255, 0.14)';
         ctx.fill();
       }
 
       ctx.restore();
     };
 
-    draw();
-  }, [analyser, liftTheVeil]);
+    const animationId = requestAnimationFrame(draw);
+    
+    return () => {
+      cancelAnimationFrame(animationId);
+    };
+  }, [analyserRef.current, liftTheVeil, audioContext]);
 
   return (
     <div
