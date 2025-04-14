@@ -88,7 +88,10 @@ const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({
   }
 
   return (
-    <div className="relative w-full h-full" style={{ overflow: 'hidden' }}>
+    <div 
+      className={`relative ${expanded ? 'fixed inset-0 z-50' : 'w-full h-full'}`} 
+      style={{ overflow: 'hidden' }}
+    >
       <SacredGeometryCanvas
         audioAnalyser={analyser}
         colorScheme={colorScheme}

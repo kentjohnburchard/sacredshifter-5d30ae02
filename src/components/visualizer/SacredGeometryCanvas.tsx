@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { useTheme } from '@/context/ThemeContext';
 
@@ -34,6 +33,8 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
   const [baseRotation, setBaseRotation] = useState<number>(0);
   const [scale, setScale] = useState<number>(1);
   const [lastPrimeDetectionTime, setLastPrimeDetectionTime] = useState<number>(0);
+  const [colorCycle, setColorCycle] = useState<number>(0);
+  const [timeElapsed, setTimeElapsed] = useState<number>(0);
   
   const primeCache = useRef<Record<number, boolean>>({});
   
@@ -53,30 +54,36 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
     if (chakra) {
       switch (chakra.toLowerCase()) {
         case 'root': 
-          return 'rgba(239, 68, 68, 0.9)';
+          return `rgba(239, 68, 68, ${0.7 + Math.sin(timeElapsed * 0.001) * 0.2})`;
         case 'sacral': 
-          return 'rgba(249, 115, 22, 0.9)';
+          return `rgba(249, 115, 22, ${0.7 + Math.sin(timeElapsed * 0.001) * 0.2})`;
         case 'solar plexus': 
-          return 'rgba(234, 179, 8, 0.9)';
+          return `rgba(234, 179, 8, ${0.7 + Math.sin(timeElapsed * 0.001) * 0.2})`;
         case 'heart': 
-          return 'rgba(16, 185, 129, 0.9)';
+          return `rgba(16, 185, 129, ${0.7 + Math.sin(timeElapsed * 0.001) * 0.2})`;
         case 'throat': 
-          return 'rgba(14, 165, 233, 0.9)';
+          return `rgba(14, 165, 233, ${0.7 + Math.sin(timeElapsed * 0.001) * 0.2})`;
         case 'third eye': 
-          return 'rgba(124, 58, 237, 0.9)';
+          return `rgba(124, 58, 237, ${0.7 + Math.sin(timeElapsed * 0.001) * 0.2})`;
         case 'crown': 
-          return 'rgba(139, 92, 246, 0.9)';
+          return `rgba(139, 92, 246, ${0.7 + Math.sin(timeElapsed * 0.001) * 0.2})`;
         default: 
-          return 'rgba(139, 92, 246, 0.9)';
+          return `rgba(139, 92, 246, ${0.7 + Math.sin(timeElapsed * 0.001) * 0.2})`;
       }
     }
     
     switch (colorScheme) {
-      case 'purple': return 'rgba(139, 92, 246, 0.9)';
-      case 'blue': return 'rgba(14, 165, 233, 0.9)';
-      case 'rainbow': return 'rgba(255, 0, 0, 0.9)';
-      case 'gold': return 'rgba(234, 179, 8, 0.9)';
-      default: return 'rgba(139, 92, 246, 0.9)';
+      case 'purple': 
+        return `rgba(139, 92, 246, ${0.7 + Math.sin(timeElapsed * 0.001) * 0.2})`;
+      case 'blue': 
+        return `rgba(14, 165, 233, ${0.7 + Math.sin(timeElapsed * 0.001) * 0.2})`;
+      case 'rainbow': 
+        const hue = (colorCycle % 360);
+        return `hsla(${hue}, 90%, 60%, 0.9)`;
+      case 'gold': 
+        return `rgba(234, 179, 8, ${0.7 + Math.sin(timeElapsed * 0.001) * 0.2})`;
+      default: 
+        return `rgba(139, 92, 246, ${0.7 + Math.sin(timeElapsed * 0.001) * 0.2})`;
     }
   };
   
@@ -105,9 +112,43 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
     switch (colorScheme) {
       case 'purple': return 'rgba(192, 132, 252, 1)';
       case 'blue': return 'rgba(59, 206, 255, 1)';
-      case 'rainbow': return 'rgba(255, 255, 255, 1)';
+      case 'rainbow': 
+        const hue = ((colorCycle + 180) % 360);
+        return `hsla(${hue}, 100%, 70%, 1)`;
       case 'gold': return 'rgba(255, 223, 0, 1)';
       default: return 'rgba(192, 132, 252, 1)';
+    }
+  };
+
+  const getFrequencyColor = (binIndex: number, totalBins: number, intensity: number): string => {
+    if (colorScheme === 'rainbow') {
+      const hue = (binIndex / totalBins) * 360;
+      return `hsla(${hue}, 90%, ${60 + intensity * 30}%, ${0.6 + intensity * 0.4})`;
+    }
+    
+    if (chakra) {
+      const chakraColors: Record<string, string> = {
+        'root': `rgba(239, ${68 + intensity * 40}, ${68 + intensity * 20}, ${0.6 + intensity * 0.4})`,
+        'sacral': `rgba(249, ${115 + intensity * 40}, ${22 + intensity * 20}, ${0.6 + intensity * 0.4})`,
+        'solar plexus': `rgba(234, ${179 + intensity * 20}, ${8 + intensity * 40}, ${0.6 + intensity * 0.4})`,
+        'heart': `rgba(${16 + intensity * 20}, ${185 + intensity * 20}, ${129 + intensity * 20}, ${0.6 + intensity * 0.4})`,
+        'throat': `rgba(${14 + intensity * 20}, ${165 + intensity * 20}, 233, ${0.6 + intensity * 0.4})`,
+        'third eye': `rgba(${124 + intensity * 40}, ${58 + intensity * 20}, 237, ${0.6 + intensity * 0.4})`,
+        'crown': `rgba(${139 + intensity * 40}, ${92 + intensity * 20}, 246, ${0.6 + intensity * 0.4})`,
+      };
+      
+      return chakraColors[chakra.toLowerCase()] || `rgba(139, ${92 + intensity * 40}, 246, ${0.6 + intensity * 0.4})`;
+    }
+    
+    switch (colorScheme) {
+      case 'purple': 
+        return `rgba(${139 + intensity * 40}, ${92 + intensity * 20}, 246, ${0.6 + intensity * 0.4})`;
+      case 'blue': 
+        return `rgba(${14 + intensity * 20}, ${165 + intensity * 20}, 233, ${0.6 + intensity * 0.4})`;
+      case 'gold': 
+        return `rgba(234, ${179 + intensity * 20}, ${8 + intensity * 40}, ${0.6 + intensity * 0.4})`;
+      default:
+        return `rgba(${139 + intensity * 40}, ${92 + intensity * 20}, 246, ${0.6 + intensity * 0.4})`;
     }
   };
 
@@ -179,6 +220,9 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
     frequencyData: Uint8Array | null,
     time: number
   ) => {
+    setTimeElapsed(time);
+    setColorCycle(prev => (prev + 0.2) % 360);
+    
     const centerX = width / 2;
     const centerY = height / 2;
     
@@ -196,6 +240,40 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
     let maxEnergy = 0;
     
     if (frequencyData && frequencyData.length > 0) {
+      const barWidth = width / Math.min(64, frequencyData.length);
+      const barMargin = 2;
+      const maxBarHeight = height * 0.15;
+      const barBaseline = height * 0.95;
+      
+      for (let i = 0; i < Math.min(64, frequencyData.length); i++) {
+        const normalized = frequencyData[i] / 255;
+        const barHeight = normalized * maxBarHeight;
+        
+        if (barHeight > 2) {
+          const intensity = normalized;
+          ctx.fillStyle = getFrequencyColor(i, Math.min(64, frequencyData.length), intensity);
+          
+          ctx.fillRect(
+            i * barWidth + barMargin/2, 
+            barBaseline - barHeight, 
+            barWidth - barMargin, 
+            barHeight
+          );
+          
+          if (normalized > 0.5) {
+            ctx.shadowColor = getHighlightColor();
+            ctx.shadowBlur = normalized * 10;
+            ctx.fillRect(
+              i * barWidth + barMargin/2, 
+              barBaseline - barHeight, 
+              barWidth - barMargin, 
+              barHeight
+            );
+            ctx.shadowBlur = 0;
+          }
+        }
+      }
+
       for (let i = 0; i < frequencyData.length; i++) {
         const normalized = frequencyData[i] / 255;
         
@@ -298,7 +376,7 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
     updateAndDrawParticles(ctx);
     
     if (dominantFrequency) {
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = getHighlightColor();
       ctx.font = '12px Arial';
       ctx.textAlign = 'left';
       ctx.fillText(`${dominantFrequency}Hz`, 20, 30);
@@ -643,20 +721,19 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       
       const dpr = window.devicePixelRatio || 1;
       
-      // When expanded, use window dimensions instead of container dimensions
-      let rect;
+      let width, height;
       if (expanded) {
-        rect = {
-          width: window.innerWidth,
-          height: window.innerHeight
-        };
+        width = window.innerWidth;
+        height = window.innerHeight;
       } else {
-        rect = canvas.getBoundingClientRect();
+        const rect = canvas.getBoundingClientRect();
+        width = rect.width;
+        height = rect.height;
       }
       
-      if (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
-        canvas.width = rect.width * dpr;
-        canvas.height = rect.height * dpr;
+      if (canvas.width !== width * dpr || canvas.height !== height * dpr) {
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
         ctx.scale(dpr, dpr);
       }
       
@@ -664,25 +741,43 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
         audioAnalyser.getByteFrequencyData(frequencyData);
       }
       
-      drawSacredGeometry(ctx, rect.width, rect.height, frequencyData, time);
+      drawSacredGeometry(ctx, width, height, frequencyData, time);
       
       animationRef.current = requestAnimationFrame(animate);
     };
     
     animationRef.current = requestAnimationFrame(animate);
     
+    const handleResize = () => {
+      if (!canvas || !ctx) return;
+      
+      const dpr = window.devicePixelRatio || 1;
+      const width = expanded ? window.innerWidth : canvas.clientWidth;
+      const height = expanded ? window.innerHeight : canvas.clientHeight;
+      
+      if (canvas.width !== width * dpr || canvas.height !== height * dpr) {
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        ctx.scale(dpr, dpr);
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
         animationRef.current = null;
       }
+      window.removeEventListener('resize', handleResize);
     };
   }, [audioAnalyser, colorScheme, chakra, liftTheVeil, expanded]);
 
   return (
     <canvas 
       ref={canvasRef}
-      className={`w-full h-full ${expanded ? 'fixed inset-0 z-50' : 'absolute inset-0'}`}
+      className={`w-full h-full ${expanded ? 'fixed inset-0 z-50' : ''}`}
       style={{
         position: expanded ? 'fixed' : 'absolute',
         top: 0,
