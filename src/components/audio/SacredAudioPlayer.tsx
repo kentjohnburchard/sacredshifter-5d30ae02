@@ -12,6 +12,7 @@ import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import SacredGeometryVisualizer from '../sacred-geometry/SacredGeometryVisualizer';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from '@/components/ui/dropdown-menu';
+import FrequencyEqualizer from '../visualizer/FrequencyEqualizer';
 
 type GeometryShape = 'flower-of-life' | 'seed-of-life' | 'metatrons-cube' | 
                      'merkaba' | 'torus' | 'tree-of-life' | 'sri-yantra' | 
@@ -56,6 +57,18 @@ const SacredAudioPlayer: React.FC = () => {
   const [activePrime, setActivePrime] = useState<number | null>(null);
   
   const location = useLocation();
+
+  const changeVisualizerMode = (mode: VisualizerMode) => {
+    setVisualizerMode(mode);
+  };
+
+  const changeGeometricPattern = (pattern: GeometryShape) => {
+    setCurrentGeometry(pattern);
+  };
+
+  const changeColorScheme = (scheme: ColorScheme) => {
+    setColorScheme(scheme);
+  };
   
   const chakraColors = {
     root: '#FF0000',
@@ -576,6 +589,17 @@ const SacredAudioPlayer: React.FC = () => {
                   +{detectedPrimes.length - 5}
                 </span>
               )}
+            </div>
+          )}
+          
+          {(expanded || fullscreen) && audioData && (
+            <div className="w-full h-16 mb-2">
+              <FrequencyEqualizer 
+                frequencyData={audioData}
+                barCount={32}
+                chakraColor={currentTrack?.customData?.chakra || 'purple'}
+                isLiftedVeil={liftTheVeil}
+              />
             </div>
           )}
           
