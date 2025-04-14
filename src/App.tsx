@@ -37,6 +37,7 @@ import Journeys from '@/pages/Journeys';
 import PrimeHistory from '@/pages/PrimeHistory';
 import Intentions from '@/pages/Intentions';
 import { Toaster } from 'sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import OriginFlow from '@/components/sacred-geometry/OriginFlow';
 import ThemeEnhancer from '@/components/ThemeEnhancer';
 
@@ -44,10 +45,10 @@ function App() {
   return (
     <ThemeProvider>
       <EasterEggProvider>
-        <Toaster />
-        <OriginFlow />
-        <ThemeEnhancer />
-        <React.StrictMode>
+        <TooltipProvider>
+          <Toaster />
+          <OriginFlow />
+          <ThemeEnhancer />
           <Routes>
             <Route path="/" element={<SacredShifterHome />} />
             <Route path="/home" element={<SacredShifterHome />} />
@@ -86,7 +87,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/personal-vibe" element={<PersonalVibeSettings />} />
           </Routes>
-        </React.StrictMode>
+        </TooltipProvider>
       </EasterEggProvider>
     </ThemeProvider>
   );

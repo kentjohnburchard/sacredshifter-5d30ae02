@@ -6,7 +6,6 @@ import { useLocation } from 'react-router-dom';
 import GlobalWatermark from './GlobalWatermark';
 import { AnimatedBackground } from '@/components/sacred-geometry';
 import { useTheme } from '@/context/ThemeContext';
-import { cn } from '@/lib/utils';
 import ConsciousnessToggle from './ConsciousnessToggle';
 import CosmicFooter from './sacred-geometry/CosmicFooter';
 import { TooltipProvider } from '@/components/ui/tooltip';

@@ -1,166 +1,83 @@
 
-import React, { useState, useRef } from "react";
-import { createTone } from "@/utils/audioUtils";
-import { HarmonicInterval } from "@/data/harmonicSequence";
-import { Button } from "../ui/button";
-import { Play, Pause, Volume2, VolumeX } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { Button } from '../ui/button';
+import { Slider } from '../ui/slider';
+import { createTone } from '@/utils/createTone';
 
 interface HarmonicIntervalTonePlayerProps {
-  interval: HarmonicInterval;
-  autoplay?: boolean;
+  baseFrequency: number;
+  ratio: string;
+  intervalName: string;
+  color: string;
 }
 
 const HarmonicIntervalTonePlayer: React.FC<HarmonicIntervalTonePlayerProps> = ({ 
-  interval, 
-  autoplay = false 
+  baseFrequency, 
+  ratio, 
+  intervalName, 
+  color 
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
-  const gainNodeRef = useRef<GainNode | null>(null);
+  const [volume, setVolume] = useState(0.5);
   
-  // Initialize or get audio context
-  const getAudioContext = () => {
-    if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-    }
-    return audioContextRef.current;
-  };
+  // Parse the ratio (e.g. "3:2") to calculate the frequency
+  const [numerator, denominator] = ratio.split(':').map(Number);
+  const frequency = baseFrequency * (numerator / denominator);
 
-  // Generate tone for the harmonic interval frequency
-  const generateTone = () => {
-    try {
-      const audioContext = getAudioContext();
-      if (audioContext.state === "suspended") {
-        audioContext.resume();
-      }
-      
-      // Create a gain node for volume control
-      const gainNode = audioContext.createGain();
-      gainNode.gain.value = isMuted ? 0 : 0.3; // Default volume
-      gainNode.connect(audioContext.destination);
-      gainNodeRef.current = gainNode;
-      
-      // Get the frequency value from the interval
-      const frequency = interval.hertz as number;
-      
-      // Generate the tone
-      const toneBuffer = createTone(audioContext, frequency, 60, 0.3);
-      
-      // Create and configure source node
-      const sourceNode = audioContext.createBufferSource();
-      sourceNode.buffer = toneBuffer;
-      sourceNode.loop = true;
-      sourceNode.connect(gainNode);
-      
-      // Store reference to control later
-      sourceNodeRef.current = sourceNode;
-      
-      return sourceNode;
-    } catch (error) {
-      console.error("Failed to generate tone:", error);
-      return null;
-    }
-  };
+  // Use the optimized tone generator utility
+  const [tone] = useState(() => createTone(frequency, volume));
 
-  const togglePlayPause = () => {
-    if (isPlaying) {
-      stopTone();
-    } else {
-      playTone();
-    }
-  };
-
-  const playTone = () => {
-    try {
-      stopTone(); // Stop any currently playing tone
-      
-      const sourceNode = generateTone();
-      if (sourceNode) {
-        sourceNode.start(0);
-        setIsPlaying(true);
-      }
-    } catch (error) {
-      console.error("Failed to play tone:", error);
-    }
-  };
-
-  const stopTone = () => {
-    if (sourceNodeRef.current) {
-      try {
-        sourceNodeRef.current.stop();
-        sourceNodeRef.current = null;
-        setIsPlaying(false);
-      } catch (error) {
-        console.error("Error stopping tone:", error);
-      }
-    }
-  };
-
-  const toggleMute = () => {
-    if (gainNodeRef.current) {
-      gainNodeRef.current.gain.value = isMuted ? 0.3 : 0;
-      setIsMuted(!isMuted);
-    }
-  };
-
-  // Clean up audio context when component unmounts
-  React.useEffect(() => {
+  useEffect(() => {
+    // Clean up on unmount
     return () => {
-      stopTone();
-      if (audioContextRef.current && audioContextRef.current.state !== "closed") {
-        audioContextRef.current.close().catch(console.error);
+      if (tone.isPlaying()) {
+        tone.stop();
       }
     };
-  }, []);
+  }, [tone]);
 
-  // Setup autoplay if enabled
-  React.useEffect(() => {
-    if (autoplay && !isPlaying) {
-      // Short delay to ensure component is fully mounted
-      const timer = setTimeout(() => {
-        playTone();
-      }, 300);
-      return () => clearTimeout(timer);
+  const handlePlay = () => {
+    if (isPlaying) {
+      tone.stop();
+      setIsPlaying(false);
+    } else {
+      tone.play();
+      setIsPlaying(true);
     }
-  }, [autoplay, isPlaying]);
+  };
+
+  const handleVolumeChange = (value: number[]) => {
+    const newVolume = value[0];
+    setVolume(newVolume);
+    tone.setVolume(newVolume);
+  };
 
   return (
-    <div className="flex items-center gap-2">
-      <Button 
-        onClick={togglePlayPause} 
-        variant="outline"
-        size="sm"
-        className={`rounded-full w-8 h-8 p-0 flex items-center justify-center ${
-          isPlaying ? `bg-${interval.color.replace('#', '')}` : 'bg-white/10'
-        }`}
-      >
-        {isPlaying ? (
-          <Pause className="h-4 w-4" />
-        ) : (
-          <Play className="h-4 w-4 ml-0.5" />
-        )}
-        <span className="sr-only">
-          {isPlaying ? "Pause" : "Play"} {interval.hertz} Hz
-        </span>
-      </Button>
-      
-      <Button
-        onClick={toggleMute}
-        variant="ghost"
-        size="sm"
-        className="rounded-full w-6 h-6 p-0"
-      >
-        {isMuted ? (
-          <VolumeX className="h-3 w-3" />
-        ) : (
-          <Volume2 className="h-3 w-3" />
-        )}
-        <span className="sr-only">
-          {isMuted ? "Unmute" : "Mute"}
-        </span>
-      </Button>
+    <div className="flex flex-col items-center p-3 bg-white/20 backdrop-blur-md rounded-lg">
+      <div className="flex items-center justify-between w-full mb-2">
+        <span className="text-sm font-medium">{intervalName} ({ratio}) - {Math.round(frequency)}Hz</span>
+        <div className="flex items-center">
+          <Slider 
+            value={[volume]} 
+            min={0} 
+            max={1} 
+            step={0.01} 
+            onValueChange={handleVolumeChange}
+            className="w-24 mr-2" 
+          />
+          <Button 
+            onClick={handlePlay} 
+            size="sm"
+            style={{ backgroundColor: color, color: "#fff" }}
+          >
+            {isPlaying ? 'Stop' : 'Play'}
+          </Button>
+        </div>
+      </div>
+      <div 
+        className="w-full h-1 rounded-full" 
+        style={{ backgroundColor: color }}
+      ></div>
     </div>
   );
 };

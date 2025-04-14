@@ -1,14 +1,14 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Music, Plus } from 'lucide-react';
+import { Heart, Music, Play, Pause, Plus } from 'lucide-react';
 import { JourneySong } from '@/types/journeySongs';
 import { formatDuration } from '@/utils/formatters';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
-import FrequencyPlayer from '@/components/FrequencyPlayer';
+import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 
 interface JourneySongListProps {
   journeyId: string;
@@ -25,20 +25,35 @@ const JourneySongList: React.FC<JourneySongListProps> = ({
   loading = false,
   onAddSongClick
 }) => {
-  const [currentSong, setCurrentSong] = useState<JourneySong | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentSongId, setCurrentSongId] = useState<string | null>(null);
   const { user } = useAuth();
+  const { playAudio, togglePlayPause, isPlaying, currentAudio } = useGlobalAudioPlayer();
+
+  // Track the currently playing song based on currentAudio from the global player
+  useEffect(() => {
+    if (currentAudio?.customData?.frequencyId) {
+      setCurrentSongId(currentAudio.customData.frequencyId);
+    }
+  }, [currentAudio]);
 
   const handlePlayPause = (song: JourneySong) => {
-    if (currentSong?.id === song.id) {
+    if (currentSongId === song.id && isPlaying) {
       // Toggle play/pause for current song
-      console.log("Toggling play state for current song:", song.title);
-      setIsPlaying(!isPlaying);
+      togglePlayPause();
     } else {
-      // Change to new song
-      console.log("Changing to new song:", song.title, "URL:", song.audioUrl);
-      setCurrentSong(song);
-      setIsPlaying(true);
+      // Change to new song or play current song that was paused
+      setCurrentSongId(song.id);
+      playAudio({
+        title: song.title,
+        artist: song.artist,
+        source: song.audioUrl,
+        imageUrl: song.imageUrl,
+        customData: {
+          frequency: song.frequency,
+          frequencyId: song.id,
+          groupId: journeyId
+        }
+      });
     }
   };
 
@@ -115,19 +130,25 @@ const JourneySongList: React.FC<JourneySongListProps> = ({
               <div 
                 key={song.id} 
                 className={`flex items-center justify-between p-3 rounded-md ${
-                  currentSong?.id === song.id 
+                  currentSongId === song.id 
                     ? "bg-purple-50" 
                     : "hover:bg-gray-50"
                 } transition-colors`}
               >
                 <div className="flex items-center">
                   <div className="mr-3">
-                    <FrequencyPlayer
-                      audioUrl={song.audioUrl}
-                      isPlaying={currentSong?.id === song.id && isPlaying}
-                      onPlayToggle={() => handlePlayPause(song)}
-                      frequency={song.frequency || 432} // Provide default frequency
-                    />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8 rounded-full p-0"
+                      onClick={() => handlePlayPause(song)}
+                    >
+                      {currentSongId === song.id && isPlaying ? (
+                        <Pause className="h-4 w-4" />
+                      ) : (
+                        <Play className="h-4 w-4 ml-0.5" />
+                      )}
+                    </Button>
                   </div>
                   <div>
                     <p className="font-medium text-sm">{song.title}</p>
@@ -160,23 +181,6 @@ const JourneySongList: React.FC<JourneySongListProps> = ({
                 </div>
               </div>
             ))}
-          </div>
-        )}
-        
-        {currentSong && (
-          <div className="mt-4 pt-4 border-t">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">{currentSong.title}</p>
-                <p className="text-xs text-gray-500">{currentSong.artist}</p>
-              </div>
-              <FrequencyPlayer
-                audioUrl={currentSong.audioUrl}
-                isPlaying={isPlaying}
-                onPlayToggle={() => setIsPlaying(!isPlaying)}
-                frequency={currentSong.frequency || 432} // Provide default frequency
-              />
-            </div>
           </div>
         )}
       </CardContent>

@@ -1,90 +1,146 @@
-import React from 'react';
-import { useTheme } from '@/context/ThemeContext';
+
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 
 interface FrequencyPlayerProps {
-  frequency: number;
-  title?: string;
-  description?: string;
-  audioUrl?: string;
-  
-  // Additional props needed by various components
+  audioUrl: string | null;
+  frequency?: number;
   isPlaying?: boolean;
   onPlayToggle?: () => void;
-  url?: string;
-  frequencyId?: string;
-  groupId?: string;
-  id?: string;
+  size?: 'sm' | 'md' | 'lg';
+  showFrequency?: boolean;
 }
 
-const FrequencyPlayer = ({ 
-  frequency, 
-  title, 
-  description, 
+const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   audioUrl,
-  isPlaying: externalIsPlaying,
-  onPlayToggle: externalPlayToggle,
-  url,
-  frequencyId,
-  groupId,
-  id
-}: FrequencyPlayerProps) => {
-  const { liftTheVeil } = useTheme();
-  const { playAudio, currentAudio, togglePlayPause } = useGlobalAudioPlayer();
-  
-  // Determine if this specific frequency is currently playing
-  const audioSource = audioUrl || url || '';
-  const isThisPlaying = currentAudio?.source === audioSource && currentAudio?.customData?.frequency === frequency;
-  
-  // Use external control if provided, otherwise use internal control
-  const actuallyPlaying = externalIsPlaying !== undefined ? externalIsPlaying : isThisPlaying;
-  
-  const handlePlay = () => {
-    // If external control is provided, use that
-    if (externalPlayToggle) {
-      externalPlayToggle();
-      return;
+  frequency = 432,
+  isPlaying = false,
+  onPlayToggle,
+  size = 'md',
+  showFrequency = true,
+}) => {
+  const [volume, setVolume] = useState(0.7);
+  const [isMuted, setIsMuted] = useState(false);
+  const [showVolumeSlider, setShowVolumeSlider] = useState(false);
+  const { playAudio, togglePlayPause, currentAudio } = useGlobalAudioPlayer();
+
+  // Check if this player's audioUrl matches the current playing audio
+  const isThisAudioPlaying = () => {
+    return currentAudio?.source === audioUrl && isPlaying;
+  };
+
+  const handlePlayPause = () => {
+    if (audioUrl) {
+      if (isThisAudioPlaying()) {
+        togglePlayPause();
+      } else {
+        playAudio({
+          title: `Frequency ${frequency}Hz`,
+          source: audioUrl,
+          customData: { frequency }
+        });
+      }
     }
-    
-    // If this frequency is already playing, toggle it
-    if (isThisPlaying) {
-      togglePlayPause();
-      return;
-    }
-    
-    // Otherwise, play this audio using the global player
-    if (audioSource) {
-      playAudio({
-        title: title || `${frequency}Hz Frequency`,
-        artist: "Sacred Shifter",
-        source: audioSource,
-        customData: {
-          frequency,
-          chakra: description,
-          frequencyId,
-          groupId
-        }
-      });
+
+    if (onPlayToggle) {
+      onPlayToggle();
     }
   };
-  
+
+  const handleVolumeChange = (value: number[]) => {
+    const newVolume = value[0];
+    setVolume(newVolume);
+    if (newVolume > 0 && isMuted) {
+      setIsMuted(false);
+    }
+
+    // Update volume of the global audio player
+    const audioElement = document.getElementById('global-audio-player') as HTMLAudioElement;
+    if (audioElement) {
+      audioElement.volume = newVolume;
+    }
+  };
+
+  const toggleMute = () => {
+    const newMutedState = !isMuted;
+    setIsMuted(newMutedState);
+
+    // Update mute status of the global audio player
+    const audioElement = document.getElementById('global-audio-player') as HTMLAudioElement;
+    if (audioElement) {
+      audioElement.muted = newMutedState;
+    }
+  };
+
+  const buttonSizeClass = {
+    sm: 'h-8 w-8',
+    md: 'h-10 w-10',
+    lg: 'h-12 w-12'
+  }[size];
+
+  const iconSizeClass = {
+    sm: 'h-3.5 w-3.5',
+    md: 'h-5 w-5',
+    lg: 'h-6 w-6'
+  }[size];
+
   return (
-    <div className="w-full">
-      <div className="flex justify-between items-center mb-2">
-        <h3 className="text-lg font-semibold">
-          {title || `${frequency}Hz`}
-        </h3>
+    <div className="flex flex-col items-center gap-1">
+      <div className="flex items-center gap-2">
         <Button
-          onClick={handlePlay}
-          className={liftTheVeil ? 'bg-pink-600 hover:bg-pink-700' : 'bg-purple-600 hover:bg-purple-700'}
-          id={id}
+          variant="outline"
+          size="icon"
+          disabled={!audioUrl}
+          onClick={handlePlayPause}
+          className={`${buttonSizeClass} rounded-full ${isThisAudioPlaying() ? 'bg-purple-100' : 'bg-white'}`}
         >
-          {actuallyPlaying ? 'Pause' : 'Play'} Frequency
+          {isThisAudioPlaying() ? (
+            <Pause className={iconSizeClass} />
+          ) : (
+            <Play className={`${iconSizeClass} ml-0.5`} />
+          )}
         </Button>
+
+        {size !== 'sm' && (
+          <div
+            className="relative"
+            onMouseEnter={() => setShowVolumeSlider(true)}
+            onMouseLeave={() => setShowVolumeSlider(false)}
+          >
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleMute}
+              className="h-8 w-8"
+            >
+              {isMuted ? (
+                <VolumeX className="h-4 w-4" />
+              ) : (
+                <Volume2 className="h-4 w-4" />
+              )}
+            </Button>
+
+            {showVolumeSlider && (
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-2 bg-white rounded-lg shadow-lg z-10 w-32">
+                <Slider
+                  value={[isMuted ? 0 : volume]}
+                  max={1}
+                  step={0.01}
+                  onValueChange={handleVolumeChange}
+                />
+              </div>
+            )}
+          </div>
+        )}
       </div>
-      {description && (
-        <p className="text-sm opacity-80">{description}</p>
+
+      {showFrequency && frequency && (
+        <div className="text-xs text-center text-gray-500 mt-1">
+          {frequency}Hz
+        </div>
       )}
     </div>
   );
