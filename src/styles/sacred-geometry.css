@@ -37,7 +37,7 @@
   }
   50% {
     opacity: 1;
-    filter: blur(2px) drop-shadow(0 0 10px rgba(138, 43, 226, 0.8));
+    filter: blur(2px) drop-shadow(0 0 15px rgba(138, 43, 226, 0.9));
   }
 }
 
@@ -123,34 +123,34 @@
     height: 20%;
   }
   50% {
-    height: 60%;
+    height: 70%;
   }
 }
 
 @keyframes equalize-2 {
   0%, 100% {
-    height: 30%;
-  }
-  50% {
-    height: 70%;
-  }
-}
-
-@keyframes equalize-3 {
-  0%, 100% {
-    height: 40%;
+    height: 35%;
   }
   50% {
     height: 80%;
   }
 }
 
-@keyframes equalize-4 {
+@keyframes equalize-3 {
   0%, 100% {
-    height: 50%;
+    height: 45%;
   }
   50% {
     height: 90%;
+  }
+}
+
+@keyframes equalize-4 {
+  0%, 100% {
+    height: 60%;
+  }
+  50% {
+    height: 95%;
   }
 }
 
@@ -211,7 +211,7 @@
 }
 
 .purple-wave {
-  background: linear-gradient(180deg, rgba(138, 43, 226, 0) 0%, rgba(138, 43, 226, 0.2) 100%);
+  background: linear-gradient(180deg, rgba(138, 43, 226, 0) 0%, rgba(138, 43, 226, 0.4) 100%);
   height: 100%;
   width: 200%;
   position: absolute;
@@ -228,6 +228,21 @@
   100% {
     transform: translateX(0%) translateY(0) scaleY(1);
   }
+}
+
+/* Enhanced glow effects for visualizer */
+.purple-glow {
+  filter: drop-shadow(0 0 15px rgba(138, 43, 226, 0.7));
+}
+
+.intense-purple-glow {
+  filter: drop-shadow(0 0 8px rgba(138, 43, 226, 0.8)) 
+          drop-shadow(0 0 16px rgba(138, 43, 226, 0.6))
+          drop-shadow(0 0 24px rgba(138, 43, 226, 0.4));
+}
+
+.subtle-purple-glow {
+  box-shadow: 0 0 15px 5px rgba(138, 43, 226, 0.3);
 }
 
 /* Chakra colors for visualizer */

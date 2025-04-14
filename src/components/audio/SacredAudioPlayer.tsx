@@ -201,78 +201,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     const currentMode = VISUALIZER_MODES.find(m => m.value === visualizerMode);
     return currentMode?.label || 'Visualizer';
   };
-  
-  const getChakraColorClasses = (): {bg: string, text: string, border: string} => {
-    if (liftTheVeil) {
-      return {
-        bg: 'from-pink-900/90 to-purple-900/90',
-        text: 'text-pink-100',
-        border: 'border-pink-800'
-      };
-    }
-    
-    if (!chakra) {
-      return {
-        bg: 'from-indigo-900/90 to-purple-900/90',
-        text: 'text-purple-100',
-        border: 'border-purple-800'
-      };
-    }
-    
-    switch(chakra.toLowerCase()) {
-      case 'root':
-        return {
-          bg: 'from-red-900/90 to-red-700/90',
-          text: 'text-red-100',
-          border: 'border-red-800'
-        };
-      case 'sacral':
-        return {
-          bg: 'from-orange-900/90 to-orange-700/90',
-          text: 'text-orange-100',
-          border: 'border-orange-800'
-        };
-      case 'solar plexus':
-        return {
-          bg: 'from-amber-900/90 to-yellow-700/90',
-          text: 'text-amber-100',
-          border: 'border-amber-800'
-        };
-      case 'heart':
-        return {
-          bg: 'from-green-900/90 to-emerald-700/90',
-          text: 'text-green-100',
-          border: 'border-green-800'
-        };
-      case 'throat':
-        return {
-          bg: 'from-blue-900/90 to-blue-700/90',
-          text: 'text-blue-100',
-          border: 'border-blue-800'
-        };
-      case 'third eye':
-        return {
-          bg: 'from-indigo-900/90 to-violet-700/90',
-          text: 'text-indigo-100',
-          border: 'border-indigo-800'
-        };
-      case 'crown':
-        return {
-          bg: 'from-violet-900/90 to-purple-700/90',
-          text: 'text-violet-100',
-          border: 'border-violet-800'
-        };
-      default:
-        return {
-          bg: 'from-indigo-900/90 to-purple-900/90',
-          text: 'text-purple-100',
-          border: 'border-purple-800'
-        };
-    }
-  };
-  
-  const colors = getChakraColorClasses();
-  
+
   return (
     <div ref={playerRef} className={`fixed bottom-4 right-4 z-50 ${isFullscreen ? 'fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm' : ''}`}>
       <motion.div 
@@ -337,24 +266,25 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
         
         {/* Player UI */}
         <div className={`
-          relative z-10 flex flex-col bg-gradient-to-r ${colors.bg}
-          ${(!showVisualizer || !isAudioPlaying) ? 'bg-opacity-100' : 'bg-opacity-50 backdrop-blur-sm'}
+          relative z-10 flex flex-col 
+          bg-gradient-to-r from-purple-900/90 to-indigo-800/90
+          ${(!showVisualizer || !isAudioPlaying) ? 'bg-opacity-100' : 'bg-opacity-70 backdrop-blur-sm'}
           ${isFullscreen ? 'h-full' : ''}
-          border ${colors.border}
+          border border-purple-700
         `}>
-          <div className="px-4 py-3 flex items-center justify-between">
+          <div className="px-4 py-3 flex items-center justify-between bg-gradient-to-r from-purple-900/90 to-indigo-900/90">
             <div className="flex items-center">
               <Button
                 variant="ghost"
                 size="icon"
-                className={`h-8 w-8 ${colors.text} mr-2`}
+                className="h-8 w-8 text-purple-200 mr-2"
                 onClick={handleExpand}
                 title={expanded ? "Minimize" : "Expand"}
               >
                 {expanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
               </Button>
               <div className="truncate max-w-[200px]">
-                <p className={`font-medium text-sm ${colors.text} truncate`}>
+                <p className="font-medium text-sm text-purple-100 truncate">
                   {title}
                 </p>
                 {artist && (
@@ -369,7 +299,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className={`h-7 w-7 text-white/70 hover:text-white`}
+                      className="h-7 w-7 text-white/70 hover:text-white"
                       onClick={handleToggleVisualizer}
                       title={showVisualizer ? "Hide visualizer" : "Show visualizer"}
                     >
@@ -383,7 +313,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
                         <Button
                           variant="ghost"
                           size="icon"
-                          className={`h-7 w-7 text-white/70 hover:text-white`}
+                          className="h-7 w-7 text-white/70 hover:text-white"
                           onClick={handleChangeVisualizer}
                           title="Change visualizer style"
                         >
@@ -401,7 +331,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className={`h-7 w-7 text-white/70 hover:text-white`}
+                className="h-7 w-7 text-white/70 hover:text-white"
                 onClick={handleFullscreen}
                 title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
               >
@@ -413,24 +343,24 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           <div className="p-4 space-y-4 flex-1 flex flex-col">
             <div className="flex flex-wrap gap-2">
               {frequency && (
-                <Badge variant="outline" className={`border-white/20 ${colors.text}`}>
+                <Badge variant="outline" className="border-purple-400/30 text-purple-200">
                   {frequency} Hz
                 </Badge>
               )}
               {chakra && (
-                <Badge variant="outline" className={`border-white/20 ${colors.text}`}>
+                <Badge variant="outline" className="border-purple-400/30 text-purple-200">
                   {chakra} Chakra
                 </Badge>
               )}
               {detectedFrequency && (
-                <Badge variant="outline" className="border-white/20 text-white/80">
+                <Badge variant="outline" className="border-purple-400/30 text-white/80">
                   Current: ~{detectedFrequency} Hz
                 </Badge>
               )}
               {primes.length > 0 && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Badge className={`bg-white/20 hover:bg-white/30 cursor-help ${colors.text}`}>
+                    <Badge className="bg-purple-700/60 hover:bg-purple-700/80 cursor-help text-purple-100">
                       {primes.length} Primes Found
                     </Badge>
                   </TooltipTrigger>
@@ -449,12 +379,12 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
                 <motion.div
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  className={`relative rounded-full ${liftTheVeil ? 'bg-pink-600/20' : 'bg-purple-600/20'} p-8`}
+                  className="relative rounded-full bg-purple-600/20 p-8"
                 >
                   <Button
                     variant="default"
                     size="icon"
-                    className={`h-16 w-16 rounded-full ${liftTheVeil ? 'bg-pink-600 hover:bg-pink-700' : 'bg-purple-600 hover:bg-purple-700'}`}
+                    className="h-16 w-16 rounded-full bg-purple-600 hover:bg-purple-700"
                     onClick={handlePlayPause}
                     disabled={!audioLoaded}
                   >
@@ -464,18 +394,14 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
                       <Play className="h-8 w-8 ml-1" />
                     )}
                   </Button>
-                  <div className={`absolute inset-0 rounded-full ${liftTheVeil ? 'bg-pink-600/10' : 'bg-purple-600/10'} animate-ping`} />
+                  <div className="absolute inset-0 rounded-full bg-purple-600/10 animate-ping" />
                 </motion.div>
               )}
               
               {isAudioPlaying && showVisualizer && (
                 <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 z-30 pointer-events-none">
                   <Badge 
-                    className={`px-3 py-1.5 flex items-center gap-2 ${
-                      liftTheVeil 
-                        ? 'bg-pink-700/50 text-pink-50' 
-                        : 'bg-purple-700/50 text-purple-50'
-                    } backdrop-blur-sm`}
+                    className="px-3 py-1.5 flex items-center gap-2 bg-purple-700/50 text-purple-50 backdrop-blur-sm"
                   >
                     <Activity className="h-3 w-3 animate-pulse" />
                     <span>{visualizerMode === 'rainbow' ? 'Full Spectrum' : 'Chakra Flow'}</span>
@@ -499,62 +425,10 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
             </div>
             
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-white/70 hover:text-white"
-                  onClick={handleToggleMute}
-                >
-                  {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-                </Button>
-                
-                <div className="w-20">
-                  <Slider
-                    value={[isMuted ? 0 : volume]}
-                    max={1}
-                    step={0.01}
-                    onValueChange={(values) => {
-                      setVolume(values[0]);
-                      if (values[0] > 0 && isMuted) {
-                        setIsMuted(false);
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-              
-              <Button
-                variant="default"
-                size="sm"
-                className={`rounded-full ${liftTheVeil ? 'bg-pink-600 hover:bg-pink-700' : 'bg-purple-600 hover:bg-purple-700'}`}
-                onClick={handlePlayPause}
-                disabled={!audioLoaded}
-              >
-                {isAudioPlaying ? (
-                  <Pause className="h-4 w-4 mr-2" />
-                ) : (
-                  <Play className="h-4 w-4 mr-2 ml-0.5" />
-                )}
-                {isAudioPlaying ? 'Pause' : 'Play'}
-              </Button>
-            </div>
-          </div>
-          
-          {!expanded && (
-            <div className="p-2 flex items-center justify-center">
-              {isAudioPlaying && showVisualizer && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-                  <div className={`w-8 h-8 ${liftTheVeil ? 'text-pink-400' : 'text-purple-400'} opacity-60`}>
-                    <Activity className="w-full h-full animate-pulse" />
-                  </div>
-                </div>
-              )}
-              
               <Button
                 variant="default"
                 size="icon"
-                className={`h-10 w-10 rounded-full ${liftTheVeil ? 'bg-pink-600 hover:bg-pink-700' : 'bg-purple-600 hover:bg-purple-700'}`}
+                className="h-10 w-10 rounded-full bg-purple-600 hover:bg-purple-700"
                 onClick={handlePlayPause}
                 disabled={!audioLoaded}
               >
@@ -564,8 +438,28 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
                   <Play className="h-5 w-5 ml-0.5" />
                 )}
               </Button>
+              
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-gray-300 hover:text-white"
+                  onClick={handleToggleMute}
+                >
+                  {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                </Button>
+                
+                <Slider
+                  value={[isMuted ? 0 : volume]}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  onValueChange={(values) => setVolume(values[0])}
+                  className="w-[100px]"
+                />
+              </div>
             </div>
-          )}
+          </div>
         </div>
       </motion.div>
     </div>

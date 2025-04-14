@@ -111,14 +111,14 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       
       switch (colorScheme) {
         case 'blue':
-          return `hsla(210, 100%, ${30 + value / 4}%, ${0.4 + value / 600})`;
+          return `hsla(210, 100%, ${30 + value / 4}%, ${0.6 + value / 500})`;
         case 'gold':
-          return `hsla(45, 100%, ${30 + value / 4}%, ${0.4 + value / 600})`;
+          return `hsla(45, 100%, ${30 + value / 4}%, ${0.6 + value / 500})`;
         case 'rainbow':
-          return `hsla(${value}, 100%, 50%, ${0.5 + value / 500})`;
+          return `hsla(${value}, 100%, 50%, ${0.7 + value / 500})`;
         case 'purple':
         default:
-          return `hsla(280, 100%, ${30 + value / 4}%, ${0.4 + value / 600})`;
+          return `hsla(280, 100%, ${30 + value / 4}%, ${0.6 + value / 500})`;
       }
     };
     
@@ -130,7 +130,7 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       const dataArray = dataArrayRef.current!;
       
       // Clear canvas with semi-transparent black for trailing effect
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
       // Get frequency data
@@ -169,33 +169,33 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       const centerX = canvas.width / 2;
       const centerY = canvas.height / 2;
       
-      // Draw centered circles that respond to bass
+      // Draw centered circles that respond to bass - ENHANCED VISIBILITY
       const numCircles = 5;
       for (let i = 0; i < numCircles; i++) {
-        const radius = (60 + i * 30) + bassLevel * (i + 1) / 6;
-        const alpha = 0.3 - i * 0.05;
+        const radius = (60 + i * 30) + bassLevel * (i + 1) / 5; // Increased size multiplier
+        const alpha = 0.4 - i * 0.05; // Increased alpha
         
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        ctx.strokeStyle = getColor(bassLevel / 2);
-        ctx.lineWidth = 2;
-        ctx.setLineDash([5, bassLevel / 10]);
+        ctx.strokeStyle = getColor(bassLevel);
+        ctx.lineWidth = 3; // Increased line width for better visibility
+        ctx.setLineDash([5, bassLevel / 8]);
         ctx.stroke();
       }
       
-      // Draw equalizer bars
-      const barWidth = Math.max(4, Math.min(8, canvas.width / 64));
+      // Draw equalizer bars - ENHANCED
+      const barWidth = Math.max(6, Math.min(10, canvas.width / 48)); // Wider bars
       const barSpacing = 2;
-      const barCount = Math.floor(dataArray.length / 10); // Use only part of the spectrum
-      const barHeightMultiplier = canvas.height / 768; // Scale the bars appropriately
+      const barCount = Math.floor(dataArray.length / 8); // Use more of the spectrum
+      const barHeightMultiplier = canvas.height / 600; // Scale the bars appropriately
       
       ctx.save();
       ctx.translate(centerX, centerY);
       
-      // Draw circular equalizer
+      // Draw circular equalizer - ENHANCED VISIBILITY
       for (let i = 0; i < barCount; i++) {
         const value = dataArray[i * 2];
-        const barHeight = value * barHeightMultiplier;
+        const barHeight = value * barHeightMultiplier * 1.2; // Increased height multiplier
         const angle = (i / barCount) * Math.PI * 2;
         
         const innerRadius = 80 + (bassLevel / 5);
@@ -209,7 +209,7 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);
-        ctx.lineWidth = barWidth - barSpacing;
+        ctx.lineWidth = barWidth;
         ctx.strokeStyle = getColor(value);
         ctx.stroke();
       }
@@ -220,9 +220,9 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       ctx.save();
       ctx.translate(centerX, centerY);
       
-      // Draw geometric patterns
-      const sides = 6 + Math.floor(bassLevel / 50); // More sides with more bass
-      const radius = 60 + midLevel;
+      // Draw geometric patterns - ENHANCED
+      const sides = 6 + Math.floor(bassLevel / 40); // More sides with more bass
+      const radius = 70 + midLevel; // Larger base radius
       
       ctx.beginPath();
       for (let i = 0; i < sides; i++) {
@@ -238,26 +238,68 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       }
       ctx.closePath();
       ctx.strokeStyle = getColor(midLevel);
+      ctx.lineWidth = 3 + trebleLevel / 40; // Thicker lines
+      ctx.stroke();
+      
+      // Secondary geometric pattern - NEW
+      const innerRadius = radius * 0.6;
+      ctx.beginPath();
+      for (let i = 0; i < sides; i++) {
+        const angle = ((i / sides) * Math.PI * 2) + (Math.PI / sides); // Offset
+        const x = Math.cos(angle) * innerRadius;
+        const y = Math.sin(angle) * innerRadius;
+        
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      }
+      ctx.closePath();
+      ctx.strokeStyle = getColor(midLevel - 30);
       ctx.lineWidth = 2 + trebleLevel / 50;
       ctx.stroke();
       
+      // Draw connecting lines - NEW
+      ctx.beginPath();
+      for (let i = 0; i < sides; i++) {
+        const angle1 = (i / sides) * Math.PI * 2;
+        const x1 = Math.cos(angle1) * radius;
+        const y1 = Math.sin(angle1) * radius;
+        
+        const angle2 = ((i / sides) * Math.PI * 2) + (Math.PI / sides);
+        const x2 = Math.cos(angle2) * innerRadius;
+        const y2 = Math.sin(angle2) * innerRadius;
+        
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(0, 0); // Connect to center
+        
+        if (i % 2 === 0) { // Only some lines for cleaner look
+          ctx.moveTo(x2, y2);
+          ctx.lineTo(0, 0);
+        }
+      }
+      ctx.strokeStyle = getColor(trebleLevel);
+      ctx.lineWidth = 1 + trebleLevel / 100;
+      ctx.stroke();
+      
       // Add some particles for higher frequencies
-      if (trebleLevel > 50 && Math.random() > 0.7) {
+      if (trebleLevel > 40 && Math.random() > 0.65) { // More particles
         const particleAngle = Math.random() * Math.PI * 2;
-        const distance = 60 + Math.random() * 60;
+        const distance = 30 + Math.random() * 100; // Wider particle distribution
         
         particles.push({
           x: Math.cos(particleAngle) * distance,
           y: Math.sin(particleAngle) * distance,
-          size: 2 + Math.random() * 4,
-          color: getColor(trebleLevel),
-          speed: 1 + Math.random() * 3
+          size: 2 + Math.random() * 5, // Larger particles
+          color: getColor(trebleLevel + Math.random() * 50),
+          speed: 1 + Math.random() * 3.5 // Faster particles
         });
       }
       
       // Update and draw particles
       particles.forEach((particle, index) => {
-        particle.size -= 0.05;
+        particle.size -= 0.04;
         
         // Remove particles that are too small
         if (particle.size <= 0) {
@@ -270,31 +312,33 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
         particle.x += Math.cos(particleAngle) * particle.speed;
         particle.y += Math.sin(particleAngle) * particle.speed;
         
-        // Draw particle
+        // Draw particle - ENHANCED
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
         ctx.fillStyle = particle.color;
+        ctx.globalAlpha = 0.8; // Higher opacity
         ctx.fill();
+        ctx.globalAlpha = 1.0;
       });
       
       // Limit number of particles
-      if (particles.length > 100) {
-        particles = particles.slice(-100);
+      if (particles.length > 120) { // Allow more particles
+        particles = particles.slice(-120);
       }
       
       ctx.restore();
       
-      // Draw waveform at the bottom
-      const sliceWidth = canvas.width / dataArray.length;
-      const waveHeight = canvas.height / 8;
-      const waveY = canvas.height - (canvas.height / 6);
+      // Draw waveform at the bottom - ENHANCED
+      const sliceWidth = canvas.width / (dataArray.length / 2); // Use half of data for more detail
+      const waveHeight = canvas.height / 6; // Taller
+      const waveY = canvas.height - (canvas.height / 7);
       
       ctx.beginPath();
       ctx.moveTo(0, waveY);
       
       analyser.getByteTimeDomainData(dataArray);
       
-      for (let i = 0; i < dataArray.length; i++) {
+      for (let i = 0; i < dataArray.length / 2; i++) { // Use half of data points for more detail
         const v = dataArray[i] / 128.0;
         const y = waveY + (v - 1) * waveHeight;
         const x = i * sliceWidth;
@@ -302,15 +346,15 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
         i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       }
       
-      ctx.strokeStyle = getColor(200);
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = getColor(210);
+      ctx.lineWidth = 3; // Thicker line for visibility
       ctx.stroke();
       
-      // Draw classic equalizer bars at the bottom
-      const eqBarWidth = Math.max(8, Math.min(16, canvas.width / 32));
+      // Draw classic equalizer bars at the bottom - ENHANCED
+      const eqBarWidth = Math.max(10, Math.min(16, canvas.width / 32)); // Wider bars
       const eqBarCount = Math.min(32, Math.floor(canvas.width / (eqBarWidth + 2)));
       const eqBarSpacing = 2;
-      const eqBarMaxHeight = canvas.height / 4;
+      const eqBarMaxHeight = canvas.height / 3.5; // Taller bars
       const eqY = canvas.height - 10;
       
       for (let i = 0; i < eqBarCount; i++) {
@@ -323,6 +367,12 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
         
         ctx.fillStyle = getColor(value);
         ctx.fillRect(x, eqY - eqBarHeight, eqBarWidth, eqBarHeight);
+        
+        // Add a slight glow effect
+        ctx.shadowColor = getColor(value);
+        ctx.shadowBlur = 5;
+        ctx.fillRect(x, eqY - eqBarHeight, eqBarWidth, eqBarHeight);
+        ctx.shadowBlur = 0;
       }
       
       // Continue animation loop
@@ -355,8 +405,8 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       
       {/* Add subtle sacred geometry overlay elements */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[30%] h-[30%] bg-purple-500/10 rounded-full animate-pulse-slow"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40%] h-[40%] border border-purple-400/20 rounded-full animate-spin-slow"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40%] h-[40%] bg-purple-500/15 rounded-full animate-pulse-slow"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[50%] h-[50%] border border-purple-400/30 rounded-full animate-spin-slow"></div>
       </div>
     </motion.div>
   );
