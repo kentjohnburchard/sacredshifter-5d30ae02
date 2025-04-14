@@ -36,7 +36,7 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
         }
         
         // Create analyzer if it doesn't exist
-        if (!analyserRef.current) {
+        if (!analyserRef.current && audioCtxRef.current) {
           const analyser = audioCtxRef.current.createAnalyser();
           analyser.fftSize = 2048;
           analyserRef.current = analyser;
@@ -52,7 +52,7 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
             analyserRef.current.connect(audioCtxRef.current.destination);
             console.log('SacredGeometryCanvas: Audio context setup complete');
           } catch (error) {
-            // If we get an error about already being connected, we can ignore it
+            // If we get an error about already being connected, we can proceed
             if (error instanceof DOMException && error.name === 'InvalidStateError') {
               console.log('SacredGeometryCanvas: Audio node already connected, reusing connection');
               return true;
@@ -69,28 +69,32 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       }
     };
     
-    // Try to set up audio context after a delay to ensure audio element is loaded
-    const initialSetupTimeout = setTimeout(() => {
-      const success = setupAudioContext();
-      if (success) {
-        startVisualization();
-      } else {
-        // Retry after a longer delay if initial setup fails
-        const retryTimeout = setTimeout(() => {
-          const retrySuccess = setupAudioContext();
-          if (retrySuccess) {
-            startVisualization();
-          } else {
-            console.warn('SacredGeometryCanvas: Failed to setup audio after retry');
-          }
-        }, 2000);
-        
-        return () => clearTimeout(retryTimeout);
-      }
-    }, 500);
+    // Try to set up audio context immediately
+    const success = setupAudioContext();
+    if (success) {
+      startVisualization();
+    } else {
+      // Retry after a delay if initial setup fails
+      const retryTimeout = setTimeout(() => {
+        const retrySuccess = setupAudioContext();
+        if (retrySuccess) {
+          startVisualization();
+        } else {
+          console.warn('SacredGeometryCanvas: Failed to setup audio after retry, trying once more...');
+          // Try one more time after another delay
+          const finalRetry = setTimeout(() => {
+            if (setupAudioContext()) {
+              startVisualization();
+            }
+          }, 1000);
+          return () => clearTimeout(finalRetry);
+        }
+      }, 500);
+      
+      return () => clearTimeout(retryTimeout);
+    }
     
     return () => {
-      clearTimeout(initialSetupTimeout);
       if (rafIdRef.current) {
         cancelAnimationFrame(rafIdRef.current);
       }
@@ -132,14 +136,14 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       
       switch (colorScheme) {
         case 'blue':
-          return `hsla(210, 100%, ${30 + value / 4}%, ${0.6 + value / 500})`;
+          return `hsla(210, 100%, ${30 + value / 4}%, ${0.7 + value / 400})`;
         case 'gold':
-          return `hsla(45, 100%, ${30 + value / 4}%, ${0.6 + value / 500})`;
+          return `hsla(45, 100%, ${30 + value / 4}%, ${0.7 + value / 400})`;
         case 'rainbow':
-          return `hsla(${value}, 100%, 50%, ${0.7 + value / 500})`;
+          return `hsla(${value}, 100%, 50%, ${0.8 + value / 400})`;
         case 'purple':
         default:
-          return `hsla(280, 100%, ${30 + value / 4}%, ${0.6 + value / 500})`;
+          return `hsla(280, 100%, ${30 + value / 4}%, ${0.7 + value / 400})`;
       }
     };
     
@@ -147,11 +151,13 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
     let particles: { x: number, y: number, size: number, color: string, speed: number }[] = [];
     
     const drawVisualization = () => {
-      const analyser = analyserRef.current!;
-      const dataArray = dataArrayRef.current!;
+      if (!analyserRef.current || !dataArrayRef.current) return;
+      
+      const analyser = analyserRef.current;
+      const dataArray = dataArrayRef.current;
       
       // Clear canvas with semi-transparent black for trailing effect
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
       // Get frequency data
@@ -190,21 +196,21 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       const centerX = canvas.width / 2;
       const centerY = canvas.height / 2;
       
-      // Draw centered circles that respond to bass - ENHANCED VISIBILITY
+      // Draw centered circles that respond to bass
       const numCircles = 5;
       for (let i = 0; i < numCircles; i++) {
-        const radius = (60 + i * 30) + bassLevel * (i + 1) / 5; // Increased size multiplier
-        const alpha = 0.4 - i * 0.05; // Increased alpha
+        const radius = (60 + i * 30) + bassLevel * (i + 1) / 5; // Enhanced size multiplier
+        const alpha = 0.4 - i * 0.05; // Enhanced alpha
         
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
         ctx.strokeStyle = getColor(bassLevel);
-        ctx.lineWidth = 3; // Increased line width for better visibility
+        ctx.lineWidth = 3; // Enhanced line width
         ctx.setLineDash([5, bassLevel / 8]);
         ctx.stroke();
       }
       
-      // Draw equalizer bars - ENHANCED
+      // Draw equalizer bars
       const barWidth = Math.max(6, Math.min(10, canvas.width / 48)); // Wider bars
       const barSpacing = 2;
       const barCount = Math.floor(dataArray.length / 8); // Use more of the spectrum
@@ -213,10 +219,10 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       ctx.save();
       ctx.translate(centerX, centerY);
       
-      // Draw circular equalizer - ENHANCED VISIBILITY
+      // Draw circular equalizer
       for (let i = 0; i < barCount; i++) {
         const value = dataArray[i * 2];
-        const barHeight = value * barHeightMultiplier * 1.2; // Increased height multiplier
+        const barHeight = value * barHeightMultiplier * 1.5; // Increased height multiplier
         const angle = (i / barCount) * Math.PI * 2;
         
         const innerRadius = 80 + (bassLevel / 5);
@@ -241,6 +247,10 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       ctx.save();
       ctx.translate(centerX, centerY);
       
+      // Animate overall rotation for more movement
+      angle += 0.005 + (averageFrequency / 10000);
+      ctx.rotate(angle);
+      
       // Draw geometric patterns - ENHANCED
       const sides = 6 + Math.floor(bassLevel / 40); // More sides with more bass
       const radius = 70 + midLevel; // Larger base radius
@@ -262,11 +272,11 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       ctx.lineWidth = 3 + trebleLevel / 40; // Thicker lines
       ctx.stroke();
       
-      // Secondary geometric pattern - NEW
+      // Secondary geometric pattern - ENHANCED
       const innerRadius = radius * 0.6;
       ctx.beginPath();
       for (let i = 0; i < sides; i++) {
-        const angle = ((i / sides) * Math.PI * 2) + (Math.PI / sides); // Offset
+        const angle = ((i / sides) * Math.PI * 2) + (Math.PI / sides) + (angle * 0.5); // Added rotation
         const x = Math.cos(angle) * innerRadius;
         const y = Math.sin(angle) * innerRadius;
         
@@ -281,7 +291,7 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       ctx.lineWidth = 2 + trebleLevel / 50;
       ctx.stroke();
       
-      // Draw connecting lines - NEW
+      // Draw connecting lines - ENHANCED
       ctx.beginPath();
       for (let i = 0; i < sides; i++) {
         const angle1 = (i / sides) * Math.PI * 2;
@@ -304,8 +314,8 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       ctx.lineWidth = 1 + trebleLevel / 100;
       ctx.stroke();
       
-      // Add some particles for higher frequencies
-      if (trebleLevel > 40 && Math.random() > 0.65) { // More particles
+      // Add more particles for higher frequencies
+      if (trebleLevel > 40 && Math.random() > 0.5) { // More particles
         const particleAngle = Math.random() * Math.PI * 2;
         const distance = 30 + Math.random() * 100; // Wider particle distribution
         
@@ -314,13 +324,13 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
           y: Math.sin(particleAngle) * distance,
           size: 2 + Math.random() * 5, // Larger particles
           color: getColor(trebleLevel + Math.random() * 50),
-          speed: 1 + Math.random() * 3.5 // Faster particles
+          speed: 1 + Math.random() * 4 // Faster particles
         });
       }
       
       // Update and draw particles
       particles.forEach((particle, index) => {
-        particle.size -= 0.04;
+        particle.size -= 0.05;
         
         // Remove particles that are too small
         if (particle.size <= 0) {
@@ -343,8 +353,8 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       });
       
       // Limit number of particles
-      if (particles.length > 120) { // Allow more particles
-        particles = particles.slice(-120);
+      if (particles.length > 150) { // Allow more particles
+        particles = particles.slice(-150);
       }
       
       ctx.restore();
@@ -391,7 +401,7 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
         
         // Add a slight glow effect
         ctx.shadowColor = getColor(value);
-        ctx.shadowBlur = 5;
+        ctx.shadowBlur = 8;
         ctx.fillRect(x, eqY - eqBarHeight, eqBarWidth, eqBarHeight);
         ctx.shadowBlur = 0;
       }
@@ -425,9 +435,9 @@ const SacredGeometryCanvas: React.FC<SacredGeometryCanvasProps> = ({
       />
       
       {/* Add subtle sacred geometry overlay elements */}
-      <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute inset-0 pointer-events-none mix-blend-screen">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40%] h-[40%] bg-purple-500/15 rounded-full animate-pulse-slow"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[50%] h-[50%] border border-purple-400/30 rounded-full animate-spin-slow"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] border border-purple-400/30 rounded-full animate-spin-slow"></div>
       </div>
     </motion.div>
   );

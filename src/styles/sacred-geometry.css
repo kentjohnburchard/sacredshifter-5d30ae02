@@ -1,3 +1,4 @@
+
 /* Sacred Geometry Styles */
 .bg-grid-pattern {
   background-image: 
@@ -288,9 +289,9 @@
 
 /* Audio Player Theme Colors */
 :root {
-  --player-bg-from: rgba(107, 33, 168, 0.9);
-  --player-bg-to: rgba(79, 30, 118, 0.9);
-  --player-border: rgba(147, 51, 234, 0.3);
+  --player-bg-from: rgba(107, 33, 168, 0.95);
+  --player-bg-to: rgba(79, 30, 118, 0.95);
+  --player-border: rgba(147, 51, 234, 0.6);
   --player-highlight: rgba(167, 139, 250, 1);
   --player-text: rgba(237, 233, 254, 1);
   --player-button: rgba(139, 92, 246, 1);
@@ -299,9 +300,9 @@
 }
 
 .veil-lifted {
-  --player-bg-from: rgba(219, 39, 119, 0.9);
-  --player-bg-to: rgba(190, 24, 93, 0.9);
-  --player-border: rgba(244, 114, 182, 0.3);
+  --player-bg-from: rgba(219, 39, 119, 0.95);
+  --player-bg-to: rgba(190, 24, 93, 0.95);
+  --player-border: rgba(244, 114, 182, 0.6);
   --player-highlight: rgba(249, 168, 212, 1);
   --player-text: rgba(253, 242, 248, 1);
   --player-button: rgba(236, 72, 153, 1);
@@ -311,7 +312,8 @@
 
 .sacred-audio-player {
   background: linear-gradient(to right, var(--player-bg-from), var(--player-bg-to));
-  border-color: var(--player-border);
+  border: 1px solid var(--player-border);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3), 0 0 15px var(--player-visualizer-glow);
 }
 
 .sacred-audio-player .player-text {
@@ -324,6 +326,10 @@
 
 .sacred-audio-player .player-button:hover {
   background-color: var(--player-button-hover);
+}
+
+.sacred-audio-player .player-highlight {
+  background-color: var(--player-highlight);
 }
 
 .sacred-audio-player .player-visualizer {

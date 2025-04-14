@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -205,16 +206,18 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
       togglePlayPause();
     }
     
-    // Clear current audio state
-    // setCurrentAudio(null);
-    
     // Clear session storage
     sessionStorage.removeItem('currentAudio');
     sessionStorage.removeItem('isAudioPlaying');
+    
+    // Hide player - optional if you have a parent component that controls visibility
+    if (playerRef.current) {
+      playerRef.current.style.display = 'none';
+    }
   };
   
   return (
-    <div ref={playerRef} className={`fixed bottom-4 right-4 z-50 ${isFullscreen ? 'fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm' : ''}`}>
+    <div ref={playerRef} className={`fixed bottom-4 right-4 z-50 ${isFullscreen ? 'fixed inset-0 flex items-center justify-center bg-black/90 backdrop-blur-lg' : ''}`}>
       <motion.div 
         initial={{ scale: 0.95, opacity: 0 }} 
         animate={{ scale: 1, opacity: 1 }}
@@ -226,7 +229,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
               ? 'w-full md:w-[600px] rounded-lg' 
               : 'w-full max-w-[320px] rounded-lg'
           } 
-          overflow-hidden shadow-lg relative sacred-audio-player
+          overflow-hidden shadow-lg relative sacred-audio-player bg-opacity-95
         `}
       >
         <div 
@@ -259,7 +262,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               className="absolute top-14 left-1/2 transform -translate-x-1/2 z-50
-                px-4 py-2 rounded-full backdrop-blur-sm shadow-lg player-text"
+                px-4 py-2 rounded-full backdrop-blur-sm shadow-lg player-text bg-black/40"
             >
               <div className="flex items-center gap-2">
                 <div className="h-2 w-2 rounded-full animate-pulse player-highlight"></div>
@@ -269,8 +272,8 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           )}
         </AnimatePresence>
         
-        <div className="relative z-10 flex flex-col border h-full">
-          <div className="px-4 py-3 flex items-center justify-between">
+        <div className="relative z-10 flex flex-col h-full border-0">
+          <div className="px-4 py-3 flex items-center justify-between border-b border-white/10">
             <div className="flex items-center">
               <Button
                 variant="ghost"
@@ -290,8 +293,53 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
                 )}
               </div>
             </div>
-            <div className="flex items-center space-x-1">
-              {/* Add close button */}
+            <div className="flex items-center space-x-2">
+              {expanded && (
+                <>
+                  {isAudioPlaying && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 player-text hover:opacity-80"
+                      onClick={handleToggleVisualizer}
+                      title={showVisualizer ? "Hide visualizer" : "Show visualizer"}
+                    >
+                      {showVisualizer ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  )}
+                  
+                  {isAudioPlaying && showVisualizer && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 player-text hover:opacity-80"
+                          onClick={handleChangeVisualizer}
+                          title="Change visualizer style"
+                        >
+                          <BarChart4 className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Mode: {getCurrentVisualizerLabel()}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </>
+              )}
+              
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 player-text hover:opacity-80"
+                onClick={handleFullscreen}
+                title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+              >
+                {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              </Button>
+              
+              {/* Close button */}
               <Button
                 variant="ghost"
                 size="icon"
@@ -307,17 +355,17 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           <div className="p-4 space-y-4 flex-1 flex flex-col">
             <div className="flex flex-wrap gap-2">
               {frequency && (
-                <Badge variant="outline" className="player-text border-opacity-30">
+                <Badge variant="outline" className="player-text border-opacity-30 bg-white/10">
                   {frequency} Hz
                 </Badge>
               )}
               {chakra && (
-                <Badge variant="outline" className="player-text border-opacity-30">
+                <Badge variant="outline" className="player-text border-opacity-30 bg-white/10">
                   {chakra} Chakra
                 </Badge>
               )}
               {detectedFrequency && (
-                <Badge variant="outline" className="player-text border-opacity-30">
+                <Badge variant="outline" className="player-text border-opacity-30 bg-white/10">
                   Current: ~{detectedFrequency} Hz
                 </Badge>
               )}
@@ -365,10 +413,10 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
               {isAudioPlaying && showVisualizer && (
                 <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 z-30 pointer-events-none">
                   <Badge 
-                    className="px-3 py-1.5 flex items-center gap-2 player-button opacity-70 backdrop-blur-sm player-text"
+                    className="px-3 py-1.5 flex items-center gap-2 player-button opacity-90 backdrop-blur-sm player-text"
                   >
                     <Activity className="h-3 w-3 animate-pulse" />
-                    <span>{visualizerMode === 'rainbow' ? 'Full Spectrum' : 'Chakra Flow'}</span>
+                    <span>{getCurrentVisualizerLabel()}</span>
                   </Badge>
                 </div>
               )}
