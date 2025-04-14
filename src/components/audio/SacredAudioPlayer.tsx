@@ -1,8 +1,11 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import EnhancedGeometryVisualizer from '@/components/sacred-geometry/EnhancedGeometryVisualizer';
 import { useTheme } from '@/context/ThemeContext';
+import { Slider } from '@/components/ui/slider';
+import { formatTime } from '@/lib/utils';
 
 const SacredAudioPlayer: React.FC = () => {
   const {
@@ -23,12 +26,6 @@ const SacredAudioPlayer: React.FC = () => {
   const { liftTheVeil } = useTheme();
   const [geometryExpanded, setGeometryExpanded] = useState(false);
 
-  const formatTime = (time: number): string => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-  };
-
   const handleSeekMouseDown = () => {
     setIsSeeking(true);
   };
@@ -37,11 +34,20 @@ const SacredAudioPlayer: React.FC = () => {
     setSeekTime(parseFloat(e.target.value));
   };
 
-  const handleSeekMouseUp = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Fix the event handler type to correctly handle MouseEvent instead of ChangeEvent
+  const handleSeekMouseUp = () => {
     setIsSeeking(false);
-    const seekToTime = parseFloat(e.target.value);
-    setCurrentTime(seekToTime);
-    seekTo(seekToTime);
+    seekTo(seekTime);
+  };
+
+  // Use this for handling input change events
+  const handleInputChange = (value: number[]) => {
+    const newValue = value[0];
+    setSeekTime(newValue);
+    if (!isSeeking) {
+      setCurrentTime(newValue);
+      seekTo(newValue);
+    }
   };
 
   useEffect(() => {
@@ -77,16 +83,14 @@ const SacredAudioPlayer: React.FC = () => {
           </button>
           
           <div className="flex-grow mx-4">
-            <input
-              type="range"
+            {/* Replace the input type="range" with Shadcn Slider component */}
+            <Slider
+              value={[seekTime]}
+              min={0}
+              max={duration || 100}
+              step={0.1}
+              onValueChange={handleInputChange}
               className="w-full"
-              min="0"
-              max={duration}
-              step="0.1"
-              value={seekTime}
-              onMouseDown={handleSeekMouseDown}
-              onChange={handleSeekChange}
-              onMouseUp={handleSeekMouseUp}
             />
             <div className="flex justify-between text-sm text-gray-400">
               <span>{formatTime(currentTime)}</span>
