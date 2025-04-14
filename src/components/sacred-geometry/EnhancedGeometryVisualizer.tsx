@@ -26,7 +26,7 @@ interface EnhancedGeometryVisualizerProps {
   sensitivity?: number;
   expandable?: boolean;
   onExpandStateChange?: (expanded: boolean) => void;
-  colorScheme?: string; // Add colorScheme prop
+  colorScheme?: string;
 }
 
 const EnhancedGeometryVisualizer: React.FC<EnhancedGeometryVisualizerProps> = ({
@@ -44,7 +44,7 @@ const EnhancedGeometryVisualizer: React.FC<EnhancedGeometryVisualizerProps> = ({
   sensitivity = 1,
   expandable = false,
   onExpandStateChange,
-  colorScheme = 'purple', // Default colorScheme
+  colorScheme = 'purple',
 }) => {
   const { liftTheVeil } = useTheme();
   const [currentShape, setCurrentShape] = useState<GeometryShape>(defaultShape);
