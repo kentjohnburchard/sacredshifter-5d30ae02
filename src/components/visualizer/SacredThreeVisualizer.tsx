@@ -98,7 +98,16 @@ const Dodecahedron = ({ position, rotation, scale, color, opacity }) => {
   );
 };
 
-const FlowerOfLife = ({ position, rotation, scale, color, opacity }) => {
+// Interface for component props
+interface FlowerOfLifeProps {
+  position: [number, number, number];
+  rotation: [number, number, number];
+  scale: number;
+  color: string;
+  opacity: number;
+}
+
+const FlowerOfLife: React.FC<FlowerOfLifeProps> = ({ position, rotation, scale, color, opacity }) => {
   const groupRef = useRef<THREE.Group>(null);
   
   useFrame(() => {
