@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useTheme } from '@/context/ThemeContext';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,7 @@ interface FrequencyPlayerProps {
   frequency: number;
   title?: string;
   description?: string;
-  audioUrl: string;
+  audioUrl?: string;
   
   // Additional props needed by various components
   isPlaying?: boolean;

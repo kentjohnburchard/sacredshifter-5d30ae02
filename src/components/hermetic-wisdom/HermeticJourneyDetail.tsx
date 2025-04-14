@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -71,6 +72,7 @@ const HermeticJourneyDetail: React.FC<HermeticJourneyDetailProps> = ({ journey, 
                 audioUrl={currentPlayingTrack.audioUrl}
                 isPlaying={isAudioPlaying}
                 onPlayToggle={() => setIsAudioPlaying(!isAudioPlaying)}
+                frequency={journey.frequency || 528} // Use journey frequency or default
               />
             </div>
           )}

@@ -171,6 +171,7 @@ const TrinityPhase2: React.FC<TrinityPhase2Props> = ({
               isPlaying={isPlaying}
               onPlayToggle={togglePlayback}
               frequency={639}
+              audioUrl="/frequencies/639hz-heart.mp3"
             />
           </div>
           

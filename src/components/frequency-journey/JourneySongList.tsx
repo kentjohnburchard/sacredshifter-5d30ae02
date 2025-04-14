@@ -126,6 +126,7 @@ const JourneySongList: React.FC<JourneySongListProps> = ({
                       audioUrl={song.audioUrl}
                       isPlaying={currentSong?.id === song.id && isPlaying}
                       onPlayToggle={() => handlePlayPause(song)}
+                      frequency={song.frequency || 432} // Provide default frequency
                     />
                   </div>
                   <div>
@@ -173,6 +174,7 @@ const JourneySongList: React.FC<JourneySongListProps> = ({
                 audioUrl={currentSong.audioUrl}
                 isPlaying={isPlaying}
                 onPlayToggle={() => setIsPlaying(!isPlaying)}
+                frequency={currentSong.frequency || 432} // Provide default frequency
               />
             </div>
           </div>

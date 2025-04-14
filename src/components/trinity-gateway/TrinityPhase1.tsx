@@ -118,6 +118,7 @@ const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete, skipPhase }) 
               isPlaying={isPlaying}
               onPlayToggle={togglePlayback}
               frequency={396}
+              audioUrl="/frequencies/396hz-root.mp3"
             />
           </div>
           
