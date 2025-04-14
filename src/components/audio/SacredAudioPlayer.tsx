@@ -2,8 +2,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { motion } from 'framer-motion';
-import { Pause, Play } from 'lucide-react';
+import { Pause, Play, Volume2, VolumeX, Maximize2, Minimize2 } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
+import { Slider } from '@/components/ui/slider';
+import { Progress } from '@/components/ui/progress';
+import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
 
 const SacredAudioPlayer: React.FC = () => {
   const {
@@ -12,18 +15,19 @@ const SacredAudioPlayer: React.FC = () => {
     currentTime,
     duration,
     currentTrack,
-    audioRef
+    audioRef,
+    seekTo
   } = useAudioPlayer();
   
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationFrameRef = useRef<number>(0);
   const { liftTheVeil } = useTheme();
   
-  // Audio analysis setup
-  const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
-  const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
-  const [dataArray, setDataArray] = useState<Uint8Array | null>(null);
-  const [sourceNodeConnected, setSourceNodeConnected] = useState(false);
+  // Player state
+  const [expanded, setExpanded] = useState(false);
+  const [volume, setVolume] = useState(0.7);
+  const [isMuted, setIsMuted] = useState(false);
+  const [showVolume, setShowVolume] = useState(false);
   
   // Sacred geometry animation state
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
@@ -41,50 +45,11 @@ const SacredAudioPlayer: React.FC = () => {
     crown: '#EE82EE'
   };
 
-  // Initialize the AudioContext and setup the audio analyzer
-  useEffect(() => {
-    if (!audioRef.current) return;
-    
-    // Create AudioContext if it doesn't exist
-    if (!audioContext) {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      if (AudioContext) {
-        const newAudioContext = new AudioContext();
-        setAudioContext(newAudioContext);
-        
-        // Create analyzer node
-        const newAnalyser = newAudioContext.createAnalyser();
-        newAnalyser.fftSize = 256;
-        const bufferLength = newAnalyser.frequencyBinCount;
-        const newDataArray = new Uint8Array(bufferLength);
-        
-        setAnalyser(newAnalyser);
-        setDataArray(newDataArray);
-      }
-    }
-    
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [audioRef, audioContext]);
+  // Connect audio analyzer to the audio element
+  const { audioContext, analyser } = useAudioAnalyzer(audioRef);
+  const [audioData, setAudioData] = useState<Uint8Array | null>(null);
 
-  // Connect the audio element to the analyzer when it's available
-  useEffect(() => {
-    if (!audioRef.current || !audioContext || !analyser || sourceNodeConnected) return;
-    
-    try {
-      const sourceNode = audioContext.createMediaElementSource(audioRef.current);
-      sourceNode.connect(analyser);
-      analyser.connect(audioContext.destination);
-      setSourceNodeConnected(true);
-    } catch (error) {
-      console.error("Error connecting audio source:", error);
-    }
-  }, [audioRef, audioContext, analyser, sourceNodeConnected]);
-
-  // Setup canvas sizing and observe resize events
+  // Set up canvas sizing and observe resize events
   useEffect(() => {
     if (!canvasRef.current) return;
     
@@ -112,17 +77,21 @@ const SacredAudioPlayer: React.FC = () => {
       resizeObserver.observe(container);
     }
     
+    // Also listen for window resize events
+    window.addEventListener('resize', updateCanvasSize);
+    
     return () => {
       if (container) {
         resizeObserver.unobserve(container);
       }
       resizeObserver.disconnect();
+      window.removeEventListener('resize', updateCanvasSize);
     };
-  }, []);
+  }, [expanded]);
 
   // Draw the sacred geometry visualizer
   const drawVisualizer = () => {
-    if (!canvasRef.current || !analyser || !dataArray) return;
+    if (!canvasRef.current || !audioData) return;
     
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
@@ -131,22 +100,19 @@ const SacredAudioPlayer: React.FC = () => {
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Get frequency data
-    analyser.getByteFrequencyData(dataArray);
-    
-    // Calculate average amplitude
+    // Calculate average amplitude for visualization intensity
     let sum = 0;
-    for (let i = 0; i < dataArray.length; i++) {
-      sum += dataArray[i];
+    for (let i = 0; i < audioData.length; i++) {
+      sum += audioData[i];
     }
-    const averageAmplitude = sum / dataArray.length;
+    const averageAmplitude = sum / audioData.length / 255; // Normalized to 0-1
     
     // Get center point
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
     
     // Draw seed of life (central circle)
-    const seedRadius = Math.min(canvas.width, canvas.height) * 0.1 * (1 + (averageAmplitude / 255) * 0.2);
+    const seedRadius = Math.min(canvas.width, canvas.height) * 0.1 * (1 + averageAmplitude * 0.3);
     
     // Choose color based on theme and current frequency
     let mainColor;
@@ -185,51 +151,73 @@ const SacredAudioPlayer: React.FC = () => {
     ctx.shadowBlur = 15;
     ctx.shadowColor = typeof mainColor === 'string' ? mainColor : '#8B5CF6';
     
-    // Draw flower of life patterns
-    const maxRadius = Math.min(canvas.width, canvas.height) / 2 * 0.8;
-    const currentFrequency = currentTrack?.customData?.frequency || 0;
-    
-    // Check if current frequency is a prime number or close to one
-    const isPrimeOrClose = primeNumbers.some(prime => 
-      Math.abs(currentFrequency - prime) < 5 || 
-      Math.abs(currentFrequency % prime) < 5
-    );
-    
-    // Create new circles for prime frequencies
-    if (isPrimeOrClose && isPlaying) {
-      const numCircles = Math.floor(Math.random() * 3) + 4; // 4-6 circles
+    // Draw flower of life patterns - expanding circles
+    for (let i = 0; i < 6; i++) {
+      const angle = (Math.PI * 2 / 6) * i;
+      const distance = seedRadius;
+      const x = centerX + Math.cos(angle) * distance;
+      const y = centerY + Math.sin(angle) * distance;
       
-      for (let i = 0; i < numCircles; i++) {
-        // Calculate position using polar coordinates
-        const angle = (Math.PI * 2 / numCircles) * i;
-        const distance = seedRadius * 2; // Distance from center
-        
-        const x = centerX + Math.cos(angle) * distance;
-        const y = centerY + Math.sin(angle) * distance;
-        
-        // Vary the colors slightly
-        let circleColor;
-        if (liftTheVeil) {
-          const hue = (i * 30) % 360; // Distribute hues around the color wheel
-          circleColor = `hsla(${hue}, 100%, 70%, 0.7)`;
-        } else {
-          circleColor = typeof mainColor === 'string' ? mainColor : '#8B5CF6';
-        }
+      ctx.beginPath();
+      ctx.arc(x, y, seedRadius * (0.5 + averageAmplitude * 0.5), 0, Math.PI * 2);
+      ctx.fillStyle = typeof mainColor === 'string' 
+        ? `${mainColor}40` // More transparent
+        : mainColor;
+      ctx.fill();
+    }
+    
+    // Add time-based animations - pulsing outer ring
+    const time = performance.now() / 1000;
+    const pulseFactor = 1 + Math.sin(time * 2) * 0.1;
+    
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, seedRadius * 2 * pulseFactor, 0, Math.PI * 2);
+    ctx.strokeStyle = typeof mainColor === 'string' ? mainColor : '#8B5CF6';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    // Create new circles based on audio characteristics
+    if (isPlaying && audioData) {
+      // Check if current frequency is a prime number or close to one
+      const currentFrequency = currentTrack?.customData?.frequency || 0;
+      const isPrimeOrClose = primeNumbers.some(prime => 
+        Math.abs(currentFrequency - prime) < 5 || 
+        Math.abs(currentFrequency % prime) < 5
+      );
+      
+      // Create prime frequency blooms
+      if (isPrimeOrClose && Math.random() > 0.9) {
+        const angle = Math.random() * Math.PI * 2;
+        const distance = seedRadius * (1 + Math.random());
         
         circlesRef.current.push({
-          x,
-          y,
-          radius: seedRadius * 0.7,
-          opacity: 1,
-          color: circleColor
+          x: centerX + Math.cos(angle) * distance,
+          y: centerY + Math.sin(angle) * distance,
+          radius: seedRadius * (0.3 + Math.random() * 0.3),
+          opacity: 0.7,
+          color: liftTheVeil 
+            ? `hsla(${Math.random() * 360}, 100%, 70%, 0.7)` 
+            : typeof mainColor === 'string' ? mainColor : '#8B5CF6'
+        });
+      }
+      
+      // Add frequency-reactive ripples
+      if (averageAmplitude > 0.4 && Math.random() > 0.8) {
+        circlesRef.current.push({
+          x: centerX,
+          y: centerY,
+          radius: seedRadius * 0.8,
+          opacity: 0.5,
+          color: typeof mainColor === 'string' ? mainColor : '#8B5CF6'
         });
       }
     }
     
     // Draw and update all circles
+    const maxRadius = Math.min(canvas.width, canvas.height) / 2;
     circlesRef.current = circlesRef.current.filter(circle => {
-      // Update circle properties
-      circle.radius += 0.5;
+      // Update circle properties for animation
+      circle.radius += 1;
       circle.opacity -= 0.01;
       
       if (circle.opacity <= 0 || circle.radius > maxRadius) {
@@ -239,23 +227,47 @@ const SacredAudioPlayer: React.FC = () => {
       // Draw the circle
       ctx.beginPath();
       ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
-      ctx.fillStyle = circle.color.replace(')', `, ${circle.opacity})`).replace('rgba', 'rgba').replace('hsla', 'hsla');
+      
+      const colorString = circle.color.startsWith('hsl') 
+        ? circle.color.replace(')', `, ${circle.opacity})`) 
+        : circle.color.startsWith('rgb')
+          ? circle.color.replace(')', `, ${circle.opacity})`)
+          : `${circle.color}${Math.floor(circle.opacity * 255).toString(16).padStart(2, '0')}`;
+      
+      ctx.fillStyle = colorString;
       ctx.fill();
       
       return true; // Keep the circle
     });
     
-    // Reset glow for other elements
+    // Reset shadow for other elements
     ctx.shadowBlur = 0;
     
     // Continue animation loop
     animationFrameRef.current = requestAnimationFrame(drawVisualizer);
   };
 
-  // Start/stop the visualizer based on component mount/unmount
+  // Update audio data for visualization
   useEffect(() => {
-    if (isPlaying) {
-      drawVisualizer();
+    if (!analyser || !isPlaying) return;
+    
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+    
+    const updateAudioData = () => {
+      analyser.getByteFrequencyData(dataArray);
+      setAudioData(dataArray);
+    };
+    
+    const intervalId = setInterval(updateAudioData, 50);
+    
+    return () => clearInterval(intervalId);
+  }, [analyser, isPlaying]);
+
+  // Start/stop the visualizer based on component mount/unmount and play state
+  useEffect(() => {
+    if (isPlaying && canvasRef.current) {
+      // Start the animation loop
+      animationFrameRef.current = requestAnimationFrame(drawVisualizer);
     }
     
     return () => {
@@ -263,85 +275,168 @@ const SacredAudioPlayer: React.FC = () => {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [isPlaying, canvasSize]);
+  }, [isPlaying, canvasSize, audioData]);
 
-  // Add a special animation for prime number frequencies
+  // Handle volume change
   useEffect(() => {
-    if (!currentTrack?.customData?.frequency) return;
+    if (!audioRef.current) return;
     
-    const frequency = currentTrack.customData.frequency;
-    const isPrime = primeNumbers.includes(Math.round(frequency));
+    audioRef.current.volume = isMuted ? 0 : volume;
+  }, [volume, isMuted, audioRef]);
+  
+  // Toggle mute function
+  const toggleMute = () => {
+    setIsMuted(prev => !prev);
+  };
+  
+  // Format time for display (mm:ss)
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+  
+  // Handle seeking on progress bar click
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!duration) return;
     
-    if (isPrime && isPlaying) {
-      // Add a burst of circles for prime frequencies
-      const burst = () => {
-        if (!canvasRef.current) return;
-        
-        const canvas = canvasRef.current;
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        
-        // Create circles in a burst pattern
-        for (let i = 0; i < 8; i++) {
-          const angle = (Math.PI * 2 / 8) * i;
-          const distance = Math.min(canvas.width, canvas.height) * 0.15;
-          
-          circlesRef.current.push({
-            x: centerX + Math.cos(angle) * distance,
-            y: centerY + Math.sin(angle) * distance,
-            radius: Math.min(canvas.width, canvas.height) * 0.05,
-            opacity: 0.9,
-            color: liftTheVeil ? 
-              `hsla(${(i * 45) % 360}, 100%, 70%, 0.7)` : 
-              Object.values(chakraColors)[i % 7]
-          });
-        }
-      };
-      
-      burst();
-      const intervalId = setInterval(burst, 3000);
-      
-      return () => clearInterval(intervalId);
-    }
-  }, [currentTrack, isPlaying, liftTheVeil]);
+    const progressBar = e.currentTarget;
+    const rect = progressBar.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left;
+    const newTime = (offsetX / rect.width) * duration;
+    
+    seekTo(newTime);
+  };
+  
+  // Toggle expanded view
+  const toggleExpanded = () => {
+    setExpanded(prev => !prev);
+  };
 
-  // Make sure the component is always visible
   return (
-    <div className={`fixed bottom-4 right-4 z-[1000] p-4 rounded-xl sacred-audio-player ${isPlaying ? 'is-playing' : ''}`}
-         style={{ 
-           backgroundColor: 'rgba(0, 0, 0, 0.75)',
-           boxShadow: '0 0 20px rgba(139, 92, 246, 0.5)',
-           width: '160px',
-           height: '80px'
-         }}>
+    <motion.div 
+      className={`fixed bottom-4 right-4 z-[1000] rounded-xl overflow-hidden sacred-audio-player ${isPlaying ? 'is-playing' : ''} ${liftTheVeil ? 'veil-lifted' : ''}`}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      style={{ 
+        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+        boxShadow: `0 0 20px ${liftTheVeil ? 'rgba(255, 105, 180, 0.7)' : 'rgba(139, 92, 246, 0.7)'}`,
+        width: expanded ? '300px' : '160px',
+        height: expanded ? '200px' : '80px',
+        transition: 'width 0.3s ease, height 0.3s ease'
+      }}
+    >
       <div className="relative w-full h-full">
         {/* Canvas layer for visualization */}
         <canvas 
           ref={canvasRef}
-          className="absolute inset-0 w-full h-full rounded-lg sacred-geometry-canvas"
+          className="absolute inset-0 w-full h-full sacred-geometry-canvas rounded-lg"
           style={{ opacity: 0.9 }}
         />
         
         {/* Controls layer */}
-        <div className="relative z-10 flex items-center justify-center h-full">
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={togglePlay}
-            className="px-4 py-2 bg-white text-black rounded flex items-center gap-1"
-          >
-            {isPlaying ? (
-              <>
-                <Pause size={14} /> <span>Pause</span>
-              </>
-            ) : (
-              <>
-                <Play size={14} /> <span>Play</span>
-              </>
+        <div className="relative z-10 flex flex-col p-2 h-full">
+          {expanded && (
+            <div className="flex justify-between items-center mb-2">
+              <div className="text-white text-xs truncate max-w-[200px]">
+                {currentTrack?.title || 'Sacred Audio'}
+                {currentTrack?.artist && <span className="opacity-70"> • {currentTrack.artist}</span>}
+              </div>
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={toggleExpanded}
+                className="p-1 text-white/70 hover:text-white"
+              >
+                <Minimize2 size={16} />
+              </motion.button>
+            </div>
+          )}
+          
+          {/* Progress bar (expanded view only) */}
+          {expanded && (
+            <div 
+              className="w-full h-2 bg-white/20 rounded-full cursor-pointer mb-3"
+              onClick={handleSeek}
+            >
+              <div 
+                className="h-full bg-white/70 rounded-full"
+                style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
+              />
+            </div>
+          )}
+          
+          {/* Main controls */}
+          <div className={`flex ${expanded ? 'justify-between' : 'justify-center'} items-center h-${expanded ? 'auto' : 'full'}`}>
+            {/* Play/Pause button */}
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={togglePlay}
+              className={`${expanded ? 'px-4 py-2' : 'px-3 py-1.5'} bg-white text-black rounded flex items-center gap-1 hover:bg-opacity-90`}
+            >
+              {isPlaying ? (
+                <>
+                  <Pause size={expanded ? 16 : 14} /> <span>{expanded ? 'Pause' : ''}</span>
+                </>
+              ) : (
+                <>
+                  <Play size={expanded ? 16 : 14} /> <span>{expanded ? 'Play' : ''}</span>
+                </>
+              )}
+            </motion.button>
+            
+            {/* Time display (expanded view only) */}
+            {expanded && (
+              <div className="text-white text-xs">
+                {formatTime(currentTime)} / {formatTime(duration || 0)}
+              </div>
             )}
-          </motion.button>
+            
+            {/* Volume control (expanded view only) */}
+            {expanded && (
+              <div className="relative flex items-center">
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={toggleMute}
+                  className="p-1 text-white"
+                  onMouseEnter={() => setShowVolume(true)}
+                >
+                  {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                </motion.button>
+                
+                {showVolume && (
+                  <div 
+                    className="absolute bottom-full right-0 p-2 bg-black/80 rounded-lg mb-2"
+                    onMouseEnter={() => setShowVolume(true)}
+                    onMouseLeave={() => setShowVolume(false)}
+                  >
+                    <Slider
+                      value={[volume * 100]}
+                      min={0}
+                      max={100}
+                      step={1}
+                      className="w-24"
+                      onValueChange={(value) => setVolume(value[0] / 100)}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Expand button (collapsed view only) */}
+            {!expanded && (
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={toggleExpanded}
+                className="ml-2 p-1 text-white/70 hover:text-white"
+              >
+                <Maximize2 size={14} />
+              </motion.button>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
