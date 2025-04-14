@@ -21,7 +21,12 @@ const Merkaba = ({ position, rotation, scale, color, opacity }) => {
   }, []);
 
   return (
-    <mesh ref={meshRef} position={position} rotation={rotation} scale={scale}>
+    <mesh 
+      ref={meshRef} 
+      position={position as [number, number, number]} 
+      rotation={rotation as [number, number, number]} 
+      scale={scale}
+    >
       <primitive object={merkaba} />
       <meshStandardMaterial 
         color={color} 
@@ -45,7 +50,12 @@ const Torus = ({ position, rotation, scale, color, opacity }) => {
   });
 
   return (
-    <mesh ref={meshRef} position={position} rotation={rotation} scale={scale}>
+    <mesh 
+      ref={meshRef} 
+      position={position as [number, number, number]} 
+      rotation={rotation as [number, number, number]} 
+      scale={scale}
+    >
       <torusKnotGeometry args={[1, 0.3, 128, 32, 2, 3]} />
       <meshStandardMaterial 
         color={color} 
@@ -69,7 +79,12 @@ const Dodecahedron = ({ position, rotation, scale, color, opacity }) => {
   });
 
   return (
-    <mesh ref={meshRef} position={position} rotation={rotation} scale={scale}>
+    <mesh 
+      ref={meshRef} 
+      position={position as [number, number, number]} 
+      rotation={rotation as [number, number, number]} 
+      scale={scale}
+    >
       <dodecahedronGeometry args={[1, 0]} />
       <meshStandardMaterial 
         color={color} 
@@ -133,21 +148,45 @@ const FlowerOfLife = ({ position, rotation, scale, color, opacity }) => {
   }
 
   return (
-    <group ref={groupRef} position={position} rotation={rotation} scale={scale}>
+    <group 
+      ref={groupRef} 
+      position={position as [number, number, number]} 
+      rotation={rotation as [number, number, number]} 
+      scale={scale}
+    >
       {circles}
     </group>
   );
 };
 
+// Define proper types for the shape properties
+interface ShapeProps {
+  id: number | string;
+  type: 'torus' | 'dodecahedron' | 'merkaba' | 'flowerOfLife';
+  position: [number, number, number];
+  rotation: [number, number, number];
+  scale: number;
+  color: string;
+  opacity: number;
+}
+
+// Define types for the VisualizerScene props
+interface VisualizerSceneProps {
+  audioData?: Uint8Array;
+  isPlaying: boolean;
+  liftTheVeil?: boolean;
+  primes?: number[];
+}
+
 // The main visualizer scene
-const VisualizerScene = ({ 
+const VisualizerScene: React.FC<VisualizerSceneProps> = ({ 
   audioData, 
   isPlaying, 
-  liftTheVeil, 
+  liftTheVeil = false, 
   primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47]
 }) => {
   const { camera } = useThree();
-  const [shapes, setShapes] = useState<any[]>([]);
+  const [shapes, setShapes] = useState<ShapeProps[]>([]);
   const directionalLightRef = useRef<THREE.DirectionalLight>(null);
   const pointLightRef = useRef<THREE.PointLight>(null);
   
@@ -205,7 +244,7 @@ const VisualizerScene = ({
       
       if (isPrimeOrClose || Math.random() > 0.85) {
         // Determine shape type based on frequency
-        let shapeType;
+        let shapeType: ShapeProps['type'];
         if (dominantFreq < 200) shapeType = 'torus';
         else if (dominantFreq < 500) shapeType = 'dodecahedron';
         else if (dominantFreq < 1000) shapeType = 'merkaba';
@@ -254,13 +293,13 @@ const VisualizerScene = ({
       <ambientLight intensity={0.4} />
       <directionalLight 
         ref={directionalLightRef}
-        position={[5, 5, 5]} 
+        position={[5, 5, 5] as [number, number, number]} 
         intensity={1.5} 
         castShadow 
       />
       <pointLight 
         ref={pointLightRef}
-        position={[0, 0, 0]} 
+        position={[0, 0, 0] as [number, number, number]} 
         intensity={2}
         color={liftTheVeil ? "#ff69b4" : "#9b87f5"} 
       />
@@ -309,7 +348,7 @@ const SacredThreeVisualizer: React.FC<SacredThreeVisualizerProps> = ({
   const shouldRender = isPlaying || fullscreen;
   
   // Camera settings based on fullscreen state
-  const cameraPosition = fullscreen ? [0, 0, 5] : [0, 0, 4];
+  const cameraPosition: [number, number, number] = fullscreen ? [0, 0, 5] : [0, 0, 4];
   const cameraFov = fullscreen ? 75 : 60;
   
   if (!shouldRender || !audioData) {
@@ -324,7 +363,7 @@ const SacredThreeVisualizer: React.FC<SacredThreeVisualizerProps> = ({
     <Canvas className="rounded-lg" shadows>
       <PerspectiveCamera 
         makeDefault
-        position={cameraPosition as [number, number, number]}
+        position={cameraPosition}
         fov={cameraFov}
       />
       <VisualizerScene
