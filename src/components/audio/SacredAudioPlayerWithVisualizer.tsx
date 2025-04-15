@@ -3,12 +3,16 @@ import React, { useState, useEffect } from 'react';
 import SacredAudioPlayer from './SacredAudioPlayer';
 import { JourneyProps } from '@/types/journey';
 import { useAppStore } from '@/store';
-import SacredVisualizerCanvas from '../visualizer/SacredVisualizerCanvas';
+import { AdvancedVisualizerManager } from '../visualizer/AdvancedVisualizerManager';
+import { getChakraColorScheme } from '@/lib/chakraColors';
 
 interface SacredAudioPlayerWithVisualizerProps {
   journey?: JourneyProps;
   audioUrl?: string;
 }
+
+// Define the visualization modes as a union type that can be used throughout the app
+export type VisualizerMode = 'flowerOfLife' | 'merkaba' | 'torus' | 'customPrimePulse' | 'primeFlow' | 'chakraSpiral';
 
 const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerProps> = ({
   journey,
@@ -26,7 +30,7 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
   const chakra = journey?.chakras?.[0]?.toLowerCase() as any;
   
   // Determine which visualizer mode to use based on journey theme
-  let visualizerMode: 'flowerOfLife' | 'merkaba' | 'torus' | 'customPrimePulse' = 'customPrimePulse';
+  let visualizerMode: VisualizerMode = 'customPrimePulse';
   
   switch (journey?.visualTheme) {
     case 'merkaba':
@@ -39,18 +43,32 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
     case 'vesica-piscis': // Add more mappings if needed
       visualizerMode = 'torus';
       break;
+    case 'sri-yantra':
+      visualizerMode = 'chakraSpiral';
+      break;
+    case 'cosmic-ocean':
+      visualizerMode = 'primeFlow';
+      break;
     default:
       visualizerMode = 'customPrimePulse';
   }
 
+  // Get chakra colors for styling
+  const colorScheme = journey?.chakras ? getChakraColorScheme(journey.chakras) : undefined;
+  const containerClass = `sacred-audio-player-with-visualizer w-full max-w-4xl mx-auto rounded-xl overflow-hidden shadow-lg ${chakra ? `chakra-${chakra}` : ''}`;
+
   return (
-    <div className="sacred-audio-player-with-visualizer">
-      {showVisualizer && chakra && (
-        <div className="mb-4">
-          <SacredVisualizerCanvas
+    <div className={containerClass}>
+      {showVisualizer && (
+        <div className="h-64 relative rounded-t-xl overflow-hidden shadow-inner">
+          <AdvancedVisualizerManager
             frequencyData={audioData || undefined}
             chakra={chakra}
-            visualizerMode={visualizerMode}
+            initialMode={visualizerMode}
+            showControls={false}
+            audioReactive={true}
+            isPlaying={isPlaying}
+            enableModeSelection={false}
           />
         </div>
       )}
