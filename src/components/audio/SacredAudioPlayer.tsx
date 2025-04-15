@@ -105,7 +105,7 @@ const SacredAudioPlayer: React.FC = () => {
         <VisualizerManager 
           type="simple"
           audioRef={audioRef}
-          isAudioReactive={false} // Disable audio reactivity to avoid any Three.js or WebGL issues
+          isAudioReactive={false}
           colorScheme={liftTheVeil ? 'pink' : 'purple'}
           size="md"
         />
