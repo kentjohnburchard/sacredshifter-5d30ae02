@@ -11,7 +11,7 @@ import { VisualizerManager } from '@/components/visualizer/VisualizerManager';
 import { JourneyProps } from '@/types/journey';
 import { 
   Play, Pause, Volume2, VolumeX, Maximize2, Minimize2,
-  FastForward, Timer, Headphones, Waves, Moon, MoveDown, MoveUp, X
+  FastForward, Timer, Headphones, Waves, Moon, MoveDown, MoveUp, X, Eye, EyeOff
 } from 'lucide-react';
 import { isPrime } from '@/lib/primeUtils';
 import { getChakraColorScheme } from '@/lib/chakraColors';
@@ -69,6 +69,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isVisualizerVisible, setIsVisualizerVisible] = useState(true);
   
   const [options, setOptions] = useState<JourneyOptions>({
     pinkNoise: false,
@@ -285,6 +286,10 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const chakras = journey?.chakras || [];
 
   const shouldShowVisualizer = playerIsPlaying || liftTheVeil;
+  
+  const toggleVisualizerVisibility = () => {
+    setIsVisualizerVisible(!isVisualizerVisible);
+  };
 
   if (isMinimized) {
     return (
@@ -338,6 +343,20 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           </div>
           
           <div className="flex items-center space-x-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleVisualizerVisibility}
+              className="h-6 w-6 text-gray-300 hover:text-white"
+              title={isVisualizerVisible ? "Hide visualizer" : "Show visualizer"}
+            >
+              {isVisualizerVisible ? (
+                <Eye className="h-4 w-4" />
+              ) : (
+                <EyeOff className="h-4 w-4" />
+              )}
+            </Button>
+            
             <Button
               variant="ghost"
               size="icon"
@@ -506,7 +525,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
         )}
       </div>
 
-      {isExpanded && shouldShowVisualizer && (
+      {isExpanded && shouldShowVisualizer && isVisualizerVisible && (
         <div className="mt-4 h-64 rounded-lg overflow-hidden backdrop-blur-md bg-black/30">
           <VisualizerManager 
             isAudioReactive={true}
