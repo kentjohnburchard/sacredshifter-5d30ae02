@@ -44,7 +44,12 @@ const SacredGeometry = ({ frequencyData, chakra, visualizerMode = 'merkaba' }: S
       const avg =
         frequencyData.reduce((acc, val) => acc + val, 0) / frequencyData.length;
       const intensity = avg / 255;
-      mesh.material.emissiveIntensity = intensity * 2;
+      
+      // Properly type-check the material before accessing emissiveIntensity
+      const material = mesh.material as THREE.MeshStandardMaterial;
+      if (material.emissiveIntensity !== undefined) {
+        material.emissiveIntensity = intensity * 2;
+      }
     }
   });
 
