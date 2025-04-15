@@ -23,3 +23,44 @@ export const getChakraColor = (chakra: ChakraType): string => {
   
   return chakraColors[chakra] || '#a855f7';
 };
+
+// Define types for 2D canvas visualizer components to replace Three.js components
+export type SacredGeometryType = 
+  | 'flowerOfLife' 
+  | 'merkaba' 
+  | 'metatronCube' 
+  | 'sriYantra' 
+  | 'fibonacciSpiral' 
+  | 'chakraBeam';
+
+// Configuration interface for geometry visualizers
+export interface GeometryConfig {
+  type: SacredGeometryType;
+  chakra?: ChakraType;
+  position?: [number, number, number];
+  rotation?: [number, number, number];
+  scale?: number;
+  isActive?: boolean;
+  color?: string;
+}
+
+// Export placeholder components that will be replaced with canvas implementations
+// These are dummy exports to satisfy the imports in other files
+export const FlowerOfLifeGeometry = () => null;
+export const MerkabaGeometry = () => null;
+export const MetatronCubeGeometry = () => null;
+export const SriYantraGeometry = () => null;
+export const FibonacciSpiralGeometry = () => null;
+export const ChakraBeamGeometry = () => null;
+
+// Simplified sacred geometry props for canvas visualizers
+export interface SacredGeometryProps {
+  chakra?: ChakraType;
+  intensity?: number;
+  frequencyData?: Uint8Array;
+  position?: [number, number, number];
+  rotation?: [number, number, number];
+  scale?: number;
+  isActive?: boolean;
+  color?: string;
+}

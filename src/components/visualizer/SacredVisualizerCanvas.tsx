@@ -1,22 +1,20 @@
 
 import React from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
-import * as THREE from 'three';
 import { VisualizerMode } from '@/components/audio/SacredAudioPlayerWithVisualizer';
 import { useTheme } from '@/context/ThemeContext';
-import { 
-  FlowerOfLifeGeometry, 
-  MerkabaGeometry,
-  MetatronCubeGeometry,
-  SriYantraGeometry, 
-  FibonacciSpiralGeometry,
-  ChakraBeamGeometry,
-  SacredGeometryType,
-  GeometryConfig,
-  ChakraType
-} from './sacred-geometries';
-import MultiVisualizer from './MultiVisualizer';
+import { ChakraType } from './sacred-geometries';
+
+// Local type definition to replace imports
+type SacredGeometryType = 'flowerOfLife' | 'merkaba' | 'metatronCube' | 'sriYantra' | 'fibonacciSpiral' | 'chakraBeam';
+
+interface GeometryConfig {
+  type: SacredGeometryType;
+  chakra?: ChakraType;
+  position?: [number, number, number];
+  rotation?: [number, number, number];
+  scale?: number;
+  isActive?: boolean;
+}
 
 type SacredVisualizerCanvasProps = {
   frequencyData?: Uint8Array;
@@ -29,6 +27,7 @@ type SacredVisualizerCanvasProps = {
   geometryConfigs?: GeometryConfig[];
 };
 
+// This is now a simple 2D canvas visualizer rather than a Three.js component
 const SacredVisualizerCanvas: React.FC<SacredVisualizerCanvasProps> = ({
   frequencyData,
   chakra = 'crown',
@@ -57,78 +56,61 @@ const SacredVisualizerCanvas: React.FC<SacredVisualizerCanvasProps> = ({
     );
   }
   
-  const fogColor = liftTheVeil ? '#330033' : '#110022';
-  const ambientColor = liftTheVeil ? '#ff69b4' : chakra ? {
-    root: '#ef4444',
-    sacral: '#f97316',
-    'solar plexus': '#facc15',
-    heart: '#22c55e',
-    throat: '#3b82f6',
-    'third eye': '#6366f1',
-    crown: '#a855f7'
-  }[chakra] : '#a855f7';
-  
-  const pointLightColor = liftTheVeil ? '#ff1493' : ambientColor;
-  
-  // If multiView is enabled, use the MultiVisualizer component
+  // If multiView is enabled, use a grid layout
   if (multiView || visualizerMode === 'multi') {
     return (
-      <div className="w-full h-full">
-        <MultiVisualizer 
-          frequencyData={frequencyData}
-          enableControls={enableControls}
-          intensity={intensity}
-          chakra={chakra}
-          geometries={geometryConfigs}
-          layoutType={geometryConfigs.length > 4 ? 'circle' : 'grid'}
-        />
+      <div className="w-full h-full bg-gradient-to-r from-purple-900/30 to-indigo-900/30 flex items-center justify-center">
+        <div className="text-white text-center">
+          <div className="text-xl font-semibold mb-4">Multi-Visualizer Mode</div>
+          <div className="grid grid-cols-3 gap-4">
+            {supportedGeometryTypes.map((type, index) => (
+              <div 
+                key={`geometry-${type}-${index}`}
+                className="w-16 h-16 rounded-full bg-purple-700/50 flex items-center justify-center"
+              >
+                <span className="text-xs">{type}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
   
-  // Render a specific geometry type
-  const renderGeometry = () => {
-    if (!isSupportedGeometry) {
-      return <FlowerOfLifeGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
-    }
+  const getColor = () => {
+    if (!chakra) return '#a855f7';
     
-    switch (visualizerMode) {
-      case 'flowerOfLife':
-        return <FlowerOfLifeGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
-      case 'merkaba':
-        return <MerkabaGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
-      case 'metatronCube':
-        return <MetatronCubeGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
-      case 'sriYantra':
-        return <SriYantraGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
-      case 'fibonacciSpiral':
-        return <FibonacciSpiralGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
-      case 'chakraBeam':
-        return <ChakraBeamGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
-      default:
-        return <FlowerOfLifeGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
+    switch (chakra) {
+      case 'root': return '#ef4444';
+      case 'sacral': return '#f97316';
+      case 'solar plexus': return '#facc15';
+      case 'heart': return '#22c55e';
+      case 'throat': return '#3b82f6';
+      case 'third eye': return '#6366f1';
+      case 'crown': return '#a855f7';
+      default: return '#a855f7';
     }
   };
   
+  const color = getColor();
+  
   return (
-    <div className="w-full h-full">
-      <Canvas frameloop="demand">
-        <PerspectiveCamera position={[0, 0, 5]} fov={70} makeDefault />
-        <ambientLight intensity={0.5} color={ambientColor} />
-        <pointLight position={[10, 10, 10]} intensity={1} color={pointLightColor} />
-        <fog attach="fog" args={[fogColor, 1, 20]} />
-        
-        {renderGeometry()}
-        
-        {enableControls && (
-          <OrbitControls 
-            enablePan={false} 
-            enableZoom={true} 
-            enableRotate={true} 
-            makeDefault
-          />
-        )}
-      </Canvas>
+    <div className="w-full h-full bg-gradient-to-r from-purple-900/20 to-indigo-900/20 flex items-center justify-center">
+      <canvas 
+        id="geometry-canvas"
+        className="w-full h-full absolute top-0 left-0"
+        style={{ 
+          opacity: 0.8 
+        }}
+      />
+      <div className="text-white text-center z-10">
+        <div className="text-xl font-semibold">
+          {visualizerMode}
+        </div>
+        <div className="text-sm opacity-70 mt-2">
+          {chakra} chakra visualization
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import SacredAudioPlayer from './SacredAudioPlayer';
 import { JourneyProps } from '@/types/journey';
@@ -33,7 +34,10 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
     !!audioData;
 
   // Get chakra colors for styling
-  const colorScheme = journey?.chakras ? getChakraColorScheme(journey.chakras) : undefined;
+  const colorSchemeObj = journey?.chakras ? getChakraColorScheme(journey.chakras) : undefined;
+  // Convert colorScheme to string if it's an object
+  const colorScheme = typeof colorSchemeObj === 'object' && colorSchemeObj ? colorSchemeObj.primary : colorSchemeObj;
+  
   const containerClass = `sacred-audio-player-with-visualizer w-full max-w-4xl mx-auto rounded-xl overflow-hidden shadow-lg ${chakra ? `chakra-${chakra}` : ''}`;
 
   const toggleVisualizer = () => {

@@ -4,18 +4,31 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
 import { 
-  FlowerOfLifeGeometry, 
-  MerkabaGeometry,
-  MetatronCubeGeometry,
-  SriYantraGeometry,
-  FibonacciSpiralGeometry,
-  ChakraBeamGeometry,
-  GeometryConfig,
-  SacredGeometryType,
+  // Remove references to non-existent types
   ChakraType,
   getChakraColor
 } from './sacred-geometries';
 import { useTheme } from '@/context/ThemeContext';
+import { VisualizerMode } from '@/components/audio/SacredAudioPlayerWithVisualizer';
+
+// Define types locally as they're removed from sacred-geometries
+type SacredGeometryType = 
+  | 'flowerOfLife' 
+  | 'merkaba' 
+  | 'metatronCube' 
+  | 'sriYantra' 
+  | 'fibonacciSpiral' 
+  | 'chakraBeam';
+
+interface GeometryConfig {
+  type: SacredGeometryType;
+  chakra?: ChakraType;
+  position?: [number, number, number];
+  rotation?: [number, number, number];
+  scale?: number;
+  isActive?: boolean;
+  color?: string;
+}
 
 interface MultiVisualizerProps {
   frequencyData?: Uint8Array;
@@ -25,6 +38,17 @@ interface MultiVisualizerProps {
   intensity?: number;
   chakra?: ChakraType;
 }
+
+// Render a placeholder instead of the real visualizer
+const PlaceholderGeometry = ({ position, scale, color, type }: any) => (
+  <mesh position={position} scale={scale}>
+    <sphereGeometry args={[1, 16, 16]} />
+    <meshStandardMaterial color={color || "#a855f7"} />
+    <Html position={[0, 0, 0]}>
+      <div className="text-white text-xs">{type}</div>
+    </Html>
+  </mesh>
+);
 
 const MultiVisualizer: React.FC<MultiVisualizerProps> = ({
   frequencyData,
@@ -96,78 +120,41 @@ const MultiVisualizer: React.FC<MultiVisualizerProps> = ({
       };
     });
   }, [effectiveGeometries, layoutType, chakra]);
-  
-  // Component to render a specific geometry type
-  const GeometryRenderer = ({ 
-    type, 
-    position, 
-    scale, 
-    rotation,
-    chakra: geometryChakra, 
-    isActive = true,
-    color
-  }: GeometryConfig & { color?: string }) => {
-    const props = {
-      chakra: geometryChakra || chakra,
-      position,
-      scale,
-      rotation,
-      isActive,
-      frequencyData,
-      intensity,
-      color
-    };
-    
-    switch (type) {
-      case 'flowerOfLife':
-        return <FlowerOfLifeGeometry {...props} />;
-      case 'merkaba':
-        return <MerkabaGeometry {...props} />;
-      case 'metatronCube':
-        return <MetatronCubeGeometry {...props} />;
-      case 'sriYantra':
-        return <SriYantraGeometry {...props} />;
-      case 'fibonacciSpiral':
-        return <FibonacciSpiralGeometry {...props} />;
-      case 'chakraBeam':
-        return <ChakraBeamGeometry {...props} />;
-      default:
-        return <FlowerOfLifeGeometry {...props} />;
-    }
-  };
-  
-  const ambientColor = liftTheVeil ? '#ff69b4' : '#9370db';
-  const fogColor = liftTheVeil ? '#330033' : '#110022';
-  
+
+  // Render a simple 2D canvas here instead of the 3D visualization
   return (
-    <Canvas frameloop="demand">
-      <PerspectiveCamera 
-        makeDefault 
-        position={[0, 0, 10]} 
-        fov={layoutType === 'circle' ? 60 : 50}
-      />
-      
-      <ambientLight intensity={0.5} color={ambientColor} />
-      <pointLight position={[10, 10, 10]} color={ambientColor} intensity={1} />
-      
-      <fog attach="fog" args={[fogColor, 1, 20]} />
-      
-      {positionedGeometries.map((geometry, index) => (
-        <GeometryRenderer
-          key={`geometry-${geometry.type}-${index}`}
-          {...geometry}
-        />
-      ))}
-      
-      {enableControls && (
-        <OrbitControls 
-          enablePan={false} 
-          enableZoom={true} 
-          enableRotate={true}
-          target={[0, 0, 0]}
-        />
-      )}
-    </Canvas>
+    <div className="w-full h-full flex items-center justify-center bg-gradient-to-r from-purple-900/30 to-indigo-900/30">
+      <div className="text-white text-center">
+        <div className="text-xl font-semibold mb-4">2D Visualizer</div>
+        <div className="grid grid-cols-3 gap-4">
+          {positionedGeometries.map((config, index) => (
+            <div 
+              key={`geometry-${config.type}-${index}`}
+              className="w-16 h-16 rounded-full bg-purple-700/50 flex items-center justify-center"
+            >
+              <span className="text-xs">{config.type}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Add missing HTML component for placeholders
+const Html = ({ children, position }: any) => {
+  return (
+    <div style={{
+      position: 'absolute',
+      transform: `translate3d(${position[0]}px, ${position[1]}px, ${position[2]}px)`,
+      pointerEvents: 'none',
+      width: '100px',
+      textAlign: 'center',
+      marginLeft: '-50px',
+      marginTop: '-10px'
+    }}>
+      {children}
+    </div>
   );
 };
 
