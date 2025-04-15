@@ -19,12 +19,12 @@ export interface FrequencyPlayerProps {
 // This is a wrapper component around SacredAudioPlayer for backward compatibility
 const FrequencyPlayer: React.FC<FrequencyPlayerProps> = (props) => {
   // Ensure we're passing audioUrl correctly - prioritize audioUrl, but fall back to url if needed
-  const audioSource = props.audioUrl || props.url;
+  const audioSource = props.audioUrl || props.url || '/sounds/focus-ambient.mp3';
   
   // Use the force play parameter if present
   const forcePlay = props.forcePlay || false;
   
-  const { setIsPlaying } = useAppStore();
+  const { setIsPlaying, setAudioPlaybackError } = useAppStore();
   
   useEffect(() => {
     // Log useful debugging information
@@ -34,10 +34,6 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = (props) => {
       isPlaying: props.isPlaying,
       forcePlay
     });
-    
-    if (!audioSource) {
-      console.warn("FrequencyPlayer: No audio source provided!");
-    }
     
     // Handle external isPlaying prop
     if (props.isPlaying !== undefined) {
@@ -62,11 +58,6 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = (props) => {
       props.onPlayToggle(isPlaying);
     }
   };
-  
-  if (!audioSource) {
-    console.warn("FrequencyPlayer: No audio source provided");
-    return null;
-  }
   
   return (
     <SacredAudioPlayer 

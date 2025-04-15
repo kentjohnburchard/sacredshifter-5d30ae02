@@ -15,7 +15,7 @@ interface JourneyAudioPlayerProps {
 const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
   const [isActive, setIsActive] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const { setDetectedPrimes, setIsPlaying, setAudioPlaybackError } = useAppStore();
+  const { setDetectedPrimes, setIsPlaying, setAudioPlaybackError, setAudioInitialized } = useAppStore();
   const audioInitialized = useRef(false);
 
   // Monitor audio for primes
@@ -41,17 +41,39 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
     if (audioInitialized.current) return;
     
     try {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      if (AudioContext) {
-        const context = new AudioContext();
-        console.log("AudioContext created successfully");
-        audioInitialized.current = true;
-      }
+      const initAudio = () => {
+        const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioContext) {
+          const context = new AudioContext();
+          console.log("AudioContext created successfully");
+          audioInitialized.current = true;
+          setAudioInitialized(true);
+        }
+      };
+      
+      // Wait for user interaction to initialize audio
+      const userInteractionHandler = () => {
+        initAudio();
+        document.removeEventListener('click', userInteractionHandler);
+        document.removeEventListener('touchstart', userInteractionHandler);
+      };
+      
+      document.addEventListener('click', userInteractionHandler);
+      document.addEventListener('touchstart', userInteractionHandler);
+      
+      // Also try to initialize directly if possible
+      initAudio();
+      
     } catch (error) {
       console.error("Failed to initialize AudioContext:", error);
       setAudioPlaybackError("Failed to initialize audio system");
     }
-  }, [setAudioPlaybackError]);
+    
+    return () => {
+      document.removeEventListener('click', () => {});
+      document.removeEventListener('touchstart', () => {});
+    };
+  }, [setAudioPlaybackError, setAudioInitialized]);
 
   if (!journey) {
     return null;
@@ -64,11 +86,38 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
     toast.info(`Starting journey: ${journey.title}`);
     
     // Initialize audio element if needed
-    const audioElement = document.querySelector('audio#global-audio-player') as HTMLAudioElement;
+    const audioElement = document.querySelector('audio#global-audio-player') as HTMLAudioElement 
+                       || document.createElement('audio');
+    
     if (audioElement) {
       // Ensure audio is ready to play
       audioElement.volume = 0.7;
-      console.log("Audio element volume set to 0.7");
+      audioElement.id = 'global-audio-player';
+      audioElement.crossOrigin = 'anonymous';
+      
+      if (!audioElement.src) {
+        audioElement.src = '/sounds/focus-ambient.mp3';
+      }
+      
+      if (!audioElement.parentElement) {
+        document.body.appendChild(audioElement);
+      }
+      
+      console.log("Audio element volume set to 0.7, source:", audioElement.src);
+      
+      // Attempt to resume AudioContext if needed
+      const resumeAudioContext = () => {
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        if (audioContext.state === 'suspended') {
+          audioContext.resume().then(() => {
+            console.log('AudioContext resumed successfully');
+          }).catch(err => {
+            console.error('Failed to resume AudioContext', err);
+          });
+        }
+      };
+      
+      resumeAudioContext();
       
       // Add error handling for audio element
       const handleError = () => {
@@ -135,6 +184,7 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
         </Button>
         <SacredAudioPlayerWithVisualizer 
           journey={playerJourney} 
+          audioUrl="/sounds/focus-ambient.mp3"
           isFullscreen={isFullscreen}
           forcePlay={true}
         />

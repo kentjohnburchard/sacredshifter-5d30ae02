@@ -26,6 +26,8 @@ interface AppState {
   setVisualizationColors: (colors: string[]) => void;
   audioContext: AudioContext | null;
   setAudioContext: (context: AudioContext | null) => void;
+  audioInitialized: boolean;
+  setAudioInitialized: (initialized: boolean) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -56,4 +58,6 @@ export const useAppStore = create<AppState>((set) => ({
   setVisualizationColors: (colors: string[]) => set({ visualizationColors: colors }),
   audioContext: null,
   setAudioContext: (context: AudioContext | null) => set({ audioContext: context }),
+  audioInitialized: false,
+  setAudioInitialized: (initialized: boolean) => set({ audioInitialized: initialized }),
 }));

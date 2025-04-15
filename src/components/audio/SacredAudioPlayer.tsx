@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { JourneyProps } from '@/types/journey';
@@ -45,11 +46,12 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   } = useAudioPlayer();
   const [volume, setVolume] = useState(70);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
-  const { setAudioData, setFrequencyData, setIsPlaying } = useAppStore();
+  const { setAudioData, setFrequencyData, setIsPlaying, setAudioPlaybackError } = useAppStore();
   const audioPlayAttempted = useRef(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const audioSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const [fallbackAudioUrl] = useState<string>('/sounds/focus-ambient.mp3');
 
   // Determine if we're in controlled or uncontrolled mode
   const isControlledMode = externalIsPlaying !== undefined;
@@ -76,14 +78,17 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
 
   // Set audio source when component mounts or audioUrl changes
   useEffect(() => {
-    const effectiveUrl = audioUrl || url; // Use either audioUrl or url prop
+    const effectiveUrl = audioUrl || url || fallbackAudioUrl; // Use fallback if no URL provided
+    
     if (effectiveUrl) {
       console.log("Setting audio source:", effectiveUrl);
       setAudioSource(effectiveUrl);
     } else {
       console.warn("No audio URL provided to SacredAudioPlayer");
+      // Set a fallback audio source
+      setAudioSource(fallbackAudioUrl);
     }
-  }, [audioUrl, url, setAudioSource]);
+  }, [audioUrl, url, setAudioSource, fallbackAudioUrl]);
 
   // Handle play/pause toggling with internal/external state management
   const handleTogglePlay = () => {
@@ -98,6 +103,23 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     } else {
       // Otherwise, update the global state
       setIsPlaying(!isPlaying);
+    }
+
+    // Initialize audio context if needed after user interaction
+    if (!audioContextRef.current) {
+      try {
+        const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioContext) {
+          audioContextRef.current = new AudioContext();
+          console.log("AudioContext created after user interaction");
+        }
+      } catch (e) {
+        console.error("Failed to create AudioContext:", e);
+      }
+    } else if (audioContextRef.current.state === 'suspended') {
+      audioContextRef.current.resume().catch(e => {
+        console.error("Failed to resume AudioContext:", e);
+      });
     }
   };
 
@@ -128,7 +150,9 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
         // Resume audio context if it's suspended
         if (audioContextRef.current.state === 'suspended') {
           console.log("Resuming audio context");
-          audioContextRef.current.resume();
+          audioContextRef.current.resume().catch(e => {
+            console.error("Failed to resume audio context:", e);
+          });
         }
         
         // Set up analyser if it doesn't exist
@@ -150,6 +174,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
               console.log("Audio already connected");
             } else {
               console.error("Error connecting audio source:", e);
+              setAudioPlaybackError("Error connecting audio source");
             }
           }
         }
@@ -176,13 +201,30 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
         
       } catch (error) {
         console.error("Error setting up audio analyser:", error);
+        setAudioPlaybackError("Error setting up audio visualizer");
       }
     };
     
-    setupAudioAnalyser();
+    // Add a delay to ensure the audio element is ready
+    setTimeout(setupAudioAnalyser, 1000);
+    
+    // Also add event listeners to try to initialize audio after user interaction
+    const handleUserInteraction = () => {
+      if (audioContextRef.current?.state === 'suspended') {
+        audioContextRef.current.resume().catch(e => {
+          console.error("Failed to resume audio context after user interaction:", e);
+        });
+      }
+    };
+    
+    document.addEventListener('click', handleUserInteraction);
+    document.addEventListener('touchstart', handleUserInteraction);
     
     return () => {
       // Clean up
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('touchstart', handleUserInteraction);
+      
       if (audioSourceRef.current) {
         try {
           audioSourceRef.current.disconnect();
@@ -199,7 +241,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
         }
       }
     };
-  }, [audioRef, isPlaying, setAudioData, setFrequencyData]);
+  }, [audioRef, isPlaying, setAudioData, setFrequencyData, setAudioPlaybackError]);
 
   // Volume control
   useEffect(() => {
@@ -229,6 +271,13 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     const handleError = (e: ErrorEvent) => {
       console.error("Audio error:", e);
       toast.error("Audio playback error. Please try again.");
+      setAudioPlaybackError("Audio playback error");
+      
+      // Try to use fallback audio
+      if (audioRef.current && audioRef.current.src !== fallbackAudioUrl) {
+        console.log("Attempting to use fallback audio");
+        setAudioSource(fallbackAudioUrl);
+      }
     };
     
     if (audioRef.current) {
@@ -240,7 +289,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
         audioRef.current.removeEventListener('error', handleError as EventListener);
       }
     };
-  }, [audioRef]);
+  }, [audioRef, fallbackAudioUrl, setAudioSource, setAudioPlaybackError]);
 
   return (
     <div className="bg-black/50 p-4 rounded-b-xl backdrop-blur-sm">
