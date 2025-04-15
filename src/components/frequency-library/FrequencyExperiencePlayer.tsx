@@ -43,7 +43,7 @@ const FrequencyExperiencePlayer: React.FC<FrequencyExperiencePlayerProps> = ({
     }
   };
 
-  // Only show visualizer if we have all required props and it's enabled
+  // Explicitly define shouldShowVisualizer to avoid reference errors
   const shouldShowVisualizer = audioUrl && frequency && showVisualizer;
   
   return (

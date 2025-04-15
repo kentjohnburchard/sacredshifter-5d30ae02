@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -31,6 +32,7 @@ const JourneyPlayer = () => {
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [visualizerError, setVisualizerError] = useState<string | null>(null);
   const [audioData, setAudioData] = useState<Uint8Array | undefined>();
+  const [showVisualizer, setShowVisualizer] = useState(true);
   
   const lastPlayedIndex = useRef<number | null>(null);
   const songsRef = useRef<any[]>([]);
@@ -39,6 +41,9 @@ const JourneyPlayer = () => {
   
   const { templates, loading: loadingTemplates } = useJourneyTemplates();
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
+
+  // Define shouldShowVisualizer explicitly to avoid the reference error
+  const shouldShowVisualizer = showVisualizer && audioAnalyser !== null && isPlaying;
 
   useEffect(() => {
     if (audioInitialized) return;
@@ -313,6 +318,8 @@ const JourneyPlayer = () => {
               colorScheme={journey?.colorScheme || "purple"}
               chakra={journey?.chakras?.[0]}
               frequency={journey?.frequency}
+              isPlaying={isPlaying}
+              analyzerNode={audioAnalyser}
             />
           )}
         </div>
