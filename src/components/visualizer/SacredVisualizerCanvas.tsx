@@ -11,25 +11,21 @@ import {
   MetatronCubeGeometry,
   SriYantraGeometry, 
   FibonacciSpiralGeometry,
-  ChakraBeamGeometry
+  ChakraBeamGeometry,
+  SacredGeometryType,
+  GeometryConfig
 } from './sacred-geometries';
 import MultiVisualizer from './MultiVisualizer';
 
 type SacredVisualizerCanvasProps = {
   frequencyData?: Uint8Array;
   chakra?: 'root' | 'sacral' | 'solar plexus' | 'heart' | 'throat' | 'third eye' | 'crown';
-  visualizerMode?: VisualizerMode;
+  visualizerMode?: VisualizerMode | SacredGeometryType;
   enableControls?: boolean;
   enablePostProcessing?: boolean;
   intensity?: number;
   multiView?: boolean;
-  geometryConfigs?: Array<{
-    type: string;
-    chakra?: string;
-    position?: [number, number, number];
-    scale?: number;
-    isActive?: boolean;
-  }>;
+  geometryConfigs?: GeometryConfig[];
 };
 
 const SacredGeometry = ({ 
@@ -101,7 +97,7 @@ const SacredVisualizerCanvas: React.FC<SacredVisualizerCanvasProps> = ({
           enableControls={enableControls}
           intensity={intensity}
           chakra={chakra}
-          geometries={geometryConfigs}
+          geometries={geometryConfigs as GeometryConfig[]}
           layoutType={geometryConfigs.length > 4 ? 'circle' : 'grid'}
         />
       </div>

@@ -98,7 +98,7 @@ const FlowerOfLifeGeometry: React.FC<SacredGeometryProps> = ({
           const innerX = innerRingRadius * Math.cos(innerAngle);
           const innerY = innerRingRadius * Math.sin(innerAngle);
           
-          // Create line using THREE.Line with BufferGeometry
+          // Fixed: Create line using THREE.Line with BufferGeometry and properly defined color
           const points = [
             new THREE.Vector3(x, y, 0),
             new THREE.Vector3(innerX, innerY, 0)

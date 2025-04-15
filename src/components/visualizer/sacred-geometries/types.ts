@@ -13,8 +13,11 @@ export interface SacredGeometryProps {
   isActive?: boolean;
 }
 
+// Updated to use our custom geometry types
+export type SacredGeometryType = 'flowerOfLife' | 'merkaba' | 'metatronCube' | 'sriYantra' | 'fibonacciSpiral' | 'chakraBeam' | 'multi';
+
 export interface GeometryConfig {
-  type: VisualizerMode | string;
+  type: SacredGeometryType;
   chakra?: 'root' | 'sacral' | 'solar plexus' | 'heart' | 'throat' | 'third eye' | 'crown';
   intensity?: number;
   scale?: number;

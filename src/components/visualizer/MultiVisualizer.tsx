@@ -9,7 +9,8 @@ import {
   SriYantraGeometry,
   FibonacciSpiralGeometry,
   ChakraBeamGeometry,
-  GeometryConfig
+  GeometryConfig,
+  SacredGeometryType
 } from './sacred-geometries';
 import { useTheme } from '@/context/ThemeContext';
 
@@ -19,7 +20,7 @@ interface MultiVisualizerProps {
   enableControls?: boolean;
   layoutType?: 'circle' | 'grid' | 'stack';
   intensity?: number;
-  chakra?: string;
+  chakra?: 'root' | 'sacral' | 'solar plexus' | 'heart' | 'throat' | 'third eye' | 'crown';
 }
 
 const MultiVisualizer: React.FC<MultiVisualizerProps> = ({
@@ -194,7 +195,6 @@ const MultiVisualizer: React.FC<MultiVisualizerProps> = ({
             enablePan={false} 
             enableZoom={true} 
             enableRotate={true}
-            // For circle layout, orbit around the center
             target={[0, 0, 0]}
           />
         )}

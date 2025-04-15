@@ -7,6 +7,7 @@ import { AdvancedVisualizerManager } from '../visualizer/AdvancedVisualizerManag
 import { getChakraColorScheme } from '@/lib/chakraColors';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from 'lucide-react';
+import { SacredGeometryType } from '../visualizer/sacred-geometries';
 
 interface SacredAudioPlayerWithVisualizerProps {
   journey?: JourneyProps;
@@ -14,7 +15,7 @@ interface SacredAudioPlayerWithVisualizerProps {
 }
 
 // Define the visualization modes as a union type that can be used throughout the app
-export type VisualizerMode = 'flowerOfLife' | 'merkaba' | 'torus' | 'customPrimePulse' | 'primeFlow' | 'chakraSpiral';
+export type VisualizerMode = 'flowerOfLife' | 'merkaba' | 'metatronCube' | 'sriYantra' | 'fibonacciSpiral' | 'chakraBeam' | 'multi' | 'torus' | 'customPrimePulse' | 'primeFlow' | 'chakraSpiral';
 
 const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerProps> = ({
   journey,
