@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { JourneyProps } from '@/types/journey';
@@ -55,6 +56,11 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const analyserRef = useRef<AnalyserNode | null>(null);
   const audioSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const [fallbackAudioUrl] = useState<string>('/sounds/focus-ambient.mp3');
+  
+  // Error handling and retry control
+  const errorToastShownRef = useRef(false);
+  const errorCountRef = useRef(0);
+  const MAX_ERROR_RETRIES = 3;
 
   // Determine if we're in controlled or uncontrolled mode
   const isControlledMode = externalIsPlaying !== undefined;
@@ -83,6 +89,12 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const validatedAudioUrl = audioUrl || url || '/sounds/focus-ambient.mp3';
   const [audioSource, setLocalAudioSource] = useState(validatedAudioUrl);
   
+  // Reset error state when audio source changes
+  useEffect(() => {
+    errorCountRef.current = 0;
+    errorToastShownRef.current = false;
+  }, [validatedAudioUrl]);
+  
   useEffect(() => {
     console.log("SacredAudioPlayer validating source:", validatedAudioUrl);
     
@@ -102,9 +114,22 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     
     const handleTestError = () => {
       console.error("Audio test failed for:", validatedAudioUrl);
-      // Fallback to default audio
-      setLocalAudioSource('/sounds/focus-ambient.mp3');
-      if (onError) onError();
+      
+      // Only show error toast once and only if we haven't exceeded retry count
+      if (!errorToastShownRef.current && errorCountRef.current < MAX_ERROR_RETRIES) {
+        errorToastShownRef.current = true;
+        toast.error("Audio playback error. Please try again.", {
+          id: "audio-error" // Use consistent ID to prevent duplicates
+        });
+      }
+      
+      errorCountRef.current += 1;
+      
+      // Fallback to default audio only if we've tried a few times
+      if (errorCountRef.current >= MAX_ERROR_RETRIES) {
+        setLocalAudioSource('/sounds/focus-ambient.mp3');
+        if (onError) onError();
+      }
       
       // Clean up test element
       audioTest.removeEventListener('canplaythrough', handleTestSuccess);
@@ -319,11 +344,22 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   useEffect(() => {
     const handleError = (e: ErrorEvent) => {
       console.error("Audio error:", e);
-      toast.error("Audio playback error. Please try again.");
+      
+      // Only show error toast if we haven't already shown one 
+      // and haven't exceeded the retry limit
+      if (!errorToastShownRef.current && errorCountRef.current < MAX_ERROR_RETRIES) {
+        errorToastShownRef.current = true;
+        toast.error("Audio playback error. Please try again.", {
+          id: "audio-error" // Use consistent ID to prevent duplicates
+        });
+      }
+      
+      errorCountRef.current += 1;
       setAudioPlaybackError("Audio playback error");
       
-      // Try to use fallback audio
-      if (audioRef.current && audioRef.current.src !== fallbackAudioUrl) {
+      // Try to use fallback audio if we've had multiple errors
+      if (audioRef.current && audioRef.current.src !== fallbackAudioUrl && 
+          errorCountRef.current >= MAX_ERROR_RETRIES) {
         console.log("Attempting to use fallback audio");
         setLocalAudioSource(fallbackAudioUrl);
       }
