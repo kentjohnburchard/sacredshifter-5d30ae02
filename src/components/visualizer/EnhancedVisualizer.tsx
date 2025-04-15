@@ -7,7 +7,7 @@ import SacredVisualizerCanvas from './SacredVisualizerCanvas';
 import { useAppStore } from '@/store';
 import { Button } from '@/components/ui/button';
 import { 
-  Waveform, 
+  WaveformIcon, 
   Hexagon, 
   Grid3X3, 
   CircleDashed 
@@ -115,7 +115,7 @@ const EnhancedVisualizer: React.FC<EnhancedVisualizerProps> = ({
             onClick={() => changeMode('equalizer')}
             title="Frequency Equalizer"
           >
-            <Waveform className="h-4 w-4" />
+            <WaveformIcon className="h-4 w-4" />
           </Button>
           
           <Button
