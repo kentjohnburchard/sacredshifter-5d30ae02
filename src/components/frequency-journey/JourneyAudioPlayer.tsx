@@ -15,7 +15,7 @@ interface JourneyAudioPlayerProps {
 const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
   const [isActive, setIsActive] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const { setDetectedPrimes } = useAppStore();
+  const { setDetectedPrimes, setIsPlaying } = useAppStore();
 
   // Monitor audio for primes
   useEffect(() => {
@@ -41,6 +41,8 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
 
   const handleStartJourney = () => {
     setIsActive(true);
+    // Force global playback state to true
+    setIsPlaying(true);
     toast.info(`Starting journey: ${journey.title}`);
   };
 

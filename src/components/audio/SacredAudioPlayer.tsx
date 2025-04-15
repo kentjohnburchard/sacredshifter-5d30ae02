@@ -45,7 +45,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   } = useAudioPlayer();
   const [volume, setVolume] = useState(70);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
-  const { setAudioData, setIsPlaying } = useAppStore();
+  const { setAudioData, setFrequencyData, setIsPlaying } = useAppStore();
   const audioPlayAttempted = useRef(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -54,6 +54,18 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   // Determine if we're in controlled or uncontrolled mode
   const isControlledMode = externalIsPlaying !== undefined;
   const isPlaying = isControlledMode ? externalIsPlaying : internalIsPlaying;
+
+  useEffect(() => {
+    console.log("SacredAudioPlayer current state:", {
+      audioUrl,
+      externalIsPlaying,
+      internalIsPlaying,
+      isPlaying,
+      forcePlay,
+      audioLoaded,
+      audioRef: audioRef.current ? "exists" : "none"
+    });
+  }, [audioUrl, externalIsPlaying, internalIsPlaying, isPlaying, forcePlay, audioLoaded, audioRef]);
 
   // Format time to mm:ss
   const formatTime = (time: number) => {
@@ -68,11 +80,15 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     if (effectiveUrl) {
       console.log("Setting audio source:", effectiveUrl);
       setAudioSource(effectiveUrl);
+    } else {
+      console.warn("No audio URL provided to SacredAudioPlayer");
     }
   }, [audioUrl, url, setAudioSource]);
 
   // Handle play/pause toggling with internal/external state management
   const handleTogglePlay = () => {
+    console.log("Toggle play called, current state:", isPlaying);
+    
     // Toggle the internal player state
     togglePlay();
     
@@ -111,6 +127,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
 
         // Resume audio context if it's suspended
         if (audioContextRef.current.state === 'suspended') {
+          console.log("Resuming audio context");
           audioContextRef.current.resume();
         }
         
@@ -123,6 +140,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
         // Connect audio element to analyser if not already connected
         if (!audioSourceRef.current) {
           try {
+            console.log("Creating media element source");
             audioSourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
             audioSourceRef.current.connect(analyserRef.current);
             analyserRef.current.connect(audioContextRef.current.destination);
@@ -139,11 +157,17 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
         // Set up the audio data update loop
         const bufferLength = analyserRef.current.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);
+        const freqArray = new Uint8Array(bufferLength);
         
         const updateAudioData = () => {
           if (analyserRef.current && isPlaying) {
-            analyserRef.current.getByteFrequencyData(dataArray);
+            // Get audio data
+            analyserRef.current.getByteTimeDomainData(dataArray);
             setAudioData(new Uint8Array(dataArray));
+            
+            // Get frequency data
+            analyserRef.current.getByteFrequencyData(freqArray);
+            setFrequencyData(new Uint8Array(freqArray));
           }
           requestAnimationFrame(updateAudioData);
         };
@@ -175,7 +199,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
         }
       }
     };
-  }, [audioRef, isPlaying, setAudioData]);
+  }, [audioRef, isPlaying, setAudioData, setFrequencyData]);
 
   // Volume control
   useEffect(() => {
@@ -193,6 +217,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
       // Small delay to ensure everything is ready
       setTimeout(() => {
         if (!isPlaying) {
+          console.log("Forcing play now");
           handleTogglePlay();
         }
       }, 500);

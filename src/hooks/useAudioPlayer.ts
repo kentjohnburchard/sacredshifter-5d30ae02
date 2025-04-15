@@ -83,6 +83,13 @@ export function useAudioPlayer() {
         detail: { isPlaying: true, currentAudio: currentTrack }
       });
       window.dispatchEvent(event);
+      
+      // Ensure audio context is running
+      if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
+        audioContextRef.current.resume().catch(err => {
+          console.error("Error resuming audio context:", err);
+        });
+      }
     };
     
     const handlePause = () => {
@@ -134,37 +141,6 @@ export function useAudioPlayer() {
     };
   }, [currentTrack]);
 
-  // Listen for custom events from other components
-  useEffect(() => {
-    const handlePlayAudio = (event: CustomEvent) => {
-      const { audioInfo } = event.detail;
-      if (audioInfo && audioInfo.source) {
-        setCurrentTrack(audioInfo);
-        setAudioSource(audioInfo.source);
-        
-        // Auto-play after a short delay
-        setTimeout(() => {
-          if (audioRef.current) {
-            audioRef.current.play()
-              .catch(err => console.error("Error auto-playing audio:", err));
-          }
-        }, 100);
-      }
-    };
-    
-    const handleTogglePlayPause = () => {
-      togglePlay();
-    };
-    
-    window.addEventListener('playAudio', handlePlayAudio as EventListener);
-    window.addEventListener('togglePlayPause', handleTogglePlayPause);
-    
-    return () => {
-      window.removeEventListener('playAudio', handlePlayAudio as EventListener);
-      window.removeEventListener('togglePlayPause', handleTogglePlayPause);
-    };
-  }, []);
-
   // Function to set the audio source
   const setAudioSource = (source: string) => {
     if (!audioRef.current) return;
@@ -194,6 +170,13 @@ export function useAudioPlayer() {
         // Set volume to ensure it's audible
         audioRef.current.volume = 0.7;
         
+        // Start the audio context if needed
+        if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
+          audioContextRef.current.resume().catch(err => {
+            console.error("Error resuming audio context:", err);
+          });
+        }
+        
         console.log("Attempting to play audio...");
         audioRef.current.play()
           .then(() => {
@@ -202,6 +185,16 @@ export function useAudioPlayer() {
           .catch(error => {
             console.error("Error playing audio:", error);
             setAudioError("Failed to play audio");
+            
+            // Some browsers require user interaction before audio can play
+            // If we get this specific error, we'll inform the user
+            if (error.name === 'NotAllowedError') {
+              console.log("User interaction required to play audio");
+              // Use this opportunity to also initialize the audio context
+              if (audioContextRef.current) {
+                audioContextRef.current.resume().catch(console.error);
+              }
+            }
           });
       }
     }

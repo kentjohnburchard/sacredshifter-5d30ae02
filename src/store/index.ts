@@ -20,7 +20,10 @@ interface AppState {
 
 export const useAppStore = create<AppState>((set) => ({
   isPlaying: false,
-  setIsPlaying: (isPlaying: boolean) => set({ isPlaying }),
+  setIsPlaying: (isPlaying: boolean) => {
+    console.log("Setting global isPlaying state:", isPlaying);
+    set({ isPlaying });
+  },
   currentSongId: null,
   setCurrentSongId: (id: string | null) => set({ currentSongId: id }),
   audioData: null,
