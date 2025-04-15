@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { JourneyProps } from '@/types/journey';
@@ -326,7 +325,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
       // Try to use fallback audio
       if (audioRef.current && audioRef.current.src !== fallbackAudioUrl) {
         console.log("Attempting to use fallback audio");
-        setAudioSource(fallbackAudioUrl);
+        setLocalAudioSource(fallbackAudioUrl);
       }
     };
     
@@ -339,8 +338,8 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
         audioRef.current.removeEventListener('error', handleError as EventListener);
       }
     };
-  }, [audioRef, fallbackAudioUrl, setAudioSource, setAudioPlaybackError]);
-
+  }, [audioRef, fallbackAudioUrl, setAudioPlaybackError]);
+  
   return (
     <div className="bg-black/50 p-4 rounded-b-xl backdrop-blur-sm">
       <div className="flex flex-col text-white">
