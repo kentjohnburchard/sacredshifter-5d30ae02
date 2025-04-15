@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useMemo, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Trail, Stars } from '@react-three/drei';
@@ -113,15 +114,18 @@ const FlowerOfLifeGeometry = ({ chakra = 'crown', intensity = 0, frequencyData }
           const innerX = innerRingRadius * Math.cos(innerAngle);
           const innerY = innerRingRadius * Math.sin(innerAngle);
           
-          // Use Float32Array for line positions to avoid type errors
-          const linePositions = new Float32Array([x, y, 0, innerX, innerY, 0]);
-          
-          const lineGeometry = new THREE.BufferGeometry();
-          lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
-          
+          // Properly create the line - create line points instead of using BufferGeometry
           items.push(
-            <line key={`line-${ring}-${i}`} geometry={lineGeometry}>
-              <lineBasicMaterial attach="material" color={color} opacity={0.4} transparent />
+            <line key={`line-${ring}-${i}`}>
+              <bufferGeometry>
+                <bufferAttribute
+                  attach="attributes-position"
+                  count={2}
+                  array={new Float32Array([x, y, 0, innerX, innerY, 0])}
+                  itemSize={3}
+                />
+              </bufferGeometry>
+              <lineBasicMaterial color={color} opacity={0.4} transparent />
             </line>
           );
         }
@@ -508,45 +512,47 @@ const PrimeFlowGeometry = ({ frequencyData, chakra = 'crown', intensity = 0 }: {
     }
     
     // Animate existing rings
-    setRings(prev => {
-      const updatedRings = prev.map(item => {
-        return {
-          ...item,
-          scale: item.scale + 0.03,
-          opacity: item.opacity - 0.012
-        };
-      });
-      
-      // Update ring properties
-      updatedRings.forEach(item => {
-        if (item.ring) {
-          item.ring.scale.set(item.scale, item.scale, item.scale);
-          const material = item.ring.material as THREE.MeshBasicMaterial;
-          if (material && material.opacity !== undefined) {
-            material.opacity = item.opacity;
-          }
-        }
-      });
-      
-      // Remove faded rings
-      const visibleRings = updatedRings.filter(item => {
-        if (item.opacity <= 0 && item.ring && ringGroupRef.current) {
-          ringGroupRef.current.remove(item.ring);
-          if (item.ring.geometry) item.ring.geometry.dispose();
-          if (item.ring.material) {
-            if (Array.isArray(item.ring.material)) {
-              item.ring.material.forEach(m => m.dispose());
-            } else {
-              item.ring.material.dispose();
+    if (rings.length > 0) {
+      setRings(prev => {
+        const updatedRings = prev.map(item => {
+          return {
+            ...item,
+            scale: item.scale + 0.03,
+            opacity: item.opacity - 0.012
+          };
+        });
+        
+        // Update ring properties
+        updatedRings.forEach(item => {
+          if (item.ring) {
+            item.ring.scale.set(item.scale, item.scale, item.scale);
+            const material = item.ring.material as THREE.MeshBasicMaterial;
+            if (material && material.opacity !== undefined) {
+              material.opacity = item.opacity;
             }
           }
-          return false;
-        }
-        return true;
+        });
+        
+        // Remove faded rings
+        const visibleRings = updatedRings.filter(item => {
+          if (item.opacity <= 0 && item.ring && ringGroupRef.current) {
+            ringGroupRef.current.remove(item.ring);
+            if (item.ring.geometry) item.ring.geometry.dispose();
+            if (item.ring.material) {
+              if (Array.isArray(item.ring.material)) {
+                item.ring.material.forEach(m => m.dispose());
+              } else {
+                item.ring.material.dispose();
+              }
+            }
+            return false;
+          }
+          return true;
+        });
+        
+        return visibleRings;
       });
-      
-      return visibleRings;
-    });
+    }
   });
   
   return (
@@ -614,7 +620,7 @@ const ChakraSpiralGeometry = ({ frequencyData, intensity = 0 }: { frequencyData?
     }
     
     // Update chakra points based on audio frequency
-    if (frequencyData && frequencyData.length && chakraPoints.length > 0) {
+    if (frequencyData && frequencyData.length > 0 && chakraPoints.length > 0) {
       const chunkSize = Math.floor(frequencyData.length / 7);
       
       chakraPoints.forEach((point, i) => {
@@ -622,18 +628,29 @@ const ChakraSpiralGeometry = ({ frequencyData, intensity = 0 }: { frequencyData?
           const start = i * chunkSize;
           const end = start + chunkSize;
           if (start < frequencyData.length) {
-            // Safely extract the frequency chunk
-            const chunk = Array.from(frequencyData.slice(start, Math.min(end, frequencyData.length))).map(Number);
-            const avg = chunk.reduce((sum, val) => sum + val, 0) / chunk.length;
-            const intensity = avg / 255;
-            
-            // Scale based on frequency intensity
-            point.scale.set(1 + intensity * 0.8, 1 + intensity * 0.8, 1 + intensity * 0.8);
-            
-            // Update emission intensity
-            const material = point.material as THREE.MeshStandardMaterial;
-            if (material && material.emissiveIntensity !== undefined) {
-              material.emissiveIntensity = 0.5 + intensity * 2.5;
+            try {
+              // Safely extract the frequency chunk with extra error checking
+              const chunk = Array.from(
+                frequencyData.slice(start, Math.min(end, frequencyData.length))
+              ).map(Number);
+              
+              if (chunk.length > 0) {
+                const avg = chunk.reduce((sum, val) => sum + val, 0) / chunk.length;
+                const intensity = avg / 255;
+                
+                // Scale based on frequency intensity
+                point.scale.set(1 + intensity * 0.8, 1 + intensity * 0.8, 1 + intensity * 0.8);
+                
+                // Update emission intensity with safe checks
+                if (point.material) {
+                  const material = point.material as THREE.MeshStandardMaterial;
+                  if (material && material.emissiveIntensity !== undefined) {
+                    material.emissiveIntensity = 0.5 + intensity * 2.5;
+                  }
+                }
+              }
+            } catch (e) {
+              console.error("Error processing frequency data:", e);
             }
           }
         }
@@ -644,14 +661,14 @@ const ChakraSpiralGeometry = ({ frequencyData, intensity = 0 }: { frequencyData?
   // Generate chakra points in a spiral pattern
   const chakraPointsElements = useMemo(() => {
     const points = [];
-    const numPoints = 7;
+    const numPoints = Math.min(7, chakraKeys.length);
     const radiusStart = 0.5;
     const radiusEnd = 2;
     const heightStart = -1.2;
     const heightEnd = 1.2;
     
     for (let i = 0; i < numPoints; i++) {
-      const t = i / (numPoints - 1);
+      const t = i / Math.max(1, (numPoints - 1));
       const radius = radiusStart + (radiusEnd - radiusStart) * t;
       const theta = t * Math.PI * 4;
       const height = heightStart + (heightEnd - heightStart) * t;
