@@ -12,6 +12,8 @@ interface AppState {
   setFrequencyData: (frequencyData: Uint8Array | null) => void;
   primeSequence: number[];
   setPrimeSequence: (sequence: number[]) => void;
+  detectedPrimes: number[];
+  setDetectedPrimes: (primes: number[]) => void;
   visualizationMode: 'sacred' | 'prime' | 'equalizer' | 'flow' | 'flower';
   setVisualizationMode: (mode: 'sacred' | 'prime' | 'equalizer' | 'flow' | 'flower') => void;
 }
@@ -27,6 +29,8 @@ export const useAppStore = create<AppState>((set) => ({
   setFrequencyData: (frequencyData: Uint8Array | null) => set({ frequencyData }),
   primeSequence: [],
   setPrimeSequence: (sequence: number[]) => set({ primeSequence: sequence }),
+  detectedPrimes: [],
+  setDetectedPrimes: (primes: number[]) => set({ detectedPrimes: primes }),
   visualizationMode: 'sacred',
   setVisualizationMode: (mode: 'sacred' | 'prime' | 'equalizer' | 'flow' | 'flower') => set({ visualizationMode: mode }),
 }));

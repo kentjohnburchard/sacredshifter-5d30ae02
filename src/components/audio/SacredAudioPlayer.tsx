@@ -1,517 +1,290 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
-import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
-import { useTheme } from '@/context/ThemeContext';
-import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { formatTime } from '@/lib/utils';
-import { VisualizerManager } from '@/components/visualizer/VisualizerManager';
 import { JourneyProps } from '@/types/journey';
-import EnhancedVisualizer from '@/components/visualizer/EnhancedVisualizer';
-import { 
-  Play, Pause, Volume2, VolumeX, Maximize2, Minimize2,
-  FastForward, Timer, Headphones, Waves, Moon, MoveDown, MoveUp, X, Eye, EyeOff
-} from 'lucide-react';
-import { isPrime } from '@/lib/primeUtils';
-import { getChakraColorScheme } from '@/lib/chakraColors';
+import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
 import { useAppStore } from '@/store';
+import { Play, Pause, SkipBack, SkipForward, Volume2, Volume1, VolumeX } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface SacredAudioPlayerProps {
-  audioUrl?: string;
-  url?: string;
-  frequency?: number;
-  isPlaying?: boolean;
-  onPlayToggle?: () => void;
-  frequencyId?: string;
-  groupId?: string;
-  id?: string;
   journey?: JourneyProps;
-}
-
-interface JourneyOptions {
-  pinkNoise: boolean;
-  lowSensitivity: boolean;
-  headphones: boolean;
-  sleepTimer: number;
+  audioUrl?: string;
+  forcePlay?: boolean;
 }
 
 const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
+  journey,
   audioUrl,
-  url,
-  frequency,
-  isPlaying: externalIsPlaying,
-  onPlayToggle: externalTogglePlay,
-  frequencyId,
-  groupId,
-  id,
-  journey
+  forcePlay = false
 }) => {
   const {
-    isPlaying,
-    duration,
-    currentTime,
     togglePlay,
     seekTo,
+    setAudioSource,
+    duration,
+    currentTime,
+    isPlaying,
     audioRef,
-    audioLoaded,
-    audioError,
-    currentTrack,
-    setCurrentTime,
-    setAudioSource
+    audioLoaded
   } = useAudioPlayer();
-  
-  const { audioContext, analyser } = useAudioAnalyzer(audioRef.current);
-  const { setAudioData, setFrequencyData } = useAppStore();
-  
-  const [isSeeking, setIsSeeking] = useState(false);
-  const [seekTime, setSeekTime] = useState(0);
-  const [volume, setVolume] = useState(0.7);
-  const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(70);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(true);
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [isVisualizerVisible, setIsVisualizerVisible] = useState(true);
-  
-  const [options, setOptions] = useState<JourneyOptions>({
-    pinkNoise: false,
-    lowSensitivity: false,
-    headphones: false,
-    sleepTimer: 0
-  });
-  
-  const [sleepTimerActive, setSleepTimerActive] = useState(false);
-  const [sleepTimerRemaining, setSleepTimerRemaining] = useState(0);
-  const sleepTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const animationFrameRef = useRef<number | null>(null);
-  
-  const pinkNoiseRef = useRef<HTMLAudioElement | null>(null);
-  
-  const { liftTheVeil } = useTheme();
-  
-  // Define shouldShowVisualizer to fix the runtime error
-  const shouldShowVisualizer = isVisualizerVisible && isPlaying && !!analyser;
-  
-  // Process audio data for visualization
+  const { setAudioData, setIsPlaying } = useAppStore();
+  const audioPlayAttempted = useRef(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const audioSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+
+  // Format time to mm:ss
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  // Set audio source when component mounts or audioUrl changes
   useEffect(() => {
-    if (!analyser || !isPlaying) {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-      return;
+    if (audioUrl) {
+      console.log("Setting audio source:", audioUrl);
+      setAudioSource(audioUrl);
     }
-    
-    const frequencyData = new Uint8Array(analyser.frequencyBinCount);
-    const timeData = new Uint8Array(analyser.frequencyBinCount);
-    
-    const updateData = () => {
-      analyser.getByteFrequencyData(frequencyData);
-      analyser.getByteTimeDomainData(timeData);
-      
-      // Update global state with audio data for other components
-      setAudioData(timeData);
-      setFrequencyData(frequencyData);
-      
-      animationFrameRef.current = requestAnimationFrame(updateData);
-    };
-    
-    updateData();
-    
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [analyser, isPlaying, setAudioData, setFrequencyData]);
-  
+  }, [audioUrl, setAudioSource]);
+
+  // Set up audio analyser
   useEffect(() => {
-    if (!pinkNoiseRef.current) {
-      const pinkNoise = new Audio('/sounds/pink-noise.mp3');
-      pinkNoise.loop = true;
-      pinkNoise.volume = 0.2;
-      pinkNoiseRef.current = pinkNoise;
-    }
-    
-    return () => {
-      if (pinkNoiseRef.current) {
-        pinkNoiseRef.current.pause();
-        pinkNoiseRef.current = null;
-      }
-    };
-  }, []);
-  
-  useEffect(() => {
-    if (journey?.options) {
-      setOptions({
-        pinkNoise: journey.options.pinkNoise || false,
-        lowSensitivity: journey.options.lowSensitivity || false,
-        headphones: journey.options.headphones || false,
-        sleepTimer: journey.options.sleepTimer || 0
-      });
-      
-      if (journey.options.sleepTimer && journey.options.sleepTimer > 0) {
-        startSleepTimer(journey.options.sleepTimer);
-      }
-    }
-  }, [journey]);
-  
-  useEffect(() => {
-    const source = audioUrl || url || journey?.audioUrl;
-    if (source) {
-      setAudioSource(source);
-    }
-  }, [audioUrl, url, journey, setAudioSource]);
-  
-  useEffect(() => {
-    if (pinkNoiseRef.current) {
-      if (isPlaying && options.pinkNoise) {
-        pinkNoiseRef.current.play().catch(err => console.error("Error playing pink noise:", err));
-      } else {
-        pinkNoiseRef.current.pause();
-      }
-    }
-  }, [isPlaying, options.pinkNoise]);
-  
-  const startSleepTimer = (minutes: number) => {
-    if (sleepTimerRef.current) {
-      clearInterval(sleepTimerRef.current);
-    }
-    
-    const milliseconds = minutes * 60 * 1000;
-    const endTime = Date.now() + milliseconds;
-    
-    setSleepTimerActive(true);
-    setSleepTimerRemaining(milliseconds / 1000);
-    
-    sleepTimerRef.current = setInterval(() => {
-      const remaining = Math.round((endTime - Date.now()) / 1000);
-      
-      if (remaining <= 0) {
-        if (audioRef.current) {
-          audioRef.current.pause();
+    console.log("Setting up audio analyser");
+
+    const setupAudioAnalyser = () => {
+      try {
+        // Check if we already have an audio context
+        if (!audioContextRef.current) {
+          const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+          if (!AudioContext) {
+            console.warn("AudioContext not supported");
+            return;
+          }
+          
+          audioContextRef.current = new AudioContext();
         }
         
-        if (sleepTimerRef.current) {
-          clearInterval(sleepTimerRef.current);
+        // Check if audio element exists
+        if (!audioRef.current) {
+          console.log("Audio element not found yet");
+          setTimeout(setupAudioAnalyser, 500);
+          return;
+        }
+
+        // Resume audio context if it's suspended
+        if (audioContextRef.current.state === 'suspended') {
+          audioContextRef.current.resume();
         }
         
-        setSleepTimerActive(false);
-        setSleepTimerRemaining(0);
-      } else {
-        setSleepTimerRemaining(remaining);
+        // Set up analyser if it doesn't exist
+        if (!analyserRef.current) {
+          analyserRef.current = audioContextRef.current.createAnalyser();
+          analyserRef.current.fftSize = 256; // Power of 2, controls frequency bin count
+        }
+        
+        // Connect audio element to analyser if not already connected
+        if (!audioSourceRef.current) {
+          try {
+            audioSourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
+            audioSourceRef.current.connect(analyserRef.current);
+            analyserRef.current.connect(audioContextRef.current.destination);
+            console.log("Connected audio source to analyser");
+          } catch (e: any) {
+            if (e.toString().includes('already connected')) {
+              console.log("Audio already connected");
+            } else {
+              console.error("Error connecting audio source:", e);
+            }
+          }
+        }
+        
+        // Set up the audio data update loop
+        const bufferLength = analyserRef.current.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        
+        const updateAudioData = () => {
+          if (analyserRef.current && isPlaying) {
+            analyserRef.current.getByteFrequencyData(dataArray);
+            setAudioData(new Uint8Array(dataArray));
+          }
+          requestAnimationFrame(updateAudioData);
+        };
+        
+        updateAudioData();
+        
+      } catch (error) {
+        console.error("Error setting up audio analyser:", error);
       }
-    }, 1000);
-  };
-  
-  const cancelSleepTimer = () => {
-    if (sleepTimerRef.current) {
-      clearInterval(sleepTimerRef.current);
-    }
+    };
     
-    setSleepTimerActive(false);
-    setSleepTimerRemaining(0);
-  };
-  
-  const handleSeekMouseDown = () => {
-    setIsSeeking(true);
-  };
+    setupAudioAnalyser();
+    
+    return () => {
+      // Clean up
+      if (audioSourceRef.current) {
+        try {
+          audioSourceRef.current.disconnect();
+        } catch (e) {
+          console.error("Error disconnecting audio source:", e);
+        }
+      }
+      
+      if (analyserRef.current) {
+        try {
+          analyserRef.current.disconnect();
+        } catch (e) {
+          console.error("Error disconnecting analyser:", e);
+        }
+      }
+    };
+  }, [audioRef, isPlaying, setAudioData]);
 
-  const handleSeekChange = (value: number[]) => {
-    const newValue = value[0];
-    setSeekTime(newValue);
-    if (!isSeeking) {
-      setCurrentTime(newValue);
-      seekTo(newValue);
+  // Volume control
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume / 100;
     }
-  };
-
-  const handleSeekMouseUp = () => {
-    setIsSeeking(false);
-    setCurrentTime(seekTime);
-    seekTo(seekTime);
-  };
-
-  const handleVolumeChange = (value: number[]) => {
-    const newVolume = value[0];
-    setVolume(newVolume);
+  }, [volume, audioRef]);
+  
+  // Auto play when forcePlay is true
+  useEffect(() => {
+    if (forcePlay && audioLoaded && !audioPlayAttempted.current) {
+      audioPlayAttempted.current = true;
+      console.log("Auto-playing audio");
+      
+      // Small delay to ensure everything is ready
+      setTimeout(() => {
+        if (!isPlaying) {
+          togglePlay();
+          setIsPlaying(true);
+        }
+      }, 500);
+    }
+  }, [forcePlay, audioLoaded, isPlaying, togglePlay, setIsPlaying]);
+  
+  // Handle errors
+  useEffect(() => {
+    const handleError = (e: ErrorEvent) => {
+      console.error("Audio error:", e);
+      toast.error("Audio playback error. Please try again.");
+    };
     
     if (audioRef.current) {
-      audioRef.current.volume = newVolume;
-      setIsMuted(newVolume === 0);
+      audioRef.current.addEventListener('error', handleError as EventListener);
     }
-  };
-
-  const toggleMute = () => {
-    if (audioRef.current) {
-      if (isMuted) {
-        audioRef.current.volume = volume > 0 ? volume : 0.5;
-        setIsMuted(false);
-      } else {
-        audioRef.current.volume = 0;
-        setIsMuted(true);
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.removeEventListener('error', handleError as EventListener);
       }
-    }
-  };
-
-  const toggleVisualizerVisibility = () => {
-    setIsVisualizerVisible(!isVisualizerVisible);
-  };
-
-  const toggleExpanded = () => {
-    setIsExpanded(!isExpanded);
-  };
-
-  const toggleMinimized = () => {
-    setIsMinimized(!isMinimized);
-  };
-  
-  const togglePinkNoise = () => {
-    setOptions(prev => ({ ...prev, pinkNoise: !prev.pinkNoise }));
-  };
-  
-  const toggleLowSensitivity = () => {
-    setOptions(prev => ({ ...prev, lowSensitivity: !prev.lowSensitivity }));
-  };
-  
-  const toggleHeadphones = () => {
-    setOptions(prev => ({ ...prev, headphones: !prev.headphones }));
-  };
-  
-  const setSleepTimerMinutes = (minutes: number) => {
-    if (minutes > 0) {
-      startSleepTimer(minutes);
-      setOptions(prev => ({ ...prev, sleepTimer: minutes }));
-    } else {
-      cancelSleepTimer();
-      setOptions(prev => ({ ...prev, sleepTimer: 0 }));
-    }
-  };
-
-  const trackTitle = currentTrack?.title || 'No track loaded';
-  const trackArtist = currentTrack?.artist || '';
-  const mainFrequency = currentTrack?.customData?.frequency || frequency || 432;
-  
-  const chakraString = currentTrack?.customData?.chakra || journey?.chakras?.[0] || 'Crown';
-  const chakraArray = Array.isArray(chakraString) ? chakraString : [chakraString];
-  
-  const colorScheme = getChakraColorScheme(chakraArray);
-  
-  const isPrimeFreq = isPrime(mainFrequency);
-
-  if (isMinimized) {
-    return (
-      <div className="bg-black/70 backdrop-blur-sm text-white p-2 rounded-t-lg shadow-lg border border-white/10 flex items-center justify-between">
-        <div className="flex items-center">
-          <button 
-            className="p-1 rounded-full bg-purple-600 mr-2 hover:bg-purple-700"
-            onClick={togglePlay}
-            aria-label={isPlaying ? "Pause audio" : "Play audio"}
-          >
-            {isPlaying ? <Pause size={12} /> : <Play size={12} />}
-          </button>
-          <div className="text-xs truncate max-w-[150px]">
-            {trackTitle} 
-          </div>
-        </div>
-        <button
-          className="text-white/80 hover:text-white"
-          onClick={toggleMinimized}
-          aria-label="Expand audio player"
-        >
-          <MoveUp size={14} />
-        </button>
-      </div>
-    );
-  }
+    };
+  }, [audioRef]);
 
   return (
-    <div className={`sacred-audio-player relative rounded-t-lg overflow-hidden shadow-xl border-t border-x border-white/10 transition-all duration-300 ${isExpanded ? 'bg-black/70 backdrop-blur-md' : 'bg-black/60 backdrop-blur-sm'}`}>
-      {shouldShowVisualizer && isExpanded && (
-        <div className="h-48">
-          <EnhancedVisualizer 
-            frequencyData={analyser ? new Uint8Array(analyser.frequencyBinCount) : undefined}
-            chakra={chakraArray[0]}
-            isPlaying={isPlaying}
-            showControls={true}
-          />
-        </div>
-      )}
-      
-      <div className="player-controls p-3 text-white">
+    <div className="bg-black/50 p-4 rounded-b-xl backdrop-blur-sm">
+      <div className="flex flex-col text-white">
         <div className="flex justify-between items-center mb-2">
-          <div className="flex-1 mr-2">
-            <h3 className="text-sm font-medium truncate">{trackTitle}</h3>
-            {trackArtist && <p className="text-xs text-gray-300">{trackArtist}</p>}
+          <div className="flex-1 overflow-hidden">
+            <p className="text-sm font-medium truncate">
+              {journey?.title || "Sacred Frequency"}
+            </p>
+            <p className="text-xs text-gray-400 truncate">
+              {journey?.frequencies?.length ? `${journey.frequencies[0]} Hz` : "432 Hz"} | 
+              {journey?.chakras?.length ? ` ${journey.chakras[0]} Chakra` : " Crown Chakra"}
+            </p>
           </div>
           
-          <div className="flex space-x-1">
-            {isExpanded && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 text-white/70 hover:text-white hover:bg-white/10 rounded-full"
-                onClick={toggleVisualizerVisibility}
-                aria-label={isVisualizerVisible ? "Hide visualizer" : "Show visualizer"}
-              >
-                {isVisualizerVisible ? <EyeOff size={14} /> : <Eye size={14} />}
-              </Button>
-            )}
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 text-white/70 hover:text-white hover:bg-white/10 rounded-full"
-              onClick={toggleExpanded}
-              aria-label={isExpanded ? "Collapse player" : "Expand player"}
-            >
-              {isExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 text-white/70 hover:text-white hover:bg-white/10 rounded-full"
-              onClick={toggleMinimized}
-              aria-label="Minimize player"
-            >
-              <MoveDown size={14} />
-            </Button>
-          </div>
-        </div>
-        
-        {mainFrequency && isExpanded && (
-          <div className={`flex items-center justify-center p-1 mb-2 text-xs border-t border-b ${isPrimeFreq ? 'border-pink-400/30' : 'border-white/10'}`}>
-            <span className={`${isPrimeFreq ? 'text-pink-300' : 'text-gray-200'} font-mono`}>
-              {mainFrequency} Hz 
-              {isPrimeFreq && ' ✦ Prime Frequency'}
-            </span>
-            {chakraArray && <span className="text-gray-300 ml-2">| {chakraArray[0]} Chakra</span>}
-          </div>
-        )}
-        
-        <div className="flex items-center space-x-2 mb-2">
-          <span className="text-xs">{formatTime(currentTime)}</span>
-          <Slider
-            value={[isSeeking ? seekTime : currentTime]}
-            min={0}
-            max={duration || 100}
-            step={1}
-            onValueChange={handleSeekChange}
-            onPointerDown={handleSeekMouseDown}
-            onPointerUp={handleSeekMouseUp}
-            className="flex-1"
-          />
-          <span className="text-xs">{formatTime(duration)}</span>
-        </div>
-        
-        <div className="flex justify-between items-center">
           <div className="flex items-center">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-white rounded-full"
-              onClick={togglePlay}
-              aria-label={isPlaying ? "Pause" : "Play"}
+            <div 
+              className="relative" 
+              onMouseEnter={() => setShowVolumeSlider(true)}
+              onMouseLeave={() => setShowVolumeSlider(false)}
             >
-              {isPlaying ? <Pause size={18} /> : <Play size={18} />}
-            </Button>
-            
-            {isExpanded && (
-              <div className="relative">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-white/80 hover:text-white rounded-full"
-                  onClick={() => setShowVolumeSlider(!showVolumeSlider)}
-                  aria-label="Volume"
-                >
-                  {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-                </Button>
-                
-                {showVolumeSlider && (
-                  <div className="absolute left-0 bottom-full p-3 bg-black/90 rounded-md shadow-lg w-48 z-50">
-                    <div className="flex items-center space-x-2">
-                      <button onClick={toggleMute}>
-                        {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-                      </button>
-                      <Slider
-                        value={[isMuted ? 0 : volume]}
-                        min={0}
-                        max={1}
-                        step={0.01}
-                        onValueChange={handleVolumeChange}
-                        className="flex-1"
-                      />
-                    </div>
-                  </div>
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                className="h-8 w-8 p-0 text-white"
+                onClick={() => setVolume(prev => prev === 0 ? 70 : 0)}
+              >
+                {volume === 0 ? (
+                  <VolumeX className="h-4 w-4" />
+                ) : volume < 50 ? (
+                  <Volume1 className="h-4 w-4" />
+                ) : (
+                  <Volume2 className="h-4 w-4" />
                 )}
-              </div>
-            )}
-          </div>
-          
-          {isExpanded && (
-            <div className="flex items-center space-x-2">
-              {journey && (
-                <>
-                  <div className="flex items-center">
-                    <Switch
-                      id="pink-noise"
-                      checked={options.pinkNoise}
-                      onCheckedChange={togglePinkNoise}
-                      className="data-[state=checked]:bg-pink-600"
-                    />
-                    <Label htmlFor="pink-noise" className="ml-1.5 text-xs">
-                      <Waves size={12} className="inline mr-1" /> Pink Noise
-                    </Label>
-                  </div>
-                  
-                  <div className="flex items-center">
-                    <Switch
-                      id="headphones"
-                      checked={options.headphones}
-                      onCheckedChange={toggleHeadphones}
-                      className="data-[state=checked]:bg-blue-600"
-                    />
-                    <Label htmlFor="headphones" className="ml-1.5 text-xs">
-                      <Headphones size={12} className="inline mr-1" />
-                    </Label>
-                  </div>
-                </>
-              )}
+              </Button>
               
-              {sleepTimerActive && (
-                <div className="flex items-center">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 text-white/80 hover:text-white"
-                    onClick={cancelSleepTimer}
-                    aria-label="Cancel sleep timer"
-                  >
-                    <Timer size={14} className="text-blue-400" />
-                  </Button>
-                  <span className="text-xs text-blue-400 ml-1">
-                    {Math.floor(sleepTimerRemaining / 60)}:
-                    {String(Math.floor(sleepTimerRemaining % 60)).padStart(2, '0')}
-                  </span>
+              {showVolumeSlider && (
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-2 bg-black/90 rounded-lg w-24">
+                  <Slider
+                    value={[volume]}
+                    min={0}
+                    max={100}
+                    step={5}
+                    onValueChange={(value) => setVolume(value[0])}
+                    className="w-20"
+                  />
                 </div>
               )}
-              
-              {!sleepTimerActive && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 text-white/80 hover:text-white"
-                  onClick={() => setSleepTimerMinutes(30)}
-                  aria-label="Set sleep timer"
-                >
-                  <Moon size={14} />
-                </Button>
-              )}
             </div>
-          )}
+          </div>
+        </div>
+        
+        <div className="flex items-center justify-center gap-4 mb-2">
+          <Button 
+            size="sm" 
+            variant="ghost" 
+            className="h-8 w-8 p-0 text-white opacity-70 hover:opacity-100"
+          >
+            <SkipBack className="h-4 w-4" />
+          </Button>
+          
+          <Button 
+            onClick={togglePlay}
+            size="icon"
+            className={cn(
+              "h-10 w-10 rounded-full bg-purple-600 hover:bg-purple-700 text-white",
+              isPlaying ? "animate-pulse" : ""
+            )}
+          >
+            {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 ml-0.5" />}
+          </Button>
+          
+          <Button 
+            size="sm" 
+            variant="ghost" 
+            className="h-8 w-8 p-0 text-white opacity-70 hover:opacity-100"
+          >
+            <SkipForward className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-400">{formatTime(currentTime)}</span>
+          
+          <div className="relative w-full h-1.5 bg-gray-700 rounded-full overflow-hidden">
+            <div 
+              className="absolute h-full bg-purple-500 rounded-full"
+              style={{ width: `${(currentTime / duration) * 100}%` }}
+            />
+            <input
+              type="range"
+              min={0}
+              max={duration || 100}
+              value={currentTime}
+              onChange={(e) => seekTo(Number(e.target.value))}
+              className="absolute inset-0 opacity-0 cursor-pointer w-full"
+            />
+          </div>
+          
+          <span className="text-xs text-gray-400">{formatTime(duration || 0)}</span>
         </div>
       </div>
     </div>

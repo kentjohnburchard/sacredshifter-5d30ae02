@@ -1,10 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SacredAudioPlayerWithVisualizer from '@/components/audio/SacredAudioPlayerWithVisualizer';
 import { Button } from '@/components/ui/button';
-import { Play } from 'lucide-react';
+import { Play, Maximize2, Minimize2 } from 'lucide-react';
 import { JourneyTemplate } from '@/types/journey';
 import { toast } from 'sonner';
+import { analyzeFrequency } from '@/lib/primeUtils';
+import { useAppStore } from '@/store';
 
 interface JourneyAudioPlayerProps {
   journey?: JourneyTemplate;
@@ -12,6 +14,26 @@ interface JourneyAudioPlayerProps {
 
 const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
   const [isActive, setIsActive] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const { setDetectedPrimes } = useAppStore();
+
+  // Monitor audio for primes
+  useEffect(() => {
+    if (!isActive || !journey?.frequency) return;
+    
+    // Set up frequency monitoring interval to detect primes
+    const monitorInterval = setInterval(() => {
+      if (journey.frequency) {
+        const analysis = analyzeFrequency(journey.frequency, 0.5);
+        if (analysis.isPrime) {
+          console.log(`Prime frequency detected: ${journey.frequency}Hz`);
+          setDetectedPrimes([journey.frequency]);
+        }
+      }
+    }, 1000);
+    
+    return () => clearInterval(monitorInterval);
+  }, [isActive, journey, setDetectedPrimes]);
 
   if (!journey) {
     return null;
@@ -20,6 +42,13 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
   const handleStartJourney = () => {
     setIsActive(true);
     toast.info(`Starting journey: ${journey.title}`);
+  };
+
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+    if (!isFullscreen) {
+      toast.info("Entered fullscreen mode. Press ESC or click the minimize button to exit.");
+    }
   };
 
   // Convert JourneyTemplate to the format expected by SacredAudioPlayerWithVisualizer
@@ -51,8 +80,21 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
   }
 
   return (
-    <div className="mx-4 md:mx-auto max-w-4xl">
-      <SacredAudioPlayerWithVisualizer journey={playerJourney} />
+    <div className={`transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 bg-black' : 'mx-4 md:mx-auto max-w-4xl'}`}>
+      <div className="relative">
+        <Button 
+          onClick={toggleFullscreen}
+          className="absolute top-2 right-2 z-10 bg-black/40 hover:bg-black/60 text-white rounded-full size-8 p-0 flex items-center justify-center"
+          size="icon"
+        >
+          {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+        </Button>
+        <SacredAudioPlayerWithVisualizer 
+          journey={playerJourney} 
+          isFullscreen={isFullscreen}
+          forcePlay={true}
+        />
+      </div>
     </div>
   );
 };
