@@ -14,22 +14,36 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
   journey,
   audioUrl
 }) => {
-  const { audioData } = useAppStore();
+  const { audioData, isPlaying } = useAppStore();
   const [showVisualizer, setShowVisualizer] = useState(false);
 
   useEffect(() => {
-    // Show visualizer when journey is playing
-    setShowVisualizer(!!audioData);
-  }, [audioData]);
+    // Show visualizer when journey is playing and we have audio data
+    setShowVisualizer(!!audioData && isPlaying);
+  }, [audioData, isPlaying]);
+
+  // Determine which chakra to use (use first if multiple are provided)
+  const chakra = journey?.chakras?.[0]?.toLowerCase() as any;
+  
+  // Determine which visualizer mode to use based on journey theme
+  const visualizerMode = journey?.visualTheme === 'merkaba' 
+    ? 'merkaba' 
+    : journey?.visualTheme === 'flower-of-life' 
+      ? 'flowerOfLife' 
+      : journey?.visualTheme === 'torus' 
+        ? 'torus' 
+        : 'customPrimePulse';
 
   return (
     <div className="sacred-audio-player-with-visualizer">
-      {showVisualizer && journey?.chakras?.[0] && (
-        <SacredVisualizerCanvas
-          frequencyData={audioData || undefined}
-          chakra={journey.chakras[0].toLowerCase() as any}
-          visualizerMode={journey.visualTheme === 'merkaba' ? 'merkaba' : 'customPrimePulse'}
-        />
+      {showVisualizer && chakra && (
+        <div className="mb-4">
+          <SacredVisualizerCanvas
+            frequencyData={audioData || undefined}
+            chakra={chakra}
+            visualizerMode={visualizerMode}
+          />
+        </div>
       )}
       
       <SacredAudioPlayer 

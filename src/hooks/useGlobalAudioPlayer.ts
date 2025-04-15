@@ -1,6 +1,7 @@
 
 import { useCallback, useState, useEffect } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
+import { useAppStore } from '@/store';
 
 // Define the AudioInfo interface
 interface AudioInfo {
@@ -27,6 +28,7 @@ export function useGlobalAudioPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<AudioInfo | null>(null);
   const { setAudioSource, togglePlay: internalTogglePlay } = useAudioPlayer();
+  const { setIsPlaying: setGlobalIsPlaying } = useAppStore();
 
   /**
    * Play audio with the provided information
@@ -40,6 +42,7 @@ export function useGlobalAudioPlayer() {
 
     setCurrentAudio(audioInfo);
     setIsPlaying(true);
+    setGlobalIsPlaying(true);
     
     // Set the audio source in the useAudioPlayer hook
     setAudioSource(audioInfo.source);
@@ -48,7 +51,7 @@ export function useGlobalAudioPlayer() {
       detail: { audioInfo }
     });
     window.dispatchEvent(event);
-  }, [setAudioSource]);
+  }, [setAudioSource, setGlobalIsPlaying]);
   
   /**
    * Toggle play/pause state of the current audio
@@ -59,10 +62,11 @@ export function useGlobalAudioPlayer() {
     
     // The state will be updated via the event listener, but this makes the UI more responsive
     setIsPlaying(prev => !prev);
+    setGlobalIsPlaying(prev => !prev);
     
     const event = new CustomEvent('togglePlayPause');
     window.dispatchEvent(event);
-  }, [internalTogglePlay]);
+  }, [internalTogglePlay, setGlobalIsPlaying]);
 
   /**
    * Set a callback to be run when audio finishes playing
@@ -78,6 +82,7 @@ export function useGlobalAudioPlayer() {
   useEffect(() => {
     const handlePlayStateChange = (event: CustomEvent) => {
       setIsPlaying(event.detail.isPlaying);
+      setGlobalIsPlaying(event.detail.isPlaying);
       
       // If audio was stopped/changed, also update currentAudio
       if (event.detail.currentAudio) {
@@ -90,7 +95,7 @@ export function useGlobalAudioPlayer() {
     return () => {
       window.removeEventListener('audioPlayStateChange', handlePlayStateChange as EventListener);
     };
-  }, []);
+  }, [setGlobalIsPlaying]);
 
   // Return the audio player interface
   return {
