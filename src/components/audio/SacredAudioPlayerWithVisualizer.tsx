@@ -2,7 +2,7 @@
 import React from 'react';
 import SacredAudioPlayer from './SacredAudioPlayer';
 import { JourneyProps } from '@/types/journey';
-import { create as createStore } from 'zustand';
+import { useAppStore } from '@/store';
 
 interface SacredAudioPlayerWithVisualizerProps {
   journey?: JourneyProps;
@@ -14,6 +14,9 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
   journey,
   audioUrl
 }) => {
+  // Use the global app store for audio data
+  const { audioData } = useAppStore();
+
   return (
     <div className="sacred-audio-player-with-visualizer">
       <SacredAudioPlayer 

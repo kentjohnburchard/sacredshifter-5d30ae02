@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { useAudioAnalyzer } from '@/hooks/useAudioAnalyzer';
@@ -487,7 +488,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
               )}
             </div>
           </div>
-        </div>
 
         {audioError && (
           <div className="text-red-500 mt-2">{audioError}</div>
