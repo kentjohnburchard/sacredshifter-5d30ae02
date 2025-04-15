@@ -40,6 +40,7 @@ import { Toaster } from 'sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import OriginFlow from '@/components/sacred-geometry/OriginFlow';
 import ThemeEnhancer from '@/components/ThemeEnhancer';
+import Home from '@/pages/Home';
 
 function App() {
   return (
@@ -50,7 +51,7 @@ function App() {
           <OriginFlow />
           <ThemeEnhancer />
           <Routes>
-            <Route path="/" element={<SacredShifterHome />} />
+            <Route path="/" element={<Home />} />
             <Route path="/home" element={<SacredShifterHome />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/meditations" element={<Meditations />} />
