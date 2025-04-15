@@ -13,7 +13,7 @@ export interface SacredGeometryProps {
   isActive?: boolean;
 }
 
-// Updated to use our custom geometry types
+// Sacred geometry types - these are the core geometries we're implementing
 export type SacredGeometryType = 'flowerOfLife' | 'merkaba' | 'metatronCube' | 'sriYantra' | 'fibonacciSpiral' | 'chakraBeam' | 'multi';
 
 export interface GeometryConfig {

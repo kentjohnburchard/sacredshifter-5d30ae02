@@ -1,16 +1,18 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
+import * as THREE from 'three';
 import { 
-  FlowerOfLifeGeometry,
+  FlowerOfLifeGeometry, 
   MerkabaGeometry,
   MetatronCubeGeometry,
   SriYantraGeometry,
   FibonacciSpiralGeometry,
   ChakraBeamGeometry,
   GeometryConfig,
-  SacredGeometryType
+  SacredGeometryType,
+  getChakraColor
 } from './sacred-geometries';
 import { useTheme } from '@/context/ThemeContext';
 
@@ -29,177 +31,140 @@ const MultiVisualizer: React.FC<MultiVisualizerProps> = ({
   enableControls = true,
   layoutType = 'circle',
   intensity = 0,
-  chakra = 'crown',
+  chakra = 'crown'
 }) => {
   const { liftTheVeil } = useTheme();
   
-  // Build a layout for the geometries based on the layout type
-  const calculatePositions = (count: number) => {
-    const positions: [number, number, number][] = [];
-    
-    switch (layoutType) {
-      case 'circle':
-        // Arrange in a circle
-        for (let i = 0; i < count; i++) {
-          const angle = (i / count) * Math.PI * 2;
-          const radius = 5;
-          const x = Math.cos(angle) * radius;
-          const z = Math.sin(angle) * radius;
-          positions.push([x, 0, z]);
-        }
-        break;
-        
-      case 'grid':
-        // Arrange in a grid
-        const cols = Math.ceil(Math.sqrt(count));
-        const spacing = 4;
-        
-        for (let i = 0; i < count; i++) {
-          const col = i % cols;
-          const row = Math.floor(i / cols);
-          const x = (col - (cols-1)/2) * spacing;
-          const z = (row - (Math.ceil(count/cols)-1)/2) * spacing;
-          positions.push([x, 0, z]);
-        }
-        break;
-        
-      case 'stack':
-      default:
-        // Stack in the center with slight offsets
-        for (let i = 0; i < count; i++) {
-          positions.push([0, 0, 0]);
-        }
-        break;
+  // If no geometries are provided, create default ones
+  const effectiveGeometries = useMemo(() => {
+    if (geometries && geometries.length > 0) {
+      return geometries;
     }
     
-    return positions;
+    // Default set of geometries
+    return [
+      { type: 'flowerOfLife', chakra, position: [0, 0, 0], scale: 0.7 },
+      { type: 'merkaba', chakra, position: [0, 0, 0], scale: 0.7 },
+      { type: 'metatronCube', chakra, position: [0, 0, 0], scale: 0.7 },
+      { type: 'sriYantra', chakra, position: [0, 0, 0], scale: 0.7 },
+      { type: 'fibonacciSpiral', chakra, position: [0, 0, 0], scale: 0.7 },
+      { type: 'chakraBeam', chakra, position: [0, 0, 0], scale: 0.7 }
+    ] as GeometryConfig[];
+  }, [geometries, chakra]);
+  
+  // Calculate positions for the geometries based on layout type
+  const positionedGeometries = useMemo(() => {
+    return effectiveGeometries.map((geometry, index) => {
+      const totalItems = effectiveGeometries.length;
+      const color = geometry.chakra ? getChakraColor(geometry.chakra) : getChakraColor(chakra);
+      let position: [number, number, number] = geometry.position || [0, 0, 0];
+      
+      // Adjust positions based on layout type
+      if (layoutType === 'circle') {
+        const radius = totalItems <= 3 ? 1.5 : 2.5;
+        const angle = (index / totalItems) * Math.PI * 2;
+        position = [
+          Math.sin(angle) * radius, 
+          Math.cos(angle) * radius, 
+          0
+        ];
+      } else if (layoutType === 'grid') {
+        const gridSize = Math.ceil(Math.sqrt(totalItems));
+        const gridX = index % gridSize;
+        const gridY = Math.floor(index / gridSize);
+        const spacing = totalItems <= 4 ? 2 : 3;
+        position = [
+          (gridX - (gridSize - 1) / 2) * spacing, 
+          (gridY - (gridSize - 1) / 2) * spacing, 
+          0
+        ];
+      }
+      
+      // Apply scale based on layout
+      const scale = geometry.scale || 
+        (layoutType === 'circle' ? (totalItems <= 3 ? 0.7 : 0.5) : 
+         (layoutType === 'grid' ? (totalItems <= 4 ? 0.7 : 0.5) : 1));
+         
+      return {
+        ...geometry,
+        position,
+        scale,
+        color
+      };
+    });
+  }, [effectiveGeometries, layoutType, chakra]);
+  
+  // Component to render a specific geometry type
+  const GeometryRenderer = ({ 
+    type, 
+    position, 
+    scale, 
+    rotation,
+    chakra: geometryChakra, 
+    isActive = true,
+    color
+  }: GeometryConfig & { color?: string }) => {
+    const props = {
+      chakra: geometryChakra || chakra,
+      position,
+      scale,
+      rotation,
+      isActive,
+      frequencyData,
+      intensity,
+      color
+    };
+    
+    switch (type) {
+      case 'flowerOfLife':
+        return <FlowerOfLifeGeometry {...props} />;
+      case 'merkaba':
+        return <MerkabaGeometry {...props} />;
+      case 'metatronCube':
+        return <MetatronCubeGeometry {...props} />;
+      case 'sriYantra':
+        return <SriYantraGeometry {...props} />;
+      case 'fibonacciSpiral':
+        return <FibonacciSpiralGeometry {...props} />;
+      case 'chakraBeam':
+        return <ChakraBeamGeometry {...props} />;
+      default:
+        return <FlowerOfLifeGeometry {...props} />;
+    }
   };
   
-  // If no geometries are specified, use a default set
-  const geometriesToRender = geometries.length > 0 ? geometries : [
-    { type: 'flowerOfLife', chakra: 'crown' },
-    { type: 'merkaba', chakra: 'third eye' },
-    { type: 'metatronCube', chakra: 'throat' },
-    { type: 'sriYantra', chakra: 'heart' },
-    { type: 'fibonacciSpiral', chakra: 'solar plexus' },
-    { type: 'chakraBeam', chakra: 'root' }
-  ];
-  
-  const positions = calculatePositions(geometriesToRender.length);
-  
-  // Add fog color based on theme
+  const ambientColor = liftTheVeil ? '#ff69b4' : '#9370db';
   const fogColor = liftTheVeil ? '#330033' : '#110022';
   
   return (
-    <div className="w-full h-full">
-      <Canvas frameloop="demand">
-        <PerspectiveCamera 
-          position={[0, layoutType === 'circle' ? 12 : 8, layoutType === 'circle' ? 2 : 10]} 
-          fov={70} 
-          makeDefault 
+    <Canvas frameloop="demand">
+      <PerspectiveCamera 
+        makeDefault 
+        position={[0, 0, 10]} 
+        fov={layoutType === 'circle' ? 60 : 50}
+      />
+      
+      <ambientLight intensity={0.5} color={ambientColor} />
+      <pointLight position={[10, 10, 10]} color={ambientColor} intensity={1} />
+      
+      <fog attach="fog" args={[fogColor, 1, 20]} />
+      
+      {positionedGeometries.map((geometry, index) => (
+        <GeometryRenderer
+          key={`geometry-${geometry.type}-${index}`}
+          {...geometry}
         />
-        <ambientLight intensity={0.5} />
-        <pointLight position={[10, 10, 10]} intensity={1} />
-        <fog attach="fog" args={[fogColor, 1, 20]} />
-        
-        {geometriesToRender.map((geometry, index) => {
-          const position = positions[index % positions.length];
-          const geometryChakra = geometry.chakra || chakra;
-          
-          switch (geometry.type) {
-            case 'flowerOfLife':
-              return (
-                <FlowerOfLifeGeometry
-                  key={`flower-${index}`}
-                  frequencyData={frequencyData}
-                  chakra={geometryChakra}
-                  intensity={intensity}
-                  position={position}
-                  scale={geometry.scale || 1}
-                  isActive={geometry.isActive !== false}
-                />
-              );
-              
-            case 'merkaba':
-              return (
-                <MerkabaGeometry
-                  key={`merkaba-${index}`}
-                  frequencyData={frequencyData}
-                  chakra={geometryChakra}
-                  intensity={intensity}
-                  position={position}
-                  scale={geometry.scale || 1}
-                  isActive={geometry.isActive !== false}
-                />
-              );
-              
-            case 'metatronCube':
-              return (
-                <MetatronCubeGeometry
-                  key={`metatron-${index}`}
-                  frequencyData={frequencyData}
-                  chakra={geometryChakra}
-                  intensity={intensity}
-                  position={position}
-                  scale={geometry.scale || 1}
-                  isActive={geometry.isActive !== false}
-                />
-              );
-              
-            case 'sriYantra':
-              return (
-                <SriYantraGeometry
-                  key={`sri-yantra-${index}`}
-                  frequencyData={frequencyData}
-                  chakra={geometryChakra}
-                  intensity={intensity}
-                  position={position}
-                  scale={geometry.scale || 1}
-                  isActive={geometry.isActive !== false}
-                />
-              );
-              
-            case 'fibonacciSpiral':
-              return (
-                <FibonacciSpiralGeometry
-                  key={`fibonacci-${index}`}
-                  frequencyData={frequencyData}
-                  chakra={geometryChakra}
-                  intensity={intensity}
-                  position={position}
-                  scale={geometry.scale || 1}
-                  isActive={geometry.isActive !== false}
-                />
-              );
-              
-            case 'chakraBeam':
-              return (
-                <ChakraBeamGeometry
-                  key={`chakra-beam-${index}`}
-                  frequencyData={frequencyData}
-                  chakra={geometryChakra}
-                  intensity={intensity}
-                  position={position}
-                  scale={geometry.scale || 1}
-                  isActive={geometry.isActive !== false}
-                />
-              );
-              
-            default:
-              return null;
-          }
-        })}
-        
-        {enableControls && (
-          <OrbitControls 
-            enablePan={false} 
-            enableZoom={true} 
-            enableRotate={true}
-            target={[0, 0, 0]}
-          />
-        )}
-      </Canvas>
-    </div>
+      ))}
+      
+      {enableControls && (
+        <OrbitControls 
+          enablePan={false} 
+          enableZoom={true} 
+          enableRotate={true}
+          target={[0, 0, 0]}
+        />
+      )}
+    </Canvas>
   );
 };
 

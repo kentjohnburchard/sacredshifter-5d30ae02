@@ -5,7 +5,6 @@ import * as THREE from 'three';
 import { useSpring, animated } from '@react-spring/three';
 import { SacredGeometryProps } from './types';
 import { useTheme } from '@/context/ThemeContext';
-import { Trail } from '@react-three/drei';
 
 const FibonacciSpiralGeometry: React.FC<SacredGeometryProps> = ({
   chakra = 'crown',
@@ -17,7 +16,6 @@ const FibonacciSpiralGeometry: React.FC<SacredGeometryProps> = ({
   isActive = true
 }) => {
   const groupRef = useRef<THREE.Group>(null);
-  const pointsRef = useRef<THREE.Points>(null);
   const color = chakra ? {
     root: '#ef4444',
     sacral: '#f97316',
@@ -30,109 +28,133 @@ const FibonacciSpiralGeometry: React.FC<SacredGeometryProps> = ({
   const { liftTheVeil } = useTheme();
 
   const { rotation: springRotation, scale: springScale } = useSpring({
-    rotation: [rotation[0] + intensity * Math.PI * 0.1, rotation[1] + intensity * Math.PI * 0.2, rotation[2]] as any,
+    rotation: [rotation[0], rotation[1] + intensity * Math.PI * 0.3, rotation[2]] as any,
     scale: scale * (1 + intensity * 0.2),
-    config: { tension: 100, friction: 12 }
+    config: { tension: 100, friction: 14 }
   });
 
   useFrame((state) => {
     if (groupRef.current && isActive) {
-      groupRef.current.rotation.y += 0.002;
-      
-      if (pointsRef.current) {
-        pointsRef.current.rotation.y = state.clock.getElapsedTime() * 0.1;
-      }
+      groupRef.current.rotation.y += 0.005;
       
       if (frequencyData && frequencyData.length > 0) {
         const freqArray = Array.from(frequencyData).map(Number);
         const avgFreq = freqArray.reduce((sum, val) => sum + val, 0) / freqArray.length;
         const normalizedFreq = avgFreq / 255;
         
-        groupRef.current.rotation.z = Math.sin(state.clock.getElapsedTime() * 0.3) * normalizedFreq * 0.2;
+        groupRef.current.rotation.z = Math.sin(state.clock.getElapsedTime() * 0.5) * normalizedFreq * 0.3;
       }
     }
   });
 
-  // Create Fibonacci spiral points
-  const spiralPoints = useMemo(() => {
-    const phi = (1 + Math.sqrt(5)) / 2; // Golden ratio
-    const points: THREE.Vector3[] = [];
-    const numPoints = 200;
+  // Create the Fibonacci spiral using the golden ratio
+  const spiralElements = useMemo(() => {
+    const elements: JSX.Element[] = [];
+    const goldenRatio = 1.618033988749895;
+    const emissiveIntensity = liftTheVeil ? 1.5 : 0.8;
+    const totalSegments = 24;
     
-    for (let i = 0; i < numPoints; i++) {
-      const angle = 0.1 * i;
-      const radius = 0.04 * Math.pow(phi, angle / Math.PI);
-      const x = radius * Math.cos(angle);
-      const y = radius * Math.sin(angle);
-      const z = i * 0.002;
-      
-      points.push(new THREE.Vector3(x, y, z));
+    // Create spiral segments
+    const spiralPoints: THREE.Vector3[] = [];
+    
+    for (let i = 0; i < totalSegments; i++) {
+      const angle = i * 0.5 * Math.PI;
+      const radius = Math.pow(goldenRatio, i / 10) * 0.1;
+      const x = Math.cos(angle) * radius;
+      const y = Math.sin(angle) * radius;
+      spiralPoints.push(new THREE.Vector3(x, y, 0));
     }
     
-    return points;
-  }, []);
-
-  // Create the spiral line
-  const spiralLine = useMemo(() => {
-    const lineGeometry = new THREE.BufferGeometry().setFromPoints(spiralPoints);
-    const lineMaterial = new THREE.LineBasicMaterial({
-      color: color,
-      transparent: true,
-      opacity: 0.7
-    });
+    // Create curve from points
+    const curve = new THREE.CatmullRomCurve3(spiralPoints);
+    const curvePoints = curve.getPoints(100);
     
-    return new THREE.Line(lineGeometry, lineMaterial);
-  }, [spiralPoints, color]);
-
-  // Create particle system using the spiral points
-  const spiralParticles = useMemo(() => {
-    const numParticles = 500;
-    const particlePositions = new Float32Array(numParticles * 3);
+    // Create line from curve
+    const lineGeometry = new THREE.BufferGeometry().setFromPoints(curvePoints);
+    elements.push(
+      <line key="spiral-line">
+        <bufferGeometry attach="geometry" {...lineGeometry} />
+        <lineBasicMaterial 
+          attach="material"
+          color={color} 
+          linewidth={2} 
+        />
+      </line>
+    );
     
-    for (let i = 0; i < numParticles; i++) {
-      const theta = 0.15 * i;
-      const phi = (1 + Math.sqrt(5)) / 2;
-      const radius = 0.05 * Math.pow(phi, theta / Math.PI);
+    // Add spheres along the spiral at Fibonacci points
+    const fibonacci = [1, 1, 2, 3, 5, 8, 13, 21];
+    fibonacci.forEach((num, index) => {
+      const scaledNum = num * 0.05;
+      const point = curve.getPointAt(Math.min(scaledNum, 1));
       
-      particlePositions[i * 3] = radius * Math.cos(theta);
-      particlePositions[i * 3 + 1] = radius * Math.sin(theta);
-      particlePositions[i * 3 + 2] = (i / numParticles) * 0.5;
-    }
-    
-    return particlePositions;
-  }, []);
-
-  // Calculate Fibonacci squares for visualization
-  const fibonacciSquares = useMemo(() => {
-    const squares: JSX.Element[] = [];
-    const fibSequence = [1, 1, 2, 3, 5, 8, 13, 21];
-    let posX = 0;
-    let posY = 0;
-    
-    for (let i = 0; i < fibSequence.length; i++) {
-      const size = fibSequence[i] * 0.05;
-      
-      squares.push(
-        <mesh key={`square-${i}`} position={[posX + size/2, posY + size/2, 0]}>
-          <planeGeometry args={[size, size]} />
-          <meshBasicMaterial 
-            color={color} 
-            transparent 
-            opacity={0.1} 
-            wireframe 
+      elements.push(
+        <mesh key={`fib-sphere-${index}`} position={[point.x, point.y, point.z]}>
+          <sphereGeometry args={[0.05 + index * 0.02, 16, 16]} />
+          <meshStandardMaterial
+            color={color}
+            emissive={color}
+            emissiveIntensity={emissiveIntensity}
+            metalness={0.5}
+            roughness={0.3}
           />
         </mesh>
       );
+    });
+    
+    // Add golden rectangle to demonstrate golden ratio
+    const rectSize = 0.8;
+    elements.push(
+      <group key="golden-rect" position={[0, 0, -0.01]}>
+        <mesh>
+          <planeGeometry args={[rectSize, rectSize]} />
+          <meshBasicMaterial 
+            color={color} 
+            transparent={true} 
+            opacity={0.1} 
+            side={THREE.DoubleSide} 
+          />
+        </mesh>
+        <mesh position={[-rectSize/4, -rectSize/4, 0]}>
+          <planeGeometry args={[rectSize/2, rectSize/2]} />
+          <meshBasicMaterial 
+            color={color} 
+            transparent={true} 
+            opacity={0.15} 
+            side={THREE.DoubleSide} 
+          />
+        </mesh>
+      </group>
+    );
+    
+    // Add spiral helper circles
+    for (let i = 0; i <= 4; i++) {
+      const size = Math.pow(goldenRatio, i) * 0.1;
+      const segmentAngle = i % 4;
+      let position: [number, number, number] = [0, 0, 0];
       
-      // Update position for next square based on the fibonacci sequence
-      if (i % 4 === 0) posX += fibSequence[i] * 0.05;
-      else if (i % 4 === 1) posY -= fibSequence[i] * 0.05;
-      else if (i % 4 === 2) posX -= fibSequence[i] * 0.05;
-      else posY += fibSequence[i] * 0.05;
+      switch (segmentAngle) {
+        case 0: position = [size/2, size/2, 0]; break;
+        case 1: position = [-size/2, size/2, 0]; break;
+        case 2: position = [-size/2, -size/2, 0]; break;
+        case 3: position = [size/2, -size/2, 0]; break;
+      }
+      
+      elements.push(
+        <mesh key={`helper-circle-${i}`} position={position}>
+          <circleGeometry args={[size, 32]} />
+          <meshBasicMaterial
+            color={color}
+            transparent={true}
+            opacity={0.1}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      );
     }
     
-    return squares;
-  }, [color]);
+    return elements;
+  }, [color, liftTheVeil]);
 
   return (
     <animated.group
@@ -142,43 +164,7 @@ const FibonacciSpiralGeometry: React.FC<SacredGeometryProps> = ({
       scale={springScale}
       visible={isActive}
     >
-      {/* Fibonacci spiral line */}
-      <primitive object={spiralLine} />
-      
-      {/* Particle system */}
-      <points ref={pointsRef}>
-        <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            count={spiralParticles.length / 3}
-            array={spiralParticles}
-            itemSize={3}
-          />
-        </bufferGeometry>
-        <pointsMaterial
-          size={0.03}
-          color={liftTheVeil ? '#ff69b4' : color}
-          transparent
-          opacity={0.6}
-          sizeAttenuation
-        />
-      </points>
-      
-      {/* Fibonacci squares */}
-      {fibonacciSquares}
-      
-      {/* Animated trail point */}
-      <Trail
-        width={0.02}
-        length={20}
-        color={liftTheVeil ? '#ff1493' : color}
-        attenuation={(t) => t * t}
-      >
-        <mesh position={[spiralPoints[spiralPoints.length - 1].x, spiralPoints[spiralPoints.length - 1].y, 0]}>
-          <sphereGeometry args={[0.05]} />
-          <meshBasicMaterial color={liftTheVeil ? '#ff1493' : color} />
-        </mesh>
-      </Trail>
+      {spiralElements}
     </animated.group>
   );
 };

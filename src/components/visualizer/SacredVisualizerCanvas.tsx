@@ -34,6 +34,19 @@ const SacredGeometry = ({
   visualizerMode = 'flowerOfLife', 
   intensity = 0 
 }: SacredVisualizerCanvasProps) => {
+  // Only include the geometry types we know we properly support
+  const supportedGeometryTypes: SacredGeometryType[] = [
+    'flowerOfLife', 'merkaba', 'metatronCube', 'sriYantra', 'fibonacciSpiral', 'chakraBeam'
+  ];
+  
+  // Check if visualizerMode is one of our supported types
+  const isSupportedGeometry = supportedGeometryTypes.includes(visualizerMode as SacredGeometryType);
+  
+  if (!isSupportedGeometry) {
+    // Fallback to flowerOfLife if unsupported type
+    return <FlowerOfLifeGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
+  }
+  
   switch (visualizerMode) {
     case 'flowerOfLife':
       return <FlowerOfLifeGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
@@ -65,15 +78,6 @@ const SacredVisualizerCanvas: React.FC<SacredVisualizerCanvasProps> = ({
   geometryConfigs = [],
 }) => {
   const shouldRender = typeof visualizerMode === 'string';
-  const chakraColor = chakra ? {
-    root: '#ef4444',
-    sacral: '#f97316',
-    'solar plexus': '#facc15',
-    heart: '#22c55e',
-    throat: '#3b82f6',
-    'third eye': '#6366f1',
-    crown: '#a855f7'
-  }[chakra] : '#a855f7';
   const { liftTheVeil } = useTheme();
 
   if (!shouldRender) {
@@ -85,8 +89,16 @@ const SacredVisualizerCanvas: React.FC<SacredVisualizerCanvasProps> = ({
   }
   
   const fogColor = liftTheVeil ? '#330033' : '#110022';
-  const ambientColor = liftTheVeil ? '#ff69b4' : chakraColor;
-  const pointLightColor = liftTheVeil ? '#ff1493' : chakraColor;
+  const ambientColor = liftTheVeil ? '#ff69b4' : chakra ? {
+    root: '#ef4444',
+    sacral: '#f97316',
+    'solar plexus': '#facc15',
+    heart: '#22c55e',
+    throat: '#3b82f6',
+    'third eye': '#6366f1',
+    crown: '#a855f7'
+  }[chakra] : '#a855f7';
+  const pointLightColor = liftTheVeil ? '#ff1493' : ambientColor;
   
   // If multiView is enabled, use the MultiVisualizer component
   if (multiView || visualizerMode === 'multi') {
