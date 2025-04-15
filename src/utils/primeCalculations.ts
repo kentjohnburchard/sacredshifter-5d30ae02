@@ -38,3 +38,9 @@ export const findPrimesInRange = (minFreq: number, maxFreq: number): number[] =>
   
   return primes;
 };
+
+// Re-export isPrime from primeUtils to fix import issues in other files
+export { isPrime } from '@/lib/primeUtils';
+
+// Re-export calculatePrimeFactors from primeUtils to fix import issues in other files
+export { calculatePrimeFactors } from '@/lib/primeUtils';
