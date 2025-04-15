@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useMemo, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Trail, Stars } from '@react-three/drei';
@@ -676,15 +677,22 @@ const ChakraSpiralGeometry = ({ frequencyData, intensity = 0 }: { frequencyData?
     >
       {chakraPointsElements}
       
-      <mesh>
-        <torusGeometry args={[1.25, 0.02, 16, 100]} />
-        <meshBasicMaterial color="#ffffff" opacity={0.4} transparent />
-      </mesh>
+      {/* Create a torus using primitive to avoid any potential issues */}
+      <primitive 
+        object={new THREE.Mesh(
+          new THREE.TorusGeometry(1.25, 0.02, 16, 100),
+          new THREE.MeshBasicMaterial({ color: "#ffffff", opacity: 0.4, transparent: true })
+        )}
+      />
       
-      <mesh rotation={[Math.PI/2, 0, 0]}>
-        <torusGeometry args={[1.5, 0.01, 16, 100]} />
-        <meshBasicMaterial color="#ffffff" opacity={0.2} transparent />
-      </mesh>
+      <primitive 
+        object={new THREE.Mesh(
+          new THREE.TorusGeometry(1.5, 0.01, 16, 100),
+          new THREE.MeshBasicMaterial({ color: "#ffffff", opacity: 0.2, transparent: true })
+        )}
+        position={[0, 0, 0]}
+        rotation={[Math.PI/2, 0, 0]}
+      />
       
       <Stars radius={10} depth={20} count={500} factor={2} fade speed={1} />
     </animated.group>
