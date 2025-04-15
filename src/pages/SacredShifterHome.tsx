@@ -8,21 +8,26 @@ import { Music, Heart, Sparkles, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTheme } from "@/context/ThemeContext";
 import ConsciousnessToggle from "@/components/ConsciousnessToggle";
-import { initializeAudioAfterInteraction } from '@/utils/audioContextInitializer';
+import { initializeAudioAfterInteraction, resumeAudioContext } from '@/utils/audioContextInitializer';
+import { preloadCoreAudioFiles } from '@/utils/audioPreloader';
 import { toast } from "sonner";
 import { useAppStore } from "@/store";
 import FallbackVisualizer from "@/components/visualizer/FallbackVisualizer";
 
 const SacredShifterHome: React.FC = () => {
   const { liftTheVeil, currentQuote } = useTheme();
-  const { audioInitialized, setAudioInitialized } = useAppStore();
+  const { audioInitialized, setAudioInitialized, setStatusMessage } = useAppStore();
   const [showAmbientPlayer, setShowAmbientPlayer] = useState(false);
   
-  // Initialize audio context when component mounts
+  // Initialize audio context and preload audio files when component mounts
   useEffect(() => {
     // Initialize audio as soon as possible
     const initAudio = () => {
+      console.log("Initializing audio on SacredShifterHome mount");
       initializeAudioAfterInteraction();
+      
+      // Preload our core audio files
+      preloadCoreAudioFiles();
       
       // Create and hide an audio element to help initialize the audio system
       const audioElement = document.querySelector('audio#preload-audio') as HTMLAudioElement || document.createElement('audio');
@@ -35,6 +40,12 @@ const SacredShifterHome: React.FC = () => {
       if (!audioElement.parentElement) {
         document.body.appendChild(audioElement);
       }
+      
+      // Set up audio play error handling
+      audioElement.addEventListener('error', (e) => {
+        console.error("Error loading audio element:", e);
+        setStatusMessage("Audio loading error. Check your internet connection.");
+      });
       
       // Attempt to play the audio to initialize the audio system
       audioElement.play().then(() => {
@@ -53,6 +64,7 @@ const SacredShifterHome: React.FC = () => {
     // Set up event listeners for user interaction
     const userInteractionHandler = () => {
       initAudio();
+      resumeAudioContext().catch(console.error);
       document.removeEventListener('click', userInteractionHandler);
       document.removeEventListener('touchstart', userInteractionHandler);
     };
@@ -60,11 +72,14 @@ const SacredShifterHome: React.FC = () => {
     document.addEventListener('click', userInteractionHandler);
     document.addEventListener('touchstart', userInteractionHandler);
     
+    // Try to initialize immediately as well
+    initAudio();
+    
     return () => {
       document.removeEventListener('click', userInteractionHandler);
       document.removeEventListener('touchstart', userInteractionHandler);
     };
-  }, [setAudioInitialized]);
+  }, [setAudioInitialized, setStatusMessage]);
   
   // Determine background classes based on mode
   const bgClasses = liftTheVeil 
@@ -142,10 +157,14 @@ const SacredShifterHome: React.FC = () => {
               onClick={() => {
                 // Initialize audio on click
                 initializeAudioAfterInteraction();
+                resumeAudioContext().catch(console.error);
                 if (!audioInitialized) {
                   toast.info("Audio system initialized. Experience the full power of sound healing.");
                   setAudioInitialized(true);
                 }
+                
+                // Show the ambient player
+                setShowAmbientPlayer(true);
               }}
             >
               Begin Your Journey

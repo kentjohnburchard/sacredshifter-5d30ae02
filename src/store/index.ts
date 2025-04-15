@@ -33,6 +33,8 @@ interface AppState {
   audioAttempts: number;
   incrementAudioAttempts: () => void;
   resetAudioAttempts: () => void;
+  statusMessage: string | null;
+  setStatusMessage: (message: string | null) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -70,4 +72,6 @@ export const useAppStore = create<AppState>((set) => ({
   audioAttempts: 0,
   incrementAudioAttempts: () => set(state => ({ audioAttempts: state.audioAttempts + 1 })),
   resetAudioAttempts: () => set({ audioAttempts: 0 }),
+  statusMessage: null,
+  setStatusMessage: (message: string | null) => set({ statusMessage: message }),
 }));

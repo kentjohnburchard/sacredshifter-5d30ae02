@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import SacredAudioPlayer from '@/components/audio/SacredAudioPlayer';
 import { useAppStore } from '@/store';
 import { toast } from 'sonner';
@@ -20,13 +20,23 @@ export interface FrequencyPlayerProps {
 // This is a wrapper component around SacredAudioPlayer for backward compatibility
 const FrequencyPlayer: React.FC<FrequencyPlayerProps> = (props) => {
   // Ensure we're passing audioUrl correctly - prioritize audioUrl, but fall back to url if needed
-  const audioSource = props.audioUrl || props.url || '/sounds/focus-ambient.mp3';
+  const audioSource = props.audioUrl || props.url;
+  
+  // Default audio source if none provided - this should be a real file that exists
+  const defaultAudioSource = '/sounds/focus-ambient.mp3';
+  
+  // Determine the final audio source to use
+  const [effectiveAudioSource, setEffectiveAudioSource] = useState<string>(
+    audioSource || defaultAudioSource
+  );
   
   // Use the force play parameter if present
   const forcePlay = props.forcePlay || false;
   
-  const { setIsPlaying, setAudioPlaybackError } = useAppStore();
+  // Get relevant state and functions from the store
+  const { setIsPlaying, setAudioPlaybackError, incrementAudioAttempts, resetAudioAttempts, audioAttempts } = useAppStore();
   const initializationAttempted = useRef(false);
+  const [audioLoaded, setAudioLoaded] = useState(false);
   
   // Initialize audio context after user interaction
   useEffect(() => {
@@ -37,6 +47,8 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = (props) => {
       // Log important information
       console.log("🔊 FrequencyPlayer mounted with:", {
         audioSource,
+        defaultAudioSource,
+        effectiveAudioSource,
         frequency: props.frequency,
         isPlaying: props.isPlaying,
         forcePlay
@@ -51,14 +63,37 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = (props) => {
     if (forcePlay) {
       setTimeout(() => {
         console.log("🎵 Attempting force play...");
-        resumeAudioContext().catch(console.error);
+        resumeAudioContext().catch(error => {
+          console.error("Failed to resume audio context:", error);
+        });
         setIsPlaying(true);
         if (props.onPlayToggle) {
           props.onPlayToggle(true);
         }
       }, 300);
     }
-  }, [audioSource, forcePlay, props.isPlaying, props.onPlayToggle, setIsPlaying]);
+    
+    // Clean up function
+    return () => {
+      console.log("🔊 FrequencyPlayer unmounting");
+    };
+  }, [audioSource, forcePlay, props.isPlaying, props.onPlayToggle, setIsPlaying, defaultAudioSource, effectiveAudioSource]);
+  
+  // Handle audio loading errors
+  useEffect(() => {
+    if (audioAttempts > 3) {
+      console.log("Multiple audio failures detected, trying alternative strategy");
+      
+      // After multiple failures with the same audio source, try the default audio
+      if (effectiveAudioSource !== defaultAudioSource) {
+        setEffectiveAudioSource(defaultAudioSource);
+        toast.info("Using default audio source due to loading issues");
+      }
+      
+      // Reset counter after changing source
+      resetAudioAttempts();
+    }
+  }, [audioAttempts, effectiveAudioSource, defaultAudioSource, resetAudioAttempts]);
   
   const handlePlayToggle = (isPlaying: boolean) => {
     console.log("FrequencyPlayer: handlePlayToggle called with", isPlaying);
@@ -77,18 +112,37 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = (props) => {
     }
   };
   
+  // Handler for audio loading errors
+  const handleAudioError = () => {
+    console.log("Audio error detected in FrequencyPlayer");
+    incrementAudioAttempts();
+    setAudioPlaybackError("Failed to load audio");
+  };
+  
+  // Handler for successful audio loading
+  const handleAudioLoaded = () => {
+    console.log("Audio successfully loaded");
+    setAudioLoaded(true);
+    resetAudioAttempts();
+    setAudioPlaybackError(null);
+  };
+  
   return (
-    <SacredAudioPlayer 
-      audioUrl={audioSource} 
-      url={props.url}
-      frequency={props.frequency}
-      isPlaying={props.isPlaying}
-      onPlayToggle={handlePlayToggle}
-      frequencyId={props.frequencyId}
-      groupId={props.groupId}
-      id={props.id}
-      forcePlay={forcePlay}
-    />
+    <div className="frequency-player">
+      <SacredAudioPlayer 
+        audioUrl={effectiveAudioSource} 
+        url={props.url}
+        frequency={props.frequency}
+        isPlaying={props.isPlaying}
+        onPlayToggle={handlePlayToggle}
+        frequencyId={props.frequencyId}
+        groupId={props.groupId}
+        id={props.id}
+        forcePlay={forcePlay}
+        onError={handleAudioError}
+        onAudioLoaded={handleAudioLoaded}
+      />
+    </div>
   );
 };
 
