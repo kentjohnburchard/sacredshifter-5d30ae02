@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useMemo } from 'react';
 import { useTheme } from '@/context/ThemeContext';
 import { isPrime, analyzeFrequency } from '@/lib/primeUtils';
@@ -117,7 +116,7 @@ const PrimePulseVisualizer: React.FC<PrimePulseVisualizerProps> = ({
           color,
           phase: Math.random() * Math.PI * 2
         });
-      }
+      });
       
       // Always add a central circle
       circles.push({
