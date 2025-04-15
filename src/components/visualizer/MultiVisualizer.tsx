@@ -12,6 +12,7 @@ import {
   ChakraBeamGeometry,
   GeometryConfig,
   SacredGeometryType,
+  ChakraType,
   getChakraColor
 } from './sacred-geometries';
 import { useTheme } from '@/context/ThemeContext';
@@ -22,7 +23,7 @@ interface MultiVisualizerProps {
   enableControls?: boolean;
   layoutType?: 'circle' | 'grid' | 'stack';
   intensity?: number;
-  chakra?: 'root' | 'sacral' | 'solar plexus' | 'heart' | 'throat' | 'third eye' | 'crown';
+  chakra?: ChakraType;
 }
 
 const MultiVisualizer: React.FC<MultiVisualizerProps> = ({
@@ -42,14 +43,16 @@ const MultiVisualizer: React.FC<MultiVisualizerProps> = ({
     }
     
     // Default set of geometries
-    return [
+    const defaultGeometries: GeometryConfig[] = [
       { type: 'flowerOfLife', chakra, position: [0, 0, 0], scale: 0.7 },
       { type: 'merkaba', chakra, position: [0, 0, 0], scale: 0.7 },
       { type: 'metatronCube', chakra, position: [0, 0, 0], scale: 0.7 },
       { type: 'sriYantra', chakra, position: [0, 0, 0], scale: 0.7 },
       { type: 'fibonacciSpiral', chakra, position: [0, 0, 0], scale: 0.7 },
       { type: 'chakraBeam', chakra, position: [0, 0, 0], scale: 0.7 }
-    ] as GeometryConfig[];
+    ];
+    
+    return defaultGeometries;
   }, [geometries, chakra]);
   
   // Calculate positions for the geometries based on layout type
