@@ -6,7 +6,7 @@ import { Slider } from '@/components/ui/slider';
 import { formatTime } from '@/lib/utils';
 import { VisualizerManager } from '@/components/visualizer/VisualizerManager';
 import { Button } from '@/components/ui/button';
-import { Play, Pause } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
 
 const SacredAudioPlayer: React.FC = () => {
   const {
@@ -24,6 +24,10 @@ const SacredAudioPlayer: React.FC = () => {
   
   const [isSeeking, setIsSeeking] = useState(false);
   const [seekTime, setSeekTime] = useState(0);
+  const [volume, setVolume] = useState(0.7);
+  const [isMuted, setIsMuted] = useState(false);
+  const [showVolumeSlider, setShowVolumeSlider] = useState(false);
+  
   const { liftTheVeil } = useTheme();
 
   const handleSeekMouseDown = () => {
@@ -42,6 +46,25 @@ const SacredAudioPlayer: React.FC = () => {
   const handleSeekMouseUp = () => {
     setIsSeeking(false);
     seekTo(seekTime);
+  };
+
+  const handleVolumeChange = (value: number[]) => {
+    const newVolume = value[0];
+    setVolume(newVolume);
+    if (newVolume > 0 && isMuted) {
+      setIsMuted(false);
+    }
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume;
+    }
+  };
+
+  const toggleMute = () => {
+    const newMutedState = !isMuted;
+    setIsMuted(newMutedState);
+    if (audioRef.current) {
+      audioRef.current.muted = newMutedState;
+    }
   };
 
   React.useEffect(() => {
@@ -78,20 +101,51 @@ const SacredAudioPlayer: React.FC = () => {
               )}
             </div>
             
-            <Slider
-              value={[seekTime]}
-              min={0}
-              max={duration || 100}
-              step={0.1}
-              onValueChange={handleSeekChange}
-              onPointerDown={handleSeekMouseDown}
-              onPointerUp={handleSeekMouseUp}
-              className="w-full"
-            />
-            
-            <div className="flex justify-between text-sm text-gray-400 mt-1">
-              <span>{formatTime(currentTime)}</span>
-              <span>{formatTime(duration)}</span>
+            <div className="flex items-center gap-4">
+              <div className="flex-grow">
+                <Slider
+                  value={[seekTime]}
+                  min={0}
+                  max={duration || 100}
+                  step={0.1}
+                  onValueChange={handleSeekChange}
+                  onPointerDown={handleSeekMouseDown}
+                  onPointerUp={handleSeekMouseUp}
+                  className="w-full"
+                />
+                
+                <div className="flex justify-between text-sm text-gray-400 mt-1">
+                  <span>{formatTime(currentTime)}</span>
+                  <span>{formatTime(duration)}</span>
+                </div>
+              </div>
+              
+              <div
+                className="relative"
+                onMouseEnter={() => setShowVolumeSlider(true)}
+                onMouseLeave={() => setShowVolumeSlider(false)}
+              >
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggleMute}
+                  className="h-8 w-8 text-white"
+                >
+                  {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                </Button>
+
+                {showVolumeSlider && (
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-2 bg-black/60 rounded-lg shadow-lg z-10 w-32">
+                    <Slider
+                      value={[isMuted ? 0 : volume]}
+                      max={1}
+                      step={0.01}
+                      onValueChange={handleVolumeChange}
+                      className="w-full"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
