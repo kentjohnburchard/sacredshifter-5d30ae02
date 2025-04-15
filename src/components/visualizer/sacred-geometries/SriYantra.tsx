@@ -71,7 +71,7 @@ const SriYantraGeometry: React.FC<SacredGeometryProps> = ({
       const positions = edges.attributes.position.array;
       
       elements.push(
-        <line key={`upward-triangle-${i}`} position={[0, 0, i * 0.01]}>
+        <line key={`upward-triangle-${i}`}>
           <bufferGeometry>
             <float32BufferAttribute attach="attributes-position" args={[positions, 3]} />
           </bufferGeometry>
@@ -102,7 +102,7 @@ const SriYantraGeometry: React.FC<SacredGeometryProps> = ({
       const positions = edges.attributes.position.array;
       
       elements.push(
-        <line key={`downward-triangle-${i}`} position={[0, 0, i * 0.01 + 0.005]}>
+        <line key={`downward-triangle-${i}`}>
           <bufferGeometry>
             <float32BufferAttribute attach="attributes-position" args={[positions, 3]} />
           </bufferGeometry>
@@ -121,7 +121,7 @@ const SriYantraGeometry: React.FC<SacredGeometryProps> = ({
     const circlePositions = circleEdges.attributes.position.array;
     
     elements.push(
-      <line key="outer-circle" position={[0, 0, -0.01]}>
+      <line key="outer-circle">
         <bufferGeometry>
           <float32BufferAttribute attach="attributes-position" args={[circlePositions, 3]} />
         </bufferGeometry>
