@@ -35,20 +35,6 @@ const CanvasBasedVisualizer: React.FC<CanvasBasedVisualizerProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     
-    // Set canvas dimensions
-    const resizeCanvas = () => {
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = rect.height;
-      
-      // Redraw after resize
-      draw(0);
-    };
-    
-    // Add resize listener
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-    
     // Main animation variables
     let particles: {
       x: number;
@@ -450,6 +436,9 @@ const CanvasBasedVisualizer: React.FC<CanvasBasedVisualizerProps> = ({
               x = -size / 2 + size / 2 * pctAlong;
               y = height / 2 - height * pctAlong;
               break;
+            default:
+              x = 0;
+              y = 0;
           }
         } else {
           switch (edge) {
@@ -465,6 +454,9 @@ const CanvasBasedVisualizer: React.FC<CanvasBasedVisualizerProps> = ({
               x = size / 2 - size / 2 * pctAlong;
               y = -height / 2 + height * pctAlong;
               break;
+            default:
+              x = 0;
+              y = 0;
           }
         }
         
@@ -889,8 +881,8 @@ const CanvasBasedVisualizer: React.FC<CanvasBasedVisualizerProps> = ({
         ctx.globalAlpha = 1;
       });
     };
-    
-    // Main draw function
+
+    // Main draw function - define this BEFORE resizeCanvas references it
     const draw = (timestamp: number) => {
       if (!ctx) return;
       
@@ -973,6 +965,20 @@ const CanvasBasedVisualizer: React.FC<CanvasBasedVisualizerProps> = ({
         animationRef.current = requestAnimationFrame(draw);
       }
     };
+
+    // Set canvas dimensions - draw function is now defined before this point
+    const resizeCanvas = () => {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      
+      // Redraw after resize
+      draw(0);
+    };
+    
+    // Add resize listener
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
     
     // Initialize animation
     if (isActive) {
