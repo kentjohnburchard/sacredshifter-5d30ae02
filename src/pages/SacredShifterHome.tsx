@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Logo, AnimatedText, CallToAction } from "@/components/landing";
 import Layout from "@/components/Layout";
@@ -7,9 +8,63 @@ import { Music, Heart, Sparkles, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTheme } from "@/context/ThemeContext";
 import ConsciousnessToggle from "@/components/ConsciousnessToggle";
+import { initializeAudioAfterInteraction } from '@/utils/audioContextInitializer';
+import { toast } from "sonner";
+import { useAppStore } from "@/store";
+import FallbackVisualizer from "@/components/visualizer/FallbackVisualizer";
 
 const SacredShifterHome: React.FC = () => {
   const { liftTheVeil, currentQuote } = useTheme();
+  const { audioInitialized, setAudioInitialized } = useAppStore();
+  const [showAmbientPlayer, setShowAmbientPlayer] = useState(false);
+  
+  // Initialize audio context when component mounts
+  useEffect(() => {
+    // Initialize audio as soon as possible
+    const initAudio = () => {
+      initializeAudioAfterInteraction();
+      
+      // Create and hide an audio element to help initialize the audio system
+      const audioElement = document.querySelector('audio#preload-audio') as HTMLAudioElement || document.createElement('audio');
+      audioElement.id = 'preload-audio';
+      audioElement.src = '/sounds/focus-ambient.mp3';
+      audioElement.loop = true;
+      audioElement.volume = 0.1;
+      audioElement.style.display = 'none';
+      
+      if (!audioElement.parentElement) {
+        document.body.appendChild(audioElement);
+      }
+      
+      // Attempt to play the audio to initialize the audio system
+      audioElement.play().then(() => {
+        console.log("🎵 Audio system initialized successfully");
+        setAudioInitialized(true);
+        
+        // Pause it shortly after to avoid unwanted sound
+        setTimeout(() => {
+          audioElement.pause();
+        }, 100);
+      }).catch(err => {
+        console.warn("Audio system initialization requires user interaction:", err);
+      });
+    };
+    
+    // Set up event listeners for user interaction
+    const userInteractionHandler = () => {
+      initAudio();
+      document.removeEventListener('click', userInteractionHandler);
+      document.removeEventListener('touchstart', userInteractionHandler);
+    };
+    
+    document.addEventListener('click', userInteractionHandler);
+    document.addEventListener('touchstart', userInteractionHandler);
+    
+    return () => {
+      document.removeEventListener('click', userInteractionHandler);
+      document.removeEventListener('touchstart', userInteractionHandler);
+    };
+  }, [setAudioInitialized]);
   
   // Determine background classes based on mode
   const bgClasses = liftTheVeil 
@@ -21,6 +76,16 @@ const SacredShifterHome: React.FC = () => {
       <div className={`container mx-auto px-4 py-8 relative z-20 ${bgClasses}`}>
         {/* Hidden Easter Egg Toggle */}
         <ConsciousnessToggle />
+        
+        {/* Optional ambient visualizer */}
+        {showAmbientPlayer && (
+          <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
+            <FallbackVisualizer 
+              colorScheme={liftTheVeil ? '#e879f9' : '#9b87f5'} 
+              isPlaying={true}
+            />
+          </div>
+        )}
         
         <div className="flex flex-col items-center justify-center min-h-[70vh] text-center relative">
           {/* Main Content */}
@@ -72,7 +137,17 @@ const SacredShifterHome: React.FC = () => {
             </div>
 
             {/* Call to Action Button */}
-            <CallToAction to="/dashboard">
+            <CallToAction 
+              to="/dashboard" 
+              onClick={() => {
+                // Initialize audio on click
+                initializeAudioAfterInteraction();
+                if (!audioInitialized) {
+                  toast.info("Audio system initialized. Experience the full power of sound healing.");
+                  setAudioInitialized(true);
+                }
+              }}
+            >
               Begin Your Journey
             </CallToAction>
           </div>

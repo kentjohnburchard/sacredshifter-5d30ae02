@@ -28,12 +28,17 @@ interface AppState {
   setAudioContext: (context: AudioContext | null) => void;
   audioInitialized: boolean;
   setAudioInitialized: (initialized: boolean) => void;
+  lastAudioSource: string | null;
+  setLastAudioSource: (source: string | null) => void;
+  audioAttempts: number;
+  incrementAudioAttempts: () => void;
+  resetAudioAttempts: () => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
   isPlaying: false,
   setIsPlaying: (isPlaying: boolean) => {
-    console.log("Setting global isPlaying state:", isPlaying);
+    console.log("🎮 Setting global isPlaying state:", isPlaying);
     set({ isPlaying });
   },
   currentSongId: null,
@@ -60,4 +65,9 @@ export const useAppStore = create<AppState>((set) => ({
   setAudioContext: (context: AudioContext | null) => set({ audioContext: context }),
   audioInitialized: false,
   setAudioInitialized: (initialized: boolean) => set({ audioInitialized: initialized }),
+  lastAudioSource: null,
+  setLastAudioSource: (source: string | null) => set({ lastAudioSource: source }),
+  audioAttempts: 0,
+  incrementAudioAttempts: () => set(state => ({ audioAttempts: state.audioAttempts + 1 })),
+  resetAudioAttempts: () => set({ audioAttempts: 0 }),
 }));
