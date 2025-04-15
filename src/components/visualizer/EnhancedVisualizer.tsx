@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PrimeNumberVisualizer from './PrimeNumberVisualizer';
@@ -7,7 +6,7 @@ import SacredVisualizerCanvas from './SacredVisualizerCanvas';
 import { useAppStore } from '@/store';
 import { Button } from '@/components/ui/button';
 import { 
-  WaveformIcon, 
+  Waves, 
   Hexagon, 
   Grid3X3, 
   CircleDashed 
@@ -29,14 +28,12 @@ const EnhancedVisualizer: React.FC<EnhancedVisualizerProps> = ({
   const { visualizationMode, setVisualizationMode } = useAppStore();
   const [localFrequencyData, setLocalFrequencyData] = useState<Uint8Array | undefined>(frequencyData);
   
-  // Update local data when props change
   useEffect(() => {
     if (frequencyData) {
       setLocalFrequencyData(frequencyData);
     }
   }, [frequencyData]);
   
-  // Change visualization mode
   const changeMode = (mode: 'sacred' | 'prime' | 'equalizer' | 'flow') => {
     setVisualizationMode(mode);
   };
@@ -108,15 +105,17 @@ const EnhancedVisualizer: React.FC<EnhancedVisualizerProps> = ({
             <Hexagon className="h-4 w-4" />
           </Button>
           
-          <Button
-            variant="ghost"
-            size="icon"
-            className={`h-7 w-7 rounded-full ${visualizationMode === 'equalizer' ? 'bg-white/20' : 'bg-transparent'}`}
-            onClick={() => changeMode('equalizer')}
-            title="Frequency Equalizer"
-          >
-            <WaveformIcon className="h-4 w-4" />
-          </Button>
+          {visualizationMode === 'equalizer' && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`h-7 w-7 rounded-full ${visualizationMode === 'equalizer' ? 'bg-white/20' : 'bg-transparent'}`}
+              onClick={() => changeMode('equalizer')}
+              title="Frequency Equalizer"
+            >
+              <Waves className="h-4 w-4" />
+            </Button>
+          )}
           
           <Button
             variant="ghost"
