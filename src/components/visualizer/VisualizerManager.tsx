@@ -15,7 +15,7 @@ export interface VisualizerManagerProps {
     accent: string; 
     background: string; 
   };
-  chakra?: string;
+  chakra?: string[];  // Expecting string array
   frequency?: number;
   analyzerNode?: AnalyserNode | null;
   audioRef?: React.RefObject<HTMLAudioElement>;
@@ -30,7 +30,7 @@ const VisualizerManager: React.FC<VisualizerManagerProps> = ({
   size = 'md',
   isAudioReactive = false,
   colorScheme = 'purple',
-  chakra,
+  chakra = [], // Default empty array
   frequency,
   analyzerNode,
   audioRef,
@@ -48,10 +48,10 @@ const VisualizerManager: React.FC<VisualizerManagerProps> = ({
     frequencies : 
     (frequency ? [frequency] : [432]);
     
-  // Prepare chakras array - include the single chakra if provided
+  // Prepare chakras array - include chakras from both sources
   const chakraArray = chakras.length > 0 ? 
     chakras : 
-    (chakra ? [chakra] : ["Crown"]);
+    (chakra.length > 0 ? chakra : ["Crown"]);
   
   // Convert complex colorScheme object to string if needed for KaleidoscopeVisualizer
   const kaleidoscopeColorScheme = typeof colorScheme === 'object' 

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
@@ -87,7 +86,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   
   const { liftTheVeil } = useTheme();
   
-  // Define shouldShowVisualizer here to fix the error
   const shouldShowVisualizer = isVisualizerVisible && isPlaying && !!analyser;
   
   useEffect(() => {
@@ -231,7 +229,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     setIsMinimized(!isMinimized);
   };
   
-  // Handle callbacks from journey options
   const togglePinkNoise = () => {
     setOptions(prev => ({ ...prev, pinkNoise: !prev.pinkNoise }));
   };
@@ -254,16 +251,13 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     }
   };
 
-  // Get track info for display
   const trackTitle = currentTrack?.title || 'No track loaded';
   const trackArtist = currentTrack?.artist || '';
   const mainFrequency = currentTrack?.customData?.frequency || frequency || 432;
   
-  // If chakra is provided, use it for color scheme
   const chakra = currentTrack?.customData?.chakra || journey?.chakras?.[0] || 'Crown';
   const colorScheme = getChakraColorScheme(chakra);
   
-  // If we're playing a prime number frequency, highlight it
   const isPrimeFreq = isPrime(mainFrequency);
 
   if (isMinimized) {
@@ -294,7 +288,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
 
   return (
     <div className={`sacred-audio-player relative rounded-t-lg overflow-hidden shadow-xl border-t border-x border-white/10 transition-all duration-300 ${isExpanded ? 'bg-black/70 backdrop-blur-md' : 'bg-black/60 backdrop-blur-sm'}`}>
-      {/* Visualizer */}
       {shouldShowVisualizer && isExpanded && (
         <div className="h-48">
           <VisualizerManager
@@ -304,14 +297,13 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
             analyzerNode={analyser}
             audioRef={audioRef}
             frequency={mainFrequency}
-            chakra={chakra}
+            chakra={chakra ? [chakra] : []}
             isPlaying={isPlaying}
             liftedVeil={liftTheVeil}
           />
         </div>
       )}
       
-      {/* Player controls */}
       <div className="player-controls p-3 text-white">
         <div className="flex justify-between items-center mb-2">
           <div className="flex-1 mr-2">
@@ -354,7 +346,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           </div>
         </div>
         
-        {/* Frequency indicator */}
         {mainFrequency && isExpanded && (
           <div className={`flex items-center justify-center p-1 mb-2 text-xs border-t border-b ${isPrimeFreq ? 'border-pink-400/30' : 'border-white/10'}`}>
             <span className={`${isPrimeFreq ? 'text-pink-300' : 'text-gray-200'} font-mono`}>
@@ -365,7 +356,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           </div>
         )}
         
-        {/* Progress bar */}
         <div className="flex items-center space-x-2 mb-2">
           <span className="text-xs">{formatTime(currentTime)}</span>
           <Slider
@@ -381,7 +371,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           <span className="text-xs">{formatTime(duration)}</span>
         </div>
         
-        {/* Playback controls */}
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <Button
