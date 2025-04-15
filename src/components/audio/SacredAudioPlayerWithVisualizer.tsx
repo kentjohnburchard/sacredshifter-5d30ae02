@@ -32,25 +32,27 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
   // Determine which visualizer mode to use based on journey theme
   let visualizerMode: VisualizerMode = 'customPrimePulse';
   
-  switch (journey?.visualTheme) {
-    case 'merkaba':
-      visualizerMode = 'merkaba';
-      break;
-    case 'flower-of-life':
-      visualizerMode = 'flowerOfLife';
-      break;
-    case 'torus':
-    case 'vesica-piscis': // Add more mappings if needed
-      visualizerMode = 'torus';
-      break;
-    case 'sri-yantra':
-      visualizerMode = 'chakraSpiral';
-      break;
-    case 'cosmic-ocean':
-      visualizerMode = 'primeFlow';
-      break;
-    default:
-      visualizerMode = 'customPrimePulse';
+  if (journey?.visualTheme) {
+    switch (journey.visualTheme) {
+      case 'merkaba':
+        visualizerMode = 'merkaba';
+        break;
+      case 'flower-of-life':
+        visualizerMode = 'flowerOfLife';
+        break;
+      case 'torus':
+      case 'vesica-piscis': // Add more mappings if needed
+        visualizerMode = 'torus';
+        break;
+      case 'sri-yantra':
+        visualizerMode = 'chakraSpiral';
+        break;
+      case 'cosmic-ocean':
+        visualizerMode = 'primeFlow';
+        break;
+      default:
+        visualizerMode = 'customPrimePulse';
+    }
   }
 
   // Get chakra colors for styling

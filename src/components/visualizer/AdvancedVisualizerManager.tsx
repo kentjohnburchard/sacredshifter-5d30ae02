@@ -3,13 +3,13 @@ import React, { useState } from 'react';
 import SacredVisualizerCanvas from './SacredVisualizerCanvas';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { 
-  FlowerOrnament, 
+  Flower, 
   Shapes, 
   Dna, 
   RotateCw, 
-  Sparkles, 
-  PrimeIcon
+  Sparkles
 } from 'lucide-react';
+import PrimeIcon from '@/components/icons/PrimeIcon';
 import { VisualizerMode } from '@/components/audio/SacredAudioPlayerWithVisualizer';
 
 export interface AdvancedVisualizerManagerProps {
@@ -83,7 +83,7 @@ const AdvancedVisualizerManager: React.FC<AdvancedVisualizerManagerProps> = ({
               className="data-[state=on]:bg-purple-600 data-[state=on]:text-white"
               aria-label="Flower of Life"
             >
-              <FlowerOrnament size={16} />
+              <Flower size={16} />
             </ToggleGroupItem>
             
             <ToggleGroupItem 
