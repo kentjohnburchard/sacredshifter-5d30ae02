@@ -110,17 +110,17 @@ const FlowerOfLifeGeometry = ({
           const innerX = innerRingRadius * Math.cos(innerAngle);
           const innerY = innerRingRadius * Math.sin(innerAngle);
           
-          const points = [
-            new THREE.Vector3(x, y, 0),
-            new THREE.Vector3(innerX, innerY, 0)
-          ];
-          
-          const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-          
           items.push(
-            <line key={`line-${ring}-${i}`} geometry={lineGeometry}>
-              <lineBasicMaterial color={color} opacity={0.4} transparent />
-            </line>
+            <primitive 
+              key={`line-${ring}-${i}`} 
+              object={new THREE.Line(
+                new THREE.BufferGeometry().setFromPoints([
+                  new THREE.Vector3(x, y, 0),
+                  new THREE.Vector3(innerX, innerY, 0)
+                ]),
+                new THREE.LineBasicMaterial({ color: color, opacity: 0.4, transparent: true })
+              )} 
+            />
           );
         }
       }
