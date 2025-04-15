@@ -8,6 +8,9 @@ export interface FrequencyPlayerProps {
   frequency?: number;
   isPlaying?: boolean;
   onPlayToggle?: () => void;
+  frequencyId?: string;
+  groupId?: string;
+  id?: string;
 }
 
 // This is a wrapper component around SacredAudioPlayer for backward compatibility

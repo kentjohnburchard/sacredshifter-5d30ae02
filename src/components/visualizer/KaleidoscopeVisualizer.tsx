@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState } from 'react';
 import { useTheme } from '@/context/ThemeContext';
 
@@ -9,6 +8,7 @@ interface KaleidoscopeVisualizerProps {
   size?: string;
   speed?: number;
   reflections?: number;
+  frequency?: number;
 }
 
 const KaleidoscopeVisualizer: React.FC<KaleidoscopeVisualizerProps> = ({
@@ -17,7 +17,8 @@ const KaleidoscopeVisualizer: React.FC<KaleidoscopeVisualizerProps> = ({
   colorScheme = 'purple',
   size = 'md',
   speed = 1,
-  reflections = 8
+  reflections = 8,
+  frequency
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
