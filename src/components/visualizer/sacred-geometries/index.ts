@@ -1,5 +1,5 @@
 
-// Placeholder for future 2D canvas visualizers
+// Sacred geometry visualization types and utilities
 export type ChakraType = 
   | 'root' 
   | 'sacral' 

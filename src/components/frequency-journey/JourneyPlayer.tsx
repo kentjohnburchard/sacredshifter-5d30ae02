@@ -18,6 +18,8 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import SacredVisualizerCanvas from '../visualizer/SacredVisualizerCanvas';
+import { ChakraType } from '../visualizer/sacred-geometries';
 
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
@@ -28,14 +30,65 @@ const JourneyPlayer = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [infoExpanded, setInfoExpanded] = useState(false);
   const [showVisualizer, setShowVisualizer] = useState(true);
+  const [audioData, setAudioData] = useState<Uint8Array | null>(null);
+  const [visualizerMode, setVisualizerMode] = useState('chakraBeam');
   
   const lastPlayedIndex = useRef<number | null>(null);
   const songsRef = useRef<any[]>([]);
   const audioPlayAttemptedRef = useRef(false);
+  const audioAnalyserRef = useRef<AnalyserNode | null>(null);
   
   const { templates, loading: loadingTemplates } = useJourneyTemplates();
-  
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
+
+  // Set up audio analyser for visualization
+  useEffect(() => {
+    // Check if we already have an analyser
+    if (audioAnalyserRef.current) return;
+    
+    // Find audio element
+    const audioElement = document.getElementById('global-audio-player') as HTMLAudioElement;
+    if (!audioElement) {
+      console.log("Audio element not found, will try again later");
+      return;
+    }
+    
+    try {
+      // Set up AudioContext
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContext) {
+        console.warn("AudioContext not supported");
+        return;
+      }
+      
+      const audioContext = new AudioContext();
+      const analyser = audioContext.createAnalyser();
+      analyser.fftSize = 256;
+      
+      // Connect audio to analyser
+      const source = audioContext.createMediaElementSource(audioElement);
+      source.connect(analyser);
+      analyser.connect(audioContext.destination);
+      
+      audioAnalyserRef.current = analyser;
+      
+      // Start updating frequency data
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+      const updateFrequencyData = () => {
+        if (audioAnalyserRef.current) {
+          audioAnalyserRef.current.getByteFrequencyData(dataArray);
+          setAudioData(new Uint8Array(dataArray));
+        }
+        requestAnimationFrame(updateFrequencyData);
+      };
+      
+      updateFrequencyData();
+      
+      console.log("Audio analyser set up successfully");
+    } catch (error) {
+      console.error("Failed to set up audio analyser:", error);
+    }
+  }, []);
 
   // Define shouldShowVisualizer variable to control when visualizer is displayed
   const shouldShowVisualizer = showVisualizer && isPlaying;
@@ -160,7 +213,11 @@ const JourneyPlayer = () => {
           playAudio({
             title: selectedSong.title || journey.title,
             artist: "Sacred Shifter",
-            source: audioUrl
+            source: audioUrl,
+            customData: {
+              chakra: journey.chakras?.[0]?.toLowerCase(),
+              frequency: selectedSong.frequency
+            }
           });
           
           console.log("JourneyPlayer: Audio playback initialized");
@@ -173,6 +230,15 @@ const JourneyPlayer = () => {
       }
     }, 500);
   }, [journey, songs, loadingSongs, isLoading, playAudio, journeyId]);
+
+  // Handle visualizer mode changes
+  const cycleVisualizerMode = () => {
+    const modes = ['chakraBeam', 'flowerOfLife', 'fibonacciSpiral', 'primeFlow', 'chakraSpiral', 'merkaba', 'metatronCube', 'sriYantra'];
+    const currentIndex = modes.indexOf(visualizerMode);
+    const nextIndex = (currentIndex + 1) % modes.length;
+    setVisualizerMode(modes[nextIndex]);
+    toast.info(`Visualizer: ${modes[nextIndex]}`);
+  };
 
   if (isLoading || loadingSongs || loadingTemplates) {
     return (
@@ -211,6 +277,30 @@ const JourneyPlayer = () => {
   return (
     <Layout pageTitle={journey?.title || "Sacred Journey"}>
       <div className="max-w-4xl mx-auto p-4 relative z-10">
+        {/* Enhanced Visualizer */}
+        <div className="w-full h-64 mb-4 rounded-xl overflow-hidden shadow-lg">
+          <SacredVisualizerCanvas
+            frequencyData={audioData || undefined}
+            chakra={journey?.chakras?.[0]?.toLowerCase() as ChakraType || 'crown'}
+            visualizerMode={visualizerMode}
+            enableControls={true}
+            enablePostProcessing={true}
+            intensity={audioData ? Array.from(audioData).reduce((sum, val) => sum + val, 0) / (audioData.length * 255) : 0}
+            isActive={isPlaying}
+          />
+        </div>
+        
+        <div className="mb-4 flex justify-end">
+          <Button 
+            onClick={cycleVisualizerMode}
+            variant="outline" 
+            size="sm"
+            className="text-purple-600 border-purple-300 hover:bg-purple-100"
+          >
+            Change Visualization
+          </Button>
+        </div>
+
         <Card className="backdrop-blur-sm border border-purple-200/30 dark:border-purple-900/30 bg-white/80 dark:bg-black/60">
           <CardContent className="p-6">
             <div className="flex justify-between items-center mb-6">
