@@ -1,12 +1,7 @@
 
-import React, { lazy, Suspense } from 'react';
+import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-
-// Only import SimpleFallbackVisualizer directly
-import SimpleFallbackVisualizer from './SimpleFallbackVisualizer';
-
-// Don't even lazy-load the KaleidoscopeVisualizer for now
-// const KaleidoscopeVisualizer = lazy(() => import('./KaleidoscopeVisualizer'));
+import KaleidoscopeVisualizer from './KaleidoscopeVisualizer';
 
 interface VisualizerManagerProps {
   type?: 'kaleidoscope' | 'simple';
@@ -18,7 +13,6 @@ interface VisualizerManagerProps {
 }
 
 const VisualizerManager: React.FC<VisualizerManagerProps> = ({
-  type = 'simple', // Default to simple visualizer
   audioRef,
   isAudioReactive = false,
   colorScheme = 'purple',
@@ -40,13 +34,23 @@ const VisualizerManager: React.FC<VisualizerManagerProps> = ({
     return () => window.removeEventListener('error', handleError);
   }, [onError]);
 
-  // For now, always use the SimpleFallbackVisualizer to avoid Three.js errors
+  if (hasError) {
+    return (
+      <div className="w-full h-full bg-black/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+        <p className="text-white/50">Visualizer error occurred</p>
+      </div>
+    );
+  }
+
   return (
-    <Suspense fallback={
-      <Skeleton className="w-full h-full rounded-lg animate-pulse bg-purple-100/10" />
-    }>
-      <SimpleFallbackVisualizer colorScheme={colorScheme} />
-    </Suspense>
+    <div className="w-full h-full">
+      <KaleidoscopeVisualizer
+        audioRef={audioRef}
+        isAudioReactive={isAudioReactive}
+        colorScheme={colorScheme}
+        size={size}
+      />
+    </div>
   );
 };
 
