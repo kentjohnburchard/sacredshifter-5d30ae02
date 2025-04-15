@@ -1,5 +1,5 @@
 
-import { create } from 'zustand';
+import { create as createStore } from 'zustand';
 
 interface AppState {
   isPlaying: boolean;
@@ -8,7 +8,7 @@ interface AppState {
   setAudioData: (audioData: Uint8Array | null) => void;
 }
 
-export const useAppStore = create<AppState>((set) => ({
+export const useAppStore = createStore<AppState>((set) => ({
   isPlaying: false,
   audioData: null,
   setIsPlaying: (isPlaying) => set({ isPlaying }),

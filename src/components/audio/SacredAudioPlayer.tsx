@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { useAudioAnalyzer } from '@/hooks/useAudioAnalyzer';
@@ -16,7 +15,6 @@ import {
   FastForward, Timer, Headphones, Waves, Download, X, MoveDown, MoveUp 
 } from 'lucide-react';
 
-// Define props interface for SacredAudioPlayer
 interface SacredAudioPlayerProps {
   audioUrl?: string;
   url?: string;
@@ -40,7 +38,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   id,
   journey
 }) => {
-  // Core audio playback state
   const {
     isPlaying,
     duration,
@@ -55,10 +52,8 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     setAudioSource
   } = useAudioPlayer();
   
-  // Get audio analyzer for visualizations
   const { audioContext, analyser } = useAudioAnalyzer(audioRef.current);
   
-  // UI state
   const [isSeeking, setIsSeeking] = useState(false);
   const [seekTime, setSeekTime] = useState(0);
   const [volume, setVolume] = useState(0.7);
@@ -67,7 +62,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const [isExpanded, setIsExpanded] = useState(true);
   const [isMinimized, setIsMinimized] = useState(false);
   
-  // Journey-specific options
   const [options, setOptions] = useState<JourneyOptions>({
     pinkNoise: false,
     lowSensitivity: false,
@@ -75,21 +69,17 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     sleepTimer: 0
   });
   
-  // Sleep timer state
   const [sleepTimerActive, setSleepTimerActive] = useState(false);
   const [sleepTimerRemaining, setSleepTimerRemaining] = useState(0);
   const sleepTimerRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Pink noise audio elements
   const pinkNoiseRef = useRef<HTMLAudioElement | null>(null);
   
-  // Theme integration
   const { liftTheVeil } = useTheme();
   
-  // Set up pink noise source
   useEffect(() => {
     if (!pinkNoiseRef.current) {
-      const pinkNoise = new Audio('/sounds/pink-noise.mp3'); // Placeholder path
+      const pinkNoise = new Audio('/sounds/pink-noise.mp3');
       pinkNoise.loop = true;
       pinkNoise.volume = 0.2;
       pinkNoiseRef.current = pinkNoise;
@@ -103,7 +93,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     };
   }, []);
   
-  // Initialize with journey options if provided
   useEffect(() => {
     if (journey?.options) {
       setOptions({
@@ -113,14 +102,12 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
         sleepTimer: journey.options.sleepTimer || 0
       });
       
-      // Set up sleep timer if specified
       if (journey.options.sleepTimer && journey.options.sleepTimer > 0) {
         startSleepTimer(journey.options.sleepTimer);
       }
     }
   }, [journey]);
   
-  // Handle audio source changes
   useEffect(() => {
     const source = audioUrl || url || journey?.audioUrl;
     if (source) {
@@ -128,7 +115,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     }
   }, [audioUrl, url, journey, setAudioSource]);
   
-  // Sync pink noise with main audio
   useEffect(() => {
     if (pinkNoiseRef.current) {
       if (isPlaying && options.pinkNoise) {
@@ -139,9 +125,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     }
   }, [isPlaying, options.pinkNoise]);
   
-  // Handle sleep timer
   const startSleepTimer = (minutes: number) => {
-    // Clear existing timer if any
     if (sleepTimerRef.current) {
       clearInterval(sleepTimerRef.current);
     }
@@ -152,17 +136,14 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     setSleepTimerActive(true);
     setSleepTimerRemaining(milliseconds / 1000);
     
-    // Update timer display every second
     sleepTimerRef.current = setInterval(() => {
       const remaining = Math.round((endTime - Date.now()) / 1000);
       
       if (remaining <= 0) {
-        // Stop playback when timer ends
         if (audioRef.current) {
           audioRef.current.pause();
         }
         
-        // Clear timer
         if (sleepTimerRef.current) {
           clearInterval(sleepTimerRef.current);
         }
@@ -175,7 +156,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     }, 1000);
   };
   
-  // Cancel sleep timer
   const cancelSleepTimer = () => {
     if (sleepTimerRef.current) {
       clearInterval(sleepTimerRef.current);
@@ -185,7 +165,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     setSleepTimerRemaining(0);
   };
   
-  // Handle seek interactions
   const handleSeekMouseDown = () => {
     setIsSeeking(true);
   };
@@ -204,7 +183,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     seekTo(seekTime);
   };
 
-  // Handle volume changes
   const handleVolumeChange = (value: number[]) => {
     const newVolume = value[0];
     setVolume(newVolume);
@@ -215,13 +193,11 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
       audioRef.current.volume = newVolume;
     }
     
-    // Also adjust pink noise volume if active
     if (pinkNoiseRef.current && options.pinkNoise) {
       pinkNoiseRef.current.volume = Math.min(0.3, newVolume * 0.5);
     }
   };
 
-  // Toggle mute state
   const toggleMute = () => {
     const newMutedState = !isMuted;
     setIsMuted(newMutedState);
@@ -229,13 +205,11 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
       audioRef.current.muted = newMutedState;
     }
     
-    // Also mute pink noise if active
     if (pinkNoiseRef.current) {
       pinkNoiseRef.current.muted = newMutedState;
     }
   };
 
-  // Handle play/pause
   const handleTogglePlay = () => {
     if (externalTogglePlay) {
       externalTogglePlay();
@@ -244,7 +218,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     }
   };
   
-  // Toggle expanded/minimized view
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
   };
@@ -253,7 +226,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     setIsMinimized(!isMinimized);
   };
   
-  // Toggle sound options
   const togglePinkNoise = () => {
     setOptions(prev => ({ ...prev, pinkNoise: !prev.pinkNoise }));
   };
@@ -261,9 +233,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const toggleLowSensitivity = () => {
     setOptions(prev => ({ ...prev, lowSensitivity: !prev.lowSensitivity }));
     
-    // Apply EQ filter when low sensitivity mode is enabled
     if (audioRef.current && audioContext) {
-      // Implementation would go here with Web Audio API filters
       console.log("Low sensitivity mode toggled:", !options.lowSensitivity);
     }
   };
@@ -272,7 +242,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     setOptions(prev => ({ ...prev, headphones: !prev.headphones }));
   };
   
-  // Set up sleep timer selector
   const selectSleepTimer = (value: string) => {
     const minutes = parseInt(value, 10);
     setOptions(prev => ({ ...prev, sleepTimer: minutes }));
@@ -284,17 +253,14 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     }
   };
 
-  // Use external isPlaying state if provided, otherwise use internal state
   const playerIsPlaying = externalIsPlaying !== undefined ? externalIsPlaying : isPlaying;
 
-  // Sync seekTime with currentTime when not seeking
   useEffect(() => {
     if (!isSeeking) {
       setSeekTime(currentTime);
     }
   }, [currentTime, isSeeking]);
   
-  // Display format for sleep timer
   const formatSleepTimer = () => {
     if (!sleepTimerActive) return "--:--";
     const minutes = Math.floor(sleepTimerRemaining / 60);
@@ -302,19 +268,14 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
   
-  // Get journey title to display
   const displayTitle = journey?.title || currentTrack?.title || "No track selected";
   
-  // Get affirmation to display
   const displayAffirmation = journey?.affirmation || "";
   
-  // Prepare frequency data for visualizer
   const frequencies = journey?.frequencies || (frequency ? [frequency] : []);
   
-  // Prepare chakra data for visualizer
-  const chakras = journey?.chakras || (journey?.chakra ? [journey.chakra] : []);
+  const chakras = journey?.chakras || [];
 
-  // If minimized, render the compact floating player
   if (isMinimized) {
     return (
       <div className="fixed bottom-4 right-4 z-50 bg-black/70 backdrop-blur-lg rounded-full shadow-lg flex items-center p-2 pr-4 text-white">
@@ -350,7 +311,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   return (
     <div className={`sacred-audio-player w-full max-w-4xl mx-auto transition-all duration-300 ${isExpanded ? 'h-auto' : 'h-24'}`}>
       <div className="bg-black/20 backdrop-blur-sm rounded-lg shadow-xl p-4 relative">
-        {/* Header with title, affirmation and controls */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex flex-col">
             <h3 className="text-lg font-semibold text-purple-300">
@@ -389,7 +349,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           </div>
         </div>
         
-        {/* Main playback controls */}
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
@@ -455,10 +414,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           </div>
         </div>
 
-        {/* Options panel - only visible when expanded */}
-        {isExpanded && (
-          <div className="mt-4 border-t border-white/10 pt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Pink Noise Toggle */}
+        <div className="mt-4 border-t border-white/10 pt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Waves className="h-4 w-4 text-gray-400" />
@@ -471,7 +427,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
               />
             </div>
             
-            {/* Low Sensitivity Mode */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <FastForward className="h-4 w-4 text-gray-400" />
@@ -484,7 +439,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
               />
             </div>
             
-            {/* Headphones Mode */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Headphones className="h-4 w-4 text-gray-400" />
@@ -497,7 +451,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
               />
             </div>
             
-            {/* Sleep Timer */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Timer className="h-4 w-4 text-gray-400" />
@@ -534,14 +487,13 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
               )}
             </div>
           </div>
-        )}
+        </div>
 
         {audioError && (
           <div className="text-red-500 mt-2">{audioError}</div>
         )}
       </div>
 
-      {/* Visualizer - only visible when expanded */}
       {isExpanded && (
         <div className="mt-4 h-64 rounded-lg overflow-hidden">
           <VisualizerManager 
