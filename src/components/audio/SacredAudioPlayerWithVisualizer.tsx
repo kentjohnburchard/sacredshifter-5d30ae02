@@ -5,9 +5,11 @@ import { JourneyProps } from '@/types/journey';
 import { useAppStore } from '@/store';
 import { getChakraColorScheme } from '@/lib/chakraColors';
 import { Button } from '@/components/ui/button';
-import { Eye, EyeOff, Zap, Sparkles } from 'lucide-react';
+import { Eye, EyeOff, Zap, Sparkles, Grid3X3, Hexagon, Waves, CircleDashed, Flower } from 'lucide-react';
 import CanvasAudioVisualizer from './CanvasAudioVisualizer';
-import { isPrime } from '@/lib/primeUtils';
+import PixiJSVisualizer from '@/components/visualizer/PixiJSVisualizer'; 
+import { isPrime } from '@/utils/primeCalculations';
+import { toast } from 'sonner';
 
 interface SacredAudioPlayerWithVisualizerProps {
   journey?: JourneyProps;
@@ -17,7 +19,7 @@ interface SacredAudioPlayerWithVisualizerProps {
 }
 
 // Define the visualization modes as a union type that can be used throughout the app
-export type VisualizerMode = 'bars' | 'wave' | 'circle' | 'particles' | 'primeFlow' | 'sacred' | 'flower';
+export type VisualizerMode = 'bars' | 'wave' | 'circle' | 'particles' | 'primeFlow' | 'sacred' | 'flower' | 'pixel';
 
 const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerProps> = ({
   journey,
@@ -25,11 +27,23 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
   isFullscreen = false,
   forcePlay = false
 }) => {
-  const { audioData, isPlaying, setIsPlaying, setPrimeSequence } = useAppStore();
+  const { audioData, isPlaying, setIsPlaying, setPrimeSequence, visualizationMode, setVisualizationMode } = useAppStore();
   const [showVisualizer, setShowVisualizer] = useState(true);
   const [visualizerMode, setVisualizerMode] = useState<VisualizerMode>('primeFlow');
   const [primeFrequencies, setPrimeFrequencies] = useState<number[]>([]);
   const [showPrimeIndicator, setShowPrimeIndicator] = useState(false);
+  const [usePixiVisualizer, setUsePixiVisualizer] = useState(false);
+  
+  // Update local visualizer mode when global mode changes
+  useEffect(() => {
+    if (visualizationMode) {
+      if (visualizationMode === 'pixel') {
+        setUsePixiVisualizer(true);
+      } else {
+        setVisualizerMode(visualizationMode as VisualizerMode);
+      }
+    }
+  }, [visualizationMode]);
   
   // Auto-play when forcePlay is true
   useEffect(() => {
@@ -99,20 +113,45 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
     const currentIndex = modes.indexOf(visualizerMode);
     const nextIndex = (currentIndex + 1) % modes.length;
     setVisualizerMode(modes[nextIndex]);
+    setUsePixiVisualizer(false);
+    setVisualizationMode(modes[nextIndex] as any);
+  };
+
+  const togglePixiVisualizer = () => {
+    const newValue = !usePixiVisualizer;
+    setUsePixiVisualizer(newValue);
+    
+    if (newValue) {
+      setVisualizationMode('pixel');
+      toast.info("Using enhanced PixiJS visualizer");
+    } else {
+      setVisualizationMode('sacred');
+    }
   };
 
   return (
     <div className={containerClass}>
       <div className="flex justify-between p-2 bg-gradient-to-r from-purple-900/20 to-indigo-900/20">
         {shouldShowVisualizer && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={cycleVisualizerMode}
-            className="text-white/80 hover:text-white flex items-center gap-1"
-          >
-            Change Visualization
-          </Button>
+          <div className="flex gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={cycleVisualizerMode}
+              className="text-white/80 hover:text-white flex items-center gap-1"
+            >
+              Change Visualization
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={togglePixiVisualizer}
+              className={`text-white/80 hover:text-white flex items-center gap-1 ${usePixiVisualizer ? 'bg-purple-500/20' : ''}`}
+            >
+              {usePixiVisualizer ? 'Standard' : 'Enhanced'} Visuals
+            </Button>
+          </div>
         )}
         
         <Button
@@ -145,14 +184,34 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
             </div>
           )}
           
-          <CanvasAudioVisualizer 
-            audioData={audioData}
-            colorScheme={colorScheme}
-            visualizerMode={visualizerMode}
-            isPlaying={isPlaying}
-            primeFrequencies={primeFrequencies}
-            isFullscreen={isFullscreen}
-          />
+          {/* Visualization mode indicator */}
+          <div className="absolute bottom-4 right-4 z-10 bg-black/40 backdrop-blur-sm text-white px-2 py-1 rounded-full flex items-center gap-1.5">
+            {visualizationMode === 'sacred' && <Grid3X3 className="h-3.5 w-3.5" />}
+            {visualizationMode === 'prime' && <Hexagon className="h-3.5 w-3.5" />}
+            {visualizationMode === 'equalizer' && <Waves className="h-3.5 w-3.5" />}
+            {visualizationMode === 'flow' && <CircleDashed className="h-3.5 w-3.5" />}
+            {visualizationMode === 'flower' && <Flower className="h-3.5 w-3.5" />}
+            <span className="text-xs font-medium capitalize">{visualizationMode}</span>
+          </div>
+          
+          {usePixiVisualizer ? (
+            <PixiJSVisualizer
+              width={800}
+              height={isFullscreen ? 600 : 300}
+              colorScheme={colorScheme}
+              isPlaying={isPlaying}
+              isFullscreen={isFullscreen}
+            />
+          ) : (
+            <CanvasAudioVisualizer 
+              audioData={audioData}
+              colorScheme={colorScheme}
+              visualizerMode={visualizerMode}
+              isPlaying={isPlaying}
+              primeFrequencies={primeFrequencies}
+              isFullscreen={isFullscreen}
+            />
+          )}
         </div>
       ) : (
         // Fallback when visualizer shouldn't be shown but we want to keep the space

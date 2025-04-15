@@ -1,46 +1,43 @@
 
-import { isPrime } from '@/lib/primeUtils';
+// Re-export isPrime and other prime-related functions from primeUtils
+// to maintain backward compatibility
+export { isPrime, analyzeFrequency } from '@/lib/primeUtils';
 
-/**
- * Generate a sequence of prime numbers up to a limit or count
- * @param count The number of primes to generate
- * @param max Optional maximum value to check
- * @returns Array of prime numbers
- */
-export const generatePrimeSequence = (count: number, max: number = 1000): number[] => {
-  const primes: number[] = [];
-  let num = 2; // Start checking from 2
-  
-  while (primes.length < count && num <= max) {
-    if (isPrime(num)) {
-      primes.push(num);
+// Add calculatePrimeFactors function that was missing
+export function calculatePrimeFactors(n: number): number[] {
+  const factors: number[] = [];
+  let divisor = 2;
+
+  while (n > 1) {
+    while (n % divisor === 0) {
+      factors.push(divisor);
+      n /= divisor;
     }
-    num++;
+    divisor++;
   }
-  
-  return primes;
-};
 
-/**
- * Find prime numbers within a frequency range
- * @param minFreq Minimum frequency
- * @param maxFreq Maximum frequency
- * @returns Array of prime frequencies in range
- */
-export const findPrimesInRange = (minFreq: number, maxFreq: number): number[] => {
+  return factors;
+}
+
+// Generate a sequence of prime numbers up to a limit
+export function generatePrimeSequence(limit: number): number[] {
   const primes: number[] = [];
   
-  for (let i = Math.ceil(minFreq); i <= Math.floor(maxFreq); i++) {
-    if (isPrime(i)) {
+  for (let i = 2; i <= limit; i++) {
+    let isPrime = true;
+    
+    // Check if i is prime
+    for (let j = 2; j <= Math.sqrt(i); j++) {
+      if (i % j === 0) {
+        isPrime = false;
+        break;
+      }
+    }
+    
+    if (isPrime) {
       primes.push(i);
     }
   }
   
   return primes;
-};
-
-// Re-export isPrime from primeUtils to fix import issues in other files
-export { isPrime } from '@/lib/primeUtils';
-
-// Re-export calculatePrimeFactors from primeUtils to fix import issues in other files
-export { calculatePrimeFactors } from '@/lib/primeUtils';
+}

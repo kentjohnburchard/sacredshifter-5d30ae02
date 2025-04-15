@@ -1,11 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import SacredAudioPlayerWithVisualizer from '@/components/audio/SacredAudioPlayerWithVisualizer';
 import { Button } from '@/components/ui/button';
-import { Play, Maximize2, Minimize2 } from 'lucide-react';
+import { Play, Maximize2, Minimize2, Volume2 } from 'lucide-react';
 import { JourneyTemplate } from '@/types/journey';
 import { toast } from 'sonner';
-import { analyzeFrequency } from '@/lib/primeUtils';
+import { analyzeFrequency } from '@/utils/primeCalculations';
 import { useAppStore } from '@/store';
 
 interface JourneyAudioPlayerProps {
@@ -15,7 +15,8 @@ interface JourneyAudioPlayerProps {
 const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
   const [isActive, setIsActive] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const { setDetectedPrimes, setIsPlaying } = useAppStore();
+  const { setDetectedPrimes, setIsPlaying, setAudioPlaybackError } = useAppStore();
+  const audioInitialized = useRef(false);
 
   // Monitor audio for primes
   useEffect(() => {
@@ -35,6 +36,23 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
     return () => clearInterval(monitorInterval);
   }, [isActive, journey, setDetectedPrimes]);
 
+  // Initialize audio context when component mounts
+  useEffect(() => {
+    if (audioInitialized.current) return;
+    
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioContext) {
+        const context = new AudioContext();
+        console.log("AudioContext created successfully");
+        audioInitialized.current = true;
+      }
+    } catch (error) {
+      console.error("Failed to initialize AudioContext:", error);
+      setAudioPlaybackError("Failed to initialize audio system");
+    }
+  }, [setAudioPlaybackError]);
+
   if (!journey) {
     return null;
   }
@@ -44,6 +62,23 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
     // Force global playback state to true
     setIsPlaying(true);
     toast.info(`Starting journey: ${journey.title}`);
+    
+    // Initialize audio element if needed
+    const audioElement = document.querySelector('audio#global-audio-player') as HTMLAudioElement;
+    if (audioElement) {
+      // Ensure audio is ready to play
+      audioElement.volume = 0.7;
+      console.log("Audio element volume set to 0.7");
+      
+      // Add error handling for audio element
+      const handleError = () => {
+        console.error("Error playing audio");
+        toast.error("There was an issue playing the audio. Please try again.");
+        setAudioPlaybackError("Audio playback failed");
+      };
+      
+      audioElement.addEventListener('error', handleError);
+    }
   };
 
   const toggleFullscreen = () => {
@@ -90,6 +125,13 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
           size="icon"
         >
           {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+        </Button>
+        <Button
+          className="absolute top-2 left-2 z-10 bg-black/40 hover:bg-black/60 text-white rounded-full size-8 p-0 flex items-center justify-center"
+          size="icon"
+          onClick={() => toast.info("Volume controls are available in the player below")}
+        >
+          <Volume2 className="h-4 w-4" />
         </Button>
         <SacredAudioPlayerWithVisualizer 
           journey={playerJourney} 
