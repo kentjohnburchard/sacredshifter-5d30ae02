@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -42,7 +41,6 @@ const JourneyPlayer = () => {
   const { templates, loading: loadingTemplates } = useJourneyTemplates();
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
 
-  // Define shouldShowVisualizer explicitly to avoid the reference error
   const shouldShowVisualizer = showVisualizer && audioAnalyser !== null && isPlaying;
 
   useEffect(() => {
