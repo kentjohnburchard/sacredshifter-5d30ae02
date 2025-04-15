@@ -8,7 +8,7 @@ import { Eye, Hexagon, CircleDashed } from 'lucide-react';
 export interface VisualizerManagerProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   isAudioReactive?: boolean;
-  colorScheme?: string;
+  colorScheme?: string | { primary: string; secondary: string; tertiary: string; accent: string; background: string; };
   chakra?: string;
   frequency?: number;
   analyzerNode?: AnalyserNode | null;
@@ -17,6 +17,7 @@ export interface VisualizerManagerProps {
   chakras?: string[];
   visualTheme?: string;
   isPlaying?: boolean;
+  liftedVeil?: boolean;
 }
 
 const VisualizerManager: React.FC<VisualizerManagerProps> = ({

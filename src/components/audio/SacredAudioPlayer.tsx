@@ -6,14 +6,15 @@ import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { formatTime } from '@/lib/utils';
 import { VisualizerManager } from '@/components/visualizer/VisualizerManager';
-import { JourneyProps, JourneyOptions } from '@/types/journey';
+import { JourneyProps } from '@/types/journey';
 import { 
-  Play, Pause, Volume2, VolumeX, Maximize2, Minimize2, Moon, 
-  FastForward, Timer, Headphones, Waves, Download, X, MoveDown, MoveUp 
+  Play, Pause, Volume2, VolumeX, Maximize2, Minimize2,
+  FastForward, Timer, Headphones, Waves, Moon, MoveDown, MoveUp 
 } from 'lucide-react';
+import { isPrime } from '@/utils/primeUtils';
+import { getChakraColorScheme } from '@/lib/chakraColors';
 
 interface SacredAudioPlayerProps {
   audioUrl?: string;
@@ -308,6 +309,9 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     );
   }
 
+  const chakra = journey?.chakras?.[0] || 'Crown';
+  const colorScheme = getChakraColorScheme([chakra]);
+
   return (
     <div className={`sacred-audio-player w-full max-w-4xl mx-auto transition-all duration-300 ${isExpanded ? 'h-auto' : 'h-24'}`}>
       <div className="bg-black/20 backdrop-blur-sm rounded-lg shadow-xl p-4 relative">
@@ -493,19 +497,20 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
         )}
       </div>
 
-      {isExpanded && (
-        <div className="mt-4 h-64 rounded-lg overflow-hidden">
+      {isExpanded && shouldShowVisualizer && (
+        <div className="mt-4 h-64 rounded-lg overflow-hidden backdrop-blur-md bg-black/30">
           <VisualizerManager 
             isAudioReactive={true}
-            colorScheme={liftTheVeil ? 'pink' : 'purple'}
+            colorScheme={colorScheme}
             size="md"
             frequency={frequency}
             analyzerNode={analyser}
             audioRef={audioRef}
-            frequencies={frequencies}
-            chakras={chakras}
+            frequencies={journey?.frequencies || (frequency ? [frequency] : [])}
+            chakras={journey?.chakras || []}
             visualTheme={journey?.visualTheme}
-            isPlaying={playerIsPlaying}
+            isPlaying={isPlaying}
+            liftedVeil={liftTheVeil}
           />
         </div>
       )}
