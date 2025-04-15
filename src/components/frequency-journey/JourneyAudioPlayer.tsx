@@ -37,7 +37,7 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
 
   if (!isActive) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 bg-black/20 backdrop-blur-sm rounded-lg border border-purple-500/20">
+      <div className="flex flex-col items-center justify-center p-6 md:p-12 mx-4 md:mx-auto max-w-4xl bg-black/20 backdrop-blur-sm rounded-lg border border-purple-500/20">
         <h3 className="text-xl font-semibold text-purple-200 mb-4">{journey.title}</h3>
         <p className="text-gray-300 mb-6 text-center max-w-md">{journey.description}</p>
         <Button 
@@ -50,7 +50,11 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
     );
   }
 
-  return <SacredAudioPlayerWithVisualizer journey={playerJourney} />;
+  return (
+    <div className="mx-4 md:mx-auto max-w-4xl">
+      <SacredAudioPlayerWithVisualizer journey={playerJourney} />
+    </div>
+  );
 };
 
 export default JourneyAudioPlayer;

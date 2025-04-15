@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import JourneyTemplateCard from "./JourneyTemplateCard";
 import { useJourneyTemplates } from "@/hooks/useJourneyTemplates";
@@ -98,10 +97,10 @@ export const JourneyTemplatesGrid = () => {
 
   return (
     <>
-      <div className="mb-6">
+      <div className="px-4 md:px-6 lg:px-8 max-w-7xl mx-auto py-6">
         <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-          <div className="flex justify-between items-center mb-4">
-            <TabsList>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+            <TabsList className="w-full sm:w-auto">
               <TabsTrigger value="all">All Journeys</TabsTrigger>
               <TabsTrigger value="sound-healing">Sound Healing</TabsTrigger>
               <TabsTrigger value="meditation">Meditation</TabsTrigger>
@@ -177,7 +176,7 @@ export const JourneyTemplatesGrid = () => {
           
           <TabsContent value="all" className="pt-4">
             <h2 className="text-lg font-semibold text-purple-800 dark:text-purple-300 mb-3">All Journeys</h2>
-            <div className="flex flex-col gap-6">
+            <div className="grid grid-cols-1 gap-6">
               {filteredTemplates.map((template) => (
                 <div key={template.id} onClick={() => handleTemplateClick(template.id)} className="cursor-pointer">
                   <JourneyTemplateCard 
@@ -213,7 +212,6 @@ export const JourneyTemplatesGrid = () => {
           </TabsContent>
           
           <TabsContent value="meditation" className="pt-4">
-            {/* Meditation content from the Meditation page */}
             <div className="mb-6">
               <h2 className="text-lg font-semibold text-purple-800 dark:text-purple-300 mb-2">Sacred Meditation Experiences</h2>
               <p className="text-gray-600 dark:text-gray-300">
@@ -330,7 +328,7 @@ export const JourneyTemplatesGrid = () => {
       </div>
 
       <Dialog open={!!selectedTemplate} onOpenChange={(open) => !open && handleCloseDetail()}>
-        <DialogContent className="max-w-4xl p-0 bg-transparent border-none shadow-none max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl p-0 bg-transparent border-none shadow-none max-h-[90vh] overflow-y-auto mx-4">
           {selectedTemplateData && (
             <JourneyDetail 
               template={selectedTemplateData} 
