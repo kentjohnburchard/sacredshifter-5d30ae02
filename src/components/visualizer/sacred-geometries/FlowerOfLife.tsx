@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useSpring, animated } from '@react-spring/three';
@@ -49,7 +49,7 @@ const FlowerOfLifeGeometry: React.FC<SacredGeometryProps> = ({
     }
   });
 
-  const circles = React.useMemo(() => {
+  const circleElements = useMemo(() => {
     const items: JSX.Element[] = [];
     const circleRadius = 0.5;
     const emissiveIntensity = liftTheVeil ? 1.2 : 0.8;
@@ -85,11 +85,9 @@ const FlowerOfLifeGeometry: React.FC<SacredGeometryProps> = ({
             opacity: 0.7
           });
           
+          const circleLineObject = new THREE.LineLoop(circleGeometry, circleMaterial);
           items.push(
-            <primitive
-              key={`circle-${ring}-${i}`}
-              object={new THREE.LineLoop(circleGeometry, circleMaterial)}
-            />
+            <primitive key={`circle-${ring}-${i}`} object={circleLineObject} />
           );
         } else {
           items.push(
@@ -124,11 +122,9 @@ const FlowerOfLifeGeometry: React.FC<SacredGeometryProps> = ({
             opacity: 0.4
           });
           
+          const lineObject = new THREE.Line(lineGeometry, lineMaterial);
           items.push(
-            <primitive
-              key={`line-${ring}-${i}`}
-              object={new THREE.Line(lineGeometry, lineMaterial)}
-            />
+            <primitive key={`line-${ring}-${i}`} object={lineObject} />
           );
         }
       }
@@ -145,7 +141,7 @@ const FlowerOfLifeGeometry: React.FC<SacredGeometryProps> = ({
       scale={springScale}
       visible={isActive}
     >
-      {circles}
+      {circleElements}
 
       <mesh>
         <sphereGeometry args={[0.3, 32, 32]} />

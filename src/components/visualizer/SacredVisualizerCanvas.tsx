@@ -29,12 +29,16 @@ type SacredVisualizerCanvasProps = {
   geometryConfigs?: GeometryConfig[];
 };
 
-const SacredGeometry = ({ 
-  frequencyData, 
-  chakra, 
+const SacredVisualizerCanvas: React.FC<SacredVisualizerCanvasProps> = ({
+  frequencyData,
+  chakra = 'crown',
   visualizerMode = 'flowerOfLife', 
-  intensity = 0 
-}: SacredVisualizerCanvasProps) => {
+  enableControls = true,
+  enablePostProcessing = false,
+  intensity = 0,
+  multiView = false,
+  geometryConfigs = [],
+}) => {
   // Only include the geometry types we know we properly support
   const supportedGeometryTypes: SacredGeometryType[] = [
     'flowerOfLife', 'merkaba', 'metatronCube', 'sriYantra', 'fibonacciSpiral', 'chakraBeam'
@@ -42,45 +46,9 @@ const SacredGeometry = ({
   
   // Check if visualizerMode is one of our supported types
   const isSupportedGeometry = supportedGeometryTypes.includes(visualizerMode as SacredGeometryType);
-  
-  if (!isSupportedGeometry) {
-    // Fallback to flowerOfLife if unsupported type
-    return <FlowerOfLifeGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
-  }
-  
-  switch (visualizerMode) {
-    case 'flowerOfLife':
-      return <FlowerOfLifeGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
-    case 'merkaba':
-      return <MerkabaGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
-    case 'metatronCube':
-      return <MetatronCubeGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
-    case 'sriYantra':
-      return <SriYantraGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
-    case 'fibonacciSpiral':
-      return <FibonacciSpiralGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
-    case 'chakraBeam':
-      return <ChakraBeamGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
-    case 'multi':
-      return null; // MultiVisualizer handled separately
-    default:
-      return <FlowerOfLifeGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
-  }
-};
-
-const SacredVisualizerCanvas: React.FC<SacredVisualizerCanvasProps> = ({
-  frequencyData,
-  chakra = 'crown',
-  visualizerMode = 'flowerOfLife',
-  enableControls = true,
-  enablePostProcessing = false,
-  intensity = 0,
-  multiView = false,
-  geometryConfigs = [],
-}) => {
   const shouldRender = typeof visualizerMode === 'string';
   const { liftTheVeil } = useTheme();
-
+  
   if (!shouldRender) {
     return (
       <div className="w-full h-full bg-gradient-to-r from-purple-900/20 to-indigo-900/20 flex items-center justify-center">
@@ -99,6 +67,7 @@ const SacredVisualizerCanvas: React.FC<SacredVisualizerCanvasProps> = ({
     'third eye': '#6366f1',
     crown: '#a855f7'
   }[chakra] : '#a855f7';
+  
   const pointLightColor = liftTheVeil ? '#ff1493' : ambientColor;
   
   // If multiView is enabled, use the MultiVisualizer component
@@ -110,12 +79,36 @@ const SacredVisualizerCanvas: React.FC<SacredVisualizerCanvasProps> = ({
           enableControls={enableControls}
           intensity={intensity}
           chakra={chakra}
-          geometries={geometryConfigs as GeometryConfig[]}
+          geometries={geometryConfigs}
           layoutType={geometryConfigs.length > 4 ? 'circle' : 'grid'}
         />
       </div>
     );
   }
+  
+  // Render a specific geometry type
+  const renderGeometry = () => {
+    if (!isSupportedGeometry) {
+      return <FlowerOfLifeGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
+    }
+    
+    switch (visualizerMode) {
+      case 'flowerOfLife':
+        return <FlowerOfLifeGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
+      case 'merkaba':
+        return <MerkabaGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
+      case 'metatronCube':
+        return <MetatronCubeGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
+      case 'sriYantra':
+        return <SriYantraGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
+      case 'fibonacciSpiral':
+        return <FibonacciSpiralGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
+      case 'chakraBeam':
+        return <ChakraBeamGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
+      default:
+        return <FlowerOfLifeGeometry chakra={chakra} frequencyData={frequencyData} intensity={intensity} />;
+    }
+  };
   
   return (
     <div className="w-full h-full">
@@ -125,12 +118,7 @@ const SacredVisualizerCanvas: React.FC<SacredVisualizerCanvasProps> = ({
         <pointLight position={[10, 10, 10]} intensity={1} color={pointLightColor} />
         <fog attach="fog" args={[fogColor, 1, 20]} />
         
-        <SacredGeometry 
-          frequencyData={frequencyData}
-          chakra={chakra}
-          visualizerMode={visualizerMode}
-          intensity={intensity}
-        />
+        {renderGeometry()}
         
         {enableControls && (
           <OrbitControls 

@@ -15,8 +15,6 @@ const ChakraBeamGeometry: React.FC<SacredGeometryProps> = ({
   isActive = true
 }) => {
   const groupRef = useRef<THREE.Group>(null);
-  const particlesRef = useRef<THREE.Points>(null);
-  const beamRef = useRef<THREE.Mesh>(null);
   
   const chakraColors = {
     root: '#ef4444',
@@ -31,8 +29,8 @@ const ChakraBeamGeometry: React.FC<SacredGeometryProps> = ({
   const color = chakraColors[chakra || 'crown'];
   const { liftTheVeil } = useTheme();
   
-  // Generate particles
-  const particles = useMemo(() => {
+  // Create particles
+  const particlePositions = useMemo(() => {
     const particleCount = 100;
     const positions = new Float32Array(particleCount * 3);
     
@@ -43,45 +41,36 @@ const ChakraBeamGeometry: React.FC<SacredGeometryProps> = ({
       positions[i3 + 2] = (Math.random() - 0.5) * 5;
     }
     
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    
-    const material = new THREE.PointsMaterial({
+    return positions;
+  }, []);
+
+  // Create particle material
+  const particleMaterial = useMemo(() => {
+    return new THREE.PointsMaterial({
       size: 0.05,
       color: color,
       transparent: true,
       opacity: 0.6,
     });
-    
-    return new THREE.Points(geometry, material);
   }, [color]);
-  
+
   useFrame((state, delta) => {
     if (groupRef.current && isActive) {
       groupRef.current.rotation.y += 0.005;
-      
-      if (beamRef.current) {
-        beamRef.current.position.y = Math.sin(state.clock.getElapsedTime() * 0.5) * 0.1;
-      }
-      
-      if (particlesRef.current) {
-        particlesRef.current.rotation.y += 0.002;
-        particlesRef.current.rotation.x += 0.001;
-      }
-      
+
+      // Apply frequency data to particle animation if available
       if (frequencyData && frequencyData.length > 0) {
         const freqArray = Array.from(frequencyData).map(Number);
         const bassFreq = freqArray.slice(0, 10).reduce((sum, val) => sum + val, 0) / 10;
         const normalizedBass = bassFreq / 255;
         
-        if (beamRef.current) {
-          // Adjust the beam's scale based on frequency data
-          beamRef.current.scale.set(
-            1 + normalizedBass * 0.5,
-            1 + normalizedBass * 0.5,
-            1 + normalizedBass * 1.5
-          );
-        }
+        // Scale the group based on frequency
+        const dynamicScale = 1 + normalizedBass * 0.3;
+        groupRef.current.scale.set(
+          scale * dynamicScale,
+          scale * dynamicScale,
+          scale * dynamicScale
+        );
       }
     }
   });
@@ -95,7 +84,7 @@ const ChakraBeamGeometry: React.FC<SacredGeometryProps> = ({
       visible={isActive}
     >
       {/* Central beam */}
-      <mesh ref={beamRef}>
+      <mesh>
         <cylinderGeometry args={[0.1, 0.3, 4, 16]} />
         <meshStandardMaterial 
           color={color} 
@@ -107,7 +96,17 @@ const ChakraBeamGeometry: React.FC<SacredGeometryProps> = ({
       </mesh>
       
       {/* Energy particles */}
-      <primitive ref={particlesRef} object={particles} />
+      <points>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            count={particlePositions.length / 3}
+            array={particlePositions}
+            itemSize={3}
+          />
+        </bufferGeometry>
+        {particleMaterial && <primitive object={particleMaterial} attach="material" />}
+      </points>
       
       {/* Base platform */}
       <mesh position={[0, -2, 0]} rotation={[Math.PI / 2, 0, 0]}>

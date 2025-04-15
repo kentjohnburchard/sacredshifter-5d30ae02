@@ -59,7 +59,7 @@ const MultiVisualizer: React.FC<MultiVisualizerProps> = ({
   const positionedGeometries = useMemo(() => {
     return effectiveGeometries.map((geometry, index) => {
       const totalItems = effectiveGeometries.length;
-      const color = geometry.chakra ? getChakraColor(geometry.chakra) : getChakraColor(chakra);
+      const colorValue = geometry.chakra ? getChakraColor(geometry.chakra) : getChakraColor(chakra);
       let position: [number, number, number] = geometry.position || [0, 0, 0];
       
       // Adjust positions based on layout type
@@ -84,15 +84,15 @@ const MultiVisualizer: React.FC<MultiVisualizerProps> = ({
       }
       
       // Apply scale based on layout
-      const scale = geometry.scale || 
+      const scaleValue = geometry.scale || 
         (layoutType === 'circle' ? (totalItems <= 3 ? 0.7 : 0.5) : 
          (layoutType === 'grid' ? (totalItems <= 4 ? 0.7 : 0.5) : 1));
          
       return {
         ...geometry,
         position,
-        scale,
-        color
+        scale: scaleValue,
+        color: colorValue
       };
     });
   }, [effectiveGeometries, layoutType, chakra]);

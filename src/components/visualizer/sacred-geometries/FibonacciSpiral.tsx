@@ -101,6 +101,11 @@ const FibonacciSpiralGeometry: React.FC<SacredGeometryProps> = ({
     });
   }, [color]);
 
+  // Create a line component from the spiral geometry and material
+  const spiralLine = useMemo(() => {
+    return new THREE.Line(spiralGeometry, lineMaterial);
+  }, [spiralGeometry, lineMaterial]);
+
   return (
     <animated.group
       ref={groupRef}
@@ -109,7 +114,7 @@ const FibonacciSpiralGeometry: React.FC<SacredGeometryProps> = ({
       scale={springScale}
       visible={isActive}
     >
-      <primitive object={new THREE.Line(spiralGeometry, lineMaterial)} />
+      <primitive object={spiralLine} />
       {glowCircles}
       
       {/* Additional decorative elements */}

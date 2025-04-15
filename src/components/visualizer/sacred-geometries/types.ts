@@ -16,6 +16,7 @@ export interface GeometryConfig {
   scale?: number;
   chakra?: ChakraType;
   isActive?: boolean;
+  color?: string;
 }
 
 export interface SacredGeometryProps {
@@ -26,6 +27,7 @@ export interface SacredGeometryProps {
   rotation?: [number, number, number];
   scale?: number;
   isActive?: boolean;
+  color?: string;
 }
 
 // Function to get chakra color based on chakra type
