@@ -6,13 +6,16 @@ import FrequencyEqualizer from './FrequencyEqualizer';
 import SacredVisualizerCanvas from './SacredVisualizerCanvas';
 import { useAppStore } from '@/store';
 import { Button } from '@/components/ui/button';
+import { useTheme } from '@/context/ThemeContext';
 import { 
   Waves, 
   Hexagon, 
   Grid3X3, 
   CircleDashed,
   Maximize2,
-  Minimize2
+  Minimize2,
+  Sparkles,
+  Flower
 } from 'lucide-react';
 
 interface EnhancedVisualizerProps {
@@ -29,16 +32,25 @@ const EnhancedVisualizer: React.FC<EnhancedVisualizerProps> = ({
   showControls = true
 }) => {
   const { visualizationMode, setVisualizationMode } = useAppStore();
+  const { liftTheVeil } = useTheme();
   const [localFrequencyData, setLocalFrequencyData] = useState<Uint8Array | undefined>(frequencyData);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [intensity, setIntensity] = useState(0);
   
   useEffect(() => {
     if (frequencyData) {
       setLocalFrequencyData(frequencyData);
+      
+      // Calculate audio intensity for animations
+      if (frequencyData.length > 0) {
+        const sum = Array.from(frequencyData).reduce((acc, val) => acc + val, 0);
+        const avg = sum / frequencyData.length;
+        setIntensity(avg / 255); // Normalize to 0-1
+      }
     }
   }, [frequencyData]);
   
-  const changeMode = (mode: 'sacred' | 'prime' | 'equalizer' | 'flow') => {
+  const changeMode = (mode: 'sacred' | 'prime' | 'equalizer' | 'flow' | 'flower') => {
     setVisualizationMode(mode);
   };
 
@@ -51,16 +63,27 @@ const EnhancedVisualizer: React.FC<EnhancedVisualizerProps> = ({
       setIsFullscreen(false);
     }
   };
+
+  // Determine glow color based on consciousness mode
+  const getGlowColor = () => {
+    return liftTheVeil ? 'rgba(255, 105, 180, 0.4)' : 'rgba(138, 43, 226, 0.4)';
+  };
   
   return (
-    <div className={`w-full h-full relative overflow-hidden ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}>
+    <div 
+      className={`w-full h-full relative overflow-hidden rounded-xl ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}
+      style={{
+        boxShadow: `0 0 20px ${getGlowColor()}`,
+        transition: 'box-shadow 0.5s ease'
+      }}
+    >
       <AnimatePresence mode="wait">
         <motion.div 
           key={visualizationMode}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.8 }}
           className="absolute inset-0"
         >
           {visualizationMode === 'sacred' && (
@@ -68,6 +91,7 @@ const EnhancedVisualizer: React.FC<EnhancedVisualizerProps> = ({
               frequencyData={localFrequencyData}
               chakra={chakra as any}
               visualizerMode="flowerOfLife"
+              intensity={intensity}
             />
           )}
           
@@ -92,17 +116,39 @@ const EnhancedVisualizer: React.FC<EnhancedVisualizerProps> = ({
               frequencyData={localFrequencyData}
               chakra={chakra as any}
               visualizerMode="primeFlow"
+              intensity={intensity}
+            />
+          )}
+          
+          {visualizationMode === 'flower' && (
+            <SacredVisualizerCanvas 
+              frequencyData={localFrequencyData}
+              chakra={chakra as any}
+              visualizerMode="chakraSpiral"
+              intensity={intensity}
             />
           )}
         </motion.div>
       </AnimatePresence>
       
+      {/* Dynamic background effect */}
+      <div 
+        className="absolute inset-0 pointer-events-none z-0"
+        style={{
+          background: `radial-gradient(circle at center, transparent 0%, ${getGlowColor()} 100%)`,
+          opacity: 0.2 + (intensity * 0.3),
+          transition: 'opacity 0.5s ease'
+        }}
+      />
+      
       {showControls && (
-        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1 bg-black/40 backdrop-blur-md rounded-full p-1">
+        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1 bg-black/60 backdrop-blur-md rounded-full p-1 z-10">
           <Button
             variant="ghost"
             size="icon"
-            className={`h-7 w-7 rounded-full ${visualizationMode === 'sacred' ? 'bg-white/20' : 'bg-transparent'}`}
+            className={`h-8 w-8 rounded-full ${visualizationMode === 'sacred' ? 
+              (liftTheVeil ? 'bg-pink-500/30' : 'bg-purple-500/30') : 
+              'bg-transparent'}`}
             onClick={() => changeMode('sacred')}
             title="Sacred Geometry"
           >
@@ -112,7 +158,9 @@ const EnhancedVisualizer: React.FC<EnhancedVisualizerProps> = ({
           <Button
             variant="ghost"
             size="icon"
-            className={`h-7 w-7 rounded-full ${visualizationMode === 'prime' ? 'bg-white/20' : 'bg-transparent'}`}
+            className={`h-8 w-8 rounded-full ${visualizationMode === 'prime' ? 
+              (liftTheVeil ? 'bg-pink-500/30' : 'bg-purple-500/30') : 
+              'bg-transparent'}`}
             onClick={() => changeMode('prime')}
             title="Prime Number Visualizer"
           >
@@ -122,7 +170,9 @@ const EnhancedVisualizer: React.FC<EnhancedVisualizerProps> = ({
           <Button
             variant="ghost"
             size="icon"
-            className={`h-7 w-7 rounded-full ${visualizationMode === 'equalizer' ? 'bg-white/20' : 'bg-transparent'}`}
+            className={`h-8 w-8 rounded-full ${visualizationMode === 'equalizer' ? 
+              (liftTheVeil ? 'bg-pink-500/30' : 'bg-purple-500/30') : 
+              'bg-transparent'}`}
             onClick={() => changeMode('equalizer')}
             title="Frequency Equalizer"
           >
@@ -132,17 +182,31 @@ const EnhancedVisualizer: React.FC<EnhancedVisualizerProps> = ({
           <Button
             variant="ghost"
             size="icon"
-            className={`h-7 w-7 rounded-full ${visualizationMode === 'flow' ? 'bg-white/20' : 'bg-transparent'}`}
+            className={`h-8 w-8 rounded-full ${visualizationMode === 'flow' ? 
+              (liftTheVeil ? 'bg-pink-500/30' : 'bg-purple-500/30') : 
+              'bg-transparent'}`}
             onClick={() => changeMode('flow')}
             title="Energy Flow"
           >
             <CircleDashed className="h-4 w-4" />
           </Button>
+          
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`h-8 w-8 rounded-full ${visualizationMode === 'flower' ? 
+              (liftTheVeil ? 'bg-pink-500/30' : 'bg-purple-500/30') : 
+              'bg-transparent'}`}
+            onClick={() => changeMode('flower')}
+            title="Flower of Life"
+          >
+            <Flower className="h-4 w-4" />
+          </Button>
 
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7 rounded-full"
+            className={`h-8 w-8 rounded-full ${liftTheVeil ? 'text-pink-400 hover:text-pink-300' : 'text-purple-400 hover:text-purple-300'}`}
             onClick={toggleFullscreen}
             title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
           >
@@ -152,6 +216,13 @@ const EnhancedVisualizer: React.FC<EnhancedVisualizerProps> = ({
               <Maximize2 className="h-4 w-4" />
             )}
           </Button>
+        </div>
+      )}
+      
+      {/* Consciousness mode indicator */}
+      {liftTheVeil && (
+        <div className="absolute top-2 right-2 z-10">
+          <Sparkles className="h-4 w-4 text-pink-400 opacity-70" />
         </div>
       )}
     </div>

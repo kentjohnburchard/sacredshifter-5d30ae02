@@ -1,205 +1,238 @@
 
 import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useTheme } from '@/context/ThemeContext';
+import { isPrime } from '@/lib/primeUtils';
 
 interface FrequencyEqualizerProps {
   frequencyData: Uint8Array;
   barCount?: number;
   chakraColor?: string;
-  isLiftedVeil?: boolean;
-  colorScheme?: string;
+  height?: number;
+  showPrimes?: boolean;
 }
+
+const getChakraColor = (chakra?: string): string => {
+  if (!chakra) return '#a855f7'; // Default purple
+  
+  switch (chakra.toLowerCase()) {
+    case 'root': return '#ef4444';
+    case 'sacral': return '#f97316';
+    case 'solar plexus': return '#facc15';
+    case 'heart': return '#22c55e';
+    case 'throat': return '#3b82f6';
+    case 'third eye': return '#6366f1';
+    case 'crown': return '#a855f7';
+    default: return '#a855f7';
+  }
+};
 
 const FrequencyEqualizer: React.FC<FrequencyEqualizerProps> = ({
   frequencyData,
-  barCount = 32,
-  chakraColor = 'purple',
-  isLiftedVeil = false,
-  colorScheme = 'purple'
+  barCount = 64,
+  chakraColor = 'crown',
+  height = 200,
+  showPrimes = true
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { liftTheVeil } = useTheme();
+  const color = getChakraColor(chakraColor);
   
-  // Optimized drawing function using requestAnimationFrame
   useEffect(() => {
-    if (!canvasRef.current) return;
-    
     const canvas = canvasRef.current;
+    if (!canvas) return;
+    
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-
-    // Set canvas dimensions to match display size
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
     
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
+    const setCanvasDimensions = () => {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    };
     
-    ctx.scale(dpr, dpr);
+    const resizeObserver = new ResizeObserver(() => {
+      setCanvasDimensions();
+      draw();
+    });
     
-    // Clear previous frame
-    ctx.clearRect(0, 0, rect.width, rect.height);
+    resizeObserver.observe(canvas);
+    setCanvasDimensions();
     
-    // Calculate bar width based on available bars and canvas width
-    const effectiveBarCount = Math.min(barCount, frequencyData.length);
-    const barWidth = rect.width / effectiveBarCount;
-    const barSpacing = 2; // Space between bars
-    
-    // Sample the frequency data at regular intervals
-    const step = Math.floor(frequencyData.length / effectiveBarCount);
-    
-    // Draw each bar
-    for (let i = 0; i < effectiveBarCount; i++) {
-      // Get data point, normalized between 0-1
-      const dataIndex = i * step;
-      const value = frequencyData[dataIndex] / 255;
+    const draw = () => {
+      if (!ctx || !canvas) return;
       
-      // Calculate bar height as percentage of canvas height
-      const barHeight = value * rect.height;
+      // Clear the canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Get gradient colors based on chakra and veil state
-      const { startColor, endColor } = getBarColors(chakraColor, isLiftedVeil, colorScheme);
-      
-      // Create gradient
-      const gradient = ctx.createLinearGradient(0, rect.height - barHeight, 0, rect.height);
-      gradient.addColorStop(0, startColor);
-      gradient.addColorStop(1, endColor);
-      
-      // Set fill style
+      // Draw cosmic background
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      if (liftTheVeil) {
+        gradient.addColorStop(0, 'rgba(85, 0, 85, 0.3)');
+        gradient.addColorStop(1, 'rgba(0, 0, 20, 0.5)');
+      } else {
+        gradient.addColorStop(0, 'rgba(45, 0, 85, 0.3)');
+        gradient.addColorStop(1, 'rgba(0, 0, 30, 0.5)');
+      }
       ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // Draw the bar
-      ctx.fillRect(
-        i * (barWidth + barSpacing), 
-        rect.height - barHeight, 
-        barWidth - barSpacing, 
-        barHeight
+      if (!frequencyData.length) return;
+      
+      const width = canvas.width / (window.devicePixelRatio || 1);
+      const height = canvas.height / (window.devicePixelRatio || 1);
+      
+      // Determine how many frequency bands to display
+      const bands = Math.min(barCount, frequencyData.length);
+      const barWidth = width / bands;
+      const barMargin = barWidth * 0.2;
+      const effectiveBarWidth = barWidth - barMargin;
+      
+      // Find average frequency value
+      const avgFrequency = Array.from(frequencyData).reduce((sum, val) => sum + val, 0) / frequencyData.length;
+      const normalizedAvg = avgFrequency / 255;
+      
+      // Draw frequency bars
+      for (let i = 0; i < bands; i++) {
+        // Get value for this bar (combine multiple frequency values if needed)
+        const dataIndex = Math.floor((i / bands) * frequencyData.length);
+        const value = frequencyData[dataIndex];
+        const normalizedValue = value / 255;
+        
+        // Calculate bar height
+        const barHeight = height * normalizedValue * 0.8;
+        
+        // Calculate position
+        const x = i * barWidth + barMargin / 2;
+        const y = height - barHeight;
+        
+        // Determine if this is a prime number frequency and style accordingly
+        const isPrimeFrequency = showPrimes && isPrime(dataIndex + 20);
+        
+        // Choose bar style based on prime status and consciousness mode
+        let barColor;
+        let glowColor;
+        
+        if (isPrimeFrequency) {
+          barColor = liftTheVeil ? '#ff1493' : '#ffd700'; // Hot pink in veil mode, gold otherwise
+          glowColor = liftTheVeil ? 'rgba(255, 20, 147, 0.8)' : 'rgba(255, 215, 0, 0.8)';
+        } else {
+          barColor = liftTheVeil ? `rgba(255, 105, 180, ${0.7 + normalizedValue * 0.3})` : 
+                                 `rgba(${parseInt(color.slice(1, 3), 16)}, ${parseInt(color.slice(3, 5), 16)}, ${parseInt(color.slice(5, 7), 16)}, ${0.7 + normalizedValue * 0.3})`;
+          glowColor = liftTheVeil ? 'rgba(255, 105, 180, 0.4)' : `rgba(${parseInt(color.slice(1, 3), 16)}, ${parseInt(color.slice(3, 5), 16)}, ${parseInt(color.slice(5, 7), 16)}, 0.4)`;
+        }
+        
+        // Add glow effects for prime frequencies
+        if (isPrimeFrequency) {
+          // Create gradient for glow
+          const glowGradient = ctx.createRadialGradient(
+            x + effectiveBarWidth / 2, y + barHeight / 2, 0,
+            x + effectiveBarWidth / 2, y + barHeight / 2, effectiveBarWidth * 2
+          );
+          
+          glowGradient.addColorStop(0, glowColor);
+          glowGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+          
+          ctx.fillStyle = glowGradient;
+          ctx.fillRect(x - effectiveBarWidth, y - effectiveBarWidth, 
+                      effectiveBarWidth * 3, barHeight + effectiveBarWidth * 2);
+        }
+        
+        // Draw bar with rounded top
+        ctx.fillStyle = barColor;
+        ctx.beginPath();
+        ctx.moveTo(x, height);
+        ctx.lineTo(x, y + 2);
+        ctx.arc(x + effectiveBarWidth / 2, y + 2, effectiveBarWidth / 2, Math.PI, 0, true);
+        ctx.lineTo(x + effectiveBarWidth, height);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Add a line at the top
+        if (barHeight > 5) {
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(x, y, effectiveBarWidth, 2);
+        }
+        
+        // Add a small particle effect for prime frequencies
+        if (isPrimeFrequency && normalizedValue > 0.5) {
+          const particleSize = 2 + normalizedValue * 3;
+          ctx.fillStyle = liftTheVeil ? '#ff69b4' : '#ffea00';
+          
+          // Add several particles above the bar
+          for (let p = 0; p < 3; p++) {
+            const particleX = x + effectiveBarWidth/2 + (Math.random() - 0.5) * effectiveBarWidth;
+            const particleY = y - 5 - Math.random() * 15 * normalizedValue;
+            ctx.beginPath();
+            ctx.arc(particleX, particleY, particleSize, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+      
+      // Draw a reactive center circle
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const maxRadius = Math.min(width, height) * 0.15;
+      const circleRadius = maxRadius * (0.5 + normalizedAvg * 0.5);
+      
+      // Center circle glow
+      const circleGradient = ctx.createRadialGradient(
+        centerX, centerY, circleRadius * 0.5, 
+        centerX, centerY, circleRadius * 2
       );
       
-      // Add glow effect for higher values
-      if (value > 0.7) {
-        ctx.shadowColor = startColor;
-        ctx.shadowBlur = 10;
-        ctx.fillRect(
-          i * (barWidth + barSpacing), 
-          rect.height - barHeight, 
-          barWidth - barSpacing, 
-          barHeight
-        );
-        ctx.shadowBlur = 0;
+      if (liftTheVeil) {
+        circleGradient.addColorStop(0, 'rgba(255, 105, 180, 0.6)');
+        circleGradient.addColorStop(1, 'rgba(255, 20, 147, 0)');
+      } else {
+        circleGradient.addColorStop(0, `rgba(${parseInt(color.slice(1, 3), 16)}, ${parseInt(color.slice(3, 5), 16)}, ${parseInt(color.slice(5, 7), 16)}, 0.6)`);
+        circleGradient.addColorStop(1, `rgba(${parseInt(color.slice(1, 3), 16)}, ${parseInt(color.slice(3, 5), 16)}, ${parseInt(color.slice(5, 7), 16)}, 0)`);
       }
       
-      // Add frequency wave line overlay
-      if (i > 0) {
-        const prevDataIndex = (i - 1) * step;
-        const prevValue = frequencyData[prevDataIndex] / 255;
-        const prevHeight = prevValue * rect.height;
-        
-        ctx.beginPath();
-        ctx.moveTo((i - 1) * (barWidth + barSpacing) + barWidth / 2, rect.height - prevHeight);
-        ctx.lineTo(i * (barWidth + barSpacing) + barWidth / 2, rect.height - barHeight);
-        ctx.strokeStyle = `${startColor}88`;
-        ctx.lineWidth = 2;
-        ctx.stroke();
-      }
-    }
-  }, [frequencyData, barCount, chakraColor, isLiftedVeil, colorScheme]);
-  
-  const getBarColors = (chakraColor: string, isLiftedVeil: boolean, colorScheme: string) => {
-    // Base colors when veil is lifted
-    if (isLiftedVeil) {
-      return {
-        startColor: 'rgba(236, 72, 153, 0.9)', // pink-500
-        endColor: 'rgba(219, 39, 119, 0.5)'    // pink-600
-      };
-    }
-    
-    // Handle color scheme first
-    if (colorScheme) {
-      switch (colorScheme) {
-        case 'purple':
-          return {
-            startColor: 'rgba(139, 92, 246, 0.9)', // purple-500
-            endColor: 'rgba(109, 40, 217, 0.5)'    // purple-700
-          };
-        case 'blue':
-          return {
-            startColor: 'rgba(59, 130, 246, 0.9)', // blue-500
-            endColor: 'rgba(29, 78, 216, 0.5)'     // blue-700
-          };
-        case 'gold':
-          return {
-            startColor: 'rgba(245, 158, 11, 0.9)', // amber-500
-            endColor: 'rgba(180, 83, 9, 0.5)'      // amber-700
-          };
-        case 'rainbow':
-          // For rainbow, we'll use a dynamic gradient based on position
-          const hue1 = (Date.now() / 50) % 360; // Slowly cycling hue
-          const hue2 = (hue1 + 180) % 360; // Opposite color
-          return {
-            startColor: `hsla(${hue1}, 100%, 70%, 0.9)`,
-            endColor: `hsla(${hue2}, 100%, 60%, 0.5)`
-          };
-      }
-    }
-    
-    // Colors based on chakra if colorScheme is 'chakra' or chakraColor is specified
-    if (colorScheme === 'chakra' || chakraColor) {
-      switch (chakraColor) {
-        case 'red': // Root chakra
-          return {
-            startColor: 'rgba(239, 68, 68, 0.9)', // red-500
-            endColor: 'rgba(185, 28, 28, 0.5)'    // red-700
-          };
-        case 'orange': // Sacral chakra
-          return {
-            startColor: 'rgba(249, 115, 22, 0.9)', // orange-500
-            endColor: 'rgba(194, 65, 12, 0.5)'     // orange-700
-          };
-        case 'yellow': // Solar plexus chakra
-          return {
-            startColor: 'rgba(234, 179, 8, 0.9)',  // yellow-500
-            endColor: 'rgba(161, 98, 7, 0.5)'      // yellow-700
-          };
-        case 'green': // Heart chakra
-          return {
-            startColor: 'rgba(34, 197, 94, 0.9)',  // green-500
-            endColor: 'rgba(21, 128, 61, 0.5)'     // green-700
-          };
-        case 'blue': // Throat chakra
-          return {
-            startColor: 'rgba(59, 130, 246, 0.9)', // blue-500
-            endColor: 'rgba(29, 78, 216, 0.5)'     // blue-700
-          };
-        case 'indigo': // Third eye chakra
-          return {
-            startColor: 'rgba(99, 102, 241, 0.9)', // indigo-500
-            endColor: 'rgba(67, 56, 202, 0.5)'     // indigo-700
-          };
-        case 'violet': // Crown chakra
-          return {
-            startColor: 'rgba(139, 92, 246, 0.9)', // purple-500
-            endColor: 'rgba(109, 40, 217, 0.5)'    // purple-700
-          };
-        default: // Default purple
-          return {
-            startColor: 'rgba(139, 92, 246, 0.9)', // purple-500
-            endColor: 'rgba(109, 40, 217, 0.5)'    // purple-700
-          };
-      }
-    }
-    
-    // Default to purple
-    return {
-      startColor: 'rgba(139, 92, 246, 0.9)', // purple-500
-      endColor: 'rgba(109, 40, 217, 0.5)'   // purple-700
+      ctx.fillStyle = circleGradient;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, circleRadius * 2, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Center circle
+      ctx.fillStyle = liftTheVeil ? '#ff1493' : color;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, circleRadius, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Add a ring
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, circleRadius * 1.1, 0, Math.PI * 2);
+      ctx.stroke();
     };
-  };
+    
+    // Animation loop
+    let animationFrame: number;
+    const animate = () => {
+      draw();
+      animationFrame = requestAnimationFrame(animate);
+    };
+    
+    animate();
+    
+    return () => {
+      cancelAnimationFrame(animationFrame);
+      resizeObserver.disconnect();
+    };
+  }, [frequencyData, barCount, chakraColor, height, showPrimes, color, liftTheVeil]);
   
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="w-full h-full overflow-hidden rounded-md"
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }}
+      className="w-full h-full"
     >
       <canvas
         ref={canvasRef}
