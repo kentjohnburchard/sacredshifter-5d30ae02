@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,7 +7,7 @@ import { Sparkles, FileAudio, MusicIcon, Headphones } from "lucide-react";
 import { HermeticTrack } from "@/types/playlist";
 import { getTracksForPrinciple } from "@/services/hermeticPlaylistService";
 import { useNavigate } from "react-router-dom";
-import FrequencyPlayer from "@/components/FrequencyPlayer";
+import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { FrequencyLibraryItem } from "@/types/frequencies";
@@ -151,13 +150,12 @@ const HermeticWisdomLibrary = () => {
                   <p className="font-medium">{currentTrack.title}</p>
                   <p className="text-xs">{currentTrack.chakra || "Unknown chakra"}</p>
                 </div>
-                <FrequencyPlayer
+                <SacredAudioPlayer
                   audioUrl={currentTrack.audio_url}
                   url={currentTrack.url}
                   isPlaying={isPlaying}
                   onPlayToggle={handlePlayToggle}
                   frequency={currentTrack.frequency}
-                  frequencyId={currentTrack.id}
                 />
               </Card>
             </div>

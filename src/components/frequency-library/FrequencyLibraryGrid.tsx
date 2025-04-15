@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,8 +9,8 @@ import {
 } from "@/components/ui/hover-card";
 import { FrequencyLibraryItem } from "@/types/frequencies";
 import { formatTime } from "@/lib/utils";
-import FrequencyPlayer from "@/components/FrequencyPlayer";
 import { ChakraIcon } from "./ChakraIcon";
+import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
 
 interface FrequencyLibraryGridProps {
   frequencies: FrequencyLibraryItem[];
@@ -125,14 +124,12 @@ const FrequencyLibraryGrid: React.FC<FrequencyLibraryGridProps> = ({
               )}
               
               <div className="mt-3" onClick={(e) => e.preventDefault()}>
-                <FrequencyPlayer
+                <SacredAudioPlayer
                   audioUrl={frequency.audio_url}
                   url={frequency.url}
+                  frequency={frequency.frequency}
                   isPlaying={playingIndex === frequency.id}
                   onPlayToggle={() => handlePlayToggle(frequency.id)}
-                  frequency={frequency.frequency}
-                  frequencyId={frequency.id}
-                  id={`frequency-audio-${frequency.id}`}
                 />
               </div>
             </CardContent>

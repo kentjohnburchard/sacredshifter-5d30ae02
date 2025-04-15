@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,7 @@ import HermeticWisdomDrop from "./HermeticWisdomDrop";
 import { getTracksForPrinciple } from "@/services/hermeticPlaylistService";
 import { HermeticTrack } from "@/types/playlist";
 import FrequencyPlayer from "@/components/FrequencyPlayer";
+import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
 
 interface HermeticJourneyDetailProps {
   journey: HermeticJourney;
@@ -68,11 +68,11 @@ const HermeticJourneyDetail: React.FC<HermeticJourneyDetailProps> = ({ journey, 
                 <p className="text-sm font-medium">{currentPlayingTrack.title}</p>
                 <p className="text-xs text-gray-500">{currentPlayingTrack.artist}</p>
               </div>
-              <FrequencyPlayer
+              <SacredAudioPlayer
                 audioUrl={currentPlayingTrack.audioUrl}
                 isPlaying={isAudioPlaying}
                 onPlayToggle={() => setIsAudioPlaying(!isAudioPlaying)}
-                frequency={journey.frequency || 528} // Use journey frequency or default
+                frequency={journey.frequency || 528}
               />
             </div>
           )}

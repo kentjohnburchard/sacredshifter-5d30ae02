@@ -1,14 +1,23 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Music, Music4 } from "lucide-react";
 import Player from "./Player";
 import { GeneratedTrack } from "@/hooks/musicGeneration/types";
+import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
 
 interface GenerationHistoryProps {
   tracks?: GeneratedTrack[];
   onDelete?: (id: string) => void;
+}
+
+// Update the interface to include audioUrl
+interface GeneratedTrack {
+  id: string;
+  title: string;
+  audioUrl: string;
+  url?: string;
+  [key: string]: any;
 }
 
 const GenerationHistory: React.FC<GenerationHistoryProps> = ({ 

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -13,6 +12,7 @@ import songMappings, {
 import FrequencyPlayer from '@/components/FrequencyPlayer';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
 
 const SongMappingViewer = () => {
   const [selectedFunctionality, setSelectedFunctionality] = useState<AppFunctionality>('hermetic-principle');
@@ -125,7 +125,7 @@ const SongMappingViewer = () => {
                       
                       {selectedSong?.id === song.id && (
                         <div className="mt-3 pt-3 border-t border-gray-100">
-                          <FrequencyPlayer
+                          <SacredAudioPlayer
                             audioUrl={song.audioUrl}
                             frequency={song.frequency}
                             isPlaying={isPlaying}

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Hexagon, Check } from "lucide-react";
 import { toast } from "sonner";
 import FrequencyPlayer from "@/components/FrequencyPlayer";
+import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
 
 interface TrinityPhase2Props {
   onComplete: () => void;
@@ -166,12 +166,11 @@ const TrinityPhase2: React.FC<TrinityPhase2Props> = ({
           </p>
           
           <div className="flex justify-center mb-6">
-            <FrequencyPlayer
-              frequencyId="639hz"
+            <SacredAudioPlayer
+              audioUrl="/frequencies/639hz-heart.mp3"
               isPlaying={isPlaying}
               onPlayToggle={togglePlayback}
               frequency={639}
-              audioUrl="/frequencies/639hz-heart.mp3"
             />
           </div>
           

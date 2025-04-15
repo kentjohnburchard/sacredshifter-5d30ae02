@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import FrequencyPlayer from "@/components/FrequencyPlayer";
+import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
 
 interface FrequencyCardProps {
   frequency: FrequencyLibraryItem;
@@ -30,7 +30,7 @@ const FrequencyCard: React.FC<FrequencyCardProps> = ({ frequency, savedId, notes
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
 
   const getChakraColor = (chakra: string | null | undefined) => {
-    if (!chakra) return 'from-gray-400 to-gray-500'; // Handle null or undefined chakra
+    if (!chakra) return 'from-gray-400 to-gray-500';
 
     switch (chakra.toLowerCase()) {
       case 'root': return 'from-red-500 to-red-600';
@@ -148,13 +148,12 @@ const FrequencyCard: React.FC<FrequencyCardProps> = ({ frequency, savedId, notes
       
       <CardFooter className="flex justify-between p-4 pt-0 gap-2">
         <div className="flex gap-1">
-          <FrequencyPlayer
+          <SacredAudioPlayer
             audioUrl={frequency.audio_url}
             url={frequency.url}
+            frequency={frequency.frequency}
             isPlaying={isPlaying}
             onPlayToggle={handlePlay}
-            frequency={frequency.frequency}
-            frequencyId={frequency.id}
           />
           
           {savedId ? (

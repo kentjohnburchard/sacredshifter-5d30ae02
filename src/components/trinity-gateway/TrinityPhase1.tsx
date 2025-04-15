@@ -1,13 +1,12 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Triangle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import FrequencyPlayer from "@/components/FrequencyPlayer";
 import { toast } from "sonner";
 import { useGlobalAudioPlayer } from "@/hooks/useGlobalAudioPlayer";
+import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
 
 interface TrinityPhase1Props {
   onComplete: () => void;
@@ -137,14 +136,11 @@ const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete, skipPhase }) 
           </p>
           
           <div className="flex justify-center mb-6">
-            <FrequencyPlayer
-              frequencyId="396hz"
+            <SacredAudioPlayer
+              audioUrl={AUDIO_URL}
               isPlaying={isThisFrequencyPlaying}
               onPlayToggle={togglePlayback}
               frequency={396}
-              audioUrl={AUDIO_URL}
-              title="Phase 1: Release (396Hz)"
-              description="Root Chakra"
             />
           </div>
           
