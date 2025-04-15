@@ -1,7 +1,8 @@
+
 import React, { useRef, useEffect, useMemo } from 'react';
 import { useTheme } from '@/context/ThemeContext';
 import { isPrime, analyzeFrequency } from '@/lib/primeUtils';
-import { getChakraColorScheme, getChakraGradient } from '@/lib/chakraColors';
+import { getChakraColorScheme } from '@/lib/chakraColors';
 
 interface PrimePulseVisualizerProps {
   analyzerNode?: AnalyserNode | null;
