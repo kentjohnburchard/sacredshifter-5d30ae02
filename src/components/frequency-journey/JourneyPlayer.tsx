@@ -19,7 +19,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import SacredVisualizerCanvas from '../visualizer/SacredVisualizerCanvas';
-import { ChakraType } from '../visualizer/sacred-geometries';
+import { ChakraType, SacredGeometryType } from '../visualizer/sacred-geometries';
 
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
@@ -31,7 +31,7 @@ const JourneyPlayer = () => {
   const [infoExpanded, setInfoExpanded] = useState(false);
   const [showVisualizer, setShowVisualizer] = useState(true);
   const [audioData, setAudioData] = useState<Uint8Array | null>(null);
-  const [visualizerMode, setVisualizerMode] = useState('chakraBeam');
+  const [visualizerMode, setVisualizerMode] = useState<SacredGeometryType>('chakraBeam');
   
   const lastPlayedIndex = useRef<number | null>(null);
   const songsRef = useRef<any[]>([]);
@@ -233,7 +233,7 @@ const JourneyPlayer = () => {
 
   // Handle visualizer mode changes
   const cycleVisualizerMode = () => {
-    const modes = ['chakraBeam', 'flowerOfLife', 'fibonacciSpiral', 'primeFlow', 'chakraSpiral', 'merkaba', 'metatronCube', 'sriYantra'];
+    const modes: SacredGeometryType[] = ['chakraBeam', 'flowerOfLife', 'fibonacciSpiral', 'primeFlow', 'chakraSpiral', 'merkaba', 'metatronCube', 'sriYantra'];
     const currentIndex = modes.indexOf(visualizerMode);
     const nextIndex = (currentIndex + 1) % modes.length;
     setVisualizerMode(modes[nextIndex]);

@@ -829,23 +829,23 @@ const SacredVisualizerCanvas: React.FC<SacredVisualizerCanvasProps> = ({
       ctx.beginPath();
       
       const maxPoints = 150;
-      let a = 0;
-      let r = 0;
+      let spiralA = 0;
+      let spiralR = 0;
       
       // Dynamic spiral growth based on audio
       const growthFactor = 0.2 + audioIntensity * 0.15;
       
       for (let i = 0; i < maxPoints; i++) {
-        a += 0.15;
-        r += growthFactor;
+        spiralA += 0.15;
+        spiralR += growthFactor;
         
-        if (r > radius) break;
+        if (spiralR > radius) break;
         
         // Add subtle wobble based on audio
-        const wobble = audioIntensity * Math.sin(a * 5) * r * 0.1;
+        const wobble = audioIntensity * Math.sin(spiralA * 5) * spiralR * 0.1;
         
-        const x = (r + wobble) * Math.cos(a);
-        const y = (r + wobble) * Math.sin(a);
+        const x = (spiralR + wobble) * Math.cos(spiralA);
+        const y = (spiralR + wobble) * Math.sin(spiralA);
         
         if (i === 0) {
           ctx.moveTo(x, y);
