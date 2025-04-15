@@ -28,13 +28,19 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
   // Determine which visualizer mode to use based on journey theme
   let visualizerMode: 'flowerOfLife' | 'merkaba' | 'torus' | 'customPrimePulse' = 'customPrimePulse';
   
-  if (journey?.visualTheme === 'merkaba') {
-    visualizerMode = 'merkaba';
-  } else if (journey?.visualTheme === 'flower-of-life') {
-    visualizerMode = 'flowerOfLife';
-  } else if (journey?.visualTheme === 'torus') { 
-    // Check if 'torus' is included in the visual theme
-    visualizerMode = 'torus';
+  switch (journey?.visualTheme) {
+    case 'merkaba':
+      visualizerMode = 'merkaba';
+      break;
+    case 'flower-of-life':
+      visualizerMode = 'flowerOfLife';
+      break;
+    case 'torus':
+    case 'vesica-piscis': // Add more mappings if needed
+      visualizerMode = 'torus';
+      break;
+    default:
+      visualizerMode = 'customPrimePulse';
   }
 
   return (
