@@ -1,9 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
 import SacredAudioPlayer from './SacredAudioPlayer';
 import { JourneyProps } from '@/types/journey';
 import { useAppStore } from '@/store';
 import { AdvancedVisualizerManager } from '../visualizer/AdvancedVisualizerManager';
 import { getChakraColorScheme } from '@/lib/chakraColors';
+import { Button } from '@/components/ui/button';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface SacredAudioPlayerWithVisualizerProps {
   journey?: JourneyProps;
@@ -18,12 +21,7 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
   audioUrl
 }) => {
   const { audioData, isPlaying } = useAppStore();
-  const [showVisualizer, setShowVisualizer] = useState(false);
-
-  useEffect(() => {
-    // Show visualizer when journey is playing and we have audio data
-    setShowVisualizer(!!audioData && isPlaying);
-  }, [audioData, isPlaying]);
+  const [showVisualizer, setShowVisualizer] = useState(true);
 
   // Determine which chakra to use (use first if multiple are provided)
   const chakra = journey?.chakras?.[0]?.toLowerCase() as any;
@@ -55,14 +53,43 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
   }
 
   // Define shouldShowVisualizer variable to control when visualizer is displayed
-  const shouldShowVisualizer = !!visualizerMode && isPlaying && showVisualizer;
+  const shouldShowVisualizer = 
+    typeof visualizerMode === 'string' &&
+    isPlaying &&
+    showVisualizer &&
+    !!audioData;
 
   // Get chakra colors for styling
   const colorScheme = journey?.chakras ? getChakraColorScheme(journey.chakras) : undefined;
   const containerClass = `sacred-audio-player-with-visualizer w-full max-w-4xl mx-auto rounded-xl overflow-hidden shadow-lg ${chakra ? `chakra-${chakra}` : ''}`;
 
+  const toggleVisualizer = () => {
+    setShowVisualizer(prev => !prev);
+  };
+
   return (
     <div className={containerClass}>
+      <div className="flex justify-end p-2 bg-gradient-to-r from-purple-900/20 to-indigo-900/20">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleVisualizer}
+          className="text-white/80 hover:text-white flex items-center gap-1"
+        >
+          {showVisualizer ? (
+            <>
+              <EyeOff className="h-4 w-4 mr-1" />
+              Hide Visualizer
+            </>
+          ) : (
+            <>
+              <Eye className="h-4 w-4 mr-1" />
+              Show Visualizer
+            </>
+          )}
+        </Button>
+      </div>
+      
       {shouldShowVisualizer ? (
         <div className="h-64 relative rounded-t-xl overflow-hidden shadow-inner">
           <AdvancedVisualizerManager
