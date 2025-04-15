@@ -22,13 +22,11 @@ const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete, skipPhase }) 
   const PHASE_DURATION = 180; // 3 minutes in seconds
   const AUDIO_URL = "/frequencies/396hz-root.mp3";
   
-  // Check if this specific frequency is playing
   const isThisFrequencyPlaying = 
     isPlaying && 
     currentAudio?.source === AUDIO_URL && 
     currentAudio?.customData?.frequency === 396;
   
-  // Toggle audio playback
   const togglePlayback = useCallback(() => {
     if (isThisFrequencyPlaying) {
       togglePlayPause();
@@ -52,7 +50,6 @@ const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete, skipPhase }) 
     }
   }, [isThisFrequencyPlaying, playAudio, togglePlayPause]);
   
-  // Track progress and show Tesla quote at specific time
   useEffect(() => {
     let timer: NodeJS.Timeout;
     
@@ -62,13 +59,11 @@ const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete, skipPhase }) 
           const newSeconds = prev + 1;
           setProgress((newSeconds / PHASE_DURATION) * 100);
           
-          // Check for Tesla quote Easter egg at 3:33 (203 seconds total)
           if (newSeconds === 33 && !teslaQuoteShown) {
             toast.info("\"If you want to find the secrets of the universe, think in terms of energy, frequency and vibration.\" — Tesla");
             setTeslaQuoteShown(true);
           }
           
-          // Auto-advance when phase is complete
           if (newSeconds >= PHASE_DURATION) {
             if (isThisFrequencyPlaying) {
               togglePlayPause();
@@ -88,14 +83,12 @@ const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete, skipPhase }) 
     };
   }, [isThisFrequencyPlaying, onComplete, teslaQuoteShown, togglePlayPause]);
   
-  // Format time as MM:SS
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
   
-  // Use the passed skipPhase function or fallback to onComplete if it's not provided
   const handleSkip = () => {
     if (skipPhase) {
       skipPhase();

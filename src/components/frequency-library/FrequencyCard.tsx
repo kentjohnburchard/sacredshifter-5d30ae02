@@ -12,7 +12,6 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import FrequencyPlayer from "@/components/FrequencyPlayer";
 import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
 
 interface FrequencyCardProps {

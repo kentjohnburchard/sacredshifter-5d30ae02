@@ -5,7 +5,6 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { CircleDot } from "lucide-react";
 import { toast } from "sonner";
-import FrequencyPlayer from "@/components/FrequencyPlayer";
 import { useGlobalAudioPlayer } from "@/hooks/useGlobalAudioPlayer";
 import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
 
@@ -22,13 +21,11 @@ const TrinityPhase3: React.FC<TrinityPhase3Props> = ({ onComplete }) => {
   const PHASE_DURATION = 180; // 3 minutes in seconds
   const AUDIO_URL = "/frequencies/963hz-crown.mp3";
   
-  // Check if this specific frequency is playing
   const isThisFrequencyPlaying = 
     isPlaying && 
     currentAudio?.source === AUDIO_URL && 
     currentAudio?.customData?.frequency === 963;
   
-  // Toggle audio playback
   const togglePlayback = useCallback(() => {
     if (isThisFrequencyPlaying) {
       togglePlayPause();
@@ -52,7 +49,6 @@ const TrinityPhase3: React.FC<TrinityPhase3Props> = ({ onComplete }) => {
     }
   }, [isThisFrequencyPlaying, playAudio, togglePlayPause]);
   
-  // Track progress and show Tesla quote at specific time
   useEffect(() => {
     let timer: NodeJS.Timeout;
     
@@ -62,13 +58,11 @@ const TrinityPhase3: React.FC<TrinityPhase3Props> = ({ onComplete }) => {
           const newSeconds = prev + 1;
           setProgress((newSeconds / PHASE_DURATION) * 100);
           
-          // Check for Tesla quote Easter egg at 9:09 (69 seconds into this phase)
           if (newSeconds === 69 && !teslaQuoteShown) {
             toast.info("\"My brain is only a receiver. In the Universe there is a core from which we obtain knowledge, strength, inspiration.\" — Tesla");
             setTeslaQuoteShown(true);
           }
           
-          // Auto-advance when phase is complete
           if (newSeconds >= PHASE_DURATION) {
             if (isThisFrequencyPlaying) {
               togglePlayPause();
@@ -88,7 +82,6 @@ const TrinityPhase3: React.FC<TrinityPhase3Props> = ({ onComplete }) => {
     };
   }, [isThisFrequencyPlaying, onComplete, teslaQuoteShown, togglePlayPause]);
   
-  // Format time as MM:SS
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;

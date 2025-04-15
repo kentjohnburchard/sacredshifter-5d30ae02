@@ -10,7 +10,6 @@ import HermeticTrackUploadModal from "./HermeticTrackUploadModal";
 import HermeticWisdomDrop from "./HermeticWisdomDrop";
 import { getTracksForPrinciple } from "@/services/hermeticPlaylistService";
 import { HermeticTrack } from "@/types/playlist";
-import FrequencyPlayer from "@/components/FrequencyPlayer";
 import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
 
 interface HermeticJourneyDetailProps {

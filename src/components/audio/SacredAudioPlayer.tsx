@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { useTheme } from '@/context/ThemeContext';
@@ -7,7 +8,21 @@ import { VisualizerManager } from '@/components/visualizer/VisualizerManager';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
 
-const SacredAudioPlayer: React.FC = () => {
+interface SacredAudioPlayerProps {
+  audioUrl?: string;
+  url?: string;
+  frequency?: number;
+  isPlaying?: boolean;
+  onPlayToggle?: () => void;
+}
+
+const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
+  audioUrl,
+  url,
+  frequency,
+  isPlaying: externalIsPlaying,
+  onPlayToggle: externalTogglePlay
+}) => {
   const {
     isPlaying,
     duration,
@@ -19,7 +34,7 @@ const SacredAudioPlayer: React.FC = () => {
     audioError,
     currentTrack,
     setCurrentTime,
-    audioAnalyser
+    setAudioSource
   } = useAudioPlayer();
   
   const [isSeeking, setIsSeeking] = useState(false);
@@ -29,6 +44,16 @@ const SacredAudioPlayer: React.FC = () => {
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   
   const { liftTheVeil } = useTheme();
+
+  // Use the audioUrl or url prop if provided
+  React.useEffect(() => {
+    if (audioUrl || url) {
+      const sourceUrl = audioUrl || url;
+      if (sourceUrl) {
+        setAudioSource(sourceUrl);
+      }
+    }
+  }, [audioUrl, url, setAudioSource]);
 
   const handleSeekMouseDown = () => {
     setIsSeeking(true);
@@ -67,6 +92,17 @@ const SacredAudioPlayer: React.FC = () => {
     }
   };
 
+  const handleTogglePlay = () => {
+    if (externalTogglePlay) {
+      externalTogglePlay();
+    } else {
+      togglePlay();
+    }
+  };
+
+  // Use external isPlaying state if provided, otherwise use the internal state
+  const playerIsPlaying = externalIsPlaying !== undefined ? externalIsPlaying : isPlaying;
+
   React.useEffect(() => {
     if (!isSeeking) {
       setSeekTime(currentTime);
@@ -80,11 +116,11 @@ const SacredAudioPlayer: React.FC = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={togglePlay}
+            onClick={handleTogglePlay}
             className="h-10 w-10 rounded-full bg-purple-500 hover:bg-purple-600 text-white"
-            disabled={!audioLoaded}
+            disabled={!audioLoaded && !(audioUrl || url)}
           >
-            {isPlaying ? (
+            {playerIsPlaying ? (
               <Pause className="h-5 w-5" />
             ) : (
               <Play className="h-5 w-5 ml-0.5" />
@@ -158,9 +194,9 @@ const SacredAudioPlayer: React.FC = () => {
       <div className="mt-4 h-48 rounded-lg overflow-hidden">
         <VisualizerManager 
           isAudioReactive={true}
-          analyser={audioAnalyser}
           colorScheme={liftTheVeil ? 'pink' : 'purple'}
           size="md"
+          frequency={frequency}
         />
       </div>
     </div>

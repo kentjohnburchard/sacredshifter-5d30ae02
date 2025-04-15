@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Hexagon, Check } from "lucide-react";
 import { toast } from "sonner";
-import FrequencyPlayer from "@/components/FrequencyPlayer";
 import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
 
 interface TrinityPhase2Props {
@@ -30,7 +29,7 @@ const TrinityPhase2: React.FC<TrinityPhase2Props> = ({
   const [showAdvancedMode, setShowAdvancedMode] = useState(false);
   const [selectedElements, setSelectedElements] = useState<string[]>([]);
   
-  const PHASE_DURATION = 180; // 3 minutes in seconds
+  const PHASE_DURATION = 180;
   
   const elements = [
     { id: "e1", name: "Water Element" },
@@ -44,7 +43,6 @@ const TrinityPhase2: React.FC<TrinityPhase2Props> = ({
     { id: "e9", name: "Harmony" },
   ];
   
-  // Toggle audio playback
   const togglePlayback = useCallback(() => {
     setIsPlaying(!isPlaying);
     if (!isPlaying) {
@@ -54,13 +52,11 @@ const TrinityPhase2: React.FC<TrinityPhase2Props> = ({
     }
   }, [isPlaying]);
   
-  // Enable advanced mode
   const handleEnableAdvancedMode = () => {
     setShowAdvancedMode(true);
     toast.info("Trinity Manifestation Journey activated");
   };
   
-  // Toggle element selection
   const toggleElement = (id: string) => {
     if (selectedElements.includes(id)) {
       setSelectedElements(selectedElements.filter(e => e !== id));
@@ -73,7 +69,6 @@ const TrinityPhase2: React.FC<TrinityPhase2Props> = ({
     }
   };
   
-  // Save intention and selected elements
   const handleSaveSelections = () => {
     if (intention.trim().split(' ').length !== 3) {
       toast.error("Please enter exactly 3 words for your intention");
@@ -93,7 +88,6 @@ const TrinityPhase2: React.FC<TrinityPhase2Props> = ({
     toast.success("Your Trinity Manifestation selections have been saved");
   };
   
-  // Track progress and show Tesla quote at specific time
   useEffect(() => {
     let timer: NodeJS.Timeout;
     
@@ -103,13 +97,11 @@ const TrinityPhase2: React.FC<TrinityPhase2Props> = ({
           const newSeconds = prev + 1;
           setProgress((newSeconds / PHASE_DURATION) * 100);
           
-          // Check for Tesla quote Easter egg at 6:06 (66 seconds into this phase)
           if (newSeconds === 66 && !teslaQuoteShown) {
             toast.info("\"The day science begins to study non-physical phenomena, it will make more progress in one decade than in all the previous centuries of its existence.\" — Tesla");
             setTeslaQuoteShown(true);
           }
           
-          // Auto-advance when phase is complete
           if (newSeconds >= PHASE_DURATION) {
             setIsPlaying(false);
             setTimeout(() => onComplete(), 1000);
@@ -127,7 +119,6 @@ const TrinityPhase2: React.FC<TrinityPhase2Props> = ({
     };
   }, [isPlaying, onComplete, teslaQuoteShown]);
   
-  // Format time as MM:SS
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;

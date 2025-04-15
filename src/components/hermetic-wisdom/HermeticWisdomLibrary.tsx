@@ -18,12 +18,10 @@ const HermeticWisdomLibrary = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch frequencies related to Hermetic Principles
   const { data: frequencies, isLoading } = useQuery({
     queryKey: ["hermetic-frequencies"],
     queryFn: async () => {
       try {
-        // We'll use the frequency_library table directly since it's type-safe
         const { data: freqData, error } = await supabase
           .from('frequency_library')
           .select('*')
@@ -35,13 +33,11 @@ const HermeticWisdomLibrary = () => {
           return [];
         }
         
-        // Filter out entries where audio_url or url exist but are empty strings
         const validFrequencies = freqData.filter(freq => 
           (freq.audio_url && freq.audio_url.trim() !== '') || 
           (freq.url && freq.url.trim() !== '')
         );
         
-        // Filter to only the frequencies that might be related to Hermetic principles
         const hermeticFrequencies = validFrequencies.filter(freq => 
           freq.tags?.some((tag: string) => tag.toLowerCase().includes('hermetic')) ||
           freq.category?.toLowerCase().includes('hermetic') ||
@@ -57,7 +53,6 @@ const HermeticWisdomLibrary = () => {
     }
   });
 
-  // Principle icons mapping
   const principleIcons = {
     "Mentalism": Sparkles,
     "Correspondence": Headphones,
@@ -68,18 +63,14 @@ const HermeticWisdomLibrary = () => {
     "Gender": MusicIcon
   };
 
-  // Toggle play for the current track
   const handlePlayToggle = () => {
     setIsPlaying(!isPlaying);
   };
 
-  // Select a track to play
   const handleSelectTrack = (track: FrequencyLibraryItem) => {
     if (currentTrack?.id === track.id) {
-      // If clicking the same track, toggle play/pause
       setIsPlaying(!isPlaying);
     } else {
-      // If a different track, set as current and start playing
       setCurrentTrack(track);
       setIsPlaying(true);
       console.log("Selected track to play:", track.title, "ID:", track.id, "URL:", track.url || track.audio_url);
@@ -166,7 +157,6 @@ const HermeticWisdomLibrary = () => {
   );
 };
 
-// Helper function to get color for chakra
 const getColorForChakra = (chakra: string): string => {
   switch (chakra) {
     case "Root":
