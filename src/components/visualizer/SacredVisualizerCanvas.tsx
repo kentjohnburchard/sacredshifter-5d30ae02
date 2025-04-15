@@ -23,61 +23,50 @@ const chakraColors: Record<string, string> = {
   crown: '#a855f7'
 };
 
-// Flower of Life Component
 const FlowerOfLifeGeometry = ({ chakra = 'crown' }) => {
   const groupRef = useRef<THREE.Group>(null!);
-  const flowerRef = useRef<THREE.Group>(null!);
   const color = chakraColors[chakra] || '#a855f7';
   
   useFrame((state) => {
     if (groupRef.current) {
       groupRef.current.rotation.y = state.clock.getElapsedTime() * 0.1;
-    }
-    if (flowerRef.current) {
-      flowerRef.current.rotation.z = Math.sin(state.clock.getElapsedTime() * 0.2) * 0.1;
+      groupRef.current.rotation.z = Math.sin(state.clock.getElapsedTime() * 0.2) * 0.1;
     }
   });
   
-  // Create flower of life pattern
   const circles = useMemo(() => {
     const items = [];
     const radius = 0.5;
-    const positions = [
-      [0, 0, 0],
-      [1, 0, 0],
-      [0.5, 0.866, 0],
-      [-0.5, 0.866, 0],
-      [-1, 0, 0],
-      [-0.5, -0.866, 0],
-      [0.5, -0.866, 0],
-      [1.5, 0.866, 0],
-      [1.5, -0.866, 0],
-      [0, 1.732, 0],
-      [-1.5, 0.866, 0],
-      [-1.5, -0.866, 0],
-      [0, -1.732, 0],
-    ];
+    const numCircles = 19;
     
-    positions.forEach((pos, index) => {
-      items.push(
-        <mesh key={index} position={[pos[0] * radius, pos[1] * radius, pos[2]]}>
-          <circleGeometry args={[radius, 32]} />
-          <meshBasicMaterial color={color} opacity={0.5} transparent wireframe />
-        </mesh>
-      );
-    });
+    for (let ring = 0; ring < 3; ring++) {
+      const ringRadius = ring * radius * Math.sqrt(3);
+      const numInRing = ring === 0 ? 1 : 6 * ring;
+      
+      for (let i = 0; i < numInRing; i++) {
+        const angle = (i * 2 * Math.PI) / numInRing;
+        const x = ringRadius * Math.cos(angle);
+        const y = ringRadius * Math.sin(angle);
+        
+        items.push(
+          <mesh key={`${ring}-${i}`} position={[x, y, 0]}>
+            <circleGeometry args={[radius, 64]} />
+            <meshBasicMaterial color={color} opacity={0.5} transparent wireframe />
+          </mesh>
+        );
+      }
+    }
     
     return items;
   }, [color]);
   
   return (
-    <group ref={groupRef}>
-      <group ref={flowerRef}>{circles}</group>
+    <group ref={groupRef} scale={[2, 2, 2]}>
+      {circles}
     </group>
   );
 };
 
-// Merkaba Component
 const MerkabaGeometry = ({ chakra = 'crown' }) => {
   const merkabaRef = useRef<THREE.Group>(null!);
   const color = chakraColors[chakra] || '#a855f7';
@@ -91,13 +80,11 @@ const MerkabaGeometry = ({ chakra = 'crown' }) => {
   
   return (
     <group ref={merkabaRef}>
-      {/* Upward tetrahedron */}
       <mesh>
         <tetrahedronGeometry args={[1, 0]} />
         <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.5} wireframe />
       </mesh>
       
-      {/* Downward tetrahedron */}
       <mesh rotation={[0, 0, Math.PI]}>
         <tetrahedronGeometry args={[1, 0]} />
         <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.3} wireframe />
@@ -106,7 +93,6 @@ const MerkabaGeometry = ({ chakra = 'crown' }) => {
   );
 };
 
-// Torus Component
 const TorusGeometry = ({ chakra = 'crown', frequencyData }) => {
   const torusRef = useRef<THREE.Mesh>(null!);
   const color = chakraColors[chakra] || '#a855f7';
@@ -122,7 +108,6 @@ const TorusGeometry = ({ chakra = 'crown', frequencyData }) => {
         const scale = 1 + intensity * 0.2;
         torusRef.current.scale.set(scale, scale, scale);
         
-        // Update material intensity
         const material = torusRef.current.material as THREE.MeshStandardMaterial;
         if (material.emissiveIntensity !== undefined) {
           material.emissiveIntensity = 0.2 + intensity;
@@ -139,7 +124,6 @@ const TorusGeometry = ({ chakra = 'crown', frequencyData }) => {
   );
 };
 
-// Prime Flow Component
 const PrimeFlowGeometry = ({ frequencyData, chakra = 'crown' }) => {
   const groupRef = useRef<THREE.Group>(null!);
   const ringsRef = useRef<THREE.Group>(null!);
@@ -147,7 +131,6 @@ const PrimeFlowGeometry = ({ frequencyData, chakra = 'crown' }) => {
   const rings = useRef<{ ring: THREE.Mesh; scale: number; opacity: number }[]>([]);
   const lastPrimeTime = useRef<number>(0);
   
-  // Setup initial rings
   useEffect(() => {
     rings.current = [];
   }, []);
@@ -155,14 +138,11 @@ const PrimeFlowGeometry = ({ frequencyData, chakra = 'crown' }) => {
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
     
-    // Rotate group
     if (groupRef.current) {
       groupRef.current.rotation.y = time * 0.1;
     }
     
-    // Check for prime frequency in audio data
     if (frequencyData && frequencyData.length && time - lastPrimeTime.current > 0.5) {
-      // Get dominant frequency
       let maxIndex = 0;
       let maxValue = 0;
       for (let i = 0; i < frequencyData.length; i++) {
@@ -172,9 +152,7 @@ const PrimeFlowGeometry = ({ frequencyData, chakra = 'crown' }) => {
         }
       }
       
-      // Check if it's a prime number
       if (isPrime(maxIndex + 20)) {
-        // Create new pulse ring
         lastPrimeTime.current = time;
         
         const ring = new THREE.Mesh(
@@ -194,7 +172,6 @@ const PrimeFlowGeometry = ({ frequencyData, chakra = 'crown' }) => {
       }
     }
     
-    // Animate existing rings
     const toRemove: number[] = [];
     rings.current.forEach((item, index) => {
       item.scale += 0.02;
@@ -209,7 +186,6 @@ const PrimeFlowGeometry = ({ frequencyData, chakra = 'crown' }) => {
       }
     });
     
-    // Remove faded rings
     toRemove.reverse().forEach(index => {
       if (rings.current[index].ring && ringsRef.current) {
         ringsRef.current.remove(rings.current[index].ring);
@@ -229,7 +205,6 @@ const PrimeFlowGeometry = ({ frequencyData, chakra = 'crown' }) => {
   );
 };
 
-// Chakra Spiral Component
 const ChakraSpiralGeometry = ({ frequencyData }) => {
   const spiralRef = useRef<THREE.Group>(null!);
   const chakraPoints = useRef<THREE.Mesh[]>([]);
@@ -244,9 +219,8 @@ const ChakraSpiralGeometry = ({ frequencyData }) => {
       spiralRef.current.rotation.y = state.clock.getElapsedTime() * 0.2;
     }
     
-    // Animate chakra points based on frequency data
     if (frequencyData && frequencyData.length) {
-      const chunkSize = Math.floor(frequencyData.length / 7); // 7 chakras
+      const chunkSize = Math.floor(frequencyData.length / 7);
       
       chakraPoints.current.forEach((point, i) => {
         if (point) {
@@ -267,10 +241,9 @@ const ChakraSpiralGeometry = ({ frequencyData }) => {
     }
   });
   
-  // Create chakra points in a spiral
   const chakraPointsElements = useMemo(() => {
     const points = [];
-    const numPoints = 7; // 7 chakras
+    const numPoints = 7;
     const radiusStart = 0.5;
     const radiusEnd = 2;
     const heightStart = -1;
@@ -279,7 +252,7 @@ const ChakraSpiralGeometry = ({ frequencyData }) => {
     for (let i = 0; i < numPoints; i++) {
       const t = i / (numPoints - 1);
       const radius = radiusStart + (radiusEnd - radiusStart) * t;
-      const theta = t * Math.PI * 4; // 2 revolutions
+      const theta = t * Math.PI * 4;
       const height = heightStart + (heightEnd - heightStart) * t;
       const chakraColor = chakraColors[chakraKeys[i]] || '#ffffff';
       
@@ -311,7 +284,6 @@ const ChakraSpiralGeometry = ({ frequencyData }) => {
   return (
     <group ref={spiralRef}>
       {chakraPointsElements}
-      {/* Connecting lines */}
       <mesh>
         <torusGeometry args={[1.25, 0.02, 16, 100]} />
         <meshBasicMaterial color="#ffffff" opacity={0.3} transparent />
@@ -320,7 +292,6 @@ const ChakraSpiralGeometry = ({ frequencyData }) => {
   );
 };
 
-// Custom Prime Pulse Component (existing)
 const CustomPrimePulseGeometry = ({ frequencyData, chakra = 'crown' }) => {
   const meshRef = useRef<THREE.Mesh>(null!);
   const pulseRef = useRef<number>(0);
@@ -355,12 +326,10 @@ const CustomPrimePulseGeometry = ({ frequencyData, chakra = 'crown' }) => {
   );
 };
 
-// Main visual content renderer based on selected mode
 const SacredGeometry = ({ frequencyData, chakra, visualizerMode = 'customPrimePulse' }: SacredVisualizerCanvasProps) => {
   const { camera } = useThree();
   
   useEffect(() => {
-    // Position camera based on visualizer mode
     if (camera) {
       switch (visualizerMode) {
         case 'flowerOfLife':
@@ -381,7 +350,6 @@ const SacredGeometry = ({ frequencyData, chakra, visualizerMode = 'customPrimePu
     }
   }, [visualizerMode, camera]);
   
-  // Render the correct geometry based on mode
   switch (visualizerMode) {
     case 'flowerOfLife':
       return <FlowerOfLifeGeometry chakra={chakra} />;
@@ -420,9 +388,9 @@ const SacredVisualizerCanvas: React.FC<SacredVisualizerCanvasProps> = ({
   return (
     <div className="w-full h-full">
       <Canvas>
-        <PerspectiveCamera position={[0, 0, 5]} fov={70} makeDefault />
+        <PerspectiveCamera position={[0, 0, 5]} fov={75} makeDefault />
         <ambientLight intensity={0.5} />
-        <pointLight position={[10, 10, 10]} color={chakraColor} intensity={1.5} />
+        <pointLight position={[10, 10, 10]} color={chakraColors[chakra] || '#a855f7'} intensity={1.5} />
         <pointLight position={[-10, -10, -10]} color="#ffffff" intensity={0.5} />
         
         <SacredGeometry
@@ -433,7 +401,7 @@ const SacredVisualizerCanvas: React.FC<SacredVisualizerCanvasProps> = ({
         
         {enableControls && <OrbitControls enableZoom={false} enablePan={false} />}
         
-        <fog attach="fog" color={chakraColor} near={8} far={20} />
+        <fog attach="fog" color={chakraColors[chakra] || '#a855f7'} near={8} far={20} />
       </Canvas>
     </div>
   );
