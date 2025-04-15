@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { JourneyProps } from '@/types/journey';
@@ -8,6 +7,7 @@ import { useAppStore } from '@/store';
 import { Play, Pause, SkipBack, SkipForward, Volume2, Volume1, VolumeX } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { getAudioContext, resumeAudioContext } from '@/utils/audioContextInitializer';
 
 interface SacredAudioPlayerProps {
   journey?: JourneyProps;
@@ -41,7 +41,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const {
     togglePlay,
     seekTo,
-    setAudioSource: setGlobalAudioSource, // Renamed to avoid conflict
+    setAudioSource: setGlobalAudioSource,
     duration,
     currentTime,
     isPlaying: internalIsPlaying,
@@ -52,31 +52,20 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const { setAudioData, setFrequencyData, setIsPlaying, setAudioPlaybackError } = useAppStore();
   const audioPlayAttempted = useRef(false);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const audioSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  
+  // Audio processing state
+  const [audioSourceValid, setAudioSourceValid] = useState(false);
+  const [loadingAudio, setLoadingAudio] = useState(true);
   const [fallbackAudioUrl] = useState<string>('/sounds/focus-ambient.mp3');
   
-  // Error handling and retry control
+  // Error handling with strict limits
   const errorToastShownRef = useRef(false);
   const errorCountRef = useRef(0);
-  const MAX_ERROR_RETRIES = 3;
+  const MAX_ERROR_RETRIES = 2;
 
   // Determine if we're in controlled or uncontrolled mode
   const isControlledMode = externalIsPlaying !== undefined;
   const isPlaying = isControlledMode ? externalIsPlaying : internalIsPlaying;
-
-  useEffect(() => {
-    console.log("SacredAudioPlayer current state:", {
-      audioUrl,
-      externalIsPlaying,
-      internalIsPlaying,
-      isPlaying,
-      forcePlay,
-      audioLoaded,
-      audioRef: audioRef.current ? "exists" : "none"
-    });
-  }, [audioUrl, externalIsPlaying, internalIsPlaying, isPlaying, forcePlay, audioLoaded, audioRef]);
 
   // Format time to mm:ss
   const formatTime = (time: number) => {
@@ -86,25 +75,46 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   };
 
   // Ensure we have a valid audio file
-  const validatedAudioUrl = audioUrl || url || '/sounds/focus-ambient.mp3';
-  const [audioSource, setLocalAudioSource] = useState(validatedAudioUrl);
+  const validatedAudioUrl = audioUrl || url || fallbackAudioUrl;
+  const [currentAudioSource, setCurrentAudioSource] = useState(validatedAudioUrl);
   
   // Reset error state when audio source changes
   useEffect(() => {
-    errorCountRef.current = 0;
-    errorToastShownRef.current = false;
-  }, [validatedAudioUrl]);
+    // Only reset if we're changing to a different source
+    if (currentAudioSource !== validatedAudioUrl) {
+      console.log("Audio source changed, resetting error state:", validatedAudioUrl);
+      errorCountRef.current = 0;
+      errorToastShownRef.current = false;
+      setLoadingAudio(true);
+      setAudioSourceValid(false);
+    }
+  }, [validatedAudioUrl, currentAudioSource]);
   
+  // Audio source validation with improved error handling
   useEffect(() => {
-    console.log("SacredAudioPlayer validating source:", validatedAudioUrl);
+    if (!validatedAudioUrl) {
+      console.error("No audio URL provided");
+      setAudioSourceValid(false);
+      setLoadingAudio(false);
+      return;
+    }
+    
+    console.log("Validating audio source:", validatedAudioUrl);
+    setLoadingAudio(true);
     
     // Create a test Audio element to check if the file exists/loads
     const audioTest = new Audio();
     
     const handleTestSuccess = () => {
-      console.log("Audio test successful for:", validatedAudioUrl);
-      setLocalAudioSource(validatedAudioUrl);
+      console.log("✅ Audio test successful for:", validatedAudioUrl);
+      setAudioSourceValid(true);
+      setLoadingAudio(false);
+      setCurrentAudioSource(validatedAudioUrl);
       if (onAudioLoaded) onAudioLoaded();
+      
+      // Reset error state on success
+      errorCountRef.current = 0;
+      errorToastShownRef.current = false;
       
       // Clean up test element
       audioTest.removeEventListener('canplaythrough', handleTestSuccess);
@@ -113,22 +123,34 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     };
     
     const handleTestError = () => {
-      console.error("Audio test failed for:", validatedAudioUrl);
-      
-      // Only show error toast once and only if we haven't exceeded retry count
-      if (!errorToastShownRef.current && errorCountRef.current < MAX_ERROR_RETRIES) {
-        errorToastShownRef.current = true;
-        toast.error("Audio playback error. Please try again.", {
-          id: "audio-error" // Use consistent ID to prevent duplicates
-        });
-      }
-      
+      console.error("❌ Audio test failed for:", validatedAudioUrl);
       errorCountRef.current += 1;
       
-      // Fallback to default audio only if we've tried a few times
-      if (errorCountRef.current >= MAX_ERROR_RETRIES) {
-        setLocalAudioSource('/sounds/focus-ambient.mp3');
+      // Only show error toast once
+      if (!errorToastShownRef.current) {
+        errorToastShownRef.current = true;
+        
+        // Only show toast for user-provided audio, not fallbacks
+        if (validatedAudioUrl !== fallbackAudioUrl) {
+          toast.error("Audio file couldn't be loaded", {
+            id: "audio-error", // Use consistent ID to prevent duplicates
+            description: "Using fallback audio instead"
+          });
+        }
+      }
+      
+      setLoadingAudio(false);
+      
+      // Use fallback only if we're not already trying it
+      if (validatedAudioUrl !== fallbackAudioUrl && errorCountRef.current >= MAX_ERROR_RETRIES) {
+        console.log("Using fallback audio after multiple failed attempts");
+        setCurrentAudioSource(fallbackAudioUrl);
         if (onError) onError();
+      } else if (validatedAudioUrl === fallbackAudioUrl) {
+        // Even the fallback failed
+        console.error("Fallback audio also failed to load");
+        setAudioPlaybackError("Audio couldn't be loaded");
+        setAudioSourceValid(false);
       }
       
       // Clean up test element
@@ -138,34 +160,61 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     };
     
     // Set up listeners
-    audioTest.addEventListener('canplaythrough', handleTestSuccess);
-    audioTest.addEventListener('error', handleTestError);
+    audioTest.addEventListener('canplaythrough', handleTestSuccess, { once: true });
+    audioTest.addEventListener('error', handleTestError, { once: true });
     
-    // Start test
+    // Start test with a timeout to prevent hanging
     audioTest.src = validatedAudioUrl;
+    
+    // Safety timeout in case the events never fire
+    const timeoutId = setTimeout(() => {
+      if (loadingAudio) {
+        console.warn("Audio load test timed out");
+        audioTest.removeEventListener('canplaythrough', handleTestSuccess);
+        audioTest.removeEventListener('error', handleTestError);
+        audioTest.src = '';
+        
+        // Assume failure and try fallback
+        if (validatedAudioUrl !== fallbackAudioUrl) {
+          console.log("Using fallback audio after timeout");
+          setCurrentAudioSource(fallbackAudioUrl);
+        } else {
+          setAudioSourceValid(false);
+          setLoadingAudio(false);
+        }
+      }
+    }, 8000); // 8 second timeout
     
     return () => {
       // Clean up on unmount if still attached
+      clearTimeout(timeoutId);
       audioTest.removeEventListener('canplaythrough', handleTestSuccess);
       audioTest.removeEventListener('error', handleTestError);
       audioTest.src = '';
     };
-  }, [validatedAudioUrl, onError, onAudioLoaded]);
+  }, [validatedAudioUrl, onError, onAudioLoaded, fallbackAudioUrl, loadingAudio]);
 
   // Set audio source when component mounts or audioUrl changes
   useEffect(() => {
-    if (audioSource) {
-      console.log("Setting audio source:", audioSource);
-      setGlobalAudioSource(audioSource);
-    } else {
-      console.warn("No audio URL provided to SacredAudioPlayer");
-      // Set a fallback audio source
-      setGlobalAudioSource('/sounds/focus-ambient.mp3');
+    if (currentAudioSource && audioSourceValid) {
+      console.log("Setting global audio source:", currentAudioSource);
+      setGlobalAudioSource(currentAudioSource);
     }
-  }, [audioSource, setGlobalAudioSource]);
+  }, [currentAudioSource, audioSourceValid, setGlobalAudioSource]);
 
   // Handle play/pause toggling with internal/external state management
   const handleTogglePlay = () => {
+    // Set up audio context first if needed
+    resumeAudioContext().catch(e => {
+      console.warn("Could not resume audio context:", e);
+    });
+    
+    // Only allow play if we have a valid audio source
+    if (!audioSourceValid && !loadingAudio) {
+      toast.error("Can't play audio: No valid audio source");
+      return;
+    }
+    
     console.log("Toggle play called, current state:", isPlaying);
     
     // Toggle the internal player state
@@ -178,144 +227,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
       // Otherwise, update the global state
       setIsPlaying(!isPlaying);
     }
-
-    // Initialize audio context if needed after user interaction
-    if (!audioContextRef.current) {
-      try {
-        const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-        if (AudioContext) {
-          audioContextRef.current = new AudioContext();
-          console.log("AudioContext created after user interaction");
-        }
-      } catch (e) {
-        console.error("Failed to create AudioContext:", e);
-      }
-    } else if (audioContextRef.current.state === 'suspended') {
-      audioContextRef.current.resume().catch(e => {
-        console.error("Failed to resume AudioContext:", e);
-      });
-    }
   };
-
-  // Set up audio analyser
-  useEffect(() => {
-    console.log("Setting up audio analyser");
-
-    const setupAudioAnalyser = () => {
-      try {
-        // Check if we already have an audio context
-        if (!audioContextRef.current) {
-          const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-          if (!AudioContext) {
-            console.warn("AudioContext not supported");
-            return;
-          }
-          
-          audioContextRef.current = new AudioContext();
-        }
-        
-        // Check if audio element exists
-        if (!audioRef.current) {
-          console.log("Audio element not found yet");
-          setTimeout(setupAudioAnalyser, 500);
-          return;
-        }
-
-        // Resume audio context if it's suspended
-        if (audioContextRef.current.state === 'suspended') {
-          console.log("Resuming audio context");
-          audioContextRef.current.resume().catch(e => {
-            console.error("Failed to resume audio context:", e);
-          });
-        }
-        
-        // Set up analyser if it doesn't exist
-        if (!analyserRef.current) {
-          analyserRef.current = audioContextRef.current.createAnalyser();
-          analyserRef.current.fftSize = 256; // Power of 2, controls frequency bin count
-        }
-        
-        // Connect audio element to analyser if not already connected
-        if (!audioSourceRef.current) {
-          try {
-            console.log("Creating media element source");
-            audioSourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
-            audioSourceRef.current.connect(analyserRef.current);
-            analyserRef.current.connect(audioContextRef.current.destination);
-            console.log("Connected audio source to analyser");
-          } catch (e: any) {
-            if (e.toString().includes('already connected')) {
-              console.log("Audio already connected");
-            } else {
-              console.error("Error connecting audio source:", e);
-              setAudioPlaybackError("Error connecting audio source");
-            }
-          }
-        }
-        
-        // Set up the audio data update loop
-        const bufferLength = analyserRef.current.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-        const freqArray = new Uint8Array(bufferLength);
-        
-        const updateAudioData = () => {
-          if (analyserRef.current && isPlaying) {
-            // Get audio data
-            analyserRef.current.getByteTimeDomainData(dataArray);
-            setAudioData(new Uint8Array(dataArray));
-            
-            // Get frequency data
-            analyserRef.current.getByteFrequencyData(freqArray);
-            setFrequencyData(new Uint8Array(freqArray));
-          }
-          requestAnimationFrame(updateAudioData);
-        };
-        
-        updateAudioData();
-        
-      } catch (error) {
-        console.error("Error setting up audio analyser:", error);
-        setAudioPlaybackError("Error setting up audio visualizer");
-      }
-    };
-    
-    // Add a delay to ensure the audio element is ready
-    setTimeout(setupAudioAnalyser, 1000);
-    
-    // Also add event listeners to try to initialize audio after user interaction
-    const handleUserInteraction = () => {
-      if (audioContextRef.current?.state === 'suspended') {
-        audioContextRef.current.resume().catch(e => {
-          console.error("Failed to resume audio context after user interaction:", e);
-        });
-      }
-    };
-    
-    document.addEventListener('click', handleUserInteraction);
-    document.addEventListener('touchstart', handleUserInteraction);
-    
-    return () => {
-      // Clean up
-      document.removeEventListener('click', handleUserInteraction);
-      document.removeEventListener('touchstart', handleUserInteraction);
-      
-      if (audioSourceRef.current) {
-        try {
-          audioSourceRef.current.disconnect();
-        } catch (e) {
-          console.error("Error disconnecting audio source:", e);
-        }
-      }
-      
-      if (analyserRef.current) {
-        try {
-          analyserRef.current.disconnect();
-        } catch (e) {
-          console.error("Error disconnecting analyser:", e);
-        }
-      }
-    };
-  }, [audioRef, isPlaying, setAudioData, setFrequencyData, setAudioPlaybackError]);
 
   // Volume control
   useEffect(() => {
@@ -326,7 +238,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   
   // Auto play when forcePlay is true
   useEffect(() => {
-    if (forcePlay && audioLoaded && !audioPlayAttempted.current) {
+    if (forcePlay && audioLoaded && !audioPlayAttempted.current && audioSourceValid) {
       audioPlayAttempted.current = true;
       console.log("Auto-playing audio");
       
@@ -338,43 +250,69 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
         }
       }, 500);
     }
-  }, [forcePlay, audioLoaded, isPlaying]);
+  }, [forcePlay, audioLoaded, isPlaying, audioSourceValid]);
   
-  // Handle errors
+  // Connect audio to analyzer for visualizations if needed
   useEffect(() => {
-    const handleError = (e: ErrorEvent) => {
-      console.error("Audio error:", e);
-      
-      // Only show error toast if we haven't already shown one 
-      // and haven't exceeded the retry limit
-      if (!errorToastShownRef.current && errorCountRef.current < MAX_ERROR_RETRIES) {
-        errorToastShownRef.current = true;
-        toast.error("Audio playback error. Please try again.", {
-          id: "audio-error" // Use consistent ID to prevent duplicates
-        });
+    const setupAudioAnalyzer = async () => {
+      // Wait for the audio to be ready
+      if (!audioRef.current || !audioLoaded || !audioSourceValid) {
+        return;
       }
       
-      errorCountRef.current += 1;
-      setAudioPlaybackError("Audio playback error");
-      
-      // Try to use fallback audio if we've had multiple errors
-      if (audioRef.current && audioRef.current.src !== fallbackAudioUrl && 
-          errorCountRef.current >= MAX_ERROR_RETRIES) {
-        console.log("Attempting to use fallback audio");
-        setLocalAudioSource(fallbackAudioUrl);
+      try {
+        const audioContext = getAudioContext();
+        if (!audioContext) return;
+        
+        // Try to resume the context
+        await resumeAudioContext();
+        
+        // Create analyzer node
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        
+        // Connect audio element to analyzer (if not already connected)
+        try {
+          const source = audioContext.createMediaElementSource(audioRef.current);
+          source.connect(analyser);
+          analyser.connect(audioContext.destination);
+          
+          // Set up data array to receive frequency data
+          const bufferLength = analyser.frequencyBinCount;
+          const dataArray = new Uint8Array(bufferLength);
+          
+          // Start updating audio data at animation frame rate
+          const updateAudioData = () => {
+            if (isPlaying) {
+              analyser.getByteFrequencyData(dataArray);
+              setFrequencyData(new Uint8Array(dataArray));
+              
+              analyser.getByteTimeDomainData(dataArray);
+              setAudioData(new Uint8Array(dataArray));
+            }
+            requestAnimationFrame(updateAudioData);
+          };
+          
+          updateAudioData();
+          console.log("Audio analyzer connected successfully");
+          
+        } catch (e: any) {
+          // Ignore already connected errors
+          if (e.toString().includes('already connected')) {
+            console.log("Audio element already connected to analyzer");
+          } else {
+            throw e;
+          }
+        }
+      } catch (error) {
+        console.error("Error setting up audio analyzer:", error);
       }
     };
     
-    if (audioRef.current) {
-      audioRef.current.addEventListener('error', handleError as EventListener);
-    }
+    // Try to set up analyzer
+    setupAudioAnalyzer();
     
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.removeEventListener('error', handleError as EventListener);
-      }
-    };
-  }, [audioRef, fallbackAudioUrl, setAudioPlaybackError]);
+  }, [audioRef, audioLoaded, isPlaying, setAudioData, setFrequencyData, audioSourceValid]);
   
   return (
     <div className="bg-black/50 p-4 rounded-b-xl backdrop-blur-sm">
@@ -439,12 +377,20 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           <Button 
             onClick={handleTogglePlay}
             size="icon"
+            disabled={loadingAudio}
             className={cn(
               "h-10 w-10 rounded-full bg-purple-600 hover:bg-purple-700 text-white",
-              isPlaying ? "animate-pulse" : ""
+              isPlaying ? "animate-pulse" : "",
+              loadingAudio ? "opacity-70 cursor-not-allowed" : ""
             )}
           >
-            {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 ml-0.5" />}
+            {loadingAudio ? (
+              <span className="h-4 w-4 block rounded-full border-2 border-t-transparent border-white animate-spin"></span>
+            ) : isPlaying ? (
+              <Pause className="h-5 w-5" />
+            ) : (
+              <Play className="h-5 w-5 ml-0.5" />
+            )}
           </Button>
           
           <Button 
@@ -462,7 +408,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           <div className="relative w-full h-1.5 bg-gray-700 rounded-full overflow-hidden">
             <div 
               className="absolute h-full bg-purple-500 rounded-full"
-              style={{ width: `${(currentTime / duration) * 100}%` }}
+              style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
             />
             <input
               type="range"

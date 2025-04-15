@@ -34,7 +34,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = (props) => {
   const forcePlay = props.forcePlay || false;
   
   // Get relevant state and functions from the store
-  const { setIsPlaying, setAudioPlaybackError, incrementAudioAttempts, resetAudioAttempts, audioAttempts } = useAppStore();
+  const { setIsPlaying, setAudioPlaybackError } = useAppStore();
   const initializationAttempted = useRef(false);
   const [audioLoaded, setAudioLoaded] = useState(false);
   
@@ -79,22 +79,6 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = (props) => {
     };
   }, [audioSource, forcePlay, props.isPlaying, props.onPlayToggle, setIsPlaying, defaultAudioSource, effectiveAudioSource]);
   
-  // Handle audio loading errors
-  useEffect(() => {
-    if (audioAttempts > 3) {
-      console.log("Multiple audio failures detected, trying alternative strategy");
-      
-      // After multiple failures with the same audio source, try the default audio
-      if (effectiveAudioSource !== defaultAudioSource) {
-        setEffectiveAudioSource(defaultAudioSource);
-        toast.info("Using default audio source due to loading issues");
-      }
-      
-      // Reset counter after changing source
-      resetAudioAttempts();
-    }
-  }, [audioAttempts, effectiveAudioSource, defaultAudioSource, resetAudioAttempts]);
-  
   const handlePlayToggle = (isPlaying: boolean) => {
     console.log("FrequencyPlayer: handlePlayToggle called with", isPlaying);
     
@@ -115,7 +99,6 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = (props) => {
   // Handler for audio loading errors
   const handleAudioError = () => {
     console.log("Audio error detected in FrequencyPlayer");
-    incrementAudioAttempts();
     setAudioPlaybackError("Failed to load audio");
   };
   
@@ -123,7 +106,6 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = (props) => {
   const handleAudioLoaded = () => {
     console.log("Audio successfully loaded");
     setAudioLoaded(true);
-    resetAudioAttempts();
     setAudioPlaybackError(null);
   };
   
