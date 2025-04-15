@@ -1,115 +1,130 @@
 
-import React, { useEffect, useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import { Volume2, Play, Pause } from "lucide-react";
-import { useAudioPlayer } from '@/hooks/useAudioPlayer';
+import React, { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Play, Pause, Eye, EyeOff } from 'lucide-react';
+import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
+import WaveformVisualizer from './WaveformVisualizer';
+import SacredAudioPlayerWithVisualizer from '@/components/audio/SacredAudioPlayerWithVisualizer';
 
 interface FrequencyExperiencePlayerProps {
-  audioUrl: string;
-  title?: string;
+  audioUrl?: string;
   frequency?: number;
-  imageUrl?: string;
+  chakra?: string;
+  description?: string;
+  title?: string;
 }
 
 const FrequencyExperiencePlayer: React.FC<FrequencyExperiencePlayerProps> = ({
-  audioUrl,
-  title = "Frequency Experience",
-  frequency,
-  imageUrl
+  audioUrl = "/frequencies/528hz-love.mp3",
+  frequency = 528,
+  chakra = "heart",
+  title = "Love Frequency",
+  description = "The Love frequency is the 'Miracle' note of the original Solfeggio musical scale."
 }) => {
-  const {
-    isPlaying,
-    togglePlay,
-    duration,
-    currentTime,
-    setAudioSource,
-    setCurrentTime
-  } = useAudioPlayer();
+  const { playAudio, togglePlayPause, isPlaying, currentAudio } = useGlobalAudioPlayer();
+  const [showVisualizer, setShowVisualizer] = useState(true);
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
   
-  const [volume, setVolume] = useState(0.7);
+  const isCurrentTrack = currentAudio?.source === audioUrl;
   
-  // Set the audio source when the component mounts
-  useEffect(() => {
-    if (audioUrl) {
-      setAudioSource(audioUrl);
+  const handlePlayToggle = () => {
+    if (isCurrentTrack) {
+      togglePlayPause();
+    } else {
+      playAudio({
+        title: `${frequency}Hz - ${title}`,
+        source: audioUrl,
+        customData: {
+          frequency,
+          chakra
+        }
+      });
     }
-  }, [audioUrl, setAudioSource]);
-  
-  // Update volume when it changes
-  useEffect(() => {
-    const audioElement = document.getElementById('global-audio-player') as HTMLAudioElement;
-    if (audioElement) {
-      audioElement.volume = volume;
-    }
-  }, [volume]);
-  
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
+
+  // Only show visualizer if we have all required props and it's enabled
+  const shouldShowVisualizer = audioUrl && frequency && showVisualizer;
   
   return (
-    <div className="w-full rounded-lg overflow-hidden shadow-lg bg-white dark:bg-gray-800">
-      {imageUrl && (
-        <div className="relative h-48 overflow-hidden">
-          <img
-            src={imageUrl}
-            alt={title}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-        </div>
-      )}
+    <Card className="w-full max-w-4xl mx-auto overflow-hidden">
+      <div className="relative">
+        {shouldShowVisualizer && (
+          <div className="h-64 bg-black/5 relative">
+            <WaveformVisualizer
+              canvasRef={canvasRef}
+              isPlaying={isPlaying && isCurrentTrack}
+              frequencyHz={frequency}
+              chakra={chakra}
+            />
+          </div>
+        )}
+        
+        {!shouldShowVisualizer && (
+          <div className="h-16 bg-gradient-to-r from-purple-900/20 to-indigo-900/20"></div>
+        )}
+        
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowVisualizer(prev => !prev)}
+          className="absolute top-2 right-2 bg-black/30 hover:bg-black/50 text-white border-none"
+        >
+          {showVisualizer ? (
+            <>
+              <EyeOff className="h-4 w-4 mr-1" />
+              Hide Visuals
+            </>
+          ) : (
+            <>
+              <Eye className="h-4 w-4 mr-1" />
+              Show Visuals
+            </>
+          )}
+        </Button>
+      </div>
       
-      <div className="p-4">
-        <div className="flex justify-between items-center mb-2">
+      <CardContent className="p-4">
+        <div className="flex justify-between items-center mb-4">
           <div>
-            <h3 className="font-bold text-lg">{title}</h3>
-            {frequency && (
-              <p className="text-sm text-purple-600 dark:text-purple-400">{frequency}Hz</p>
-            )}
+            <h3 className="text-xl font-medium">{frequency}Hz - {title}</h3>
+            <p className="text-sm text-gray-500">{description}</p>
           </div>
           
           <Button
-            onClick={togglePlay}
-            variant="outline"
-            size="icon"
-            className="h-10 w-10 rounded-full"
+            onClick={handlePlayToggle}
+            variant="default"
+            size="sm"
+            className="bg-purple-600 hover:bg-purple-700"
           >
-            {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 ml-0.5" />}
+            {isPlaying && isCurrentTrack ? (
+              <>
+                <Pause className="h-4 w-4 mr-1" />
+                Pause
+              </>
+            ) : (
+              <>
+                <Play className="h-4 w-4 mr-1" />
+                Play
+              </>
+            )}
           </Button>
         </div>
         
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <span className="text-xs">{formatTime(currentTime)}</span>
-            <Slider
-              value={[currentTime]}
-              min={0}
-              max={duration || 100}
-              step={1}
-              onValueChange={(value) => setCurrentTime(value[0])}
-              className="flex-1"
-            />
-            <span className="text-xs">{formatTime(duration || 0)}</span>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Volume2 className="h-4 w-4 text-gray-500" />
-            <Slider
-              value={[volume]}
-              min={0}
-              max={1}
-              step={0.01}
-              onValueChange={(value) => setVolume(value[0])}
-              className="flex-1"
-            />
-          </div>
+        <div className="mt-4">
+          {/* We'll use SacredAudioPlayerWithVisualizer for the full experience */}
+          <SacredAudioPlayerWithVisualizer
+            journey={{
+              id: `freq-${frequency}`,
+              title: `${frequency}Hz - ${title}`,
+              audioUrl: audioUrl,
+              chakras: [chakra],
+              frequencies: [frequency]
+            }}
+          />
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

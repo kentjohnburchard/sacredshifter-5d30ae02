@@ -41,6 +41,7 @@ const VisualizerManager: React.FC<VisualizerManagerProps> = ({
   liftedVeil = false
 }) => {
   const [visualizerType, setVisualizerType] = useState<string>("kaleidoscope");
+  const [showVisualizer, setShowVisualizer] = useState(true);
   
   // Prepare frequencies array - include the single frequency if provided
   const freqArray = frequencies.length > 0 ? 
@@ -57,10 +58,16 @@ const VisualizerManager: React.FC<VisualizerManagerProps> = ({
     ? colorScheme.primary 
     : colorScheme;
   
+  // Define shouldShowVisualizer variable to control when visualizer is displayed
+  const shouldShowVisualizer = 
+    !!visualizerType && 
+    showVisualizer && 
+    (isAudioReactive ? !!analyzerNode : true);
+  
   return (
     <div className="visualizer-container relative">
       <div className="visualizer-content w-full h-full">
-        {visualizerType === "kaleidoscope" && (
+        {shouldShowVisualizer && visualizerType === "kaleidoscope" && (
           <KaleidoscopeVisualizer
             size={size}
             isAudioReactive={isAudioReactive}
@@ -70,7 +77,7 @@ const VisualizerManager: React.FC<VisualizerManagerProps> = ({
           />
         )}
         
-        {visualizerType === "primePulse" && (
+        {shouldShowVisualizer && visualizerType === "primePulse" && (
           <PrimePulseVisualizer
             analyzerNode={analyzerNode}
             isPlaying={isPlaying}

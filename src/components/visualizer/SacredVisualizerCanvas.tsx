@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
@@ -407,7 +406,16 @@ const SacredVisualizerCanvas: React.FC<SacredVisualizerCanvasProps> = ({
   enableControls = true,
   enablePostProcessing = false,
 }) => {
+  const shouldRender = typeof visualizerMode === 'string';
   const chakraColor = chakraColors[chakra] || '#a855f7';
+
+  if (!shouldRender) {
+    return (
+      <div className="w-full h-full bg-gradient-to-r from-purple-900/20 to-indigo-900/20 flex items-center justify-center">
+        <p className="text-white/50">Visualizer unavailable</p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full">
@@ -425,7 +433,6 @@ const SacredVisualizerCanvas: React.FC<SacredVisualizerCanvasProps> = ({
         
         {enableControls && <OrbitControls enableZoom={false} enablePan={false} />}
         
-        {/* Add fog for atmosphere */}
         <fog attach="fog" color={chakraColor} near={8} far={20} />
       </Canvas>
     </div>

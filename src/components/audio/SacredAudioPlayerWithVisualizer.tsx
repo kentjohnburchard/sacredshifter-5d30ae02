@@ -55,8 +55,8 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
   // Define shouldShowVisualizer variable to control when visualizer is displayed
   const shouldShowVisualizer = 
     typeof visualizerMode === 'string' &&
-    isPlaying &&
-    showVisualizer &&
+    isPlaying === true &&
+    showVisualizer === true &&
     !!audioData;
 
   // Get chakra colors for styling

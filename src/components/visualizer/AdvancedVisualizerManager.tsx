@@ -34,6 +34,7 @@ const AdvancedVisualizerManager: React.FC<AdvancedVisualizerManagerProps> = ({
   isPlaying = false
 }) => {
   const [visualizerMode, setVisualizerMode] = useState<VisualizerMode>(initialMode);
+  const [showVisualizer, setShowVisualizer] = useState(true);
   
   const handleVisualizerModeChange = (value: string) => {
     if (value) {
@@ -41,16 +42,24 @@ const AdvancedVisualizerManager: React.FC<AdvancedVisualizerManagerProps> = ({
     }
   };
 
+  // Define shouldShowVisualizer variable to control when visualizer is displayed
+  const shouldShowVisualizer = 
+    showVisualizer && 
+    typeof visualizerMode === 'string' && 
+    (audioReactive ? !!frequencyData : true);
+
   return (
     <div className={`sacred-visualizer-container relative w-full h-full ${className}`}>
       {/* Visualizer */}
       <div className="w-full h-full">
-        <SacredVisualizerCanvas
-          frequencyData={audioReactive ? frequencyData : undefined}
-          chakra={chakra as any}
-          visualizerMode={visualizerMode}
-          enableControls={showControls}
-        />
+        {shouldShowVisualizer && (
+          <SacredVisualizerCanvas
+            frequencyData={audioReactive ? frequencyData : undefined}
+            chakra={chakra as any}
+            visualizerMode={visualizerMode}
+            enableControls={showControls}
+          />
+        )}
       </div>
       
       {/* Controls */}
