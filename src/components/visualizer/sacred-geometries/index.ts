@@ -36,6 +36,9 @@ export type SacredGeometryType =
   | 'chakraSpiral'
   | 'multi';
 
+// Re-export VisualizerMode from SacredAudioPlayerWithVisualizer to avoid circular imports
+export type VisualizerMode = 'bars' | 'wave' | 'circle' | 'particles' | SacredGeometryType;
+
 // Configuration interface for geometry visualizers
 export interface GeometryConfig {
   type: SacredGeometryType;
@@ -67,6 +70,3 @@ export interface SacredGeometryProps {
   isActive?: boolean;
   color?: string;
 }
-
-// Re-export VisualizerMode from SacredAudioPlayerWithVisualizer to avoid circular imports
-export type VisualizerMode = 'bars' | 'wave' | 'circle' | 'particles' | SacredGeometryType;

@@ -261,12 +261,12 @@ const JourneyPlayer = () => {
             <CardContent className="pt-6">
               <h2 className="text-2xl font-bold text-red-600 mb-4">Journey Not Found</h2>
               <p className="text-gray-600 mb-6">The journey you're looking for doesn't exist or has been removed.</p>
-              <button 
-                className="bg-purple-600 text-white px-4 py-2 rounded"
+              <Button 
                 onClick={() => navigate('/journey-templates')}
+                className="bg-purple-600 text-white px-4 py-2 rounded"
               >
                 Return to Journeys
-              </button>
+              </Button>
             </CardContent>
           </Card>
         </div>
