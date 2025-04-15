@@ -2,7 +2,6 @@
 import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useSpring, animated } from '@react-spring/three';
 import { SacredGeometryProps } from './types';
 import { useTheme } from '@/context/ThemeContext';
 
@@ -16,7 +15,9 @@ const ChakraBeamGeometry: React.FC<SacredGeometryProps> = ({
   isActive = true
 }) => {
   const groupRef = useRef<THREE.Group>(null);
-  const beamRef = useRef<THREE.Group>(null);
+  const particlesRef = useRef<THREE.Points>(null);
+  const beamRef = useRef<THREE.Mesh>(null);
+  
   const chakraColors = {
     root: '#ef4444',
     sacral: '#f97316',
@@ -26,135 +27,110 @@ const ChakraBeamGeometry: React.FC<SacredGeometryProps> = ({
     'third eye': '#6366f1',
     crown: '#a855f7'
   };
+  
   const color = chakraColors[chakra || 'crown'];
   const { liftTheVeil } = useTheme();
-
-  const { rotation: springRotation, scale: springScale } = useSpring({
-    rotation: [rotation[0], rotation[1] + intensity * Math.PI * 0.4, rotation[2]] as any,
-    scale: scale * (1 + intensity * 0.15),
-    config: { tension: 100, friction: 14 }
-  });
-
-  useFrame((state) => {
+  
+  // Generate particles
+  const particles = useMemo(() => {
+    const particleCount = 100;
+    const positions = new Float32Array(particleCount * 3);
+    
+    for (let i = 0; i < particleCount; i++) {
+      const i3 = i * 3;
+      positions[i3] = (Math.random() - 0.5) * 2;
+      positions[i3 + 1] = (Math.random() - 0.5) * 2;
+      positions[i3 + 2] = (Math.random() - 0.5) * 5;
+    }
+    
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    
+    const material = new THREE.PointsMaterial({
+      size: 0.05,
+      color: color,
+      transparent: true,
+      opacity: 0.6,
+    });
+    
+    return new THREE.Points(geometry, material);
+  }, [color]);
+  
+  useFrame((state, delta) => {
     if (groupRef.current && isActive) {
-      groupRef.current.rotation.y += 0.002;
+      groupRef.current.rotation.y += 0.005;
       
       if (beamRef.current) {
-        // Make the beam pulse
-        beamRef.current.scale.y = 1 + Math.sin(state.clock.getElapsedTime() * 2) * 0.2;
+        beamRef.current.position.y = Math.sin(state.clock.getElapsedTime() * 0.5) * 0.1;
+      }
+      
+      if (particlesRef.current) {
+        particlesRef.current.rotation.y += 0.002;
+        particlesRef.current.rotation.x += 0.001;
       }
       
       if (frequencyData && frequencyData.length > 0) {
         const freqArray = Array.from(frequencyData).map(Number);
-        const avgFreq = freqArray.reduce((sum, val) => sum + val, 0) / freqArray.length;
-        const normalizedFreq = avgFreq / 255;
+        const bassFreq = freqArray.slice(0, 10).reduce((sum, val) => sum + val, 0) / 10;
+        const normalizedBass = bassFreq / 255;
         
-        // Apply audio reactivity
         if (beamRef.current) {
-          beamRef.current.scale.x = 1 + normalizedFreq * 0.3;
-          beamRef.current.scale.z = 1 + normalizedFreq * 0.3;
-          beamRef.current.position.y = normalizedFreq * 0.5;
+          // Adjust the beam's scale based on frequency data
+          beamRef.current.scale.set(
+            1 + normalizedBass * 0.5,
+            1 + normalizedBass * 0.5,
+            1 + normalizedBass * 1.5
+          );
         }
       }
     }
   });
-
-  // Create chakra beam elements
-  const chakraBeamElements = useMemo(() => {
-    const elements: JSX.Element[] = [];
-    const emissiveIntensity = liftTheVeil ? 1.5 : 1.0;
-    
-    // Create the main beam
-    elements.push(
-      <group ref={beamRef} key="beam-group" position={[0, 0, 0]}>
-        <mesh position={[0, 1, 0]}>
-          <cylinderGeometry args={[0.1, 0.5, 2, 16]} />
-          <meshStandardMaterial
-            color={color}
-            emissive={color}
-            emissiveIntensity={emissiveIntensity * 2}
-            transparent
-            opacity={0.7}
-          />
-        </mesh>
-      </group>
-    );
-    
-    // Create chakra discs at different heights
-    const chakraPoints = [
-      { y: -0.6, scale: 0.5, color: '#ef4444' }, // Root
-      { y: -0.4, scale: 0.45, color: '#f97316' }, // Sacral
-      { y: -0.2, scale: 0.4, color: '#facc15' }, // Solar Plexus
-      { y: 0, scale: 0.35, color: '#22c55e' }, // Heart
-      { y: 0.2, scale: 0.3, color: '#3b82f6' }, // Throat
-      { y: 0.4, scale: 0.25, color: '#6366f1' }, // Third Eye
-      { y: 0.6, scale: 0.2, color: '#a855f7' }  // Crown
-    ];
-    
-    chakraPoints.forEach((point, index) => {
-      elements.push(
-        <mesh key={`chakra-disc-${index}`} position={[0, point.y, 0]}>
-          <cylinderGeometry args={[point.scale, point.scale, 0.05, 16]} />
-          <meshStandardMaterial
-            color={point.color}
-            emissive={point.color}
-            emissiveIntensity={emissiveIntensity}
-            transparent
-            opacity={0.8}
-          />
-        </mesh>
-      );
-      
-      // Add particle effects for each chakra
-      const particleCount = 10;
-      for (let i = 0; i < particleCount; i++) {
-        const angle = (i / particleCount) * Math.PI * 2;
-        const radius = point.scale * 1.2;
-        const x = Math.sin(angle) * radius;
-        const z = Math.cos(angle) * radius;
-        
-        elements.push(
-          <mesh key={`chakra-particle-${index}-${i}`} position={[x, point.y, z]}>
-            <sphereGeometry args={[0.03, 8, 8]} />
-            <meshStandardMaterial
-              color={point.color}
-              emissive={point.color}
-              emissiveIntensity={emissiveIntensity * 2}
-            />
-          </mesh>
-        );
-      }
-    });
-    
-    // Add vertical line connecting chakras
-    const linePoints = chakraPoints.map(point => new THREE.Vector3(0, point.y, 0));
-    const lineGeometry = new THREE.BufferGeometry().setFromPoints(linePoints);
-    const lineMaterial = new THREE.LineBasicMaterial({
-      color: '#ffffff',
-      transparent: true,
-      opacity: 0.3
-    });
-    
-    elements.push(
-      <primitive
-        key="chakra-line"
-        object={new THREE.Line(lineGeometry, lineMaterial)}
-      />
-    );
-    
-    return elements;
-  }, [color, liftTheVeil]);
-
+  
   return (
-    <animated.group
-      ref={groupRef}
+    <group 
+      ref={groupRef} 
       position={position}
-      rotation={springRotation}
-      scale={springScale}
+      rotation={rotation}
+      scale={scale}
       visible={isActive}
     >
-      {chakraBeamElements}
-    </animated.group>
+      {/* Central beam */}
+      <mesh ref={beamRef}>
+        <cylinderGeometry args={[0.1, 0.3, 4, 16]} />
+        <meshStandardMaterial 
+          color={color} 
+          emissive={color} 
+          emissiveIntensity={liftTheVeil ? 2.0 : 1.5} 
+          transparent 
+          opacity={0.7}
+        />
+      </mesh>
+      
+      {/* Energy particles */}
+      <primitive ref={particlesRef} object={particles} />
+      
+      {/* Base platform */}
+      <mesh position={[0, -2, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[0.3, 0.5, 32]} />
+        <meshBasicMaterial 
+          color={liftTheVeil ? '#ff69b4' : color} 
+          transparent 
+          opacity={0.8}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      
+      {/* Top glow */}
+      <mesh position={[0, 2, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[0.1, 0.3, 32]} />
+        <meshBasicMaterial 
+          color={liftTheVeil ? '#ff1493' : color} 
+          transparent 
+          opacity={0.8}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+    </group>
   );
 };
 

@@ -57,105 +57,49 @@ const FibonacciSpiralGeometry: React.FC<SacredGeometryProps> = ({
     
     for (let i = 0; i < numPoints; i++) {
       const theta = i * 0.1;
-      const radius = Math.pow(goldenRatio, (2 * theta) / Math.PI) * 0.1;
+      const radius = Math.min((Math.pow(goldenRatio, (2 * theta) / Math.PI) - 1) / 10, maxRadius);
+      
       const x = radius * Math.cos(theta);
       const y = radius * Math.sin(theta);
       
-      if (radius > maxRadius) break;
       points.push(new THREE.Vector3(x, y, 0));
     }
     
     return points;
   }, []);
 
-  // Create the spiral elements
-  const spiralElements = useMemo(() => {
-    const elements: JSX.Element[] = [];
-    const emissiveIntensity = liftTheVeil ? 1.5 : 1.0;
-    const threeColor = new THREE.Color(color);
-    
-    // Create the main spiral line using proper THREE.js approach
-    const lineGeometry = new THREE.BufferGeometry().setFromPoints(spiralPoints);
-    const lineMaterial = new THREE.LineBasicMaterial({
-      color: threeColor,
-      transparent: true,
-      opacity: 0.8
-    });
-    
-    elements.push(
-      <primitive
-        key="main-spiral"
-        object={new THREE.Line(lineGeometry, lineMaterial)}
-      />
-    );
-    
-    // Add points along the spiral
-    spiralPoints.forEach((point, i) => {
-      if (i % 5 === 0) {
-        const pointSize = ((i / spiralPoints.length) * 0.1) + 0.02;
-        
-        elements.push(
-          <mesh key={`point-${i}`} position={[point.x, point.y, point.z]}>
-            <sphereGeometry args={[pointSize, 16, 16]} />
-            <meshStandardMaterial
-              color={color}
-              emissive={color}
-              emissiveIntensity={emissiveIntensity}
-              metalness={0.6}
-              roughness={0.3}
-            />
-          </mesh>
-        );
-      }
-    });
-    
-    // Add some decorative elements
-    elements.push(
-      <mesh key="center-point" position={[0, 0, 0]}>
-        <sphereGeometry args={[0.1, 32, 32]} />
-        <meshStandardMaterial
-          color={color}
-          emissive={color}
-          emissiveIntensity={emissiveIntensity * 2}
-          metalness={0.8}
-          roughness={0.2}
-        />
-      </mesh>
-    );
-    
-    // Add golden ratio circles
-    for (let i = 1; i <= 5; i++) {
-      const radius = i * 0.3;
-      
-      const circlePoints = [];
-      for (let j = 0; j <= 64; j++) {
-        const angle = (j / 64) * Math.PI * 2;
-        circlePoints.push(
-          new THREE.Vector3(
-            Math.cos(angle) * radius,
-            Math.sin(angle) * radius,
-            -0.01
-          )
-        );
-      }
-      
-      const circleGeometry = new THREE.BufferGeometry().setFromPoints(circlePoints);
-      const circleMaterial = new THREE.LineBasicMaterial({
-        color: threeColor,
-        transparent: true,
-        opacity: 0.3
-      });
-      
-      elements.push(
-        <primitive
-          key={`circle-${i}`}
-          object={new THREE.Line(circleGeometry, circleMaterial)}
-        />
+  // Create the geometry from the points
+  const spiralGeometry = useMemo(() => {
+    return new THREE.BufferGeometry().setFromPoints(spiralPoints);
+  }, [spiralPoints]);
+
+  // Create inner glow circles along the spiral
+  const glowCircles = useMemo(() => {
+    return spiralPoints.filter((_, i) => i % 6 === 0).map((point, i) => {
+      const size = 0.05 + (i / spiralPoints.length) * 0.15;
+      return (
+        <mesh key={`glow-${i}`} position={[point.x, point.y, 0]}>
+          <sphereGeometry args={[size, 16, 16]} />
+          <meshStandardMaterial 
+            color={color} 
+            emissive={color} 
+            emissiveIntensity={liftTheVeil ? 1.5 : 1.0}
+            transparent
+            opacity={0.7}
+          />
+        </mesh>
       );
-    }
-    
-    return elements;
+    });
   }, [spiralPoints, color, liftTheVeil]);
+
+  const lineMaterial = useMemo(() => {
+    return new THREE.LineBasicMaterial({
+      color: color,
+      transparent: true,
+      opacity: 0.7,
+      linewidth: 1
+    });
+  }, [color]);
 
   return (
     <animated.group
@@ -165,7 +109,30 @@ const FibonacciSpiralGeometry: React.FC<SacredGeometryProps> = ({
       scale={springScale}
       visible={isActive}
     >
-      {spiralElements}
+      <primitive object={new THREE.Line(spiralGeometry, lineMaterial)} />
+      {glowCircles}
+      
+      {/* Additional decorative elements */}
+      <mesh>
+        <ringGeometry args={[1.8, 2.0, 64]} />
+        <meshBasicMaterial 
+          color={liftTheVeil ? '#ff69b4' : color} 
+          transparent 
+          opacity={0.3} 
+          side={THREE.DoubleSide} 
+        />
+      </mesh>
+      
+      {/* Inner decorative circle */}
+      <mesh>
+        <ringGeometry args={[0.1, 0.2, 32]} />
+        <meshBasicMaterial 
+          color={liftTheVeil ? '#ff1493' : color} 
+          transparent 
+          opacity={0.8} 
+          side={THREE.DoubleSide} 
+        />
+      </mesh>
     </animated.group>
   );
 };
