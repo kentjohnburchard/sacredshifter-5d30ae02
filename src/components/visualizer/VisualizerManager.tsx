@@ -1,44 +1,109 @@
 
-import React, { useState } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
+import React, { useRef, useEffect } from 'react';
 
 interface VisualizerManagerProps {
-  type?: 'kaleidoscope' | 'simple';
   audioRef?: React.RefObject<HTMLAudioElement>;
   isAudioReactive?: boolean;
   colorScheme?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
-  onError?: (error: Error) => void;
 }
 
-const VisualizerManager: React.FC<VisualizerManagerProps> = ({
+export const VisualizerManager: React.FC<VisualizerManagerProps> = ({
   audioRef,
   isAudioReactive = false,
   colorScheme = 'purple',
   size = 'md',
-  onError
 }) => {
-  const [hasError, setHasError] = React.useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationFrameRef = useRef<number>();
+  const analyzerRef = useRef<AnalyserNode | null>(null);
+  
+  // Set up canvas and audio analyzer
+  useEffect(() => {
+    if (!canvasRef.current || !audioRef?.current) return;
+    
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-  React.useEffect(() => {
-    const handleError = (error: ErrorEvent) => {
-      console.error('Visualizer error:', error);
-      setHasError(true);
-      if (onError) {
-        onError(error.error);
+    // Set up audio analyzer if needed
+    if (isAudioReactive && audioRef.current) {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      analyzerRef.current = audioContext.createAnalyser();
+      const source = audioContext.createMediaElementSource(audioRef.current);
+      source.connect(analyzerRef.current);
+      analyzerRef.current.connect(audioContext.destination);
+    }
+
+    // Animation function
+    const animate = () => {
+      if (!ctx || !canvas) return;
+
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Get base color
+      const baseColor = colorScheme === 'purple' ? '#9370db' : 
+                       colorScheme === 'blue' ? '#1e90ff' : 
+                       colorScheme === 'pink' ? '#ff69b4' : '#9370db';
+
+      // Draw visualization
+      if (isAudioReactive && analyzerRef.current) {
+        const bufferLength = analyzerRef.current.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        analyzerRef.current.getByteFrequencyData(dataArray);
+
+        // Calculate average frequency
+        const average = dataArray.reduce((a, b) => a + b) / bufferLength;
+        const radius = (canvas.height / 4) * (1 + average / 512);
+
+        // Draw circle
+        ctx.beginPath();
+        ctx.arc(canvas.width / 2, canvas.height / 2, radius, 0, Math.PI * 2);
+        ctx.fillStyle = `${baseColor}40`;
+        ctx.fill();
+      } else {
+        // Simple pulsing circle when not audio reactive
+        const time = Date.now() / 1000;
+        const radius = canvas.height / 4 * (1 + Math.sin(time) * 0.1);
+        
+        ctx.beginPath();
+        ctx.arc(canvas.width / 2, canvas.height / 2, radius, 0, Math.PI * 2);
+        ctx.fillStyle = `${baseColor}40`;
+        ctx.fill();
       }
+
+      animationFrameRef.current = requestAnimationFrame(animate);
     };
 
-    window.addEventListener('error', handleError);
-    return () => window.removeEventListener('error', handleError);
-  }, [onError]);
+    // Start animation
+    animate();
 
-  // Using a simple visualizer placeholder instead of any complex components
-  // We're completely avoiding KaleidoscopeVisualizer for now until we resolve the issues
-  
-  const baseColor = colorScheme === 'purple' ? '#9370db' : 
-                    colorScheme === 'blue' ? '#1e90ff' :
-                    colorScheme === 'pink' ? '#ff69b4' : '#9370db';
+    // Cleanup
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [audioRef, isAudioReactive, colorScheme]);
+
+  // Handle canvas resize
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    
+    const handleResize = () => {
+      if (!canvasRef.current) return;
+      const canvas = canvasRef.current;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const sizeClass = {
     'sm': 'h-40',
@@ -47,22 +112,12 @@ const VisualizerManager: React.FC<VisualizerManagerProps> = ({
     'xl': 'h-screen'
   }[size] || 'h-64';
 
-  if (hasError) {
-    return (
-      <div className="w-full h-full bg-black/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-        <p className="text-white/50">Visualizer error occurred</p>
-      </div>
-    );
-  }
-
   return (
-    <div className={`w-full ${sizeClass} overflow-hidden rounded-lg bg-gradient-to-br from-black/40 to-black/10 backdrop-blur-sm flex items-center justify-center`}>
-      <div 
-        className="w-24 h-24 rounded-full animate-pulse" 
-        style={{ backgroundColor: `${baseColor}40` }}
+    <div className={`w-full ${sizeClass} overflow-hidden rounded-lg`}>
+      <canvas 
+        ref={canvasRef} 
+        className="w-full h-full bg-black/10 backdrop-blur-sm" 
       />
     </div>
   );
 };
-
-export { VisualizerManager };

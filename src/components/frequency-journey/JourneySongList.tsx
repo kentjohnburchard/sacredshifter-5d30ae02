@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { JourneySong } from '@/types/journey';
 import { formatTime } from '@/lib/utils';
 import FrequencyPlayer from '@/components/FrequencyPlayer';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
+import { SacredAudioPlayer } from '@/components/audio/SacredAudioPlayer';
 
 interface JourneySongListProps {
   songs: JourneySong[];
@@ -85,81 +85,83 @@ const JourneySongList: React.FC<JourneySongListProps> = ({
   }
 
   return (
-    <div className="space-y-2">
-      {songs.map((song, index) => (
-        <Card
-          key={song.id}
-          className={`border transition-all ${selectedSongId === song.id ? 'border-purple-400 bg-purple-50/30' : 'hover:border-purple-200 border-gray-200'}`}
-        >
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <Button
-                  variant={playingIndex === index ? "default" : "outline"}
-                  size="icon"
-                  className={`h-8 w-8 rounded-full ${playingIndex === index ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
-                  onClick={() => handlePlayToggle(song, index)}
-                >
-                  {playingIndex === index && isPlaying ? (
-                    <Pause className="h-4 w-4" />
-                  ) : (
-                    <Play className="h-4 w-4 ml-0.5" />
-                  )}
-                </Button>
-                
-                <div>
-                  <h3 className="font-medium text-sm">{song.title}</h3>
-                  <div className="flex items-center text-xs text-gray-500">
-                    <span className="mr-2">{song.artist || 'Unknown Artist'}</span>
-                    {song.duration && (
-                      <>
-                        <Clock className="h-3 w-3 inline mr-1" />
-                        <span>{formatTime(song.duration)}</span>
-                      </>
+    <div>
+      <div className="space-y-2">
+        {songs.map((song, index) => (
+          <Card
+            key={song.id}
+            className={`border transition-all ${selectedSongId === song.id ? 'border-purple-400 bg-purple-50/30' : 'hover:border-purple-200 border-gray-200'}`}
+          >
+            <CardContent className="p-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <Button
+                    variant={playingIndex === index ? "default" : "outline"}
+                    size="icon"
+                    className={`h-8 w-8 rounded-full ${playingIndex === index ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
+                    onClick={() => handlePlayToggle(song, index)}
+                  >
+                    {playingIndex === index && isPlaying ? (
+                      <Pause className="h-4 w-4" />
+                    ) : (
+                      <Play className="h-4 w-4 ml-0.5" />
                     )}
+                  </Button>
+                  
+                  <div>
+                    <h3 className="font-medium text-sm">{song.title}</h3>
+                    <div className="flex items-center text-xs text-gray-500">
+                      <span className="mr-2">{song.artist || 'Unknown Artist'}</span>
+                      {song.duration && (
+                        <>
+                          <Clock className="h-3 w-3 inline mr-1" />
+                          <span>{formatTime(song.duration)}</span>
+                        </>
+                      )}
+                    </div>
                   </div>
+                </div>
+                
+                <div className="flex items-center">
+                  {song.frequency && (
+                    <Badge variant="outline" className="mr-2 text-xs">
+                      {song.frequency}Hz
+                    </Badge>
+                  )}
+                  {song.chakra && (
+                    <Badge
+                      className="text-xs"
+                      style={{
+                        backgroundColor: getChakraColor(song.chakra),
+                        color: 'white'
+                      }}
+                    >
+                      {song.chakra}
+                    </Badge>
+                  )}
                 </div>
               </div>
               
-              <div className="flex items-center">
-                {song.frequency && (
-                  <Badge variant="outline" className="mr-2 text-xs">
-                    {song.frequency}Hz
-                  </Badge>
-                )}
-                {song.chakra && (
-                  <Badge
-                    className="text-xs"
-                    style={{
-                      backgroundColor: getChakraColor(song.chakra),
-                      color: 'white'
-                    }}
-                  >
-                    {song.chakra}
-                  </Badge>
-                )}
-              </div>
-            </div>
-            
-            {playingIndex === index && (
-              <div className="mt-2 pt-2 border-t border-gray-100">
-                <FrequencyPlayer
-                  audioUrl={song.audioUrl}
-                  frequency={song.frequency}
-                  isPlaying={isPlaying && playingIndex === index}
-                  onPlayToggle={() => handlePlayToggle(song, index)}
-                  size="sm"
-                />
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      ))}
+              {playingIndex === index && (
+                <div className="mt-2 pt-2 border-t border-gray-100">
+                  <FrequencyPlayer
+                    audioUrl={song.audioUrl}
+                    frequency={song.frequency}
+                    isPlaying={isPlaying && playingIndex === index}
+                    onPlayToggle={() => handlePlayToggle(song, index)}
+                    size="sm"
+                  />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <SacredAudioPlayer />
     </div>
   );
 };
 
-// Utility function to get chakra colors
 const getChakraColor = (chakra: string): string => {
   switch (chakra.toLowerCase()) {
     case 'root': return '#FF0000';
