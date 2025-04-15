@@ -3,6 +3,7 @@ import React from "react";
 import Footer from "@/components/navigation/Footer";
 import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
 import Sidebar from "@/components/Sidebar";
+import { useAppStore } from "@/store";
 
 interface LayoutProps {
   children: React.ReactNode;

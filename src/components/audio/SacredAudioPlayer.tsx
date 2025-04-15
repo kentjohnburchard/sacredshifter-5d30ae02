@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
@@ -298,7 +297,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
             analyzerNode={analyser}
             audioRef={audioRef}
             frequency={mainFrequency}
-            chakra={[chakra]} // Fix: Wrap string in array to satisfy TypeScript
+            chakra={chakra ? [chakra] : []}
             isPlaying={isPlaying}
             liftedVeil={liftTheVeil}
           />
