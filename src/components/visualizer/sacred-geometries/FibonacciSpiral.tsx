@@ -25,11 +25,11 @@ const FibonacciSpiralGeometry: React.FC<SacredGeometryProps> = ({
     'third eye': '#6366f1',
     crown: '#a855f7'
   };
-  const color = chakraColors[chakra || 'crown'];
+  const color = chakra ? chakraColors[chakra] || '#a855f7' : '#a855f7';
   const { liftTheVeil } = useTheme();
 
   const { rotation: springRotation, scale: springScale } = useSpring({
-    rotation: [rotation[0], rotation[1] + intensity * Math.PI * 0.3, rotation[2]] as any,
+    rotation: [rotation[0], rotation[1] + intensity * Math.PI * 0.3, rotation[2]],
     scale: scale * (1 + intensity * 0.15),
     config: { tension: 90, friction: 13 }
   });
@@ -92,20 +92,6 @@ const FibonacciSpiralGeometry: React.FC<SacredGeometryProps> = ({
     });
   }, [spiralPoints, color, liftTheVeil]);
 
-  const lineMaterial = useMemo(() => {
-    return new THREE.LineBasicMaterial({
-      color: color,
-      transparent: true,
-      opacity: 0.7,
-      linewidth: 1
-    });
-  }, [color]);
-
-  // Create a line component from the spiral geometry and material
-  const spiralLine = useMemo(() => {
-    return new THREE.Line(spiralGeometry, lineMaterial);
-  }, [spiralGeometry, lineMaterial]);
-
   return (
     <animated.group
       ref={groupRef}
@@ -114,7 +100,24 @@ const FibonacciSpiralGeometry: React.FC<SacredGeometryProps> = ({
       scale={springScale}
       visible={isActive}
     >
-      <primitive object={spiralLine} />
+      <line>
+        <bufferGeometry attach="geometry">
+          <bufferAttribute
+            attach="attributes-position"
+            count={spiralPoints.length}
+            array={new Float32Array(spiralPoints.flatMap(p => [p.x, p.y, p.z]))}
+            itemSize={3}
+          />
+        </bufferGeometry>
+        <lineBasicMaterial
+          attach="material"
+          color={color}
+          transparent={true}
+          opacity={0.7}
+          linewidth={1}
+        />
+      </line>
+      
       {glowCircles}
       
       {/* Additional decorative elements */}

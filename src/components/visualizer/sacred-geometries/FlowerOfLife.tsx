@@ -16,7 +16,7 @@ const FlowerOfLifeGeometry: React.FC<SacredGeometryProps> = ({
   isActive = true
 }) => {
   const groupRef = useRef<THREE.Group>(null);
-  const color = chakra ? {
+  const chakraColors = {
     root: '#ef4444',
     sacral: '#f97316',
     'solar plexus': '#facc15',
@@ -24,11 +24,12 @@ const FlowerOfLifeGeometry: React.FC<SacredGeometryProps> = ({
     throat: '#3b82f6',
     'third eye': '#6366f1',
     crown: '#a855f7'
-  }[chakra] : '#a855f7';
+  };
+  const color = chakra ? chakraColors[chakra] || '#a855f7' : '#a855f7';
   const { liftTheVeil } = useTheme();
 
   const { rotation: springRotation, scale: springScale } = useSpring({
-    rotation: [rotation[0], rotation[1] + intensity * Math.PI * 0.5, rotation[2]] as any,
+    rotation: [rotation[0], rotation[1] + intensity * Math.PI * 0.5, rotation[2]],
     scale: scale * (1 + intensity * 0.2),
     config: { tension: 120, friction: 14 }
   });
@@ -78,16 +79,18 @@ const FlowerOfLifeGeometry: React.FC<SacredGeometryProps> = ({
             );
           }
           
-          const circleGeometry = new THREE.BufferGeometry().setFromPoints(points);
-          const circleMaterial = new THREE.LineBasicMaterial({
-            color: threeColor,
-            transparent: true,
-            opacity: 0.7
-          });
+          const geometry = new THREE.BufferGeometry().setFromPoints(points);
           
-          const circleLineObject = new THREE.LineLoop(circleGeometry, circleMaterial);
           items.push(
-            <primitive key={`circle-${ring}-${i}`} object={circleLineObject} />
+            <line key={`circle-${ring}-${i}`}>
+              <bufferGeometry attach="geometry" {...geometry.attributes} />
+              <lineBasicMaterial
+                attach="material"
+                color={threeColor}
+                transparent={true}
+                opacity={0.7}
+              />
+            </line>
           );
         } else {
           items.push(
@@ -110,21 +113,21 @@ const FlowerOfLifeGeometry: React.FC<SacredGeometryProps> = ({
           const innerX = innerRingRadius * Math.cos(innerAngle);
           const innerY = innerRingRadius * Math.sin(innerAngle);
           
-          const linePoints = [
+          const lineGeometry = new THREE.BufferGeometry().setFromPoints([
             new THREE.Vector3(x, y, 0),
             new THREE.Vector3(innerX, innerY, 0)
-          ];
+          ]);
           
-          const lineGeometry = new THREE.BufferGeometry().setFromPoints(linePoints);
-          const lineMaterial = new THREE.LineBasicMaterial({
-            color: threeColor,
-            transparent: true,
-            opacity: 0.4
-          });
-          
-          const lineObject = new THREE.Line(lineGeometry, lineMaterial);
           items.push(
-            <primitive key={`line-${ring}-${i}`} object={lineObject} />
+            <line key={`line-${ring}-${i}`}>
+              <bufferGeometry attach="geometry" {...lineGeometry.attributes} />
+              <lineBasicMaterial
+                attach="material"
+                color={threeColor}
+                transparent={true}
+                opacity={0.4}
+              />
+            </line>
           );
         }
       }

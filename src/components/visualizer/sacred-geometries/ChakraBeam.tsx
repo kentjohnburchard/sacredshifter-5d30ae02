@@ -44,16 +44,6 @@ const ChakraBeamGeometry: React.FC<SacredGeometryProps> = ({
     return positions;
   }, []);
 
-  // Create particle material
-  const particleMaterial = useMemo(() => {
-    return new THREE.PointsMaterial({
-      size: 0.05,
-      color: color,
-      transparent: true,
-      opacity: 0.6,
-    });
-  }, [color]);
-
   useFrame((state, delta) => {
     if (groupRef.current && isActive) {
       groupRef.current.rotation.y += 0.005;
@@ -105,7 +95,13 @@ const ChakraBeamGeometry: React.FC<SacredGeometryProps> = ({
             itemSize={3}
           />
         </bufferGeometry>
-        {particleMaterial && <primitive object={particleMaterial} attach="material" />}
+        <pointsMaterial
+          size={0.05}
+          color={color}
+          transparent={true}
+          opacity={0.6}
+          sizeAttenuation={true}
+        />
       </points>
       
       {/* Base platform */}
