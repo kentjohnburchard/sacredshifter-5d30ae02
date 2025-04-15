@@ -236,7 +236,7 @@ const MerkabaGeometry = ({ chakra = 'crown', intensity = 0, frequencyData }) => 
         </mesh>
         
         {/* Particles inside */}
-        <Points count={50} positions={Array(150).fill(0).map(() => (Math.random() - 0.5) * 2)}>
+        <Points count={50} positions={Array.from({ length: 150 }).map(() => (Math.random() - 0.5) * 2)}>
           <PointMaterial 
             size={0.05} 
             color={liftTheVeil ? '#ff69b4' : '#9370db'} 
@@ -306,7 +306,7 @@ const TorusGeometry = ({ chakra = 'crown', frequencyData, intensity = 0 }) => {
       
       // If we have frequency data, add audio reactivity
       if (frequencyData && frequencyData.length) {
-        const avg = frequencyData.reduce((acc, val) => acc + val, 0) / frequencyData.length;
+        const avg = Array.from(frequencyData).reduce((acc, val) => acc + val, 0) / frequencyData.length;
         const intensity = avg / 255;
         
         // Modify material properties based on audio
@@ -607,7 +607,7 @@ const ChakraSpiralGeometry = ({ frequencyData, intensity = 0 }) => {
             color={chakraColor}
             attenuation={(t) => t * t}
           >
-            <mesh position={[0.3, 0, 0]} rotation={[0, state => state.clock.getElapsedTime(), 0]}>
+            <mesh position={[0.3, 0, 0]}>
               <sphereGeometry args={[0.05]} />
               <meshBasicMaterial color={chakraColor} />
             </mesh>

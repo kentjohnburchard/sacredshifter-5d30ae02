@@ -30,6 +30,7 @@ const ThemeContext = createContext<ThemeContextType>({
 });
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Fix: Make sure we're using React hooks properly
   const { preferences, saveUserPreferences } = useUserPreferences();
   const { randomQuote, refreshRandomQuote, getRandomQuote } = useLoveQuotes();
   const [currentQuote, setCurrentQuote] = useState("");
@@ -92,10 +93,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       );
       
       // Then update in database
-      await saveUserPreferences({
-        ...preferences,
-        consciousness_mode: mode ? "lift-the-veil" : "standard"
-      });
+      if (saveUserPreferences && preferences) {
+        await saveUserPreferences({
+          ...preferences,
+          consciousness_mode: mode ? "lift-the-veil" : "standard"
+        });
+      }
     } catch (error) {
       console.error("Error toggling Lift the Veil Mode:", error);
       // Revert state if save failed
