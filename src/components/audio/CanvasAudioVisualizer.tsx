@@ -1,7 +1,6 @@
-
 import React, { useRef, useEffect, useState } from 'react';
 import { VisualizerMode } from './SacredAudioPlayerWithVisualizer';
-import { isPrime, calculatePrimeFactors } from '@/lib/primeUtils';
+import { isPrime } from '@/lib/primeUtils';
 import { generatePrimeSequence } from '@/utils/primeCalculations';
 
 interface CanvasAudioVisualizerProps {
@@ -28,14 +27,11 @@ const CanvasAudioVisualizer: React.FC<CanvasAudioVisualizerProps> = ({
   const [growth, setGrowth] = useState(0);
   const lastFrameTimeRef = useRef<number>(0);
 
-  // Generate prime sequence for visualizations
   useEffect(() => {
-    // Generate a sequence of the first 100 prime numbers
     const primes = generatePrimeSequence(100);
     setPrimeSequence(primes);
   }, []);
 
-  // Animation timer for growth effect
   useEffect(() => {
     if (isPlaying) {
       const growthTimer = setInterval(() => {
@@ -47,17 +43,12 @@ const CanvasAudioVisualizer: React.FC<CanvasAudioVisualizerProps> = ({
     }
   }, [isPlaying]);
 
-  // Respond to detected prime frequencies
   useEffect(() => {
     if (primeFrequencies.length > 0) {
-      // Boost growth when primes are detected
       setGrowth(prev => Math.min(prev + 0.2, 1));
-      
-      // You could also do special visualization effects here
     }
   }, [primeFrequencies]);
 
-  // Draw visualization on canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -68,10 +59,7 @@ const CanvasAudioVisualizer: React.FC<CanvasAudioVisualizerProps> = ({
     const width = canvas.width;
     const height = canvas.height;
     
-    // Define the draw function for each visualization mode
-    // These are placed here to avoid reference errors
     const drawFunctions = {
-      // Draw prime flow visualization - the sacred geometry of numbers
       primeFlow: (ctx: CanvasRenderingContext2D, audioData: Uint8Array | undefined, width: number, height: number, color: string) => {
         try {
           ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
@@ -79,25 +67,19 @@ const CanvasAudioVisualizer: React.FC<CanvasAudioVisualizerProps> = ({
           
           const centerX = width / 2;
           const centerY = height / 2;
-          const baseRadius = Math.min(width, height) * 0.3 * growth; // Use growth factor
+          const baseRadius = Math.min(width, height) * 0.3 * growth;
           
-          // Draw orbits based on prime sequence
-          ctx.strokeStyle = color;
-          ctx.lineWidth = 1;
-          
-          // Draw concentric circles for the first few primes
           for (let i = 0; i < 10 && i < primeSequence.length; i++) {
             const prime = primeSequence[i];
             const radius = baseRadius * (prime / 30);
             
-            if (radius <= 0) continue; // Skip if radius is zero or negative
+            if (radius <= 0) continue;
             
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
             ctx.stroke();
           }
           
-          // Draw particles along the orbits that respond to audio
           const maxAudioValue = audioData ? Math.max(...Array.from(audioData)) : 0;
           const audioMultiplier = maxAudioValue / 255;
           const time = performance.now() / 1000;
@@ -108,21 +90,18 @@ const CanvasAudioVisualizer: React.FC<CanvasAudioVisualizerProps> = ({
           
           primeSequence.slice(0, 20).forEach((prime, i) => {
             const orbitRadius = baseRadius * (prime / 30);
-            if (orbitRadius <= 0) return; // Skip if radius is zero or negative
+            if (orbitRadius <= 0) return;
             
-            // Calculate position on orbit
             const angle = (time * (i + 1) * 0.1) % (Math.PI * 2);
             const x = centerX + Math.cos(angle) * orbitRadius;
             const y = centerY + Math.sin(angle) * orbitRadius;
             
-            // Particle size responds to audio
             const particleSize = Math.max(2, (audioMultiplier * 8) * ((i % 3) + 1));
             
             ctx.beginPath();
             ctx.arc(x, y, particleSize, 0, Math.PI * 2);
             ctx.fill();
             
-            // Add "soul" connection lines between particles when primes detected
             if (primeFrequencies.length > 0 && i > 0 && i < primeSequence.length - 1) {
               const prevPrime = primeSequence[i-1];
               const prevRadius = baseRadius * (prevPrime / 30);
@@ -138,18 +117,16 @@ const CanvasAudioVisualizer: React.FC<CanvasAudioVisualizerProps> = ({
             }
           });
           
-          // Draw center soul - grows with the visualization
           const soulSize = 5 + (audioMultiplier * 15) * growth;
           ctx.beginPath();
           ctx.arc(centerX, centerY, soulSize, 0, Math.PI * 2);
           ctx.fillStyle = color;
           ctx.fill();
           
-          // Create ripple effect when prime frequencies are detected
           if (primeFrequencies.length > 0) {
             primeFrequencies.forEach((_, i) => {
               const pulseRadius = (animationProgress + i * 10) * growth;
-              if (pulseRadius > 0) { // Ensure radius is positive
+              if (pulseRadius > 0) {
                 ctx.beginPath();
                 ctx.arc(centerX, centerY, pulseRadius, 0, Math.PI * 2);
                 ctx.strokeStyle = `rgba(${parseInt(color.substring(1, 3), 16)}, ${parseInt(color.substring(3, 5), 16)}, ${parseInt(color.substring(5, 7), 16)}, ${Math.max(0, 1 - pulseRadius / 100)})`;
@@ -162,7 +139,6 @@ const CanvasAudioVisualizer: React.FC<CanvasAudioVisualizerProps> = ({
         }
       },
       
-      // Flower of life visualization that grows based on primes
       flower: (ctx: CanvasRenderingContext2D, audioData: Uint8Array | undefined, width: number, height: number, color: string) => {
         try {
           ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
@@ -172,21 +148,17 @@ const CanvasAudioVisualizer: React.FC<CanvasAudioVisualizerProps> = ({
           const centerY = height / 2;
           const maxRadius = Math.min(width, height) * 0.4 * growth;
           
-          // Draw flower of life pattern
           const drawFlower = (radius: number, iterations: number, audioLevel: number) => {
             if (iterations <= 0 || radius <= 0) return;
             
-            // Calculate circle radius based on audio level
             const circleRadius = Math.max(5, radius * (0.7 + audioLevel * 0.3));
             
-            // Draw center circle
             ctx.beginPath();
             ctx.arc(centerX, centerY, circleRadius, 0, Math.PI * 2);
             ctx.strokeStyle = color;
             ctx.lineWidth = 1.5;
             ctx.stroke();
             
-            // Draw surrounding circles
             const numPetals = 6;
             for (let i = 0; i < numPetals; i++) {
               const angle = (i / numPetals) * Math.PI * 2;
@@ -198,7 +170,6 @@ const CanvasAudioVisualizer: React.FC<CanvasAudioVisualizerProps> = ({
               ctx.stroke();
             }
             
-            // Recursively draw smaller flowers
             drawFlower(radius * 0.5, iterations - 1, audioLevel);
           };
           
@@ -208,7 +179,6 @@ const CanvasAudioVisualizer: React.FC<CanvasAudioVisualizerProps> = ({
           
           drawFlower(maxRadius, 3, audioLevel);
           
-          // Add particle effects when primes are detected
           if (primeFrequencies.length > 0) {
             ctx.fillStyle = color;
             const time = performance.now() / 1000;
@@ -230,7 +200,6 @@ const CanvasAudioVisualizer: React.FC<CanvasAudioVisualizerProps> = ({
         }
       },
       
-      // Sacred geometry visualization
       sacred: (ctx: CanvasRenderingContext2D, audioData: Uint8Array | undefined, width: number, height: number, color: string) => {
         try {
           ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
@@ -240,7 +209,6 @@ const CanvasAudioVisualizer: React.FC<CanvasAudioVisualizerProps> = ({
           const centerY = height / 2;
           const radius = Math.min(width, height) * 0.4 * growth;
           
-          // Draw merkaba (two interlocking tetrahedra)
           const time = performance.now() / 1000;
           const audioLevel = audioData ? 
             Array.from(audioData).reduce((sum, val) => sum + val, 0) / (audioData.length * 255) : 
@@ -248,7 +216,6 @@ const CanvasAudioVisualizer: React.FC<CanvasAudioVisualizerProps> = ({
           
           const rotationOffset = time * 0.2;
           
-          // Draw first triangle (pointing up)
           ctx.strokeStyle = color;
           ctx.lineWidth = 1.5;
           ctx.beginPath();
@@ -276,7 +243,6 @@ const CanvasAudioVisualizer: React.FC<CanvasAudioVisualizerProps> = ({
           
           ctx.stroke();
           
-          // Draw second triangle (pointing down)
           ctx.beginPath();
           
           const triangle2Points = [
@@ -302,7 +268,6 @@ const CanvasAudioVisualizer: React.FC<CanvasAudioVisualizerProps> = ({
           
           ctx.stroke();
           
-          // Draw connecting lines when primes detected
           if (primeFrequencies.length > 0) {
             ctx.beginPath();
             for (let i = 0; i < 3; i++) {
@@ -311,7 +276,6 @@ const CanvasAudioVisualizer: React.FC<CanvasAudioVisualizerProps> = ({
             }
             ctx.stroke();
             
-            // Add particles at intersections
             const points = [...triangle1Points, ...triangle2Points];
             ctx.fillStyle = color;
             
@@ -326,7 +290,6 @@ const CanvasAudioVisualizer: React.FC<CanvasAudioVisualizerProps> = ({
         }
       },
       
-      // Original visualizations kept for compatibility
       bars: (ctx: CanvasRenderingContext2D, audioData: Uint8Array | undefined, width: number, height: number, color: string) => {
         if (!audioData) return;
         
@@ -348,7 +311,6 @@ const CanvasAudioVisualizer: React.FC<CanvasAudioVisualizerProps> = ({
             const percent = value / 255;
             const barHeight = percent * height;
             
-            // Highlight bars that correspond to prime frequencies
             if (isPrime(i + 20)) {
               ctx.fillStyle = '#ffffff';
             } else {
@@ -428,7 +390,6 @@ const CanvasAudioVisualizer: React.FC<CanvasAudioVisualizerProps> = ({
             const percent = value / 255;
             const angle = i * angleStep;
             
-            // Highlight segments that correspond to prime frequencies
             if (isPrime(i + 20)) {
               ctx.strokeStyle = '#ffffff';
             } else {
@@ -501,10 +462,8 @@ const CanvasAudioVisualizer: React.FC<CanvasAudioVisualizerProps> = ({
       
       if (!ctx || !canvas) return;
       
-      // Set canvas background
       ctx.clearRect(0, 0, width, height);
       
-      // Choose visualization based on mode
       const visualizationFunction = drawFunctions[visualizerMode] || drawFunctions['bars'];
       try {
         visualizationFunction(ctx, audioData, width, height, colorScheme);
@@ -512,18 +471,15 @@ const CanvasAudioVisualizer: React.FC<CanvasAudioVisualizerProps> = ({
         console.error(`Error in ${visualizerMode} visualization:`, error);
       }
       
-      // Continue animation loop
       animationFrameRef.current = requestAnimationFrame(draw);
     };
     
-    // Handle canvas resize
     const resizeCanvas = () => {
       if (!canvas || !ctx) return;
       
       const container = canvas.parentElement;
       if (!container) return;
       
-      // Apply high DPI scaling
       const dpr = window.devicePixelRatio || 1;
       canvas.width = container.clientWidth * dpr;
       canvas.height = container.clientHeight * dpr;
@@ -532,19 +488,15 @@ const CanvasAudioVisualizer: React.FC<CanvasAudioVisualizerProps> = ({
       ctx.scale(dpr, dpr);
     };
     
-    // Initial resize
     resizeCanvas();
     
-    // Add resize listener
     window.addEventListener('resize', resizeCanvas);
     
-    // Start animation if playing
     if (isPlaying) {
       lastFrameTimeRef.current = performance.now();
       animationFrameRef.current = requestAnimationFrame(draw);
     }
     
-    // Clean up
     return () => {
       if (animationFrameRef.current !== null) {
         cancelAnimationFrame(animationFrameRef.current);

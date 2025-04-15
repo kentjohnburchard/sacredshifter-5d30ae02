@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { JourneyProps } from '@/types/journey';
@@ -12,13 +11,27 @@ import { toast } from 'sonner';
 interface SacredAudioPlayerProps {
   journey?: JourneyProps;
   audioUrl?: string;
+  url?: string; // Added for compatibility with FrequencyPlayer
+  frequency?: number; // Added for frequency visualization
+  isPlaying?: boolean; // Added for external control
+  onPlayToggle?: (isPlaying: boolean) => void; // Added for external control
   forcePlay?: boolean;
+  frequencyId?: string; // Added for tracking
+  groupId?: string; // Added for grouping
+  id?: string; // Added for identification
 }
 
 const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   journey,
   audioUrl,
-  forcePlay = false
+  url, // Support legacy 'url' prop
+  frequency,
+  isPlaying: externalIsPlaying,
+  onPlayToggle,
+  forcePlay = false,
+  frequencyId,
+  groupId,
+  id
 }) => {
   const {
     togglePlay,
@@ -26,7 +39,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     setAudioSource,
     duration,
     currentTime,
-    isPlaying,
+    isPlaying: internalIsPlaying,
     audioRef,
     audioLoaded
   } = useAudioPlayer();
@@ -38,6 +51,10 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const analyserRef = useRef<AnalyserNode | null>(null);
   const audioSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
 
+  // Determine if we're in controlled or uncontrolled mode
+  const isControlledMode = externalIsPlaying !== undefined;
+  const isPlaying = isControlledMode ? externalIsPlaying : internalIsPlaying;
+
   // Format time to mm:ss
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
@@ -47,11 +64,26 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
 
   // Set audio source when component mounts or audioUrl changes
   useEffect(() => {
-    if (audioUrl) {
-      console.log("Setting audio source:", audioUrl);
-      setAudioSource(audioUrl);
+    const effectiveUrl = audioUrl || url; // Use either audioUrl or url prop
+    if (effectiveUrl) {
+      console.log("Setting audio source:", effectiveUrl);
+      setAudioSource(effectiveUrl);
     }
-  }, [audioUrl, setAudioSource]);
+  }, [audioUrl, url, setAudioSource]);
+
+  // Handle play/pause toggling with internal/external state management
+  const handleTogglePlay = () => {
+    // Toggle the internal player state
+    togglePlay();
+    
+    // If we're in controlled mode, call the callback
+    if (isControlledMode && onPlayToggle) {
+      onPlayToggle(!isPlaying);
+    } else {
+      // Otherwise, update the global state
+      setIsPlaying(!isPlaying);
+    }
+  };
 
   // Set up audio analyser
   useEffect(() => {
@@ -161,12 +193,11 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
       // Small delay to ensure everything is ready
       setTimeout(() => {
         if (!isPlaying) {
-          togglePlay();
-          setIsPlaying(true);
+          handleTogglePlay();
         }
       }, 500);
     }
-  }, [forcePlay, audioLoaded, isPlaying, togglePlay, setIsPlaying]);
+  }, [forcePlay, audioLoaded, isPlaying]);
   
   // Handle errors
   useEffect(() => {
@@ -192,10 +223,10 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
         <div className="flex justify-between items-center mb-2">
           <div className="flex-1 overflow-hidden">
             <p className="text-sm font-medium truncate">
-              {journey?.title || "Sacred Frequency"}
+              {journey?.title || (frequency ? `${frequency} Hz` : "Sacred Frequency")}
             </p>
             <p className="text-xs text-gray-400 truncate">
-              {journey?.frequencies?.length ? `${journey.frequencies[0]} Hz` : "432 Hz"} | 
+              {frequency ? `${frequency} Hz` : (journey?.frequencies?.length ? `${journey.frequencies[0]} Hz` : "432 Hz")} | 
               {journey?.chakras?.length ? ` ${journey.chakras[0]} Chakra` : " Crown Chakra"}
             </p>
           </div>
@@ -247,7 +278,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           </Button>
           
           <Button 
-            onClick={togglePlay}
+            onClick={handleTogglePlay}
             size="icon"
             className={cn(
               "h-10 w-10 rounded-full bg-purple-600 hover:bg-purple-700 text-white",

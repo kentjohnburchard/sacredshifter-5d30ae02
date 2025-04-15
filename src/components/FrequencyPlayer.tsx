@@ -7,7 +7,7 @@ export interface FrequencyPlayerProps {
   url?: string;
   frequency?: number;
   isPlaying?: boolean;
-  onPlayToggle?: () => void;
+  onPlayToggle?: (isPlaying: boolean) => void;
   frequencyId?: string;
   groupId?: string;
   id?: string;

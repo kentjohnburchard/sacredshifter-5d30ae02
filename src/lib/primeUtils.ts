@@ -14,6 +14,37 @@ export const isPrime = (num: number): boolean => {
 };
 
 /**
+ * Calculate prime factors of a given number
+ * @param num The number to factorize
+ * @returns Array of prime factors
+ */
+export const calculatePrimeFactors = (num: number): number[] => {
+  const factors: number[] = [];
+  if (num <= 0) return factors;
+  
+  // Handle division by 2
+  while (num % 2 === 0) {
+    factors.push(2);
+    num /= 2;
+  }
+  
+  // Handle other prime factors
+  for (let i = 3; i <= Math.sqrt(num); i += 2) {
+    while (num % i === 0) {
+      factors.push(i);
+      num /= i;
+    }
+  }
+  
+  // If num is a prime number greater than 2
+  if (num > 2) {
+    factors.push(num);
+  }
+  
+  return factors;
+};
+
+/**
  * Analyzes a frequency to determine if it's prime and other properties
  * @param frequency The frequency to analyze
  * @param tolerance The margin of error for rounding
