@@ -2,10 +2,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
-import EnhancedGeometryVisualizer from '@/components/sacred-geometry/EnhancedGeometryVisualizer';
 import { useTheme } from '@/context/ThemeContext';
 import { Slider } from '@/components/ui/slider';
 import { formatTime } from '@/lib/utils';
+import KaleidoscopeVisualizer from '@/components/visualizer/KaleidoscopeVisualizer'; 
 
 const SacredAudioPlayer: React.FC = () => {
   const {
@@ -24,7 +24,7 @@ const SacredAudioPlayer: React.FC = () => {
   const [isSeeking, setIsSeeking] = useState(false);
   const [seekTime, setSeekTime] = useState(0);
   const { liftTheVeil } = useTheme();
-  const [geometryExpanded, setGeometryExpanded] = useState(false);
+  const [visualizerExpanded, setVisualizerExpanded] = useState(false);
 
   const handleSeekMouseDown = () => {
     setIsSeeking(true);
@@ -106,14 +106,15 @@ const SacredAudioPlayer: React.FC = () => {
         )}
       </div>
       
-      {/* Sacred Geometry Visualizer */}
-      <div className={`w-full max-w-4xl mx-auto mt-4 mb-4 ${geometryExpanded ? 'z-30' : 'z-10'}`}>
-        <EnhancedGeometryVisualizer 
-          showControls={true}
+      {/* Kaleidoscope Visualizer (replacing Sacred Geometry) */}
+      <div className={`w-full max-w-4xl mx-auto mt-4 mb-4 ${visualizerExpanded ? 'z-30' : 'z-10'}`}>
+        <KaleidoscopeVisualizer 
+          audioRef={audioRef}
           isAudioReactive={true}
-          expandable={true}
-          onExpandStateChange={setGeometryExpanded}
-          mode={liftTheVeil ? 'spiral' : 'fractal'}
+          colorScheme={liftTheVeil ? 'pink' : 'purple'}
+          size="md"
+          speed={1.2}
+          reflections={liftTheVeil ? 12 : 8}
         />
       </div>
     </div>
