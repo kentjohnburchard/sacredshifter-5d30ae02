@@ -71,20 +71,20 @@ const FibonacciSpiralGeometry: React.FC<SacredGeometryProps> = ({
   const spiralElements = React.useMemo(() => {
     const elements: JSX.Element[] = [];
     const emissiveIntensity = liftTheVeil ? 1.5 : 1.0;
+    const threeColor = new THREE.Color(color);
     
     // Create the main spiral line using proper THREE.js approach
     const lineGeometry = new THREE.BufferGeometry().setFromPoints(spiralPoints);
+    const lineMaterial = new THREE.LineBasicMaterial({
+      color: threeColor,
+      transparent: true,
+      opacity: 0.8
+    });
+    
     elements.push(
       <primitive
         key="main-spiral"
-        object={new THREE.Line(
-          lineGeometry,
-          new THREE.LineBasicMaterial({
-            color: color,
-            transparent: true,
-            opacity: 0.8
-          })
-        )}
+        object={new THREE.Line(lineGeometry, lineMaterial)}
       />
     );
     
@@ -126,15 +126,30 @@ const FibonacciSpiralGeometry: React.FC<SacredGeometryProps> = ({
     for (let i = 1; i <= 5; i++) {
       const radius = i * 0.3;
       
+      const circlePoints = [];
+      for (let j = 0; j <= 64; j++) {
+        const angle = (j / 64) * Math.PI * 2;
+        circlePoints.push(
+          new THREE.Vector3(
+            Math.cos(angle) * radius,
+            Math.sin(angle) * radius,
+            -0.01
+          )
+        );
+      }
+      
+      const circleGeometry = new THREE.BufferGeometry().setFromPoints(circlePoints);
+      const circleMaterial = new THREE.LineBasicMaterial({
+        color: threeColor,
+        transparent: true,
+        opacity: 0.3
+      });
+      
       elements.push(
-        <mesh key={`circle-${i}`} position={[0, 0, -0.01]}>
-          <ringGeometry args={[radius, radius + 0.01, 64]} />
-          <meshBasicMaterial
-            color={color}
-            transparent={true}
-            opacity={0.3}
-          />
-        </mesh>
+        <primitive
+          key={`circle-${i}`}
+          object={new THREE.Line(circleGeometry, circleMaterial)}
+        />
       );
     }
     

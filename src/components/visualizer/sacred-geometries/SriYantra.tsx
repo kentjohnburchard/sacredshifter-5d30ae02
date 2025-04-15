@@ -52,6 +52,7 @@ const SriYantraGeometry: React.FC<SacredGeometryProps> = ({
     const elements: JSX.Element[] = [];
     const outerRadius = 1;
     const emissiveIntensity = liftTheVeil ? 1.5 : 1.0;
+    const lineColor = new THREE.Color(color);
     
     // Create upward-pointing triangles
     for (let i = 0; i < 4; i++) {
@@ -59,31 +60,23 @@ const SriYantraGeometry: React.FC<SacredGeometryProps> = ({
       const zOffset = i * 0.01;
       
       const trianglePoints = [
-        new THREE.Vector2(0, outerRadius * scale),
-        new THREE.Vector2(-outerRadius * scale * 0.866, -outerRadius * scale * 0.5),
-        new THREE.Vector2(outerRadius * scale * 0.866, -outerRadius * scale * 0.5),
+        new THREE.Vector3(0, outerRadius * scale, zOffset),
+        new THREE.Vector3(-outerRadius * scale * 0.866, -outerRadius * scale * 0.5, zOffset),
+        new THREE.Vector3(outerRadius * scale * 0.866, -outerRadius * scale * 0.5, zOffset),
+        new THREE.Vector3(0, outerRadius * scale, zOffset) // Close the triangle
       ];
       
-      const triangleShape = new THREE.Shape(trianglePoints);
-      const triangleGeometry = new THREE.ShapeGeometry(triangleShape);
-      
-      // Create edges properly using THREE.js directly
-      const edges = new THREE.EdgesGeometry(triangleGeometry);
-      const lineGeometry = new THREE.BufferGeometry();
-      lineGeometry.setAttribute('position', edges.getAttribute('position'));
+      const lineGeometry = new THREE.BufferGeometry().setFromPoints(trianglePoints);
+      const lineMaterial = new THREE.LineBasicMaterial({
+        color: lineColor,
+        transparent: true,
+        opacity: 0.6
+      });
       
       elements.push(
         <primitive
           key={`upward-triangle-${i}`}
-          object={new THREE.LineSegments(
-            lineGeometry,
-            new THREE.LineBasicMaterial({
-              color: color,
-              transparent: true,
-              opacity: 0.6
-            })
-          )}
-          position={[0, 0, zOffset]}
+          object={new THREE.LineLoop(lineGeometry, lineMaterial)}
         />
       );
     }
@@ -94,53 +87,51 @@ const SriYantraGeometry: React.FC<SacredGeometryProps> = ({
       const zOffset = i * 0.01 + 0.005;
       
       const trianglePoints = [
-        new THREE.Vector2(0, -outerRadius * scale),
-        new THREE.Vector2(-outerRadius * scale * 0.866, outerRadius * scale * 0.5),
-        new THREE.Vector2(outerRadius * scale * 0.866, outerRadius * scale * 0.5),
+        new THREE.Vector3(0, -outerRadius * scale, zOffset),
+        new THREE.Vector3(-outerRadius * scale * 0.866, outerRadius * scale * 0.5, zOffset),
+        new THREE.Vector3(outerRadius * scale * 0.866, outerRadius * scale * 0.5, zOffset),
+        new THREE.Vector3(0, -outerRadius * scale, zOffset) // Close the triangle
       ];
       
-      const triangleShape = new THREE.Shape(trianglePoints);
-      const triangleGeometry = new THREE.ShapeGeometry(triangleShape);
-      
-      // Create edges properly using THREE.js directly
-      const edges = new THREE.EdgesGeometry(triangleGeometry);
-      const lineGeometry = new THREE.BufferGeometry();
-      lineGeometry.setAttribute('position', edges.getAttribute('position'));
+      const lineGeometry = new THREE.BufferGeometry().setFromPoints(trianglePoints);
+      const lineMaterial = new THREE.LineBasicMaterial({
+        color: lineColor,
+        transparent: true,
+        opacity: 0.6
+      });
       
       elements.push(
         <primitive
           key={`downward-triangle-${i}`}
-          object={new THREE.LineSegments(
-            lineGeometry,
-            new THREE.LineBasicMaterial({
-              color: color,
-              transparent: true,
-              opacity: 0.6
-            })
-          )}
-          position={[0, 0, zOffset]}
+          object={new THREE.LineLoop(lineGeometry, lineMaterial)}
         />
       );
     }
     
     // Create outer circle
-    const circleGeometry = new THREE.CircleGeometry(outerRadius, 64);
-    const circleEdges = new THREE.EdgesGeometry(circleGeometry);
-    const circleLineGeometry = new THREE.BufferGeometry();
-    circleLineGeometry.setAttribute('position', circleEdges.getAttribute('position'));
+    const circlePoints = [];
+    for (let i = 0; i <= 64; i++) {
+      const angle = (i / 64) * Math.PI * 2;
+      circlePoints.push(
+        new THREE.Vector3(
+          Math.cos(angle) * outerRadius,
+          Math.sin(angle) * outerRadius,
+          -0.01
+        )
+      );
+    }
+    
+    const circleGeometry = new THREE.BufferGeometry().setFromPoints(circlePoints);
+    const circleMaterial = new THREE.LineBasicMaterial({
+      color: lineColor,
+      transparent: true,
+      opacity: 0.4
+    });
     
     elements.push(
       <primitive
         key="outer-circle"
-        object={new THREE.LineSegments(
-          circleLineGeometry,
-          new THREE.LineBasicMaterial({
-            color: color,
-            transparent: true,
-            opacity: 0.4
-          })
-        )}
-        position={[0, 0, -0.01]}
+        object={new THREE.Line(circleGeometry, circleMaterial)}
       />
     );
     

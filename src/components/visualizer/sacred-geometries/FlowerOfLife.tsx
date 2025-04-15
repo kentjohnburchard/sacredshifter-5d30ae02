@@ -53,6 +53,7 @@ const FlowerOfLifeGeometry: React.FC<SacredGeometryProps> = ({
     const items: JSX.Element[] = [];
     const circleRadius = 0.5;
     const emissiveIntensity = liftTheVeil ? 1.2 : 0.8;
+    const threeColor = new THREE.Color(color);
 
     for (let ring = 0; ring < 4; ring++) {
       const ringRadius = ring * circleRadius * Math.sqrt(3);
@@ -64,18 +65,31 @@ const FlowerOfLifeGeometry: React.FC<SacredGeometryProps> = ({
         const y = ringRadius * Math.sin(angle);
 
         if (ring % 2 === 0 || i % 3 === 0) {
+          // Create circle points
+          const points = [];
+          for (let j = 0; j <= 64; j++) {
+            const circleAngle = (j / 64) * Math.PI * 2;
+            points.push(
+              new THREE.Vector3(
+                x + Math.cos(circleAngle) * circleRadius,
+                y + Math.sin(circleAngle) * circleRadius,
+                0
+              )
+            );
+          }
+          
+          const circleGeometry = new THREE.BufferGeometry().setFromPoints(points);
+          const circleMaterial = new THREE.LineBasicMaterial({
+            color: threeColor,
+            transparent: true,
+            opacity: 0.7
+          });
+          
           items.push(
-            <mesh key={`circle-${ring}-${i}`} position={[x, y, 0]}>
-              <circleGeometry args={[circleRadius, 64]} />
-              <meshStandardMaterial
-                color={color}
-                emissive={color}
-                emissiveIntensity={emissiveIntensity}
-                wireframe
-                transparent
-                opacity={0.7}
-              />
-            </mesh>
+            <primitive
+              key={`circle-${ring}-${i}`}
+              object={new THREE.LineLoop(circleGeometry, circleMaterial)}
+            />
           );
         } else {
           items.push(
@@ -98,23 +112,22 @@ const FlowerOfLifeGeometry: React.FC<SacredGeometryProps> = ({
           const innerX = innerRingRadius * Math.cos(innerAngle);
           const innerY = innerRingRadius * Math.sin(innerAngle);
           
-          // Create a proper THREE.js line
-          const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+          const linePoints = [
             new THREE.Vector3(x, y, 0),
             new THREE.Vector3(innerX, innerY, 0)
-          ]);
+          ];
+          
+          const lineGeometry = new THREE.BufferGeometry().setFromPoints(linePoints);
+          const lineMaterial = new THREE.LineBasicMaterial({
+            color: threeColor,
+            transparent: true,
+            opacity: 0.4
+          });
           
           items.push(
             <primitive
               key={`line-${ring}-${i}`}
-              object={new THREE.Line(
-                lineGeometry,
-                new THREE.LineBasicMaterial({
-                  color: color,
-                  transparent: true,
-                  opacity: 0.4
-                })
-              )}
+              object={new THREE.Line(lineGeometry, lineMaterial)}
             />
           );
         }
