@@ -61,12 +61,13 @@ export function useGlobalAudioPlayer() {
     internalTogglePlay();
     
     // The state will be updated via the event listener, but this makes the UI more responsive
-    setIsPlaying(prev => !prev);
-    setGlobalIsPlaying(prev => !prev);
+    const newIsPlaying = !isPlaying;
+    setIsPlaying(newIsPlaying);
+    setGlobalIsPlaying(newIsPlaying);
     
     const event = new CustomEvent('togglePlayPause');
     window.dispatchEvent(event);
-  }, [internalTogglePlay, setGlobalIsPlaying]);
+  }, [internalTogglePlay, setGlobalIsPlaying, isPlaying]);
 
   /**
    * Set a callback to be run when audio finishes playing
@@ -81,8 +82,9 @@ export function useGlobalAudioPlayer() {
   // Listen for audio state changes from the player
   useEffect(() => {
     const handlePlayStateChange = (event: CustomEvent) => {
-      setIsPlaying(event.detail.isPlaying);
-      setGlobalIsPlaying(event.detail.isPlaying);
+      const newIsPlaying = event.detail.isPlaying;
+      setIsPlaying(newIsPlaying);
+      setGlobalIsPlaying(newIsPlaying);
       
       // If audio was stopped/changed, also update currentAudio
       if (event.detail.currentAudio) {

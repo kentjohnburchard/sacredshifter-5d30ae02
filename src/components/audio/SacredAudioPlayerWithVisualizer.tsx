@@ -26,13 +26,16 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
   const chakra = journey?.chakras?.[0]?.toLowerCase() as any;
   
   // Determine which visualizer mode to use based on journey theme
-  const visualizerMode = journey?.visualTheme === 'merkaba' 
-    ? 'merkaba' 
-    : journey?.visualTheme === 'flower-of-life' 
-      ? 'flowerOfLife' 
-      : journey?.visualTheme === 'torus' 
-        ? 'torus' 
-        : 'customPrimePulse';
+  let visualizerMode: 'flowerOfLife' | 'merkaba' | 'torus' | 'customPrimePulse' = 'customPrimePulse';
+  
+  if (journey?.visualTheme === 'merkaba') {
+    visualizerMode = 'merkaba';
+  } else if (journey?.visualTheme === 'flower-of-life') {
+    visualizerMode = 'flowerOfLife';
+  } else if (journey?.visualTheme === 'torus') { 
+    // Check if 'torus' is included in the visual theme
+    visualizerMode = 'torus';
+  }
 
   return (
     <div className="sacred-audio-player-with-visualizer">
