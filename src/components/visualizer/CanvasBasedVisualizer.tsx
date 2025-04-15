@@ -742,11 +742,14 @@ const CanvasBasedVisualizer: React.FC<CanvasBasedVisualizerProps> = ({
       // Add ripple effect from center
       for (let i = 0; i < 3; i++) {
         const pulseRadius = ((time * 10) % 100) + i * 30;
-        ctx.beginPath();
-        ctx.arc(0, 0, pulseRadius, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(${parseInt(chakraColor.slice(1, 3), 16)}, ${parseInt(chakraColor.slice(3, 5), 16)}, ${parseInt(chakraColor.slice(5, 7), 16)}, ${0.5 - pulseRadius / 200})`;
-        ctx.lineWidth = 1;
-        ctx.stroke();
+        // Ensure radius is positive before drawing
+        if (pulseRadius > 0) {
+          ctx.beginPath();
+          ctx.arc(0, 0, pulseRadius, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(${parseInt(chakraColor.slice(1, 3), 16)}, ${parseInt(chakraColor.slice(3, 5), 16)}, ${parseInt(chakraColor.slice(5, 7), 16)}, ${Math.max(0, 0.5 - pulseRadius / 200)})`;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
       }
       
       ctx.restore();
@@ -766,7 +769,8 @@ const CanvasBasedVisualizer: React.FC<CanvasBasedVisualizerProps> = ({
             if (isPrime(j)) {
               // Found a prime number
               const orbitAngle = time * particle.speed + i;
-              const orbitRadius = 5 + Math.sin(time + i) * 2;
+              // Ensure orbit radius is always positive
+              const orbitRadius = Math.max(0, 5 + Math.sin(time + i) * 2);
               
               const x = centerX + Math.cos(pAngle) * pRadius + Math.cos(orbitAngle) * orbitRadius;
               const y = centerY + Math.sin(pAngle) * pRadius + Math.sin(orbitAngle) * orbitRadius;
@@ -907,34 +911,43 @@ const CanvasBasedVisualizer: React.FC<CanvasBasedVisualizerProps> = ({
       ctx.fillStyle = bgGradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // Draw visualization based on selected mode
-      switch (visualizerMode) {
-        case 'flowerOfLife':
-          drawFlowerOfLife(ctx, time);
-          break;
-        case 'merkaba':
-          drawMerkaba(ctx, time);
-          break;
-        case 'metatronCube':
-          drawMetatronCube(ctx, time);
-          break;
-        case 'sriYantra':
-          drawSriYantra(ctx, time);
-          break;
-        case 'fibonacciSpiral':
-          drawFibonacciSpiral(ctx, time);
-          break;
-        case 'chakraBeam':
-          drawChakraBeam(ctx, time);
-          break;
-        case 'primeFlow':
-          drawPrimeFlow(ctx, time);
-          break;
-        case 'chakraSpiral':
-          drawChakraSpiral(ctx, time);
-          break;
-        default:
-          drawFlowerOfLife(ctx, time);
+      try {
+        // Draw visualization based on selected mode
+        switch (visualizerMode) {
+          case 'flowerOfLife':
+            drawFlowerOfLife(ctx, time);
+            break;
+          case 'merkaba':
+            drawMerkaba(ctx, time);
+            break;
+          case 'metatronCube':
+            drawMetatronCube(ctx, time);
+            break;
+          case 'sriYantra':
+            drawSriYantra(ctx, time);
+            break;
+          case 'fibonacciSpiral':
+            drawFibonacciSpiral(ctx, time);
+            break;
+          case 'chakraBeam':
+            drawChakraBeam(ctx, time);
+            break;
+          case 'primeFlow':
+            drawPrimeFlow(ctx, time);
+            break;
+          case 'chakraSpiral':
+            drawChakraSpiral(ctx, time);
+            break;
+          default:
+            drawFlowerOfLife(ctx, time);
+        }
+      } catch (error) {
+        console.error("Error drawing visualizer:", error);
+        // Fallback to a simpler visualization if there's an error
+        ctx.fillStyle = chakraColor;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 50, 0, Math.PI * 2);
+        ctx.fill();
       }
       
       // Apply audio data to animation if available
@@ -971,6 +984,9 @@ const CanvasBasedVisualizer: React.FC<CanvasBasedVisualizerProps> = ({
       const rect = canvas.getBoundingClientRect();
       canvas.width = rect.width;
       canvas.height = rect.height;
+      
+      centerX = canvas.width / 2;
+      centerY = canvas.height / 2;
       
       // Redraw after resize
       draw(0);
