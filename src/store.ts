@@ -6,6 +6,8 @@ interface AppState {
   setIsPlaying: (isPlaying: boolean) => void;
   currentSongId: string | null;
   setCurrentSongId: (id: string | null) => void;
+  audioData: Uint8Array | null;
+  setAudioData: (audioData: Uint8Array | null) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -13,4 +15,6 @@ export const useAppStore = create<AppState>((set) => ({
   setIsPlaying: (isPlaying: boolean) => set({ isPlaying }),
   currentSongId: null,
   setCurrentSongId: (id: string | null) => set({ currentSongId: id }),
+  audioData: null,
+  setAudioData: (audioData: Uint8Array | null) => set({ audioData }),
 }));
