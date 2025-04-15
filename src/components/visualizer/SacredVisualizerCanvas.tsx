@@ -112,12 +112,15 @@ const FlowerOfLifeGeometry = ({ chakra = 'crown', intensity = 0, frequencyData }
           const innerX = innerRingRadius * Math.cos(innerAngle);
           const innerY = innerRingRadius * Math.sin(innerAngle);
           
+          // Use Float32Array for line positions to avoid type errors
+          const positionsArray = new Float32Array([x, y, 0, innerX, innerY, 0]);
+          
           items.push(
             <line key={`line-${ring}-${i}`}>
               <bufferGeometry>
                 <bufferAttribute
                   attach="attributes-position"
-                  array={new Float32Array([x, y, 0, innerX, innerY, 0])}
+                  array={positionsArray}
                   count={2}
                   itemSize={3}
                 />
@@ -199,6 +202,17 @@ const MerkabaGeometry = ({ chakra = 'crown', intensity = 0, frequencyData }) => 
     }
   });
   
+  // Create particles positions as Float32Array for type safety
+  const particlePositions = useMemo(() => {
+    const positions = new Float32Array(150 * 3);
+    for (let i = 0; i < 150; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 2;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 2;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 2;
+    }
+    return positions;
+  }, []);
+  
   return (
     <group ref={merkabaRef}>
       {/* Upper tetrahedron */}
@@ -236,7 +250,15 @@ const MerkabaGeometry = ({ chakra = 'crown', intensity = 0, frequencyData }) => 
         </mesh>
         
         {/* Particles inside */}
-        <Points count={50} positions={Array.from({ length: 150 }).map(() => (Math.random() - 0.5) * 2)}>
+        <Points count={50}>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              count={50}
+              array={particlePositions}
+              itemSize={3}
+            />
+          </bufferGeometry>
           <PointMaterial 
             size={0.05} 
             color={liftTheVeil ? '#ff69b4' : '#9370db'} 
@@ -545,7 +567,7 @@ const ChakraSpiralGeometry = ({ frequencyData, intensity = 0 }) => {
         if (point) {
           const start = i * chunkSize;
           const end = start + chunkSize;
-          const chunk = frequencyData.slice(start, end);
+          const chunk = Array.from(frequencyData.slice(start, end));
           const avg = chunk.reduce((sum, val) => sum + val, 0) / chunk.length;
           const intensity = avg / 255;
           
