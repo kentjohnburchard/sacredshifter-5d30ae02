@@ -1,10 +1,8 @@
+
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
 import { motion, AnimatePresence } from 'framer-motion';
 import { isPrime } from '@/lib/primeUtils';
-import * as THREE from 'three';
 import {
   Play,
   Pause,
@@ -19,7 +17,6 @@ import {
 } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
-import { FlowerOfLifeGeometry, FibonacciSpiralGeometry, MerkabaGeometry, MetatronCubeGeometry, SriYantraGeometry, ChakraBeamGeometry } from '@/components/visualizer/sacred-geometries';
 
 // Define chakra palettes
 const chakraPalettes = {
@@ -64,12 +61,12 @@ const chakraPalettes = {
 // Sacred geometry stages for evolution
 const geometryTypes = [
   { type: 'circle', title: 'Origin Point' },
-  { type: 'fibonacciSpiral', title: 'Fibonacci Spiral', component: FibonacciSpiralGeometry },
-  { type: 'flowerOfLife', title: 'Flower of Life', component: FlowerOfLifeGeometry },
-  { type: 'merkaba', title: 'Merkaba', component: MerkabaGeometry },
-  { type: 'metatronCube', title: 'Metatron\'s Cube', component: MetatronCubeGeometry },
-  { type: 'sriYantra', title: 'Sri Yantra', component: SriYantraGeometry },
-  { type: 'chakraBeam', title: 'Chakra Beam', component: ChakraBeamGeometry }
+  { type: 'fibonacciSpiral', title: 'Fibonacci Spiral' },
+  { type: 'flowerOfLife', title: 'Flower of Life' },
+  { type: 'merkaba', title: 'Merkaba' },
+  { type: 'metatronCube', title: 'Metatron\'s Cube' },
+  { type: 'sriYantra', title: 'Sri Yantra' },
+  { type: 'chakraBeam', title: 'Chakra Beam' }
 ];
 
 // Audio frequency analysis constants
@@ -348,16 +345,6 @@ const EnhancedSacredAudioPlayer: React.FC<EnhancedSacredAudioPlayerProps> = ({
     };
   }, [fullscreen, minimized, expanded]);
 
-  // Determine current geometry component
-  const CurrentGeometry = useMemo(() => {
-    if (geometryStage === 0) {
-      // Initial circle (vesica piscis)
-      return null; // We'll render a simple circle manually
-    }
-    
-    return geometryTypes[geometryStage]?.component;
-  }, [geometryStage]);
-
   // Handle player position drag (floating UI)
   const handleDragEnd = (event, info) => {
     if (!containerRef.current) return;
@@ -429,67 +416,33 @@ const EnhancedSacredAudioPlayer: React.FC<EnhancedSacredAudioPlayerProps> = ({
       >
         {/* Visualizer */}
         <motion.div className={playerStyles.visualizer}>
-          <Canvas
-            shadows
-            gl={{ antialias: true, alpha: true }}
-            style={{ background: 'transparent' }}
-          >
-            <color attach="background" args={['#000000']} />
-            <ambientLight intensity={0.3} />
-            <pointLight position={[10, 10, 10]} intensity={1.5} color={chakraColor} />
-            <fog attach="fog" args={['#000000', 5, 20]} />
-            
-            {/* Origin circle (vesica piscis) - always visible but grows into complex shapes */}
-            {geometryStage === 0 && (
-              <mesh scale={currentScale}>
-                <torusGeometry args={[1, 0.1, 16, 32]} />
-                <meshStandardMaterial
-                  color={chakraColor}
-                  emissive={chakraColor}
-                  emissiveIntensity={2}
-                  metalness={0.5}
-                  roughness={0.2}
-                  transparent
-                  opacity={0.8}
-                />
-              </mesh>
-            )}
-            
-            {/* Current sacred geometry based on evolution stage */}
-            {CurrentGeometry && (
-              <CurrentGeometry
-                chakra={chakra.toLowerCase().replace(/\s+/g, '-') as any}
-                intensity={(evolutionProgress / 100) * 0.7}
-                frequencyData={frequencyDataRef.current}
-                scale={currentScale}
-                isActive={true}
+          <div className="bg-gradient-to-b from-purple-900/20 to-black/40 w-full h-full flex flex-col items-center justify-center">
+            <div className="rounded-full w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
+              {isPlaying ? 
+                <Pause className="text-white" size={20} /> : 
+                <Play className="text-white ml-1" size={20} />
+              }
+            </div>
+            <div className="w-full flex flex-col items-center mt-4">
+              <div className="flex space-x-2 my-3">
+                {primesDetected.map((prime, idx) => (
+                  <div 
+                    key={`prime-${prime}`} 
+                    className="px-2 py-0.5 bg-white/10 rounded-full text-xs text-white/70"
+                  >
+                    {prime}Hz
+                  </div>
+                ))}
+              </div>
+              
+              <canvas 
+                ref={equalizerCanvasRef} 
+                width={300} 
+                height={40} 
+                className="w-full max-w-[280px] h-10 rounded"
               />
-            )}
-            
-            {/* Prime number pulse effects */}
-            {primesDetected.map((prime, index) => (
-              <mesh key={`prime-${prime}-${index}`} scale={1 + index * 0.1}>
-                <ringGeometry args={[1.8 + index * 0.1, 1.9 + index * 0.1, 64]} />
-                <meshBasicMaterial 
-                  color={chakraColor} 
-                  transparent 
-                  opacity={0.2 - index * 0.03} 
-                  side={THREE.DoubleSide} 
-                />
-              </mesh>
-            ))}
-            
-            {/* Camera controls */}
-            <OrbitControls 
-              enablePan={false}
-              enableZoom={fullscreen}
-              enableRotate={true}
-              autoRotate={isPlaying}
-              autoRotateSpeed={1.0}
-              maxPolarAngle={Math.PI / 1.5}
-              minPolarAngle={Math.PI / 3}
-            />
-          </Canvas>
+            </div>
+          </div>
         </motion.div>
         
         {/* Controls */}

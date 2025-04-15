@@ -5,4 +5,3 @@ export { default as EnhancedSacredAudioPlayer } from './EnhancedSacredAudioPlaye
 export { default as SimpleAudioPlayer } from './SimpleAudioPlayer';
 export { default as SacredToggleButton } from './SacredToggleButton';
 export { default as SoundModeSelector } from './SoundModeSelector';
-export { default as SacredAudioPlayerWithVisualizer } from './SacredAudioPlayerWithVisualizer';

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import SacredAudioPlayer from './SacredAudioPlayer';
 import { JourneyProps } from '@/types/journey';
