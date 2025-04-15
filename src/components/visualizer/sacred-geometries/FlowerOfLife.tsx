@@ -98,20 +98,24 @@ const FlowerOfLifeGeometry: React.FC<SacredGeometryProps> = ({
           const innerX = innerRingRadius * Math.cos(innerAngle);
           const innerY = innerRingRadius * Math.sin(innerAngle);
           
-          // Create line properly with explicitly defined color
+          // Create points for the line
           const points = [
             new THREE.Vector3(x, y, 0),
             new THREE.Vector3(innerX, innerY, 0)
           ];
-          const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
           
+          // Fixed line implementation using proper React Three Fiber pattern
           items.push(
             <line key={`line-${ring}-${i}`}>
-              <bufferGeometry attach="geometry" {...lineGeometry} />
-              <lineBasicMaterial 
-                attach="material"
+              <bufferGeometry>
+                <float32BufferAttribute 
+                  attach="attributes-position" 
+                  args={[new Float32Array([x, y, 0, innerX, innerY, 0]), 3]} 
+                />
+              </bufferGeometry>
+              <lineBasicMaterial
                 color={color} 
-                transparent
+                transparent={true}
                 opacity={0.4}
               />
             </line>

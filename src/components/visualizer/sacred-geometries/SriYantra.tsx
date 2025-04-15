@@ -65,19 +65,22 @@ const SriYantraGeometry: React.FC<SacredGeometryProps> = ({
       
       const triangleShape = new THREE.Shape(trianglePoints);
       const triangleGeometry = new THREE.ShapeGeometry(triangleShape);
-      const edgesGeometry = new THREE.EdgesGeometry(triangleGeometry);
-      const material = new THREE.LineBasicMaterial({
-        color: color,
-        transparent: true,
-        opacity: 0.6,
-      });
+      
+      // Create edges correctly with React Three Fiber
+      const edges = new THREE.EdgesGeometry(triangleGeometry);
+      const positions = edges.attributes.position.array;
       
       elements.push(
-        <primitive
-          key={`upward-triangle-${i}`}
-          object={new THREE.LineSegments(edgesGeometry, material)}
-          position={[0, 0, i * 0.01]}
-        />
+        <line key={`upward-triangle-${i}`} position={[0, 0, i * 0.01]}>
+          <bufferGeometry>
+            <float32BufferAttribute attach="attributes-position" args={[positions, 3]} />
+          </bufferGeometry>
+          <lineBasicMaterial
+            color={color}
+            transparent={true}
+            opacity={0.6}
+          />
+        </line>
       );
     }
     
@@ -93,37 +96,41 @@ const SriYantraGeometry: React.FC<SacredGeometryProps> = ({
       
       const triangleShape = new THREE.Shape(trianglePoints);
       const triangleGeometry = new THREE.ShapeGeometry(triangleShape);
-      const edgesGeometry = new THREE.EdgesGeometry(triangleGeometry);
-      const material = new THREE.LineBasicMaterial({
-        color: color,
-        transparent: true,
-        opacity: 0.6,
-      });
+      
+      // Create edges correctly with React Three Fiber
+      const edges = new THREE.EdgesGeometry(triangleGeometry);
+      const positions = edges.attributes.position.array;
       
       elements.push(
-        <primitive
-          key={`downward-triangle-${i}`}
-          object={new THREE.LineSegments(edgesGeometry, material)}
-          position={[0, 0, i * 0.01 + 0.005]}
-        />
+        <line key={`downward-triangle-${i}`} position={[0, 0, i * 0.01 + 0.005]}>
+          <bufferGeometry>
+            <float32BufferAttribute attach="attributes-position" args={[positions, 3]} />
+          </bufferGeometry>
+          <lineBasicMaterial
+            color={color}
+            transparent={true}
+            opacity={0.6}
+          />
+        </line>
       );
     }
     
     // Create outer circle
     const circleGeometry = new THREE.CircleGeometry(outerRadius, 64);
     const circleEdges = new THREE.EdgesGeometry(circleGeometry);
-    const circleMaterial = new THREE.LineBasicMaterial({
-      color: color,
-      transparent: true,
-      opacity: 0.4,
-    });
+    const circlePositions = circleEdges.attributes.position.array;
     
     elements.push(
-      <primitive
-        key="outer-circle"
-        object={new THREE.LineSegments(circleEdges, circleMaterial)}
-        position={[0, 0, -0.01]}
-      />
+      <line key="outer-circle" position={[0, 0, -0.01]}>
+        <bufferGeometry>
+          <float32BufferAttribute attach="attributes-position" args={[circlePositions, 3]} />
+        </bufferGeometry>
+        <lineBasicMaterial
+          color={color}
+          transparent={true}
+          opacity={0.4}
+        />
+      </line>
     );
     
     // Add central dot (bindu)

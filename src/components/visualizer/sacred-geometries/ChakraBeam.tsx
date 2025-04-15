@@ -127,16 +127,22 @@ const ChakraBeamGeometry: React.FC<SacredGeometryProps> = ({
     });
     
     // Add vertical line connecting chakras
-    const linePoints = chakraPoints.map(point => new THREE.Vector3(0, point.y, 0));
-    const lineGeometry = new THREE.BufferGeometry().setFromPoints(linePoints);
+    // Create points for the line
+    const positions = new Float32Array(chakraPoints.length * 3);
+    chakraPoints.forEach((point, i) => {
+      positions[i * 3] = 0; // x
+      positions[i * 3 + 1] = point.y; // y
+      positions[i * 3 + 2] = 0; // z
+    });
     
     elements.push(
       <line key="chakra-line">
-        <bufferGeometry attach="geometry" {...lineGeometry} />
+        <bufferGeometry>
+          <float32BufferAttribute attach="attributes-position" args={[positions, 3]} />
+        </bufferGeometry>
         <lineBasicMaterial
-          attach="material" 
           color="#ffffff"
-          transparent
+          transparent={true}
           opacity={0.3}
           linewidth={1}
         />
