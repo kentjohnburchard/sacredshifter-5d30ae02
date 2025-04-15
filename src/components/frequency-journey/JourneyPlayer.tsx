@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -36,6 +37,7 @@ const JourneyPlayer = () => {
   
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
 
+  // Define shouldShowVisualizer variable to control when visualizer is displayed
   const shouldShowVisualizer = showVisualizer && isPlaying;
 
   useEffect(() => {
