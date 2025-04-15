@@ -50,7 +50,7 @@ const FlowerOfLifeGeometry = ({ chakra = 'crown', intensity = 0, frequencyData }
       
       // If we have frequency data, modify rotation speed based on audio
       if (frequencyData && frequencyData.length > 0) {
-        const avgFreq = Array.from(frequencyData).reduce((sum, val) => sum + val, 0) / frequencyData.length;
+        const avgFreq = Array.from(frequencyData).reduce((sum: number, val: number) => sum + val, 0) / frequencyData.length;
         const normalizedFreq = avgFreq / 255;
         
         groupRef.current.rotation.y += normalizedFreq * 0.01;
@@ -193,7 +193,7 @@ const MerkabaGeometry = ({ chakra = 'crown', intensity = 0, frequencyData }) => 
       
       // If we have frequency data, add audio reactivity
       if (frequencyData && frequencyData.length > 0) {
-        const avgFreq = Array.from(frequencyData).reduce((sum, val) => sum + val, 0) / frequencyData.length;
+        const avgFreq = Array.from(frequencyData).reduce((sum: number, val: number) => sum + val, 0) / frequencyData.length;
         const normalizedFreq = avgFreq / 255;
         const scale = 1 + normalizedFreq * 0.3;
         
@@ -249,8 +249,8 @@ const MerkabaGeometry = ({ chakra = 'crown', intensity = 0, frequencyData }) => 
           />
         </mesh>
         
-        {/* Particles inside */}
-        <Points count={50}>
+        {/* Particles inside - fixed to use bufferGeometry with correct attribute setup */}
+        <points>
           <bufferGeometry>
             <bufferAttribute
               attach="attributes-position"
@@ -259,14 +259,14 @@ const MerkabaGeometry = ({ chakra = 'crown', intensity = 0, frequencyData }) => 
               itemSize={3}
             />
           </bufferGeometry>
-          <PointMaterial 
+          <pointsMaterial 
             size={0.05} 
             color={liftTheVeil ? '#ff69b4' : '#9370db'} 
             sizeAttenuation 
             transparent 
             opacity={0.8} 
           />
-        </Points>
+        </points>
       </group>
       
       {/* Outer shell */}
@@ -328,7 +328,7 @@ const TorusGeometry = ({ chakra = 'crown', frequencyData, intensity = 0 }) => {
       
       // If we have frequency data, add audio reactivity
       if (frequencyData && frequencyData.length) {
-        const avg = Array.from(frequencyData).reduce((acc, val) => acc + val, 0) / frequencyData.length;
+        const avg = Array.from(frequencyData).reduce((acc: number, val: number) => acc + val, 0) / frequencyData.length;
         const intensity = avg / 255;
         
         // Modify material properties based on audio
@@ -358,7 +358,7 @@ const TorusGeometry = ({ chakra = 'crown', frequencyData, intensity = 0 }) => {
         />
       </animated.mesh>
       
-      {/* Particle system flowing around torus */}
+      {/* Particle system flowing around torus - fixed to use proper points with buffer geometry */}
       <points ref={particlesRef}>
         <bufferGeometry>
           <bufferAttribute
@@ -568,7 +568,7 @@ const ChakraSpiralGeometry = ({ frequencyData, intensity = 0 }) => {
           const start = i * chunkSize;
           const end = start + chunkSize;
           const chunk = Array.from(frequencyData.slice(start, end));
-          const avg = chunk.reduce((sum, val) => sum + val, 0) / chunk.length;
+          const avg = chunk.reduce((sum: number, val: number) => sum + val, 0) / chunk.length;
           const intensity = avg / 255;
           
           // Scale based on frequency intensity
