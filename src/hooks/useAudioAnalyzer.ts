@@ -1,124 +1,97 @@
+
 import { useState, useEffect, useRef } from 'react';
+import { useAppStore } from '@/store';
 
-interface AudioAnalyzerResult {
-  audioContext: AudioContext | null;
-  analyser: AnalyserNode | null;
-}
-
-// Keep track of global instances to prevent reconnections
-let globalAudioContext: AudioContext | null = null;
-let globalAnalyser: AnalyserNode | null = null;
-let connectedAudioElement: HTMLAudioElement | null = null;
-
-function useAudioAnalyzer(audioElement: HTMLAudioElement | React.RefObject<HTMLAudioElement> | null): AudioAnalyzerResult {
-  const [audioContext, setAudioContext] = useState<AudioContext | null>(globalAudioContext);
-  const [analyser, setAnalyser] = useState<AnalyserNode | null>(globalAnalyser);
+/**
+ * Hook to create and manage an AudioContext and AnalyserNode for audio visualization
+ * @param audioElement Reference to the audio element to analyze
+ * @returns Object containing the audioContext and analyser node
+ */
+const useAudioAnalyzer = (audioElement: HTMLAudioElement | null) => {
+  const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
+  const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
-  const initialized = useRef(false);
-
+  const { setAudioData, setFrequencyData } = useAppStore();
+  
   useEffect(() => {
-    // Helper to get the actual HTMLAudioElement from various possible inputs
-    const getAudioElement = (): HTMLAudioElement | null => {
-      if (!audioElement) return null;
-      
-      // If audioElement is a ref object
-      if ('current' in audioElement) {
-        return audioElement.current;
+    // Only setup if we have an audio element
+    if (!audioElement) return;
+    
+    let ctx: AudioContext | null = null;
+    let analyzerNode: AnalyserNode | null = null;
+    let sourceNode: MediaElementAudioSourceNode | null = null;
+    
+    try {
+      // Create audio context
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContext) {
+        console.warn("AudioContext is not supported by this browser");
+        return;
       }
       
-      // If audioElement is an actual HTMLAudioElement
-      return audioElement;
-    };
-
-    const audio = getAudioElement();
-    
-    // Don't proceed if we don't have an audio element
-    if (!audio) {
-      console.log("useAudioAnalyzer: No audio element provided");
-      return;
-    }
-
-    // Check if we're working with the same audio element as before
-    if (audio === connectedAudioElement && globalAudioContext && globalAnalyser) {
-      console.log("useAudioAnalyzer: Reusing existing audio context and analyser");
-      setAudioContext(globalAudioContext);
-      setAnalyser(globalAnalyser);
-      initialized.current = true;
-      return;
-    }
-    
-    // Only initialize if we haven't initialized yet
-    if (!initialized.current) {
-      console.log("useAudioAnalyzer: Initializing with audio element", audio);
+      ctx = new AudioContext();
+      setAudioContext(ctx);
       
+      // Create analyzer node
+      analyzerNode = ctx.createAnalyser();
+      analyzerNode.fftSize = 256; // Power of 2: 32, 64, 128, 256, 512, 1024, 2048
+      analyzerNode.smoothingTimeConstant = 0.8; // Between 0 and 1
+      setAnalyser(analyzerNode);
+      
+      // Connect the audio element to the analyzer
       try {
-        // Create audio context if not already created
-        if (!globalAudioContext) {
-          globalAudioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-          console.log("useAudioAnalyzer: Created new AudioContext");
+        sourceNode = ctx.createMediaElementSource(audioElement);
+        sourceNodeRef.current = sourceNode;
+        sourceNode.connect(analyzerNode);
+        analyzerNode.connect(ctx.destination);
+        
+        console.log("Audio analyzer successfully connected");
+      } catch (e: any) {
+        // If it's already connected error, we can ignore it
+        if (e.name === 'InvalidAccessError' || e.message?.includes('already connected')) {
+          console.log("Audio element already connected to an audio context");
+        } else {
+          console.error("Error connecting audio element to analyzer:", e);
         }
-        
-        setAudioContext(globalAudioContext);
-        
-        // Create analyser node if not already created
-        if (!globalAnalyser) {
-          globalAnalyser = globalAudioContext.createAnalyser();
-          globalAnalyser.fftSize = 2048;
-          globalAnalyser.smoothingTimeConstant = 0.8;
-          console.log("useAudioAnalyzer: Created new AnalyserNode");
+      }
+      
+      // Setup interval to capture audio data
+      const dataCapture = () => {
+        if (analyzerNode) {
+          const frequencyData = new Uint8Array(analyzerNode.frequencyBinCount);
+          const timeData = new Uint8Array(analyzerNode.frequencyBinCount);
+          
+          analyzerNode.getByteFrequencyData(frequencyData);
+          analyzerNode.getByteTimeDomainData(timeData);
+          
+          setFrequencyData(frequencyData);
+          setAudioData(timeData);
         }
+        requestAnimationFrame(dataCapture);
+      };
+      
+      const animationId = requestAnimationFrame(dataCapture);
+      
+      return () => {
+        cancelAnimationFrame(animationId);
         
-        setAnalyser(globalAnalyser);
-        
-        // Check if the audio element is already connected to the audio context
-        if (audio !== connectedAudioElement) {
-          // Disconnect previous source if it exists
-          if (sourceNodeRef.current) {
-            sourceNodeRef.current.disconnect();
-            console.log("useAudioAnalyzer: Disconnected previous source node");
+        // Don't disconnect the source node to prevent issues with reusing the audio element
+        if (ctx && ctx.state !== 'closed') {
+          try {
+            ctx.close();
+          } catch (e) {
+            console.error("Error closing audio context:", e);
           }
-          
-          // Create new source node
-          const sourceNode = globalAudioContext.createMediaElementSource(audio);
-          sourceNodeRef.current = sourceNode;
-          
-          // Connect the nodes: sourceNode -> analyserNode -> destination
-          sourceNode.connect(globalAnalyser);
-          globalAnalyser.connect(globalAudioContext.destination);
-          
-          // Update connected audio element reference
-          connectedAudioElement = audio;
-          
-          console.log("useAudioAnalyzer: Connected new audio element to audio context");
         }
-        
-        // Mark as initialized
-        initialized.current = true;
-        
-        console.log("useAudioAnalyzer: Audio analyzer setup complete");
-      } catch (error) {
-        console.error("useAudioAnalyzer: Error setting up audio analyzer", error);
-      }
+      };
+      
+    } catch (error) {
+      console.error("Error setting up audio analyzer:", error);
+      return;
     }
-
-    // Resume audio context if it's suspended (needed for some browsers)
-    const resumeContext = () => {
-      if (globalAudioContext && globalAudioContext.state === 'suspended') {
-        globalAudioContext.resume().then(() => {
-          console.log("useAudioAnalyzer: AudioContext resumed");
-        });
-      }
-    };
-
-    // Add event listener to resume context on user interaction
-    document.addEventListener('click', resumeContext, { once: true });
-    
-    return () => {
-      document.removeEventListener('click', resumeContext);
-    };
-  }, [audioElement]);
-
+  }, [audioElement, setAudioData, setFrequencyData]);
+  
   return { audioContext, analyser };
-}
+};
 
 export default useAudioAnalyzer;

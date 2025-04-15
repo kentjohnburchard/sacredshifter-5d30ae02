@@ -8,6 +8,12 @@ interface AppState {
   setCurrentSongId: (id: string | null) => void;
   audioData: Uint8Array | null;
   setAudioData: (audioData: Uint8Array | null) => void;
+  frequencyData: Uint8Array | null;
+  setFrequencyData: (frequencyData: Uint8Array | null) => void;
+  primeSequence: number[];
+  setPrimeSequence: (sequence: number[]) => void;
+  visualizationMode: 'sacred' | 'prime' | 'equalizer' | 'flow';
+  setVisualizationMode: (mode: 'sacred' | 'prime' | 'equalizer' | 'flow') => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -17,4 +23,10 @@ export const useAppStore = create<AppState>((set) => ({
   setCurrentSongId: (id: string | null) => set({ currentSongId: id }),
   audioData: null,
   setAudioData: (audioData: Uint8Array | null) => set({ audioData }),
+  frequencyData: null,
+  setFrequencyData: (frequencyData: Uint8Array | null) => set({ frequencyData }),
+  primeSequence: [],
+  setPrimeSequence: (sequence: number[]) => set({ primeSequence: sequence }),
+  visualizationMode: 'sacred',
+  setVisualizationMode: (mode: 'sacred' | 'prime' | 'equalizer' | 'flow') => set({ visualizationMode: mode }),
 }));

@@ -10,12 +10,14 @@ import { Button } from '@/components/ui/button';
 import { formatTime } from '@/lib/utils';
 import { VisualizerManager } from '@/components/visualizer/VisualizerManager';
 import { JourneyProps } from '@/types/journey';
+import EnhancedVisualizer from '@/components/visualizer/EnhancedVisualizer';
 import { 
   Play, Pause, Volume2, VolumeX, Maximize2, Minimize2,
   FastForward, Timer, Headphones, Waves, Moon, MoveDown, MoveUp, X, Eye, EyeOff
 } from 'lucide-react';
 import { isPrime } from '@/lib/primeUtils';
 import { getChakraColorScheme } from '@/lib/chakraColors';
+import { useAppStore } from '@/store';
 
 interface SacredAudioPlayerProps {
   audioUrl?: string;
@@ -62,6 +64,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   } = useAudioPlayer();
   
   const { audioContext, analyser } = useAudioAnalyzer(audioRef.current);
+  const { setAudioData, setFrequencyData } = useAppStore();
   
   const [isSeeking, setIsSeeking] = useState(false);
   const [seekTime, setSeekTime] = useState(0);
@@ -82,6 +85,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const [sleepTimerActive, setSleepTimerActive] = useState(false);
   const [sleepTimerRemaining, setSleepTimerRemaining] = useState(0);
   const sleepTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
   
   const pinkNoiseRef = useRef<HTMLAudioElement | null>(null);
   
@@ -89,6 +93,38 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   
   // Define shouldShowVisualizer to fix the runtime error
   const shouldShowVisualizer = isVisualizerVisible && isPlaying && !!analyser;
+  
+  // Process audio data for visualization
+  useEffect(() => {
+    if (!analyser || !isPlaying) {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      return;
+    }
+    
+    const frequencyData = new Uint8Array(analyser.frequencyBinCount);
+    const timeData = new Uint8Array(analyser.frequencyBinCount);
+    
+    const updateData = () => {
+      analyser.getByteFrequencyData(frequencyData);
+      analyser.getByteTimeDomainData(timeData);
+      
+      // Update global state with audio data for other components
+      setAudioData(timeData);
+      setFrequencyData(frequencyData);
+      
+      animationFrameRef.current = requestAnimationFrame(updateData);
+    };
+    
+    updateData();
+    
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [analyser, isPlaying, setAudioData, setFrequencyData]);
   
   useEffect(() => {
     if (!pinkNoiseRef.current) {
@@ -294,16 +330,11 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     <div className={`sacred-audio-player relative rounded-t-lg overflow-hidden shadow-xl border-t border-x border-white/10 transition-all duration-300 ${isExpanded ? 'bg-black/70 backdrop-blur-md' : 'bg-black/60 backdrop-blur-sm'}`}>
       {shouldShowVisualizer && isExpanded && (
         <div className="h-48">
-          <VisualizerManager
-            size={isExpanded ? 'md' : 'sm'}
-            isAudioReactive={true}
-            colorScheme={colorScheme}
-            analyzerNode={analyser}
-            audioRef={audioRef}
-            frequency={mainFrequency}
-            chakra={chakraArray}
+          <EnhancedVisualizer 
+            frequencyData={analyser ? new Uint8Array(analyser.frequencyBinCount) : undefined}
+            chakra={chakraArray[0]}
             isPlaying={isPlaying}
-            liftedVeil={liftTheVeil}
+            showControls={true}
           />
         </div>
       )}
