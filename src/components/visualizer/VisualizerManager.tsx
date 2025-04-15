@@ -2,8 +2,9 @@
 import React, { lazy, Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const KaleidoscopeVisualizer = lazy(() => import('./KaleidoscopeVisualizer'));
 const SimpleFallbackVisualizer = lazy(() => import('./SimpleFallbackVisualizer'));
+// Lazy load the KaleidoscopeVisualizer only when needed
+const KaleidoscopeVisualizer = lazy(() => import('./KaleidoscopeVisualizer'));
 
 interface VisualizerManagerProps {
   type?: 'kaleidoscope' | 'simple';
@@ -15,7 +16,7 @@ interface VisualizerManagerProps {
 }
 
 const VisualizerManager: React.FC<VisualizerManagerProps> = ({
-  type = 'kaleidoscope',
+  type = 'simple', // Default to simple visualizer
   audioRef,
   isAudioReactive = true,
   colorScheme = 'purple',
@@ -45,7 +46,7 @@ const VisualizerManager: React.FC<VisualizerManagerProps> = ({
     <Suspense fallback={
       <Skeleton className="w-full h-full rounded-lg animate-pulse bg-purple-100/10" />
     }>
-      {type === 'kaleidoscope' ? (
+      {type === 'kaleidoscope' && !hasError ? (
         <KaleidoscopeVisualizer
           audioRef={audioRef}
           isAudioReactive={isAudioReactive}
@@ -59,4 +60,4 @@ const VisualizerManager: React.FC<VisualizerManagerProps> = ({
   );
 };
 
-export default VisualizerManager;
+export { VisualizerManager };

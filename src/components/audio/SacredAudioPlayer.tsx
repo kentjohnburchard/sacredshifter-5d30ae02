@@ -4,7 +4,7 @@ import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { useTheme } from '@/context/ThemeContext';
 import { Slider } from '@/components/ui/slider';
 import { formatTime } from '@/lib/utils';
-import KaleidoscopeVisualizer from '@/components/visualizer/KaleidoscopeVisualizer';
+import { VisualizerManager } from '@/components/visualizer/VisualizerManager';
 import { Button } from '@/components/ui/button';
 import { Play, Pause } from 'lucide-react';
 
@@ -102,7 +102,8 @@ const SacredAudioPlayer: React.FC = () => {
       </div>
 
       <div className="mt-4 h-48 rounded-lg overflow-hidden">
-        <KaleidoscopeVisualizer 
+        <VisualizerManager 
+          type="simple"
           audioRef={audioRef}
           isAudioReactive={true}
           colorScheme={liftTheVeil ? 'pink' : 'purple'}
