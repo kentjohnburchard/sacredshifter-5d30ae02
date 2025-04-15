@@ -1,19 +1,32 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
+import { useAudioAnalyzer } from '@/hooks/useAudioAnalyzer';
 import { useTheme } from '@/context/ThemeContext';
 import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { formatTime } from '@/lib/utils';
 import { VisualizerManager } from '@/components/visualizer/VisualizerManager';
-import { Button } from '@/components/ui/button';
-import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { JourneyProps, JourneyOptions } from '@/types/journey';
+import { 
+  Play, Pause, Volume2, VolumeX, Maximize2, Minimize2, Moon, 
+  FastForward, Timer, Headphones, Waves, Download, X, MoveDown, MoveUp 
+} from 'lucide-react';
 
+// Define props interface for SacredAudioPlayer
 interface SacredAudioPlayerProps {
   audioUrl?: string;
   url?: string;
   frequency?: number;
   isPlaying?: boolean;
   onPlayToggle?: () => void;
+  frequencyId?: string;
+  groupId?: string;
+  id?: string;
+  journey?: JourneyProps;
 }
 
 const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
@@ -21,8 +34,13 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   url,
   frequency,
   isPlaying: externalIsPlaying,
-  onPlayToggle: externalTogglePlay
+  onPlayToggle: externalTogglePlay,
+  frequencyId,
+  groupId,
+  id,
+  journey
 }) => {
+  // Core audio playback state
   const {
     isPlaying,
     duration,
@@ -37,24 +55,137 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     setAudioSource
   } = useAudioPlayer();
   
+  // Get audio analyzer for visualizations
+  const { audioContext, analyser } = useAudioAnalyzer(audioRef.current);
+  
+  // UI state
   const [isSeeking, setIsSeeking] = useState(false);
   const [seekTime, setSeekTime] = useState(0);
   const [volume, setVolume] = useState(0.7);
   const [isMuted, setIsMuted] = useState(false);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [isMinimized, setIsMinimized] = useState(false);
   
+  // Journey-specific options
+  const [options, setOptions] = useState<JourneyOptions>({
+    pinkNoise: false,
+    lowSensitivity: false,
+    headphones: false,
+    sleepTimer: 0
+  });
+  
+  // Sleep timer state
+  const [sleepTimerActive, setSleepTimerActive] = useState(false);
+  const [sleepTimerRemaining, setSleepTimerRemaining] = useState(0);
+  const sleepTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Pink noise audio elements
+  const pinkNoiseRef = useRef<HTMLAudioElement | null>(null);
+  
+  // Theme integration
   const { liftTheVeil } = useTheme();
-
-  // Use the audioUrl or url prop if provided
-  React.useEffect(() => {
-    if (audioUrl || url) {
-      const sourceUrl = audioUrl || url;
-      if (sourceUrl) {
-        setAudioSource(sourceUrl);
+  
+  // Set up pink noise source
+  useEffect(() => {
+    if (!pinkNoiseRef.current) {
+      const pinkNoise = new Audio('/sounds/pink-noise.mp3'); // Placeholder path
+      pinkNoise.loop = true;
+      pinkNoise.volume = 0.2;
+      pinkNoiseRef.current = pinkNoise;
+    }
+    
+    return () => {
+      if (pinkNoiseRef.current) {
+        pinkNoiseRef.current.pause();
+        pinkNoiseRef.current = null;
+      }
+    };
+  }, []);
+  
+  // Initialize with journey options if provided
+  useEffect(() => {
+    if (journey?.options) {
+      setOptions({
+        pinkNoise: journey.options.pinkNoise || false,
+        lowSensitivity: journey.options.lowSensitivity || false,
+        headphones: journey.options.headphones || false,
+        sleepTimer: journey.options.sleepTimer || 0
+      });
+      
+      // Set up sleep timer if specified
+      if (journey.options.sleepTimer && journey.options.sleepTimer > 0) {
+        startSleepTimer(journey.options.sleepTimer);
       }
     }
-  }, [audioUrl, url, setAudioSource]);
-
+  }, [journey]);
+  
+  // Handle audio source changes
+  useEffect(() => {
+    const source = audioUrl || url || journey?.audioUrl;
+    if (source) {
+      setAudioSource(source);
+    }
+  }, [audioUrl, url, journey, setAudioSource]);
+  
+  // Sync pink noise with main audio
+  useEffect(() => {
+    if (pinkNoiseRef.current) {
+      if (isPlaying && options.pinkNoise) {
+        pinkNoiseRef.current.play().catch(err => console.error("Error playing pink noise:", err));
+      } else {
+        pinkNoiseRef.current.pause();
+      }
+    }
+  }, [isPlaying, options.pinkNoise]);
+  
+  // Handle sleep timer
+  const startSleepTimer = (minutes: number) => {
+    // Clear existing timer if any
+    if (sleepTimerRef.current) {
+      clearInterval(sleepTimerRef.current);
+    }
+    
+    const milliseconds = minutes * 60 * 1000;
+    const endTime = Date.now() + milliseconds;
+    
+    setSleepTimerActive(true);
+    setSleepTimerRemaining(milliseconds / 1000);
+    
+    // Update timer display every second
+    sleepTimerRef.current = setInterval(() => {
+      const remaining = Math.round((endTime - Date.now()) / 1000);
+      
+      if (remaining <= 0) {
+        // Stop playback when timer ends
+        if (audioRef.current) {
+          audioRef.current.pause();
+        }
+        
+        // Clear timer
+        if (sleepTimerRef.current) {
+          clearInterval(sleepTimerRef.current);
+        }
+        
+        setSleepTimerActive(false);
+        setSleepTimerRemaining(0);
+      } else {
+        setSleepTimerRemaining(remaining);
+      }
+    }, 1000);
+  };
+  
+  // Cancel sleep timer
+  const cancelSleepTimer = () => {
+    if (sleepTimerRef.current) {
+      clearInterval(sleepTimerRef.current);
+    }
+    
+    setSleepTimerActive(false);
+    setSleepTimerRemaining(0);
+  };
+  
+  // Handle seek interactions
   const handleSeekMouseDown = () => {
     setIsSeeking(true);
   };
@@ -73,6 +204,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     seekTo(seekTime);
   };
 
+  // Handle volume changes
   const handleVolumeChange = (value: number[]) => {
     const newVolume = value[0];
     setVolume(newVolume);
@@ -82,16 +214,28 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     if (audioRef.current) {
       audioRef.current.volume = newVolume;
     }
+    
+    // Also adjust pink noise volume if active
+    if (pinkNoiseRef.current && options.pinkNoise) {
+      pinkNoiseRef.current.volume = Math.min(0.3, newVolume * 0.5);
+    }
   };
 
+  // Toggle mute state
   const toggleMute = () => {
     const newMutedState = !isMuted;
     setIsMuted(newMutedState);
     if (audioRef.current) {
       audioRef.current.muted = newMutedState;
     }
+    
+    // Also mute pink noise if active
+    if (pinkNoiseRef.current) {
+      pinkNoiseRef.current.muted = newMutedState;
+    }
   };
 
+  // Handle play/pause
   const handleTogglePlay = () => {
     if (externalTogglePlay) {
       externalTogglePlay();
@@ -99,19 +243,153 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
       togglePlay();
     }
   };
+  
+  // Toggle expanded/minimized view
+  const toggleExpanded = () => {
+    setIsExpanded(!isExpanded);
+  };
+  
+  const toggleMinimized = () => {
+    setIsMinimized(!isMinimized);
+  };
+  
+  // Toggle sound options
+  const togglePinkNoise = () => {
+    setOptions(prev => ({ ...prev, pinkNoise: !prev.pinkNoise }));
+  };
+  
+  const toggleLowSensitivity = () => {
+    setOptions(prev => ({ ...prev, lowSensitivity: !prev.lowSensitivity }));
+    
+    // Apply EQ filter when low sensitivity mode is enabled
+    if (audioRef.current && audioContext) {
+      // Implementation would go here with Web Audio API filters
+      console.log("Low sensitivity mode toggled:", !options.lowSensitivity);
+    }
+  };
+  
+  const toggleHeadphones = () => {
+    setOptions(prev => ({ ...prev, headphones: !prev.headphones }));
+  };
+  
+  // Set up sleep timer selector
+  const selectSleepTimer = (value: string) => {
+    const minutes = parseInt(value, 10);
+    setOptions(prev => ({ ...prev, sleepTimer: minutes }));
+    
+    if (minutes > 0) {
+      startSleepTimer(minutes);
+    } else {
+      cancelSleepTimer();
+    }
+  };
 
-  // Use external isPlaying state if provided, otherwise use the internal state
+  // Use external isPlaying state if provided, otherwise use internal state
   const playerIsPlaying = externalIsPlaying !== undefined ? externalIsPlaying : isPlaying;
 
-  React.useEffect(() => {
+  // Sync seekTime with currentTime when not seeking
+  useEffect(() => {
     if (!isSeeking) {
       setSeekTime(currentTime);
     }
   }, [currentTime, isSeeking]);
+  
+  // Display format for sleep timer
+  const formatSleepTimer = () => {
+    if (!sleepTimerActive) return "--:--";
+    const minutes = Math.floor(sleepTimerRemaining / 60);
+    const seconds = Math.floor(sleepTimerRemaining % 60);
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+  
+  // Get journey title to display
+  const displayTitle = journey?.title || currentTrack?.title || "No track selected";
+  
+  // Get affirmation to display
+  const displayAffirmation = journey?.affirmation || "";
+  
+  // Prepare frequency data for visualizer
+  const frequencies = journey?.frequencies || (frequency ? [frequency] : []);
+  
+  // Prepare chakra data for visualizer
+  const chakras = journey?.chakras || (journey?.chakra ? [journey.chakra] : []);
+
+  // If minimized, render the compact floating player
+  if (isMinimized) {
+    return (
+      <div className="fixed bottom-4 right-4 z-50 bg-black/70 backdrop-blur-lg rounded-full shadow-lg flex items-center p-2 pr-4 text-white">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleTogglePlay}
+          className="h-8 w-8 rounded-full bg-purple-500 hover:bg-purple-600 mr-2"
+        >
+          {playerIsPlaying ? (
+            <Pause className="h-4 w-4" />
+          ) : (
+            <Play className="h-4 w-4 ml-0.5" />
+          )}
+        </Button>
+        
+        <div className="text-sm font-medium truncate max-w-[100px]">
+          {displayTitle}
+        </div>
+        
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleMinimized}
+          className="h-6 w-6 ml-2 text-gray-300 hover:text-white"
+        >
+          <MoveUp className="h-4 w-4" />
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <div className="sacred-audio-player w-full max-w-4xl mx-auto">
-      <div className="bg-black/20 backdrop-blur-sm rounded-lg shadow-xl p-4">
+    <div className={`sacred-audio-player w-full max-w-4xl mx-auto transition-all duration-300 ${isExpanded ? 'h-auto' : 'h-24'}`}>
+      <div className="bg-black/20 backdrop-blur-sm rounded-lg shadow-xl p-4 relative">
+        {/* Header with title, affirmation and controls */}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex flex-col">
+            <h3 className="text-lg font-semibold text-purple-300">
+              {displayTitle}
+            </h3>
+            
+            {displayAffirmation && (
+              <p className="text-sm text-gray-300 italic">
+                "{displayAffirmation}"
+              </p>
+            )}
+          </div>
+          
+          <div className="flex items-center space-x-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleMinimized}
+              className="h-6 w-6 text-gray-300 hover:text-white"
+            >
+              <MoveDown className="h-4 w-4" />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleExpanded}
+              className="h-6 w-6 text-gray-300 hover:text-white"
+            >
+              {isExpanded ? (
+                <Minimize2 className="h-4 w-4" />
+              ) : (
+                <Maximize2 className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+        </div>
+        
+        {/* Main playback controls */}
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
@@ -128,15 +406,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           </Button>
 
           <div className="flex-grow">
-            <div className="mb-2">
-              <h3 className="text-lg font-semibold text-purple-300">
-                {currentTrack?.title || 'No track selected'}
-              </h3>
-              {currentTrack?.artist && (
-                <p className="text-sm text-gray-400">{currentTrack.artist}</p>
-              )}
-            </div>
-            
             <div className="flex items-center gap-4">
               <div className="flex-grow">
                 <Slider
@@ -186,19 +455,109 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           </div>
         </div>
 
+        {/* Options panel - only visible when expanded */}
+        {isExpanded && (
+          <div className="mt-4 border-t border-white/10 pt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Pink Noise Toggle */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Waves className="h-4 w-4 text-gray-400" />
+                <Label htmlFor="pink-noise" className="text-sm text-gray-300">Pink Noise</Label>
+              </div>
+              <Switch 
+                id="pink-noise" 
+                checked={options.pinkNoise} 
+                onCheckedChange={togglePinkNoise} 
+              />
+            </div>
+            
+            {/* Low Sensitivity Mode */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <FastForward className="h-4 w-4 text-gray-400" />
+                <Label htmlFor="low-sensitivity" className="text-sm text-gray-300">Low Sensitivity</Label>
+              </div>
+              <Switch 
+                id="low-sensitivity" 
+                checked={options.lowSensitivity} 
+                onCheckedChange={toggleLowSensitivity} 
+              />
+            </div>
+            
+            {/* Headphones Mode */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Headphones className="h-4 w-4 text-gray-400" />
+                <Label htmlFor="headphones" className="text-sm text-gray-300">Headphones</Label>
+              </div>
+              <Switch 
+                id="headphones" 
+                checked={options.headphones} 
+                onCheckedChange={toggleHeadphones} 
+              />
+            </div>
+            
+            {/* Sleep Timer */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Timer className="h-4 w-4 text-gray-400" />
+                <Label className="text-sm text-gray-300">
+                  {sleepTimerActive ? (
+                    <span>Timer: {formatSleepTimer()}</span>
+                  ) : (
+                    <span>Sleep Timer</span>
+                  )}
+                </Label>
+              </div>
+              
+              {sleepTimerActive ? (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={cancelSleepTimer}
+                  className="h-7 px-2"
+                >
+                  <X className="h-3 w-3 mr-1" /> Cancel
+                </Button>
+              ) : (
+                <select 
+                  className="bg-black/30 rounded border border-white/20 text-xs text-white py-1 px-2"
+                  onChange={(e) => selectSleepTimer(e.target.value)}
+                  value={options.sleepTimer || "0"}
+                >
+                  <option value="0">Off</option>
+                  <option value="5">5 min</option>
+                  <option value="15">15 min</option>
+                  <option value="30">30 min</option>
+                  <option value="60">60 min</option>
+                </select>
+              )}
+            </div>
+          </div>
+        )}
+
         {audioError && (
           <div className="text-red-500 mt-2">{audioError}</div>
         )}
       </div>
 
-      <div className="mt-4 h-48 rounded-lg overflow-hidden">
-        <VisualizerManager 
-          isAudioReactive={true}
-          colorScheme={liftTheVeil ? 'pink' : 'purple'}
-          size="md"
-          frequency={frequency}
-        />
-      </div>
+      {/* Visualizer - only visible when expanded */}
+      {isExpanded && (
+        <div className="mt-4 h-64 rounded-lg overflow-hidden">
+          <VisualizerManager 
+            isAudioReactive={true}
+            colorScheme={liftTheVeil ? 'pink' : 'purple'}
+            size="md"
+            frequency={frequency}
+            analyzerNode={analyser}
+            audioRef={audioRef}
+            frequencies={frequencies}
+            chakras={chakras}
+            visualTheme={journey?.visualTheme}
+            isPlaying={playerIsPlaying}
+          />
+        </div>
+      )}
     </div>
   );
 };

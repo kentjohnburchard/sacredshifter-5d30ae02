@@ -26,11 +26,15 @@ const GenerationHistory: React.FC<GenerationHistoryProps> = ({
     <div className="w-full max-w-3xl mx-auto animate-slide-up">
       <div className="space-y-6">
         {tracks.map(track => (
-          <Player key={track.id} track={{
-            ...track,
-            // Ensure audioUrl exists (it might be called source or url in GeneratedTrack)
-            audioUrl: track.audioUrl || track.url || track.source || ''
-          }} onDelete={onDelete} />
+          <Player 
+            key={track.id} 
+            track={{
+              ...track,
+              // TypeScript safe way to ensure audioUrl exists
+              audioUrl: (track as any).audioUrl || (track as any).url || (track as any).source || ''
+            }} 
+            onDelete={onDelete} 
+          />
         ))}
       </div>
     </div>
