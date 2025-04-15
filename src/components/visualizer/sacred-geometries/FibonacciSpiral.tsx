@@ -72,30 +72,20 @@ const FibonacciSpiralGeometry: React.FC<SacredGeometryProps> = ({
     const elements: JSX.Element[] = [];
     const emissiveIntensity = liftTheVeil ? 1.5 : 1.0;
     
-    // Convert points array to Float32Array for buffer geometry
-    const positions = new Float32Array(spiralPoints.length * 3);
-    spiralPoints.forEach((point, i) => {
-      positions[i * 3] = point.x;
-      positions[i * 3 + 1] = point.y;
-      positions[i * 3 + 2] = point.z;
-    });
-
-    // Create the main spiral line
+    // Create the main spiral line using proper THREE.js approach
+    const lineGeometry = new THREE.BufferGeometry().setFromPoints(spiralPoints);
     elements.push(
-      <line key="main-spiral">
-        <bufferGeometry>
-          <float32BufferAttribute 
-            attach="attributes-position" 
-            args={[positions, 3]} 
-          />
-        </bufferGeometry>
-        <lineBasicMaterial
-          color={color}
-          linewidth={2}
-          transparent={true}
-          opacity={0.8}
-        />
-      </line>
+      <primitive
+        key="main-spiral"
+        object={new THREE.Line(
+          lineGeometry,
+          new THREE.LineBasicMaterial({
+            color: color,
+            transparent: true,
+            opacity: 0.8
+          })
+        )}
+      />
     );
     
     // Add points along the spiral

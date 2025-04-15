@@ -56,6 +56,7 @@ const SriYantraGeometry: React.FC<SacredGeometryProps> = ({
     // Create upward-pointing triangles
     for (let i = 0; i < 4; i++) {
       const scale = 1 - (i * 0.15);
+      const zOffset = i * 0.01;
       
       const trianglePoints = [
         new THREE.Vector2(0, outerRadius * scale),
@@ -66,27 +67,31 @@ const SriYantraGeometry: React.FC<SacredGeometryProps> = ({
       const triangleShape = new THREE.Shape(trianglePoints);
       const triangleGeometry = new THREE.ShapeGeometry(triangleShape);
       
-      // Create edges correctly with React Three Fiber
+      // Create edges properly using THREE.js directly
       const edges = new THREE.EdgesGeometry(triangleGeometry);
-      const positions = edges.attributes.position.array;
+      const lineGeometry = new THREE.BufferGeometry();
+      lineGeometry.setAttribute('position', edges.getAttribute('position'));
       
       elements.push(
-        <line key={`upward-triangle-${i}`}>
-          <bufferGeometry>
-            <float32BufferAttribute attach="attributes-position" args={[positions, 3]} />
-          </bufferGeometry>
-          <lineBasicMaterial
-            color={color}
-            transparent={true}
-            opacity={0.6}
-          />
-        </line>
+        <primitive
+          key={`upward-triangle-${i}`}
+          object={new THREE.LineSegments(
+            lineGeometry,
+            new THREE.LineBasicMaterial({
+              color: color,
+              transparent: true,
+              opacity: 0.6
+            })
+          )}
+          position={[0, 0, zOffset]}
+        />
       );
     }
     
     // Create downward-pointing triangles
     for (let i = 0; i < 5; i++) {
       const scale = 0.95 - (i * 0.15);
+      const zOffset = i * 0.01 + 0.005;
       
       const trianglePoints = [
         new THREE.Vector2(0, -outerRadius * scale),
@@ -97,40 +102,46 @@ const SriYantraGeometry: React.FC<SacredGeometryProps> = ({
       const triangleShape = new THREE.Shape(trianglePoints);
       const triangleGeometry = new THREE.ShapeGeometry(triangleShape);
       
-      // Create edges correctly with React Three Fiber
+      // Create edges properly using THREE.js directly
       const edges = new THREE.EdgesGeometry(triangleGeometry);
-      const positions = edges.attributes.position.array;
+      const lineGeometry = new THREE.BufferGeometry();
+      lineGeometry.setAttribute('position', edges.getAttribute('position'));
       
       elements.push(
-        <line key={`downward-triangle-${i}`}>
-          <bufferGeometry>
-            <float32BufferAttribute attach="attributes-position" args={[positions, 3]} />
-          </bufferGeometry>
-          <lineBasicMaterial
-            color={color}
-            transparent={true}
-            opacity={0.6}
-          />
-        </line>
+        <primitive
+          key={`downward-triangle-${i}`}
+          object={new THREE.LineSegments(
+            lineGeometry,
+            new THREE.LineBasicMaterial({
+              color: color,
+              transparent: true,
+              opacity: 0.6
+            })
+          )}
+          position={[0, 0, zOffset]}
+        />
       );
     }
     
     // Create outer circle
     const circleGeometry = new THREE.CircleGeometry(outerRadius, 64);
     const circleEdges = new THREE.EdgesGeometry(circleGeometry);
-    const circlePositions = circleEdges.attributes.position.array;
+    const circleLineGeometry = new THREE.BufferGeometry();
+    circleLineGeometry.setAttribute('position', circleEdges.getAttribute('position'));
     
     elements.push(
-      <line key="outer-circle">
-        <bufferGeometry>
-          <float32BufferAttribute attach="attributes-position" args={[circlePositions, 3]} />
-        </bufferGeometry>
-        <lineBasicMaterial
-          color={color}
-          transparent={true}
-          opacity={0.4}
-        />
-      </line>
+      <primitive
+        key="outer-circle"
+        object={new THREE.LineSegments(
+          circleLineGeometry,
+          new THREE.LineBasicMaterial({
+            color: color,
+            transparent: true,
+            opacity: 0.4
+          })
+        )}
+        position={[0, 0, -0.01]}
+      />
     );
     
     // Add central dot (bindu)

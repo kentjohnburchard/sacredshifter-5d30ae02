@@ -10,4 +10,3 @@ export { default as ChakraBeamGeometry } from './ChakraBeam';
 // Export types - fixing TS1205 errors with proper export type syntax
 export { getChakraColor } from './types';
 export type { SacredGeometryProps, SacredGeometryType, GeometryConfig } from './types';
-
