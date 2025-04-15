@@ -9,4 +9,4 @@ export { default as ChakraBeamGeometry } from './ChakraBeam';
 
 // Export types and utilities
 export { getChakraColor } from './types';
-export type { SacredGeometryProps, SacredGeometryType, GeometryConfig } from './types';
+export type { SacredGeometryProps, SacredGeometryType, GeometryConfig, ChakraType } from './types';

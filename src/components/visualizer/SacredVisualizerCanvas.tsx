@@ -13,13 +13,14 @@ import {
   FibonacciSpiralGeometry,
   ChakraBeamGeometry,
   SacredGeometryType,
-  GeometryConfig
+  GeometryConfig,
+  ChakraType
 } from './sacred-geometries';
 import MultiVisualizer from './MultiVisualizer';
 
 type SacredVisualizerCanvasProps = {
   frequencyData?: Uint8Array;
-  chakra?: 'root' | 'sacral' | 'solar plexus' | 'heart' | 'throat' | 'third eye' | 'crown';
+  chakra?: ChakraType;
   visualizerMode?: VisualizerMode | SacredGeometryType;
   enableControls?: boolean;
   enablePostProcessing?: boolean;
@@ -136,6 +137,7 @@ const SacredVisualizerCanvas: React.FC<SacredVisualizerCanvasProps> = ({
             enablePan={false} 
             enableZoom={true} 
             enableRotate={true} 
+            makeDefault
           />
         )}
       </Canvas>

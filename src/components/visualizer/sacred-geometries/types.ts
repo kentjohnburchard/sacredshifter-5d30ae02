@@ -1,41 +1,42 @@
 
-import { VisualizerMode } from '@/components/audio/SacredAudioPlayerWithVisualizer';
+export type ChakraType = 'root' | 'sacral' | 'solar plexus' | 'heart' | 'throat' | 'third eye' | 'crown';
 
-export interface SacredGeometryProps {
-  frequencyData?: Uint8Array;
-  chakra?: 'root' | 'sacral' | 'solar plexus' | 'heart' | 'throat' | 'third eye' | 'crown';
-  intensity?: number;
-  mode?: 'fractal' | 'spiral' | 'mandala';
-  scale?: number;
-  position?: [number, number, number];
-  rotation?: [number, number, number];
-  color?: string;
-  isActive?: boolean;
-}
-
-// Sacred geometry types - these are the core geometries we're implementing
-export type SacredGeometryType = 'flowerOfLife' | 'merkaba' | 'metatronCube' | 'sriYantra' | 'fibonacciSpiral' | 'chakraBeam' | 'multi';
+export type SacredGeometryType = 
+  | 'flowerOfLife' 
+  | 'merkaba' 
+  | 'metatronCube' 
+  | 'sriYantra' 
+  | 'fibonacciSpiral'
+  | 'chakraBeam';
 
 export interface GeometryConfig {
   type: SacredGeometryType;
-  chakra?: 'root' | 'sacral' | 'solar plexus' | 'heart' | 'throat' | 'third eye' | 'crown';
-  intensity?: number;
-  scale?: number;
   position?: [number, number, number];
   rotation?: [number, number, number];
-  color?: string;
+  scale?: number;
+}
+
+export interface SacredGeometryProps {
+  chakra?: ChakraType;
+  intensity?: number;
+  frequencyData?: Uint8Array;
+  position?: [number, number, number];
+  rotation?: [number, number, number];
+  scale?: number;
   isActive?: boolean;
 }
 
-export const getChakraColor = (chakra?: string): string => {
-  const chakraColors: Record<string, string> = {
-    root: '#ef4444',
-    sacral: '#f97316',
+// Function to get chakra color based on chakra type
+export function getChakraColor(chakra: ChakraType = 'crown'): string {
+  const chakraColors: Record<ChakraType, string> = {
+    'root': '#ef4444',
+    'sacral': '#f97316',
     'solar plexus': '#facc15',
-    heart: '#22c55e',
-    throat: '#3b82f6',
+    'heart': '#22c55e',
+    'throat': '#3b82f6',
     'third eye': '#6366f1',
-    crown: '#a855f7'
+    'crown': '#a855f7'
   };
-  return chakraColors[chakra || ''] || '#a855f7';
-};
+  
+  return chakraColors[chakra];
+}

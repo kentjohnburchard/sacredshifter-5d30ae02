@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useSpring, animated } from '@react-spring/three';
@@ -16,7 +16,7 @@ const FibonacciSpiralGeometry: React.FC<SacredGeometryProps> = ({
   isActive = true
 }) => {
   const groupRef = useRef<THREE.Group>(null);
-  const color = chakra ? {
+  const chakraColors = {
     root: '#ef4444',
     sacral: '#f97316',
     'solar plexus': '#facc15',
@@ -24,7 +24,8 @@ const FibonacciSpiralGeometry: React.FC<SacredGeometryProps> = ({
     throat: '#3b82f6',
     'third eye': '#6366f1',
     crown: '#a855f7'
-  }[chakra] : '#a855f7';
+  };
+  const color = chakraColors[chakra || 'crown'];
   const { liftTheVeil } = useTheme();
 
   const { rotation: springRotation, scale: springScale } = useSpring({
@@ -48,7 +49,7 @@ const FibonacciSpiralGeometry: React.FC<SacredGeometryProps> = ({
   });
 
   // Create the Fibonacci spiral points
-  const spiralPoints = React.useMemo(() => {
+  const spiralPoints = useMemo(() => {
     const points: THREE.Vector3[] = [];
     const numPoints = 100;
     const goldenRatio = (1 + Math.sqrt(5)) / 2;
@@ -68,7 +69,7 @@ const FibonacciSpiralGeometry: React.FC<SacredGeometryProps> = ({
   }, []);
 
   // Create the spiral elements
-  const spiralElements = React.useMemo(() => {
+  const spiralElements = useMemo(() => {
     const elements: JSX.Element[] = [];
     const emissiveIntensity = liftTheVeil ? 1.5 : 1.0;
     const threeColor = new THREE.Color(color);
