@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { JourneyProps } from '@/types/journey';
@@ -40,7 +41,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const {
     togglePlay,
     seekTo,
-    setAudioSource,
+    setAudioSource: setGlobalAudioSource, // Renamed to avoid conflict
     duration,
     currentTime,
     isPlaying: internalIsPlaying,
@@ -81,7 +82,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
 
   // Ensure we have a valid audio file
   const validatedAudioUrl = audioUrl || url || '/sounds/focus-ambient.mp3';
-  const [audioSource, setAudioSource] = useState(validatedAudioUrl);
+  const [audioSource, setLocalAudioSource] = useState(validatedAudioUrl);
   
   useEffect(() => {
     console.log("SacredAudioPlayer validating source:", validatedAudioUrl);
@@ -91,7 +92,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     
     const handleTestSuccess = () => {
       console.log("Audio test successful for:", validatedAudioUrl);
-      setAudioSource(validatedAudioUrl);
+      setLocalAudioSource(validatedAudioUrl);
       if (onAudioLoaded) onAudioLoaded();
       
       // Clean up test element
@@ -103,7 +104,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     const handleTestError = () => {
       console.error("Audio test failed for:", validatedAudioUrl);
       // Fallback to default audio
-      setAudioSource('/sounds/focus-ambient.mp3');
+      setLocalAudioSource('/sounds/focus-ambient.mp3');
       if (onError) onError();
       
       // Clean up test element
@@ -131,13 +132,13 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   useEffect(() => {
     if (audioSource) {
       console.log("Setting audio source:", audioSource);
-      setAudioSource(audioSource);
+      setGlobalAudioSource(audioSource);
     } else {
       console.warn("No audio URL provided to SacredAudioPlayer");
       // Set a fallback audio source
-      setAudioSource('/sounds/focus-ambient.mp3');
+      setGlobalAudioSource('/sounds/focus-ambient.mp3');
     }
-  }, [audioSource, setAudioSource]);
+  }, [audioSource, setGlobalAudioSource]);
 
   // Handle play/pause toggling with internal/external state management
   const handleTogglePlay = () => {
