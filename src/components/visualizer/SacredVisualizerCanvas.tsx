@@ -1,7 +1,7 @@
 
 import React, { useRef, useEffect, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera, PointMaterial, Points, Trail, Stars, useTexture } from '@react-three/drei';
+import { OrbitControls, PerspectiveCamera, Trail, Stars, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { VisualizerMode } from '@/components/audio/SacredAudioPlayerWithVisualizer';
 import { isPrime } from '@/lib/primeUtils';
@@ -50,7 +50,9 @@ const FlowerOfLifeGeometry = ({ chakra = 'crown', intensity = 0, frequencyData }
       
       // If we have frequency data, modify rotation speed based on audio
       if (frequencyData && frequencyData.length > 0) {
-        const avgFreq = Array.from(frequencyData).reduce((sum: number, val: number) => sum + val, 0) / frequencyData.length;
+        // Convert to number[] before reducing to ensure type safety
+        const freqArray = Array.from(frequencyData).map(Number);
+        const avgFreq = freqArray.reduce((sum, val) => sum + val, 0) / freqArray.length;
         const normalizedFreq = avgFreq / 255;
         
         groupRef.current.rotation.y += normalizedFreq * 0.01;
@@ -193,7 +195,9 @@ const MerkabaGeometry = ({ chakra = 'crown', intensity = 0, frequencyData }) => 
       
       // If we have frequency data, add audio reactivity
       if (frequencyData && frequencyData.length > 0) {
-        const avgFreq = Array.from(frequencyData).reduce((sum: number, val: number) => sum + val, 0) / frequencyData.length;
+        // Convert to number[] before reducing to ensure type safety
+        const freqArray = Array.from(frequencyData).map(Number);
+        const avgFreq = freqArray.reduce((sum, val) => sum + val, 0) / freqArray.length;
         const normalizedFreq = avgFreq / 255;
         const scale = 1 + normalizedFreq * 0.3;
         
@@ -249,12 +253,12 @@ const MerkabaGeometry = ({ chakra = 'crown', intensity = 0, frequencyData }) => 
           />
         </mesh>
         
-        {/* Particles inside - fixed to use bufferGeometry with correct attribute setup */}
+        {/* Particles inside - using proper bufferGeometry */}
         <points>
           <bufferGeometry>
             <bufferAttribute
               attach="attributes-position"
-              count={50}
+              count={particlePositions.length / 3}
               array={particlePositions}
               itemSize={3}
             />
@@ -328,12 +332,14 @@ const TorusGeometry = ({ chakra = 'crown', frequencyData, intensity = 0 }) => {
       
       // If we have frequency data, add audio reactivity
       if (frequencyData && frequencyData.length) {
-        const avg = Array.from(frequencyData).reduce((acc: number, val: number) => acc + val, 0) / frequencyData.length;
+        // Convert to number[] before reducing to ensure type safety
+        const freqArray = Array.from(frequencyData).map(Number);
+        const avg = freqArray.reduce((acc, val) => acc + val, 0) / freqArray.length;
         const intensity = avg / 255;
         
         // Modify material properties based on audio
         const material = torusRef.current.material as THREE.MeshStandardMaterial;
-        if (material.emissiveIntensity !== undefined) {
+        if (material && material.emissiveIntensity !== undefined) {
           material.emissiveIntensity = 0.5 + intensity * 2;
         }
       }
@@ -358,7 +364,7 @@ const TorusGeometry = ({ chakra = 'crown', frequencyData, intensity = 0 }) => {
         />
       </animated.mesh>
       
-      {/* Particle system flowing around torus - fixed to use proper points with buffer geometry */}
+      {/* Particle system flowing around torus - using proper bufferGeometry */}
       <points ref={particlesRef}>
         <bufferGeometry>
           <bufferAttribute
@@ -567,8 +573,8 @@ const ChakraSpiralGeometry = ({ frequencyData, intensity = 0 }) => {
         if (point) {
           const start = i * chunkSize;
           const end = start + chunkSize;
-          const chunk = Array.from(frequencyData.slice(start, end));
-          const avg = chunk.reduce((sum: number, val: number) => sum + val, 0) / chunk.length;
+          const chunk = Array.from(frequencyData.slice(start, end)).map(Number);
+          const avg = chunk.reduce((sum, val) => sum + val, 0) / chunk.length;
           const intensity = avg / 255;
           
           // Scale based on frequency intensity
