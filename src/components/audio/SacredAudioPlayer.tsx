@@ -1,11 +1,12 @@
 
-import React, { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { useTheme } from '@/context/ThemeContext';
 import { Slider } from '@/components/ui/slider';
 import { formatTime } from '@/lib/utils';
-import KaleidoscopeVisualizer from '@/components/visualizer/KaleidoscopeVisualizer'; 
+import KaleidoscopeVisualizer from '@/components/visualizer/KaleidoscopeVisualizer';
+import { Button } from '@/components/ui/button';
+import { Play, Pause } from 'lucide-react';
 
 const SacredAudioPlayer: React.FC = () => {
   const {
@@ -24,24 +25,12 @@ const SacredAudioPlayer: React.FC = () => {
   const [isSeeking, setIsSeeking] = useState(false);
   const [seekTime, setSeekTime] = useState(0);
   const { liftTheVeil } = useTheme();
-  const [visualizerExpanded, setVisualizerExpanded] = useState(false);
 
   const handleSeekMouseDown = () => {
     setIsSeeking(true);
   };
 
-  const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSeekTime(parseFloat(e.target.value));
-  };
-
-  // Fix the event handler type to correctly handle MouseEvent instead of ChangeEvent
-  const handleSeekMouseUp = () => {
-    setIsSeeking(false);
-    seekTo(seekTime);
-  };
-
-  // Use this for handling input change events
-  const handleInputChange = (value: number[]) => {
+  const handleSeekChange = (value: number[]) => {
     const newValue = value[0];
     setSeekTime(newValue);
     if (!isSeeking) {
@@ -50,71 +39,74 @@ const SacredAudioPlayer: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    if (audioRef.current) {
-      if (!isSeeking) {
-        setSeekTime(currentTime);
-      }
+  const handleSeekMouseUp = () => {
+    setIsSeeking(false);
+    seekTo(seekTime);
+  };
+
+  React.useEffect(() => {
+    if (!isSeeking) {
+      setSeekTime(currentTime);
     }
-  }, [currentTime, isSeeking, audioRef]);
+  }, [currentTime, isSeeking]);
 
   return (
-    <div className="sacred-audio-player w-full">
-      <div className="max-w-4xl mx-auto bg-black/20 backdrop-blur-sm rounded-lg shadow-xl p-4">
-        {currentTrack ? (
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold text-purple-300">{currentTrack.title}</h3>
-            {currentTrack.artist && <p className="text-sm text-gray-400">{currentTrack.artist}</p>}
-          </div>
-        ) : (
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold text-purple-300">No track selected</h3>
-            <p className="text-sm text-gray-400">Select a track to play</p>
-          </div>
-        )}
-        
-        <div className="flex items-center justify-between">
-          <button
+    <div className="sacred-audio-player w-full max-w-4xl mx-auto">
+      <div className="bg-black/20 backdrop-blur-sm rounded-lg shadow-xl p-4">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={togglePlay}
-            className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            className="h-10 w-10 rounded-full bg-purple-500 hover:bg-purple-600 text-white"
             disabled={!audioLoaded}
           >
-            {isPlaying ? 'Pause' : 'Play'}
-          </button>
-          
-          <div className="flex-grow mx-4">
-            {/* Replace the input type="range" with Shadcn Slider component */}
+            {isPlaying ? (
+              <Pause className="h-5 w-5" />
+            ) : (
+              <Play className="h-5 w-5 ml-0.5" />
+            )}
+          </Button>
+
+          <div className="flex-grow">
+            <div className="mb-2">
+              <h3 className="text-lg font-semibold text-purple-300">
+                {currentTrack?.title || 'No track selected'}
+              </h3>
+              {currentTrack?.artist && (
+                <p className="text-sm text-gray-400">{currentTrack.artist}</p>
+              )}
+            </div>
+            
             <Slider
               value={[seekTime]}
               min={0}
               max={duration || 100}
               step={0.1}
-              onValueChange={handleInputChange}
+              onValueChange={handleSeekChange}
+              onPointerDown={handleSeekMouseDown}
+              onPointerUp={handleSeekMouseUp}
               className="w-full"
             />
-            <div className="flex justify-between text-sm text-gray-400">
+            
+            <div className="flex justify-between text-sm text-gray-400 mt-1">
               <span>{formatTime(currentTime)}</span>
               <span>{formatTime(duration)}</span>
             </div>
           </div>
         </div>
-        
+
         {audioError && (
-          <div className="text-red-500 mt-2">
-            Error: {audioError}
-          </div>
+          <div className="text-red-500 mt-2">{audioError}</div>
         )}
       </div>
-      
-      {/* Kaleidoscope Visualizer (replacing Sacred Geometry) */}
-      <div className={`w-full max-w-4xl mx-auto mt-4 mb-4 ${visualizerExpanded ? 'z-30' : 'z-10'}`}>
+
+      <div className="mt-4 h-48 rounded-lg overflow-hidden">
         <KaleidoscopeVisualizer 
           audioRef={audioRef}
           isAudioReactive={true}
           colorScheme={liftTheVeil ? 'pink' : 'purple'}
           size="md"
-          speed={1.2}
-          reflections={liftTheVeil ? 12 : 8}
         />
       </div>
     </div>
