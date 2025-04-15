@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
@@ -85,6 +86,9 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const pinkNoiseRef = useRef<HTMLAudioElement | null>(null);
   
   const { liftTheVeil } = useTheme();
+  
+  // Define shouldShowVisualizer here to fix the error
+  const shouldShowVisualizer = isVisualizerVisible && isPlaying && !!analyser;
   
   useEffect(() => {
     if (!pinkNoiseRef.current) {
@@ -189,359 +193,303 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
 
   const handleSeekMouseUp = () => {
     setIsSeeking(false);
+    setCurrentTime(seekTime);
     seekTo(seekTime);
   };
 
   const handleVolumeChange = (value: number[]) => {
     const newVolume = value[0];
     setVolume(newVolume);
-    if (newVolume > 0 && isMuted) {
-      setIsMuted(false);
-    }
+    
     if (audioRef.current) {
       audioRef.current.volume = newVolume;
-    }
-    
-    if (pinkNoiseRef.current && options.pinkNoise) {
-      pinkNoiseRef.current.volume = Math.min(0.3, newVolume * 0.5);
+      setIsMuted(newVolume === 0);
     }
   };
 
   const toggleMute = () => {
-    const newMutedState = !isMuted;
-    setIsMuted(newMutedState);
     if (audioRef.current) {
-      audioRef.current.muted = newMutedState;
-    }
-    
-    if (pinkNoiseRef.current) {
-      pinkNoiseRef.current.muted = newMutedState;
+      if (isMuted) {
+        audioRef.current.volume = volume > 0 ? volume : 0.5;
+        setIsMuted(false);
+      } else {
+        audioRef.current.volume = 0;
+        setIsMuted(true);
+      }
     }
   };
 
-  const handleTogglePlay = () => {
-    if (externalTogglePlay) {
-      externalTogglePlay();
-    } else {
-      togglePlay();
-    }
+  const toggleVisualizerVisibility = () => {
+    setIsVisualizerVisible(!isVisualizerVisible);
   };
-  
+
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
   };
-  
+
   const toggleMinimized = () => {
     setIsMinimized(!isMinimized);
   };
   
+  // Handle callbacks from journey options
   const togglePinkNoise = () => {
     setOptions(prev => ({ ...prev, pinkNoise: !prev.pinkNoise }));
   };
   
   const toggleLowSensitivity = () => {
     setOptions(prev => ({ ...prev, lowSensitivity: !prev.lowSensitivity }));
-    
-    if (audioRef.current && audioContext) {
-      console.log("Low sensitivity mode toggled:", !options.lowSensitivity);
-    }
   };
   
   const toggleHeadphones = () => {
     setOptions(prev => ({ ...prev, headphones: !prev.headphones }));
   };
   
-  const selectSleepTimer = (value: string) => {
-    const minutes = parseInt(value, 10);
-    setOptions(prev => ({ ...prev, sleepTimer: minutes }));
-    
+  const setSleepTimerMinutes = (minutes: number) => {
     if (minutes > 0) {
       startSleepTimer(minutes);
+      setOptions(prev => ({ ...prev, sleepTimer: minutes }));
     } else {
       cancelSleepTimer();
+      setOptions(prev => ({ ...prev, sleepTimer: 0 }));
     }
   };
 
-  const playerIsPlaying = externalIsPlaying !== undefined ? externalIsPlaying : isPlaying;
-
-  useEffect(() => {
-    if (!isSeeking) {
-      setSeekTime(currentTime);
-    }
-  }, [currentTime, isSeeking]);
+  // Get track info for display
+  const trackTitle = currentTrack?.title || 'No track loaded';
+  const trackArtist = currentTrack?.artist || '';
+  const mainFrequency = currentTrack?.customData?.frequency || frequency || 432;
   
-  const formatSleepTimer = () => {
-    if (!sleepTimerActive) return "--:--";
-    const minutes = Math.floor(sleepTimerRemaining / 60);
-    const seconds = Math.floor(sleepTimerRemaining % 60);
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  };
+  // If chakra is provided, use it for color scheme
+  const chakra = currentTrack?.customData?.chakra || journey?.chakras?.[0] || 'Crown';
+  const colorScheme = getChakraColorScheme(chakra);
   
-  const displayTitle = journey?.title || currentTrack?.title || "No track selected";
-  
-  const displayAffirmation = journey?.affirmation || "";
-  
-  const frequencies = journey?.frequencies || (frequency ? [frequency] : []);
-  
-  const chakras = journey?.chakras || [];
-
-  const shouldShowVisualizer = playerIsPlaying || liftTheVeil;
-  
-  const toggleVisualizerVisibility = () => {
-    setIsVisualizerVisible(!isVisualizerVisible);
-  };
+  // If we're playing a prime number frequency, highlight it
+  const isPrimeFreq = isPrime(mainFrequency);
 
   if (isMinimized) {
     return (
-      <div className="fixed bottom-4 right-4 z-50 bg-black/70 backdrop-blur-lg rounded-full shadow-lg flex items-center p-2 pr-4 text-white">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleTogglePlay}
-          className="h-8 w-8 rounded-full bg-purple-500 hover:bg-purple-600 mr-2"
-        >
-          {playerIsPlaying ? (
-            <Pause className="h-4 w-4" />
-          ) : (
-            <Play className="h-4 w-4 ml-0.5" />
-          )}
-        </Button>
-        
-        <div className="text-sm font-medium truncate max-w-[100px]">
-          {displayTitle}
+      <div className="bg-black/70 backdrop-blur-sm text-white p-2 rounded-t-lg shadow-lg border border-white/10 flex items-center justify-between">
+        <div className="flex items-center">
+          <button 
+            className="p-1 rounded-full bg-purple-600 mr-2 hover:bg-purple-700"
+            onClick={togglePlay}
+            aria-label={isPlaying ? "Pause audio" : "Play audio"}
+          >
+            {isPlaying ? <Pause size={12} /> : <Play size={12} />}
+          </button>
+          <div className="text-xs truncate max-w-[150px]">
+            {trackTitle} 
+          </div>
         </div>
-        
-        <Button
-          variant="ghost"
-          size="icon"
+        <button
+          className="text-white/80 hover:text-white"
           onClick={toggleMinimized}
-          className="h-6 w-6 ml-2 text-gray-300 hover:text-white"
+          aria-label="Expand audio player"
         >
-          <MoveUp className="h-4 w-4" />
-        </Button>
+          <MoveUp size={14} />
+        </button>
       </div>
     );
   }
 
-  const chakra = journey?.chakras?.[0] || 'Crown';
-  const colorScheme = getChakraColorScheme([chakra]);
-
   return (
-    <div className={`sacred-audio-player w-full max-w-4xl mx-auto transition-all duration-300 ${isExpanded ? 'h-auto' : 'h-24'}`}>
-      <div className="bg-black/20 backdrop-blur-sm rounded-lg shadow-xl p-4 relative">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex flex-col">
-            <h3 className="text-lg font-semibold text-purple-300">
-              {displayTitle}
-            </h3>
-            
-            {displayAffirmation && (
-              <p className="text-sm text-gray-300 italic">
-                "{displayAffirmation}"
-              </p>
-            )}
-          </div>
-          
-          <div className="flex items-center space-x-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleVisualizerVisibility}
-              className="h-6 w-6 text-gray-300 hover:text-white"
-              title={isVisualizerVisible ? "Hide visualizer" : "Show visualizer"}
-            >
-              {isVisualizerVisible ? (
-                <Eye className="h-4 w-4" />
-              ) : (
-                <EyeOff className="h-4 w-4" />
-              )}
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleMinimized}
-              className="h-6 w-6 text-gray-300 hover:text-white"
-            >
-              <MoveDown className="h-4 w-4" />
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleExpanded}
-              className="h-6 w-6 text-gray-300 hover:text-white"
-            >
-              {isExpanded ? (
-                <Minimize2 className="h-4 w-4" />
-              ) : (
-                <Maximize2 className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleTogglePlay}
-            className="h-10 w-10 rounded-full bg-purple-500 hover:bg-purple-600 text-white"
-            disabled={!audioLoaded && !(audioUrl || url)}
-          >
-            {playerIsPlaying ? (
-              <Pause className="h-5 w-5" />
-            ) : (
-              <Play className="h-5 w-5 ml-0.5" />
-            )}
-          </Button>
-
-          <div className="flex-grow">
-            <div className="flex items-center gap-4">
-              <div className="flex-grow">
-                <Slider
-                  value={[seekTime]}
-                  min={0}
-                  max={duration || 100}
-                  step={0.1}
-                  onValueChange={handleSeekChange}
-                  onPointerDown={handleSeekMouseDown}
-                  onPointerUp={handleSeekMouseUp}
-                  className="w-full"
-                />
-                
-                <div className="flex justify-between text-sm text-gray-400 mt-1">
-                  <span>{formatTime(currentTime)}</span>
-                  <span>{formatTime(duration)}</span>
-                </div>
-              </div>
-              
-              <div
-                className="relative"
-                onMouseEnter={() => setShowVolumeSlider(true)}
-                onMouseLeave={() => setShowVolumeSlider(false)}
-              >
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={toggleMute}
-                  className="h-8 w-8 text-white"
-                >
-                  {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                </Button>
-
-                {showVolumeSlider && (
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-2 bg-black/60 rounded-lg shadow-lg z-10 w-32">
-                    <Slider
-                      value={[isMuted ? 0 : volume]}
-                      max={1}
-                      step={0.01}
-                      onValueChange={handleVolumeChange}
-                      className="w-full"
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-4 border-t border-white/10 pt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Waves className="h-4 w-4 text-gray-400" />
-                <Label htmlFor="pink-noise" className="text-sm text-gray-300">Pink Noise</Label>
-              </div>
-              <Switch 
-                id="pink-noise" 
-                checked={options.pinkNoise} 
-                onCheckedChange={togglePinkNoise} 
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <FastForward className="h-4 w-4 text-gray-400" />
-                <Label htmlFor="low-sensitivity" className="text-sm text-gray-300">Low Sensitivity</Label>
-              </div>
-              <Switch 
-                id="low-sensitivity" 
-                checked={options.lowSensitivity} 
-                onCheckedChange={toggleLowSensitivity} 
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Headphones className="h-4 w-4 text-gray-400" />
-                <Label htmlFor="headphones" className="text-sm text-gray-300">Headphones</Label>
-              </div>
-              <Switch 
-                id="headphones" 
-                checked={options.headphones} 
-                onCheckedChange={toggleHeadphones} 
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Timer className="h-4 w-4 text-gray-400" />
-                <Label className="text-sm text-gray-300">
-                  {sleepTimerActive ? (
-                    <span>Timer: {formatSleepTimer()}</span>
-                  ) : (
-                    <span>Sleep Timer</span>
-                  )}
-                </Label>
-              </div>
-              
-              {sleepTimerActive ? (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={cancelSleepTimer}
-                  className="h-7 px-2"
-                >
-                  <X className="h-3 w-3 mr-1" /> Cancel
-                </Button>
-              ) : (
-                <select 
-                  className="bg-black/30 rounded border border-white/20 text-xs text-white py-1 px-2"
-                  onChange={(e) => selectSleepTimer(e.target.value)}
-                  value={options.sleepTimer || "0"}
-                >
-                  <option value="0">Off</option>
-                  <option value="5">5 min</option>
-                  <option value="15">15 min</option>
-                  <option value="30">30 min</option>
-                  <option value="60">60 min</option>
-                </select>
-              )}
-            </div>
-          </div>
-
-        {audioError && (
-          <div className="text-red-500 mt-2">{audioError}</div>
-        )}
-      </div>
-
-      {isExpanded && shouldShowVisualizer && isVisualizerVisible && (
-        <div className="mt-4 h-64 rounded-lg overflow-hidden backdrop-blur-md bg-black/30">
-          <VisualizerManager 
+    <div className={`sacred-audio-player relative rounded-t-lg overflow-hidden shadow-xl border-t border-x border-white/10 transition-all duration-300 ${isExpanded ? 'bg-black/70 backdrop-blur-md' : 'bg-black/60 backdrop-blur-sm'}`}>
+      {/* Visualizer */}
+      {shouldShowVisualizer && isExpanded && (
+        <div className="h-48">
+          <VisualizerManager
+            size={isExpanded ? 'md' : 'sm'}
             isAudioReactive={true}
             colorScheme={colorScheme}
-            size="md"
-            frequency={frequency}
             analyzerNode={analyser}
             audioRef={audioRef}
-            frequencies={journey?.frequencies || (frequency ? [frequency] : [])}
-            chakras={journey?.chakras || []}
-            visualTheme={journey?.visualTheme}
+            frequency={mainFrequency}
+            chakra={chakra}
             isPlaying={isPlaying}
             liftedVeil={liftTheVeil}
           />
         </div>
       )}
+      
+      {/* Player controls */}
+      <div className="player-controls p-3 text-white">
+        <div className="flex justify-between items-center mb-2">
+          <div className="flex-1 mr-2">
+            <h3 className="text-sm font-medium truncate">{trackTitle}</h3>
+            {trackArtist && <p className="text-xs text-gray-300">{trackArtist}</p>}
+          </div>
+          
+          <div className="flex space-x-1">
+            {isExpanded && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-white/70 hover:text-white hover:bg-white/10 rounded-full"
+                onClick={toggleVisualizerVisibility}
+                aria-label={isVisualizerVisible ? "Hide visualizer" : "Show visualizer"}
+              >
+                {isVisualizerVisible ? <EyeOff size={14} /> : <Eye size={14} />}
+              </Button>
+            )}
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-white/70 hover:text-white hover:bg-white/10 rounded-full"
+              onClick={toggleExpanded}
+              aria-label={isExpanded ? "Collapse player" : "Expand player"}
+            >
+              {isExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-white/70 hover:text-white hover:bg-white/10 rounded-full"
+              onClick={toggleMinimized}
+              aria-label="Minimize player"
+            >
+              <MoveDown size={14} />
+            </Button>
+          </div>
+        </div>
+        
+        {/* Frequency indicator */}
+        {mainFrequency && isExpanded && (
+          <div className={`flex items-center justify-center p-1 mb-2 text-xs border-t border-b ${isPrimeFreq ? 'border-pink-400/30' : 'border-white/10'}`}>
+            <span className={`${isPrimeFreq ? 'text-pink-300' : 'text-gray-200'} font-mono`}>
+              {mainFrequency} Hz 
+              {isPrimeFreq && ' ✦ Prime Frequency'}
+            </span>
+            {chakra && <span className="text-gray-300 ml-2">| {chakra} Chakra</span>}
+          </div>
+        )}
+        
+        {/* Progress bar */}
+        <div className="flex items-center space-x-2 mb-2">
+          <span className="text-xs">{formatTime(currentTime)}</span>
+          <Slider
+            value={[isSeeking ? seekTime : currentTime]}
+            min={0}
+            max={duration || 100}
+            step={1}
+            onValueChange={handleSeekChange}
+            onPointerDown={handleSeekMouseDown}
+            onPointerUp={handleSeekMouseUp}
+            className="flex-1"
+          />
+          <span className="text-xs">{formatTime(duration)}</span>
+        </div>
+        
+        {/* Playback controls */}
+        <div className="flex justify-between items-center">
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-white rounded-full"
+              onClick={togglePlay}
+              aria-label={isPlaying ? "Pause" : "Play"}
+            >
+              {isPlaying ? <Pause size={18} /> : <Play size={18} />}
+            </Button>
+            
+            {isExpanded && (
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-white/80 hover:text-white rounded-full"
+                  onClick={() => setShowVolumeSlider(!showVolumeSlider)}
+                  aria-label="Volume"
+                >
+                  {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                </Button>
+                
+                {showVolumeSlider && (
+                  <div className="absolute left-0 bottom-full p-3 bg-black/90 rounded-md shadow-lg w-48 z-50">
+                    <div className="flex items-center space-x-2">
+                      <button onClick={toggleMute}>
+                        {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                      </button>
+                      <Slider
+                        value={[isMuted ? 0 : volume]}
+                        min={0}
+                        max={1}
+                        step={0.01}
+                        onValueChange={handleVolumeChange}
+                        className="flex-1"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          
+          {isExpanded && (
+            <div className="flex items-center space-x-2">
+              {journey && (
+                <>
+                  <div className="flex items-center">
+                    <Switch
+                      id="pink-noise"
+                      checked={options.pinkNoise}
+                      onCheckedChange={togglePinkNoise}
+                      className="data-[state=checked]:bg-pink-600"
+                    />
+                    <Label htmlFor="pink-noise" className="ml-1.5 text-xs">
+                      <Waves size={12} className="inline mr-1" /> Pink Noise
+                    </Label>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <Switch
+                      id="headphones"
+                      checked={options.headphones}
+                      onCheckedChange={toggleHeadphones}
+                      className="data-[state=checked]:bg-blue-600"
+                    />
+                    <Label htmlFor="headphones" className="ml-1.5 text-xs">
+                      <Headphones size={12} className="inline mr-1" />
+                    </Label>
+                  </div>
+                </>
+              )}
+              
+              {sleepTimerActive && (
+                <div className="flex items-center">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-white/80 hover:text-white"
+                    onClick={cancelSleepTimer}
+                    aria-label="Cancel sleep timer"
+                  >
+                    <Timer size={14} className="text-blue-400" />
+                  </Button>
+                  <span className="text-xs text-blue-400 ml-1">
+                    {Math.floor(sleepTimerRemaining / 60)}:
+                    {String(Math.floor(sleepTimerRemaining % 60)).padStart(2, '0')}
+                  </span>
+                </div>
+              )}
+              
+              {!sleepTimerActive && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 text-white/80 hover:text-white"
+                  onClick={() => setSleepTimerMinutes(30)}
+                  aria-label="Set sleep timer"
+                >
+                  <Moon size={14} />
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
