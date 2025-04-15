@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { Canvas } from '@react-three/fiber';
@@ -27,10 +26,10 @@ const chakraPalettes = {
   classic: {
     root: '#ef4444',
     sacral: '#f97316',
-    solarPlexus: '#facc15',
+    'solar plexus': '#facc15',
     heart: '#22c55e',
     throat: '#3b82f6',
-    thirdEye: '#6366f1',
+    'third eye': '#6366f1',
     crown: '#a855f7'
   },
   mystic: {
@@ -265,8 +264,8 @@ const EnhancedSacredAudioPlayer: React.FC<EnhancedSacredAudioPlayerProps> = ({
         
         // Draw bar with glow effect
         ctx.shadowBlur = 15;
-        ctx.shadowColor = color;
-        ctx.fillStyle = color;
+        ctx.shadowColor = color as string;
+        ctx.fillStyle = color as string;
         
         const x = i * (barWidth + barSpacing);
         const y = canvas.height - barHeight;
