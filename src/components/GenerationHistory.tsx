@@ -11,15 +11,6 @@ interface GenerationHistoryProps {
   onDelete?: (id: string) => void;
 }
 
-// Update the interface to include audioUrl
-interface GeneratedTrack {
-  id: string;
-  title: string;
-  audioUrl: string;
-  url?: string;
-  [key: string]: any;
-}
-
 const GenerationHistory: React.FC<GenerationHistoryProps> = ({ 
   tracks = [], // Provide default empty array
   onDelete = () => {} // Provide default no-op function

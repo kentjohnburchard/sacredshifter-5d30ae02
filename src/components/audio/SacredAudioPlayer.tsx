@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { useTheme } from '@/context/ThemeContext';
@@ -19,7 +18,8 @@ const SacredAudioPlayer: React.FC = () => {
     audioLoaded,
     audioError,
     currentTrack,
-    setCurrentTime
+    setCurrentTime,
+    audioAnalyser
   } = useAudioPlayer();
   
   const [isSeeking, setIsSeeking] = useState(false);
@@ -157,8 +157,8 @@ const SacredAudioPlayer: React.FC = () => {
 
       <div className="mt-4 h-48 rounded-lg overflow-hidden">
         <VisualizerManager 
-          audioRef={audioRef}
-          isAudioReactive={false}
+          isAudioReactive={true}
+          analyser={audioAnalyser}
           colorScheme={liftTheVeil ? 'pink' : 'purple'}
           size="md"
         />
