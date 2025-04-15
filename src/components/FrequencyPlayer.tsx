@@ -2,7 +2,7 @@
 import React from 'react';
 import SacredAudioPlayer from '@/components/audio/SacredAudioPlayer';
 
-interface FrequencyPlayerProps {
+export interface FrequencyPlayerProps {
   audioUrl?: string;
   url?: string;
   frequency?: number;

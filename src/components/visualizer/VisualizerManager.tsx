@@ -2,7 +2,7 @@
 import React from 'react';
 import KaleidoscopeVisualizer from './KaleidoscopeVisualizer';
 
-interface VisualizerManagerProps {
+export interface VisualizerManagerProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   isAudioReactive?: boolean;
   colorScheme?: string;
@@ -22,7 +22,6 @@ const VisualizerManager: React.FC<VisualizerManagerProps> = ({
       size={size}
       isAudioReactive={isAudioReactive}
       colorScheme={colorScheme}
-      chakra={chakra}
       frequency={frequency}
     />
   );

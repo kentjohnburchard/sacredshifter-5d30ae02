@@ -310,9 +310,9 @@ const JourneyPlayer = () => {
             <VisualizerManager 
               size="lg" 
               isAudioReactive={true}
-              analyser={audioAnalyser}
               colorScheme={journey?.colorScheme || "purple"}
-              chakra={journey?.chakras?.[0] || undefined}
+              chakra={journey?.chakras?.[0]}
+              frequency={journey?.frequency}
             />
           )}
         </div>
