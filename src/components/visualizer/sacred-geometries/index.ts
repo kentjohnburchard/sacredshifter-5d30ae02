@@ -31,7 +31,10 @@ export type SacredGeometryType =
   | 'metatronCube' 
   | 'sriYantra' 
   | 'fibonacciSpiral' 
-  | 'chakraBeam';
+  | 'chakraBeam'
+  | 'primeFlow'
+  | 'chakraSpiral'
+  | 'multi';
 
 // Configuration interface for geometry visualizers
 export interface GeometryConfig {

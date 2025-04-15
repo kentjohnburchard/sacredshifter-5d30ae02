@@ -7,6 +7,7 @@ import SacredVisualizerCanvas from './SacredVisualizerCanvas';
 import { useAppStore } from '@/store';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/context/ThemeContext';
+import { SacredGeometryType } from './sacred-geometries';
 import { 
   Waves, 
   Hexagon, 
@@ -115,7 +116,7 @@ const EnhancedVisualizer: React.FC<EnhancedVisualizerProps> = ({
             <SacredVisualizerCanvas 
               frequencyData={localFrequencyData}
               chakra={chakra as any}
-              visualizerMode="primeFlow"
+              visualizerMode={"primeFlow" as SacredGeometryType}
               intensity={intensity}
             />
           )}
@@ -124,7 +125,7 @@ const EnhancedVisualizer: React.FC<EnhancedVisualizerProps> = ({
             <SacredVisualizerCanvas 
               frequencyData={localFrequencyData}
               chakra={chakra as any}
-              visualizerMode="chakraSpiral"
+              visualizerMode={"chakraSpiral" as SacredGeometryType}
               intensity={intensity}
             />
           )}

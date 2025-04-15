@@ -36,7 +36,8 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
   // Get chakra colors for styling
   const colorSchemeObj = journey?.chakras ? getChakraColorScheme(journey.chakras) : undefined;
   // Convert colorScheme to string if it's an object
-  const colorScheme = typeof colorSchemeObj === 'object' && colorSchemeObj ? colorSchemeObj.primary : colorSchemeObj;
+  const colorScheme = typeof colorSchemeObj === 'string' ? colorSchemeObj : 
+    (colorSchemeObj ? colorSchemeObj.primary : '#a855f7');
   
   const containerClass = `sacred-audio-player-with-visualizer w-full max-w-4xl mx-auto rounded-xl overflow-hidden shadow-lg ${chakra ? `chakra-${chakra}` : ''}`;
 
@@ -89,7 +90,7 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
         <div className="h-64 relative rounded-t-xl overflow-hidden shadow-inner">
           <CanvasAudioVisualizer 
             audioData={audioData}
-            colorScheme={colorScheme || '#a855f7'}
+            colorScheme={colorScheme}
             visualizerMode={visualizerMode}
             isPlaying={isPlaying}
           />

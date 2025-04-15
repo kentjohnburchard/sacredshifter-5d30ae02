@@ -2,10 +2,7 @@
 import React from 'react';
 import { VisualizerMode } from '@/components/audio/SacredAudioPlayerWithVisualizer';
 import { useTheme } from '@/context/ThemeContext';
-import { ChakraType } from './sacred-geometries';
-
-// Local type definition to replace imports
-type SacredGeometryType = 'flowerOfLife' | 'merkaba' | 'metatronCube' | 'sriYantra' | 'fibonacciSpiral' | 'chakraBeam';
+import { ChakraType, SacredGeometryType } from './sacred-geometries';
 
 interface GeometryConfig {
   type: SacredGeometryType;
@@ -40,7 +37,8 @@ const SacredVisualizerCanvas: React.FC<SacredVisualizerCanvasProps> = ({
 }) => {
   // Only include the geometry types we know we properly support
   const supportedGeometryTypes: SacredGeometryType[] = [
-    'flowerOfLife', 'merkaba', 'metatronCube', 'sriYantra', 'fibonacciSpiral', 'chakraBeam'
+    'flowerOfLife', 'merkaba', 'metatronCube', 'sriYantra', 'fibonacciSpiral', 'chakraBeam',
+    'primeFlow', 'chakraSpiral', 'multi'
   ];
   
   // Check if visualizerMode is one of our supported types
