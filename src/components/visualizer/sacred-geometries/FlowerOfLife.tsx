@@ -28,9 +28,12 @@ const FlowerOfLifeGeometry: React.FC<SacredGeometryProps> = ({
   const color = chakra ? chakraColors[chakra] || '#a855f7' : '#a855f7';
   const { liftTheVeil } = useTheme();
 
-  const { rotation: springRotation, scale: springScale } = useSpring({
-    rotation: [rotation[0], rotation[1] + intensity * Math.PI * 0.5, rotation[2]],
-    scale: scale * (1 + intensity * 0.2),
+  // Convert the rotation array to an object for react-spring
+  const springs = useSpring({
+    rotationX: rotation[0] + intensity * Math.PI * 0.5,
+    rotationY: rotation[1] + intensity * Math.PI * 0.5,
+    rotationZ: rotation[2],
+    scaleValue: scale * (1 + intensity * 0.2),
     config: { tension: 120, friction: 14 }
   });
 
@@ -140,8 +143,10 @@ const FlowerOfLifeGeometry: React.FC<SacredGeometryProps> = ({
     <animated.group
       ref={groupRef}
       position={position}
-      rotation={springRotation}
-      scale={springScale}
+      rotation-x={springs.rotationX}
+      rotation-y={springs.rotationY}
+      rotation-z={springs.rotationZ}
+      scale={springs.scaleValue}
       visible={isActive}
     >
       {circleElements}
