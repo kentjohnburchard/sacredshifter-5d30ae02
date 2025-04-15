@@ -157,7 +157,6 @@ const SacredAudioPlayer: React.FC = () => {
 
       <div className="mt-4 h-48 rounded-lg overflow-hidden">
         <VisualizerManager 
-          type="simple"
           audioRef={audioRef}
           isAudioReactive={false}
           colorScheme={liftTheVeil ? 'pink' : 'purple'}

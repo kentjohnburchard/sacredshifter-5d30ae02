@@ -5,9 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Play, Pause, Clock, Music } from 'lucide-react';
 import { JourneySong } from '@/types/journey';
 import { formatTime } from '@/lib/utils';
-import FrequencyPlayer from '@/components/FrequencyPlayer';
+import SimpleAudioPlayer from '@/components/audio/SimpleAudioPlayer';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
-import { SacredAudioPlayer } from '@/components/audio/SacredAudioPlayer';
+import SacredAudioPlayer from '@/components/audio/SacredAudioPlayer';
 
 interface JourneySongListProps {
   songs: JourneySong[];
@@ -144,7 +144,7 @@ const JourneySongList: React.FC<JourneySongListProps> = ({
               
               {playingIndex === index && (
                 <div className="mt-2 pt-2 border-t border-gray-100">
-                  <FrequencyPlayer
+                  <SimpleAudioPlayer
                     audioUrl={song.audioUrl}
                     frequency={song.frequency}
                     isPlaying={isPlaying && playingIndex === index}

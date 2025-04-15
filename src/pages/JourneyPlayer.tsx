@@ -7,7 +7,7 @@ import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import { toast } from 'sonner';
 import { useJourneySongs } from '@/hooks/useJourneySongs';
 import { Button } from '@/components/ui/button';
-import SimplifiedVisualizer from '@/components/sacred-geometry/SimplifiedVisualizer';
+import { VisualizerManager } from '@/components/visualizer/VisualizerManager';
 import SimpleFallbackVisualizer from '@/components/visualizer/SimpleFallbackVisualizer';
 import { 
   ChevronDown, 
@@ -307,7 +307,7 @@ const JourneyPlayer = () => {
               colorScheme={journey?.colorScheme || "purple"}
             />
           ) : (
-            <SimplifiedVisualizer 
+            <VisualizerManager 
               size="lg" 
               isAudioReactive={true}
               analyser={audioAnalyser}

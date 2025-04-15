@@ -1,10 +1,11 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { MeditationMusic } from '@/hooks/useMusicLibrary';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Play, Pause, Download, Trash2, Music } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import FrequencyPlayer from '@/components/FrequencyPlayer';
+import SimpleAudioPlayer from '@/components/audio/SimpleAudioPlayer';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { SacredAudioPlayer } from '@/components/audio/SacredAudioPlayer';
+import SacredAudioPlayer from '@/components/audio/SacredAudioPlayer';
 
 interface MusicLibraryListProps {
   musicList: MeditationMusic[];
@@ -144,10 +145,10 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
             
             {playingId === music.id && (
               <div className="mt-2 pt-2 border-t border-gray-100">
-                <FrequencyPlayer
+                <SimpleAudioPlayer
                   audioUrl={music.audio_url}
                   groupId={music.group_id}
-                  onPlayStateChange={(isPlaying: boolean) => {
+                  onPlayToggle={(isPlaying: boolean) => {
                     if (!isPlaying) {
                       setPlayingId(null);
                     }
