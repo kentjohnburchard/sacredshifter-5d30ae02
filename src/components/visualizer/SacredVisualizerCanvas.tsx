@@ -63,6 +63,7 @@ const FlowerOfLifeGeometry = ({ chakra = 'crown', intensity = 0, frequencyData }
   
   const circles = useMemo(() => {
     const items = [];
+    // Define radius here to fix the "Cannot find name 'radius'" error
     const radius = 0.5;
     const emissiveIntensity = liftTheVeil ? 1.2 : 0.8;
     
@@ -134,7 +135,7 @@ const FlowerOfLifeGeometry = ({ chakra = 'crown', intensity = 0, frequencyData }
     }
     
     return items;
-  }, [color, liftTheVeil, radius]);
+  }, [color, liftTheVeil]);
   
   return (
     <animated.group 
@@ -402,10 +403,10 @@ const PrimeFlowGeometry = ({ frequencyData, chakra = 'crown', intensity = 0 }: {
   const groupRef = useRef<THREE.Group>(null);
   const ringsRef = useRef<THREE.Group>(null);
   const color = chakraColors[chakra] || '#a855f7';
-  const rings = useRef<{ ring: THREE.Mesh; scale: number; opacity: number }[]>([]);
+  const [rings, setRings] = useState<{ ring: THREE.Mesh; scale: number; opacity: number }[]>([]);
   const lastPrimeTime = useRef<number>(0);
   const lastActivePrime = useRef<number | null>(null);
-  const [ringGroup] = useState(() => new THREE.Group());
+  const ringGroupRef = useRef<THREE.Group>(new THREE.Group());
   const { liftTheVeil } = useTheme();
   
   // Create animated props for the group
@@ -415,27 +416,46 @@ const PrimeFlowGeometry = ({ frequencyData, chakra = 'crown', intensity = 0 }: {
   });
   
   useEffect(() => {
-    rings.current = [];
-    if (ringsRef.current) {
-      ringsRef.current.add(ringGroup);
-    }
-    return () => {
-      if (ringsRef.current) {
-        ringsRef.current.remove(ringGroup);
-      }
-      rings.current.forEach(item => {
-        if (item.ring) {
-          item.ring.geometry.dispose();
+    // Clean up existing rings
+    rings.forEach(item => {
+      if (item.ring) {
+        if (item.ring.geometry) item.ring.geometry.dispose();
+        if (item.ring.material) {
           if (Array.isArray(item.ring.material)) {
             item.ring.material.forEach(m => m.dispose());
-          } else if (item.ring.material) {
+          } else {
             item.ring.material.dispose();
           }
         }
+      }
+    });
+    setRings([]);
+    
+    // Add ringGroup to ringsRef
+    if (ringsRef.current && ringGroupRef.current) {
+      ringsRef.current.add(ringGroupRef.current);
+    }
+    
+    return () => {
+      if (ringsRef.current && ringGroupRef.current) {
+        ringsRef.current.remove(ringGroupRef.current);
+      }
+      
+      // Clean up on unmount
+      rings.forEach(item => {
+        if (item.ring) {
+          if (item.ring.geometry) item.ring.geometry.dispose();
+          if (item.ring.material) {
+            if (Array.isArray(item.ring.material)) {
+              item.ring.material.forEach(m => m.dispose());
+            } else {
+              item.ring.material.dispose();
+            }
+          }
+        }
       });
-      rings.current = [];
     };
-  }, [ringGroup]);
+  }, []);
   
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
@@ -486,42 +506,52 @@ const PrimeFlowGeometry = ({ frequencyData, chakra = 'crown', intensity = 0 }: {
           Math.random() * Math.PI
         );
         
-        ringGroup.add(ring);
-        rings.current.push({ ring, scale: 0.1, opacity: 0.8 });
+        if (ringGroupRef.current) {
+          ringGroupRef.current.add(ring);
+          setRings(prev => [...prev, { ring, scale: 0.1, opacity: 0.8 }]);
+        }
       }
     }
     
     // Animate existing rings
-    const toRemove: number[] = [];
-    rings.current.forEach((item, index) => {
-      item.scale += 0.03;
-      item.opacity -= 0.012;
-      if (item.ring) {
-        item.ring.scale.set(item.scale, item.scale, item.scale);
-        const material = item.ring.material as THREE.MeshBasicMaterial;
-        if (material) {
-          material.opacity = item.opacity;
-        }
-      }
+    setRings(prev => {
+      const updatedRings = prev.map(item => {
+        return {
+          ...item,
+          scale: item.scale + 0.03,
+          opacity: item.opacity - 0.012
+        };
+      });
       
-      if (item.opacity <= 0) {
-        toRemove.push(index);
-      }
-    });
-    
-    // Remove faded rings
-    toRemove.reverse().forEach(index => {
-      const item = rings.current[index];
-      if (item.ring && ringGroup) {
-        ringGroup.remove(item.ring);
-        if (item.ring.geometry) item.ring.geometry.dispose();
-        if (Array.isArray(item.ring.material)) {
-          item.ring.material.forEach(m => m.dispose());
-        } else if (item.ring.material) {
-          item.ring.material.dispose();
+      // Update ring properties
+      updatedRings.forEach(item => {
+        if (item.ring) {
+          item.ring.scale.set(item.scale, item.scale, item.scale);
+          const material = item.ring.material as THREE.MeshBasicMaterial;
+          if (material && material.opacity !== undefined) {
+            material.opacity = item.opacity;
+          }
         }
-      }
-      rings.current.splice(index, 1);
+      });
+      
+      // Remove faded rings
+      const visibleRings = updatedRings.filter(item => {
+        if (item.opacity <= 0 && item.ring && ringGroupRef.current) {
+          ringGroupRef.current.remove(item.ring);
+          if (item.ring.geometry) item.ring.geometry.dispose();
+          if (item.ring.material) {
+            if (Array.isArray(item.ring.material)) {
+              item.ring.material.forEach(m => m.dispose());
+            } else {
+              item.ring.material.dispose();
+            }
+          }
+          return false;
+        }
+        return true;
+      });
+      
+      return visibleRings;
     });
   });
   
@@ -572,7 +602,7 @@ const PrimeFlowGeometry = ({ frequencyData, chakra = 'crown', intensity = 0 }: {
 // Enhanced ChakraSpiral with more detail and animation
 const ChakraSpiralGeometry = ({ frequencyData, intensity = 0 }: { frequencyData?: Uint8Array; intensity?: number }) => {
   const spiralRef = useRef<THREE.Group>(null);
-  const chakraPointsRef = useRef<THREE.Mesh[]>([]);
+  const [chakraPoints, setChakraPoints] = useState<THREE.Mesh[]>([]);
   const chakraKeys = Object.keys(chakraColors);
   
   // Create animated props for the spiral
@@ -590,10 +620,10 @@ const ChakraSpiralGeometry = ({ frequencyData, intensity = 0 }: { frequencyData?
     }
     
     // Update chakra points based on audio frequency
-    if (frequencyData && frequencyData.length && chakraPointsRef.current.length > 0) {
+    if (frequencyData && frequencyData.length && chakraPoints.length > 0) {
       const chunkSize = Math.floor(frequencyData.length / 7);
       
-      chakraPointsRef.current.forEach((point, i) => {
+      chakraPoints.forEach((point, i) => {
         if (point) {
           const start = i * chunkSize;
           const end = start + chunkSize;
@@ -606,7 +636,7 @@ const ChakraSpiralGeometry = ({ frequencyData, intensity = 0 }: { frequencyData?
           
           // Update emission intensity
           const material = point.material as THREE.MeshStandardMaterial;
-          if (material) {
+          if (material && material.emissiveIntensity !== undefined) {
             material.emissiveIntensity = 0.5 + intensity * 2.5;
           }
         }
@@ -640,10 +670,11 @@ const ChakraSpiralGeometry = ({ frequencyData, intensity = 0 }: { frequencyData?
           <mesh 
             ref={(mesh) => {
               if (mesh) {
-                // Safely update the ref array
-                const newRefs = [...chakraPointsRef.current];
-                newRefs[i] = mesh;
-                chakraPointsRef.current = newRefs;
+                setChakraPoints(prev => {
+                  const newPoints = [...prev];
+                  newPoints[i] = mesh;
+                  return newPoints;
+                });
               }
             }}
           >
