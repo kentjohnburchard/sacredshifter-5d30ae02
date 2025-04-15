@@ -86,8 +86,6 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   
   const { liftTheVeil } = useTheme();
   
-  const shouldShowVisualizer = isVisualizerVisible && isPlaying && !!analyser;
-  
   useEffect(() => {
     if (!pinkNoiseRef.current) {
       const pinkNoise = new Audio('/sounds/pink-noise.mp3');
@@ -354,7 +352,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
               {mainFrequency} Hz 
               {isPrimeFreq && ' ✦ Prime Frequency'}
             </span>
-            {chakra && <span className="text-gray-300 ml-2">| {chakra} Chakra</span>}
+            {chakraArray && <span className="text-gray-300 ml-2">| {chakraArray[0]} Chakra</span>}
           </div>
         )}
         
