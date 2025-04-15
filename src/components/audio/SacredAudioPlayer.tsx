@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
@@ -85,6 +86,9 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const pinkNoiseRef = useRef<HTMLAudioElement | null>(null);
   
   const { liftTheVeil } = useTheme();
+  
+  // Define shouldShowVisualizer to fix the runtime error
+  const shouldShowVisualizer = isVisualizerVisible && isPlaying && !!analyser;
   
   useEffect(() => {
     if (!pinkNoiseRef.current) {
