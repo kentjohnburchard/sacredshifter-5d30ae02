@@ -255,8 +255,10 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const trackArtist = currentTrack?.artist || '';
   const mainFrequency = currentTrack?.customData?.frequency || frequency || 432;
   
-  const chakra = currentTrack?.customData?.chakra || journey?.chakras?.[0] || 'Crown';
-  const colorScheme = getChakraColorScheme(chakra);
+  const chakraString = currentTrack?.customData?.chakra || journey?.chakras?.[0] || 'Crown';
+  const chakraArray = Array.isArray(chakraString) ? chakraString : [chakraString];
+  
+  const colorScheme = getChakraColorScheme(chakraArray);
   
   const isPrimeFreq = isPrime(mainFrequency);
 
@@ -297,7 +299,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
             analyzerNode={analyser}
             audioRef={audioRef}
             frequency={mainFrequency}
-            chakra={chakra ? [chakra] : []}
+            chakra={chakraArray}
             isPlaying={isPlaying}
             liftedVeil={liftTheVeil}
           />

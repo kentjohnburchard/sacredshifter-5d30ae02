@@ -18,8 +18,9 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    dedupe: ['three', 'react', 'react-dom', '@react-three/fiber', '@react-three/drei', 'react-reconciler']
   },
   optimizeDeps: {
-    exclude: ['react-reconciler', 'three', '@react-three/fiber', '@react-three/drei']
+    include: ['react-reconciler']
   }
 }));
