@@ -46,7 +46,8 @@ const AdvancedVisualizerManager: React.FC<AdvancedVisualizerManagerProps> = ({
   const shouldShowVisualizer = 
     showVisualizer && 
     typeof visualizerMode === 'string' && 
-    (audioReactive ? !!frequencyData : true);
+    (audioReactive ? !!frequencyData : true) && 
+    isPlaying;
 
   return (
     <div className={`sacred-visualizer-container relative w-full h-full ${className}`}>

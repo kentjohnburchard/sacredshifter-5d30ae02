@@ -62,7 +62,8 @@ const VisualizerManager: React.FC<VisualizerManagerProps> = ({
   const shouldShowVisualizer = 
     !!visualizerType && 
     showVisualizer && 
-    (isAudioReactive ? !!analyzerNode : true);
+    (isAudioReactive ? !!analyzerNode : true) &&
+    (isPlaying || liftedVeil);
   
   return (
     <div className="visualizer-container relative">

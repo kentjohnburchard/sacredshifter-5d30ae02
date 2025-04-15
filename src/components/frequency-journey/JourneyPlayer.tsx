@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -27,7 +26,7 @@ const JourneyPlayer = () => {
   const [journey, setJourney] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [infoExpanded, setInfoExpanded] = useState(false);
-  const [showVisualizer, setShowVisualizer] = useState(true); // Add this line
+  const [showVisualizer, setShowVisualizer] = useState(true);
   
   const lastPlayedIndex = useRef<number | null>(null);
   const songsRef = useRef<any[]>([]);
@@ -37,7 +36,6 @@ const JourneyPlayer = () => {
   
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
 
-  // Define shouldShowVisualizer explicitly
   const shouldShowVisualizer = showVisualizer && isPlaying;
 
   useEffect(() => {

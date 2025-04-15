@@ -44,7 +44,7 @@ const FrequencyExperiencePlayer: React.FC<FrequencyExperiencePlayerProps> = ({
   };
 
   // Explicitly define shouldShowVisualizer to avoid reference errors
-  const shouldShowVisualizer = audioUrl && frequency && showVisualizer;
+  const shouldShowVisualizer = !!(audioUrl && frequency && showVisualizer);
   
   return (
     <Card className="w-full max-w-4xl mx-auto overflow-hidden">
