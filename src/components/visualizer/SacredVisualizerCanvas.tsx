@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useMemo, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Trail, Stars } from '@react-three/drei';
@@ -63,13 +62,13 @@ const FlowerOfLifeGeometry = ({ chakra = 'crown', intensity = 0, frequencyData }
   
   const circles = useMemo(() => {
     const items = [];
-    // Define radius here to fix the "Cannot find name 'radius'" error
-    const radius = 0.5;
+    // Define radius for the flower of life circles
+    const circleRadius = 0.5;
     const emissiveIntensity = liftTheVeil ? 1.2 : 0.8;
     
     // Create more complex Flower of Life pattern with multiple rings
     for (let ring = 0; ring < 4; ring++) {
-      const ringRadius = ring * radius * Math.sqrt(3);
+      const ringRadius = ring * circleRadius * Math.sqrt(3);
       const numInRing = ring === 0 ? 1 : 6 * ring;
       
       for (let i = 0; i < numInRing; i++) {
@@ -81,7 +80,7 @@ const FlowerOfLifeGeometry = ({ chakra = 'crown', intensity = 0, frequencyData }
         if (ring % 2 === 0 || i % 3 === 0) {
           items.push(
             <mesh key={`circle-${ring}-${i}`} position={[x, y, 0]}>
-              <circleGeometry args={[radius, 64]} />
+              <circleGeometry args={[circleRadius, 64]} />
               <meshStandardMaterial 
                 color={color} 
                 emissive={color}
@@ -95,7 +94,7 @@ const FlowerOfLifeGeometry = ({ chakra = 'crown', intensity = 0, frequencyData }
         } else {
           items.push(
             <mesh key={`sphere-${ring}-${i}`} position={[x, y, 0]}>
-              <sphereGeometry args={[radius * 0.3, 16, 16]} />
+              <sphereGeometry args={[circleRadius * 0.3, 16, 16]} />
               <meshStandardMaterial 
                 color={color}
                 emissive={color}
@@ -110,24 +109,19 @@ const FlowerOfLifeGeometry = ({ chakra = 'crown', intensity = 0, frequencyData }
         // Add connecting lines for more intricate pattern
         if (ring > 0 && i % 2 === 0) {
           const innerAngle = ((i / numInRing) * 2 * Math.PI);
-          const innerRingRadius = (ring - 1) * radius * Math.sqrt(3);
+          const innerRingRadius = (ring - 1) * circleRadius * Math.sqrt(3);
           const innerX = innerRingRadius * Math.cos(innerAngle);
           const innerY = innerRingRadius * Math.sin(innerAngle);
           
           // Use Float32Array for line positions to avoid type errors
-          const positionsArray = new Float32Array([x, y, 0, innerX, innerY, 0]);
+          const linePositions = new Float32Array([x, y, 0, innerX, innerY, 0]);
+          
+          const lineGeometry = new THREE.BufferGeometry();
+          lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
           
           items.push(
-            <line key={`line-${ring}-${i}`}>
-              <bufferGeometry>
-                <bufferAttribute
-                  attach="attributes-position"
-                  array={positionsArray}
-                  count={2}
-                  itemSize={3}
-                />
-              </bufferGeometry>
-              <lineBasicMaterial color={color} opacity={0.4} transparent />
+            <line key={`line-${ring}-${i}`} geometry={lineGeometry}>
+              <lineBasicMaterial attach="material" color={color} opacity={0.4} transparent />
             </line>
           );
         }
@@ -627,17 +621,20 @@ const ChakraSpiralGeometry = ({ frequencyData, intensity = 0 }: { frequencyData?
         if (point) {
           const start = i * chunkSize;
           const end = start + chunkSize;
-          const chunk = Array.from(frequencyData.slice(start, end)).map(Number);
-          const avg = chunk.reduce((sum, val) => sum + val, 0) / chunk.length;
-          const intensity = avg / 255;
-          
-          // Scale based on frequency intensity
-          point.scale.set(1 + intensity * 0.8, 1 + intensity * 0.8, 1 + intensity * 0.8);
-          
-          // Update emission intensity
-          const material = point.material as THREE.MeshStandardMaterial;
-          if (material && material.emissiveIntensity !== undefined) {
-            material.emissiveIntensity = 0.5 + intensity * 2.5;
+          if (start < frequencyData.length) {
+            // Safely extract the frequency chunk
+            const chunk = Array.from(frequencyData.slice(start, Math.min(end, frequencyData.length))).map(Number);
+            const avg = chunk.reduce((sum, val) => sum + val, 0) / chunk.length;
+            const intensity = avg / 255;
+            
+            // Scale based on frequency intensity
+            point.scale.set(1 + intensity * 0.8, 1 + intensity * 0.8, 1 + intensity * 0.8);
+            
+            // Update emission intensity
+            const material = point.material as THREE.MeshStandardMaterial;
+            if (material && material.emissiveIntensity !== undefined) {
+              material.emissiveIntensity = 0.5 + intensity * 2.5;
+            }
           }
         }
       });
