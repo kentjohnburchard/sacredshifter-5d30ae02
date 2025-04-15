@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import SacredAudioPlayer from './SacredAudioPlayer';
 import { JourneyProps } from '@/types/journey';
@@ -55,13 +54,16 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
     }
   }
 
+  // Define shouldShowVisualizer variable to control when visualizer is displayed
+  const shouldShowVisualizer = !!visualizerMode && isPlaying && showVisualizer;
+
   // Get chakra colors for styling
   const colorScheme = journey?.chakras ? getChakraColorScheme(journey.chakras) : undefined;
   const containerClass = `sacred-audio-player-with-visualizer w-full max-w-4xl mx-auto rounded-xl overflow-hidden shadow-lg ${chakra ? `chakra-${chakra}` : ''}`;
 
   return (
     <div className={containerClass}>
-      {showVisualizer && (
+      {shouldShowVisualizer ? (
         <div className="h-64 relative rounded-t-xl overflow-hidden shadow-inner">
           <AdvancedVisualizerManager
             frequencyData={audioData || undefined}
@@ -73,6 +75,9 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
             enableModeSelection={false}
           />
         </div>
+      ) : (
+        // Fallback when visualizer shouldn't be shown but we want to keep the space
+        <div className="h-0 md:h-16 bg-gradient-to-r from-purple-900/20 to-indigo-900/20 rounded-t-xl transition-all duration-500 ease-in-out"></div>
       )}
       
       <SacredAudioPlayer 

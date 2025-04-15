@@ -67,7 +67,7 @@ const AdvancedVisualizerManager: React.FC<AdvancedVisualizerManagerProps> = ({
               className="data-[state=on]:bg-purple-600 data-[state=on]:text-white"
               aria-label="Prime Pulse"
             >
-              <Shapes size={16} />
+              <PrimeIcon size={16} />
             </ToggleGroupItem>
             
             <ToggleGroupItem 
