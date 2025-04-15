@@ -1,6 +1,5 @@
 
 import React, { useRef, useEffect } from 'react';
-import * as THREE from 'three';
 
 interface StarfieldBackgroundProps {
   density?: 'low' | 'medium' | 'high';
@@ -11,136 +10,104 @@ interface StarfieldBackgroundProps {
 const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({ 
   density = 'medium', 
   opacity = 0.3, 
-  isStatic = false // Changed default to false to enable animation
+  isStatic = false
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const frameIdRef = useRef<number | null>(null);
-  const sceneRef = useRef<THREE.Scene | null>(null);
-  const starsRef = useRef<THREE.Points | null>(null);
-
+  
   useEffect(() => {
-    if (!containerRef.current) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
     
-    console.log("Rendering starfield background, isStatic:", isStatic);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
     
-    // Create scene with transparent background
-    const scene = new THREE.Scene();
-    scene.background = null; // Make background transparent
-    sceneRef.current = scene;
+    // Handle high DPI displays
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
     
-    // Create camera
-    const camera = new THREE.PerspectiveCamera(
-      75, 
-      containerRef.current.clientWidth / containerRef.current.clientHeight, 
-      0.1, 
-      1000
-    );
-    camera.position.z = 5;
-    
-    // Create renderer with transparency
-    const renderer = new THREE.WebGLRenderer({ 
-      antialias: true,
-      alpha: true 
-    });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
-    renderer.setClearColor(0x000000, 0); // Transparent background
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    rendererRef.current = renderer;
-    
-    // Add the renderer to the DOM
-    containerRef.current.innerHTML = '';
-    containerRef.current.appendChild(renderer.domElement);
-    
-    // Determine star count based on density
+    // Calculate stars count based on density
     const getStarCount = () => {
       switch(density) {
-        case 'low': return 500;
-        case 'high': return 1500;
+        case 'low': return 100;
+        case 'high': return 500;
         case 'medium':
-        default: return 1000;
+        default: return 250;
       }
     };
     
-    // Create stars
-    const starsGeometry = new THREE.BufferGeometry();
     const starCount = getStarCount();
     
-    const positions = new Float32Array(starCount * 3);
+    // Create stars with positions, sizes and brightness
+    const stars = Array.from({ length: starCount }, () => ({
+      x: Math.random() * rect.width,
+      y: Math.random() * rect.height,
+      size: Math.random() * 1.5 + 0.5,
+      brightness: Math.random() * 0.5 + 0.5,
+      speed: Math.random() * 0.05 + 0.01
+    }));
     
-    for (let i = 0; i < starCount; i++) {
-      const i3 = i * 3;
-      positions[i3] = (Math.random() - 0.5) * 100;
-      positions[i3 + 1] = (Math.random() - 0.5) * 100;
-      positions[i3 + 2] = (Math.random() - 0.5) * 100;
-    }
-    
-    starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    
-    const starsMaterial = new THREE.PointsMaterial({
-      color: 0xffffff,
-      size: 0.10,
-      transparent: true,
-      opacity: opacity
-    });
-    
-    const stars = new THREE.Points(starsGeometry, starsMaterial);
-    scene.add(stars);
-    starsRef.current = stars;
-    
-    // Animation loop
+    // Animation function
     const animate = () => {
-      if (!rendererRef.current || !sceneRef.current) return;
+      ctx.clearRect(0, 0, rect.width, rect.height);
+      
+      // Draw stars
+      stars.forEach(star => {
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+        
+        // Create gradient for glow effect
+        const gradient = ctx.createRadialGradient(
+          star.x, star.y, 0,
+          star.x, star.y, star.size * 2
+        );
+        gradient.addColorStop(0, `rgba(255, 255, 255, ${star.brightness * opacity})`);
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        
+        ctx.fillStyle = gradient;
+        ctx.fill();
+        
+        // Only move stars if animation is enabled
+        if (!isStatic) {
+          star.y = (star.y + star.speed) % rect.height;
+        }
+      });
       
       frameIdRef.current = requestAnimationFrame(animate);
-      
-      if (starsRef.current && !isStatic) {
-        // Only rotate if not static
-        starsRef.current.rotation.x += 0.0005;
-        starsRef.current.rotation.y += 0.0008;
-      }
-      
-      renderer.render(scene, camera);
     };
     
     animate();
     
     // Handle window resize
     const handleResize = () => {
-      if (!containerRef.current || !camera || !rendererRef.current) return;
+      if (!canvas) return;
       
-      const width = containerRef.current.clientWidth;
-      const height = containerRef.current.clientHeight;
-      
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-      rendererRef.current.setSize(width, height);
-      
-      renderer.render(scene, camera);
+      const newRect = canvas.getBoundingClientRect();
+      canvas.width = newRect.width * dpr;
+      canvas.height = newRect.height * dpr;
+      ctx.scale(dpr, dpr);
     };
     
     window.addEventListener('resize', handleResize);
     
-    // Cleanup function
     return () => {
-      window.removeEventListener('resize', handleResize);
-      
-      if (frameIdRef.current) {
+      if (frameIdRef.current !== null) {
         cancelAnimationFrame(frameIdRef.current);
       }
-      
-      if (starsGeometry) starsGeometry.dispose();
-      if (starsMaterial) starsMaterial.dispose();
-      
-      if (rendererRef.current && containerRef.current && containerRef.current.contains(rendererRef.current.domElement)) {
-        containerRef.current.removeChild(rendererRef.current.domElement);
-        rendererRef.current.dispose();
-      }
+      window.removeEventListener('resize', handleResize);
     };
   }, [density, opacity, isStatic]);
 
-  return <div ref={containerRef} className="absolute inset-0 z-0" />;
+  return (
+    <canvas 
+      ref={canvasRef}
+      className="absolute inset-0 z-0"
+      style={{ width: '100%', height: '100%' }}
+    />
+  );
 };
 
 export default StarfieldBackground;

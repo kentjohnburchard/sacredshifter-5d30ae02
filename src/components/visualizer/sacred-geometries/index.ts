@@ -1,12 +1,25 @@
 
-// Export all geometry components
-export { default as FlowerOfLifeGeometry } from './FlowerOfLife';
-export { default as MerkabaGeometry } from './Merkaba';
-export { default as MetatronCubeGeometry } from './MetatronCube';
-export { default as SriYantraGeometry } from './SriYantra';
-export { default as FibonacciSpiralGeometry } from './FibonacciSpiral';
-export { default as ChakraBeamGeometry } from './ChakraBeam';
+// Placeholder for future 2D canvas visualizers
+export type ChakraType = 
+  | 'root' 
+  | 'sacral' 
+  | 'solar plexus' 
+  | 'heart' 
+  | 'throat' 
+  | 'third eye' 
+  | 'crown';
 
-// Export types and utilities
-export { getChakraColor } from './types';
-export type { SacredGeometryProps, SacredGeometryType, GeometryConfig, ChakraType } from './types';
+// Helper function to get chakra colors
+export const getChakraColor = (chakra: ChakraType): string => {
+  const chakraColors: Record<ChakraType, string> = {
+    'root': '#ef4444',
+    'sacral': '#f97316',
+    'solar plexus': '#facc15',
+    'heart': '#22c55e',
+    'throat': '#3b82f6',
+    'third eye': '#6366f1',
+    'crown': '#a855f7'
+  };
+  
+  return chakraColors[chakra] || '#a855f7';
+};

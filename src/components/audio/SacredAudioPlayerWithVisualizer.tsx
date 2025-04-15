@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import SacredAudioPlayer from './SacredAudioPlayer';
 import { JourneyProps } from '@/types/journey';
 import { useAppStore } from '@/store';
-import { AdvancedVisualizerManager } from '../visualizer/AdvancedVisualizerManager';
 import { getChakraColorScheme } from '@/lib/chakraColors';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from 'lucide-react';
-import { SacredGeometryType } from '../visualizer/sacred-geometries';
+import CanvasAudioVisualizer from './CanvasAudioVisualizer';
 
 interface SacredAudioPlayerWithVisualizerProps {
   journey?: JourneyProps;
@@ -14,7 +13,7 @@ interface SacredAudioPlayerWithVisualizerProps {
 }
 
 // Define the visualization modes as a union type that can be used throughout the app
-export type VisualizerMode = 'flowerOfLife' | 'merkaba' | 'metatronCube' | 'sriYantra' | 'fibonacciSpiral' | 'chakraBeam' | 'multi' | 'torus' | 'customPrimePulse' | 'primeFlow' | 'chakraSpiral';
+export type VisualizerMode = 'bars' | 'wave' | 'circle' | 'particles';
 
 const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerProps> = ({
   journey,
@@ -22,39 +21,13 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
 }) => {
   const { audioData, isPlaying } = useAppStore();
   const [showVisualizer, setShowVisualizer] = useState(true);
+  const [visualizerMode, setVisualizerMode] = useState<VisualizerMode>('bars');
 
   // Determine which chakra to use (use first if multiple are provided)
   const chakra = journey?.chakras?.[0]?.toLowerCase() as any;
   
-  // Determine which visualizer mode to use based on journey theme
-  let visualizerMode: VisualizerMode = 'customPrimePulse';
-  
-  if (journey?.visualTheme) {
-    switch (journey.visualTheme) {
-      case 'merkaba':
-        visualizerMode = 'merkaba';
-        break;
-      case 'flower-of-life':
-        visualizerMode = 'flowerOfLife';
-        break;
-      case 'torus':
-      case 'vesica-piscis': // Add more mappings if needed
-        visualizerMode = 'torus';
-        break;
-      case 'sri-yantra':
-        visualizerMode = 'chakraSpiral';
-        break;
-      case 'cosmic-ocean':
-        visualizerMode = 'primeFlow';
-        break;
-      default:
-        visualizerMode = 'customPrimePulse';
-    }
-  }
-
   // Define shouldShowVisualizer variable to control when visualizer is displayed
   const shouldShowVisualizer = 
-    typeof visualizerMode === 'string' &&
     isPlaying === true &&
     showVisualizer === true &&
     !!audioData;
@@ -67,9 +40,27 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
     setShowVisualizer(prev => !prev);
   };
 
+  const cycleVisualizerMode = () => {
+    const modes: VisualizerMode[] = ['bars', 'wave', 'circle', 'particles'];
+    const currentIndex = modes.indexOf(visualizerMode);
+    const nextIndex = (currentIndex + 1) % modes.length;
+    setVisualizerMode(modes[nextIndex]);
+  };
+
   return (
     <div className={containerClass}>
-      <div className="flex justify-end p-2 bg-gradient-to-r from-purple-900/20 to-indigo-900/20">
+      <div className="flex justify-between p-2 bg-gradient-to-r from-purple-900/20 to-indigo-900/20">
+        {shouldShowVisualizer && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={cycleVisualizerMode}
+            className="text-white/80 hover:text-white flex items-center gap-1"
+          >
+            Change Style
+          </Button>
+        )}
+        
         <Button
           variant="ghost"
           size="sm"
@@ -92,14 +83,11 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
       
       {shouldShowVisualizer ? (
         <div className="h-64 relative rounded-t-xl overflow-hidden shadow-inner">
-          <AdvancedVisualizerManager
-            frequencyData={audioData || undefined}
-            chakra={chakra}
-            initialMode={visualizerMode}
-            showControls={false}
-            audioReactive={true}
+          <CanvasAudioVisualizer 
+            audioData={audioData}
+            colorScheme={colorScheme || '#a855f7'}
+            visualizerMode={visualizerMode}
             isPlaying={isPlaying}
-            enableModeSelection={false}
           />
         </div>
       ) : (
