@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
-import { useAudioAnalyzer } from '@/hooks/useAudioAnalyzer';
+import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
 import { useTheme } from '@/context/ThemeContext';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';

@@ -30,8 +30,7 @@ const GenerationHistory: React.FC<GenerationHistoryProps> = ({
             key={track.id} 
             track={{
               ...track,
-              // Ensure audioUrl exists by providing fallbacks
-              audioUrl: track.audioUrl || (track as any).url || (track as any).source || ''
+              audioUrl: (track as any).audioUrl || (track as any).url || (track as any).source || ''
             }} 
             onDelete={onDelete} 
           />
