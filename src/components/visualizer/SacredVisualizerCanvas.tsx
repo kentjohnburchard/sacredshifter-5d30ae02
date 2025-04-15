@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useMemo, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Trail, Stars } from '@react-three/drei';
@@ -28,67 +27,75 @@ const chakraColors: Record<string, string> = {
 };
 
 // Enhanced Flower of Life with more complex geometry and animation
-const FlowerOfLifeGeometry = ({ chakra = 'crown', intensity = 0, frequencyData }: { chakra?: string; intensity?: number; frequencyData?: Uint8Array }) => {
+const FlowerOfLifeGeometry = ({
+  chakra = 'crown',
+  intensity = 0,
+  frequencyData
+}: {
+  chakra?: string;
+  intensity?: number;
+  frequencyData?: Uint8Array
+}) => {
   const groupRef = useRef<THREE.Group>(null);
   const color = chakraColors[chakra] || '#a855f7';
   const { liftTheVeil } = useTheme();
-  
+
   // Create animated props based on the audio intensity
   const { rotation, scale } = useSpring({
     rotation: [0, intensity * Math.PI * 0.5, 0] as any,
     scale: 1 + intensity * 0.2,
     config: { tension: 120, friction: 14 }
   });
-  
+
   useFrame((state) => {
     if (groupRef.current) {
       // Base rotation
       groupRef.current.rotation.y = state.clock.getElapsedTime() * 0.1;
-      
+
       // Add some wave motion based on elapsed time
       groupRef.current.rotation.z = Math.sin(state.clock.getElapsedTime() * 0.2) * 0.1;
-      
+
       // If we have frequency data, modify rotation speed based on audio
       if (frequencyData && frequencyData.length > 0) {
         // Convert to number[] before reducing to ensure type safety
         const freqArray = Array.from(frequencyData).map(Number);
         const avgFreq = freqArray.reduce((sum, val) => sum + val, 0) / freqArray.length;
         const normalizedFreq = avgFreq / 255;
-        
+
         groupRef.current.rotation.y += normalizedFreq * 0.01;
         groupRef.current.rotation.x = Math.sin(state.clock.getElapsedTime()) * normalizedFreq * 0.2;
       }
     }
   });
-  
+
   const circles = useMemo(() => {
-    const items = [];
+    const items: JSX.Element[] = [];
     // Define radius for the flower of life circles
     const circleRadius = 0.5;
     const emissiveIntensity = liftTheVeil ? 1.2 : 0.8;
-    
+
     // Create more complex Flower of Life pattern with multiple rings
     for (let ring = 0; ring < 4; ring++) {
       const ringRadius = ring * circleRadius * Math.sqrt(3);
       const numInRing = ring === 0 ? 1 : 6 * ring;
-      
+
       for (let i = 0; i < numInRing; i++) {
         const angle = (i * 2 * Math.PI) / numInRing;
         const x = ringRadius * Math.cos(angle);
         const y = ringRadius * Math.sin(angle);
-        
+
         // Make some circles into spheres for 3D effect
         if (ring % 2 === 0 || i % 3 === 0) {
           items.push(
             <mesh key={`circle-${ring}-${i}`} position={[x, y, 0]}>
               <circleGeometry args={[circleRadius, 64]} />
-              <meshStandardMaterial 
-                color={color} 
+              <meshStandardMaterial
+                color={color}
                 emissive={color}
                 emissiveIntensity={emissiveIntensity}
-                wireframe 
-                transparent 
-                opacity={0.7} 
+                wireframe
+                transparent
+                opacity={0.7}
               />
             </mesh>
           );
@@ -96,7 +103,7 @@ const FlowerOfLifeGeometry = ({ chakra = 'crown', intensity = 0, frequencyData }
           items.push(
             <mesh key={`sphere-${ring}-${i}`} position={[x, y, 0]}>
               <sphereGeometry args={[circleRadius * 0.3, 16, 16]} />
-              <meshStandardMaterial 
+              <meshStandardMaterial
                 color={color}
                 emissive={color}
                 emissiveIntensity={emissiveIntensity}
@@ -106,14 +113,14 @@ const FlowerOfLifeGeometry = ({ chakra = 'crown', intensity = 0, frequencyData }
             </mesh>
           );
         }
-        
+
         // Add connecting lines for more intricate pattern
         if (ring > 0 && i % 2 === 0) {
           const innerAngle = ((i / numInRing) * 2 * Math.PI);
           const innerRingRadius = (ring - 1) * circleRadius * Math.sqrt(3);
           const innerX = innerRingRadius * Math.cos(innerAngle);
           const innerY = innerRingRadius * Math.sin(innerAngle);
-          
+
           // Properly create the line - create line points instead of using BufferGeometry
           items.push(
             <line key={`line-${ring}-${i}`}>
@@ -131,35 +138,35 @@ const FlowerOfLifeGeometry = ({ chakra = 'crown', intensity = 0, frequencyData }
         }
       }
     }
-    
+
     return items;
   }, [color, liftTheVeil]);
-  
+
   return (
-    <animated.group 
-      ref={groupRef} 
+    <animated.group
+      ref={groupRef}
       rotation={rotation}
       scale={scale}
     >
       {circles}
-      
+
       {/* Add a central sphere with glow */}
       <mesh>
         <sphereGeometry args={[0.3, 32, 32]} />
-        <meshStandardMaterial 
-          color={color} 
+        <meshStandardMaterial
+          color={color}
           emissive={color}
           emissiveIntensity={2}
           metalness={0.8}
           roughness={0.2}
         />
       </mesh>
-      
+
       {/* Outer ring */}
       <mesh rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[2.5, 0.05, 16, 100]} />
-        <meshStandardMaterial 
-          color={color} 
+        <meshStandardMaterial
+          color={color}
           emissive={color}
           emissiveIntensity={1}
           transparent
@@ -821,26 +828,4 @@ const SacredVisualizerCanvas: React.FC<SacredVisualizerCanvasProps> = ({
     <div className="w-full h-full">
       <Canvas frameloop="demand">
         <PerspectiveCamera position={[0, 0, 5]} fov={70} makeDefault />
-        <ambientLight intensity={0.8} color={ambientColor} />
-        <pointLight position={[10, 10, 10]} color={pointLightColor} intensity={2.5} />
-        <pointLight position={[-10, -10, -10]} color="#ffffff" intensity={0.8} />
-        
-        <SacredGeometry
-          frequencyData={frequencyData}
-          chakra={chakra}
-          visualizerMode={visualizerMode}
-          intensity={intensity}
-        />
-        
-        {enableControls && <OrbitControls enableZoom={false} enablePan={false} rotateSpeed={0.5} />}
-        
-        <fog attach="fog" color={fogColor} near={8} far={20} />
-        
-        {/* Background stars for cosmic effect */}
-        <Stars radius={100} depth={50} count={1000} factor={4} saturation={0} fade speed={1} />
-      </Canvas>
-    </div>
-  );
-};
-
-export default SacredVisualizerCanvas;
+        <ambientLight intensity={0
