@@ -40,7 +40,7 @@ export interface JourneyProps {
   id?: string;
   title: string;
   audioUrl: string;
-  visualTheme?: 'gentle-waves' | 'flower-of-life' | 'merkaba' | 'sri-yantra' | 'vesica-piscis' | 'cosmic-ocean';
+  visualTheme?: 'gentle-waves' | 'flower-of-life' | 'merkaba' | 'sri-yantra' | 'vesica-piscis' | 'cosmic-ocean' | 'torus';
   frequencies?: number[]; // e.g. [528, 741, 963]
   chakras?: string[];     // e.g. ['Crown', 'Third Eye', 'Throat']
   affirmation?: string;
