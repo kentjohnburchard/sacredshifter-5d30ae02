@@ -15,17 +15,9 @@ export default defineConfig(({ mode }) => ({
     mode === 'development' &&
     componentTagger(),
   ].filter(Boolean),
-  optimizeDeps: {
-    include: ['three', 'zustand', 'use-sync-external-store', 'react-reconciler'],
-    exclude: ['@react-three/fiber']
-  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "zustand": path.resolve(__dirname, "node_modules/zustand"),
-      "use-sync-external-store": path.resolve(__dirname, "node_modules/use-sync-external-store"),
-      "react-reconciler": path.resolve(__dirname, "node_modules/react-reconciler"),
     },
-    dedupe: ['three', 'react', 'react-dom', 'zustand', 'use-sync-external-store', 'react-reconciler']
   },
 }));
