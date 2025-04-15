@@ -1,121 +1,119 @@
 
-// Map chakra names to color schemes for visualization
-export interface ChakraColorScheme {
-  primary: string;
-  secondary: string;
-  tertiary: string;
-  accent: string;
-  background: string;
+/**
+ * Returns a color scheme based on the provided chakra
+ * @param chakras Array of chakras to determine color scheme from
+ * @returns Color scheme object or string
+ */
+export function getChakraColorScheme(chakras: string[] = []) {
+  // If no chakras provided, return default colors
+  if (!chakras || chakras.length === 0) {
+    return {
+      primary: '#9370db',   // Purple
+      secondary: '#6a5acd', // Slateblue
+      tertiary: '#9932cc',  // Darkorchid
+      accent: '#e0b0ff',    // Mauve
+      background: '#2d1b4e'  // Dark purple
+    };
+  }
+  
+  // Use the first chakra in the array to determine color scheme
+  const primaryChakra = chakras[0].toLowerCase();
+  
+  switch (primaryChakra) {
+    case 'root':
+      return {
+        primary: '#ff0000',    // Red
+        secondary: '#8b0000',  // Dark red
+        tertiary: '#ff4500',   // Orangered
+        accent: '#ff6347',     // Tomato
+        background: '#3d0c0c'  // Dark maroon
+      };
+      
+    case 'sacral':
+      return {
+        primary: '#ff7f00',    // Orange
+        secondary: '#ff8c00',  // Darkorange
+        tertiary: '#ffa500',   // Orange
+        accent: '#ffd700',     // Gold
+        background: '#3d2210'  // Dark orange-brown
+      };
+      
+    case 'solar plexus':
+      return {
+        primary: '#ffff00',    // Yellow
+        secondary: '#ffd700',  // Gold
+        tertiary: '#daa520',   // Goldenrod
+        accent: '#f0e68c',     // Khaki
+        background: '#3d3d10'  // Dark olive
+      };
+      
+    case 'heart':
+      return {
+        primary: '#00ff00',    // Green
+        secondary: '#32cd32',  // Limegreen
+        tertiary: '#008000',   // Green
+        accent: '#98fb98',     // Palegreen
+        background: '#0f3d0f'  // Dark green
+      };
+      
+    case 'throat':
+      return {
+        primary: '#00ffff',    // Cyan
+        secondary: '#00bfff',  // Deepskyblue
+        tertiary: '#1e90ff',   // Dodgerblue
+        accent: '#87ceeb',     // Skyblue
+        background: '#0f3d3d'  // Dark teal
+      };
+      
+    case 'third eye':
+      return {
+        primary: '#0000ff',    // Blue
+        secondary: '#000080',  // Navy
+        tertiary: '#4169e1',   // Royalblue
+        accent: '#6495ed',     // Cornflowerblue
+        background: '#0f0f3d'  // Dark blue
+      };
+      
+    case 'crown':
+      return {
+        primary: '#8a2be2',    // Blueviolet
+        secondary: '#9370db',  // Mediumpurple
+        tertiary: '#9932cc',   // Darkorchid
+        accent: '#ba55d3',     // Mediumorchid
+        background: '#2d1b4e'  // Dark purple
+      };
+      
+    default:
+      // If chakra name not recognized, return purple theme
+      return {
+        primary: '#9370db',    // Purple
+        secondary: '#6a5acd',  // Slateblue
+        tertiary: '#9932cc',   // Darkorchid
+        accent: '#e0b0ff',     // Mauve
+        background: '#2d1b4e'  // Dark purple
+      };
+  }
 }
 
-export const chakraColors: Record<string, ChakraColorScheme> = {
-  Root: {
-    primary: '#ff0000',
-    secondary: '#8B0000',
-    tertiary: '#FF6347',
-    accent: '#FF4500',
-    background: '#200000',
-  },
-  Sacral: {
-    primary: '#ff7f00',
-    secondary: '#D2691E',
-    tertiary: '#FFA07A',
-    accent: '#FF8C00',
-    background: '#201000',
-  },
-  SolarPlexus: {
-    primary: '#ffff00',
-    secondary: '#DAA520',
-    tertiary: '#FFD700',
-    accent: '#FFA500',
-    background: '#202000',
-  },
-  Heart: {
-    primary: '#00ff00',
-    secondary: '#228B22',
-    tertiary: '#90EE90',
-    accent: '#32CD32',
-    background: '#002000',
-  },
-  Throat: {
-    primary: '#00ffff',
-    secondary: '#20B2AA',
-    tertiary: '#AFEEEE',
-    accent: '#00CED1',
-    background: '#002020',
-  },
-  ThirdEye: {
-    primary: '#0000ff',
-    secondary: '#0000CD',
-    tertiary: '#B0E0E6',
-    accent: '#1E90FF',
-    background: '#000020',
-  },
-  Crown: {
-    primary: '#8b00ff',
-    secondary: '#4B0082',
-    tertiary: '#E6E6FA',
-    accent: '#9370DB',
-    background: '#100020',
-  },
-  // Additional theme options
-  "gentle-waves": {
-    primary: '#4a90e2',
-    secondary: '#5f9de7',
-    tertiary: '#dbeeff',
-    accent: '#2e6fc9',
-    background: '#0a192f',
-  },
-  "cosmic-ocean": {
-    primary: '#6d57ff',
-    secondary: '#9c7dff',
-    tertiary: '#e2d8ff',
-    accent: '#4a2fdc',
-    background: '#10053d',
-  },
-};
+/**
+ * Gets just the primary color for a chakra
+ * @param chakra Chakra name
+ * @returns Primary color hex code
+ */
+export function getChakraColor(chakra: string): string {
+  const scheme = getChakraColorScheme([chakra]);
+  return typeof scheme === 'string' ? scheme : scheme.primary;
+}
 
-// Helper function to get chakra colors based on chakra name(s)
-export const getChakraColorScheme = (chakras: string[] = []): ChakraColorScheme => {
-  // Default to Crown chakra if no chakra is specified
-  if (!chakras.length) {
-    return chakraColors.Crown;
-  }
-  
-  // If multiple chakras, use the first one
-  const primaryChakra = chakras[0].replace(/\s+/g, '');
-  
-  return chakraColors[primaryChakra] || chakraColors.Crown;
-};
-
-// Get color based on frequency
-export const getFrequencyColor = (frequency: number): string => {
-  if (frequency < 200) return chakraColors.Root.primary;
-  if (frequency < 300) return chakraColors.Sacral.primary;
-  if (frequency < 400) return chakraColors.SolarPlexus.primary;
-  if (frequency < 500) return chakraColors.Heart.primary;
-  if (frequency < 600) return chakraColors.Throat.primary;
-  if (frequency < 700) return chakraColors.ThirdEye.primary;
-  return chakraColors.Crown.primary;
-};
-
-// Get gradient colors for visualizer based on chakras
-export const getChakraGradient = (chakras: string[]): string[] => {
-  if (!chakras.length) return [chakraColors.Crown.primary, chakraColors.ThirdEye.primary];
-  
-  if (chakras.length === 1) {
-    const chakra = chakras[0].replace(/\s+/g, '');
-    const colors = chakraColors[chakra] || chakraColors.Crown;
-    return [colors.primary, colors.secondary];
-  }
-  
-  // If multiple chakras, create a gradient between them
-  const gradient: string[] = [];
-  chakras.forEach(chakra => {
-    const name = chakra.replace(/\s+/g, '');
-    const colors = chakraColors[name] || chakraColors.Crown;
-    gradient.push(colors.primary);
-  });
-  
-  return gradient;
+/**
+ * Maps chakras to their corresponding colors
+ */
+export const chakraColorMap: Record<string, string> = {
+  'root': '#ff0000',
+  'sacral': '#ff7f00',
+  'solar plexus': '#ffff00',
+  'heart': '#00ff00',
+  'throat': '#00ffff',
+  'third eye': '#0000ff',
+  'crown': '#8a2be2',
 };

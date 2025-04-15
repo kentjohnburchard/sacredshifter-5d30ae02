@@ -11,9 +11,9 @@ import { VisualizerManager } from '@/components/visualizer/VisualizerManager';
 import { JourneyProps } from '@/types/journey';
 import { 
   Play, Pause, Volume2, VolumeX, Maximize2, Minimize2,
-  FastForward, Timer, Headphones, Waves, Moon, MoveDown, MoveUp 
+  FastForward, Timer, Headphones, Waves, Moon, MoveDown, MoveUp, X
 } from 'lucide-react';
-import { isPrime } from '@/utils/primeUtils';
+import { isPrime } from '@/lib/primeUtils';
 import { getChakraColorScheme } from '@/lib/chakraColors';
 
 interface SacredAudioPlayerProps {
@@ -26,6 +26,13 @@ interface SacredAudioPlayerProps {
   groupId?: string;
   id?: string;
   journey?: JourneyProps;
+}
+
+interface JourneyOptions {
+  pinkNoise: boolean;
+  lowSensitivity: boolean;
+  headphones: boolean;
+  sleepTimer: number;
 }
 
 const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
@@ -276,6 +283,8 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const frequencies = journey?.frequencies || (frequency ? [frequency] : []);
   
   const chakras = journey?.chakras || [];
+
+  const shouldShowVisualizer = playerIsPlaying || liftTheVeil;
 
   if (isMinimized) {
     return (

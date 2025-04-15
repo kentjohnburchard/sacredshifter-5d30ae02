@@ -8,7 +8,13 @@ import { Eye, Hexagon, CircleDashed } from 'lucide-react';
 export interface VisualizerManagerProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   isAudioReactive?: boolean;
-  colorScheme?: string | { primary: string; secondary: string; tertiary: string; accent: string; background: string; };
+  colorScheme?: string | { 
+    primary: string; 
+    secondary: string; 
+    tertiary: string; 
+    accent: string; 
+    background: string; 
+  };
   chakra?: string;
   frequency?: number;
   analyzerNode?: AnalyserNode | null;
@@ -31,7 +37,8 @@ const VisualizerManager: React.FC<VisualizerManagerProps> = ({
   frequencies = [],
   chakras = [],
   visualTheme,
-  isPlaying = false
+  isPlaying = false,
+  liftedVeil = false
 }) => {
   const [visualizerType, setVisualizerType] = useState<string>("kaleidoscope");
   
@@ -45,6 +52,11 @@ const VisualizerManager: React.FC<VisualizerManagerProps> = ({
     chakras : 
     (chakra ? [chakra] : ["Crown"]);
   
+  // Convert complex colorScheme object to string if needed for KaleidoscopeVisualizer
+  const kaleidoscopeColorScheme = typeof colorScheme === 'object' 
+    ? colorScheme.primary 
+    : colorScheme;
+  
   return (
     <div className="visualizer-container relative">
       <div className="visualizer-content w-full h-full">
@@ -52,7 +64,7 @@ const VisualizerManager: React.FC<VisualizerManagerProps> = ({
           <KaleidoscopeVisualizer
             size={size}
             isAudioReactive={isAudioReactive}
-            colorScheme={colorScheme}
+            colorScheme={kaleidoscopeColorScheme}
             audioRef={audioRef}
             frequency={frequency}
           />
