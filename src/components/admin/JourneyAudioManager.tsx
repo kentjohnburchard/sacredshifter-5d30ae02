@@ -23,12 +23,18 @@ interface Track {
 const JourneyAudioManager: React.FC = () => {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
-  const [assignedTracks, setAssignedTracks] = useState<string[]>([]);
+  const [assignedTracks, setAssignedTracks] = useState<{
+    fileName: string;
+    displayTitle?: string;
+    displayOrder: number;
+    isPrimary: boolean;
+  }[]>([]);
   const [allTracks, setAllTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [uploadingFile, setUploadingFile] = useState<boolean>(false);
   const [newTrackFile, setNewTrackFile] = useState<File | null>(null);
   const [newTrackTitle, setNewTrackTitle] = useState<string>("");
+  const [newTrackDisplayOrder, setNewTrackDisplayOrder] = useState<number>(0);
 
   useEffect(() => {
     fetchTemplates();
@@ -80,12 +86,17 @@ const JourneyAudioManager: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from("journey_template_audio_mappings")
-        .select("audio_file_name")
+        .select("audio_file_name, display_title, display_order, is_primary")
         .eq("journey_template_id", templateId);
       
       if (error) throw error;
       if (data) {
-        setAssignedTracks(data.map((d) => d.audio_file_name));
+        setAssignedTracks(data.map(d => ({
+          fileName: d.audio_file_name,
+          displayTitle: d.display_title,
+          displayOrder: d.display_order || 0,
+          isPrimary: d.is_primary
+        })));
       }
     } catch (err) {
       console.error("Error fetching assigned tracks:", err);
@@ -100,7 +111,8 @@ const JourneyAudioManager: React.FC = () => {
       const { error } = await supabase.from("journey_template_audio_mappings").insert({
         journey_template_id: selectedTemplate.id,
         audio_file_name: filename,
-        is_primary: false
+        is_primary: false,
+        display_order: assignedTracks.length
       });
       
       if (error) throw error;
@@ -168,20 +180,35 @@ const JourneyAudioManager: React.FC = () => {
         audio_url: `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${filename}`,
         feature: "journey",
         type: "journey-audio",
-        frequency: 432, // Adding a default frequency value (432 Hz is a common healing frequency)
+        frequency: 432, // Adding a default frequency value
         description: "Journey audio track"
       });
       
       if (insertError) throw insertError;
+      
+      // If a template is selected, auto-assign the track
+      if (selectedTemplate) {
+        await supabase.from("journey_template_audio_mappings").insert({
+          journey_template_id: selectedTemplate.id,
+          audio_file_name: filename,
+          is_primary: false,
+          display_order: assignedTracks.length,
+          display_title: newTrackTitle
+        });
+      }
       
       toast.success("Track uploaded successfully!");
       
       // Reset form
       setNewTrackFile(null);
       setNewTrackTitle("");
+      setNewTrackDisplayOrder(0);
       
       // Refresh track list
       fetchAllTracks();
+      if (selectedTemplate) {
+        fetchAssignedTracks(selectedTemplate.id);
+      }
     } catch (err) {
       console.error("Error uploading track:", err);
       toast.error("Failed to upload track");
@@ -190,148 +217,102 @@ const JourneyAudioManager: React.FC = () => {
     }
   };
 
-  if (loading && templates.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
-      </div>
-    );
-  }
-
   return (
     <div className="p-4">
-      <Tabs defaultValue="assign">
-        <TabsList className="grid grid-cols-2 mb-4">
-          <TabsTrigger value="assign">Assign Audio</TabsTrigger>
-          <TabsTrigger value="upload">Upload New Audio</TabsTrigger>
-        </TabsList>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Journey Templates</h2>
+          <div className="grid gap-2 max-h-[400px] overflow-y-auto pr-2">
+            {templates.map((template) => (
+              <Button
+                key={template.id}
+                className="justify-start overflow-hidden"
+                onClick={() => setSelectedTemplate(template)}
+                variant={selectedTemplate?.id === template.id ? "default" : "outline"}
+              >
+                <span className="truncate">{template.title}</span>
+              </Button>
+            ))}
+          </div>
+        </div>
         
-        <TabsContent value="assign">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <h2 className="text-xl font-semibold mb-2">Journey Templates</h2>
-              <div className="grid gap-2 max-h-[400px] overflow-y-auto pr-2">
-                {templates.map((template) => (
-                  <Button
-                    key={template.id}
-                    className="justify-start overflow-hidden"
-                    onClick={() => setSelectedTemplate(template)}
-                    variant={selectedTemplate?.id === template.id ? "default" : "outline"}
-                  >
-                    <span className="truncate">{template.title}</span>
-                  </Button>
-                ))}
-              </div>
+        {selectedTemplate && (
+          <div>
+            <h2 className="text-xl font-semibold mb-2">
+              Audio for: {selectedTemplate.title}
+            </h2>
+            
+            <div className="mb-4">
+              <h3 className="font-medium mb-2">Assigned Audio Files</h3>
+              {assignedTracks.length > 0 ? (
+                <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                  {assignedTracks.map((track) => (
+                    <Card key={track.fileName} className="overflow-hidden">
+                      <CardContent className="flex items-center justify-between p-3">
+                        <div className="truncate mr-2 flex items-center">
+                          <Music className="h-4 w-4 mr-2 flex-shrink-0 text-purple-500" />
+                          <div>
+                            <span className="text-sm font-medium">{track.displayTitle || track.fileName}</span>
+                            <div className="text-xs text-gray-500">
+                              Order: {track.displayOrder} 
+                              {track.isPrimary && <span className="ml-2 text-green-600">Primary</span>}
+                            </div>
+                          </div>
+                        </div>
+                        <Button 
+                          onClick={() => unassignTrack(track.fileName)} 
+                          variant="destructive" 
+                          size="sm"
+                        >
+                          Remove
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No audio files assigned.</p>
+              )}
             </div>
             
-            {selectedTemplate && (
-              <div>
-                <h2 className="text-xl font-semibold mb-2">
-                  Audio for: {selectedTemplate.title}
-                </h2>
-                
-                <div className="mb-4">
-                  <h3 className="font-medium mb-2">Assigned Audio Files</h3>
-                  {assignedTracks.length > 0 ? (
-                    <div className="space-y-2 max-h-[200px] overflow-y-auto">
-                      {assignedTracks.map((track) => (
-                        <Card key={track} className="overflow-hidden">
-                          <CardContent className="flex items-center justify-between p-3">
-                            <div className="truncate mr-2 flex items-center">
-                              <Music className="h-4 w-4 mr-2 flex-shrink-0 text-purple-500" />
-                              <span className="truncate text-sm">{track}</span>
-                            </div>
-                            <Button 
-                              onClick={() => unassignTrack(track)} 
-                              variant="destructive" 
-                              size="sm"
-                            >
-                              Remove
-                            </Button>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">No audio files assigned.</p>
-                  )}
-                </div>
-                
-                <div>
-                  <h3 className="font-medium mb-2">Available Audio Files</h3>
-                  <div className="space-y-2 max-h-[200px] overflow-y-auto">
-                    {allTracks
-                      .filter((track) => !assignedTracks.includes(track.title))
-                      .map((track) => (
-                        <Card key={track.title} className="overflow-hidden">
-                          <CardContent className="flex items-center justify-between p-3">
-                            <div className="truncate mr-2 flex items-center">
-                              <Music className="h-4 w-4 mr-2 flex-shrink-0 text-purple-500" />
-                              <span className="truncate text-sm">{track.title}</span>
-                            </div>
-                            <Button 
-                              size="sm" 
-                              onClick={() => assignTrack(track.title)}
-                            >
-                              Assign
-                            </Button>
-                          </CardContent>
-                        </Card>
-                      ))}
-                  </div>
-                </div>
+            <div>
+              <h3 className="font-medium mb-2">Available Audio Files</h3>
+              <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                {allTracks
+                  .filter((track) => !assignedTracks.some(at => at.fileName === track.title))
+                  .map((track) => (
+                    <Card key={track.title} className="overflow-hidden">
+                      <CardContent className="flex items-center justify-between p-3">
+                        <div className="truncate mr-2 flex items-center">
+                          <Music className="h-4 w-4 mr-2 flex-shrink-0 text-purple-500" />
+                          <span className="truncate text-sm">{track.title}</span>
+                        </div>
+                        <Button 
+                          size="sm" 
+                          onClick={() => assignTrack(track.title)}
+                        >
+                          Assign
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
               </div>
-            )}
+            </div>
           </div>
-        </TabsContent>
-        
-        <TabsContent value="upload">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="track-title">Track Title</Label>
-                  <Input 
-                    id="track-title" 
-                    value={newTrackTitle} 
-                    onChange={(e) => setNewTrackTitle(e.target.value)}
-                    placeholder="Enter track title"
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="track-file">Audio File</Label>
-                  <Input 
-                    id="track-file" 
-                    type="file" 
-                    onChange={handleFileChange} 
-                    accept="audio/*"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Support formats: MP3, WAV, OGG (max 20MB)
-                  </p>
-                </div>
-                
-                <Button 
-                  className="w-full" 
-                  onClick={uploadNewTrack}
-                  disabled={!newTrackFile || !newTrackTitle || uploadingFile}
-                >
-                  {uploadingFile ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Uploading...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4 mr-2" /> Upload Audio Track
-                    </>
-                  )}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+        )}
+      </div>
+      
+      <div className="mt-6 bg-yellow-50 p-4 rounded-md">
+        <h3 className="text-md font-medium text-yellow-800 mb-2">
+          Audio Upload Instructions
+        </h3>
+        <p className="text-sm text-yellow-700">
+          To add audio files, upload them to the Supabase storage bucket: <code>frequency-assets</code>
+        </p>
+        <p className="text-sm text-yellow-700 mt-1">
+          Recommended path format: <code>journey/your-file-name.mp3</code>
+        </p>
+      </div>
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { JourneyTemplate } from '@/data/journeyTemplates';
@@ -11,9 +10,9 @@ interface UseJourneyTemplatesProps {
 
 export const useJourneyTemplates = ({ includeAudioMappings = true }: UseJourneyTemplatesProps = {}) => {
   const [templates, setTemplates] = useState<JourneyTemplate[]>([]);
-  const [audioMappings, setAudioMappings] = useState<Record<string, { audioUrl: string, audioFileName: string }>>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [audioMappings, setAudioMappings] = useState<Record<string, JourneyAudioMapping[]>>({});
 
   useEffect(() => {
     const fetchJourneyTemplates = async () => {
@@ -91,39 +90,32 @@ export const useJourneyTemplates = ({ includeAudioMappings = true }: UseJourneyT
         if (includeAudioMappings) {
           const { data: mappingsData, error: mappingsError } = await supabase
             .from('journey_template_audio_mappings')
-            .select('journey_template_id, audio_file_name, audio_url, is_primary');
+            .select('journey_template_id, audio_file_name, audio_url, is_primary, display_order, display_title');
 
           if (mappingsError) {
             console.error('Error fetching audio mappings:', mappingsError);
           } else if (mappingsData && Array.isArray(mappingsData)) {
-            // Create a mapping from template ID to audio URL
-            const mappings: Record<string, { audioUrl: string, audioFileName: string }> = {};
+            // Group mappings by journey template ID
+            const mappings: Record<string, JourneyAudioMapping[]> = {};
             
-            // Group by journey_template_id and prioritize is_primary=true entries
-            const groupedMappings: Record<string, any[]> = {};
             mappingsData.forEach(mapping => {
-              if (!groupedMappings[mapping.journey_template_id]) {
-                groupedMappings[mapping.journey_template_id] = [];
+              if (!mappings[mapping.journey_template_id]) {
+                mappings[mapping.journey_template_id] = [];
               }
-              groupedMappings[mapping.journey_template_id].push(mapping);
+              
+              mappings[mapping.journey_template_id].push({
+                audioFileName: mapping.audio_file_name,
+                audioUrl: mapping.audio_url || 
+                  `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${mapping.audio_file_name}`,
+                isPrimary: mapping.is_primary,
+                displayOrder: mapping.display_order || 0,
+                displayTitle: mapping.display_title
+              });
             });
             
-            // For each journey, find the primary track or use the first available
-            Object.entries(groupedMappings).forEach(([journeyId, journeyMappings]) => {
-              // Sort by is_primary (true first)
-              const sortedMappings = journeyMappings.sort((a, b) => 
-                a.is_primary === b.is_primary ? 0 : a.is_primary ? -1 : 1
-              );
-              
-              const primaryMapping = sortedMappings[0];
-              
-              const audioUrl = primaryMapping.audio_url || 
-                `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${primaryMapping.audio_file_name}`;
-              
-              mappings[journeyId] = {
-                audioUrl,
-                audioFileName: primaryMapping.audio_file_name
-              };
+            // Sort mappings for each journey by display order
+            Object.keys(mappings).forEach(journeyId => {
+              mappings[journeyId].sort((a, b) => a.displayOrder - b.displayOrder);
             });
             
             setAudioMappings(mappings);
@@ -131,7 +123,6 @@ export const useJourneyTemplates = ({ includeAudioMappings = true }: UseJourneyT
         }
       } catch (err: any) {
         console.error('Error fetching journey templates:', err);
-        setError(err.message || 'Failed to load journey templates');
         toast.error('Failed to load journey templates');
         
         // Fallback to local data
@@ -145,33 +136,53 @@ export const useJourneyTemplates = ({ includeAudioMappings = true }: UseJourneyT
     fetchJourneyTemplates();
   }, [includeAudioMappings]);
 
-  // Function to add an audio mapping to a journey template
-  const addAudioMapping = async (journeyId: string, audioFileName: string, audioUrl?: string, isPrimary: boolean = true) => {
+  // Update addAudioMapping to support new fields
+  const addAudioMapping = async (
+    journeyId: string, 
+    audioFileName: string, 
+    audioUrl?: string, 
+    isPrimary: boolean = true,
+    displayOrder: number = 0,
+    displayTitle?: string
+  ) => {
     try {
-      // Insert directly to the table instead of using rpc
       const { data, error } = await supabase
         .from('journey_template_audio_mappings')
         .insert([{
           journey_template_id: journeyId,
           audio_file_name: audioFileName,
           audio_url: audioUrl,
-          is_primary: isPrimary
+          is_primary: isPrimary,
+          display_order: displayOrder,
+          display_title: displayTitle
         }]);
 
       if (error) {
         throw error;
       }
 
-      if (isPrimary) {
-        // Update local state for primary mappings
-        setAudioMappings(prev => ({
-          ...prev,
-          [journeyId]: {
-            audioUrl: audioUrl || `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioFileName}`,
-            audioFileName
-          }
-        }));
-      }
+      // Update local state
+      setAudioMappings(prev => {
+        const updatedMappings = {...prev};
+        const newMapping = {
+          audioFileName,
+          audioUrl: audioUrl || 
+            `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioFileName}`,
+          isPrimary,
+          displayOrder,
+          displayTitle
+        };
+
+        if (!updatedMappings[journeyId]) {
+          updatedMappings[journeyId] = [];
+        }
+
+        // Add new mapping and sort
+        updatedMappings[journeyId].push(newMapping);
+        updatedMappings[journeyId].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+
+        return updatedMappings;
+      });
 
       toast.success('Audio mapping added successfully');
       return data;
@@ -182,12 +193,9 @@ export const useJourneyTemplates = ({ includeAudioMappings = true }: UseJourneyT
     }
   };
 
-  // Function to get audio for a specific journey template
-  const getJourneyAudio = (journeyId: string): string | null => {
-    if (audioMappings[journeyId]) {
-      return audioMappings[journeyId].audioUrl;
-    }
-    return null;
+  // Modify getJourneyAudio to return an array of audio files
+  const getJourneyAudio = (journeyId: string): JourneyAudioMapping[] | null => {
+    return audioMappings[journeyId] || null;
   };
 
   return {
