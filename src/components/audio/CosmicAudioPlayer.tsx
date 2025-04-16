@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import {
@@ -56,7 +57,7 @@ interface CosmicAudioPlayerProps {
   initialColorTheme?: string;
   chakra?: string;
   initialIsExpanded?: boolean;
-  onExpandStateChange?: (expanded: boolean) => void;
+  onExpandStateChange?: (expanded: boolean) => void; // Added this prop
 }
 
 const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({

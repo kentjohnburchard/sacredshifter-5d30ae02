@@ -49,6 +49,7 @@ const JourneyTemplatesPage = () => {
   const navigate = useNavigate();
   const { liftTheVeil } = useTheme();
   const [activeJourney, setActiveJourney] = useState<string | null>(null);
+  const [playerVisible, setPlayerVisible] = useState<boolean>(false);
 
   // Determine which journey to play (if any)
   const selectedJourney = activeJourney 
@@ -58,13 +59,22 @@ const JourneyTemplatesPage = () => {
   // Play a journey template
   const playJourney = (journeyId: string) => {
     setActiveJourney(journeyId);
+    setPlayerVisible(true);
     toast.success(`Playing ${journeyTemplates.find(j => j.id === journeyId)?.name || 'journey'}`);
+    console.log("Journey player activated:", journeyId);
   };
   
   // Navigate to the journey detail page
   const viewJourneyDetails = (journeyId: string) => {
     navigate(`/journeys/${journeyId}`);
   };
+
+  useEffect(() => {
+    // When activeJourney changes, ensure player visibility
+    if (activeJourney) {
+      setPlayerVisible(true);
+    }
+  }, [activeJourney]);
 
   return (
     <PageLayout title="Journey Templates">
@@ -147,7 +157,7 @@ const JourneyTemplatesPage = () => {
       </div>
       
       {/* Floating Cosmic Player */}
-      {selectedJourney && (
+      {selectedJourney && playerVisible && (
         <FloatingCosmicPlayer
           frequency={selectedJourney.frequency}
           title={selectedJourney.name}
@@ -163,6 +173,8 @@ const JourneyTemplatesPage = () => {
             selectedJourney.id === 'dna-healing' ? 'divine-green' :
             selectedJourney.id === 'cosmic-connection' ? 'ethereal-blue' : 'sacred-gold'
           }
+          initialIsExpanded={false}
+          onExpandStateChange={(expanded) => console.log("Player expanded:", expanded)}
         />
       )}
     </PageLayout>
