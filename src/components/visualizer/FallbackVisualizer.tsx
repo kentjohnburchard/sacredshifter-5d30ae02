@@ -8,13 +8,15 @@ interface FallbackVisualizerProps {
   fallbackType?: 'bars' | 'wave' | 'dots';
   height?: number;
   width?: number;
+  isPlaying?: boolean;
 }
 
 const FallbackVisualizer: React.FC<FallbackVisualizerProps> = ({
   colorScheme = '#a855f7',
   fallbackType = 'bars',
   height = 200,
-  width = 400
+  width = 400,
+  isPlaying = true
 }) => {
   const { frequencyData } = useAppStore();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -39,8 +41,8 @@ const FallbackVisualizer: React.FC<FallbackVisualizerProps> = ({
       ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
       ctx.fillRect(0, 0, width, height);
       
-      // Use mock data if no frequency data available
-      const dataArray = frequencyData?.length > 0 ? frequencyData : generateMockData();
+      // Use mock data if no frequency data available or if not playing
+      const dataArray = (frequencyData?.length > 0 && isPlaying) ? frequencyData : generateMockData();
       
       if (fallbackType === 'bars') {
         drawBars(ctx, dataArray, width, height, colorScheme);
@@ -56,7 +58,7 @@ const FallbackVisualizer: React.FC<FallbackVisualizerProps> = ({
     // Start animation
     draw();
     
-  }, [colorScheme, fallbackType, height, width, frequencyData]);
+  }, [colorScheme, fallbackType, height, width, frequencyData, isPlaying]);
   
   const generateMockData = (): Uint8Array => {
     const mockData = new Uint8Array(64);
