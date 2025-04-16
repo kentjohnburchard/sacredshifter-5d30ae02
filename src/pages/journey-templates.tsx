@@ -6,6 +6,8 @@ import { useJourneyTemplates } from '@/hooks/useJourneyTemplates';
 import JourneyTemplatesGrid from '@/components/frequency-journey/JourneyTemplatesGrid';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { useTheme } from '@/context/ThemeContext';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 const JourneyTemplatesPage = () => {
   const navigate = useNavigate();
@@ -20,6 +22,14 @@ const JourneyTemplatesPage = () => {
           <p className="text-gray-500 dark:text-gray-400">
             Experience curated frequency journeys for transformation and healing
           </p>
+          <div className="flex mt-4 gap-3">
+            <Link to="/dashboard">
+              <Button variant="outline">Back to Dashboard</Button>
+            </Link>
+            <Link to="/sitemap">
+              <Button variant="secondary">Site Map (Access All Pages)</Button>
+            </Link>
+          </div>
         </div>
 
         <TooltipProvider>

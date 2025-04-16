@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { toast } from 'sonner';
@@ -52,6 +53,7 @@ export function useGlobalAudioPlayer() {
     console.log("Global player: Playing new song:", audioInfo.title, "URL:", audioInfo.source);
     
     if (!audioInfo.source) {
+      console.error("Cannot play: Missing audio source");
       toast.error("Cannot play: Missing audio source");
       return;
     }

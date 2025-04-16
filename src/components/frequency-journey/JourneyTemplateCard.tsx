@@ -30,13 +30,8 @@ const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({
   
   const handleStartJourney = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering onClick
-    if (audioMapping?.audioUrl) {
-      navigate(`/journey-player/${template.id}`);
-    } else {
-      console.log("No audio URL found for template:", template.id);
-      // Still navigate but the player will handle the error display
-      navigate(`/journey-player/${template.id}`);
-    }
+    console.log("Starting journey with template:", template.id, "Audio mapping:", audioMapping);
+    navigate(`/journey-player/${template.id}`);
   };
   
   const handleCardClick = () => {

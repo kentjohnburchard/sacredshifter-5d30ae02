@@ -15,6 +15,7 @@ import FrequencyShift from './pages/FrequencyShift';
 import JourneyTemplatesPage from './pages/journey-templates';
 import Journeys from './pages/Journeys';
 import JourneyPlayer from './pages/JourneyPlayer';
+import SiteMap from './pages/SiteMap';
 
 const AppRoutes = () => {
   return (
@@ -34,6 +35,7 @@ const AppRoutes = () => {
         <Route path="/journey-templates" element={<JourneyTemplatesPage />} />
         <Route path="/journeys" element={<Journeys />} />
         <Route path="/journey-player/:journeyId" element={<JourneyPlayer />} />
+        <Route path="/sitemap" element={<SiteMap />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
