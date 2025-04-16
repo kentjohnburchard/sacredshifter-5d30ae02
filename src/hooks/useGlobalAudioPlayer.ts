@@ -165,6 +165,6 @@ export function useGlobalAudioPlayer() {
     togglePlayPause,
     resetPlayer,
     seekTo,
-    registerPlayerVisuals
+    registerPlayerVisuals  // This was missing in the return object
   };
 }

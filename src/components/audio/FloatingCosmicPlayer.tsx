@@ -55,6 +55,11 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
 
   // Register this player with the global audio player
   useEffect(() => {
+    if (!registerPlayerVisuals) {
+      console.error("registerPlayerVisuals function is not available");
+      return;
+    }
+    
     // Define the callback to update this player when global state changes
     const setAudioSourceCallback = (url: string, info?: any) => {
       console.log("FloatingCosmicPlayer: Global player wants to sync audio:", url);
@@ -79,10 +84,15 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
       }
     };
     
-    // Register with the global player
-    registerPlayerVisuals({ setAudioSource: setAudioSourceCallback });
-    
-    console.log("FloatingCosmicPlayer: Registered with global audio player");
+    try {
+      // Register with the global player
+      registerPlayerVisuals({ setAudioSource: setAudioSourceCallback });
+      
+      console.log("FloatingCosmicPlayer: Registered with global audio player");
+    } catch (error) {
+      console.error("Error registering player visuals:", error);
+      toast.error("Audio visualization error");
+    }
   }, [registerPlayerVisuals]);
 
   const handleError = (error: any) => {
