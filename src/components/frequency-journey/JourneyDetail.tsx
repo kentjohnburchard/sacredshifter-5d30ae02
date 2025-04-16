@@ -46,7 +46,7 @@ const JourneyDetail: React.FC<JourneyDetailProps> = ({
     
     // Check if we have an audio mapping and navigate to the player page
     if (audioMapping?.audioUrl) {
-      // Navigate to the player with the journey ID, not the audio URL
+      // Navigate to the correctly named route
       navigate(`/journey-player/${template.id}`);
       toast.success(`Starting ${template.title} journey`);
     } else {

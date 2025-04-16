@@ -1,196 +1,77 @@
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Music, Headphones } from "lucide-react";
-import { Link } from "react-router-dom";
-import { JourneyTemplate } from "@/data/journeyTemplates";
-import { motion } from "framer-motion";
-import { useJourneySongs } from "@/hooks/useJourneySongs";
-
-// Chakra color mapping
-const chakraColors: { [key: string]: string } = {
-  "Root": "from-red-600 to-red-700",
-  "Sacral": "from-orange-500 to-orange-600",
-  "Solar Plexus": "from-yellow-500 to-yellow-600",
-  "Heart": "from-green-500 to-green-600",
-  "Throat": "from-blue-400 to-blue-500",
-  "Third Eye": "from-indigo-500 to-indigo-600",
-  "Crown": "from-purple-500 to-violet-700",
-  // Default color for non-chakra templates
-  "default": "from-purple-600 to-indigo-600"
-};
+import React from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { JourneyTemplate } from '@/data/journeyTemplates';
+import { useNavigate } from 'react-router-dom';
+import { Play, Info } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface JourneyTemplateCardProps {
   template: JourneyTemplate;
-  audioMapping?: {
-    audioUrl: string;
-    audioFileName: string;
-  };
+  audioUrl?: string;
+  onClick?: (template: JourneyTemplate) => void;
 }
 
-const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template, audioMapping }) => {
-  // Get songs for this journey
-  const { songs, loading } = useJourneySongs(template.id);
+const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ 
+  template, 
+  audioUrl,
+  onClick
+}) => {
+  const navigate = useNavigate();
   
-  // Now we can use audioMapping to direct to the correct journey player page with template ID
-  const journeyLink = `/journey-player/${template.id}`;
-  
-  // Determine header gradient based on chakras
-  const getHeaderGradient = () => {
-    if (template.chakras && template.chakras.length > 0) {
-      // Use the first chakra for the header color
-      const primaryChakra = template.chakras[0];
-      return chakraColors[primaryChakra] || chakraColors.default;
+  const handleStartJourney = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering onClick
+    if (audioUrl) {
+      navigate(`/journey-player/${template.id}`);
+    } else {
+      console.error("No audio URL found for template:", template.id);
+      // Still navigate but the player will handle the error display
+      navigate(`/journey-player/${template.id}`);
     }
-    return chakraColors.default;
   };
   
-  const headerGradient = getHeaderGradient();
-  
+  const handleCardClick = () => {
+    if (onClick) {
+      onClick(template);
+    }
+  };
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7 }}
-      viewport={{ once: true, margin: "-100px" }}
-    >
-      <Card 
-        className="cosmic-card border-2 border-purple-200 dark:border-purple-800"
-        style={{ borderTopColor: template.color || '#6b46c1' }}
+    <TooltipProvider>
+      <Card
+        className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden transition-transform transform hover:scale-105 cursor-pointer"
+        onClick={handleCardClick}
       >
-        <CardHeader className={`bg-gradient-to-r ${headerGradient} text-white relative overflow-hidden`}>
-          {/* Subtle cosmic shimmer overlay */}
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxyYWRpYWxHcmFkaWVudCBpZD0ic3RhciIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNTAlIiBmeD0iNTAlIiBmeT0iNTAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSJ3aGl0ZSIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IndoaXRlIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI3N0YXIpIi8+PC9zdmc+')]
-                opacity-30 mix-blend-overlay"></div>
-          
-          <CardTitle className="flex justify-between items-center relative z-10">
-            <div>
-              <motion.h3 
-                className="text-xl font-playfair" 
-                whileHover={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              >
-                {template.emoji && `${template.emoji} `}{template.title}
-              </motion.h3>
-              <p className="text-sm font-light mt-1 font-modern">{template.subtitle}</p>
-            </div>
-            <div className="flex gap-1">
-              {template.chakras?.map((chakra) => (
-                <motion.div
-                  key={chakra}
-                  whileHover={{ scale: 1.1, rotate: 3 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                >
-                  <Badge variant="outline" className="border-white/40 text-white shimmer-hover">
-                    {chakra}
-                  </Badge>
-                </motion.div>
-              ))}
-              {template.vibe && (
-                <motion.div
-                  whileHover={{ scale: 1.1, rotate: -3 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                >
-                  <Badge variant="outline" className="border-white/40 text-white shimmer-hover">
-                    {template.vibe}
-                  </Badge>
-                </motion.div>
-              )}
-              {audioMapping && (
-                <motion.div
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                >
-                  <Badge variant="outline" className="border-white/40 text-white shimmer-hover flex items-center gap-1">
-                    <Headphones className="h-3 w-3" />
-                    <span className="sr-only">Has Audio</span>
-                  </Badge>
-                </motion.div>
-              )}
-              {!loading && songs.length > 0 && (
-                <motion.div
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                >
-                  <Badge variant="outline" className="border-white/40 text-white shimmer-hover flex items-center gap-1">
-                    <Music className="h-3 w-3" />
-                    <span>{songs.length}</span>
-                  </Badge>
-                </motion.div>
-              )}
-            </div>
-          </CardTitle>
-        </CardHeader>
-        
-        <CardContent className="p-6 space-y-4 bg-white dark:bg-gray-900">
-          <div>
-            <h4 className="text-sm font-medium text-purple-700 dark:text-purple-300 font-playfair mb-1">Purpose</h4>
-            <p className="text-sm text-gray-600 dark:text-gray-300 font-modern">
-              {template.purpose}
-            </p>
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{template.title}</h3>
+            <Tooltip>
+              <TooltipTrigger>
+                <Info className="h-4 w-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{template.description}</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
-          
-          <div>
-            <h4 className="text-sm font-medium text-purple-700 dark:text-purple-300 font-playfair mb-1">Frequencies</h4>
-            <ul className="space-y-1 text-sm text-gray-600 dark:text-gray-300 font-modern">
-              {template.frequencies.map((freq, index) => (
-                <motion.li 
-                  key={index} 
-                  className="flex items-start gap-2 shimmer-hover p-1 rounded-md"
-                  whileHover={{ x: 3 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                >
-                  <span className="text-purple-500 dark:text-purple-300 font-medium">{freq.name} ({freq.value}):</span> 
-                  <span>{freq.description}</span>
-                </motion.li>
-              ))}
-            </ul>
-          </div>
-          
-          <motion.div 
-            className="p-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg border border-purple-100 dark:border-purple-900 relative overflow-hidden"
-            whileHover={{ scale: 1.02 }}
-            transition={{ type: "spring", stiffness: 200, damping: 10 }}
-          >
-            {/* Subtle shimmer effect */}
-            <motion.div 
-              className="absolute inset-0 bg-gradient-to-r from-purple-100/20 via-transparent to-purple-100/20 dark:from-purple-500/10 dark:via-transparent dark:to-purple-500/10 bg-[length:200%_100%]"
-              animate={{ 
-                backgroundPosition: ['0% 0%', '100% 0%', '0% 0%'],
-              }}
-              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            ></motion.div>
-            
-            <p className="text-sm italic text-gray-600 dark:text-gray-300 relative font-lora">
-              <span className="text-3xl text-purple-300 dark:text-purple-500 absolute -top-3 -left-2">"</span>
-              {template.valeQuote?.replace("Vale", "Kent")}
-              <span className="text-3xl text-purple-300 dark:text-purple-500 absolute -bottom-5 -right-2">"</span>
-            </p>
-            <p className="text-xs text-right mt-2 text-purple-600 dark:text-purple-400 font-medium">— Kent</p>
-          </motion.div>
-          
-          <div className="pt-4 flex justify-between items-center">
-            {audioMapping && (
-              <div className="text-xs text-purple-500 dark:text-purple-300 flex items-center">
-                <Music className="h-3 w-3 mr-1" />
-                <span className="truncate max-w-[150px]" title={audioMapping.audioFileName}>
-                  {audioMapping.audioFileName.split('/').pop()}
-                </span>
-              </div>
-            )}
-            <Button 
-              asChild
-              className={`cosmic-button ml-auto bg-gradient-to-r ${headerGradient} text-white hover:opacity-90`}
-            >
-              <Link to={journeyLink}>
-                Begin Journey <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">{template.subtitle}</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+              <span>{template.duration} min</span>
+              <span>{template.sessionType}</span>
+            </div>
+            <Button size="sm" onClick={handleStartJourney}>
+              <Play className="h-4 w-4 mr-2" /> Start
             </Button>
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </TooltipProvider>
   );
 };
 
