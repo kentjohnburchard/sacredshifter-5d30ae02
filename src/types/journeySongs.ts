@@ -11,6 +11,7 @@ export interface JourneySong {
   isPrimary?: boolean;
   chakra?: string;
   frequency?: number;
+  category?: string; // Added missing field
 }
 
 export interface JourneySongGroup {
@@ -34,6 +35,7 @@ export const convertToJourneySong = (
     journeyId: journeyId,
     isPrimary: isPrimary,
     chakra: song.chakra,
-    frequency: song.frequency
+    frequency: song.frequency,
+    category: song.category || 'general'
   };
 };

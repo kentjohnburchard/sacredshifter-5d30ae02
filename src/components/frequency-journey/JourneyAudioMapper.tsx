@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 
 interface JourneyAudioMapperProps {
-  onlyShowTemplatesWithoutAudio?: boolean;
+  onlyShowTemplatesWithoutAudio?: boolean; // Added the missing prop
 }
 
 const JourneyAudioMapper: React.FC<JourneyAudioMapperProps> = ({ onlyShowTemplatesWithoutAudio = false }) => {
