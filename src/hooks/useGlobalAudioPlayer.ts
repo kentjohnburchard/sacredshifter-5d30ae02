@@ -8,6 +8,7 @@ type AudioInfo = {
   source: string;
   frequency?: number;
   chakra?: string;
+  id?: string;
 };
 
 // Create audio element outside of component to ensure it persists
