@@ -12,6 +12,8 @@ import AboutFounder from './pages/AboutFounder';
 import Meditation from './pages/Meditation';
 import HermeticWisdom from './pages/HermeticWisdom';
 import FrequencyShift from './pages/FrequencyShift';
+import JourneyTemplatesPage from './pages/journey-templates';
+import Journeys from './pages/Journeys';
 
 const AppRoutes = () => {
   return (
@@ -28,6 +30,8 @@ const AppRoutes = () => {
         <Route path="/meditation" element={<Meditation />} />
         <Route path="/hermetic" element={<HermeticWisdom />} />
         <Route path="/frequency-shift" element={<FrequencyShift />} />
+        <Route path="/journey-templates" element={<JourneyTemplatesPage />} />
+        <Route path="/journeys" element={<Journeys />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
