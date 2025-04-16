@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { JourneyTemplate } from '@/data/journeyTemplates';
@@ -115,7 +116,9 @@ export const useJourneyTemplates = ({ includeAudioMappings = true }: UseJourneyT
             
             // Sort mappings for each journey by display order
             Object.keys(mappings).forEach(journeyId => {
-              mappings[journeyId].sort((a, b) => a.displayOrder - b.displayOrder);
+              mappings[journeyId].sort((a, b) => 
+                (a.displayOrder || 0) - (b.displayOrder || 0)
+              );
             });
             
             setAudioMappings(mappings);
@@ -136,7 +139,7 @@ export const useJourneyTemplates = ({ includeAudioMappings = true }: UseJourneyT
     fetchJourneyTemplates();
   }, [includeAudioMappings]);
 
-  // Update addAudioMapping to support new fields
+  // Add audio mapping
   const addAudioMapping = async (
     journeyId: string, 
     audioFileName: string, 
@@ -179,7 +182,9 @@ export const useJourneyTemplates = ({ includeAudioMappings = true }: UseJourneyT
 
         // Add new mapping and sort
         updatedMappings[journeyId].push(newMapping);
-        updatedMappings[journeyId].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+        updatedMappings[journeyId].sort((a, b) => 
+          (a.displayOrder || 0) - (b.displayOrder || 0)
+        );
 
         return updatedMappings;
       });
@@ -193,9 +198,9 @@ export const useJourneyTemplates = ({ includeAudioMappings = true }: UseJourneyT
     }
   };
 
-  // Modify getJourneyAudio to return an array of audio files
-  const getJourneyAudio = (journeyId: string): JourneyAudioMapping[] | null => {
-    return audioMappings[journeyId] || null;
+  // Get journey audio (returns array of audio files)
+  const getJourneyAudio = (journeyId: string): JourneyAudioMapping[] => {
+    return audioMappings[journeyId] || [];
   };
 
   return {
