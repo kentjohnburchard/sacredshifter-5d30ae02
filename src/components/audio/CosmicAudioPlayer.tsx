@@ -391,7 +391,7 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                   className={`w-full relative ${isExpanded ? 'flex-1' : 'h-[250px]'} overflow-hidden`}
                 >
                   <div className="absolute inset-0 z-10">
-                    {defaultShape && (
+                    {currentShape && (
                       <SacredGeometryVisualizer
                         defaultShape={currentShape as any}
                         size={isExpanded ? "xl" : "md"}

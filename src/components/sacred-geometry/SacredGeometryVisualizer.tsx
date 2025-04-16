@@ -13,6 +13,9 @@ interface SacredGeometryVisualizerProps {
   frequency?: number;
   mode?: 'fractal' | 'spiral' | 'mandala';
   liftedVeil?: boolean;
+  showControls?: boolean;
+  isVisible?: boolean;
+  className?: string;
 }
 
 const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
@@ -24,7 +27,10 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
   chakra,
   frequency,
   mode = 'fractal',
-  liftedVeil = false
+  liftedVeil = false,
+  showControls = false,
+  isVisible = true,
+  className = ''
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -55,7 +61,7 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
       rendererRef.current.dispose();
     }
     
-    if (!mountRef.current) return;
+    if (!mountRef.current || !isVisible) return;
     
     const width = mountRef.current.clientWidth;
     const height = mountRef.current.clientHeight;
@@ -118,7 +124,7 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
     shape.scale.set(0.001, 0.001, 0.001);
 
     const animate = () => {
-      if (!rendererRef.current || !sceneRef.current || !cameraRef.current || !shapeRef.current) return;
+      if (!rendererRef.current || !sceneRef.current || !cameraRef.current || !shapeRef.current || !isVisible) return;
       
       frameIdRef.current = requestAnimationFrame(animate);
       
@@ -156,7 +162,9 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
       rendererRef.current.render(sceneRef.current, cameraRef.current);
     };
     
-    animate();
+    if (isVisible) {
+      animate();
+    }
     
     const handleResize = () => {
       if (!mountRef.current || !cameraRef.current || !rendererRef.current) return;
@@ -183,11 +191,11 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
         rendererRef.current.dispose();
       }
     };
-  }, [defaultShape, chakra]);
+  }, [defaultShape, chakra, isVisible]);
 
   // Handle audio data for visualizer reactivity
   useEffect(() => {
-    if (!isAudioReactive || !audioContext || !analyser) return;
+    if (!isAudioReactive || !audioContext || !analyser || !isVisible) return;
     
     const dataArray = new Uint8Array(analyser.frequencyBinCount);
     
@@ -205,7 +213,7 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
         cancelAnimationFrame(frameIdRef.current);
       }
     };
-  }, [isAudioReactive, audioContext, analyser]);
+  }, [isAudioReactive, audioContext, analyser, isVisible]);
 
   const sizeClass = {
     sm: 'h-64',
@@ -214,10 +222,14 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
     xl: 'h-[600px]'
   }[size] || 'h-96';
 
+  if (!isVisible) {
+    return null;
+  }
+
   return (
     <div className={`sacred-visualizer w-full h-full overflow-hidden ${
       liftedVeil ? 'sacred-lifted' : 'sacred-standard'
-    }`}>
+    } ${className}`}>
       <motion.div 
         ref={mountRef} 
         className={`w-full ${sizeClass}`}
@@ -225,6 +237,15 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       />
+      
+      {showControls && (
+        <div className="absolute bottom-4 left-4 right-4 flex justify-center space-x-2">
+          {/* Control buttons could be added here */}
+          <div className="px-3 py-1 rounded-full text-xs backdrop-blur-md bg-black/30 text-white/80">
+            {defaultShape.replace(/-/g, ' ')}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

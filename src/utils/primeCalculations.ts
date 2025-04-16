@@ -43,3 +43,20 @@ export function calculatePrimeFactors(num: number): number[] {
   
   return factors;
 }
+
+/**
+ * Generate a sequence of n prime numbers
+ */
+export function generatePrimeSequence(n: number): number[] {
+  const primes: number[] = [];
+  let num = 2;
+  
+  while (primes.length < n) {
+    if (isPrime(num)) {
+      primes.push(num);
+    }
+    num++;
+  }
+  
+  return primes;
+}
