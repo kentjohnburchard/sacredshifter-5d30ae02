@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -111,8 +110,12 @@ const JourneyPlayer = () => {
           playAudio({
             title: nextSong.title || (journey?.title ? journey.title + " (continued)" : "Journey Track"),
             artist: "Sacred Shifter",
-            source: audioUrl
+            source: audioUrl,
+            chakra: journey?.chakras?.[0]?.toLowerCase() || undefined,
+            frequency: nextSong.frequency
           });
+          
+          setPlayerVisible(true);
         } else {
           console.error("JourneyPlayer: Invalid audio URL for next song");
           toast.error("Could not play next track: Invalid audio URL");
@@ -182,7 +185,9 @@ const JourneyPlayer = () => {
             playAudio({
               title: selectedSong.title || (journey?.title || "Journey Track"),
               artist: "Sacred Shifter",
-              source: audioUrl
+              source: audioUrl,
+              chakra: journey?.chakras?.[0]?.toLowerCase() || "all",
+              frequency: selectedSong.frequency
             });
             
             setPlayerVisible(true);
@@ -222,7 +227,9 @@ const JourneyPlayer = () => {
         playAudio({
           title: journey?.title || "Journey Track",
           artist: "Sacred Shifter",
-          source: audioUrl
+          source: audioUrl,
+          chakra: journey?.chakras?.[0]?.toLowerCase() || "all",
+          frequency: undefined
         });
         
         const fallbackSong = {
@@ -264,7 +271,9 @@ const JourneyPlayer = () => {
             playAudio({
               title: newSong.title || (journey?.title || "Journey Track"),
               artist: "Sacred Shifter",
-              source: audioUrl
+              source: audioUrl,
+              chakra: journey?.chakras?.[0]?.toLowerCase() || "all",
+              frequency: newSong.frequency
             });
             
             setPlayerVisible(true);
@@ -285,6 +294,12 @@ const JourneyPlayer = () => {
   };
 
   const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  useEffect(() => {
+    if (isPlaying && currentAudio?.source) {
+      setPlayerVisible(true);
+    }
+  }, [isPlaying, currentAudio]);
 
   if (isLoading || loadingSongs || loadingTemplates) {
     return (
@@ -463,13 +478,14 @@ const JourneyPlayer = () => {
         </Card>
       </div>
       
-      {playerVisible && currentSongRef.current && (
+      {playerVisible && (currentSongRef.current || currentAudio?.source) && (
         <FloatingCosmicPlayer
-          audioUrl={currentSongRef.current.audioUrl}
-          title={currentSongRef.current.title || journey?.title || "Sacred Journey"}
+          audioUrl={currentSongRef.current?.audioUrl || currentAudio?.source || ''}
+          title={currentSongRef.current?.title || currentAudio?.title || journey?.title || "Sacred Journey"}
           description={journey?.description || "Sacred sound journey"}
           initiallyVisible={true}
           chakra={journey?.chakras?.[0]?.toLowerCase() || "all"}
+          frequency={currentSongRef.current?.frequency || currentAudio?.frequency}
           initialShape={journey?.id === 'trinity-journey' ? 'metatrons-cube' : 
                       journey?.id === 'dna-healing' ? 'flower-of-life' :
                       journey?.id === 'cosmic-connection' ? 'sri-yantra' : 'torus'}

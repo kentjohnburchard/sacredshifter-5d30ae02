@@ -28,6 +28,7 @@ export function useGlobalAudioPlayer() {
   const [currentAudio, setCurrentAudio] = useState<AudioInfo>({source: ''});
   const onEndedCallbackRef = useRef<(() => void) | null>(null);
   const audioSourceRef = useRef<string>('');
+  const playerVisualsRef = useRef<{setAudioSource: (url: string, info?: AudioInfo) => void} | null>(null);
 
   // Make sure we're tracking the current audio time
   const [currentTime, setCurrentTime] = useState(0);
@@ -56,6 +57,19 @@ export function useGlobalAudioPlayer() {
       }
     };
   }, [audioRef]);
+
+  const registerPlayerVisuals = (callbacks: {
+    setAudioSource: (url: string, info?: AudioInfo) => void
+  }) => {
+    console.log("Global player: Registering visual player callbacks");
+    playerVisualsRef.current = callbacks;
+    
+    // If there's currently playing audio, tell the visual player about it
+    if (audioSourceRef.current && isAudioPlaying) {
+      console.log("Global player: Syncing current audio to visual player");
+      playerVisualsRef.current.setAudioSource(audioSourceRef.current, currentAudio);
+    }
+  };
 
   const playAudio = (audioInfo: AudioInfo) => {
     console.log("Global player: Playing new song:", audioInfo.title, "URL:", audioInfo.source);
@@ -103,6 +117,12 @@ export function useGlobalAudioPlayer() {
           });
         }
       }
+      
+      // Sync with visual player if registered
+      if (playerVisualsRef.current) {
+        console.log("Global player: Syncing new audio to visual player");
+        playerVisualsRef.current.setAudioSource(audioInfo.source, audioInfo);
+      }
     }, 100);
   };
 
@@ -126,6 +146,12 @@ export function useGlobalAudioPlayer() {
       audioSourceRef.current = '';
       setCurrentAudio({source: ''});
       console.log("Global audio player: Reset complete");
+      
+      // Reset visual player if registered
+      if (playerVisualsRef.current) {
+        console.log("Global player: Resetting visual player");
+        playerVisualsRef.current.setAudioSource('');
+      }
     }
   };
 
@@ -138,6 +164,7 @@ export function useGlobalAudioPlayer() {
     setOnEndedCallback,
     togglePlayPause,
     resetPlayer,
-    seekTo
+    seekTo,
+    registerPlayerVisuals
   };
 }
