@@ -13,6 +13,7 @@ interface FloatingCosmicPlayerProps {
   initialShape?: string;
   initialColorTheme?: string;
   initialIsExpanded?: boolean;
+  onExpandStateChange?: (expanded: boolean) => void;
 }
 
 const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
@@ -24,7 +25,8 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
   frequency,
   initialShape = 'flower-of-life',
   initialColorTheme = 'cosmic-purple',
-  initialIsExpanded = false
+  initialIsExpanded = false,
+  onExpandStateChange
 }) => {
   const [isVisible, setIsVisible] = useState(initiallyVisible);
   const [isExpanded, setIsExpanded] = useState(initialIsExpanded);
@@ -46,6 +48,9 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
   
   const handleExpandStateChange = (expanded: boolean) => {
     setIsExpanded(expanded);
+    if (onExpandStateChange) {
+      onExpandStateChange(expanded);
+    }
   };
   
   if (!isVisible || !audioUrl_) {

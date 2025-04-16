@@ -11,7 +11,7 @@ interface SacredGeometryVisualizerProps {
   analyser?: AnalyserNode | null;
   chakra?: string;
   frequency?: number;
-  mode?: 'fractal' | 'spiral' | 'mandala';
+  mode?: 'fractal' | 'spiral' | 'mandala' | 'liquid-crystal';
   liftedVeil?: boolean;
   showControls?: boolean;
   isVisible?: boolean;
@@ -100,28 +100,116 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
     directionalLight.position.set(0, 1, 2);
     scene.add(directionalLight);
     
-    // Create a simple shape for visualization
-    const torusGeometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
-    const material = new THREE.MeshPhongMaterial({ 
-      color: chakra === 'crown' ? 0x9966ff : 
-             chakra === 'third-eye' ? 0x6600ff :
-             chakra === 'throat' ? 0x0099ff :
-             chakra === 'heart' ? 0x00ff99 :
-             chakra === 'solar-plexus' ? 0xffcc00 :
-             chakra === 'sacral' ? 0xff6600 :
-             chakra === 'root' ? 0xff0000 :
-             0x9966ff,
-      emissive: 0x333333,
-      shininess: 50,
-      wireframe: true
-    });
+    // Determine material color based on mode and chakra
+    let materialColor, emissiveColor;
     
-    const shape = new THREE.Mesh(torusGeometry, material);
+    if (mode === 'liquid-crystal') {
+      materialColor = new THREE.Color(0x00bfff); // Bright cyan for liquid crystal mode
+      emissiveColor = new THREE.Color(0x0080ff); // Slight blue glow
+    } else if (chakra === 'crown') {
+      materialColor = new THREE.Color(0x9966ff);
+      emissiveColor = new THREE.Color(0x6600ff);
+    } else if (chakra === 'third-eye') {
+      materialColor = new THREE.Color(0x6600ff);
+      emissiveColor = new THREE.Color(0x4b0082);
+    } else if (chakra === 'throat') {
+      materialColor = new THREE.Color(0x0099ff);
+      emissiveColor = new THREE.Color(0x0066cc);
+    } else if (chakra === 'heart') {
+      materialColor = new THREE.Color(0x00ff99);
+      emissiveColor = new THREE.Color(0x00cc66);
+    } else if (chakra === 'solar-plexus') {
+      materialColor = new THREE.Color(0xffcc00);
+      emissiveColor = new THREE.Color(0xcc9900);
+    } else if (chakra === 'sacral') {
+      materialColor = new THREE.Color(0xff6600);
+      emissiveColor = new THREE.Color(0xcc3300);
+    } else if (chakra === 'root') {
+      materialColor = new THREE.Color(0xff0000);
+      emissiveColor = new THREE.Color(0xcc0000);
+    } else {
+      materialColor = new THREE.Color(0x9966ff);
+      emissiveColor = new THREE.Color(0x6600ff);
+    }
+    
+    // Create a geometric shape for visualization
+    let geometry;
+    
+    if (mode === 'liquid-crystal') {
+      // Water-like geometry with more segments for fluid appearance
+      geometry = new THREE.TorusKnotGeometry(1, 0.3, 128, 32, 3, 4); 
+    } else if (mode === 'spiral') {
+      geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16, 2, 3);
+    } else if (mode === 'mandala') {
+      geometry = new THREE.CylinderGeometry(1, 1, 0.2, 16, 1, true);
+    } else {
+      // Default fractal mode
+      geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
+    }
+    
+    // Special liquid crystal material with water-like properties
+    const material = mode === 'liquid-crystal' 
+      ? new THREE.MeshPhysicalMaterial({ 
+          color: materialColor,
+          emissive: emissiveColor,
+          metalness: 0.9,
+          roughness: 0.2,
+          transmission: 0.95, // High transparency
+          thickness: 0.5, // Glass-like thickness
+          clearcoat: 1.0, // Polished look
+          clearcoatRoughness: 0.1,
+          wireframe: false
+        })
+      : new THREE.MeshPhongMaterial({ 
+          color: materialColor,
+          emissive: emissiveColor,
+          emissiveIntensity: 0.5,
+          shininess: 50,
+          wireframe: mode === 'mandala' ? false : true
+        });
+    
+    const shape = new THREE.Mesh(geometry, material);
     scene.add(shape);
     shapeRef.current = shape;
     
     // Start with a small scale and then animate to full size
     shape.scale.set(0.001, 0.001, 0.001);
+
+    // Add particle system for liquid mode
+    if (mode === 'liquid-crystal') {
+      const particles = new THREE.BufferGeometry();
+      const particleCount = 1000;
+      
+      const positions = new Float32Array(particleCount * 3);
+      const sizes = new Float32Array(particleCount);
+      
+      for (let i = 0; i < particleCount; i++) {
+        // Create a sphere of particles
+        const radius = 1.5 + Math.random() * 0.5;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.random() * Math.PI;
+        
+        positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+        positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+        positions[i * 3 + 2] = radius * Math.cos(phi);
+        
+        sizes[i] = Math.random() * 0.05 + 0.01;
+      }
+      
+      particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      particles.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+      
+      const particleMaterial = new THREE.PointsMaterial({
+        color: 0x40e0d0, // Turquoise
+        size: 0.05,
+        transparent: true,
+        opacity: 0.7,
+        blending: THREE.AdditiveBlending,
+      });
+      
+      const particleSystem = new THREE.Points(particles, particleMaterial);
+      scene.add(particleSystem);
+    }
 
     const animate = () => {
       if (!rendererRef.current || !sceneRef.current || !cameraRef.current || !shapeRef.current || !isVisible) return;
@@ -129,6 +217,7 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
       frameIdRef.current = requestAnimationFrame(animate);
       
       const delta = clockRef.current.getDelta();
+      const time = clockRef.current.getElapsedTime();
       
       if (isExpanding) {
         const progressDelta = delta * (0.5 + fractalProgress * 0.5);
@@ -146,15 +235,56 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
         shapeRef.current.scale.set(scale, scale, scale);
       }
       
-      // Rotate the shape
-      if (shapeRef.current) {
+      // Animate based on mode
+      if (mode === 'liquid-crystal') {
+        // More fluid, water-like movement
+        shapeRef.current.rotation.x += delta * 0.1;
+        shapeRef.current.rotation.y += delta * 0.15;
+        
+        // Apply wave-like deformation
+        if (shapeRef.current.geometry instanceof THREE.BufferGeometry) {
+          const positions = shapeRef.current.geometry.attributes.position;
+          const count = positions.count;
+          
+          if (count > 0) {
+            for (let i = 0; i < count; i++) {
+              const x = positions.getX(i);
+              const y = positions.getY(i);
+              const z = positions.getZ(i);
+              
+              // Add sine wave distortion
+              const offset = Math.sin(x * 2 + time) * 0.05 + 
+                            Math.cos(y * 2 + time * 1.5) * 0.05;
+              
+              positions.setZ(i, z + offset);
+            }
+            
+            positions.needsUpdate = true;
+          }
+        }
+      } else {
+        // Standard rotation
         shapeRef.current.rotation.x += 0.01;
         shapeRef.current.rotation.y += 0.01;
+      }
+      
+      // Apply audio reactivity if enabled
+      if (isAudioReactive && audioData.length > 0) {
+        const avgAmplitude = audioData.reduce((sum, val) => sum + val, 0) / audioData.length;
+        const scaleFactor = 1 + avgAmplitude * 0.5;
         
-        // Apply audio reactivity if enabled
-        if (isAudioReactive && audioData.length > 0) {
-          const avgAmplitude = audioData.reduce((sum, val) => sum + val, 0) / audioData.length;
-          const scaleFactor = 1 + avgAmplitude * 0.5;
+        if (mode === 'liquid-crystal') {
+          // For liquid crystal mode, apply pulsating effect
+          const pulseFactor = 1 + avgAmplitude * Math.sin(time * 3) * 0.1;
+          shapeRef.current.scale.set(scaleFactor * pulseFactor, scaleFactor * pulseFactor, scaleFactor);
+          
+          // Change material properties based on audio
+          if (shapeRef.current.material instanceof THREE.MeshPhysicalMaterial) {
+            shapeRef.current.material.transmission = 0.9 + avgAmplitude * 0.1;
+            shapeRef.current.material.clearcoat = 0.8 + avgAmplitude * 0.2;
+          }
+        } else {
+          // Standard scaling for other modes
           shapeRef.current.scale.set(scaleFactor, scaleFactor, scaleFactor);
         }
       }
@@ -191,7 +321,7 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
         rendererRef.current.dispose();
       }
     };
-  }, [defaultShape, chakra, isVisible]);
+  }, [defaultShape, chakra, isVisible, mode]);
 
   // Handle audio data for visualizer reactivity
   useEffect(() => {
@@ -228,8 +358,33 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
 
   return (
     <div className={`sacred-visualizer w-full h-full overflow-hidden ${
+      mode === 'liquid-crystal' ? 'liquid-crystal-container' :
       liftedVeil ? 'sacred-lifted' : 'sacred-standard'
     } ${className}`}>
+      {mode === 'liquid-crystal' && (
+        <>
+          {/* Add liquid crystal ripple effects */}
+          <div className="liquid-ripple ripple-1" style={{width: '50%', height: '50%', left: '25%', top: '25%'}}></div>
+          <div className="liquid-ripple ripple-2" style={{width: '70%', height: '70%', left: '15%', top: '15%'}}></div>
+          <div className="liquid-ripple ripple-3" style={{width: '90%', height: '90%', left: '5%', top: '5%'}}></div>
+          <div className="crystal-lattice"></div>
+          
+          {/* Add floating water droplets */}
+          {[...Array(8)].map((_, i) => (
+            <div 
+              key={i} 
+              className="water-droplet" 
+              style={{
+                left: `${10 + Math.random() * 80}%`,
+                animationDelay: `${Math.random() * 4}s`,
+                width: `${5 + Math.random() * 8}px`,
+                height: `${5 + Math.random() * 8}px`,
+              }}
+            ></div>
+          ))}
+        </>
+      )}
+      
       <motion.div 
         ref={mountRef} 
         className={`w-full ${sizeClass}`}
@@ -240,9 +395,8 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
       
       {showControls && (
         <div className="absolute bottom-4 left-4 right-4 flex justify-center space-x-2">
-          {/* Control buttons could be added here */}
           <div className="px-3 py-1 rounded-full text-xs backdrop-blur-md bg-black/30 text-white/80">
-            {defaultShape.replace(/-/g, ' ')}
+            {mode === 'liquid-crystal' ? 'Liquid Living Geometry' : defaultShape.replace(/-/g, ' ')}
           </div>
         </div>
       )}
