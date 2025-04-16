@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 
 interface AudioAnalyzerResult {
@@ -75,30 +74,22 @@ function useAudioAnalyzer(audioElement: HTMLAudioElement | React.RefObject<HTMLA
         if (audio !== connectedAudioElement) {
           // Disconnect previous source if it exists
           if (sourceNodeRef.current) {
-            try {
-              sourceNodeRef.current.disconnect();
-              console.log("useAudioAnalyzer: Disconnected previous source node");
-            } catch (error) {
-              console.error("Error disconnecting source node:", error);
-            }
+            sourceNodeRef.current.disconnect();
+            console.log("useAudioAnalyzer: Disconnected previous source node");
           }
           
           // Create new source node
-          try {
-            const sourceNode = globalAudioContext.createMediaElementSource(audio);
-            sourceNodeRef.current = sourceNode;
-            
-            // Connect the nodes: sourceNode -> analyserNode -> destination
-            sourceNode.connect(globalAnalyser);
-            globalAnalyser.connect(globalAudioContext.destination);
-            
-            // Update connected audio element reference
-            connectedAudioElement = audio;
-            
-            console.log("useAudioAnalyzer: Connected new audio element to audio context");
-          } catch (error) {
-            console.error("Error creating media element source:", error);
-          }
+          const sourceNode = globalAudioContext.createMediaElementSource(audio);
+          sourceNodeRef.current = sourceNode;
+          
+          // Connect the nodes: sourceNode -> analyserNode -> destination
+          sourceNode.connect(globalAnalyser);
+          globalAnalyser.connect(globalAudioContext.destination);
+          
+          // Update connected audio element reference
+          connectedAudioElement = audio;
+          
+          console.log("useAudioAnalyzer: Connected new audio element to audio context");
         }
         
         // Mark as initialized
@@ -124,8 +115,6 @@ function useAudioAnalyzer(audioElement: HTMLAudioElement | React.RefObject<HTMLA
     
     return () => {
       document.removeEventListener('click', resumeContext);
-      // We're deliberately not disconnecting or cleaning up the audioContext and analyzer
-      // because they're kept as global singletons
     };
   }, [audioElement]);
 

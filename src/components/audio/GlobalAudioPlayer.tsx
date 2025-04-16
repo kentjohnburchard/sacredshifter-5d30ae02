@@ -1,0 +1,409 @@
+
+import React, { useState, useEffect, useRef } from 'react';
+import { useAudioPlayer } from '@/hooks/useAudioPlayer';
+import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
+import { Pause, Play, X, MinusCircle, Volume2, VolumeX, SkipBack, SkipForward } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import FractalAudioVisualizer from '@/components/audio/FractalAudioVisualizer';
+import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
+
+export interface GlobalAudioPlayerProps {
+  initiallyExpanded?: boolean;
+}
+
+const GlobalAudioPlayer = ({ initiallyExpanded = false }: GlobalAudioPlayerProps) => {
+  const [expanded, setExpanded] = useState(initiallyExpanded);
+  const [volume, setVolume] = useState(0.8);
+  const [isMuted, setIsMuted] = useState(false);
+  const onEndedCallbackRef = useRef<(() => void) | null>(null);
+  const audioInitializedRef = useRef(false);
+  const [showVisualizer, setShowVisualizer] = useState(true);
+  const [visualizerMode, setVisualizerMode] = useState<'purple' | 'blue' | 'rainbow' | 'gold'>('purple');
+  
+  const {
+    isAudioPlaying,
+    duration,
+    currentAudioTime,
+    togglePlayPause,
+    seekTo,
+    setAudioSource,
+    audioRef,
+    audioLoaded,
+    audioError,
+  } = useAudioPlayer();
+
+  // Get analyzer for visualization
+  const { audioContext, analyser } = useAudioAnalyzer(audioRef);
+
+  // State to track the current playing audio info
+  const [currentAudio, setCurrentAudio] = useState<{
+    title: string;
+    artist?: string;
+    imageUrl?: string;
+    source: string;
+  } | null>(null);
+
+  // Set up the audio ended event listener
+  useEffect(() => {
+    if (!audioRef.current) return;
+    
+    const handleAudioEnded = () => {
+      if (onEndedCallbackRef.current) {
+        onEndedCallbackRef.current();
+      }
+    };
+    
+    // Remove any existing ended listeners to prevent duplicates
+    audioRef.current.removeEventListener('ended', handleAudioEnded);
+    // Add the listener
+    audioRef.current.addEventListener('ended', handleAudioEnded);
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.removeEventListener('ended', handleAudioEnded);
+      }
+    };
+  }, [audioRef.current]);
+
+  // Listen for custom events to control the global player
+  useEffect(() => {
+    // Function to prevent duplicate initialization
+    const handlePlayAudio = (event: CustomEvent) => {
+      const { audioInfo } = event.detail;
+      if (!audioInfo || !audioInfo.source) return;
+      
+      // Check if we're trying to play the same audio that's already playing
+      const isSameSource = currentAudio?.source === audioInfo.source;
+      if (isSameSource && isAudioPlaying) {
+        console.log("Already playing this audio, skipping replay");
+        return;
+      }
+      
+      // Update current audio info
+      setCurrentAudio(audioInfo);
+      setAudioSource(audioInfo.source);
+      setExpanded(true);
+      
+      // Broadcast the audio info change
+      const infoChangeEvent = new CustomEvent('audioInfoChange', {
+        detail: { audioInfo }
+      });
+      window.dispatchEvent(infoChangeEvent);
+      
+      // Auto play after source is set
+      setTimeout(() => {
+        if (!isAudioPlaying) {
+          togglePlayPause();
+        }
+      }, 100);
+    };
+
+    const handleTogglePlayPause = () => {
+      togglePlayPause();
+    };
+
+    const handleCallbackChange = (event: CustomEvent) => {
+      const { callback } = event.detail;
+      onEndedCallbackRef.current = callback;
+    };
+
+    // Add event listeners with type assertion
+    window.addEventListener('playAudio' as any, handlePlayAudio as EventListener);
+    window.addEventListener('togglePlayPause' as any, handleTogglePlayPause as EventListener);
+    window.addEventListener('audioCallbackChange' as any, handleCallbackChange as EventListener);
+
+    return () => {
+      window.removeEventListener('playAudio' as any, handlePlayAudio as EventListener);
+      window.removeEventListener('togglePlayPause' as any, handleTogglePlayPause as EventListener);
+      window.removeEventListener('audioCallbackChange' as any, handleCallbackChange as EventListener);
+    };
+  }, [setAudioSource, togglePlayPause, isAudioPlaying, currentAudio]);
+
+  // Store audio state in session storage to persist between page navigations
+  useEffect(() => {
+    const storeAudioInfo = () => {
+      if (currentAudio) {
+        sessionStorage.setItem('currentAudio', JSON.stringify(currentAudio));
+        sessionStorage.setItem('isAudioPlaying', isAudioPlaying.toString());
+      }
+    };
+
+    // Store when audio changes or play state changes
+    storeAudioInfo();
+  }, [currentAudio, isAudioPlaying]);
+
+  // Restore audio state from session storage on mount
+  useEffect(() => {
+    // Only run once on initial mount
+    if (audioInitializedRef.current) return;
+    
+    const storedAudio = sessionStorage.getItem('currentAudio');
+    const storedIsPlaying = sessionStorage.getItem('isAudioPlaying');
+    
+    if (storedAudio) {
+      try {
+        const audioInfo = JSON.parse(storedAudio);
+        // Only restore if we don't already have current audio
+        if (!currentAudio && audioInfo) {
+          setCurrentAudio(audioInfo);
+          setAudioSource(audioInfo.source);
+          setExpanded(true);
+          
+          // If it was playing before, resume playback
+          if (storedIsPlaying === 'true' && !isAudioPlaying) {
+            // Delay to ensure audio source is set
+            setTimeout(() => togglePlayPause(), 100);
+          }
+        }
+      } catch (error) {
+        console.error('Error restoring audio state:', error);
+      }
+    }
+    
+    audioInitializedRef.current = true;
+  }, []);
+
+  // Dispatch audio state change events when isAudioPlaying changes
+  useEffect(() => {
+    const event = new CustomEvent('audioStateChange', {
+      detail: { isPlaying: isAudioPlaying }
+    });
+    window.dispatchEvent(event);
+  }, [isAudioPlaying]);
+
+  // Update volume when it changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume;
+    }
+  }, [volume, isMuted, audioRef]);
+
+  // Format time display (minutes:seconds)
+  const formatTime = (time: number): string => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+  };
+
+  const handleVolumeChange = (values: number[]) => {
+    const newVolume = values[0];
+    setVolume(newVolume);
+    if (newVolume === 0) {
+      setIsMuted(true);
+    } else {
+      setIsMuted(false);
+    }
+  };
+
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+  };
+  
+  const toggleVisualizer = () => {
+    setShowVisualizer(!showVisualizer);
+  };
+  
+  const changeVisualizerMode = () => {
+    const modes: ('purple' | 'blue' | 'rainbow' | 'gold')[] = ['purple', 'blue', 'rainbow', 'gold'];
+    const currentIndex = modes.indexOf(visualizerMode);
+    const nextIndex = (currentIndex + 1) % modes.length;
+    setVisualizerMode(modes[nextIndex]);
+  };
+  
+  const handleClose = () => {
+    if (isAudioPlaying) {
+      togglePlayPause(); // Pause the audio
+    }
+    setCurrentAudio(null); // Clear current audio
+    sessionStorage.removeItem('currentAudio');
+    sessionStorage.removeItem('isAudioPlaying');
+    setExpanded(false);
+  };
+  
+  const toggleExpand = () => {
+    setExpanded(!expanded);
+  };
+
+  // Don't render if no audio has been set
+  if (!currentAudio) return null;
+
+  return (
+    <>
+      {/* Fractal Audio Visualizer - only show when playing and visualizer is enabled */}
+      {showVisualizer && isAudioPlaying && (
+        <div className="fixed inset-0 pointer-events-none z-40">
+          <FractalAudioVisualizer 
+            audioContext={audioContext} 
+            analyser={analyser} 
+            isVisible={true}
+            colorScheme={visualizerMode}
+          />
+        </div>
+      )}
+
+      <Card className="fixed bottom-4 right-4 z-50 bg-white dark:bg-gray-900 shadow-lg border border-purple-200 dark:border-purple-900 rounded-lg overflow-hidden transition-all duration-300 w-[320px]">
+        <div className="px-4 py-3 flex items-center justify-between bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-900/50 dark:to-indigo-900/50">
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-purple-700 dark:text-purple-300 mr-2"
+              onClick={toggleExpand}
+            >
+              {expanded ? <MinusCircle className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+            </Button>
+            <div className="truncate max-w-[200px]">
+              <p className="font-medium text-sm text-purple-900 dark:text-purple-100 truncate">{currentAudio.title}</p>
+              {currentAudio.artist && (
+                <p className="text-xs text-gray-600 dark:text-gray-400 truncate">{currentAudio.artist}</p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-purple-600 hover:text-purple-800"
+              onClick={toggleVisualizer}
+              title={showVisualizer ? "Hide visualizer" : "Show visualizer"}
+            >
+              {showVisualizer ? (
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 3a9 9 0 1 0 9 9"></path>
+                  <path d="M12 3v9l9 9"></path>
+                  <path d="M12 3v9l-9 9"></path>
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M12 12v5"></path>
+                  <path d="M12 7h.01"></path>
+                </svg>
+              )}
+            </Button>
+            
+            {showVisualizer && isAudioPlaying && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-purple-600 hover:text-purple-800"
+                onClick={changeVisualizerMode}
+                title="Change visualizer style"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 12h20"></path>
+                  <path d="M12 2v20"></path>
+                  <circle cx="12" cy="12" r="4"></circle>
+                </svg>
+              </Button>
+            )}
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-gray-500 hover:text-gray-700"
+              onClick={handleClose}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        {expanded && (
+          <div className="p-4 space-y-4">
+            {currentAudio.imageUrl && (
+              <div className="w-full h-40 bg-gray-100 dark:bg-gray-800 rounded-md overflow-hidden mb-4">
+                <img 
+                  src={currentAudio.imageUrl} 
+                  alt={currentAudio.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                <span>{formatTime(currentAudioTime)}</span>
+                <span>{formatTime(duration)}</span>
+              </div>
+              <Slider
+                value={[currentAudioTime]}
+                max={duration || 100}
+                step={0.1}
+                onValueChange={(values) => seekTo(values[0])}
+                className="w-full"
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-gray-600 hover:text-purple-700"
+                  onClick={() => seekTo(Math.max(0, currentAudioTime - 10))}
+                >
+                  <SkipBack className="h-4 w-4" />
+                </Button>
+                
+                <Button
+                  variant="default"
+                  size="icon"
+                  className={`h-10 w-10 rounded-full ${isAudioPlaying ? 'bg-purple-700' : 'bg-purple-600'} hover:bg-purple-800`}
+                  onClick={togglePlayPause}
+                  disabled={!audioLoaded}
+                >
+                  {isAudioPlaying ? (
+                    <Pause className="h-5 w-5" />
+                  ) : (
+                    <Play className="h-5 w-5 ml-0.5" />
+                  )}
+                </Button>
+                
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-gray-600 hover:text-purple-700"
+                  onClick={() => seekTo(Math.min(duration, currentAudioTime + 10))}
+                >
+                  <SkipForward className="h-4 w-4" />
+                </Button>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100"
+                  onClick={toggleMute}
+                >
+                  {isMuted ? (
+                    <VolumeX className="h-4 w-4" />
+                  ) : (
+                    <Volume2 className="h-4 w-4" />
+                  )}
+                </Button>
+                
+                <Slider
+                  value={[isMuted ? 0 : volume]}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  onValueChange={handleVolumeChange}
+                  className="w-28"
+                />
+              </div>
+            </div>
+            
+            {audioError && (
+              <p className="text-red-500 text-xs mt-2">Error: {audioError}</p>
+            )}
+          </div>
+        )}
+      </Card>
+    </>
+  );
+};
+
+export default GlobalAudioPlayer;

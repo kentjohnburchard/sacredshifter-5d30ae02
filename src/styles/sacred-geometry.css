@@ -10,7 +10,6 @@
 .sacred-geometry-container {
   position: relative;
   z-index: 10;
-  overflow: hidden;
 }
 
 .sacred-geometry-canvas {
@@ -37,7 +36,7 @@
   }
   50% {
     opacity: 1;
-    filter: blur(2px) drop-shadow(0 0 15px rgba(138, 43, 226, 0.9));
+    filter: blur(2px) drop-shadow(0 0 10px rgba(138, 43, 226, 0.8));
   }
 }
 
@@ -59,15 +58,6 @@
   }
   100% {
     transform: rotate(360deg) scale(1);
-  }
-}
-
-@keyframes equalizer-bar {
-  0%, 100% {
-    height: 20%;
-  }
-  50% {
-    height: 80%;
   }
 }
 
@@ -117,59 +107,6 @@
   }
 }
 
-/* Custom equalizer animation */
-@keyframes equalize-1 {
-  0%, 100% {
-    height: 20%;
-  }
-  50% {
-    height: 70%;
-  }
-}
-
-@keyframes equalize-2 {
-  0%, 100% {
-    height: 35%;
-  }
-  50% {
-    height: 80%;
-  }
-}
-
-@keyframes equalize-3 {
-  0%, 100% {
-    height: 45%;
-  }
-  50% {
-    height: 90%;
-  }
-}
-
-@keyframes equalize-4 {
-  0%, 100% {
-    height: 60%;
-  }
-  50% {
-    height: 95%;
-  }
-}
-
-.equalizer-bar-1 {
-  animation: equalize-1 1.2s ease-in-out infinite;
-}
-
-.equalizer-bar-2 {
-  animation: equalize-2 0.9s ease-in-out infinite;
-}
-
-.equalizer-bar-3 {
-  animation: equalize-3 1.5s ease-in-out infinite;
-}
-
-.equalizer-bar-4 {
-  animation: equalize-4 1.1s ease-in-out infinite;
-}
-
 .animate-pulse-slow {
   animation: pulse-slow 8s ease-in-out infinite;
 }
@@ -202,47 +139,6 @@
   background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Enhanced purple visualizer effects */
-.sacred-geometry-visualizer {
-  position: relative;
-  overflow: hidden;
-}
-
-.purple-wave {
-  background: linear-gradient(180deg, rgba(138, 43, 226, 0) 0%, rgba(138, 43, 226, 0.4) 100%);
-  height: 100%;
-  width: 200%;
-  position: absolute;
-  animation: wave 8s ease-in-out infinite alternate;
-}
-
-@keyframes wave {
-  0% {
-    transform: translateX(-50%) translateY(0) scaleY(1);
-  }
-  50% {
-    transform: translateX(-25%) translateY(-2%) scaleY(1.1);
-  }
-  100% {
-    transform: translateX(0%) translateY(0) scaleY(1);
-  }
-}
-
-/* Enhanced glow effects for visualizer */
-.purple-glow {
-  filter: drop-shadow(0 0 15px rgba(138, 43, 226, 0.7));
-}
-
-.intense-purple-glow {
-  filter: drop-shadow(0 0 8px rgba(138, 43, 226, 0.8)) 
-          drop-shadow(0 0 16px rgba(138, 43, 226, 0.6))
-          drop-shadow(0 0 24px rgba(138, 43, 226, 0.4));
-}
-
-.subtle-purple-glow {
-  box-shadow: 0 0 15px 5px rgba(138, 43, 226, 0.3);
 }
 
 /* Chakra colors for visualizer */
@@ -281,57 +177,27 @@
   --chakra-shadow: #8a2be2;
 }
 
-/* Purple theme overrides */
-.purple-theme {
-  --chakra-color: rgba(128, 0, 255, 0.8);
-  --chakra-shadow: #8000ff;
+/* Fractal backdrop styles */
+.fractal-backdrop {
+  background: radial-gradient(circle at center, rgba(75, 0, 130, 0.2), rgba(0, 0, 0, 0.8));
+  position: absolute;
+  inset: 0;
+  z-index: -1;
 }
 
-/* Audio Player Theme Colors */
-:root {
-  --player-bg-from: rgba(107, 33, 168, 0.95);
-  --player-bg-to: rgba(79, 30, 118, 0.95);
-  --player-border: rgba(147, 51, 234, 0.6);
-  --player-highlight: rgba(167, 139, 250, 1);
-  --player-text: rgba(237, 233, 254, 1);
-  --player-button: rgba(139, 92, 246, 1);
-  --player-button-hover: rgba(124, 58, 237, 1);
-  --player-visualizer-glow: rgba(138, 43, 226, 0.7);
+/* Both the circle backdrop and the visualizer should be contained within a relative parent */
+.journey-visual-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
 }
 
-.veil-lifted {
-  --player-bg-from: rgba(219, 39, 119, 0.95);
-  --player-bg-to: rgba(190, 24, 93, 0.95);
-  --player-border: rgba(244, 114, 182, 0.6);
-  --player-highlight: rgba(249, 168, 212, 1);
-  --player-text: rgba(253, 242, 248, 1);
-  --player-button: rgba(236, 72, 153, 1);
-  --player-button-hover: rgba(219, 39, 119, 1);
-  --player-visualizer-glow: rgba(255, 105, 180, 0.7);
-}
-
-.sacred-audio-player {
-  background: linear-gradient(to right, var(--player-bg-from), var(--player-bg-to));
-  border: 1px solid var(--player-border);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3), 0 0 15px var(--player-visualizer-glow);
-}
-
-.sacred-audio-player .player-text {
-  color: var(--player-text);
-}
-
-.sacred-audio-player .player-button {
-  background-color: var(--player-button);
-}
-
-.sacred-audio-player .player-button:hover {
-  background-color: var(--player-button-hover);
-}
-
-.sacred-audio-player .player-highlight {
-  background-color: var(--player-highlight);
-}
-
-.sacred-audio-player .player-visualizer {
-  filter: drop-shadow(0 0 10px var(--player-visualizer-glow));
+.sacred-pulsing-circle {
+  position: absolute;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  left: 50%;
+  top: 50%;
+  background: radial-gradient(circle at center, rgba(138, 43, 226, 0.3), transparent 70%);
+  animation: pulse-slow 6s ease-in-out infinite;
 }

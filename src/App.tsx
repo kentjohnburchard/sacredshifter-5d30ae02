@@ -3,8 +3,7 @@ import React from 'react';
 import { Routes, Route } from "react-router-dom";
 import { EasterEggProvider } from "@/context/EasterEggContext";
 import { ThemeProvider } from "@/context/ThemeContext";
-import SacredShifterHome from '@/pages/SacredShifterHome';
-import Dashboard from '@/pages/Dashboard';
+import Home from '@/pages/Home';
 import Meditations from '@/pages/Meditations';
 import HermeticPrinciples from '@/pages/HermeticPrinciples';
 import FrequencyShifting from '@/pages/FrequencyShifting';
@@ -13,7 +12,11 @@ import JourneyPlayer from '@/pages/JourneyPlayer';
 import Admin from '@/pages/Admin';
 import JourneyAudioAdmin from '@/pages/admin/JourneyAudioAdmin';
 import JourneyAudioMappingsViewer from '@/pages/admin/JourneyAudioMappingsViewer';
+import Welcome from '@/pages/Welcome';
+import SacredShifterLanding from '@/pages/SacredShifterLanding';
+import CosmicDashboard from '@/pages/CosmicDashboard';
 import SiteMap from '@/pages/SiteMap';
+import Index from '@/pages/Index';
 import Frequencies from '@/pages/Frequencies';
 import SacredBlueprint from '@/pages/SacredBlueprint';
 import HeartCenter from '@/pages/HeartCenter';
@@ -33,9 +36,9 @@ import HermeticWisdom from '@/pages/HermeticWisdom';
 import AboutFounder from '@/pages/AboutFounder';
 import Contact from '@/pages/Contact';
 import PersonalVibeSettings from '@/pages/PersonalVibeSettings';
+import Dashboard from '@/pages/Dashboard';
 import Journeys from '@/pages/Journeys';
 import PrimeHistory from '@/pages/PrimeHistory';
-import Intentions from '@/pages/Intentions';
 import { Toaster } from 'sonner';
 import OriginFlow from '@/components/sacred-geometry/OriginFlow';
 import ThemeEnhancer from '@/components/ThemeEnhancer';
@@ -49,11 +52,13 @@ function App() {
         <ThemeEnhancer />
         <React.StrictMode>
           <Routes>
-            <Route path="/" element={<SacredShifterHome />} />
-            <Route path="/home" element={<SacredShifterHome />} />
+            <Route path="/" element={<Index />} />
+            <Route path="/home" element={<CosmicDashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/cosmic-dashboard" element={<CosmicDashboard />} />
+            <Route path="/welcome" element={<Welcome />} />
+            <Route path="/landing" element={<SacredShifterLanding />} />
             <Route path="/meditations" element={<Meditations />} />
-            <Route path="/intentions" element={<Intentions />} />
             <Route path="/hermetic-principles" element={<HermeticPrinciples />} />
             <Route path="/hermetic-wisdom" element={<HermeticWisdom />} />
             <Route path="/frequency-shifting" element={<FrequencyShifting />} />

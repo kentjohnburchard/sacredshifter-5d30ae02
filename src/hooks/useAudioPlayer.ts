@@ -160,5 +160,3 @@ export function useAudioPlayer() {
     audioError
   };
 }
-
-export default useAudioPlayer;

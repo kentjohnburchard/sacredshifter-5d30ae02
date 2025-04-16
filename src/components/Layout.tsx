@@ -7,10 +7,9 @@ import GlobalWatermark from './GlobalWatermark';
 import { AnimatedBackground } from '@/components/sacred-geometry';
 import { useTheme } from '@/context/ThemeContext';
 import { cn } from '@/lib/utils';
+import GlobalAudioPlayer from './audio/GlobalAudioPlayer';
 import ConsciousnessToggle from './ConsciousnessToggle';
 import CosmicFooter from './sacred-geometry/CosmicFooter';
-import { TooltipProvider } from '@/components/ui/tooltip';
-import SacredAudioPlayer from './audio/SacredAudioPlayer';
 
 interface LayoutProps {
   children: ReactNode;
@@ -64,16 +63,14 @@ const Layout: React.FC<LayoutProps> = ({
       {showFooter && <FixedFooter />}
       <GlobalWatermark />
       
+      {/* Global Audio Player - Always render it regardless of page */}
+      <GlobalAudioPlayer initiallyExpanded={false} />
+      
       {/* Add ConsciousnessToggle (Easter Egg) to every page */}
       <ConsciousnessToggle />
       
       {/* Ensure CosmicFooter is positioned correctly */}
       {showFooter && <CosmicFooter showFrequencyBar={false} className="z-30" />}
-      
-      {/* Sacred Audio Player - SINGLE INSTANCE for the entire app */}
-      <TooltipProvider>
-        <SacredAudioPlayer initiallyExpanded={false} />
-      </TooltipProvider>
     </div>
   );
 

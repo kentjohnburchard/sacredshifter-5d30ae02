@@ -319,8 +319,6 @@ export type Database = {
           audio_url: string | null
           created_at: string | null
           description: string | null
-          display_order: number | null
-          display_title: string | null
           id: string
           is_primary: boolean | null
           journey_template_id: string | null
@@ -330,8 +328,6 @@ export type Database = {
           audio_url?: string | null
           created_at?: string | null
           description?: string | null
-          display_order?: number | null
-          display_title?: string | null
           id?: string
           is_primary?: boolean | null
           journey_template_id?: string | null
@@ -341,8 +337,6 @@ export type Database = {
           audio_url?: string | null
           created_at?: string | null
           description?: string | null
-          display_order?: number | null
-          display_title?: string | null
           id?: string
           is_primary?: boolean | null
           journey_template_id?: string | null
@@ -1177,8 +1171,6 @@ export type Database = {
           audio_file_name: string
           audio_url: string
           is_primary: boolean
-          display_order: number
-          display_title: string
         }[]
       }
       get_random_audio_from_group: {

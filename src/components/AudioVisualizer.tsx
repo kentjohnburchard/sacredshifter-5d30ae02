@@ -16,7 +16,6 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ audioRef, isPlaying, 
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
   const [dataArray, setDataArray] = useState<Uint8Array | null>(null);
   const [bufferLength, setBufferLength] = useState<number>(0);
-  const isInitialized = useRef(false);
 
   const colorMap: Record<number, string> = {
     396: "#9c27b0", // Purple for Liberation
@@ -29,38 +28,32 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ audioRef, isPlaying, 
     if (!audioRef.current) return;
 
     const initializeAudio = () => {
-      try {
-        // Create audio context
-        const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-        setAudioContext(ctx);
+      // Create audio context
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      setAudioContext(ctx);
 
-        // Create analyzer node
-        const analyser = ctx.createAnalyser();
-        analyser.fftSize = 256;
-        analyserRef.current = analyser;
+      // Create analyzer node
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 256;
+      analyserRef.current = analyser;
 
-        const bufferLength = analyser.frequencyBinCount;
-        setBufferLength(bufferLength);
-        
-        const dataArray = new Uint8Array(bufferLength);
-        setDataArray(dataArray);
-        
-        // Connect audio element to analyzer
-        if (audioRef.current) {
-          const source = ctx.createMediaElementSource(audioRef.current);
-          source.connect(analyser);
-          analyser.connect(ctx.destination);
-          sourceRef.current = source;
-        }
-        
-        isInitialized.current = true;
-      } catch (error) {
-        console.error("Error initializing audio visualizer:", error);
+      const bufferLength = analyser.frequencyBinCount;
+      setBufferLength(bufferLength);
+      
+      const dataArray = new Uint8Array(bufferLength);
+      setDataArray(dataArray);
+      
+      // Connect audio element to analyzer
+      if (audioRef.current) {
+        const source = ctx.createMediaElementSource(audioRef.current);
+        source.connect(analyser);
+        analyser.connect(ctx.destination);
+        sourceRef.current = source;
       }
     };
 
     // Only initialize once
-    if (!isInitialized.current) {
+    if (!audioContext) {
       try {
         initializeAudio();
       } catch (error) {
@@ -72,9 +65,11 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ audioRef, isPlaying, 
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
-      // We don't close the audioContext here as it might be needed elsewhere
+      if (audioContext) {
+        // Don't close the audio context as it may be needed elsewhere
+      }
     };
-  }, [audioRef]);
+  }, [audioRef, audioContext]);
 
   // Animation loop
   useEffect(() => {
@@ -95,12 +90,7 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ audioRef, isPlaying, 
       const WIDTH = canvas.width;
       const HEIGHT = canvas.height;
       
-      try {
-        analyserRef.current.getByteFrequencyData(dataArray);
-      } catch (error) {
-        console.error("Error getting frequency data:", error);
-        return;
-      }
+      analyserRef.current.getByteFrequencyData(dataArray);
 
       // Clear canvas
       ctx.clearRect(0, 0, WIDTH, HEIGHT);
