@@ -1,0 +1,200 @@
+
+/* Cosmic Audio Player Styles */
+
+/* Base styles for the cosmic player */
+.cosmic-audio-player {
+  --player-bg-from: rgba(91, 33, 182, 0.9);
+  --player-bg-to: rgba(67, 56, 202, 0.9);
+  --player-border: rgba(139, 92, 246, 0.3);
+  --player-highlight: rgba(167, 139, 250, 1);
+  --player-text: rgba(237, 233, 254, 1);
+  --player-button: rgba(124, 58, 237, 1);
+  --player-button-hover: rgba(109, 40, 217, 1);
+  --player-shadow: rgba(91, 33, 182, 0.5);
+}
+
+/* Color themes */
+.cosmic-audio-player.cosmic-purple {
+  --player-bg-from: rgba(91, 33, 182, 0.9);
+  --player-bg-to: rgba(67, 56, 202, 0.9);
+  --player-border: rgba(139, 92, 246, 0.3);
+  --player-highlight: rgba(167, 139, 250, 1);
+  --player-text: rgba(237, 233, 254, 1);
+  --player-button: rgba(124, 58, 237, 1);
+  --player-button-hover: rgba(109, 40, 217, 1);
+  --player-shadow: rgba(91, 33, 182, 0.5);
+}
+
+.cosmic-audio-player.sacred-gold {
+  --player-bg-from: rgba(161, 98, 7, 0.9);
+  --player-bg-to: rgba(133, 77, 14, 0.9);
+  --player-border: rgba(234, 179, 8, 0.3);
+  --player-highlight: rgba(250, 204, 21, 1);
+  --player-text: rgba(254, 252, 232, 1);
+  --player-button: rgba(202, 138, 4, 1);
+  --player-button-hover: rgba(180, 83, 9, 1);
+  --player-shadow: rgba(161, 98, 7, 0.5);
+}
+
+.cosmic-audio-player.ethereal-blue {
+  --player-bg-from: rgba(28, 100, 242, 0.9);
+  --player-bg-to: rgba(7, 89, 133, 0.9);
+  --player-border: rgba(59, 130, 246, 0.3);
+  --player-highlight: rgba(96, 165, 250, 1);
+  --player-text: rgba(219, 234, 254, 1);
+  --player-button: rgba(37, 99, 235, 1);
+  --player-button-hover: rgba(29, 78, 216, 1);
+  --player-shadow: rgba(28, 100, 242, 0.5);
+}
+
+.cosmic-audio-player.divine-green {
+  --player-bg-from: rgba(5, 122, 85, 0.9);
+  --player-bg-to: rgba(6, 95, 70, 0.9);
+  --player-border: rgba(16, 185, 129, 0.3);
+  --player-highlight: rgba(52, 211, 153, 1);
+  --player-text: rgba(209, 250, 229, 1);
+  --player-button: rgba(5, 150, 105, 1);
+  --player-button-hover: rgba(4, 120, 87, 1);
+  --player-shadow: rgba(5, 122, 85, 0.5);
+}
+
+.cosmic-audio-player.risen-pink {
+  --player-bg-from: rgba(219, 39, 119, 0.9);
+  --player-bg-to: rgba(190, 24, 93, 0.9);
+  --player-border: rgba(244, 114, 182, 0.3);
+  --player-highlight: rgba(249, 168, 212, 1);
+  --player-text: rgba(253, 242, 248, 1);
+  --player-button: rgba(236, 72, 153, 1);
+  --player-button-hover: rgba(219, 39, 119, 1);
+  --player-shadow: rgba(219, 39, 119, 0.5);
+}
+
+.cosmic-audio-player.quantum-white {
+  --player-bg-from: rgba(30, 41, 59, 0.85);
+  --player-bg-to: rgba(15, 23, 42, 0.85);
+  --player-border: rgba(100, 116, 139, 0.3);
+  --player-highlight: rgba(148, 163, 184, 1);
+  --player-text: rgba(248, 250, 252, 1);
+  --player-button: rgba(71, 85, 105, 1);
+  --player-button-hover: rgba(51, 65, 85, 1);
+  --player-shadow: rgba(30, 41, 59, 0.5);
+}
+
+/* Prime Number Visualizations */
+@keyframes prime-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+@keyframes sacred-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.prime-number {
+  animation: prime-pulse 2s infinite;
+  position: relative;
+}
+
+.prime-number::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  background: linear-gradient(45deg, var(--player-highlight), transparent);
+  opacity: 0.6;
+  filter: blur(8px);
+  z-index: -1;
+}
+
+/* DNA-like double helix animation for frequency bars */
+@keyframes helix-rotate {
+  0% {
+    transform: rotateX(0deg) rotateY(0deg);
+  }
+  100% {
+    transform: rotateX(360deg) rotateY(180deg);
+  }
+}
+
+.helix-animation {
+  animation: helix-rotate 20s linear infinite;
+  transform-style: preserve-3d;
+}
+
+/* Progress animations for the player progress bar */
+@keyframes cosmic-progress {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+.cosmic-progress:not(.paused) {
+  background: linear-gradient(90deg, 
+    var(--player-highlight), 
+    rgba(255,255,255,0.8), 
+    var(--player-highlight)
+  );
+  background-size: 200% 100%;
+  animation: cosmic-progress 3s linear infinite;
+  border-radius: 4px;
+}
+
+/* Sacred geometry visualizer container */
+.sacred-geometry-visualizer {
+  overflow: hidden;
+  position: relative;
+}
+
+.sacred-geometry-visualizer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.3) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Glow effects for active frequencies */
+.active-frequency {
+  box-shadow: 0 0 15px 5px var(--player-shadow);
+  transition: box-shadow 0.5s ease-in-out;
+}
+
+/* Floating controls */
+.floating-controls {
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Visualizer maximized state */
+.visualizer-maximized {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(15px);
+}
+
+/* Responsive adaptations */
+@media (max-width: 640px) {
+  .cosmic-audio-player {
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}

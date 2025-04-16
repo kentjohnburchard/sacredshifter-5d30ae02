@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import the existing sacred geometry styles */
+@import './sacred-geometry.css';
+/* Import our new cosmic player styles */
+@import './cosmic-player.css';
+
+/* Customizations */
+body {
+  @apply bg-brand-background text-brand-text;
+}
+
+.brand-gradient {
+  background: linear-gradient(135deg, #4A148C 0%, #2D0A5B 50%, #1A0533 100%);
+}
+
+.neumorphic {
+  background: #1E1E1E;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #191919, #232323);
+  box-shadow:
+    5px 5px 11px #141414,
+    -5px -5px 11px #282828;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #121212;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #301934;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4A148C;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-track {
+    background: #0a0a0a;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #522b80;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #7b1fa2;
+  }
+}
