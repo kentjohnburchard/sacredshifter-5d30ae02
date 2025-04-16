@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { JourneyTemplate } from '@/data/journeyTemplates';
@@ -13,23 +14,26 @@ import {
 
 interface JourneyTemplateCardProps {
   template: JourneyTemplate;
-  audioUrl?: string;
+  audioMapping?: {
+    audioUrl: string;
+    audioFileName: string;
+  };
   onClick?: (template: JourneyTemplate) => void;
 }
 
 const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ 
   template, 
-  audioUrl,
+  audioMapping,
   onClick
 }) => {
   const navigate = useNavigate();
   
   const handleStartJourney = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering onClick
-    if (audioUrl) {
+    if (audioMapping?.audioUrl) {
       navigate(`/journey-player/${template.id}`);
     } else {
-      console.error("No audio URL found for template:", template.id);
+      console.log("No audio URL found for template:", template.id);
       // Still navigate but the player will handle the error display
       navigate(`/journey-player/${template.id}`);
     }

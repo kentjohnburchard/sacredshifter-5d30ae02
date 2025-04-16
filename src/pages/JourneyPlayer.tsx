@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -35,7 +36,8 @@ const JourneyPlayer = () => {
   const audioPlayAttemptedRef = useRef(false);
   const currentSongRef = useRef<any>(null);
   
-  const { templates, loading: loadingTemplates } = useJourneyTemplates();
+  const { templates, loading: loadingTemplates, audioMappings } = useJourneyTemplates();
+  
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
 
   useEffect(() => {
@@ -92,7 +94,6 @@ const JourneyPlayer = () => {
             artist: "Sacred Shifter",
             source: audioUrl
           });
-          setPlayerVisible(true);
         } else {
           console.error("JourneyPlayer: Invalid audio URL for next song");
           toast.error("Could not play next track: Invalid audio URL");
@@ -136,14 +137,16 @@ const JourneyPlayer = () => {
     }
   }, [journeyId, navigate, templates, loadingSongs, loadingTemplates]);
 
-  // Separate useEffect to avoid rendering issues
   useEffect(() => {
-    // Only attempt to play audio when we're sure we have all needed data
-    if (!isLoading && !loadingSongs && journey && songs && songs.length > 0 && !audioPlayAttemptedRef.current) {
-      audioPlayAttemptedRef.current = true;
-      console.log("JourneyPlayer: Attempting to initialize audio playback");
-      
-      // Add a small delay to ensure everything is ready
+    if (audioPlayAttemptedRef.current || isLoading || loadingSongs || !journey || !songs) {
+      return;
+    }
+    
+    audioPlayAttemptedRef.current = true;
+    console.log("JourneyPlayer: Attempting to initialize audio playback");
+    
+    // First try to get audio from songs
+    if (songs.length > 0) {
       setTimeout(() => {
         const selectedSong = selectRandomSong();
         
@@ -165,17 +168,59 @@ const JourneyPlayer = () => {
             });
             
             setPlayerVisible(true);
-            console.log("JourneyPlayer: Audio playback initialized and player made visible");
+            console.log("JourneyPlayer: Audio playback initialized");
           } else {
-            console.error("JourneyPlayer: Invalid audio URL");
-            toast.error("Could not play audio: Invalid URL");
+            console.error("JourneyPlayer: Invalid audio URL in song");
+            checkAudioMappingFallback();
           }
         } else {
           console.log("JourneyPlayer: No song selected for initialization");
+          checkAudioMappingFallback();
         }
       }, 500);
+    } else {
+      // If no songs available, try to use the audioMapping as fallback
+      checkAudioMappingFallback();
     }
-  }, [journey, songs, loadingSongs, isLoading, playAudio, journeyId]);
+  }, [journey, songs, loadingSongs, isLoading, playAudio, journeyId, audioMappings]);
+
+  // Function to check and use audioMapping as fallback
+  const checkAudioMappingFallback = () => {
+    if (journeyId && audioMappings && audioMappings[journeyId]) {
+      const mapping = audioMappings[journeyId];
+      console.log("JourneyPlayer: Using audio mapping fallback:", mapping);
+      
+      let audioUrl = mapping.audioUrl;
+      if (audioUrl && !audioUrl.startsWith('http')) {
+        audioUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${mapping.audioFileName}`;
+      }
+      
+      if (audioUrl) {
+        playAudio({
+          title: journey.title,
+          artist: "Sacred Shifter",
+          source: audioUrl
+        });
+        
+        const fallbackSong = {
+          title: journey.title,
+          audioUrl: audioUrl
+        };
+        
+        currentSongRef.current = fallbackSong;
+        songsRef.current = [fallbackSong];
+        setPlayerVisible(true);
+        toast.success("Playing journey audio");
+      } else {
+        toast.error("No audio available for this journey");
+        setPlayerError("No audio available. Please try another journey.");
+      }
+    } else {
+      console.error("JourneyPlayer: No audio available for journey:", journeyId);
+      toast.error("No audio available for this journey");
+      setPlayerError("No audio available. Please try another journey.");
+    }
+  };
 
   const handlePlayNewTrack = () => {
     if (songsRef.current && songsRef.current.length > 0) {
@@ -206,6 +251,9 @@ const JourneyPlayer = () => {
           }, 200);
         }
       }
+    } else {
+      // Try audio mapping fallback
+      checkAudioMappingFallback();
     }
   };
 
