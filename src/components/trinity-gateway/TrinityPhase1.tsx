@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import FrequencyPlayer from "@/components/FrequencyPlayer";
 import { toast } from "sonner";
+import { getFrequencyAudioUrl } from "@/utils/focusTrackMap";
 
 interface TrinityPhase1Props {
   onComplete: () => void;
@@ -21,7 +21,6 @@ const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete, skipPhase }) 
   
   const PHASE_DURATION = 180; // 3 minutes in seconds
   
-  // Toggle audio playback
   const togglePlayback = useCallback(() => {
     setIsPlaying(!isPlaying);
     if (!isPlaying) {
@@ -31,7 +30,6 @@ const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete, skipPhase }) 
     }
   }, [isPlaying]);
   
-  // Track progress and show Tesla quote at specific time
   useEffect(() => {
     let timer: NodeJS.Timeout;
     
@@ -41,13 +39,11 @@ const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete, skipPhase }) 
           const newSeconds = prev + 1;
           setProgress((newSeconds / PHASE_DURATION) * 100);
           
-          // Check for Tesla quote Easter egg at 3:33 (203 seconds total)
           if (newSeconds === 33 && !teslaQuoteShown) {
             toast.info("\"If you want to find the secrets of the universe, think in terms of energy, frequency and vibration.\" — Tesla");
             setTeslaQuoteShown(true);
           }
           
-          // Auto-advance when phase is complete
           if (newSeconds >= PHASE_DURATION) {
             setIsPlaying(false);
             setTimeout(() => onComplete(), 1000);
@@ -65,14 +61,12 @@ const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete, skipPhase }) 
     };
   }, [isPlaying, onComplete, teslaQuoteShown]);
   
-  // Format time as MM:SS
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
   
-  // Use the passed skipPhase function or fallback to onComplete if it's not provided
   const handleSkip = () => {
     if (skipPhase) {
       skipPhase();
@@ -118,6 +112,7 @@ const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete, skipPhase }) 
               isPlaying={isPlaying}
               onPlayToggle={togglePlayback}
               frequency={396}
+              audioUrl={getFrequencyAudioUrl(396)}
             />
           </div>
           
