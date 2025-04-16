@@ -1,4 +1,3 @@
-
 /**
  * Helper functions for working with audio URLs in the application
  */
@@ -10,10 +9,13 @@ export const SUPABASE_STORAGE_URL = 'https://mikltjgbvxrxndtszorb.supabase.co/st
  * External URL sources that are known to be reliable
  */
 export const FALLBACK_AUDIO_URLS = [
-  'https://assets.mixkit.co/sfx/preview/mixkit-simple-countdown-922.mp3',
+  'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-sound-2287.mp3',
   'https://assets.mixkit.co/sfx/preview/mixkit-ethereal-fairy-win-sound-2019.mp3',
-  'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-sound-2287.mp3'
+  'https://assets.mixkit.co/sfx/preview/mixkit-simple-countdown-922.mp3'
 ];
+
+// Cache valid URLs to prevent excessive testing
+const validatedAudioUrls = new Set<string>();
 
 /**
  * Normalized audio URL - ensure we use the correct base URL for relative paths
@@ -30,7 +32,12 @@ export const normalizeAudioUrl = (url?: string): string | undefined => {
   
   // If it starts with a slash, it's a relative path from the root
   if (url.startsWith('/')) {
-    // Attempt to resolve against Supabase storage
+    // First check if it exists in the public folder
+    if (url.startsWith('/assets/') || url.startsWith('/sounds/')) {
+      return url;
+    }
+    
+    // Otherwise, attempt to resolve against Supabase storage
     return `${SUPABASE_STORAGE_URL}${url}`;
   }
   
@@ -54,6 +61,12 @@ export const getFallbackAudioUrl = (): string => {
  * @returns Promise resolving to true if audio can play, false otherwise
  */
 export const testAudioUrl = async (url: string, timeout = 5000): Promise<boolean> => {
+  // Return true immediately if this URL was previously validated
+  if (validatedAudioUrls.has(url)) {
+    console.log(`🔊 Using cached successful test result for: ${url}`);
+    return true;
+  }
+  
   // Track if the promise has already been resolved to avoid race conditions
   let hasResolved = false;
   
@@ -63,6 +76,12 @@ export const testAudioUrl = async (url: string, timeout = 5000): Promise<boolean
     const resolveOnce = (result: boolean) => {
       if (!hasResolved) {
         hasResolved = true;
+        
+        // If successful, add to the cache of validated URLs
+        if (result) {
+          validatedAudioUrls.add(url);
+        }
+        
         console.log(`🔊 Audio URL test ${result ? 'succeeded' : 'failed'}: ${url}`);
         resolve(result);
       }

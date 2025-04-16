@@ -20,6 +20,10 @@ const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template, aud
   const handleBeginJourney = () => {
     navigate(`/journey-player/${template.id}`);
   };
+
+  const handleCardClick = () => {
+    navigate(`/journey-detail/${template.id}`);
+  };
   
   // Get chakra color
   const getChakraColor = (chakra: string) => {
@@ -55,7 +59,10 @@ const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template, aud
   const hasAudio = !!primaryAudio;
   
   return (
-    <Card className={`overflow-hidden transition-all duration-300 border ${hasAudio ? 'border-purple-600/30' : 'border-gray-700/30'} bg-black/40`}>
+    <Card 
+      className={`overflow-hidden transition-all duration-300 border ${hasAudio ? 'border-purple-600/30' : 'border-gray-700/30'} bg-black/40 cursor-pointer`}
+      onClick={handleCardClick}
+    >
       <div 
         className="h-3"
         style={{ 
@@ -116,7 +123,10 @@ const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template, aud
           variant={hasAudio ? "default" : "secondary"}
           size="sm" 
           className={`${hasAudio ? 'bg-purple-600 hover:bg-purple-700' : 'bg-gray-700 hover:bg-gray-600'}`}
-          onClick={handleBeginJourney}
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent card click
+            handleBeginJourney();
+          }}
         >
           <Play className="h-4 w-4 mr-2" />
           Begin Journey
@@ -124,7 +134,12 @@ const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template, aud
         
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 text-gray-400">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="rounded-full h-8 w-8 text-gray-400"
+              onClick={(e) => e.stopPropagation()} // Prevent card click
+            >
               <Info className="h-4 w-4" />
             </Button>
           </TooltipTrigger>

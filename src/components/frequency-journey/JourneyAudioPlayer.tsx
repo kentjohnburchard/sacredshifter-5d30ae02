@@ -7,7 +7,7 @@ import { JourneyTemplate } from '@/types/journey';
 import { toast } from 'sonner';
 import { analyzeFrequency } from '@/utils/primeCalculations';
 import { useAppStore } from '@/store';
-import { testAudioUrl } from '@/utils/audioUrlHelper';
+import { testAudioUrl, getFallbackAudioUrl } from '@/utils/audioUrlHelper';
 
 interface JourneyAudioPlayerProps {
   journey?: JourneyTemplate;
@@ -18,30 +18,36 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const { setDetectedPrimes, setIsPlaying, setAudioPlaybackError, setAudioInitialized } = useAppStore();
   const audioInitialized = useRef(false);
-  const [audioUrl, setAudioUrl] = useState<string>('/assets/audio/meditation.mp3');
+  const [audioUrl, setAudioUrl] = useState<string>('');
   const [audioUrlTested, setAudioUrlTested] = useState(false);
   const audioTestAttempts = useRef(0);
+  const maxTestAttempts = 2;
 
   // Try to find a valid audio URL - but with safeguards to prevent endless loops
   useEffect(() => {
-    if (audioUrlTested || audioTestAttempts.current > 2) return;
+    if (audioUrlTested || audioTestAttempts.current >= maxTestAttempts) return;
     
-    audioTestAttempts.current += 1;
-    
-    const testUrls = [
-      // Try packaged assets first
-      '/assets/audio/meditation.mp3',
-      '/assets/sounds/meditation.mp3',
-      // Then try external sources
-      'https://assets.mixkit.co/sfx/preview/mixkit-simple-countdown-922.mp3',
-      'https://assets.mixkit.co/sfx/preview/mixkit-ethereal-fairy-win-sound-2019.mp3',
-    ];
-    
-    const findWorkingUrl = async () => {
+    const attemptToFindAudioUrl = async () => {
+      audioTestAttempts.current += 1;
       console.log("Testing audio URLs - attempt", audioTestAttempts.current);
       
+      // Prioritize journey-specific audio if available
+      const journeySpecificUrls = journey?.audioUrl ? [journey.audioUrl] : [];
+      
+      // Default fallback urls
+      const fallbackUrls = [
+        '/assets/audio/meditation.mp3',
+        '/assets/sounds/meditation.mp3',
+        'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-sound-2287.mp3',
+        'https://assets.mixkit.co/sfx/preview/mixkit-ethereal-fairy-win-sound-2019.mp3',
+      ];
+      
+      const testUrls = [...journeySpecificUrls, ...fallbackUrls];
+      
+      // Try each URL until we find one that works
       for (const url of testUrls) {
         try {
+          console.log("Testing audio URL:", url);
           const isValid = await testAudioUrl(url, 3000); // 3 second timeout
           if (isValid) {
             console.log(`✅ Found working audio URL: ${url}`);
@@ -54,14 +60,15 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
         }
       }
       
-      // If all tests fail, use the first URL anyway and mark as tested
-      console.log("⚠️ No working audio URLs found, using first URL as fallback");
-      setAudioUrl(testUrls[0]);
+      // If all tests fail, use fallback mechanism
+      console.log("⚠️ No working audio URLs found, using fallback");
+      const fallbackUrl = getFallbackAudioUrl();
+      setAudioUrl(fallbackUrl);
       setAudioUrlTested(true);
     };
     
-    findWorkingUrl();
-  }, [audioUrlTested]);
+    attemptToFindAudioUrl();
+  }, [journey, audioUrlTested]);
 
   // Monitor audio for primes
   useEffect(() => {
@@ -140,7 +147,7 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
       audioElement.id = 'global-audio-player';
       audioElement.crossOrigin = 'anonymous';
       
-      if (!audioElement.src) {
+      if (!audioElement.src && audioUrl) {
         audioElement.src = audioUrl;
       }
       
@@ -148,7 +155,7 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
         document.body.appendChild(audioElement);
       }
       
-      console.log("Audio element volume set to 0.7, source:", audioElement.src);
+      console.log("Audio element volume set to 0.7, source:", audioElement.src || audioUrl);
       
       // Add error handling for audio element
       const handleError = () => {
