@@ -24,11 +24,8 @@ const FrequencyPlayer = ({
       title: title || `${frequency}Hz Frequency`,
       artist: "Sacred Shifter",
       source: audioUrl,
-      // Pass these as custom properties
-      customData: {
-        frequency,
-        chakra: description
-      }
+      frequency: frequency,
+      chakra: description
     });
   };
   

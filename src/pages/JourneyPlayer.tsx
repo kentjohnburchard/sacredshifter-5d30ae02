@@ -17,7 +17,6 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { JourneyAudioMapper } from '@/components/frequency-journey';
 
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
@@ -277,24 +276,26 @@ const JourneyPlayer = () => {
                       </div>
                     </AccordionTrigger>
                     <AccordionContent className="text-gray-700 dark:text-gray-300">
-                      <JourneyAudioMapper 
-                        journeyId={journeyId}
-                        songs={songs}
-                        onSongSelect={(song) => {
-                          if (song && song.audioUrl) {
-                            let audioUrl = song.audioUrl;
-                            if (audioUrl && !audioUrl.startsWith('http')) {
-                              audioUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioUrl}`;
-                            }
-                            
-                            playAudio({
-                              title: song.title || journey?.title,
-                              artist: "Sacred Shifter",
-                              source: audioUrl
-                            });
-                          }
-                        }}
-                      />
+                      {songs && songs.length > 0 ? (
+                        <div className="space-y-2">
+                          {songs.map((song, index) => (
+                            <div 
+                              key={index} 
+                              className="flex justify-between items-center p-2 rounded bg-white/50 dark:bg-gray-800/50"
+                            >
+                              <span>{song.title || `Track ${index + 1}`}</span>
+                              <span className="text-sm text-gray-500">
+                                {song.duration ? `${Math.floor(song.duration / 60)}:${String(song.duration % 60).padStart(2, '0')}` : '~3:00'}
+                              </span>
+                            </div>
+                          ))}
+                          <p className="text-sm text-gray-500 mt-2">
+                            Tracks will continue playing in the Sacred Audio Player
+                          </p>
+                        </div>
+                      ) : (
+                        <p>No audio tracks available for this journey.</p>
+                      )}
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
