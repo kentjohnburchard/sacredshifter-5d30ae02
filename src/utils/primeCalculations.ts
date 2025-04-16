@@ -1,4 +1,3 @@
-
 /**
  * Prime number utility functions for frequency calculations
  */
@@ -95,4 +94,23 @@ export function analyzeFrequency(frequency: number): {
     nearestPrime,
     primeRatio
   };
+}
+
+/**
+ * Generate a sequence of prime numbers
+ * @param count The number of prime numbers to generate
+ * @returns An array of prime numbers
+ */
+export function generatePrimeSequence(count: number): number[] {
+  const primes: number[] = [];
+  let num = 2;
+  
+  while (primes.length < count) {
+    if (isPrime(num)) {
+      primes.push(num);
+    }
+    num++;
+  }
+  
+  return primes;
 }
