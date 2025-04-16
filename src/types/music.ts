@@ -22,7 +22,20 @@ export interface AudioFunctionMapping {
   is_primary: boolean;
 }
 
-export type AppFunctionality = 'meditation' | 'journey' | 'focus' | 'chakra' | 'frequency';
+// App functionality types for song mappings
+export type AppFunctionality = 
+  'meditation' | 
+  'journey' | 
+  'focus' | 
+  'chakra' | 
+  'frequency' |
+  'chakra-healing' | 
+  'hermetic-principle' | 
+  'frequency-shift' | 
+  'sleep' | 
+  'energy-boost' | 
+  'heart-opening' | 
+  'grounding';
 
 export interface SongMapping {
   id: string;
@@ -36,6 +49,14 @@ export interface SongMapping {
   frequency?: number;
 }
 
+// Interface for functionality descriptions
+export interface FunctionalityDescription {
+  name: string;
+  description: string;
+  color: string;
+}
+
+// Interface for functionality mapping
 export interface FunctionalityMap {
-  [key: string]: AppFunctionality;
+  [key: string]: FunctionalityDescription;
 }
