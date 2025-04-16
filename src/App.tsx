@@ -35,6 +35,7 @@ function AppContent() {
         <ThemeProvider>
           <TooltipProvider>
             <QueryClientProvider client={queryClient}>
+              <NavigationRoot />
               <Routes>
                 {/* Core routes */}
                 <Route path="/" element={<HomePage />} />
@@ -81,7 +82,9 @@ function AppContent() {
 function App() {
   return (
     <UserPreferencesProvider>
-      <AppContent />
+      <PreferencesLoader>
+        <AppContent />
+      </PreferencesLoader>
     </UserPreferencesProvider>
   );
 }

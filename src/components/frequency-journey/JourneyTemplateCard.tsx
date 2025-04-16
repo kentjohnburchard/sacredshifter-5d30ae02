@@ -17,7 +17,9 @@ interface JourneyTemplateCardProps {
 const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template, audio }) => {
   const navigate = useNavigate();
   
-  const handleBeginJourney = () => {
+  const handleBeginJourney = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent default link behavior
+    e.stopPropagation(); // Prevent card click
     navigate(`/journey-player/${template.id}`);
   };
 
@@ -123,10 +125,7 @@ const JourneyTemplateCard: React.FC<JourneyTemplateCardProps> = ({ template, aud
           variant={hasAudio ? "default" : "secondary"}
           size="sm" 
           className={`${hasAudio ? 'bg-purple-600 hover:bg-purple-700' : 'bg-gray-700 hover:bg-gray-600'}`}
-          onClick={(e) => {
-            e.stopPropagation(); // Prevent card click
-            handleBeginJourney();
-          }}
+          onClick={handleBeginJourney}
         >
           <Play className="h-4 w-4 mr-2" />
           Begin Journey
