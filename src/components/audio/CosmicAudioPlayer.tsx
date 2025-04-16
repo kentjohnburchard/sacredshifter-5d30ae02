@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import {
@@ -75,6 +74,7 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
   chakra,
   initialIsExpanded = false,
   onExpandStateChange,
+  onError,
 }) => {
   const [isPlaying, setIsPlaying] = useState(autoPlay);
   const [volume, setVolume] = useState(0.7);
@@ -108,14 +108,19 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     if (typeof window === 'undefined') return;
     
     if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-      
-      const analyser = audioContextRef.current.createAnalyser();
-      analyser.fftSize = 2048;
-      analyser.smoothingTimeConstant = 0.8;
-      analyserRef.current = analyser;
-      
-      console.log("Audio context and analyser initialized");
+      try {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        
+        const analyser = audioContextRef.current.createAnalyser();
+        analyser.fftSize = 2048;
+        analyser.smoothingTimeConstant = 0.8;
+        analyserRef.current = analyser;
+        
+        console.log("Audio context and analyser initialized");
+      } catch (err) {
+        console.error("Error initializing audio context:", err);
+        if (onError) onError(err);
+      }
     }
     
     return () => {
@@ -123,7 +128,7 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
         audioContextRef.current.close().catch(console.error);
       }
     };
-  }, []);
+  }, [onError]);
   
   useEffect(() => {
     const connectAudio = () => {
@@ -197,10 +202,11 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
       if (playPromise !== undefined) {
         playPromise.catch(error => {
           console.error("Error auto-playing audio:", error);
+          if (onError) onError(error);
         });
       }
     }
-  }, [autoPlay]);
+  }, [autoPlay, onError]);
   
   const handlePrimeDetected = (prime: number) => {
     setActivePrimes(prevPrimes => {
@@ -266,9 +272,14 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
   const handleSeek = (values: number[]) => {
     if (!audioRef.current || !duration) return;
     
-    const seekTime = values[0];
-    audioRef.current.currentTime = seekTime;
-    setCurrentTime(seekTime);
+    try {
+      const seekTime = values[0];
+      audioRef.current.currentTime = seekTime;
+      setCurrentTime(seekTime);
+    } catch (error) {
+      console.error("Error seeking audio:", error);
+      if (onError) onError(error);
+    }
   };
   
   const toggleExpanded = () => {
@@ -360,6 +371,10 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
             src={defaultAudioUrl} 
             preload="metadata"
             autoPlay={autoPlay}
+            onError={(e) => {
+              console.error("Audio error:", e);
+              if (onError) onError(e);
+            }}
           />
           
           <div className={`flex flex-col ${isExpanded ? 'h-full' : ''}`}>
@@ -376,17 +391,19 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                   className={`w-full relative ${isExpanded ? 'flex-1' : 'h-[250px]'} overflow-hidden`}
                 >
                   <div className="absolute inset-0 z-10">
-                    <SacredGeometryVisualizer
-                      defaultShape={currentShape as any}
-                      size={isExpanded ? "xl" : "md"}
-                      isAudioReactive={isPlaying}
-                      audioContext={audioContextRef.current}
-                      analyser={analyserRef.current}
-                      chakra={chakra}
-                      frequency={defaultFrequency}
-                      mode="fractal"
-                      liftedVeil={liftTheVeil}
-                    />
+                    {defaultShape && (
+                      <SacredGeometryVisualizer
+                        defaultShape={currentShape as any}
+                        size={isExpanded ? "xl" : "md"}
+                        isAudioReactive={isPlaying}
+                        audioContext={audioContextRef.current}
+                        analyser={analyserRef.current}
+                        chakra={chakra}
+                        frequency={defaultFrequency}
+                        mode="fractal"
+                        liftedVeil={liftTheVeil}
+                      />
+                    )}
                   </div>
                   
                   <div className="absolute inset-0 z-20 opacity-80">
