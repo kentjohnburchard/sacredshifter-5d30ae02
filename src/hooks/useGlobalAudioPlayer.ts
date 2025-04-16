@@ -66,6 +66,9 @@ export function useGlobalAudioPlayer() {
       return;
     }
     
+    // Save the current audio info in state
+    setCurrentAudio(audioInfo);
+    
     // If we're already playing the same audio, just toggle play/pause
     if (audioInfo.source === audioSourceRef.current) {
       togglePlayPause();
@@ -74,7 +77,6 @@ export function useGlobalAudioPlayer() {
     
     // Otherwise, set new audio source
     audioSourceRef.current = audioInfo.source;
-    setCurrentAudio(audioInfo);
     
     // First pause any currently playing audio
     const audio = audioRef.current;

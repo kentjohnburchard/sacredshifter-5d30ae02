@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -108,7 +109,7 @@ const JourneyPlayer = () => {
         
         if (audioUrl) {
           playAudio({
-            title: nextSong.title || (journey?.title + " (continued)"),
+            title: nextSong.title || (journey?.title ? journey.title + " (continued)" : "Journey Track"),
             artist: "Sacred Shifter",
             source: audioUrl
           });
@@ -156,14 +157,14 @@ const JourneyPlayer = () => {
   }, [journeyId, navigate, templates, loadingSongs, loadingTemplates]);
 
   useEffect(() => {
-    if (audioPlayAttemptedRef.current || isLoading || loadingSongs || !journey || !songs) {
+    if (audioPlayAttemptedRef.current || isLoading || loadingSongs || !journey) {
       return;
     }
     
     audioPlayAttemptedRef.current = true;
     console.log("JourneyPlayer: Attempting to initialize audio playback");
     
-    if (songs.length > 0) {
+    if (songs && songs.length > 0) {
       setTimeout(() => {
         const selectedSong = selectRandomSong();
         
@@ -179,7 +180,7 @@ const JourneyPlayer = () => {
           
           if (audioUrl) {
             playAudio({
-              title: selectedSong.title || journey.title,
+              title: selectedSong.title || (journey?.title || "Journey Track"),
               artist: "Sacred Shifter",
               source: audioUrl
             });
@@ -201,8 +202,15 @@ const JourneyPlayer = () => {
   }, [journey, songs, loadingSongs, isLoading, playAudio, journeyId, audioMappings]);
 
   const checkAudioMappingFallback = () => {
-    if (journeyId && audioMappings && audioMappings[journeyId]) {
-      const mapping = audioMappings[journeyId];
+    if (!journeyId || !audioMappings) {
+      console.error("JourneyPlayer: No journey ID or audio mappings available");
+      toast.error("No audio available for this journey");
+      setPlayerError("No audio available. Please try another journey.");
+      return;
+    }
+    
+    const mapping = audioMappings[journeyId];
+    if (mapping) {
       console.log("JourneyPlayer: Using audio mapping fallback:", mapping);
       
       let audioUrl = mapping.audioUrl;
@@ -212,13 +220,13 @@ const JourneyPlayer = () => {
       
       if (audioUrl) {
         playAudio({
-          title: journey.title,
+          title: journey?.title || "Journey Track",
           artist: "Sacred Shifter",
           source: audioUrl
         });
         
         const fallbackSong = {
-          title: journey.title,
+          title: journey?.title || "Journey Track",
           audioUrl: audioUrl
         };
         
@@ -231,7 +239,7 @@ const JourneyPlayer = () => {
         setPlayerError("No audio available. Please try another journey.");
       }
     } else {
-      console.error("JourneyPlayer: No audio available for journey:", journeyId);
+      console.error("JourneyPlayer: No audio mapping found for journey:", journeyId);
       toast.error("No audio available for this journey");
       setPlayerError("No audio available. Please try another journey.");
     }
@@ -254,7 +262,7 @@ const JourneyPlayer = () => {
           
           setTimeout(() => {
             playAudio({
-              title: newSong.title || journey.title,
+              title: newSong.title || (journey?.title || "Journey Track"),
               artist: "Sacred Shifter",
               source: audioUrl
             });
@@ -345,7 +353,7 @@ const JourneyPlayer = () => {
               <div className="flex justify-between items-center mb-4">
                 <div className="flex-1">
                   <p className="font-medium">
-                    {currentSongRef.current?.title || currentAudio.title || 'Selected Journey Track'}
+                    {currentSongRef.current?.title || currentAudio?.title || 'Selected Journey Track'}
                   </p>
                   <p className="text-sm text-gray-600 dark:text-gray-300">
                     {isPlaying ? 'Playing now' : 'Paused'}
@@ -458,7 +466,7 @@ const JourneyPlayer = () => {
       {playerVisible && currentSongRef.current && (
         <FloatingCosmicPlayer
           audioUrl={currentSongRef.current.audioUrl}
-          title={currentSongRef.current.title || journey?.title}
+          title={currentSongRef.current.title || journey?.title || "Sacred Journey"}
           description={journey?.description || "Sacred sound journey"}
           initiallyVisible={true}
           chakra={journey?.chakras?.[0]?.toLowerCase() || "all"}
