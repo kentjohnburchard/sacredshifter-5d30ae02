@@ -48,7 +48,6 @@ const JourneyPlayer = () => {
   const currentSongRef = useRef<any>(null);
   
   const { templates, loading: loadingTemplates, audioMappings } = useJourneyTemplates();
-  
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
 
   useEffect(() => {

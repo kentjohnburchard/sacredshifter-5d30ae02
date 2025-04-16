@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { toast } from 'sonner';
 
@@ -58,7 +58,7 @@ export function useGlobalAudioPlayer() {
     };
   }, [audioRef]);
 
-  const registerPlayerVisuals = (callbacks: {
+  const registerPlayerVisuals = useCallback((callbacks: {
     setAudioSource: (url: string, info?: AudioInfo) => void
   }) => {
     console.log("Global player: Registering visual player callbacks");
@@ -69,9 +69,9 @@ export function useGlobalAudioPlayer() {
       console.log("Global player: Syncing current audio to visual player");
       playerVisualsRef.current.setAudioSource(audioSourceRef.current, currentAudio);
     }
-  };
+  }, [isAudioPlaying, currentAudio]);
 
-  const playAudio = (audioInfo: AudioInfo) => {
+  const playAudio = useCallback((audioInfo: AudioInfo) => {
     console.log("Global player: Playing new song:", audioInfo.title, "URL:", audioInfo.source);
     
     if (!audioInfo.source) {
@@ -124,14 +124,14 @@ export function useGlobalAudioPlayer() {
         playerVisualsRef.current.setAudioSource(audioInfo.source, audioInfo);
       }
     }, 100);
-  };
+  }, [togglePlayPause, setAudioSource]);
 
-  const setOnEndedCallback = (callback: (() => void) | null) => {
+  const setOnEndedCallback = useCallback((callback: (() => void) | null) => {
     onEndedCallbackRef.current = callback;
     console.log("Global audio player: onEndedCallback set");
-  };
+  }, []);
   
-  const resetPlayer = () => {
+  const resetPlayer = useCallback(() => {
     const audio = audioRef.current;
     if (audio) {
       // First pause playback
@@ -153,7 +153,7 @@ export function useGlobalAudioPlayer() {
         playerVisualsRef.current.setAudioSource('');
       }
     }
-  };
+  }, []);
 
   return {
     playAudio,
@@ -165,6 +165,6 @@ export function useGlobalAudioPlayer() {
     togglePlayPause,
     resetPlayer,
     seekTo,
-    registerPlayerVisuals  // This was missing in the return object
+    registerPlayerVisuals
   };
 }

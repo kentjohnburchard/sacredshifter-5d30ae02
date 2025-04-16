@@ -34,7 +34,7 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
   const [audioUrl_, setAudioUrl] = useState<string>('');
   const [playerKey, setPlayerKey] = useState<string>(Date.now().toString());
   const cosmicPlayerRef = useRef<any>(null);
-  const { resetPlayer, registerPlayerVisuals, isPlaying, currentAudio } = useGlobalAudioPlayer();
+  const { registerPlayerVisuals, isPlaying, currentAudio } = useGlobalAudioPlayer();
   const errorCountRef = useRef(0);
   
   // Format the audio URL when it changes
@@ -55,8 +55,8 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
 
   // Register this player with the global audio player
   useEffect(() => {
-    if (!registerPlayerVisuals) {
-      console.error("registerPlayerVisuals function is not available");
+    if (typeof registerPlayerVisuals !== 'function') {
+      console.error("registerPlayerVisuals is not a function");
       return;
     }
     
@@ -101,15 +101,8 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
     
     if (errorCountRef.current <= 2) {
       toast.error("Audio error occurred. Attempting to recover...");
-      
-      // Force a restart with a new player instance
-      setTimeout(() => {
-        resetPlayer();
-        setPlayerKey(Date.now().toString());
-      }, 500);
     } else {
       toast.error("Audio playback failed. Try a different track.");
-      resetPlayer();
     }
   };
   
@@ -137,9 +130,9 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
       initialColorTheme={initialColorTheme}
       initialIsExpanded={initialIsExpanded}
       onExpandStateChange={handleExpandStateChange}
-      autoPlay={false}  // We're using the global player now
-      syncWithGlobalPlayer={true} // New prop to indicate we're syncing with global player
-      isPlaying={isPlaying} // Pass the global playing state
+      autoPlay={false}
+      syncWithGlobalPlayer={true}
+      isPlaying={isPlaying}
       onError={handleError}
       allowShapeChange={true}
       allowColorChange={true}
