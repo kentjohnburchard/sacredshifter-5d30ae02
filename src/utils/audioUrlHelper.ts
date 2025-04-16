@@ -1,124 +1,69 @@
-/**
- * Helper functions for working with audio URLs in the application
- */
-
-// Default Supabase storage URL
-export const SUPABASE_STORAGE_URL = 'https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets';
 
 /**
- * External URL sources that are known to be reliable
+ * Utility functions for testing and handling audio URLs
  */
-export const FALLBACK_AUDIO_URLS = [
-  'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-sound-2287.mp3',
-  'https://assets.mixkit.co/sfx/preview/mixkit-ethereal-fairy-win-sound-2019.mp3',
-  'https://assets.mixkit.co/sfx/preview/mixkit-simple-countdown-922.mp3'
-];
-
-// Cache valid URLs to prevent excessive testing
-const validatedAudioUrls = new Set<string>();
 
 /**
- * Normalized audio URL - ensure we use the correct base URL for relative paths
- * @param url The URL to normalize
- * @returns The normalized URL
+ * Test if an audio URL is valid and can be played
+ * @param url The audio URL to test
+ * @param timeout Timeout in milliseconds
+ * @returns Promise that resolves to true if valid, false if not
  */
-export const normalizeAudioUrl = (url?: string): string | undefined => {
-  if (!url) return undefined;
-  
-  // If it's already an absolute URL, return it as is
-  if (url.startsWith('http')) {
-    return url;
-  }
-  
-  // If it starts with a slash, it's a relative path from the root
-  if (url.startsWith('/')) {
-    // First check if it exists in the public folder
-    if (url.startsWith('/assets/') || url.startsWith('/sounds/')) {
-      return url;
-    }
-    
-    // Otherwise, attempt to resolve against Supabase storage
-    return `${SUPABASE_STORAGE_URL}${url}`;
-  }
-  
-  // Otherwise, it's just a filename
-  return `${SUPABASE_STORAGE_URL}/${url}`;
-};
-
-/**
- * Get a fallback audio URL if the primary one fails
- * @returns A fallback audio URL
- */
-export const getFallbackAudioUrl = (): string => {
-  const randomIndex = Math.floor(Math.random() * FALLBACK_AUDIO_URLS.length);
-  return FALLBACK_AUDIO_URLS[randomIndex];
-};
-
-/**
- * Tests if an audio URL is playable
- * @param url The URL to test
- * @param timeout Timeout in ms before considering the test failed
- * @returns Promise resolving to true if audio can play, false otherwise
- */
-export const testAudioUrl = async (url: string, timeout = 5000): Promise<boolean> => {
-  // Return true immediately if this URL was previously validated
-  if (validatedAudioUrls.has(url)) {
-    console.log(`🔊 Using cached successful test result for: ${url}`);
-    return true;
-  }
-  
-  // Track if the promise has already been resolved to avoid race conditions
-  let hasResolved = false;
+export const testAudioUrl = async (url: string, timeout: number = 5000): Promise<boolean> => {
+  if (!url) return false;
   
   return new Promise((resolve) => {
     const audio = new Audio();
     
-    const resolveOnce = (result: boolean) => {
-      if (!hasResolved) {
-        hasResolved = true;
-        
-        // If successful, add to the cache of validated URLs
-        if (result) {
-          validatedAudioUrls.add(url);
-        }
-        
-        console.log(`🔊 Audio URL test ${result ? 'succeeded' : 'failed'}: ${url}`);
-        resolve(result);
-      }
-    };
-    
-    const resolveTrue = () => resolveOnce(true);
-    const resolveFalse = () => resolveOnce(false);
-    
-    audio.addEventListener('canplaythrough', resolveTrue, { once: true });
-    audio.addEventListener('error', resolveFalse, { once: true });
-    
-    // Set crossOrigin to allow playing from different domains
-    audio.crossOrigin = 'anonymous';
-    
-    // Set a timeout to prevent hanging
+    // Set up timeout
     const timeoutId = setTimeout(() => {
-      console.log(`⏱️ Audio URL test timed out: ${url}`);
-      resolveFalse();
+      console.log(`Audio test timeout for ${url}`);
+      audio.removeEventListener('canplaythrough', handleSuccess);
+      audio.removeEventListener('error', handleError);
+      resolve(false);
     }, timeout);
     
+    // Success handler
+    const handleSuccess = () => {
+      clearTimeout(timeoutId);
+      audio.removeEventListener('canplaythrough', handleSuccess);
+      audio.removeEventListener('error', handleError);
+      console.log(`Audio test successful for ${url}`);
+      resolve(true);
+    };
+    
+    // Error handler
+    const handleError = () => {
+      clearTimeout(timeoutId);
+      audio.removeEventListener('canplaythrough', handleSuccess);
+      audio.removeEventListener('error', handleError);
+      console.log(`Audio test failed for ${url}`);
+      resolve(false);
+    };
+    
+    // Set up event listeners
+    audio.addEventListener('canplaythrough', handleSuccess);
+    audio.addEventListener('error', handleError);
+    
     // Start loading the audio
-    try {
-      audio.src = url;
-      audio.load();
-    } catch (error) {
-      console.error(`🔊 Error loading audio: ${error}`);
-      clearTimeout(timeoutId);
-      resolveFalse();
-    }
-    
-    // Cleanup function
-    audio.addEventListener('canplaythrough', () => {
-      clearTimeout(timeoutId);
-    }, { once: true });
-    
-    audio.addEventListener('error', () => {
-      clearTimeout(timeoutId);
-    }, { once: true });
+    audio.src = url;
+    audio.load();
   });
+};
+
+/**
+ * Get a fallback audio URL when the original fails
+ * @returns A fallback audio URL
+ */
+export const getFallbackAudioUrl = (): string => {
+  const fallbackUrls = [
+    '/assets/audio/meditation.mp3',
+    '/assets/sounds/meditation.mp3',
+    'https://assets.mixkit.co/sfx/preview/mixkit-meditation-bell-sound-2287.mp3',
+    'https://assets.mixkit.co/sfx/preview/mixkit-simple-countdown-922.mp3'
+  ];
+  
+  // Pick one randomly to increase chances of finding a working URL
+  const randomIndex = Math.floor(Math.random() * fallbackUrls.length);
+  return fallbackUrls[randomIndex];
 };

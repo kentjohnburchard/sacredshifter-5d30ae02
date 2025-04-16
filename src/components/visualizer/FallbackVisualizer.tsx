@@ -1,20 +1,25 @@
 
 import React, { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { useAppStore } from '@/store';
 
 interface FallbackVisualizerProps {
   colorScheme?: string;
-  isPlaying?: boolean;
+  fallbackType?: 'bars' | 'wave' | 'dots';
+  height?: number;
+  width?: number;
 }
 
 const FallbackVisualizer: React.FC<FallbackVisualizerProps> = ({
-  colorScheme = '#9b87f5',
-  isPlaying = false
+  colorScheme = '#a855f7',
+  fallbackType = 'bars',
+  height = 200,
+  width = 400
 }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number | null>(null);
   const { frequencyData } = useAppStore();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   
+  // Set up visualization
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -22,106 +27,156 @@ const FallbackVisualizer: React.FC<FallbackVisualizerProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     
-    const resizeCanvas = () => {
-      canvas.width = canvas.clientWidth;
-      canvas.height = canvas.clientHeight;
-    };
+    // Set canvas dimensions
+    canvas.width = width;
+    canvas.height = height;
     
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-    
-    const animate = () => {
-      if (!canvas || !ctx) return;
+    const draw = () => {
+      // Clear canvas
+      ctx.clearRect(0, 0, width, height);
       
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
-      
-      // Draw background
+      // Fill with dark background
       ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillRect(0, 0, width, height);
       
-      if (frequencyData && isPlaying) {
-        // Use frequency data to create audio-reactive visualization
-        const avgFrequency = Array.from(frequencyData).reduce((sum, val) => sum + val, 0) / frequencyData.length;
-        const normalizedAvg = avgFrequency / 255;
-        
-        // Draw circle that pulses with audio
-        const baseRadius = Math.min(canvas.width, canvas.height) * 0.2;
-        const pulseRadius = baseRadius * (1 + normalizedAvg * 0.5);
-        
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, pulseRadius, 0, Math.PI * 2);
-        ctx.fillStyle = colorScheme;
-        ctx.globalAlpha = 0.6;
-        ctx.fill();
-        
-        // Draw frequency bars in a circle
-        const barCount = Math.min(32, frequencyData.length);
-        const barWidth = Math.PI * 2 / barCount;
-        
-        for (let i = 0; i < barCount; i++) {
-          const value = frequencyData[i] || 0;
-          const normalized = value / 255;
-          
-          const innerRadius = pulseRadius * 1.2;
-          const outerRadius = innerRadius + normalized * baseRadius;
-          
-          const startAngle = i * barWidth;
-          const endAngle = startAngle + barWidth * 0.8;
-          
-          ctx.beginPath();
-          ctx.arc(centerX, centerY, outerRadius, startAngle, endAngle);
-          ctx.arc(centerX, centerY, innerRadius, endAngle, startAngle, true);
-          ctx.closePath();
-          
-          ctx.fillStyle = colorScheme;
-          ctx.globalAlpha = 0.3 + normalized * 0.5;
-          ctx.fill();
-        }
+      // Use mock data if no frequency data available
+      const dataArray = frequencyData?.length > 0 ? frequencyData : generateMockData();
+      
+      if (fallbackType === 'bars') {
+        drawBars(ctx, dataArray, width, height, colorScheme);
+      } else if (fallbackType === 'wave') {
+        drawWave(ctx, dataArray, width, height, colorScheme);
       } else {
-        // Draw pulsing circle when no audio is playing
-        const time = Date.now() / 1000;
-        const pulseSize = 0.8 + Math.sin(time * 2) * 0.2;
-        
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, Math.min(canvas.width, canvas.height) * 0.15 * pulseSize, 0, Math.PI * 2);
-        ctx.fillStyle = colorScheme;
-        ctx.globalAlpha = 0.6;
-        ctx.fill();
-        
-        // Draw orbiting particles
-        for (let i = 0; i < 8; i++) {
-          const angle = time + (i * Math.PI / 4);
-          const x = centerX + Math.cos(angle) * canvas.width * 0.2;
-          const y = centerY + Math.sin(angle) * canvas.height * 0.2;
-          
-          ctx.beginPath();
-          ctx.arc(x, y, 5 + Math.sin(time * 3 + i) * 3, 0, Math.PI * 2);
-          ctx.fillStyle = colorScheme;
-          ctx.globalAlpha = 0.7;
-          ctx.fill();
-        }
+        drawDots(ctx, dataArray, width, height, colorScheme);
       }
       
-      animationRef.current = requestAnimationFrame(animate);
+      requestAnimationFrame(draw);
     };
     
-    animate();
+    // Start animation
+    draw();
     
-    return () => {
-      window.removeEventListener('resize', resizeCanvas);
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
-    };
-  }, [frequencyData, isPlaying, colorScheme]);
+  }, [colorScheme, fallbackType, height, width, frequencyData]);
+  
+  const generateMockData = (): Uint8Array => {
+    const mockData = new Uint8Array(64);
+    const time = Date.now() / 1000;
+    
+    for (let i = 0; i < mockData.length; i++) {
+      // Generate smooth wave patterns
+      const value = 128 + 
+                    60 * Math.sin(time + i * 0.1) + 
+                    40 * Math.sin(time * 0.5 + i * 0.2);
+      mockData[i] = Math.min(255, Math.max(0, Math.floor(value)));
+    }
+    
+    return mockData;
+  };
+  
+  const drawBars = (
+    ctx: CanvasRenderingContext2D, 
+    dataArray: Uint8Array, 
+    width: number, 
+    height: number, 
+    color: string
+  ) => {
+    const barWidth = width / Math.min(64, dataArray.length);
+    const barSpacing = 2;
+    
+    ctx.fillStyle = color;
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = color;
+    
+    for (let i = 0; i < Math.min(64, dataArray.length); i++) {
+      const value = dataArray[i];
+      const percent = value / 255;
+      const barHeight = percent * height;
+      
+      ctx.fillRect(
+        i * barWidth + barSpacing/2, 
+        height - barHeight, 
+        barWidth - barSpacing, 
+        barHeight
+      );
+    }
+  };
+  
+  const drawWave = (
+    ctx: CanvasRenderingContext2D, 
+    dataArray: Uint8Array, 
+    width: number, 
+    height: number, 
+    color: string
+  ) => {
+    const sliceWidth = width / dataArray.length;
+    
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = color;
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = color;
+    
+    ctx.beginPath();
+    ctx.moveTo(0, height / 2);
+    
+    for (let i = 0; i < dataArray.length; i++) {
+      const value = dataArray[i];
+      const percent = value / 255;
+      const y = height / 2 + (percent * height / 2 - height / 4);
+      const x = i * sliceWidth;
+      
+      ctx.lineTo(x, y);
+    }
+    
+    ctx.lineTo(width, height / 2);
+    ctx.stroke();
+  };
+  
+  const drawDots = (
+    ctx: CanvasRenderingContext2D, 
+    dataArray: Uint8Array, 
+    width: number, 
+    height: number, 
+    color: string
+  ) => {
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const maxRadius = Math.min(width, height) / 2 - 10;
+    
+    ctx.fillStyle = color;
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = color;
+    
+    const numDots = Math.min(64, dataArray.length);
+    const angleStep = (Math.PI * 2) / numDots;
+    
+    for (let i = 0; i < numDots; i++) {
+      const value = dataArray[i];
+      const percent = value / 255;
+      const angle = i * angleStep;
+      const radius = maxRadius * (0.3 + percent * 0.7);
+      
+      const x = centerX + Math.cos(angle) * radius;
+      const y = centerY + Math.sin(angle) * radius;
+      
+      ctx.beginPath();
+      ctx.arc(x, y, 2 + percent * 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  };
   
   return (
-    <canvas 
-      ref={canvasRef}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
       className="w-full h-full"
-      style={{ background: 'rgba(0, 0, 0, 0.2)' }}
-    />
+    >
+      <canvas 
+        ref={canvasRef} 
+        style={{ width: '100%', height: '100%' }} 
+        className="rounded-lg"
+      />
+    </motion.div>
   );
 };
 

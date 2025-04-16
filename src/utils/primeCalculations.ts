@@ -22,6 +22,48 @@ export const isPrime = (num: number): boolean => {
 };
 
 /**
+ * Generate a sequence of prime numbers up to a given limit
+ */
+export const generatePrimeSequence = (limit: number): number[] => {
+  const primes: number[] = [];
+  for (let num = 2; num <= limit; num++) {
+    if (isPrime(num)) {
+      primes.push(num);
+    }
+  }
+  return primes;
+};
+
+/**
+ * Calculate prime factors of a given number
+ */
+export const calculatePrimeFactors = (num: number): number[] => {
+  const factors: number[] = [];
+  if (num <= 0) return factors;
+  
+  // Handle division by 2
+  while (num % 2 === 0) {
+    factors.push(2);
+    num /= 2;
+  }
+  
+  // Handle other prime factors
+  for (let i = 3; i <= Math.sqrt(num); i += 2) {
+    while (num % i === 0) {
+      factors.push(i);
+      num /= i;
+    }
+  }
+  
+  // If num is a prime number greater than 2
+  if (num > 2) {
+    factors.push(num);
+  }
+  
+  return factors;
+};
+
+/**
  * Analyze a frequency value and determine if it's prime
  * and its relationship to other significant frequencies
  */
