@@ -7,9 +7,7 @@ import { JourneyTemplate } from '@/types/journey';
 import { toast } from 'sonner';
 import { analyzeFrequency } from '@/utils/primeCalculations';
 import { useAppStore } from '@/store';
-
-// Default Supabase storage URL
-const SUPABASE_STORAGE_URL = 'https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets';
+import { testAudioUrl } from '@/utils/audioUrlHelper';
 
 interface JourneyAudioPlayerProps {
   journey?: JourneyTemplate;
@@ -20,55 +18,50 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const { setDetectedPrimes, setIsPlaying, setAudioPlaybackError, setAudioInitialized } = useAppStore();
   const audioInitialized = useRef(false);
-  const [audioUrl, setAudioUrl] = useState<string>(`${SUPABASE_STORAGE_URL}/meditation/cosmic-breath.mp3`);
+  const [audioUrl, setAudioUrl] = useState<string>('/assets/audio/meditation.mp3');
+  const [audioUrlTested, setAudioUrlTested] = useState(false);
+  const audioTestAttempts = useRef(0);
 
-  // Try to find a valid audio URL
+  // Try to find a valid audio URL - but with safeguards to prevent endless loops
   useEffect(() => {
+    if (audioUrlTested || audioTestAttempts.current > 2) return;
+    
+    audioTestAttempts.current += 1;
+    
     const testUrls = [
       // Try packaged assets first
       '/assets/audio/meditation.mp3',
       '/assets/sounds/meditation.mp3',
-      // Then try Supabase assets
-      `${SUPABASE_STORAGE_URL}/meditation/cosmic-breath.mp3`,
-      `${SUPABASE_STORAGE_URL}/focus/clear-mind.mp3`,
-      // Finally try external sources
+      // Then try external sources
       'https://assets.mixkit.co/sfx/preview/mixkit-simple-countdown-922.mp3',
+      'https://assets.mixkit.co/sfx/preview/mixkit-ethereal-fairy-win-sound-2019.mp3',
     ];
     
-    let foundValidUrl = false;
-    
-    const testUrl = async (url: string) => {
-      return new Promise<boolean>((resolve) => {
-        const audio = new Audio();
-        audio.addEventListener('canplaythrough', () => {
-          console.log(`✅ Found working audio URL: ${url}`);
-          if (!foundValidUrl) {
-            foundValidUrl = true;
-            setAudioUrl(url);
-          }
-          resolve(true);
-        });
-        
-        audio.addEventListener('error', () => {
-          console.log(`❌ Audio URL failed: ${url}`);
-          resolve(false);
-        });
-        
-        audio.src = url;
-        // Set a timeout to ensure we don't hang
-        setTimeout(() => resolve(false), 2000);
-      });
-    };
-    
     const findWorkingUrl = async () => {
+      console.log("Testing audio URLs - attempt", audioTestAttempts.current);
+      
       for (const url of testUrls) {
-        const isValid = await testUrl(url);
-        if (isValid) break;
+        try {
+          const isValid = await testAudioUrl(url, 3000); // 3 second timeout
+          if (isValid) {
+            console.log(`✅ Found working audio URL: ${url}`);
+            setAudioUrl(url);
+            setAudioUrlTested(true);
+            return;
+          }
+        } catch (error) {
+          console.log(`❌ Error testing audio URL: ${url}`);
+        }
       }
+      
+      // If all tests fail, use the first URL anyway and mark as tested
+      console.log("⚠️ No working audio URLs found, using first URL as fallback");
+      setAudioUrl(testUrls[0]);
+      setAudioUrlTested(true);
     };
     
     findWorkingUrl();
-  }, []);
+  }, [audioUrlTested]);
 
   // Monitor audio for primes
   useEffect(() => {
@@ -157,20 +150,6 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
       
       console.log("Audio element volume set to 0.7, source:", audioElement.src);
       
-      // Attempt to resume AudioContext if needed
-      const resumeAudioContext = () => {
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        if (audioContext.state === 'suspended') {
-          audioContext.resume().then(() => {
-            console.log('AudioContext resumed successfully');
-          }).catch(err => {
-            console.error('Failed to resume AudioContext', err);
-          });
-        }
-      };
-      
-      resumeAudioContext();
-      
       // Add error handling for audio element
       const handleError = () => {
         console.error("Error playing audio");
@@ -210,6 +189,7 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
         <Button 
           onClick={handleStartJourney}
           className="bg-purple-600 hover:bg-purple-700 text-white px-6"
+          disabled={!audioUrlTested}
         >
           <Play className="mr-2 h-4 w-4" /> Start Journey
         </Button>

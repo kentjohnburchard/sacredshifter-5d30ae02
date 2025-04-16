@@ -8,6 +8,8 @@ import { Play, Pause, SkipBack, SkipForward, Volume2, Volume1, VolumeX } from 'l
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { getAudioContext, resumeAudioContext } from '@/utils/audioContextInitializer';
+import { testAudioUrl, getFallbackAudioUrl } from '@/utils/audioUrlHelper';
+import { createMockFrequencyData, createMockWaveformData } from '@/utils/mockAudioData';
 
 interface SacredAudioPlayerProps {
   journey?: JourneyProps;
@@ -23,9 +25,6 @@ interface SacredAudioPlayerProps {
   onError?: () => void; // Added for error handling
   onAudioLoaded?: () => void; // Added for successful loading notification
 }
-
-// Default Supabase storage URL
-const SUPABASE_STORAGE_URL = 'https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets';
 
 const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   journey,
@@ -54,346 +53,191 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const [volume, setVolume] = useState(70);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const { setAudioData, setFrequencyData, setIsPlaying, setAudioPlaybackError } = useAppStore();
-  const audioPlayAttempted = useRef(false);
   
-  // Audio processing state
+  const audioPlayAttempted = useRef(false);
   const [audioSourceValid, setAudioSourceValid] = useState(false);
   const [loadingAudio, setLoadingAudio] = useState(true);
+  const audioTestingInProgress = useRef(false);
+  const [testingFailed, setTestingFailed] = useState(false);
   
-  // Updated default fallbacks with working paths
-  const [fallbackAudioUrl] = useState<string>(`${SUPABASE_STORAGE_URL}/meditation/cosmic-breath.mp3`);
+  const maxTestingRetries = 2;
+  const testingRetries = useRef(0);
   
-  // Error handling with strict limits
-  const errorToastShownRef = useRef(false);
-  const errorCountRef = useRef(0);
-  const MAX_ERROR_RETRIES = 2;
-
-  // Determine if we're in controlled or uncontrolled mode
+  const fallbackAudioRef = useRef(getFallbackAudioUrl());
+  
   const isControlledMode = externalIsPlaying !== undefined;
   const isPlaying = isControlledMode ? externalIsPlaying : internalIsPlaying;
 
-  // Format time to mm:ss
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  // Normalize audio URL - ensure we use the correct base URL for relative paths
-  const normalizeAudioUrl = (url?: string): string | undefined => {
-    if (!url) return undefined;
-    
-    // If it's already an absolute URL, return it as is
-    if (url.startsWith('http')) {
-      return url;
-    }
-    
-    // If it starts with a slash, it's a relative path from the root
-    if (url.startsWith('/')) {
-      return `${SUPABASE_STORAGE_URL}${url}`;
-    }
-    
-    // Otherwise, it's just a filename
-    return `${SUPABASE_STORAGE_URL}/${url}`;
-  };
-  
-  // Ensure we have a valid audio file
   const rawAudioUrl = audioUrl || url;
-  const validatedAudioUrl = normalizeAudioUrl(rawAudioUrl) || fallbackAudioUrl;
-  const [currentAudioSource, setCurrentAudioSource] = useState(validatedAudioUrl);
-
-  // Log the normalized audio URL for debugging
-  useEffect(() => {
-    console.log("Normalized audio URL:", validatedAudioUrl);
-    console.log("Using fallback URL:", fallbackAudioUrl);
-  }, [validatedAudioUrl, fallbackAudioUrl]);
+  const effectiveAudioUrl = rawAudioUrl || fallbackAudioRef.current;
   
-  // Reset error state when audio source changes
   useEffect(() => {
-    // Only reset if we're changing to a different source
-    if (currentAudioSource !== validatedAudioUrl) {
-      console.log("Audio source changed, resetting error state:", validatedAudioUrl);
-      errorCountRef.current = 0;
-      errorToastShownRef.current = false;
-      setLoadingAudio(true);
-      setAudioSourceValid(false);
-    }
-  }, [validatedAudioUrl, currentAudioSource]);
-  
-  // Audio source validation with improved error handling
-  useEffect(() => {
-    if (!validatedAudioUrl) {
-      console.error("No audio URL provided");
-      setAudioSourceValid(false);
-      setLoadingAudio(false);
+    if (audioTestingInProgress.current || testingRetries.current >= maxTestingRetries) {
+      if (testingRetries.current >= maxTestingRetries && !audioSourceValid) {
+        console.log("Maximum audio testing retries reached, using fallback");
+        setGlobalAudioSource(fallbackAudioRef.current);
+        setAudioSourceValid(true);
+        setLoadingAudio(false);
+        setTestingFailed(true);
+      }
       return;
     }
     
-    console.log("Validating audio source:", validatedAudioUrl);
+    audioTestingInProgress.current = true;
     setLoadingAudio(true);
     
-    // Create a test Audio element to check if the file exists/loads
-    const audioTest = new Audio();
-    
-    const handleTestSuccess = () => {
-      console.log("✅ Audio test successful for:", validatedAudioUrl);
-      setAudioSourceValid(true);
-      setLoadingAudio(false);
-      setCurrentAudioSource(validatedAudioUrl);
-      if (onAudioLoaded) onAudioLoaded();
+    const testAudio = async () => {
+      testingRetries.current += 1;
+      console.log(`Testing audio (attempt ${testingRetries.current}): ${effectiveAudioUrl}`);
       
-      // Reset error state on success
-      errorCountRef.current = 0;
-      errorToastShownRef.current = false;
-      
-      // Clean up test element
-      audioTest.removeEventListener('canplaythrough', handleTestSuccess);
-      audioTest.removeEventListener('error', handleTestError);
-      audioTest.src = '';
-    };
-    
-    const handleTestError = () => {
-      console.error("❌ Audio test failed for:", validatedAudioUrl);
-      errorCountRef.current += 1;
-      
-      // Only show error toast once
-      if (!errorToastShownRef.current) {
-        errorToastShownRef.current = true;
+      try {
+        const isValid = await testAudioUrl(effectiveAudioUrl, 3000);
         
-        // Only show toast for user-provided audio, not fallbacks
-        if (validatedAudioUrl !== fallbackAudioUrl) {
-          toast.error("Audio file couldn't be loaded", {
-            id: "audio-error", // Use consistent ID to prevent duplicates
-            description: "Using fallback audio instead"
-          });
-        }
-      }
-      
-      setLoadingAudio(false);
-      
-      // Use fallback only if we're not already trying it
-      if (validatedAudioUrl !== fallbackAudioUrl && errorCountRef.current >= MAX_ERROR_RETRIES) {
-        console.log("Using fallback audio after multiple failed attempts");
-        setCurrentAudioSource(fallbackAudioUrl);
-        if (onError) onError();
-      } else if (validatedAudioUrl === fallbackAudioUrl) {
-        // Even the fallback failed
-        console.error("Fallback audio also failed to load");
-        setAudioPlaybackError("Audio couldn't be loaded");
-        setAudioSourceValid(false);
-        
-        // Try another fallback from a different domain
-        const altFallbackUrl = "https://assets.mixkit.co/sfx/preview/mixkit-simple-countdown-922.mp3";
-        console.log("Trying alternative fallback from mixkit.co");
-        setCurrentAudioSource(altFallbackUrl);
-      }
-      
-      // Clean up test element
-      audioTest.removeEventListener('canplaythrough', handleTestSuccess);
-      audioTest.removeEventListener('error', handleTestError);
-      audioTest.src = '';
-    };
-    
-    // Set up listeners
-    audioTest.addEventListener('canplaythrough', handleTestSuccess, { once: true });
-    audioTest.addEventListener('error', handleTestError, { once: true });
-    
-    // Add crossOrigin for CORS
-    audioTest.crossOrigin = "anonymous";
-    
-    // Start test with a timeout to prevent hanging
-    audioTest.src = validatedAudioUrl;
-    
-    // Safety timeout in case the events never fire
-    const timeoutId = setTimeout(() => {
-      if (loadingAudio) {
-        console.warn("Audio load test timed out");
-        audioTest.removeEventListener('canplaythrough', handleTestSuccess);
-        audioTest.removeEventListener('error', handleTestError);
-        audioTest.src = '';
-        
-        // Assume failure and try fallback
-        if (validatedAudioUrl !== fallbackAudioUrl) {
-          console.log("Using fallback audio after timeout");
-          setCurrentAudioSource(fallbackAudioUrl);
-        } else {
-          const altFallbackUrl = "https://assets.mixkit.co/sfx/preview/mixkit-simple-countdown-922.mp3";
-          console.log("Trying alternative fallback from mixkit.co after timeout");
-          setCurrentAudioSource(altFallbackUrl);
-          setAudioSourceValid(false);
+        if (isValid) {
+          console.log(`Audio test succeeded for: ${effectiveAudioUrl}`);
+          setGlobalAudioSource(effectiveAudioUrl);
+          setAudioSourceValid(true);
           setLoadingAudio(false);
+          if (onAudioLoaded) onAudioLoaded();
+        } else {
+          console.log(`Audio test failed for: ${effectiveAudioUrl}`);
+          
+          const fallback = fallbackAudioRef.current;
+          console.log(`Trying fallback: ${fallback}`);
+          
+          const fallbackValid = await testAudioUrl(fallback, 3000);
+          
+          if (fallbackValid) {
+            console.log(`Fallback audio test succeeded for: ${fallback}`);
+            setGlobalAudioSource(fallback);
+            setAudioSourceValid(true);
+            setLoadingAudio(false);
+            if (onError) onError();
+          } else {
+            console.log("All audio tests failed, using external fallback");
+            const externalFallback = "https://assets.mixkit.co/sfx/preview/mixkit-simple-countdown-922.mp3";
+            setGlobalAudioSource(externalFallback);
+            setAudioSourceValid(true);
+            setLoadingAudio(false);
+            setTestingFailed(true);
+            if (onError) onError();
+          }
         }
-      }
-    }, 8000); // 8 second timeout
-    
-    return () => {
-      // Clean up on unmount if still attached
-      clearTimeout(timeoutId);
-      audioTest.removeEventListener('canplaythrough', handleTestSuccess);
-      audioTest.removeEventListener('error', handleTestError);
-      audioTest.src = '';
-    };
-  }, [validatedAudioUrl, onError, onAudioLoaded, fallbackAudioUrl, loadingAudio]);
-
-  // Set audio source when component mounts or audioUrl changes
-  useEffect(() => {
-    if (currentAudioSource && !loadingAudio) {
-      console.log("Setting global audio source:", currentAudioSource);
-      setGlobalAudioSource(currentAudioSource);
-      // Force an update to consider the source valid after timeout
-      // This allows the player UI to initialize even if audio validation is slow
-      setTimeout(() => {
+      } catch (error) {
+        console.error("Error testing audio:", error);
+        setGlobalAudioSource(fallbackAudioRef.current);
         setAudioSourceValid(true);
-      }, 2000);
-    }
-  }, [currentAudioSource, loadingAudio, setGlobalAudioSource]);
+        setLoadingAudio(false);
+        setTestingFailed(true);
+        if (onError) onError();
+      } finally {
+        audioTestingInProgress.current = false;
+      }
+    };
+    
+    testAudio();
+  }, [effectiveAudioUrl, setGlobalAudioSource, onError, onAudioLoaded]);
 
-  // Handle play/pause toggling with internal/external state management
   const handleTogglePlay = () => {
-    // Set up audio context first if needed
     resumeAudioContext().catch(e => {
       console.warn("Could not resume audio context:", e);
     });
     
-    // Force the audio to be valid if we've waited long enough
-    if (!audioSourceValid && !loadingAudio && currentAudioSource) {
+    if (!audioSourceValid && testingRetries.current >= 1) {
+      console.log("Forcing audio to be valid after retry attempts");
       setAudioSourceValid(true);
     }
     
-    console.log("Toggle play called, current state:", isPlaying);
-    
-    // Toggle the internal player state
     togglePlay();
     
-    // If we're in controlled mode, call the callback
     if (isControlledMode && onPlayToggle) {
       onPlayToggle(!isPlaying);
     } else {
-      // Otherwise, update the global state
       setIsPlaying(!isPlaying);
     }
   };
 
-  // Volume control
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume / 100;
     }
   }, [volume, audioRef]);
   
-  // Auto play when forcePlay is true
   useEffect(() => {
-    if (forcePlay && !audioPlayAttempted.current) {
+    if (forcePlay && !audioPlayAttempted.current && audioSourceValid) {
       audioPlayAttempted.current = true;
       console.log("Auto-playing audio");
       
-      // Small delay to ensure everything is ready
       setTimeout(() => {
         if (!isPlaying) {
-          console.log("Forcing play now");
           handleTogglePlay();
         }
       }, 1000);
     }
-  }, [forcePlay, isPlaying]);
+  }, [forcePlay, isPlaying, audioSourceValid]);
   
-  // Connect audio to analyzer for visualizations if needed
   useEffect(() => {
-    const setupAudioAnalyzer = async () => {
-      // Wait for the audio to be ready
-      if (!audioRef.current) {
-        return;
-      }
-      
-      try {
-        const audioContext = getAudioContext();
-        if (!audioContext) return;
-        
-        // Try to resume the context
-        await resumeAudioContext();
-        
-        // Create analyzer node
-        const analyser = audioContext.createAnalyser();
-        analyser.fftSize = 256;
-        
-        // Connect audio element to analyzer (if not already connected)
+    if (isPlaying) {
+      const setupVisualizer = async () => {
         try {
+          const audioContext = getAudioContext();
+          if (!audioContext || !audioRef.current) return;
+          
+          const analyser = audioContext.createAnalyser();
+          analyser.fftSize = 256;
+          
           const source = audioContext.createMediaElementSource(audioRef.current);
           source.connect(analyser);
           analyser.connect(audioContext.destination);
           
-          // Set up data array to receive frequency data
           const bufferLength = analyser.frequencyBinCount;
           const dataArray = new Uint8Array(bufferLength);
           
-          // Start updating audio data at animation frame rate
-          const updateAudioData = () => {
-            if (isPlaying) {
-              analyser.getByteFrequencyData(dataArray);
-              setFrequencyData(new Uint8Array(dataArray));
-              
-              analyser.getByteTimeDomainData(dataArray);
-              setAudioData(new Uint8Array(dataArray));
-            }
-            requestAnimationFrame(updateAudioData);
+          const updateData = () => {
+            if (!isPlaying) return;
+            
+            analyser.getByteFrequencyData(dataArray);
+            setFrequencyData(new Uint8Array(dataArray));
+            
+            analyser.getByteTimeDomainData(dataArray);
+            setAudioData(new Uint8Array(dataArray));
+            
+            requestAnimationFrame(updateData);
           };
           
-          updateAudioData();
-          console.log("Audio analyzer connected successfully");
-          
+          updateData();
         } catch (e: any) {
-          // Ignore already connected errors
-          if (e.toString().includes('already connected')) {
-            console.log("Audio element already connected to analyzer");
-          } else {
+          if (!e.toString().includes('already connected')) {
             throw e;
           }
         }
-      } catch (error) {
-        console.error("Error setting up audio analyzer:", error);
-      }
-    };
-    
-    // Try to set up analyzer
-    setupAudioAnalyzer();
-    
-  }, [audioRef, isPlaying, setAudioData, setFrequencyData]);
-  
-  // Generate mock audio data for visualizer even when audio isn't playing
-  useEffect(() => {
-    if (!isPlaying) {
-      // Create mock audio data for visualizer
-      const mockDataSize = 128;
-      const mockFrequencyData = new Uint8Array(mockDataSize);
-      const mockWaveformData = new Uint8Array(mockDataSize);
+      };
       
-      // Fill with placeholder data
-      for (let i = 0; i < mockDataSize; i++) {
-        // Create a basic waveform shape (sine wave)
-        mockWaveformData[i] = 128 + Math.sin(i / 10) * 25;
+      setupVisualizer();
+    } else {
+      const useMockVisualizerData = () => {
+        const mockFrequencyData = createMockFrequencyData();
+        const mockWaveformData = createMockWaveformData();
         
-        // Create frequency bars that look like a typical spectrum
-        if (i < mockDataSize / 3) {
-          // Lower frequencies - higher amplitude
-          mockFrequencyData[i] = 50 + Math.random() * 30;
-        } else if (i < mockDataSize * 2/3) {
-          // Mid frequencies - medium amplitude
-          mockFrequencyData[i] = 30 + Math.random() * 20;
-        } else {
-          // High frequencies - lower amplitude
-          mockFrequencyData[i] = 10 + Math.random() * 15;
-        }
-      }
+        const updateInterval = isPlaying ? 50 : 1000;
+        
+        const intervalId = setInterval(() => {
+          setFrequencyData(mockFrequencyData);
+          setAudioData(mockWaveformData);
+        }, updateInterval);
+        
+        return () => clearInterval(intervalId);
+      };
       
-      // Only update occasionally when not playing
-      const interval = setInterval(() => {
-        setFrequencyData(mockFrequencyData);
-        setAudioData(mockWaveformData);
-      }, 1000);
-      
-      return () => clearInterval(interval);
+      useMockVisualizerData();
     }
-  }, [isPlaying, setFrequencyData, setAudioData]);
+  }, [isPlaying, audioRef, setAudioData, setFrequencyData]);
   
   return (
     <div className="bg-black/50 p-4 rounded-b-xl backdrop-blur-sm">
@@ -451,6 +295,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
             size="sm" 
             variant="ghost" 
             className="h-8 w-8 p-0 text-white opacity-70 hover:opacity-100"
+            disabled={true}
           >
             <SkipBack className="h-4 w-4" />
           </Button>
@@ -458,14 +303,14 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           <Button 
             onClick={handleTogglePlay}
             size="icon"
-            disabled={loadingAudio && !audioSourceValid}
+            disabled={loadingAudio && !audioSourceValid && testingRetries.current < maxTestingRetries}
             className={cn(
               "h-10 w-10 rounded-full bg-purple-600 hover:bg-purple-700 text-white",
               isPlaying ? "animate-pulse" : "",
               (loadingAudio && !audioSourceValid) ? "opacity-70 cursor-not-allowed" : ""
             )}
           >
-            {(loadingAudio && !audioSourceValid) ? (
+            {(loadingAudio && !audioSourceValid && testingRetries.current < maxTestingRetries) ? (
               <span className="h-4 w-4 block rounded-full border-2 border-t-transparent border-white animate-spin"></span>
             ) : isPlaying ? (
               <Pause className="h-5 w-5" />
@@ -478,6 +323,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
             size="sm" 
             variant="ghost" 
             className="h-8 w-8 p-0 text-white opacity-70 hover:opacity-100"
+            disabled={true}
           >
             <SkipForward className="h-4 w-4" />
           </Button>

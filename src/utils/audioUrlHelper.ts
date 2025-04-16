@@ -1,3 +1,4 @@
+
 /**
  * Helper functions for working with audio URLs in the application
  */
@@ -53,19 +54,22 @@ export const getFallbackAudioUrl = (): string => {
  * @returns Promise resolving to true if audio can play, false otherwise
  */
 export const testAudioUrl = async (url: string, timeout = 5000): Promise<boolean> => {
+  // Track if the promise has already been resolved to avoid race conditions
+  let hasResolved = false;
+  
   return new Promise((resolve) => {
     const audio = new Audio();
     
-    const resolveTrue = () => {
-      console.log(`✅ Audio URL is valid: ${url}`);
-      clearTimeout(timeoutId);
-      resolve(true);
+    const resolveOnce = (result: boolean) => {
+      if (!hasResolved) {
+        hasResolved = true;
+        console.log(`🔊 Audio URL test ${result ? 'succeeded' : 'failed'}: ${url}`);
+        resolve(result);
+      }
     };
     
-    const resolveFalse = () => {
-      console.log(`❌ Audio URL is invalid: ${url}`);
-      resolve(false);
-    };
+    const resolveTrue = () => resolveOnce(true);
+    const resolveFalse = () => resolveOnce(false);
     
     audio.addEventListener('canplaythrough', resolveTrue, { once: true });
     audio.addEventListener('error', resolveFalse, { once: true });
@@ -74,10 +78,28 @@ export const testAudioUrl = async (url: string, timeout = 5000): Promise<boolean
     audio.crossOrigin = 'anonymous';
     
     // Set a timeout to prevent hanging
-    const timeoutId = setTimeout(resolveFalse, timeout);
+    const timeoutId = setTimeout(() => {
+      console.log(`⏱️ Audio URL test timed out: ${url}`);
+      resolveFalse();
+    }, timeout);
     
     // Start loading the audio
-    audio.src = url;
-    audio.load();
+    try {
+      audio.src = url;
+      audio.load();
+    } catch (error) {
+      console.error(`🔊 Error loading audio: ${error}`);
+      clearTimeout(timeoutId);
+      resolveFalse();
+    }
+    
+    // Cleanup function
+    audio.addEventListener('canplaythrough', () => {
+      clearTimeout(timeoutId);
+    }, { once: true });
+    
+    audio.addEventListener('error', () => {
+      clearTimeout(timeoutId);
+    }, { once: true });
   });
 };
