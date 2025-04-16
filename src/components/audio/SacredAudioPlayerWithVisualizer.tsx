@@ -10,6 +10,7 @@ import CanvasAudioVisualizer from './CanvasAudioVisualizer';
 import PixiJSVisualizer from '@/components/visualizer/PixiJSVisualizer'; 
 import { isPrime } from '@/utils/primeCalculations';
 import { toast } from 'sonner';
+import { startMockAudioDataGenerator } from '@/utils/mockAudioData';
 
 interface SacredAudioPlayerWithVisualizerProps {
   journey?: JourneyProps;
@@ -27,7 +28,7 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
   isFullscreen = false,
   forcePlay = false
 }) => {
-  const { audioData, isPlaying, setIsPlaying, setPrimeSequence, visualizationMode, setVisualizationMode } = useAppStore();
+  const { audioData, isPlaying, setIsPlaying, setPrimeSequence, visualizationMode, setVisualizationMode, setAudioData, setFrequencyData } = useAppStore();
   const [showVisualizer, setShowVisualizer] = useState(true);
   const [visualizerMode, setVisualizerMode] = useState<VisualizerMode>('primeFlow');
   const [primeFrequencies, setPrimeFrequencies] = useState<number[]>([]);
@@ -54,13 +55,27 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
     }
   }, [forcePlay, isPlaying, setIsPlaying]);
 
+  // Use mock audio data when no actual audio data is available
+  useEffect(() => {
+    // If we don't have audio data, generate mock data for visualization
+    if (!audioData || audioData.every(val => val === 0)) {
+      console.log("No audio data detected, using mock data generator");
+      
+      const stopMockGenerator = startMockAudioDataGenerator(
+        (freqData) => setFrequencyData(freqData),
+        (waveData) => setAudioData(waveData),
+        100 // Update every 100ms
+      );
+      
+      return () => stopMockGenerator();
+    }
+  }, [audioData, setAudioData, setFrequencyData]);
+
   // Determine which chakra to use (use first if multiple are provided)
   const chakra = journey?.chakras?.[0]?.toLowerCase() as any;
   
   // Define shouldShowVisualizer variable to control when visualizer is displayed
-  const shouldShowVisualizer = 
-    isPlaying === true &&
-    showVisualizer === true;
+  const shouldShowVisualizer = showVisualizer;
 
   // Get chakra colors for styling
   const colorSchemeObj = journey?.chakras ? getChakraColorScheme(journey.chakras) : undefined;

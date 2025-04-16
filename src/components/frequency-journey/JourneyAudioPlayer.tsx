@@ -8,6 +8,9 @@ import { toast } from 'sonner';
 import { analyzeFrequency } from '@/utils/primeCalculations';
 import { useAppStore } from '@/store';
 
+// Default Supabase storage URL
+const SUPABASE_STORAGE_URL = 'https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets';
+
 interface JourneyAudioPlayerProps {
   journey?: JourneyTemplate;
 }
@@ -17,6 +20,55 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const { setDetectedPrimes, setIsPlaying, setAudioPlaybackError, setAudioInitialized } = useAppStore();
   const audioInitialized = useRef(false);
+  const [audioUrl, setAudioUrl] = useState<string>(`${SUPABASE_STORAGE_URL}/meditation/cosmic-breath.mp3`);
+
+  // Try to find a valid audio URL
+  useEffect(() => {
+    const testUrls = [
+      // Try packaged assets first
+      '/assets/audio/meditation.mp3',
+      '/assets/sounds/meditation.mp3',
+      // Then try Supabase assets
+      `${SUPABASE_STORAGE_URL}/meditation/cosmic-breath.mp3`,
+      `${SUPABASE_STORAGE_URL}/focus/clear-mind.mp3`,
+      // Finally try external sources
+      'https://assets.mixkit.co/sfx/preview/mixkit-simple-countdown-922.mp3',
+    ];
+    
+    let foundValidUrl = false;
+    
+    const testUrl = async (url: string) => {
+      return new Promise<boolean>((resolve) => {
+        const audio = new Audio();
+        audio.addEventListener('canplaythrough', () => {
+          console.log(`✅ Found working audio URL: ${url}`);
+          if (!foundValidUrl) {
+            foundValidUrl = true;
+            setAudioUrl(url);
+          }
+          resolve(true);
+        });
+        
+        audio.addEventListener('error', () => {
+          console.log(`❌ Audio URL failed: ${url}`);
+          resolve(false);
+        });
+        
+        audio.src = url;
+        // Set a timeout to ensure we don't hang
+        setTimeout(() => resolve(false), 2000);
+      });
+    };
+    
+    const findWorkingUrl = async () => {
+      for (const url of testUrls) {
+        const isValid = await testUrl(url);
+        if (isValid) break;
+      }
+    };
+    
+    findWorkingUrl();
+  }, []);
 
   // Monitor audio for primes
   useEffect(() => {
@@ -96,7 +148,7 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
       audioElement.crossOrigin = 'anonymous';
       
       if (!audioElement.src) {
-        audioElement.src = '/sounds/focus-ambient.mp3';
+        audioElement.src = audioUrl;
       }
       
       if (!audioElement.parentElement) {
@@ -147,7 +199,7 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
     affirmation: journey.description,
     theme: journey.chakra?.toLowerCase().includes('heart') ? 'pink' : 
            journey.chakra?.toLowerCase().includes('throat') ? 'blue' : 'purple',
-    audioUrl: '/sounds/focus-ambient.mp3'
+    audioUrl: audioUrl
   } : undefined;
 
   if (!isActive) {
@@ -184,7 +236,7 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
         </Button>
         <SacredAudioPlayerWithVisualizer 
           journey={playerJourney} 
-          audioUrl="/sounds/focus-ambient.mp3"
+          audioUrl={audioUrl}
           isFullscreen={isFullscreen}
           forcePlay={true}
         />

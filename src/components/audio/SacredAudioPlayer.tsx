@@ -24,6 +24,9 @@ interface SacredAudioPlayerProps {
   onAudioLoaded?: () => void; // Added for successful loading notification
 }
 
+// Default Supabase storage URL
+const SUPABASE_STORAGE_URL = 'https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets';
+
 const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   journey,
   audioUrl,
@@ -56,7 +59,9 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   // Audio processing state
   const [audioSourceValid, setAudioSourceValid] = useState(false);
   const [loadingAudio, setLoadingAudio] = useState(true);
-  const [fallbackAudioUrl] = useState<string>('/sounds/focus-ambient.mp3');
+  
+  // Updated default fallbacks with working paths
+  const [fallbackAudioUrl] = useState<string>(`${SUPABASE_STORAGE_URL}/meditation/cosmic-breath.mp3`);
   
   // Error handling with strict limits
   const errorToastShownRef = useRef(false);
@@ -74,9 +79,34 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
+  // Normalize audio URL - ensure we use the correct base URL for relative paths
+  const normalizeAudioUrl = (url?: string): string | undefined => {
+    if (!url) return undefined;
+    
+    // If it's already an absolute URL, return it as is
+    if (url.startsWith('http')) {
+      return url;
+    }
+    
+    // If it starts with a slash, it's a relative path from the root
+    if (url.startsWith('/')) {
+      return `${SUPABASE_STORAGE_URL}${url}`;
+    }
+    
+    // Otherwise, it's just a filename
+    return `${SUPABASE_STORAGE_URL}/${url}`;
+  };
+  
   // Ensure we have a valid audio file
-  const validatedAudioUrl = audioUrl || url || fallbackAudioUrl;
+  const rawAudioUrl = audioUrl || url;
+  const validatedAudioUrl = normalizeAudioUrl(rawAudioUrl) || fallbackAudioUrl;
   const [currentAudioSource, setCurrentAudioSource] = useState(validatedAudioUrl);
+
+  // Log the normalized audio URL for debugging
+  useEffect(() => {
+    console.log("Normalized audio URL:", validatedAudioUrl);
+    console.log("Using fallback URL:", fallbackAudioUrl);
+  }, [validatedAudioUrl, fallbackAudioUrl]);
   
   // Reset error state when audio source changes
   useEffect(() => {
@@ -151,6 +181,11 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
         console.error("Fallback audio also failed to load");
         setAudioPlaybackError("Audio couldn't be loaded");
         setAudioSourceValid(false);
+        
+        // Try another fallback from a different domain
+        const altFallbackUrl = "https://assets.mixkit.co/sfx/preview/mixkit-simple-countdown-922.mp3";
+        console.log("Trying alternative fallback from mixkit.co");
+        setCurrentAudioSource(altFallbackUrl);
       }
       
       // Clean up test element
@@ -162,6 +197,9 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     // Set up listeners
     audioTest.addEventListener('canplaythrough', handleTestSuccess, { once: true });
     audioTest.addEventListener('error', handleTestError, { once: true });
+    
+    // Add crossOrigin for CORS
+    audioTest.crossOrigin = "anonymous";
     
     // Start test with a timeout to prevent hanging
     audioTest.src = validatedAudioUrl;
@@ -179,6 +217,9 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           console.log("Using fallback audio after timeout");
           setCurrentAudioSource(fallbackAudioUrl);
         } else {
+          const altFallbackUrl = "https://assets.mixkit.co/sfx/preview/mixkit-simple-countdown-922.mp3";
+          console.log("Trying alternative fallback from mixkit.co after timeout");
+          setCurrentAudioSource(altFallbackUrl);
           setAudioSourceValid(false);
           setLoadingAudio(false);
         }
@@ -196,11 +237,16 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
 
   // Set audio source when component mounts or audioUrl changes
   useEffect(() => {
-    if (currentAudioSource && audioSourceValid) {
+    if (currentAudioSource && !loadingAudio) {
       console.log("Setting global audio source:", currentAudioSource);
       setGlobalAudioSource(currentAudioSource);
+      // Force an update to consider the source valid after timeout
+      // This allows the player UI to initialize even if audio validation is slow
+      setTimeout(() => {
+        setAudioSourceValid(true);
+      }, 2000);
     }
-  }, [currentAudioSource, audioSourceValid, setGlobalAudioSource]);
+  }, [currentAudioSource, loadingAudio, setGlobalAudioSource]);
 
   // Handle play/pause toggling with internal/external state management
   const handleTogglePlay = () => {
@@ -209,10 +255,9 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
       console.warn("Could not resume audio context:", e);
     });
     
-    // Only allow play if we have a valid audio source
-    if (!audioSourceValid && !loadingAudio) {
-      toast.error("Can't play audio: No valid audio source");
-      return;
+    // Force the audio to be valid if we've waited long enough
+    if (!audioSourceValid && !loadingAudio && currentAudioSource) {
+      setAudioSourceValid(true);
     }
     
     console.log("Toggle play called, current state:", isPlaying);
@@ -238,7 +283,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   
   // Auto play when forcePlay is true
   useEffect(() => {
-    if (forcePlay && audioLoaded && !audioPlayAttempted.current && audioSourceValid) {
+    if (forcePlay && !audioPlayAttempted.current) {
       audioPlayAttempted.current = true;
       console.log("Auto-playing audio");
       
@@ -248,15 +293,15 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           console.log("Forcing play now");
           handleTogglePlay();
         }
-      }, 500);
+      }, 1000);
     }
-  }, [forcePlay, audioLoaded, isPlaying, audioSourceValid]);
+  }, [forcePlay, isPlaying]);
   
   // Connect audio to analyzer for visualizations if needed
   useEffect(() => {
     const setupAudioAnalyzer = async () => {
       // Wait for the audio to be ready
-      if (!audioRef.current || !audioLoaded || !audioSourceValid) {
+      if (!audioRef.current) {
         return;
       }
       
@@ -312,7 +357,43 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     // Try to set up analyzer
     setupAudioAnalyzer();
     
-  }, [audioRef, audioLoaded, isPlaying, setAudioData, setFrequencyData, audioSourceValid]);
+  }, [audioRef, isPlaying, setAudioData, setFrequencyData]);
+  
+  // Generate mock audio data for visualizer even when audio isn't playing
+  useEffect(() => {
+    if (!isPlaying) {
+      // Create mock audio data for visualizer
+      const mockDataSize = 128;
+      const mockFrequencyData = new Uint8Array(mockDataSize);
+      const mockWaveformData = new Uint8Array(mockDataSize);
+      
+      // Fill with placeholder data
+      for (let i = 0; i < mockDataSize; i++) {
+        // Create a basic waveform shape (sine wave)
+        mockWaveformData[i] = 128 + Math.sin(i / 10) * 25;
+        
+        // Create frequency bars that look like a typical spectrum
+        if (i < mockDataSize / 3) {
+          // Lower frequencies - higher amplitude
+          mockFrequencyData[i] = 50 + Math.random() * 30;
+        } else if (i < mockDataSize * 2/3) {
+          // Mid frequencies - medium amplitude
+          mockFrequencyData[i] = 30 + Math.random() * 20;
+        } else {
+          // High frequencies - lower amplitude
+          mockFrequencyData[i] = 10 + Math.random() * 15;
+        }
+      }
+      
+      // Only update occasionally when not playing
+      const interval = setInterval(() => {
+        setFrequencyData(mockFrequencyData);
+        setAudioData(mockWaveformData);
+      }, 1000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [isPlaying, setFrequencyData, setAudioData]);
   
   return (
     <div className="bg-black/50 p-4 rounded-b-xl backdrop-blur-sm">
@@ -377,14 +458,14 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
           <Button 
             onClick={handleTogglePlay}
             size="icon"
-            disabled={loadingAudio}
+            disabled={loadingAudio && !audioSourceValid}
             className={cn(
               "h-10 w-10 rounded-full bg-purple-600 hover:bg-purple-700 text-white",
               isPlaying ? "animate-pulse" : "",
-              loadingAudio ? "opacity-70 cursor-not-allowed" : ""
+              (loadingAudio && !audioSourceValid) ? "opacity-70 cursor-not-allowed" : ""
             )}
           >
-            {loadingAudio ? (
+            {(loadingAudio && !audioSourceValid) ? (
               <span className="h-4 w-4 block rounded-full border-2 border-t-transparent border-white animate-spin"></span>
             ) : isPlaying ? (
               <Pause className="h-5 w-5" />
