@@ -1,11 +1,28 @@
+
 import * as THREE from 'three';
 
-// Create Flower of Life
-export const createFlowerOfLife = () => {
+// Create Flower of Life with fractal expansion support
+export const createFlowerOfLife = (fractal = false) => {
   const group = new THREE.Group();
   const radius = 0.4;
   const layers = 3;
   const material = new THREE.LineBasicMaterial({ color: 0x9f7aea });
+
+  // Origin point for fractal expansion
+  if (fractal) {
+    const originGeometry = new THREE.SphereGeometry(0.05, 16, 16);
+    const originMaterial = new THREE.MeshStandardMaterial({ 
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.8,
+      emissive: 0xb794f6,
+      emissiveIntensity: 0.6,
+      metalness: 0.5,
+      roughness: 0.2
+    });
+    const origin = new THREE.Mesh(originGeometry, originMaterial);
+    group.add(origin);
+  }
 
   // Create overlapping circles in a hex grid pattern
   for (let i = -layers; i <= layers; i++) {
@@ -30,11 +47,27 @@ export const createFlowerOfLife = () => {
   return group;
 };
 
-// Create Seed of Life
-export const createSeedOfLife = () => {
+// Create Seed of Life with fractal expansion support
+export const createSeedOfLife = (fractal = false) => {
   const group = new THREE.Group();
   const material = new THREE.LineBasicMaterial({ color: 0x9f7aea });
   const radius = 0.5;
+
+  // Origin point for fractal expansion
+  if (fractal) {
+    const originGeometry = new THREE.SphereGeometry(0.05, 16, 16);
+    const originMaterial = new THREE.MeshStandardMaterial({ 
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.8,
+      emissive: 0xb794f6,
+      emissiveIntensity: 0.6,
+      metalness: 0.5,
+      roughness: 0.2
+    });
+    const origin = new THREE.Mesh(originGeometry, originMaterial);
+    group.add(origin);
+  }
 
   // Center circle
   const centerGeometry = new THREE.CircleGeometry(radius, 32);
@@ -59,8 +92,8 @@ export const createSeedOfLife = () => {
   return group;
 };
 
-// Create Metatron's Cube
-export const createMetatronsCube = () => {
+// Create Metatron's Cube with fractal expansion support
+export const createMetatronsCube = (fractal = false) => {
   const group = new THREE.Group();
   const material = new THREE.LineBasicMaterial({ color: 0x9f7aea });
   
@@ -77,12 +110,28 @@ export const createMetatronsCube = () => {
   
   // Add vertices (small spheres)
   const pointsGeometry = new THREE.SphereGeometry(0.05, 8, 8);
-  const pointsMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  const pointsMaterial = new THREE.MeshStandardMaterial({ 
+    color: 0xffffff,
+    transparent: true,
+    opacity: fractal ? 0.9 : 0.7, // Brighter origin in fractal mode
+    emissive: 0xb794f6,
+    emissiveIntensity: 0.5,
+    metalness: 0.7,
+    roughness: 0.3
+  });
   
   const vertices: THREE.Vector3[] = [];
   
-  spherePositions.forEach(pos => {
-    const point = new THREE.Mesh(pointsGeometry, pointsMaterial);
+  spherePositions.forEach((pos, index) => {
+    const point = new THREE.Mesh(pointsGeometry, pointsMaterial.clone());
+    
+    // In fractal mode, make the center point (origin) more prominent
+    if (fractal && index === 0) {
+      point.scale.set(1.5, 1.5, 1.5);
+      (point.material as THREE.MeshStandardMaterial).emissive = new THREE.Color(0xb794f6);
+      (point.material as THREE.MeshStandardMaterial).emissiveIntensity = 1.0;
+    }
+    
     point.position.set(pos[0], pos[1], pos[2]);
     group.add(point);
     vertices.push(new THREE.Vector3(pos[0], pos[1], pos[2]));
@@ -104,13 +153,26 @@ export const createMetatronsCube = () => {
   return group;
 };
 
-// Create Sri Yantra
-export const createSriYantra = () => {
+// Create Sri Yantra with fractal expansion support
+export const createSriYantra = (fractal = false) => {
   const group = new THREE.Group();
   const material = new THREE.LineBasicMaterial({ color: 0x9f7aea });
   
   // Create the nine interlocking triangles
   const outerRadius = 1;
+  
+  // Origin point (bindu) for fractal expansion - more prominent in fractal mode
+  const binduGeometry = new THREE.CircleGeometry(fractal ? 0.08 : 0.05, 32);
+  const binduMaterial = new THREE.MeshStandardMaterial({ 
+    color: 0xffffff,
+    emissive: fractal ? 0xb794f6 : 0x9f7aea,
+    emissiveIntensity: fractal ? 1.0 : 0.5,
+    metalness: 0.6,
+    roughness: 0.2
+  });
+  const bindu = new THREE.Mesh(binduGeometry, binduMaterial);
+  bindu.position.z = 0.1;
+  group.add(bindu);
   
   // Four upward-pointing triangles
   for (let i = 0; i < 4; i++) {
@@ -148,13 +210,6 @@ export const createSriYantra = () => {
     group.add(triangle);
   }
   
-  // Add central dot (bindu)
-  const binduGeometry = new THREE.CircleGeometry(0.05, 32);
-  const binduMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-  const bindu = new THREE.Mesh(binduGeometry, binduMaterial);
-  bindu.position.z = 0.1;
-  group.add(bindu);
-  
   // Add surrounding circles
   const circleGeometry = new THREE.CircleGeometry(outerRadius, 64);
   const edges = new THREE.EdgesGeometry(circleGeometry);
@@ -165,8 +220,8 @@ export const createSriYantra = () => {
   return group;
 };
 
-// Create Tree of Life
-export const createTreeOfLife = () => {
+// Create Tree of Life with fractal expansion support
+export const createTreeOfLife = (fractal = false) => {
   const group = new THREE.Group();
   const material = new THREE.LineBasicMaterial({ color: 0x9f7aea });
   
@@ -189,13 +244,25 @@ export const createTreeOfLife = () => {
   const sphereMaterial = new THREE.MeshStandardMaterial({ 
     color: 0xffffff,
     emissive: 0x9f7aea,
-    emissiveIntensity: 0.5
+    emissiveIntensity: 0.5,
+    metalness: 0.6,
+    roughness: 0.3,
+    transparent: true,
+    opacity: 0.8
   });
   
   const vertices: THREE.Vector3[] = [];
   
-  positions.forEach(pos => {
-    const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+  positions.forEach((pos, index) => {
+    const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial.clone());
+    
+    // In fractal mode, make the central Tiphareth (Beauty) more prominent as the origin
+    if (fractal && index === 5) {
+      sphere.scale.set(1.5, 1.5, 1.5);
+      (sphere.material as THREE.MeshStandardMaterial).emissive = new THREE.Color(0xb794f6);
+      (sphere.material as THREE.MeshStandardMaterial).emissiveIntensity = 1.0;
+    }
+    
     sphere.position.set(pos[0], pos[1], pos[2]);
     group.add(sphere);
     vertices.push(new THREE.Vector3(pos[0], pos[1], pos[2]));
@@ -225,13 +292,29 @@ export const createTreeOfLife = () => {
   return group;
 };
 
-// Create Vesica Piscis
-export const createVesicaPiscis = () => {
+// Create Vesica Piscis with fractal expansion support
+export const createVesicaPiscis = (fractal = false) => {
   const group = new THREE.Group();
   const material = new THREE.LineBasicMaterial({ color: 0x9f7aea });
   
   const radius = 0.6;
   const distance = radius; // Distance between circle centers
+  
+  // Origin point for fractal expansion
+  if (fractal) {
+    const originGeometry = new THREE.SphereGeometry(0.05, 16, 16);
+    const originMaterial = new THREE.MeshStandardMaterial({ 
+      color: 0xffffff, 
+      emissive: 0xb794f6,
+      emissiveIntensity: 1.0,
+      metalness: 0.5,
+      roughness: 0.2,
+      transparent: true,
+      opacity: 0.9
+    });
+    const origin = new THREE.Mesh(originGeometry, originMaterial);
+    group.add(origin);
+  }
   
   // Left circle
   const leftGeometry = new THREE.CircleGeometry(radius, 64);
@@ -282,9 +365,25 @@ export const createVesicaPiscis = () => {
   return group;
 };
 
-// Enhanced implementation for the Merkaba (Star Tetrahedron)
-export function createMerkaba() {
+// Enhanced implementation for the Merkaba (Star Tetrahedron) with fractal expansion
+export function createMerkaba(fractal = false) {
   const group = new THREE.Group();
+  
+  // Origin point for fractal expansion
+  if (fractal) {
+    const originGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+    const originMaterial = new THREE.MeshStandardMaterial({ 
+      color: 0xffffff,
+      emissive: 0xb794f6,
+      emissiveIntensity: 1.0,
+      transparent: true,
+      opacity: 0.9,
+      metalness: 0.7,
+      roughness: 0.3
+    });
+    const origin = new THREE.Mesh(originGeometry, originMaterial);
+    group.add(origin);
+  }
   
   // Create material with metallic appearance
   const material = new THREE.MeshStandardMaterial({ 
@@ -293,14 +392,31 @@ export function createMerkaba() {
     roughness: 0.4,
     emissive: 0x3a1b8c,
     emissiveIntensity: 0.3,
+    transparent: true,
+    opacity: 0.8
   });
   
   // Create top tetrahedron
-  const topTetra = new THREE.Mesh(new THREE.TetrahedronGeometry(1), material);
+  const topTetra = new THREE.Mesh(new THREE.TetrahedronGeometry(1), material.clone());
   
   // Create bottom tetrahedron
-  const bottomTetra = new THREE.Mesh(new THREE.TetrahedronGeometry(1), material);
+  const bottomTetra = new THREE.Mesh(new THREE.TetrahedronGeometry(1), material.clone());
   bottomTetra.rotation.x = Math.PI; // Flip it upside down
+  
+  // Add wireframe outlines for better visibility
+  const wireframeMaterial = new THREE.LineBasicMaterial({
+    color: 0xb794f6,
+    transparent: true,
+    opacity: 0.5
+  });
+  
+  const topEdges = new THREE.EdgesGeometry(topTetra.geometry);
+  const topWireframe = new THREE.LineSegments(topEdges, wireframeMaterial);
+  topTetra.add(topWireframe);
+  
+  const bottomEdges = new THREE.EdgesGeometry(bottomTetra.geometry);
+  const bottomWireframe = new THREE.LineSegments(bottomEdges, wireframeMaterial);
+  bottomTetra.add(bottomWireframe);
   
   // Add both tetrahedrons to the group
   group.add(topTetra);

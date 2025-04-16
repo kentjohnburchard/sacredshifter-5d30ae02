@@ -33,13 +33,13 @@ const Merkaba: React.FC = () => {
     // Create Merkaba (Star Tetrahedron) - fixed implementation
     const group = new THREE.Group();
     
-    // Material for the tetrahedrons
+    // Material for the tetrahedrons - using MeshStandardMaterial for better lighting
     const material = new THREE.MeshStandardMaterial({ 
       color: 0x9f7aea, 
       metalness: 0.6, 
       roughness: 0.4, 
       emissive: 0x3a1b8c,
-      emissiveIntensity: 0.3,
+      emissiveIntensity: 0.5,
       wireframe: true,
       transparent: true,
       opacity: 0.7
@@ -76,20 +76,30 @@ const Merkaba: React.FC = () => {
     // Add to scene
     scene.add(group);
 
-    // Add ambient light
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    // Enhanced lighting setup
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); // Increased ambient light
     scene.add(ambientLight);
     
-    // Add point light
-    const pointLight = new THREE.PointLight(0xffffff, 1);
+    // Add point light for more dynamic lighting
+    const pointLight = new THREE.PointLight(0xb794f6, 1.2); // Brighter purple light
     pointLight.position.set(5, 5, 5);
     scene.add(pointLight);
+    
+    // Add a second softer light from another angle for depth
+    const secondLight = new THREE.PointLight(0x805ad5, 0.8);
+    secondLight.position.set(-5, -2, 3);
+    scene.add(secondLight);
     
     // Animation
     const animate = () => {
       requestAnimationFrame(animate);
       group.rotation.x += 0.005;
       group.rotation.y += 0.005;
+      
+      // Subtle pulsating effect
+      const pulseFactor = 0.5 + Math.sin(Date.now() * 0.001) * 0.1;
+      pointLight.intensity = 1.2 * pulseFactor;
+      
       renderer.render(scene, camera);
     };
     
