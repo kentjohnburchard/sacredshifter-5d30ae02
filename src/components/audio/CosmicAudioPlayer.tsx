@@ -15,11 +15,9 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { useGlobalAudioPlayer } from "@/hooks/useGlobalAudioPlayer";
 import { toast } from "sonner";
 import SacredGeometryVisualizer from "@/components/sacred-geometry/SacredGeometryVisualizer";
-import { calculatePrimeFactors, isPrime } from "@/utils/primeCalculations";
-import PrimeAudioVisualizer from "@/components/audio/PrimeAudioVisualizer";
+import { calculatePrimeFactors } from "@/utils/primeCalculations";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -91,6 +89,8 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
   const [showControls, setShowControls] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
   const [audioContextInitialized, setAudioContextInitialized] = useState(false);
+  const [visualizerKey, setVisualizerKey] = useState<string>(Date.now().toString());
+  const [activeMode, setActiveMode] = useState<'fractal' | 'spiral' | 'mandala' | 'liquid-crystal'>('fractal');
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -99,13 +99,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const dragControls = useDragControls();
   const { liftTheVeil } = useTheme();
-  
-  const { 
-    playAudio, 
-    isPlaying: globalIsPlaying, 
-    currentAudio,
-    togglePlayPause 
-  } = useGlobalAudioPlayer();
   
   // Initialize audio context once
   useEffect(() => {
@@ -136,22 +129,25 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
   
   // Connect audio element to analyser only once
   useEffect(() => {
-    if (!audioRef.current || !audioContextRef.current || !analyserRef.current || audioContextInitialized) return;
+    if (!audioRef.current || !audioContextRef.current || !analyserRef.current) return;
     
     try {
-      // Only create a source node if none exists
-      if (!sourceRef.current) {
-        sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
-        sourceRef.current.connect(analyserRef.current);
-        analyserRef.current.connect(audioContextRef.current.destination);
-        setAudioContextInitialized(true);
-        console.log("Audio connected to analyser");
+      // Re-create the source node when the audio changes
+      if (sourceRef.current) {
+        sourceRef.current.disconnect();
       }
+      
+      sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
+      sourceRef.current.connect(analyserRef.current);
+      analyserRef.current.connect(audioContextRef.current.destination);
+      setAudioContextInitialized(true);
+      console.log("Audio connected to analyser");
     } catch (error) {
       console.error("Error connecting audio:", error);
       if (onError) onError(error);
     }
-  }, [audioContextInitialized, onError]);
+    
+  }, [onError, defaultAudioUrl]);
   
   useEffect(() => {
     if (!audioRef.current) return;
@@ -295,12 +291,20 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
   
   const handleShapeChange = (shape: string) => {
     setCurrentShape(shape);
-    toast.info(`Sacred geometry changed to ${shape.replace(/-/g, ' ')}`);
+    // Force a re-render of the visualizer when shape changes
+    setVisualizerKey(Date.now().toString());
+    toast.success(`Sacred geometry changed to ${shape.replace(/-/g, ' ')}`);
   };
   
   const handleColorThemeChange = (theme: string) => {
     setColorTheme(theme);
-    toast.info(`Color theme changed to ${theme.replace(/-/g, ' ')}`);
+    toast.success(`Color theme changed to ${theme.replace(/-/g, ' ')}`);
+  };
+  
+  const handleModeChange = (mode: 'fractal' | 'spiral' | 'mandala' | 'liquid-crystal') => {
+    setActiveMode(mode);
+    setVisualizerKey(Date.now().toString());
+    toast.success(`Visualization mode changed to ${mode.replace(/-/g, ' ')}`);
   };
   
   const getThemeClasses = () => {
@@ -384,6 +388,7 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
             <AnimatePresence>
               {isVisualizerOpen && (
                 <motion.div
+                  key={visualizerKey}
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ 
                     height: isExpanded ? 'auto' : '250px', 
@@ -394,16 +399,17 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                   className={`w-full relative ${isExpanded ? 'flex-1' : 'h-[250px]'} overflow-hidden`}
                 >
                   <div className="absolute inset-0 z-10">
-                    {currentShape && audioContextInitialized && (
+                    {audioContextInitialized && (
                       <SacredGeometryVisualizer
-                        defaultShape={currentShape as any}
+                        key={visualizerKey}
+                        defaultShape={currentShape}
                         size={isExpanded ? "xl" : "md"}
                         isAudioReactive={isPlaying}
                         audioContext={audioContextRef.current}
                         analyser={analyserRef.current}
                         chakra={chakra}
                         frequency={defaultFrequency}
-                        mode="fractal"
+                        mode={activeMode}
                         liftedVeil={liftTheVeil}
                         isVisible={true}
                         showControls={false}
@@ -412,17 +418,7 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                   </div>
                   
                   <div className="absolute inset-0 z-20 opacity-80">
-                    {audioContextInitialized && (
-                      <PrimeAudioVisualizer
-                        audioContext={audioContextRef.current}
-                        analyser={analyserRef.current}
-                        isPlaying={isPlaying}
-                        colorMode={liftTheVeil ? 'veil-lifted' : 'standard'}
-                        visualMode="prime"
-                        layout={isExpanded ? 'radial' : 'vertical'}
-                        onPrimeDetected={handlePrimeDetected}
-                      />
-                    )}
+                    {/* Visualizer effects */}
                   </div>
                   
                   <div className="absolute bottom-4 left-4 right-4 z-30 flex flex-wrap gap-2 justify-center">
@@ -616,6 +612,23 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                           </SelectContent>
                         </Select>
                       )}
+                      
+                      <Select
+                        value={activeMode}
+                        onValueChange={(value) => handleModeChange(value as any)}
+                      >
+                        <SelectTrigger 
+                          className="h-8 px-3 py-1 text-xs bg-black/30 border-white/10 text-white/80 w-[140px]"
+                        >
+                          <SelectValue placeholder="Visualization Mode" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-black/80 border-white/10 text-white">
+                          <SelectItem value="fractal" className="text-xs">Fractal</SelectItem>
+                          <SelectItem value="spiral" className="text-xs">Spiral</SelectItem>
+                          <SelectItem value="mandala" className="text-xs">Mandala</SelectItem>
+                          <SelectItem value="liquid-crystal" className="text-xs">Liquid Crystal</SelectItem>
+                        </SelectContent>
+                      </Select>
                       
                       {defaultFrequency && (
                         <div className="flex items-center h-8 px-3 rounded-md bg-black/30 border border-white/10">

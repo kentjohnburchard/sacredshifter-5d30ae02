@@ -34,7 +34,7 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
-  const shapeRef = useRef<THREE.Mesh | null>(null); // Change to THREE.Mesh instead of THREE.Object3D
+  const shapeRef = useRef<THREE.Mesh | null>(null); // Use THREE.Mesh type
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const frameIdRef = useRef<number | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -135,7 +135,26 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
     // Create a geometric shape for visualization
     let geometry;
     
-    if (mode === 'liquid-crystal') {
+    // Choose the geometry based on the shape name
+    if (defaultShape === 'flower-of-life') {
+      geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16, 2, 3);
+    } else if (defaultShape === 'seed-of-life') {
+      geometry = new THREE.SphereGeometry(1, 32, 32);
+    } else if (defaultShape === 'metatrons-cube') {
+      geometry = new THREE.OctahedronGeometry(1, 0);
+    } else if (defaultShape === 'merkaba') {
+      geometry = new THREE.TetrahedronGeometry(1, 0);
+    } else if (defaultShape === 'torus') {
+      geometry = new THREE.TorusGeometry(1, 0.4, 16, 100);
+    } else if (defaultShape === 'tree-of-life') {
+      geometry = new THREE.IcosahedronGeometry(1, 0);
+    } else if (defaultShape === 'sri-yantra') {
+      geometry = new THREE.ConeGeometry(1, 2, 3);
+    } else if (defaultShape === 'vesica-piscis') {
+      geometry = new THREE.RingGeometry(0.5, 1, 32);
+    } else if (defaultShape === 'sphere') {
+      geometry = new THREE.SphereGeometry(1, 32, 32);
+    } else if (mode === 'liquid-crystal') {
       // Water-like geometry with more segments for fluid appearance
       geometry = new THREE.TorusKnotGeometry(1, 0.3, 128, 32, 3, 4); 
     } else if (mode === 'spiral') {
@@ -254,7 +273,7 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
               
               // Add sine wave distortion
               const offset = Math.sin(x * 2 + time) * 0.05 + 
-                            Math.cos(y * 2 + time * 1.5) * 0.05;
+                             Math.cos(y * 2 + time * 1.5) * 0.05;
               
               positions.setZ(i, z + offset);
             }

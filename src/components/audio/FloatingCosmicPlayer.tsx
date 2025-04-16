@@ -1,7 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import CosmicAudioPlayer from './CosmicAudioPlayer';
 import { toast } from 'sonner';
+import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 
 interface FloatingCosmicPlayerProps {
   audioUrl: string;
@@ -31,19 +32,26 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
   const [isVisible, setIsVisible] = useState(initiallyVisible);
   const [isExpanded, setIsExpanded] = useState(initialIsExpanded);
   const [audioUrl_, setAudioUrl] = useState<string>('');
+  const [playerKey, setPlayerKey] = useState<string>(Date.now().toString());
+  const { resetPlayer } = useGlobalAudioPlayer();
   
   useEffect(() => {
     // Format URL if needed
     let formattedUrl = audioUrl;
     if (audioUrl && !audioUrl.startsWith('http')) {
-      formattedUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioUrl}`;
+      formattedUrl = audioUrl.startsWith('/') 
+        ? `${window.location.origin}${audioUrl}`
+        : `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioUrl}`;
     }
     setAudioUrl(formattedUrl);
+    // Reset the player key to force a re-render when URL changes
+    setPlayerKey(Date.now().toString());
   }, [audioUrl]);
 
   const handleError = (error: any) => {
     console.error("Cosmic player error:", error);
     toast.error("Audio error occurred. Try a different track.");
+    resetPlayer();
   };
   
   const handleExpandStateChange = (expanded: boolean) => {
@@ -59,6 +67,7 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
 
   return (
     <CosmicAudioPlayer
+      key={playerKey} // Add key to ensure component fully re-renders when URL changes
       defaultAudioUrl={audioUrl_}
       defaultFrequency={frequency}
       title={title}
@@ -70,7 +79,6 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
       onExpandStateChange={handleExpandStateChange}
       autoPlay={true}
       onError={handleError}
-      key={audioUrl_}
     />
   );
 };

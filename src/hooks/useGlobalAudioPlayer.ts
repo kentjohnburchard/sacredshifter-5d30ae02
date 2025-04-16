@@ -77,8 +77,8 @@ export function useGlobalAudioPlayer() {
       audio.currentTime = 0;
       audio.src = '';
       setCurrentAudio({source: ''});
+      console.log("Global audio player: Reset complete");
     }
-    console.log("Global audio player: Reset complete");
   };
 
   return {
