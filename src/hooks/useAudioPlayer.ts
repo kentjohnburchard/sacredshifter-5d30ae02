@@ -9,6 +9,7 @@ export function useAudioPlayer() {
   const [audioLoaded, setAudioLoaded] = useState(false);
   const [audioError, setAudioError] = useState<string | null>(null);
   const audioSourceRef = useRef<string | null>(null);
+  const timeUpdateIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Ensure the audio element exists
   useEffect(() => {
@@ -28,7 +29,10 @@ export function useAudioPlayer() {
     }
     
     return () => {
-      // Don't remove the audio element on unmount, let it persist
+      // Clean up interval if it exists
+      if (timeUpdateIntervalRef.current) {
+        clearInterval(timeUpdateIntervalRef.current);
+      }
     };
   }, []);
 
@@ -40,6 +44,7 @@ export function useAudioPlayer() {
     
     const handleTimeUpdate = () => {
       setCurrentAudioTime(audio.currentTime);
+      console.log("Time update:", audio.currentTime, "of", audio.duration);
     };
     
     const handleLoadedMetadata = () => {
@@ -52,11 +57,28 @@ export function useAudioPlayer() {
     const handlePlay = () => {
       setIsAudioPlaying(true);
       console.log("Audio play event detected");
+      
+      // Set up an interval to update the time more frequently
+      if (timeUpdateIntervalRef.current) {
+        clearInterval(timeUpdateIntervalRef.current);
+      }
+      
+      timeUpdateIntervalRef.current = setInterval(() => {
+        if (audio && !audio.paused) {
+          setCurrentAudioTime(audio.currentTime);
+        }
+      }, 250); // Update 4 times per second for smoother progress
     };
     
     const handlePause = () => {
       setIsAudioPlaying(false);
       console.log("Audio pause event detected");
+      
+      // Clear the interval when paused
+      if (timeUpdateIntervalRef.current) {
+        clearInterval(timeUpdateIntervalRef.current);
+        timeUpdateIntervalRef.current = null;
+      }
     };
     
     const handleError = (e: any) => {
@@ -88,6 +110,11 @@ export function useAudioPlayer() {
         audio.removeEventListener('pause', handlePause);
         audio.removeEventListener('error', handleError);
       }
+      
+      // Clear interval
+      if (timeUpdateIntervalRef.current) {
+        clearInterval(timeUpdateIntervalRef.current);
+      }
     };
   }, [audioRef.current]);
 
@@ -103,6 +130,9 @@ export function useAudioPlayer() {
       audioRef.current.load();
       setAudioLoaded(false);
       setAudioError(null);
+      
+      // Reset current time when changing source
+      setCurrentAudioTime(0);
     }
   };
 

@@ -29,6 +29,14 @@ export function useGlobalAudioPlayer() {
   const onEndedCallbackRef = useRef<(() => void) | null>(null);
   const audioSourceRef = useRef<string>('');
 
+  // Make sure we're tracking the current audio time
+  const [currentTime, setCurrentTime] = useState(0);
+  
+  // Update current time when it changes in the audio player
+  useEffect(() => {
+    setCurrentTime(currentAudioTime);
+  }, [currentAudioTime]);
+
   useEffect(() => {
     const handleEnded = () => {
       console.log("Triggering onEnded callback");
@@ -77,6 +85,9 @@ export function useGlobalAudioPlayer() {
     // Then set the new source
     setAudioSource(audioInfo.source);
     
+    // Reset current time
+    setCurrentTime(0);
+    
     // Small delay to ensure source is set before playing
     setTimeout(() => {
       console.log("Starting playback after source change");
@@ -106,6 +117,7 @@ export function useGlobalAudioPlayer() {
       
       // Reset time and source
       audio.currentTime = 0;
+      setCurrentTime(0);
       
       // Clear source and state
       audio.src = '';
@@ -119,8 +131,11 @@ export function useGlobalAudioPlayer() {
     playAudio,
     isPlaying: isAudioPlaying,
     currentAudio,
+    currentTime,
+    duration,
     setOnEndedCallback,
     togglePlayPause,
-    resetPlayer
+    resetPlayer,
+    seekTo
   };
 }

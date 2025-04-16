@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -8,13 +7,15 @@ import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import { toast } from 'sonner';
 import { useJourneySongs } from '@/hooks/useJourneySongs';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { 
   Info,
   Music,
   BookOpen,
   Play,
   Pause,
-  RefreshCcw
+  RefreshCcw,
+  Volume
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -23,7 +24,17 @@ import FloatingCosmicPlayer from '@/components/audio/FloatingCosmicPlayer';
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
   const navigate = useNavigate();
-  const { playAudio, isPlaying, currentAudio, setOnEndedCallback, togglePlayPause, resetPlayer } = useGlobalAudioPlayer();
+  const { 
+    playAudio, 
+    isPlaying, 
+    currentAudio, 
+    setOnEndedCallback, 
+    togglePlayPause, 
+    resetPlayer,
+    currentTime,
+    duration,
+    seekTo
+  } = useGlobalAudioPlayer();
   
   const [journey, setJourney] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -46,6 +57,13 @@ const JourneyPlayer = () => {
       console.log("JourneyPlayer: Songs loaded:", songs.length);
     }
   }, [songs]);
+
+  const formatTime = (seconds: number) => {
+    if (!seconds || isNaN(seconds)) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const selectRandomSong = () => {
     if (!songsRef.current || songsRef.current.length === 0) {
@@ -145,7 +163,6 @@ const JourneyPlayer = () => {
     audioPlayAttemptedRef.current = true;
     console.log("JourneyPlayer: Attempting to initialize audio playback");
     
-    // First try to get audio from songs
     if (songs.length > 0) {
       setTimeout(() => {
         const selectedSong = selectRandomSong();
@@ -179,12 +196,10 @@ const JourneyPlayer = () => {
         }
       }, 500);
     } else {
-      // If no songs available, try to use the audioMapping as fallback
       checkAudioMappingFallback();
     }
   }, [journey, songs, loadingSongs, isLoading, playAudio, journeyId, audioMappings]);
 
-  // Function to check and use audioMapping as fallback
   const checkAudioMappingFallback = () => {
     if (journeyId && audioMappings && audioMappings[journeyId]) {
       const mapping = audioMappings[journeyId];
@@ -235,7 +250,6 @@ const JourneyPlayer = () => {
         }
         
         if (audioUrl) {
-          // Reset player completely before playing new track to avoid issues
           resetPlayer();
           
           setTimeout(() => {
@@ -252,7 +266,6 @@ const JourneyPlayer = () => {
         }
       }
     } else {
-      // Try audio mapping fallback
       checkAudioMappingFallback();
     }
   };
@@ -262,6 +275,8 @@ const JourneyPlayer = () => {
     setPlayerError("Player encountered an error. Try playing a different track.");
     toast.error("Audio player error. Try a different track.");
   };
+
+  const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   if (isLoading || loadingSongs || loadingTemplates) {
     return (
@@ -326,35 +341,44 @@ const JourneyPlayer = () => {
               </div>
             </div>
             
-            {/* Add manual player controls for backup */}
-            <div className="bg-purple-100/30 dark:bg-purple-900/30 p-4 rounded-lg mb-6 flex items-center justify-between">
-              <div className="flex-1">
-                <p className="font-medium">
-                  {currentSongRef.current?.title || 'Selected Journey Track'}
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  {isPlaying ? 'Playing now' : 'Paused'}
-                  {playerError && <span className="text-red-500 ml-2">⚠️ {playerError}</span>}
-                </p>
+            <div className="bg-purple-100/30 dark:bg-purple-900/30 p-4 rounded-lg mb-6">
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex-1">
+                  <p className="font-medium">
+                    {currentSongRef.current?.title || currentAudio.title || 'Selected Journey Track'}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    {isPlaying ? 'Playing now' : 'Paused'}
+                    {playerError && <span className="text-red-500 ml-2">⚠️ {playerError}</span>}
+                  </p>
+                </div>
+                <div className="flex space-x-2">
+                  <Button 
+                    onClick={() => togglePlayPause()}
+                    className="bg-purple-600 hover:bg-purple-700"
+                  >
+                    {isPlaying ? (
+                      <><Pause className="h-4 w-4 mr-2" /> Pause</>
+                    ) : (
+                      <><Play className="h-4 w-4 mr-2" /> Play</>
+                    )}
+                  </Button>
+                  <Button 
+                    onClick={handlePlayNewTrack}
+                    className="bg-indigo-600 hover:bg-indigo-700"
+                    title="Try a different track if experiencing issues"
+                  >
+                    <RefreshCcw className="h-4 w-4 mr-2" /> New Track
+                  </Button>
+                </div>
               </div>
-              <div className="flex space-x-2">
-                <Button 
-                  onClick={() => togglePlayPause()}
-                  className="bg-purple-600 hover:bg-purple-700"
-                >
-                  {isPlaying ? (
-                    <><Pause className="h-4 w-4 mr-2" /> Pause</>
-                  ) : (
-                    <><Play className="h-4 w-4 mr-2" /> Play</>
-                  )}
-                </Button>
-                <Button 
-                  onClick={handlePlayNewTrack}
-                  className="bg-indigo-600 hover:bg-indigo-700"
-                  title="Try a different track if experiencing issues"
-                >
-                  <RefreshCcw className="h-4 w-4 mr-2" /> New Track
-                </Button>
+              
+              <div className="space-y-2">
+                <Progress value={progressPercentage} className="w-full" />
+                <div className="flex justify-between text-sm text-gray-500">
+                  <span>{formatTime(currentTime)}</span>
+                  <span>{formatTime(duration)}</span>
+                </div>
               </div>
             </div>
             
@@ -431,7 +455,6 @@ const JourneyPlayer = () => {
         </Card>
       </div>
       
-      {/* Always show the Floating Cosmic Player when audio is playing */}
       {playerVisible && currentSongRef.current && (
         <FloatingCosmicPlayer
           audioUrl={currentSongRef.current.audioUrl}
