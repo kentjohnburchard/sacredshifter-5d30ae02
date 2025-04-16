@@ -1,43 +1,63 @@
 
-// Re-export isPrime and other prime-related functions from primeUtils
-// to maintain backward compatibility
-export { isPrime, analyzeFrequency } from '@/lib/primeUtils';
+/**
+ * Utility functions for prime number analysis and frequency relationships
+ */
 
-// Add calculatePrimeFactors function that was missing
-export function calculatePrimeFactors(n: number): number[] {
-  const factors: number[] = [];
-  let divisor = 2;
-
-  while (n > 1) {
-    while (n % divisor === 0) {
-      factors.push(divisor);
-      n /= divisor;
-    }
-    divisor++;
-  }
-
-  return factors;
-}
-
-// Generate a sequence of prime numbers up to a limit
-export function generatePrimeSequence(limit: number): number[] {
-  const primes: number[] = [];
+/**
+ * Simple primality test
+ */
+export const isPrime = (num: number): boolean => {
+  if (num <= 1) return false;
+  if (num <= 3) return true;
   
-  for (let i = 2; i <= limit; i++) {
-    let isPrime = true;
-    
-    // Check if i is prime
-    for (let j = 2; j <= Math.sqrt(i); j++) {
-      if (i % j === 0) {
-        isPrime = false;
-        break;
-      }
-    }
-    
-    if (isPrime) {
-      primes.push(i);
-    }
+  // Check if divisible by 2 or 3
+  if (num % 2 === 0 || num % 3 === 0) return false;
+  
+  // Check through all numbers of form 6k±1 up to sqrt(num)
+  for (let i = 5; i * i <= num; i += 6) {
+    if (num % i === 0 || num % (i + 2) === 0) return false;
   }
   
-  return primes;
-}
+  return true;
+};
+
+/**
+ * Analyze a frequency value and determine if it's prime
+ * and its relationship to other significant frequencies
+ */
+export const analyzeFrequency = (frequency: number, tolerance: number = 0.1) => {
+  // Round to nearest integer for primality test
+  const roundedFreq = Math.round(frequency);
+  
+  // List of "sacred" frequencies commonly referenced
+  const sacredFrequencies = [
+    { value: 432, name: "Verdi's A" },
+    { value: 528, name: "Solfeggio Healing" },
+    { value: 963, name: "Pineal Activation" },
+    { value: 741, name: "Awakening Intuition" },
+    { value: 396, name: "Liberation Frequency" },
+    { value: 417, name: "Facilitating Change" },
+    { value: 639, name: "Connection Frequency" },
+    { value: 852, name: "Spiritual Frequency" }
+  ];
+  
+  // Find closest sacred frequency within tolerance
+  const closestSacred = sacredFrequencies
+    .map(f => ({ ...f, distance: Math.abs(f.value - frequency) }))
+    .filter(f => f.distance <= tolerance * frequency)
+    .sort((a, b) => a.distance - b.distance)[0];
+  
+  // Return analysis results
+  return {
+    frequency,
+    roundedFrequency: roundedFreq,
+    isPrime: isPrime(roundedFreq),
+    closestSacredFrequency: closestSacred,
+    harmonicDivisions: [
+      { denominator: 2, value: frequency / 2 },
+      { denominator: 3, value: frequency / 3 },
+      { denominator: 5, value: frequency / 5 },
+      { denominator: 7, value: frequency / 7 }
+    ]
+  };
+};

@@ -2,9 +2,9 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 
-const Dashboard: React.FC = () => {
+const HomePage: React.FC = () => {
   // Redirect to the journey-templates page for now
   return <Navigate to="/journey-templates" replace />;
 };
 
-export default Dashboard;
+export default HomePage;

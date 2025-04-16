@@ -26,6 +26,7 @@ export interface JourneyTemplate {
   effects?: string[];
   createdAt?: string;
   updatedAt?: string;
+  affirmation?: string; // Added to support the code that uses it
 }
 
 // Add new interfaces for the enhanced SacredAudioPlayer

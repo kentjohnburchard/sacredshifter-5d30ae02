@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from './context/ThemeContext';
@@ -24,7 +25,7 @@ import NavigationRoot from './components/NavigationRoot';
 import PreferencesLoader from './components/PreferencesLoader';
 import { UserPreferencesProvider, useUserPreferences } from './context/UserPreferencesContext';
 
-function App() {
+function AppContent() {
   const queryClient = new QueryClient();
   const { userPreferences } = useUserPreferences();
 
@@ -69,7 +70,6 @@ function App() {
                   <Route path="/journey-templates" element={<JourneyTemplates />} />
                   <Route path="/journey-detail/:id" element={<JourneyDetailPage />} />
                   <Route path="/journey-player/:id" element={<JourneyPlayer />} />
-                  
                 </Routes>
               </Router>
             </QueryClientProvider>
@@ -77,6 +77,14 @@ function App() {
         </ThemeProvider>
       </AuthProvider>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <UserPreferencesProvider>
+      <AppContent />
+    </UserPreferencesProvider>
   );
 }
 

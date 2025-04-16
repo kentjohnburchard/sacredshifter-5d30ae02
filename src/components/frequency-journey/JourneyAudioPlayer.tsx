@@ -32,7 +32,8 @@ const JourneyAudioPlayer: React.FC<JourneyAudioPlayerProps> = ({ journey }) => {
       console.log("Testing audio URLs - attempt", audioTestAttempts.current);
       
       // Prioritize journey-specific audio if available
-      const journeySpecificUrls = journey?.audioUrl ? [journey.audioUrl] : [];
+      // Note: journey.audioUrl is not directly on JourneyTemplate, so we handle it safely
+      const journeySpecificUrls: string[] = [];
       
       // Default fallback urls
       const fallbackUrls = [
