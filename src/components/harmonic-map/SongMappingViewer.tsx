@@ -15,12 +15,12 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const SongMappingViewer = () => {
-  const [selectedFunctionality, setSelectedFunctionality] = useState<AppFunctionality>('hermetic-principle');
+  const [selectedFunctionality, setSelectedFunctionality] = useState<string>('hermetic-principle');
   const [selectedSong, setSelectedSong] = useState<SongMapping | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   
-  const functionalities = Object.keys(functionalityDescriptions) as AppFunctionality[];
-  const filteredSongs = getSongsByFunctionality(selectedFunctionality);
+  const functionalities = Object.keys(functionalityDescriptions);
+  const filteredSongs = getSongsByFunctionality(selectedFunctionality as AppFunctionality);
   
   const handlePlayToggle = (song: SongMapping) => {
     if (selectedSong?.id === song.id) {
@@ -41,7 +41,7 @@ const SongMappingViewer = () => {
           </div>
           <Select 
             value={selectedFunctionality}
-            onValueChange={(value) => setSelectedFunctionality(value as AppFunctionality)}
+            onValueChange={(value) => setSelectedFunctionality(value)}
           >
             <SelectTrigger className="w-[180px] text-sm bg-white">
               <SelectValue placeholder="Select function" />
@@ -100,7 +100,7 @@ const SongMappingViewer = () => {
                               </Badge>
                             )}
                             <Badge className="text-xs bg-purple-100 text-purple-700 hover:bg-purple-200">
-                              {functionalityDescriptions[song.functionality].name}
+                              {functionalityDescriptions[song.functionality as AppFunctionality].name}
                             </Badge>
                           </div>
                           <p className="mt-2 text-xs text-gray-500">{song.description}</p>
@@ -151,7 +151,7 @@ const SongMappingViewer = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {functionalities.map(func => {
                   const desc = functionalityDescriptions[func];
-                  const count = getSongsByFunctionality(func).length;
+                  const count = getSongsByFunctionality(func as AppFunctionality).length;
                   
                   return (
                     <div 

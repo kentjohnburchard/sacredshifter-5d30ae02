@@ -1,5 +1,5 @@
 
-import { useState, useContext, createContext, useCallback } from 'react';
+import { useState, useContext, createContext, useCallback, RefObject } from 'react';
 
 // Define the audio information type
 export interface AudioInfo {
@@ -15,6 +15,16 @@ interface GlobalAudioContextType {
   isPlaying: boolean;
   currentAudio: AudioInfo | null;
   setOnEndedCallback: (callback: (() => void) | null) => void;
+  
+  // Adding properties needed by GlobalAudioPlayer.tsx
+  isAudioPlaying?: boolean;
+  duration?: number;
+  currentAudioTime?: number;
+  seekTo?: (time: number) => void;
+  setAudioSource?: (source: string) => void;
+  audioRef?: RefObject<HTMLAudioElement>;
+  audioLoaded?: boolean;
+  audioError?: string | null;
 }
 
 // Create the context
