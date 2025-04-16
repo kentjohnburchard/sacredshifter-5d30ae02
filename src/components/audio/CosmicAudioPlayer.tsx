@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import {
@@ -89,10 +90,12 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
   const [isVisualizerOpen, setIsVisualizerOpen] = useState(true);
   const [showControls, setShowControls] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
+  const [audioContextInitialized, setAudioContextInitialized] = useState(false);
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
+  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const dragControls = useDragControls();
   const { liftTheVeil } = useTheme();
@@ -104,6 +107,7 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     togglePlayPause 
   } = useGlobalAudioPlayer();
   
+  // Initialize audio context once
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
@@ -130,25 +134,24 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     };
   }, [onError]);
   
+  // Connect audio element to analyser only once
   useEffect(() => {
-    const connectAudio = () => {
-      if (!audioRef.current || !audioContextRef.current || !analyserRef.current) return;
-      
-      try {
-        const source = audioContextRef.current.createMediaElementSource(audioRef.current);
-        
-        source.connect(analyserRef.current);
-        analyserRef.current.connect(audioContextRef.current.destination);
-        
-        console.log("Audio connected to analyser");
-      } catch (error) {
-        console.error("Error connecting audio:", error);
-      }
-    };
+    if (!audioRef.current || !audioContextRef.current || !analyserRef.current || audioContextInitialized) return;
     
-    const timer = setTimeout(connectAudio, 100);
-    return () => clearTimeout(timer);
-  }, []);
+    try {
+      // Only create a source node if none exists
+      if (!sourceRef.current) {
+        sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
+        sourceRef.current.connect(analyserRef.current);
+        analyserRef.current.connect(audioContextRef.current.destination);
+        setAudioContextInitialized(true);
+        console.log("Audio connected to analyser");
+      }
+    } catch (error) {
+      console.error("Error connecting audio:", error);
+      if (onError) onError(error);
+    }
+  }, [audioContextInitialized, onError]);
   
   useEffect(() => {
     if (!audioRef.current) return;
@@ -391,7 +394,7 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                   className={`w-full relative ${isExpanded ? 'flex-1' : 'h-[250px]'} overflow-hidden`}
                 >
                   <div className="absolute inset-0 z-10">
-                    {currentShape && (
+                    {currentShape && audioContextInitialized && (
                       <SacredGeometryVisualizer
                         defaultShape={currentShape as any}
                         size={isExpanded ? "xl" : "md"}
@@ -402,20 +405,24 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                         frequency={defaultFrequency}
                         mode="fractal"
                         liftedVeil={liftTheVeil}
+                        isVisible={true}
+                        showControls={false}
                       />
                     )}
                   </div>
                   
                   <div className="absolute inset-0 z-20 opacity-80">
-                    <PrimeAudioVisualizer
-                      audioContext={audioContextRef.current}
-                      analyser={analyserRef.current}
-                      isPlaying={isPlaying}
-                      colorMode={liftTheVeil ? 'veil-lifted' : 'standard'}
-                      visualMode="prime"
-                      layout={isExpanded ? 'radial' : 'vertical'}
-                      onPrimeDetected={handlePrimeDetected}
-                    />
+                    {audioContextInitialized && (
+                      <PrimeAudioVisualizer
+                        audioContext={audioContextRef.current}
+                        analyser={analyserRef.current}
+                        isPlaying={isPlaying}
+                        colorMode={liftTheVeil ? 'veil-lifted' : 'standard'}
+                        visualMode="prime"
+                        layout={isExpanded ? 'radial' : 'vertical'}
+                        onPrimeDetected={handlePrimeDetected}
+                      />
+                    )}
                   </div>
                   
                   <div className="absolute bottom-4 left-4 right-4 z-30 flex flex-wrap gap-2 justify-center">
