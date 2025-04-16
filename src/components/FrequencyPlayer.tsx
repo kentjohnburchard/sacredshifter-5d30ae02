@@ -22,13 +22,8 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = (props) => {
   // Ensure we're passing audioUrl correctly - prioritize audioUrl, but fall back to url if needed
   const audioSource = props.audioUrl || props.url;
   
-  // Default audio source if none provided - this should be a real file that exists
-  const defaultAudioSource = '/sounds/focus-ambient.mp3';
-  
-  // Determine the final audio source to use
-  const [effectiveAudioSource, setEffectiveAudioSource] = useState<string>(
-    audioSource || defaultAudioSource
-  );
+  // Don't use a default audio source that doesn't exist
+  const [effectiveAudioSource, setEffectiveAudioSource] = useState<string | undefined>(audioSource);
   
   // Use the force play parameter if present
   const forcePlay = props.forcePlay || false;
@@ -47,7 +42,6 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = (props) => {
       // Log important information
       console.log("🔊 FrequencyPlayer mounted with:", {
         audioSource,
-        defaultAudioSource,
         effectiveAudioSource,
         frequency: props.frequency,
         isPlaying: props.isPlaying,
@@ -60,7 +54,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = (props) => {
       setIsPlaying(props.isPlaying);
     }
     
-    if (forcePlay) {
+    if (forcePlay && audioSource) {
       setTimeout(() => {
         console.log("🎵 Attempting force play...");
         resumeAudioContext().catch(error => {
@@ -77,7 +71,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = (props) => {
     return () => {
       console.log("🔊 FrequencyPlayer unmounting");
     };
-  }, [audioSource, forcePlay, props.isPlaying, props.onPlayToggle, setIsPlaying, defaultAudioSource, effectiveAudioSource]);
+  }, [audioSource, forcePlay, props.isPlaying, props.onPlayToggle, setIsPlaying, effectiveAudioSource]);
   
   const handlePlayToggle = (isPlaying: boolean) => {
     console.log("FrequencyPlayer: handlePlayToggle called with", isPlaying);
@@ -100,6 +94,14 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = (props) => {
   const handleAudioError = () => {
     console.log("Audio error detected in FrequencyPlayer");
     setAudioPlaybackError("Failed to load audio");
+    
+    // Don't show error toast if there's no audio source
+    if (effectiveAudioSource) {
+      toast.error("Couldn't load audio file. Please try a different journey.", {
+        id: "audio-error", // Use consistent ID to prevent duplicates
+        duration: 5000,
+      });
+    }
   };
   
   // Handler for successful audio loading
@@ -108,6 +110,22 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = (props) => {
     setAudioLoaded(true);
     setAudioPlaybackError(null);
   };
+
+  // If no audio source is provided, don't try to render the player
+  if (!effectiveAudioSource) {
+    console.log("No audio source provided to FrequencyPlayer");
+    return (
+      <div className="frequency-player p-4 text-center">
+        <div className="text-red-500">No audio available for this journey.</div>
+        <button 
+          className="mt-2 px-4 py-2 bg-purple-600 text-white rounded-md"
+          onClick={() => window.history.back()}
+        >
+          Go Back
+        </button>
+      </div>
+    );
+  }
   
   return (
     <div className="frequency-player">

@@ -1,4 +1,3 @@
-
 /**
  * Utility for initializing and managing the Web Audio API context
  * This ensures we handle browser restrictions properly
@@ -7,6 +6,7 @@
 // Singleton instance for the audio context
 let audioContextInstance: AudioContext | null = null;
 let initializationAttempted = false;
+let initializationFailed = false;
 
 /**
  * Get or create the shared audio context
@@ -17,10 +17,17 @@ export const getAudioContext = (): AudioContext | null => {
     return audioContextInstance;
   }
 
+  // If we've already tried and failed, don't keep trying
+  if (initializationFailed) {
+    console.warn("AudioContext initialization previously failed, not retrying");
+    return null;
+  }
+
   try {
     const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
     if (!AudioContextClass) {
       console.warn("AudioContext not supported in this browser");
+      initializationFailed = true;
       return null;
     }
     audioContextInstance = new AudioContextClass();
@@ -28,6 +35,7 @@ export const getAudioContext = (): AudioContext | null => {
     return audioContextInstance;
   } catch (error) {
     console.error("Failed to create AudioContext:", error);
+    initializationFailed = true;
     return null;
   }
 };
@@ -92,8 +100,23 @@ export const initializeAudioAfterInteraction = (): void => {
   });
 };
 
+// Add a reset function for testing purposes
+export const resetAudioContext = (): void => {
+  if (audioContextInstance && audioContextInstance.state !== 'closed') {
+    try {
+      audioContextInstance.close();
+    } catch (e) {
+      console.error("Error closing AudioContext:", e);
+    }
+  }
+  audioContextInstance = null;
+  initializationAttempted = false;
+  initializationFailed = false;
+};
+
 export default {
   getAudioContext,
   resumeAudioContext,
-  initializeAudioAfterInteraction
+  initializeAudioAfterInteraction,
+  resetAudioContext
 };
