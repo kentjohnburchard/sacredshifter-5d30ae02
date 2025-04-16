@@ -1,5 +1,5 @@
 
-import { AppFunctionality, SongMapping } from './music';
+import { AppFunctionality, SongMapping, AudioFunctionCategory } from './music';
 
 export interface JourneySong {
   id: string;
@@ -11,6 +11,7 @@ export interface JourneySong {
   isPrimary?: boolean;
   chakra?: string;
   frequency?: number;
+  category?: AudioFunctionCategory; // Add the missing category field
 }
 
 export interface JourneySongGroup {
@@ -23,7 +24,8 @@ export interface JourneySongGroup {
 export const convertToJourneySong = (
   song: SongMapping, 
   journeyId: string, 
-  isPrimary: boolean = false
+  isPrimary: boolean = false,
+  category: AudioFunctionCategory = 'journey' // Add default category parameter
 ): JourneySong => {
   return {
     id: song.id,
@@ -34,6 +36,7 @@ export const convertToJourneySong = (
     journeyId: journeyId,
     isPrimary: isPrimary,
     chakra: song.chakra,
-    frequency: song.frequency
+    frequency: song.frequency,
+    category: category // Include the category in the returned object
   };
 };
