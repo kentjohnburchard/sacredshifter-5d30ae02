@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 
 interface AudioAnalyzerResult {
@@ -17,17 +18,17 @@ function useAudioAnalyzer(audioElement: HTMLAudioElement | React.RefObject<HTMLA
   const initialized = useRef(false);
 
   useEffect(() => {
-    // Helper to get the actual HTMLAudioElement from various possible inputs
+    // Helper to safely get the HTMLAudioElement
     const getAudioElement = (): HTMLAudioElement | null => {
       if (!audioElement) return null;
       
-      // If audioElement is a ref object
-      if ('current' in audioElement) {
+      // If audioElement is a ref object with a current property
+      if (audioElement && typeof audioElement === 'object' && 'current' in audioElement) {
         return audioElement.current;
       }
       
       // If audioElement is an actual HTMLAudioElement
-      return audioElement;
+      return audioElement as HTMLAudioElement;
     };
 
     const audio = getAudioElement();
@@ -49,52 +50,61 @@ function useAudioAnalyzer(audioElement: HTMLAudioElement | React.RefObject<HTMLA
     
     // Only initialize if we haven't initialized yet
     if (!initialized.current) {
-      console.log("useAudioAnalyzer: Initializing with audio element", audio);
-      
       try {
         // Create audio context if not already created
         if (!globalAudioContext) {
-          globalAudioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-          console.log("useAudioAnalyzer: Created new AudioContext");
+          const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+          if (AudioContextClass) {
+            globalAudioContext = new AudioContextClass();
+            console.log("useAudioAnalyzer: Created new AudioContext");
+          } else {
+            console.error("useAudioAnalyzer: AudioContext not supported");
+            return;
+          }
         }
         
         setAudioContext(globalAudioContext);
         
         // Create analyser node if not already created
-        if (!globalAnalyser) {
+        if (!globalAnalyser && globalAudioContext) {
           globalAnalyser = globalAudioContext.createAnalyser();
           globalAnalyser.fftSize = 2048;
           globalAnalyser.smoothingTimeConstant = 0.8;
           console.log("useAudioAnalyzer: Created new AnalyserNode");
         }
         
-        setAnalyser(globalAnalyser);
-        
-        // Check if the audio element is already connected to the audio context
-        if (audio !== connectedAudioElement) {
-          // Disconnect previous source if it exists
-          if (sourceNodeRef.current) {
-            sourceNodeRef.current.disconnect();
-            console.log("useAudioAnalyzer: Disconnected previous source node");
+        if (globalAnalyser) {
+          setAnalyser(globalAnalyser);
+          
+          // Check if the audio element is already connected to the audio context
+          if (audio !== connectedAudioElement && globalAudioContext) {
+            // Disconnect previous source if it exists
+            if (sourceNodeRef.current) {
+              sourceNodeRef.current.disconnect();
+              console.log("useAudioAnalyzer: Disconnected previous source node");
+            }
+            
+            try {
+              // Create new source node
+              const sourceNode = globalAudioContext.createMediaElementSource(audio);
+              sourceNodeRef.current = sourceNode;
+              
+              // Connect the nodes: sourceNode -> analyserNode -> destination
+              sourceNode.connect(globalAnalyser);
+              globalAnalyser.connect(globalAudioContext.destination);
+              
+              // Update connected audio element reference
+              connectedAudioElement = audio;
+              
+              console.log("useAudioAnalyzer: Connected new audio element to audio context");
+            } catch (e) {
+              console.error("useAudioAnalyzer: Error connecting audio element", e);
+            }
           }
-          
-          // Create new source node
-          const sourceNode = globalAudioContext.createMediaElementSource(audio);
-          sourceNodeRef.current = sourceNode;
-          
-          // Connect the nodes: sourceNode -> analyserNode -> destination
-          sourceNode.connect(globalAnalyser);
-          globalAnalyser.connect(globalAudioContext.destination);
-          
-          // Update connected audio element reference
-          connectedAudioElement = audio;
-          
-          console.log("useAudioAnalyzer: Connected new audio element to audio context");
         }
         
         // Mark as initialized
         initialized.current = true;
-        
         console.log("useAudioAnalyzer: Audio analyzer setup complete");
       } catch (error) {
         console.error("useAudioAnalyzer: Error setting up audio analyzer", error);

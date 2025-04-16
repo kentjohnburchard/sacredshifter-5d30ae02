@@ -9,16 +9,24 @@ import { AuthProvider } from './context/AuthContext.tsx'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
 // Create a client
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000,
+      refetchOnWindowFocus: false,
+    },
+  },
+})
 
-// Order of providers: BrowserRouter -> QueryClientProvider -> AuthProvider -> TooltipProvider -> App
-// The TooltipProvider needs to be moved inside Layout since audio player also needs tooltips
+// Order of providers: BrowserRouter -> QueryClientProvider -> AuthProvider -> App
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <App />
+          <TooltipProvider>
+            <App />
+          </TooltipProvider>
         </AuthProvider>
       </QueryClientProvider>
     </BrowserRouter>

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -8,20 +9,17 @@ import { toast } from 'sonner';
 import { useJourneySongs } from '@/hooks/useJourneySongs';
 import { Button } from '@/components/ui/button';
 import { 
-  ChevronDown, 
-  ChevronUp,
   Info,
   Music,
   BookOpen
 } from 'lucide-react';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
   const navigate = useNavigate();
-  const { playAudio, isPlaying, currentAudio, setOnEndedCallback, togglePlayPause } = useGlobalAudioPlayer();
+  const { playAudio, isPlaying, currentAudio, setOnEndedCallback } = useGlobalAudioPlayer();
   
   const [journey, setJourney] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,7 +30,6 @@ const JourneyPlayer = () => {
   const audioPlayAttemptedRef = useRef(false);
   
   const { templates, loading: loadingTemplates } = useJourneyTemplates();
-  
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
 
   useEffect(() => {
@@ -131,42 +128,43 @@ const JourneyPlayer = () => {
     }
   }, [journeyId, navigate, templates, loadingSongs, loadingTemplates]);
 
+  // Separate useEffect to avoid rendering issues
   useEffect(() => {
-    if (audioPlayAttemptedRef.current || isLoading || loadingSongs || !journey || !songs || songs.length === 0) {
-      return;
-    }
-    
-    audioPlayAttemptedRef.current = true;
-    console.log("JourneyPlayer: Attempting to initialize audio playback");
-    
-    setTimeout(() => {
-      const selectedSong = selectRandomSong();
+    // Only attempt to play audio when we're sure we have all needed data
+    if (!isLoading && !loadingSongs && journey && songs && songs.length > 0 && !audioPlayAttemptedRef.current) {
+      audioPlayAttemptedRef.current = true;
+      console.log("JourneyPlayer: Attempting to initialize audio playback");
       
-      if (selectedSong) {
-        console.log(`JourneyPlayer: Playing initial random song for journey ${journeyId}:`, selectedSong);
+      // Add a small delay to ensure everything is ready
+      setTimeout(() => {
+        const selectedSong = selectRandomSong();
         
-        let audioUrl = selectedSong.audioUrl;
-        if (audioUrl && !audioUrl.startsWith('http')) {
-          audioUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioUrl}`;
-          console.log("JourneyPlayer: Formatted URL:", audioUrl);
-        }
-        
-        if (audioUrl) {
-          playAudio({
-            title: selectedSong.title || journey.title,
-            artist: "Sacred Shifter",
-            source: audioUrl
-          });
+        if (selectedSong) {
+          console.log(`JourneyPlayer: Playing initial random song for journey ${journeyId}:`, selectedSong);
           
-          console.log("JourneyPlayer: Audio playback initialized");
+          let audioUrl = selectedSong.audioUrl;
+          if (audioUrl && !audioUrl.startsWith('http')) {
+            audioUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioUrl}`;
+            console.log("JourneyPlayer: Formatted URL:", audioUrl);
+          }
+          
+          if (audioUrl) {
+            playAudio({
+              title: selectedSong.title || journey.title,
+              artist: "Sacred Shifter",
+              source: audioUrl
+            });
+            
+            console.log("JourneyPlayer: Audio playback initialized");
+          } else {
+            console.error("JourneyPlayer: Invalid audio URL");
+            toast.error("Could not play audio: Invalid URL");
+          }
         } else {
-          console.error("JourneyPlayer: Invalid audio URL");
-          toast.error("Could not play audio: Invalid URL");
+          console.log("JourneyPlayer: No song selected for initialization");
         }
-      } else {
-        console.log("JourneyPlayer: No song selected for initialization");
-      }
-    }, 500);
+      }, 500);
+    }
   }, [journey, songs, loadingSongs, isLoading, playAudio, journeyId]);
 
   if (isLoading || loadingSongs || loadingTemplates) {

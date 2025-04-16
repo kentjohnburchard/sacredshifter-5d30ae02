@@ -16,7 +16,7 @@ const FrequencyPlayer = ({
   audioUrl: string 
 }) => {
   const { liftTheVeil } = useTheme();
-  const { playAudio, isPlaying, togglePlayPause } = useGlobalAudioPlayer();
+  const { playAudio } = useGlobalAudioPlayer();
   
   const handlePlay = () => {
     // Play the audio using the global audio player
