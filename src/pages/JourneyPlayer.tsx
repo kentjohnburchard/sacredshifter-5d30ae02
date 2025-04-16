@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -13,7 +12,8 @@ import {
   Music,
   BookOpen,
   Play,
-  Pause
+  Pause,
+  RefreshCcw
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -22,12 +22,13 @@ import FloatingCosmicPlayer from '@/components/audio/FloatingCosmicPlayer';
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
   const navigate = useNavigate();
-  const { playAudio, isPlaying, currentAudio, setOnEndedCallback, togglePlayPause } = useGlobalAudioPlayer();
+  const { playAudio, isPlaying, currentAudio, setOnEndedCallback, togglePlayPause, resetPlayer } = useGlobalAudioPlayer();
   
   const [journey, setJourney] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [infoExpanded, setInfoExpanded] = useState(false);
   const [playerVisible, setPlayerVisible] = useState(false);
+  const [playerError, setPlayerError] = useState<string | null>(null);
   
   const lastPlayedIndex = useRef<number | null>(null);
   const songsRef = useRef<any[]>([]);
@@ -176,6 +177,44 @@ const JourneyPlayer = () => {
     }
   }, [journey, songs, loadingSongs, isLoading, playAudio, journeyId]);
 
+  const handlePlayNewTrack = () => {
+    if (songsRef.current && songsRef.current.length > 0) {
+      const newSong = selectRandomSong();
+      
+      if (newSong) {
+        currentSongRef.current = newSong;
+        
+        let audioUrl = newSong.audioUrl;
+        if (audioUrl && !audioUrl.startsWith('http')) {
+          audioUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioUrl}`;
+        }
+        
+        if (audioUrl) {
+          // Reset player completely before playing new track to avoid issues
+          resetPlayer();
+          
+          setTimeout(() => {
+            playAudio({
+              title: newSong.title || journey.title,
+              artist: "Sacred Shifter",
+              source: audioUrl
+            });
+            
+            setPlayerVisible(true);
+            setPlayerError(null);
+            toast.success(`Now playing: ${newSong.title || 'New track'}`);
+          }, 200);
+        }
+      }
+    }
+  };
+
+  const handlePlayerError = (error: any) => {
+    console.error("Journey player error:", error);
+    setPlayerError("Player encountered an error. Try playing a different track.");
+    toast.error("Audio player error. Try a different track.");
+  };
+
   if (isLoading || loadingSongs || loadingTemplates) {
     return (
       <Layout pageTitle="Loading Journey">
@@ -247,18 +286,28 @@ const JourneyPlayer = () => {
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-300">
                   {isPlaying ? 'Playing now' : 'Paused'}
+                  {playerError && <span className="text-red-500 ml-2">⚠️ {playerError}</span>}
                 </p>
               </div>
-              <Button 
-                onClick={() => togglePlayPause()}
-                className="bg-purple-600 hover:bg-purple-700"
-              >
-                {isPlaying ? (
-                  <><Pause className="h-4 w-4 mr-2" /> Pause</>
-                ) : (
-                  <><Play className="h-4 w-4 mr-2" /> Play</>
-                )}
-              </Button>
+              <div className="flex space-x-2">
+                <Button 
+                  onClick={() => togglePlayPause()}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  {isPlaying ? (
+                    <><Pause className="h-4 w-4 mr-2" /> Pause</>
+                  ) : (
+                    <><Play className="h-4 w-4 mr-2" /> Play</>
+                  )}
+                </Button>
+                <Button 
+                  onClick={handlePlayNewTrack}
+                  className="bg-indigo-600 hover:bg-indigo-700"
+                  title="Try a different track if experiencing issues"
+                >
+                  <RefreshCcw className="h-4 w-4 mr-2" /> New Track
+                </Button>
+              </div>
             </div>
             
             {infoExpanded && (
@@ -347,7 +396,6 @@ const JourneyPlayer = () => {
                       journey?.id === 'cosmic-connection' ? 'sri-yantra' : 'torus'}
           initialColorTheme={'cosmic-purple'}
           initialIsExpanded={false}
-          onExpandStateChange={(expanded) => console.log("Player expanded:", expanded)}
         />
       )}
     </Layout>

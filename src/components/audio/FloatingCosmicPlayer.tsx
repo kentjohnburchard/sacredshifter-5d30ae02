@@ -1,10 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Play, PlayCircle } from 'lucide-react';
+import { Play, PlayCircle, PauseCircle, MinimizeIcon, MaximizeIcon } from 'lucide-react';
 import CosmicAudioPlayer from './CosmicAudioPlayer';
 import { getFrequencyAudioUrl } from '@/utils/focusTrackMap';
+import { toast } from 'sonner';
 
 interface FloatingCosmicPlayerProps {
   frequency?: number;
@@ -33,6 +34,13 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
 }) => {
   const [isVisible, setIsVisible] = useState(initiallyVisible);
   const [isExpanded, setIsExpanded] = useState(initialIsExpanded);
+  const [isLoading, setIsLoading] = useState(false);
+  const timeoutRef = useRef<RetryTimeout | null>(null);
+  
+  interface RetryTimeout {
+    id: number;
+    count: number;
+  }
   
   // Get the audio URL for the frequency if not provided
   const sourceUrl = audioUrl || (frequency ? getFrequencyAudioUrl(frequency) : '');
@@ -45,6 +53,15 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
   useEffect(() => {
     setIsVisible(initiallyVisible);
   }, [initiallyVisible]);
+
+  // Clear timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current.id);
+      }
+    };
+  }, []);
   
   const toggleVisibility = () => {
     setIsVisible(!isVisible);
@@ -65,23 +82,60 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
       onExpandStateChange(expanded);
     }
   };
+
+  const handlePlayerError = (error: any) => {
+    console.error("Player error:", error);
+    
+    // If we have a retry timeout already running, don't start another one
+    if (timeoutRef.current) return;
+    
+    // Only retry a few times to avoid infinite loops
+    timeoutRef.current = {
+      id: window.setTimeout(() => {
+        if (timeoutRef.current && timeoutRef.current.count < 3) {
+          timeoutRef.current.count++;
+          setIsLoading(true);
+          // Force re-render of CosmicAudioPlayer by toggling visibility briefly
+          setIsVisible(false);
+          setTimeout(() => {
+            setIsVisible(true);
+            setIsLoading(false);
+          }, 500);
+        } else {
+          toast.error("Could not load audio player. Please try again.");
+          timeoutRef.current = null;
+        }
+      }, 2000),
+      count: 0
+    };
+  };
   
   return (
     <>
       <AnimatePresence>
         {isVisible && (
-          <CosmicAudioPlayer
-            defaultFrequency={frequency}
-            defaultAudioUrl={sourceUrl}
-            title={displayTitle}
-            description={displayDescription}
-            chakra={chakra}
-            initialShape={initialShape}
-            initialColorTheme={initialColorTheme}
-            initialIsExpanded={isExpanded}
-            onExpandStateChange={handleExpandStateChange}
-            autoPlay={true}
-          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.3 }}
+            className="fixed bottom-4 right-4 z-50"
+          >
+            <CosmicAudioPlayer
+              defaultFrequency={frequency}
+              defaultAudioUrl={sourceUrl}
+              title={displayTitle}
+              description={displayDescription}
+              chakra={chakra}
+              initialShape={initialShape}
+              initialColorTheme={initialColorTheme}
+              initialIsExpanded={isExpanded}
+              onExpandStateChange={handleExpandStateChange}
+              autoPlay={true}
+              onError={handlePlayerError}
+              key={isLoading ? 'loading' : 'loaded'}
+            />
+          </motion.div>
         )}
       </AnimatePresence>
       
