@@ -21,24 +21,29 @@ const AudioFunctionMappingManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('journey');
   const [mappings, setMappings] = useState<Record<string, AudioFunctionMapping>>({});
 
+  // List of all available sound functions by category
   const audioFunctionsList: AudioFunction[] = [
+    // Journey-related audio functions
     { id: 'journey-start', name: 'Journey Start', description: 'Plays when a journey begins', category: 'journey' },
     { id: 'journey-end', name: 'Journey End', description: 'Plays when a journey completes', category: 'journey' },
     { id: 'guided-meditation', name: 'Guided Meditation', description: 'Background audio for guided meditations', category: 'journey' },
     { id: 'frequency-shift', name: 'Frequency Shifting', description: 'Audio for frequency shifting exercises', category: 'journey' },
     { id: 'journey-transition', name: 'Journey Transition', description: 'Plays during transitions between journey stages', category: 'journey' },
     
+    // Interface sounds
     { id: 'button-click', name: 'Button Click', description: 'Plays when buttons are clicked', category: 'interface' },
     { id: 'notification', name: 'Notification', description: 'Plays for system notifications', category: 'interface' },
     { id: 'achievement', name: 'Achievement', description: 'Plays when user reaches an achievement', category: 'interface' },
     { id: 'error', name: 'Error', description: 'Plays on error or invalid action', category: 'interface' },
     { id: 'success', name: 'Success', description: 'Plays on successful completion of action', category: 'interface' },
     
+    // Meditation-specific
     { id: 'meditation-start', name: 'Meditation Start', description: 'Beginning of meditation session', category: 'meditation' },
     { id: 'meditation-bell', name: 'Meditation Bell', description: 'Interval bell during meditation', category: 'meditation' },
     { id: 'meditation-end', name: 'Meditation End', description: 'End of meditation session', category: 'meditation' },
     { id: 'breath-guide', name: 'Breathing Guide', description: 'Audio to guide breathing exercises', category: 'meditation' },
     
+    // Frequency and vibration
     { id: 'root-chakra', name: 'Root Chakra', description: '396 Hz frequency for Root Chakra', category: 'frequency' },
     { id: 'sacral-chakra', name: 'Sacral Chakra', description: '417 Hz frequency for Sacral Chakra', category: 'frequency' },
     { id: 'solar-plexus', name: 'Solar Plexus', description: '528 Hz frequency for Solar Plexus', category: 'frequency' },
@@ -49,11 +54,14 @@ const AudioFunctionMappingManager: React.FC = () => {
   ];
 
   useEffect(() => {
+    // Filter functions by category
     const filteredFunctions = audioFunctionsList.filter(func => func.category === activeTab);
     setAudioFunctions(filteredFunctions);
     
+    // Reset selection when changing tabs
     setSelectedFunction('');
     
+    // Load existing mappings from database
     fetchAudioMappings();
   }, [activeTab]);
 
@@ -61,6 +69,7 @@ const AudioFunctionMappingManager: React.FC = () => {
     try {
       setLoading(true);
       
+      // Now that the table exists, we can fetch the data
       const { data, error } = await supabase
         .from('audio_function_mappings')
         .select('*');
@@ -70,6 +79,7 @@ const AudioFunctionMappingManager: React.FC = () => {
         return;
       }
       
+      // Convert array to record keyed by function_id for easy lookup
       const mappingsRecord: Record<string, AudioFunctionMapping> = {};
       if (data) {
         data.forEach((mapping: any) => {
@@ -101,8 +111,10 @@ const AudioFunctionMappingManager: React.FC = () => {
     try {
       setSubmitting(true);
       
+      // Generate the audio URL if not provided
       const audioUrl = newAudioUrl || `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioFileName}`;
       
+      // Now that the table exists, we can insert data
       const { data, error } = await supabase
         .from('audio_function_mappings')
         .insert([
@@ -120,8 +132,10 @@ const AudioFunctionMappingManager: React.FC = () => {
         return;
       }
       
+      // Update local state to show the mapping
       fetchAudioMappings();
       
+      // Reset form
       setAudioFileName('');
       setNewAudioUrl('');
       setIsPrimary(true);
@@ -134,11 +148,14 @@ const AudioFunctionMappingManager: React.FC = () => {
       setSubmitting(false);
     }
   };
-
+  
+  // Get the currently selected function
   const selectedFunctionDetails = audioFunctions.find(f => f.id === selectedFunction);
   
+  // Get current mapping for the selected function
   const currentMapping = selectedFunction ? mappings[selectedFunction] : null;
 
+  // Function to get icon for the category
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'journey':

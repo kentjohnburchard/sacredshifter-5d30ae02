@@ -1,9 +1,10 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Card, CardContent } from '@/components/ui/card';
 import { useJourneyTemplates } from '@/hooks/useJourneyTemplates';
-import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer.tsx';
+import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import { toast } from 'sonner';
 import { useJourneySongs } from '@/hooks/useJourneySongs';
 import FractalAudioVisualizer from '@/components/audio/FractalAudioVisualizer';

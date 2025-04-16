@@ -1,5 +1,5 @@
 
-import { SongMapping, AppFunctionality, FunctionalityMap } from "@/types/music";
+import { SongMapping, FunctionalityMap, AppFunctionality } from "@/types/music";
 
 // Descriptions for each functionality type
 export const functionalityDescriptions: FunctionalityMap = {
@@ -64,7 +64,7 @@ const songMappings: SongMapping[] = [
     artist: "Sacred Soundscapes",
     frequency: 432,
     chakra: "Crown",
-    functionality: "meditation" as AppFunctionality,
+    functionality: "meditation",
     description: "Deep meditation sound for spiritual connection",
     duration: 600, // 10 minutes
     audioUrl: "meditation/cosmic-breath.mp3"
@@ -74,7 +74,7 @@ const songMappings: SongMapping[] = [
     title: "Ocean Mindfulness",
     artist: "Healing Vibrations",
     frequency: 396,
-    functionality: "meditation" as AppFunctionality,
+    functionality: "meditation",
     description: "Wave-like patterns to calm the mind",
     duration: 900, // 15 minutes
     audioUrl: "meditation/ocean-mindfulness.mp3"

@@ -1,59 +1,73 @@
 
+
 export interface SongMapping {
   id: string;
   title: string;
   artist?: string;
-  audioUrl?: string;
-  duration?: number;
-  chakra?: string;
   frequency?: number;
-  category?: string;
+  chakra?: string;
+  functionality: AppFunctionality;
   description?: string;
-  functionality?: AppFunctionality;
-  principle?: string;
-  tags?: string[];
-  url?: string;
-  length?: number;
+  duration?: number; // in seconds
+  audioUrl?: string;
+  visualType?: string;
 }
 
 export type AppFunctionality = 
-  | 'meditation' 
-  | 'chakra-healing' 
-  | 'hermetic-principle' 
-  | 'frequency-shift' 
-  | 'journey' 
-  | 'focus' 
-  | 'sleep' 
-  | 'energy-boost' 
-  | 'heart-opening' 
+  | 'meditation'
+  | 'chakra-healing'
+  | 'hermetic-principle'
+  | 'frequency-shift'
+  | 'journey'
+  | 'focus'
+  | 'sleep'
+  | 'energy-boost'
+  | 'heart-opening'
   | 'grounding';
 
-export interface FunctionalityMap {
-  [key: string]: {
-    name: string;
-    description: string;
-    color: string;
-  };
+export interface FunctionalityDescription {
+  name: string;
+  description: string;
+  icon?: string;
+  color?: string;
+}
+
+export type FunctionalityMap = Record<AppFunctionality, FunctionalityDescription>;
+
+export interface JourneyAudioMapping {
+  journeyId: string;
+  audioFileName: string;
+  audioUrl: string;
+  isPrimary: boolean;
+  id: string;
+  createdAt: string;
+}
+
+export interface JourneyFrequency {
+  name: string;
+  value: string;
+  description: string;
 }
 
 export interface AudioFunction {
   id: string;
   name: string;
   description: string;
-  category: string;
+  category: AudioFunctionCategory;
 }
+
+export type AudioFunctionCategory = 
+  | 'journey'
+  | 'interface'
+  | 'meditation'
+  | 'frequency';
 
 export interface AudioFunctionMapping {
-  id?: string;
+  id: string;
   function_id: string;
   audio_file_name: string;
-  audio_url?: string;
+  audio_url: string | null;
   is_primary: boolean;
+  created_at: string;
 }
 
-export interface JourneyAudioMapping {
-  journey_template_id: string;
-  audio_file_name: string;
-  audio_url?: string;
-  is_primary: boolean;
-}

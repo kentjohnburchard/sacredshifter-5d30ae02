@@ -130,7 +130,7 @@ export const useJourneySongs = (journeyId?: string) => {
           audio_file_name: filename,
           audio_url: song.audioUrl,
           is_primary: false,
-          description: song.description || `Audio for ${song.title}`
+          description: song.description
         })
         .select('*')
         .single();
