@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
+import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer.tsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Minimize2, 
@@ -41,20 +40,19 @@ const SacredAudioPlayer: React.FC = () => {
     togglePlayPause 
   } = useGlobalAudioPlayer();
 
-  // Get a reference to the audio element
   const audioElement = document.getElementById('global-audio-player') as HTMLAudioElement | null;
   
-  // Use the audio analyzer hook with the global audio element
-  const { audioContext, analyser } = useAudioAnalyzer(audioElement);
+  const { 
+    audioContext, 
+    analyser 
+  } = useAudioAnalyzer(audioElement);
 
-  // Update volume when it changes
   useEffect(() => {
     if (audioElement) {
       audioElement.volume = isMuted ? 0 : volume;
     }
   }, [volume, isMuted, audioElement]);
 
-  // Track audio progress
   useEffect(() => {
     if (!audioElement) return;
     
@@ -70,18 +68,14 @@ const SacredAudioPlayer: React.FC = () => {
     };
   }, [audioElement]);
 
-  // Handle prime detection
   const handlePrimeDetected = (prime: number) => {
-    // Set the active prime and show the tooltip
     setActivePrime(prime);
     setShowPrimeTooltip(true);
     
-    // Clear any existing timeout
     if (primeDisplayTimeout.current) {
       clearTimeout(primeDisplayTimeout.current);
     }
     
-    // Hide the tooltip after 3 seconds
     primeDisplayTimeout.current = setTimeout(() => {
       setShowPrimeTooltip(false);
     }, 3000);
@@ -89,14 +83,12 @@ const SacredAudioPlayer: React.FC = () => {
 
   useEffect(() => {
     return () => {
-      // Clean up timeout on unmount
       if (primeDisplayTimeout.current) {
         clearTimeout(primeDisplayTimeout.current);
       }
     };
   }, []);
 
-  // Format time display (minutes:seconds)
   const formatTime = (time: number): string => {
     if (!time || isNaN(time)) return '0:00';
     const minutes = Math.floor(time / 60);
@@ -104,7 +96,6 @@ const SacredAudioPlayer: React.FC = () => {
     return `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
   };
 
-  // Handle seeking in the audio track
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!audioElement || !audioProgressRef.current) return;
     
@@ -116,25 +107,20 @@ const SacredAudioPlayer: React.FC = () => {
     audioElement.currentTime = seekTime;
   };
 
-  // Toggle mute state
   const toggleMute = () => {
     setIsMuted(!isMuted);
   };
 
-  // Toggle visualization mode between prime and regular
   const toggleVisualMode = () => {
     setVisualMode(prev => prev === 'prime' ? 'regular' : 'prime');
   };
 
-  // Toggle visualization layout between vertical and radial
   const toggleVisualLayout = () => {
     setVisualLayout(prev => prev === 'vertical' ? 'radial' : 'vertical');
   };
 
-  // Don't render if no audio is playing or loading
   if (!currentAudio) return null;
   
-  // Determine progress percentage
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
@@ -154,7 +140,6 @@ const SacredAudioPlayer: React.FC = () => {
             }`}
             style={{ width: '320px' }}
           >
-            {/* Header with title and controls */}
             <div className={`px-4 py-3 flex items-center justify-between ${
               liftTheVeil ? 'bg-pink-950/30' : 'bg-purple-950/30'
             }`}>
@@ -203,9 +188,7 @@ const SacredAudioPlayer: React.FC = () => {
               </div>
             </div>
 
-            {/* Visualizer */}
             <div className="h-48 w-full overflow-hidden bg-black/70 relative">
-              {/* Prime detection effect overlay */}
               <AnimatePresence>
                 {activePrime && showPrimeTooltip && (
                   <motion.div 
@@ -244,7 +227,6 @@ const SacredAudioPlayer: React.FC = () => {
               />
             </div>
 
-            {/* Track info */}
             <div className="p-4">
               <div className="mb-2">
                 <h4 className={`font-medium text-sm ${
@@ -259,7 +241,6 @@ const SacredAudioPlayer: React.FC = () => {
                 )}
               </div>
               
-              {/* Progress bar */}
               <div className="mb-4">
                 <div 
                   ref={audioProgressRef}
@@ -279,9 +260,7 @@ const SacredAudioPlayer: React.FC = () => {
                 </div>
               </div>
               
-              {/* Controls */}
               <div className="flex justify-between items-center">
-                {/* Play/pause button */}
                 <Button
                   variant="outline"
                   size="icon"
@@ -297,7 +276,6 @@ const SacredAudioPlayer: React.FC = () => {
                   )}
                 </Button>
                 
-                {/* Volume control */}
                 <div className="flex items-center space-x-2">
                   <Button
                     variant="ghost"
@@ -323,7 +301,6 @@ const SacredAudioPlayer: React.FC = () => {
                 </div>
               </div>
               
-              {/* Visualization controls */}
               <div className="flex justify-between text-xs mt-4">
                 <TooltipProvider>
                   <Tooltip>
@@ -415,7 +392,6 @@ const SacredAudioPlayer: React.FC = () => {
             }`}
             onClick={() => setExpanded(true)}
           >
-            {/* Play/pause button */}
             <Button
               variant="ghost"
               size="icon"
@@ -432,7 +408,6 @@ const SacredAudioPlayer: React.FC = () => {
               )}
             </Button>
             
-            {/* Title */}
             <div className="max-w-[120px] truncate">
               <span className={`text-xs font-medium ${
                 liftTheVeil ? 'text-pink-200' : 'text-purple-200'
@@ -441,7 +416,6 @@ const SacredAudioPlayer: React.FC = () => {
               </span>
             </div>
             
-            {/* Prime indicator */}
             <AnimatePresence>
               {activePrime && showPrimeTooltip && (
                 <motion.div 
@@ -455,7 +429,6 @@ const SacredAudioPlayer: React.FC = () => {
               )}
             </AnimatePresence>
             
-            {/* Expand button */}
             <Button
               variant="ghost"
               size="icon"

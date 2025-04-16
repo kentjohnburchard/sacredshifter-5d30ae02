@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { useAudioPlayer } from '@/hooks/useAudioPlayer';
+import { useAudioPlayer } from '@/hooks/useGlobalAudioPlayer.tsx';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Pause, Play, X, MinusCircle, Volume2, VolumeX, SkipBack, SkipForward } from 'lucide-react';

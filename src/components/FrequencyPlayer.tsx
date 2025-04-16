@@ -1,10 +1,9 @@
-
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Eye, EyeOff, Maximize2, Minimize2 } from "lucide-react";
 import FractalAudioVisualizer from "@/components/audio/FractalAudioVisualizer";
 import useAudioAnalyzer from "@/hooks/useAudioAnalyzer";
-import { useGlobalAudioPlayer } from "@/hooks/useGlobalAudioPlayer";
+import { useGlobalAudioPlayer } from "@/hooks/useGlobalAudioPlayer.tsx";
 import PrimeNumberDisplay from "@/components/prime-display/PrimeNumberDisplay";
 
 interface FrequencyPlayerProps {
