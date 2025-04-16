@@ -17,7 +17,8 @@ const journeyTemplates = [
     description: 'A three-phase journey through 396Hz, 639Hz, and 963Hz frequencies',
     frequency: 396,
     chakra: 'root',
-    image: '/images/trinity-journey.jpg'
+    image: '/images/trinity-journey.jpg',
+    audioUrl: '/audio/trinity-gateway.mp3'  // Added audioUrl
   },
   {
     id: 'dna-healing',
@@ -25,7 +26,8 @@ const journeyTemplates = [
     description: 'Activate your genetic potential with the 528Hz miracle frequency',
     frequency: 528,
     chakra: 'heart',
-    image: '/images/dna-healing.jpg'
+    image: '/images/dna-healing.jpg',
+    audioUrl: '/audio/dna-activation.mp3'  // Added audioUrl
   },
   {
     id: 'cosmic-connection',
@@ -33,7 +35,8 @@ const journeyTemplates = [
     description: 'Open your third eye and crown with 852Hz and 963Hz frequencies',
     frequency: 852,
     chakra: 'third-eye',
-    image: '/images/cosmic-connection.jpg'
+    image: '/images/cosmic-connection.jpg',
+    audioUrl: '/audio/cosmic-connection.mp3'  // Added audioUrl
   },
   {
     id: 'theta-meditation',
@@ -41,7 +44,8 @@ const journeyTemplates = [
     description: 'Access deep meditative states with guided theta brain entrainment',
     frequency: 432,
     chakra: 'all',
-    image: '/images/theta-meditation.jpg'
+    image: '/images/theta-meditation.jpg',
+    audioUrl: '/audio/theta-meditation.mp3'  // Added audioUrl
   },
 ];
 
@@ -159,6 +163,7 @@ const JourneyTemplatesPage = () => {
       {/* Floating Cosmic Player */}
       {selectedJourney && playerVisible && (
         <FloatingCosmicPlayer
+          audioUrl={selectedJourney.audioUrl} // Now passing the required audioUrl prop
           frequency={selectedJourney.frequency}
           title={selectedJourney.name}
           description={selectedJourney.description}
