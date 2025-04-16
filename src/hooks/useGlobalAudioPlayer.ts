@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { toast } from 'sonner';
@@ -27,6 +26,7 @@ export function useGlobalAudioPlayer() {
 
   const [currentAudio, setCurrentAudio] = useState<AudioInfo>({source: ''});
   const onEndedCallbackRef = useRef<(() => void) | null>(null);
+  const audioSourceRef = useRef<string>('');
 
   useEffect(() => {
     const handleEnded = () => {
@@ -56,13 +56,39 @@ export function useGlobalAudioPlayer() {
       return;
     }
     
+    // If we're already playing the same audio, just toggle play/pause
+    if (audioInfo.source === audioSourceRef.current) {
+      togglePlayPause();
+      return;
+    }
+    
+    // Otherwise, set new audio source
+    audioSourceRef.current = audioInfo.source;
     setCurrentAudio(audioInfo);
+    
+    // First pause any currently playing audio
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+    }
+    
+    // Then set the new source
     setAudioSource(audioInfo.source);
     
     // Small delay to ensure source is set before playing
     setTimeout(() => {
-      togglePlayPause();
-    }, 50);
+      console.log("Starting playback after source change");
+      const audio = audioRef.current;
+      if (audio) {
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.error("Error playing audio:", error);
+            toast.error("Audio playback failed. Try again.");
+          });
+        }
+      }
+    }, 100);
   };
 
   const setOnEndedCallback = (callback: (() => void) | null) => {
@@ -73,9 +99,15 @@ export function useGlobalAudioPlayer() {
   const resetPlayer = () => {
     const audio = audioRef.current;
     if (audio) {
+      // First pause playback
       audio.pause();
+      
+      // Reset time and source
       audio.currentTime = 0;
+      
+      // Clear source and state
       audio.src = '';
+      audioSourceRef.current = '';
       setCurrentAudio({source: ''});
       console.log("Global audio player: Reset complete");
     }

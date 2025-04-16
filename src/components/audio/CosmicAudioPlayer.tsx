@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import SacredGeometryVisualizer from "@/components/sacred-geometry/SacredGeometryVisualizer";
-import { calculatePrimeFactors } from "@/utils/primeCalculations";
+import { calculatePrimeFactors, generatePrimeSequence } from "@/utils/primeCalculations";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -95,60 +95,69 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
-  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const sourceNodeCreatedRef = useRef<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const dragControls = useDragControls();
   const { liftTheVeil } = useTheme();
   
-  // Initialize audio context once
+  // Initialize audio context only once
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
-    if (!audioContextRef.current) {
-      try {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-        
-        const analyser = audioContextRef.current.createAnalyser();
-        analyser.fftSize = 2048;
-        analyser.smoothingTimeConstant = 0.8;
-        analyserRef.current = analyser;
-        
-        console.log("Audio context and analyser initialized");
-      } catch (err) {
-        console.error("Error initializing audio context:", err);
-        if (onError) onError(err);
+    const setupAudioContext = () => {
+      if (!audioContextRef.current) {
+        try {
+          // Create new AudioContext
+          audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+          
+          // Create analyzer
+          const analyser = audioContextRef.current.createAnalyser();
+          analyser.fftSize = 2048;
+          analyser.smoothingTimeConstant = 0.8;
+          analyserRef.current = analyser;
+          
+          console.log("Audio context and analyser initialized");
+        } catch (err) {
+          console.error("Error initializing audio context:", err);
+          if (onError) onError(err);
+        }
       }
-    }
+    };
+
+    setupAudioContext();
     
     return () => {
-      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-        audioContextRef.current.close().catch(console.error);
-      }
+      // Don't close the audio context on unmount as it may be shared
     };
   }, [onError]);
   
-  // Connect audio element to analyser only once
+  // Connect audio element to analyser only once when both refs exist
   useEffect(() => {
     if (!audioRef.current || !audioContextRef.current || !analyserRef.current) return;
     
-    try {
-      // Re-create the source node when the audio changes
-      if (sourceRef.current) {
-        sourceRef.current.disconnect();
+    // Only create source node if it hasn't been created yet
+    if (!sourceNodeCreatedRef.current) {
+      try {
+        const source = audioContextRef.current.createMediaElementSource(audioRef.current);
+        source.connect(analyserRef.current);
+        analyserRef.current.connect(audioContextRef.current.destination);
+        sourceNodeCreatedRef.current = true;
+        setAudioContextInitialized(true);
+        console.log("Audio connected to analyser successfully");
+      } catch (error) {
+        // If error is about already being connected, we can ignore it
+        if (error instanceof DOMException && error.name === 'InvalidStateError') {
+          console.log("Audio already connected to a source node, continuing");
+          setAudioContextInitialized(true); 
+        } else {
+          console.error("Error connecting audio:", error);
+          if (onError) onError(error);
+        }
       }
-      
-      sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
-      sourceRef.current.connect(analyserRef.current);
-      analyserRef.current.connect(audioContextRef.current.destination);
-      setAudioContextInitialized(true);
-      console.log("Audio connected to analyser");
-    } catch (error) {
-      console.error("Error connecting audio:", error);
-      if (onError) onError(error);
     }
-    
-  }, [onError, defaultAudioUrl]);
+  }, [onError]);
   
+  // Handle audio element events
   useEffect(() => {
     if (!audioRef.current) return;
     
@@ -178,11 +187,18 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
       setCurrentTime(0);
     };
     
+    const handleError = (e: any) => {
+      console.error("Audio player error:", e);
+      setIsPlaying(false);
+      if (onError) onError(e);
+    };
+    
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('play', handlePlay);
     audio.addEventListener('pause', handlePause);
     audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('error', handleError);
     
     audio.volume = volume;
     
@@ -192,21 +208,32 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
       audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('error', handleError);
     };
-  }, []);
+  }, [onError]);
   
+  // Auto-play effect
   useEffect(() => {
     if (autoPlay && audioRef.current && !isPlaying) {
-      const playPromise = audioRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(error => {
-          console.error("Error auto-playing audio:", error);
-          if (onError) onError(error);
-        });
-      }
+      // Wait a moment to ensure everything is initialized
+      const timer = setTimeout(() => {
+        if (audioRef.current) {
+          const playPromise = audioRef.current.play();
+          
+          if (playPromise !== undefined) {
+            playPromise.catch(error => {
+              console.error("Error auto-playing audio:", error);
+              if (onError) onError(error);
+            });
+          }
+        }
+      }, 300);
+      
+      return () => clearTimeout(timer);
     }
   }, [autoPlay, onError]);
   
+  // Detect prime frequencies in audio
   const handlePrimeDetected = (prime: number) => {
     setActivePrimes(prevPrimes => {
       if (!prevPrimes.includes(prime)) {
@@ -219,12 +246,14 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     });
   };
   
+  // Format time display
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
   
+  // Toggle play/pause
   const togglePlay = () => {
     if (!audioRef.current) return;
     
@@ -245,6 +274,7 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     }
   };
   
+  // Handle volume change
   const handleVolumeChange = (values: number[]) => {
     const newVolume = values[0];
     setVolume(newVolume);
@@ -260,6 +290,7 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     }
   };
   
+  // Toggle mute
   const toggleMute = () => {
     if (!audioRef.current) return;
     
@@ -268,6 +299,7 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     audioRef.current.muted = newMutedState;
   };
   
+  // Handle seek
   const handleSeek = (values: number[]) => {
     if (!audioRef.current || !duration) return;
     
@@ -281,6 +313,7 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     }
   };
   
+  // Toggle expanded state
   const toggleExpanded = () => {
     const newExpandedState = !isExpanded;
     setIsExpanded(newExpandedState);
@@ -289,6 +322,7 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     }
   };
   
+  // Handle shape change
   const handleShapeChange = (shape: string) => {
     setCurrentShape(shape);
     // Force a re-render of the visualizer when shape changes
@@ -296,17 +330,20 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     toast.success(`Sacred geometry changed to ${shape.replace(/-/g, ' ')}`);
   };
   
+  // Handle color theme change
   const handleColorThemeChange = (theme: string) => {
     setColorTheme(theme);
     toast.success(`Color theme changed to ${theme.replace(/-/g, ' ')}`);
   };
   
+  // Handle visualization mode change
   const handleModeChange = (mode: 'fractal' | 'spiral' | 'mandala' | 'liquid-crystal') => {
     setActiveMode(mode);
     setVisualizerKey(Date.now().toString());
     toast.success(`Visualization mode changed to ${mode.replace(/-/g, ' ')}`);
   };
   
+  // Get theme classes
   const getThemeClasses = () => {
     const baseClasses = "cosmic-audio-player rounded-lg shadow-xl transition-all duration-300";
     
@@ -322,6 +359,7 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     return `${baseClasses} ${themeClasses[colorTheme as keyof typeof themeClasses] || themeClasses["cosmic-purple"]}`;
   };
   
+  // Drag handlers
   const startDrag = (event: React.PointerEvent<HTMLDivElement>) => {
     dragControls.start(event);
     setIsDragging(true);
@@ -331,14 +369,17 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     setIsDragging(false);
   };
   
+  // Toggle controls
   const toggleControls = () => {
     setShowControls(!showControls);
   };
   
+  // Toggle visualizer
   const toggleVisualizer = () => {
     setIsVisualizerOpen(!isVisualizerOpen);
   };
   
+  // Component rendering
   return (
     <motion.div
       ref={containerRef}
@@ -377,9 +418,8 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
             ref={audioRef}
             src={defaultAudioUrl} 
             preload="metadata"
-            autoPlay={autoPlay}
             onError={(e) => {
-              console.error("Audio error:", e);
+              console.error("Audio player error:", e);
               if (onError) onError(e);
             }}
           />
@@ -418,7 +458,26 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                   </div>
                   
                   <div className="absolute inset-0 z-20 opacity-80">
-                    {/* Visualizer effects */}
+                    {activeMode === 'liquid-crystal' && (
+                      <div className="absolute inset-0 overflow-hidden">
+                        <div className="ripple-container">
+                          {[...Array(5)].map((_, i) => (
+                            <div 
+                              key={i}
+                              className={`liquid-ripple ripple-${i+1}`}
+                              style={{
+                                width: `${50 + i * 10}%`,
+                                height: `${50 + i * 10}%`,
+                                left: `${25 - i * 5}%`,
+                                top: `${25 - i * 5}%`,
+                                animationDelay: `${i * 0.3}s`
+                              }}
+                            />
+                          ))}
+                        </div>
+                        <div className="crystal-lattice" />
+                      </div>
+                    )}
                   </div>
                   
                   <div className="absolute bottom-4 left-4 right-4 z-30 flex flex-wrap gap-2 justify-center">
@@ -509,17 +568,13 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                           audioRef.current.currentTime = 0;
                         }}
                       >
-                        <SkipBack className="h-5 w-5" />
+                        <SkipBack className="h-4 w-4" />
                       </Button>
                       
                       <Button
-                        variant={isPlaying ? "secondary" : "default"}
+                        variant="ghost"
                         size="icon"
-                        className={`rounded-full ${
-                          isPlaying 
-                            ? 'bg-white/20 text-white hover:bg-white/30' 
-                            : `${liftTheVeil ? 'bg-pink-600' : 'bg-purple-600'} text-white`
-                        }`}
+                        className="rounded-full w-10 h-10 text-white bg-white/10 hover:bg-white/20"
                         onClick={togglePlay}
                       >
                         {isPlaying ? (
@@ -529,66 +584,92 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                         )}
                       </Button>
                       
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="rounded-full text-white/80 hover:text-white hover:bg-white/10"
-                        onClick={() => {
-                          if (!audioRef.current) return;
-                          audioRef.current.currentTime = Math.min(
-                            audioRef.current.currentTime + 10,
-                            audioRef.current.duration || 0
-                          );
-                        }}
-                      >
-                        <SkipForward className="h-5 w-5" />
-                      </Button>
+                      {showVolumeControl && (
+                        <div className="flex items-center space-x-2 ml-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="rounded-full text-white/80 hover:text-white hover:bg-white/10"
+                            onClick={toggleMute}
+                          >
+                            {isMuted || volume === 0 ? (
+                              <VolumeX className="h-4 w-4" />
+                            ) : (
+                              <Volume2 className="h-4 w-4" />
+                            )}
+                          </Button>
+                          
+                          <Slider
+                            value={[volume]}
+                            max={1}
+                            step={0.01}
+                            onValueChange={handleVolumeChange}
+                            className="w-16"
+                          />
+                        </div>
+                      )}
                     </div>
                     
-                    {showVolumeControl && (
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/10"
-                          onClick={toggleMute}
-                        >
-                          {isMuted ? (
-                            <VolumeX className="h-4 w-4" />
-                          ) : (
-                            <Volume2 className="h-4 w-4" />
-                          )}
-                        </Button>
-                        
-                        <Slider
-                          value={[isMuted ? 0 : volume]}
-                          max={1}
-                          step={0.01}
-                          onValueChange={handleVolumeChange}
-                          className="w-24"
-                        />
-                      </div>
-                    )}
-                  </div>
-                  
-                  {(isExpanded || allowShapeChange || allowColorChange) && (
-                    <div className="mt-4 flex flex-wrap gap-2">
+                    <div className="flex space-x-2">
                       {allowShapeChange && (
                         <Select
                           value={currentShape}
                           onValueChange={handleShapeChange}
                         >
                           <SelectTrigger 
-                            className="h-8 px-3 py-1 text-xs bg-black/30 border-white/10 text-white/80 w-[140px]"
+                            className="h-8 w-8 px-0 bg-transparent border-none text-white/70 hover:text-white hover:bg-white/10 rounded-full"
                           >
-                            <SelectValue placeholder="Sacred Pattern" />
+                            <Settings className="h-4 w-4" />
                           </SelectTrigger>
-                          <SelectContent className="bg-black/80 border-white/10 text-white">
-                            {SACRED_SHAPES.map((shape) => (
-                              <SelectItem key={shape} value={shape} className="text-xs capitalize">
-                                {shape.replace(/-/g, ' ')}
-                              </SelectItem>
-                            ))}
+                          <SelectContent className="bg-slate-900/95 text-white border-slate-700">
+                            <div className="p-2">
+                              <p className="text-xs text-slate-400 mb-2">Sacred Geometry</p>
+                              <div className="grid grid-cols-2 gap-1">
+                                {SACRED_SHAPES.map(shape => (
+                                  <SelectItem 
+                                    key={shape} 
+                                    value={shape}
+                                    className="rounded hover:bg-slate-800"
+                                  >
+                                    {shape.split('-').map(word => 
+                                      word.charAt(0).toUpperCase() + word.slice(1)
+                                    ).join(' ')}
+                                  </SelectItem>
+                                ))}
+                              </div>
+                              
+                              <p className="text-xs text-slate-400 mt-3 mb-2">Visualization Mode</p>
+                              <div className="grid grid-cols-2 gap-1">
+                                <SelectItem 
+                                  value="fractal" 
+                                  className="rounded hover:bg-slate-800"
+                                  onSelect={() => handleModeChange('fractal')}
+                                >
+                                  Fractal Flow
+                                </SelectItem>
+                                <SelectItem 
+                                  value="spiral" 
+                                  className="rounded hover:bg-slate-800"
+                                  onSelect={() => handleModeChange('spiral')}
+                                >
+                                  Spiral Vortex
+                                </SelectItem>
+                                <SelectItem 
+                                  value="mandala" 
+                                  className="rounded hover:bg-slate-800"
+                                  onSelect={() => handleModeChange('mandala')}
+                                >
+                                  Mandala Form
+                                </SelectItem>
+                                <SelectItem 
+                                  value="liquid-crystal" 
+                                  className="rounded hover:bg-slate-800"
+                                  onSelect={() => handleModeChange('liquid-crystal')}
+                                >
+                                  Liquid Crystal
+                                </SelectItem>
+                              </div>
+                            </div>
                           </SelectContent>
                         </Select>
                       )}
@@ -599,90 +680,54 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                           onValueChange={handleColorThemeChange}
                         >
                           <SelectTrigger 
-                            className="h-8 px-3 py-1 text-xs bg-black/30 border-white/10 text-white/80 w-[140px]"
+                            className="h-8 w-8 px-0 bg-transparent border-none text-white/70 hover:text-white hover:bg-white/10 rounded-full"
                           >
-                            <SelectValue placeholder="Color Theme" />
+                            <div 
+                              className="h-4 w-4 rounded-full" 
+                              style={{ 
+                                background: colorTheme === 'cosmic-purple' ? 'linear-gradient(135deg, #9333ea, #4f46e5)' :
+                                           colorTheme === 'sacred-gold' ? 'linear-gradient(135deg, #f59e0b, #b45309)' :
+                                           colorTheme === 'ethereal-blue' ? 'linear-gradient(135deg, #0ea5e9, #1e40af)' :
+                                           colorTheme === 'divine-green' ? 'linear-gradient(135deg, #10b981, #064e3b)' :
+                                           colorTheme === 'risen-pink' ? 'linear-gradient(135deg, #ec4899, #be185d)' :
+                                           'linear-gradient(135deg, #e5e7eb, #1f2937)'
+                              }}
+                            />
                           </SelectTrigger>
-                          <SelectContent className="bg-black/80 border-white/10 text-white">
-                            {COLOR_THEMES.map((theme) => (
-                              <SelectItem key={theme.value} value={theme.value} className="text-xs">
-                                {theme.name}
-                              </SelectItem>
-                            ))}
+                          <SelectContent className="bg-slate-900/95 text-white border-slate-700">
+                            <div className="p-2">
+                              <p className="text-xs text-slate-400 mb-2">Color Theme</p>
+                              <div className="grid grid-cols-2 gap-1">
+                                {COLOR_THEMES.map(theme => (
+                                  <SelectItem 
+                                    key={theme.value} 
+                                    value={theme.value}
+                                    className="rounded hover:bg-slate-800 flex items-center gap-2"
+                                  >
+                                    <div 
+                                      className="h-3 w-3 rounded-full" 
+                                      style={{ 
+                                        background: theme.value === 'cosmic-purple' ? 'linear-gradient(135deg, #9333ea, #4f46e5)' :
+                                                   theme.value === 'sacred-gold' ? 'linear-gradient(135deg, #f59e0b, #b45309)' :
+                                                   theme.value === 'ethereal-blue' ? 'linear-gradient(135deg, #0ea5e9, #1e40af)' :
+                                                   theme.value === 'divine-green' ? 'linear-gradient(135deg, #10b981, #064e3b)' :
+                                                   theme.value === 'risen-pink' ? 'linear-gradient(135deg, #ec4899, #be185d)' :
+                                                   'linear-gradient(135deg, #e5e7eb, #1f2937)'
+                                      }}
+                                    />
+                                    <span>{theme.name}</span>
+                                  </SelectItem>
+                                ))}
+                              </div>
+                            </div>
                           </SelectContent>
                         </Select>
                       )}
-                      
-                      <Select
-                        value={activeMode}
-                        onValueChange={(value) => handleModeChange(value as any)}
-                      >
-                        <SelectTrigger 
-                          className="h-8 px-3 py-1 text-xs bg-black/30 border-white/10 text-white/80 w-[140px]"
-                        >
-                          <SelectValue placeholder="Visualization Mode" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-black/80 border-white/10 text-white">
-                          <SelectItem value="fractal" className="text-xs">Fractal</SelectItem>
-                          <SelectItem value="spiral" className="text-xs">Spiral</SelectItem>
-                          <SelectItem value="mandala" className="text-xs">Mandala</SelectItem>
-                          <SelectItem value="liquid-crystal" className="text-xs">Liquid Crystal</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      
-                      {defaultFrequency && (
-                        <div className="flex items-center h-8 px-3 rounded-md bg-black/30 border border-white/10">
-                          <span className="text-xs text-white/80">{defaultFrequency}Hz</span>
-                        </div>
-                      )}
                     </div>
-                  )}
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
-            
-            {!showControls && (
-              <div className="p-2 flex justify-between items-center">
-                <Button
-                  variant={isPlaying ? "secondary" : "default"}
-                  size="sm"
-                  className={`rounded-full ${
-                    isPlaying 
-                      ? 'bg-white/20 text-white hover:bg-white/30' 
-                      : `${liftTheVeil ? 'bg-pink-600' : 'bg-purple-600'} text-white`
-                  }`}
-                  onClick={togglePlay}
-                >
-                  {isPlaying ? (
-                    <Pause className="h-4 w-4" />
-                  ) : (
-                    <Play className="h-4 w-4 ml-0.5" />
-                  )}
-                </Button>
-                
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-white/70 hover:text-white hover:bg-white/10"
-                  onClick={toggleControls}
-                >
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-                
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-white/70 hover:text-white hover:bg-white/10"
-                  onClick={toggleExpanded}
-                >
-                  {isExpanded ? (
-                    <Minimize2 className="h-4 w-4" />
-                  ) : (
-                    <Maximize2 className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            )}
           </div>
         </CardContent>
       </Card>

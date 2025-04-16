@@ -34,6 +34,7 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
   const [audioUrl_, setAudioUrl] = useState<string>('');
   const [playerKey, setPlayerKey] = useState<string>(Date.now().toString());
   const { resetPlayer } = useGlobalAudioPlayer();
+  const errorCountRef = useRef(0);
   
   useEffect(() => {
     // Format URL if needed
@@ -46,12 +47,26 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
     setAudioUrl(formattedUrl);
     // Reset the player key to force a re-render when URL changes
     setPlayerKey(Date.now().toString());
+    // Reset error count when URL changes
+    errorCountRef.current = 0;
   }, [audioUrl]);
 
   const handleError = (error: any) => {
     console.error("Cosmic player error:", error);
-    toast.error("Audio error occurred. Try a different track.");
-    resetPlayer();
+    errorCountRef.current += 1;
+    
+    if (errorCountRef.current <= 2) {
+      toast.error("Audio error occurred. Attempting to recover...");
+      
+      // Force a restart with a new player instance
+      setTimeout(() => {
+        resetPlayer();
+        setPlayerKey(Date.now().toString());
+      }, 500);
+    } else {
+      toast.error("Audio playback failed. Try a different track.");
+      resetPlayer();
+    }
   };
   
   const handleExpandStateChange = (expanded: boolean) => {
@@ -67,7 +82,7 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
 
   return (
     <CosmicAudioPlayer
-      key={playerKey} // Add key to ensure component fully re-renders when URL changes
+      key={playerKey}
       defaultAudioUrl={audioUrl_}
       defaultFrequency={frequency}
       title={title}
@@ -79,6 +94,8 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
       onExpandStateChange={handleExpandStateChange}
       autoPlay={true}
       onError={handleError}
+      allowShapeChange={true}
+      allowColorChange={true}
     />
   );
 };
