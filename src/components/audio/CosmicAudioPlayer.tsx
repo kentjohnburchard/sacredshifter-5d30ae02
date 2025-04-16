@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import {
@@ -57,7 +56,7 @@ interface CosmicAudioPlayerProps {
   initialColorTheme?: string;
   chakra?: string;
   initialIsExpanded?: boolean;
-  onExpandStateChange?: (expanded: boolean) => void; // Added this prop
+  onExpandStateChange?: (expanded: boolean) => void;
 }
 
 const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
@@ -189,6 +188,17 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
       audio.removeEventListener('ended', handleEnded);
     };
   }, []);
+  
+  useEffect(() => {
+    if (autoPlay && audioRef.current && !isPlaying) {
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.error("Error auto-playing audio:", error);
+        });
+      }
+    }
+  }, [autoPlay]);
   
   const handlePrimeDetected = (prime: number) => {
     setActivePrimes(prevPrimes => {

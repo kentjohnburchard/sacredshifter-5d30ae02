@@ -11,23 +11,28 @@ import { Button } from '@/components/ui/button';
 import { 
   Info,
   Music,
-  BookOpen
+  BookOpen,
+  Play,
+  Pause
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import FloatingCosmicPlayer from '@/components/audio/FloatingCosmicPlayer';
 
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
   const navigate = useNavigate();
-  const { playAudio, isPlaying, currentAudio, setOnEndedCallback } = useGlobalAudioPlayer();
+  const { playAudio, isPlaying, currentAudio, setOnEndedCallback, togglePlayPause } = useGlobalAudioPlayer();
   
   const [journey, setJourney] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [infoExpanded, setInfoExpanded] = useState(false);
+  const [playerVisible, setPlayerVisible] = useState(false);
   
   const lastPlayedIndex = useRef<number | null>(null);
   const songsRef = useRef<any[]>([]);
   const audioPlayAttemptedRef = useRef(false);
+  const currentSongRef = useRef<any>(null);
   
   const { templates, loading: loadingTemplates } = useJourneyTemplates();
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
@@ -73,6 +78,7 @@ const JourneyPlayer = () => {
       
       if (nextSong) {
         console.log("JourneyPlayer: Playing next random song:", nextSong);
+        currentSongRef.current = nextSong;
         
         let audioUrl = nextSong.audioUrl;
         if (audioUrl && !audioUrl.startsWith('http')) {
@@ -85,6 +91,7 @@ const JourneyPlayer = () => {
             artist: "Sacred Shifter",
             source: audioUrl
           });
+          setPlayerVisible(true);
         } else {
           console.error("JourneyPlayer: Invalid audio URL for next song");
           toast.error("Could not play next track: Invalid audio URL");
@@ -141,6 +148,7 @@ const JourneyPlayer = () => {
         
         if (selectedSong) {
           console.log(`JourneyPlayer: Playing initial random song for journey ${journeyId}:`, selectedSong);
+          currentSongRef.current = selectedSong;
           
           let audioUrl = selectedSong.audioUrl;
           if (audioUrl && !audioUrl.startsWith('http')) {
@@ -155,7 +163,8 @@ const JourneyPlayer = () => {
               source: audioUrl
             });
             
-            console.log("JourneyPlayer: Audio playback initialized");
+            setPlayerVisible(true);
+            console.log("JourneyPlayer: Audio playback initialized and player made visible");
           } else {
             console.error("JourneyPlayer: Invalid audio URL");
             toast.error("Could not play audio: Invalid URL");
@@ -230,6 +239,28 @@ const JourneyPlayer = () => {
               </div>
             </div>
             
+            {/* Add manual player controls for backup */}
+            <div className="bg-purple-100/30 dark:bg-purple-900/30 p-4 rounded-lg mb-6 flex items-center justify-between">
+              <div className="flex-1">
+                <p className="font-medium">
+                  {currentSongRef.current?.title || 'Selected Journey Track'}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  {isPlaying ? 'Playing now' : 'Paused'}
+                </p>
+              </div>
+              <Button 
+                onClick={() => togglePlayPause()}
+                className="bg-purple-600 hover:bg-purple-700"
+              >
+                {isPlaying ? (
+                  <><Pause className="h-4 w-4 mr-2" /> Pause</>
+                ) : (
+                  <><Play className="h-4 w-4 mr-2" /> Play</>
+                )}
+              </Button>
+            </div>
+            
             {infoExpanded && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
@@ -302,6 +333,23 @@ const JourneyPlayer = () => {
           </CardContent>
         </Card>
       </div>
+      
+      {/* Always show the Floating Cosmic Player when audio is playing */}
+      {playerVisible && currentSongRef.current && (
+        <FloatingCosmicPlayer
+          audioUrl={currentSongRef.current.audioUrl}
+          title={currentSongRef.current.title || journey?.title}
+          description={journey?.description || "Sacred sound journey"}
+          initiallyVisible={true}
+          chakra={journey?.chakras?.[0]?.toLowerCase() || "all"}
+          initialShape={journey?.id === 'trinity-journey' ? 'metatrons-cube' : 
+                      journey?.id === 'dna-healing' ? 'flower-of-life' :
+                      journey?.id === 'cosmic-connection' ? 'sri-yantra' : 'torus'}
+          initialColorTheme={'cosmic-purple'}
+          initialIsExpanded={false}
+          onExpandStateChange={(expanded) => console.log("Player expanded:", expanded)}
+        />
+      )}
     </Layout>
   );
 };

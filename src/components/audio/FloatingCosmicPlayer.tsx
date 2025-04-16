@@ -16,7 +16,7 @@ interface FloatingCosmicPlayerProps {
   initialShape?: string;
   initialColorTheme?: string;
   initialIsExpanded?: boolean;
-  onExpandStateChange?: (expanded: boolean) => void; // Add this prop
+  onExpandStateChange?: (expanded: boolean) => void;
 }
 
 const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
@@ -40,6 +40,11 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
   // Set up title and description if not provided
   const displayTitle = title || (frequency ? `${frequency}Hz Frequency` : 'Cosmic Audio');
   const displayDescription = description || getFrequencyDescription(frequency);
+
+  // Force visibility based on initiallyVisible prop
+  useEffect(() => {
+    setIsVisible(initiallyVisible);
+  }, [initiallyVisible]);
   
   const toggleVisibility = () => {
     setIsVisible(!isVisible);
@@ -75,13 +80,14 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
             initialColorTheme={initialColorTheme}
             initialIsExpanded={isExpanded}
             onExpandStateChange={handleExpandStateChange}
+            autoPlay={true}
           />
         )}
       </AnimatePresence>
       
       {!isVisible && (
         <Button
-          className="fixed bottom-4 right-4 shadow-lg bg-purple-600 hover:bg-purple-700 text-white rounded-full h-12 w-12 flex items-center justify-center"
+          className="fixed bottom-4 right-4 shadow-lg bg-purple-600 hover:bg-purple-700 text-white rounded-full h-12 w-12 flex items-center justify-center z-50"
           onClick={toggleVisibility}
         >
           <PlayCircle className="h-6 w-6" />
