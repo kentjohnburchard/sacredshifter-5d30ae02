@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Hexagon } from "lucide-react";
+import { Hexagon, Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import FrequencyPlayer from "@/components/FrequencyPlayer";
 import { toast } from "sonner";
 import { getFrequencyAudioUrl } from "@/utils/focusTrackMap";
+import { Input } from "@/components/ui/input";
 
 interface TrinityPhase2Props {
   onComplete: () => void;
