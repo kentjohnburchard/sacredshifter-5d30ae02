@@ -34,8 +34,9 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
   const [audioUrl_, setAudioUrl] = useState<string>('');
   const [playerKey, setPlayerKey] = useState<string>(Date.now().toString());
   const cosmicPlayerRef = useRef<any>(null);
-  const { registerPlayerVisuals, isPlaying, currentAudio } = useGlobalAudioPlayer();
+  const { registerPlayerVisuals, isPlaying, currentAudio, resetPlayer } = useGlobalAudioPlayer();
   const errorCountRef = useRef(0);
+  const registeredRef = useRef(false);
   
   // Format the audio URL when it changes
   useEffect(() => {
@@ -55,6 +56,9 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
 
   // Register this player with the global audio player
   useEffect(() => {
+    // Skip registration if we've already tried and it failed
+    if (registeredRef.current) return;
+    
     if (typeof registerPlayerVisuals !== 'function') {
       console.error("registerPlayerVisuals is not a function");
       return;
@@ -87,6 +91,7 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
     try {
       // Register with the global player
       registerPlayerVisuals({ setAudioSource: setAudioSourceCallback });
+      registeredRef.current = true;
       
       console.log("FloatingCosmicPlayer: Registered with global audio player");
     } catch (error) {
@@ -101,6 +106,12 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
     
     if (errorCountRef.current <= 2) {
       toast.error("Audio error occurred. Attempting to recover...");
+      
+      // Force a restart with a new player instance
+      setTimeout(() => {
+        resetPlayer();
+        setPlayerKey(Date.now().toString());
+      }, 500);
     } else {
       toast.error("Audio playback failed. Try a different track.");
     }

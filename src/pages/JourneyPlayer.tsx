@@ -39,7 +39,7 @@ const JourneyPlayer = () => {
   const [journey, setJourney] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [infoExpanded, setInfoExpanded] = useState(false);
-  const [playerVisible, setPlayerVisible] = useState(false);
+  const [playerVisible, setPlayerVisible] = useState(true);
   const [playerError, setPlayerError] = useState<string | null>(null);
   
   const lastPlayedIndex = useRef<number | null>(null);
