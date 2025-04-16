@@ -157,12 +157,32 @@ export function useGlobalAudioPlayer() {
       }
     }
   }, []);
+  
+  // Function to reset player completely
+  const resetPlayer = useCallback(() => {
+    if (!audioElement.current) {
+      audioElement.current = getGlobalAudioElement();
+    }
+    
+    const audio = audioElement.current;
+    
+    // Stop and reset current audio
+    audio.pause();
+    audio.currentTime = 0;
+    audio.src = '';
+    
+    globalState.isPlaying = false;
+    setIsPlaying(false);
+    
+    console.log("Global audio player: Reset complete");
+  }, []);
 
   return { 
     playAudio, 
     isPlaying, 
     currentAudio, 
     setOnEndedCallback,
-    togglePlayPause
+    togglePlayPause,
+    resetPlayer
   };
 }
