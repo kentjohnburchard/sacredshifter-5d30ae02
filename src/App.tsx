@@ -1,91 +1,94 @@
 
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider } from './context/ThemeContext';
-import { AuthProvider } from './context/AuthContext';
-import { TooltipProvider } from '@/components/ui/tooltip';
-import HomePage from './pages/HomePage';
-import Dashboard from './pages/Dashboard';
-import FrequencyLibrary from './pages/FrequencyLibrary';
-import FrequencyDetail from './pages/FrequencyDetail';
-import ChakraSelfAssessment from './pages/ChakraSelfAssessment';
-import JourneyTemplates from './pages/JourneyTemplates';
-import JourneyDetailPage from './pages/JourneyDetailPage';
-import JourneyPlayer from './pages/JourneyPlayer';
-import ValeMysteries from './pages/ValeMysteries';
-import HermeticPrinciples from './pages/HermeticPrinciples';
-import EgyptianWisdom from './pages/EgyptianWisdom';
-import ConsciousnessShifter from './pages/ConsciousnessShifter';
-import DigitalTwinPage from './pages/DigitalTwinPage';
-import ProfilePage from './pages/ProfilePage';
-import AdminDashboard from './pages/AdminDashboard';
-import JourneyAudioAdmin from './pages/JourneyAudioAdmin';
-import NavigationRoot from './components/NavigationRoot';
-import PreferencesLoader from './components/PreferencesLoader';
-import { UserPreferencesProvider, useUserPreferences } from './context/UserPreferencesContext';
-
-function AppContent() {
-  const queryClient = new QueryClient();
-  const { userPreferences } = useUserPreferences();
-
-  return (
-    <div className={`App ${userPreferences.reduceAnimations ? "reduce-animations" : ""}`}>
-      <AuthProvider>
-        <ThemeProvider>
-          <TooltipProvider>
-            <QueryClientProvider client={queryClient}>
-              <NavigationRoot />
-              <Routes>
-                {/* Core routes */}
-                <Route path="/" element={<HomePage />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/admin/journey-audio-admin" element={<JourneyAudioAdmin />} />
-                
-                {/* Frequency routes */}
-                <Route path="/frequency-library" element={<FrequencyLibrary />} />
-                <Route path="/frequency/:id" element={<FrequencyDetail />} />
-                
-                {/* Chakra routes */}
-                <Route path="/chakra-assessment" element={<ChakraSelfAssessment />} />
-                
-                {/* Vale routes */}
-                <Route path="/vale-mysteries" element={<ValeMysteries />} />
-                
-                {/* Hermetic routes */}
-                <Route path="/hermetic-principles" element={<HermeticPrinciples />} />
-                
-                {/* Egyptian Wisdom routes */}
-                <Route path="/egyptian-wisdom" element={<EgyptianWisdom />} />
-                
-                {/* Consciousness Shifter route */}
-                <Route path="/consciousness-shifter" element={<ConsciousnessShifter />} />
-                
-                {/* Digital Twin route */}
-                <Route path="/digital-twin" element={<DigitalTwinPage />} />
-                
-                {/* Journey routes */}
-                <Route path="/journey-templates" element={<JourneyTemplates />} />
-                <Route path="/journey-detail/:id" element={<JourneyDetailPage />} />
-                <Route path="/journey-player/:id" element={<JourneyPlayer />} />
-              </Routes>
-            </QueryClientProvider>
-          </TooltipProvider>
-        </ThemeProvider>
-      </AuthProvider>
-    </div>
-  );
-}
+import { Routes, Route } from "react-router-dom";
+import { EasterEggProvider } from "@/context/EasterEggContext";
+import { ThemeProvider } from "@/context/ThemeContext";
+import SacredShifterHome from '@/pages/SacredShifterHome';
+import Dashboard from '@/pages/Dashboard';
+import Meditations from '@/pages/Meditations';
+import HermeticPrinciples from '@/pages/HermeticPrinciples';
+import FrequencyShifting from '@/pages/FrequencyShifting';
+import JourneyTemplates from '@/pages/JourneyTemplates';
+import JourneyPlayer from '@/pages/JourneyPlayer';
+import Admin from '@/pages/Admin';
+import JourneyAudioAdmin from '@/pages/admin/JourneyAudioAdmin';
+import JourneyAudioMappingsViewer from '@/pages/admin/JourneyAudioMappingsViewer';
+import SiteMap from '@/pages/SiteMap';
+import Frequencies from '@/pages/Frequencies';
+import SacredBlueprint from '@/pages/SacredBlueprint';
+import HeartCenter from '@/pages/HeartCenter';
+import ShiftPerception from '@/pages/ShiftPerception';
+import Astrology from '@/pages/Astrology';
+import Focus from '@/pages/Focus';
+import Timeline from '@/pages/Timeline';
+import FrequencyDetailPage from '@/pages/FrequencyDetailPage';
+import HarmonicMap from '@/pages/HarmonicMap';
+import HeartDashboard from '@/pages/HeartDashboard';
+import EnergyCheck from '@/pages/EnergyCheck';
+import Alignment from '@/pages/Alignment';
+import Profile from '@/pages/Profile';
+import Subscription from '@/pages/Subscription';
+import TrinityGateway from '@/pages/TrinityGateway';
+import HermeticWisdom from '@/pages/HermeticWisdom';
+import AboutFounder from '@/pages/AboutFounder';
+import Contact from '@/pages/Contact';
+import PersonalVibeSettings from '@/pages/PersonalVibeSettings';
+import Journeys from '@/pages/Journeys';
+import PrimeHistory from '@/pages/PrimeHistory';
+import Intentions from '@/pages/Intentions';
+import { Toaster } from 'sonner';
+import OriginFlow from '@/components/sacred-geometry/OriginFlow';
+import ThemeEnhancer from '@/components/ThemeEnhancer';
 
 function App() {
   return (
-    <UserPreferencesProvider>
-      <PreferencesLoader>
-        <AppContent />
-      </PreferencesLoader>
-    </UserPreferencesProvider>
+    <ThemeProvider>
+      <EasterEggProvider>
+        <Toaster />
+        <OriginFlow />
+        <ThemeEnhancer />
+        <React.StrictMode>
+          <Routes>
+            <Route path="/" element={<SacredShifterHome />} />
+            <Route path="/home" element={<SacredShifterHome />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/meditations" element={<Meditations />} />
+            <Route path="/intentions" element={<Intentions />} />
+            <Route path="/hermetic-principles" element={<HermeticPrinciples />} />
+            <Route path="/hermetic-wisdom" element={<HermeticWisdom />} />
+            <Route path="/frequency-shifting" element={<FrequencyShifting />} />
+            <Route path="/frequency-library" element={<Frequencies />} />
+            <Route path="/frequencies" element={<Frequencies />} />
+            <Route path="/frequency/:frequencyId" element={<FrequencyDetailPage />} />
+            <Route path="/journey-templates" element={<JourneyTemplates />} />
+            <Route path="/journey-player/:journeyId" element={<JourneyPlayer />} />
+            <Route path="/journey/:journeyId" element={<JourneyPlayer />} />
+            <Route path="/journeys" element={<Journeys />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/journey-audio-admin" element={<JourneyAudioAdmin />} />
+            <Route path="/admin/journey-audio-mappings" element={<JourneyAudioMappingsViewer />} />
+            <Route path="/site-map" element={<SiteMap />} />
+            <Route path="/sacred-blueprint" element={<SacredBlueprint />} />
+            <Route path="/heart-center" element={<HeartCenter />} />
+            <Route path="/shift-perception" element={<ShiftPerception />} />
+            <Route path="/astrology" element={<Astrology />} />
+            <Route path="/focus" element={<Focus />} />
+            <Route path="/timeline" element={<Timeline />} />
+            <Route path="/prime-history" element={<PrimeHistory />} />
+            <Route path="/harmonic-map" element={<HarmonicMap />} />
+            <Route path="/heart-dashboard" element={<HeartDashboard />} />
+            <Route path="/energy-check" element={<EnergyCheck />} />
+            <Route path="/alignment" element={<Alignment />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/subscription" element={<Subscription />} />
+            <Route path="/trinity-gateway" element={<TrinityGateway />} />
+            <Route path="/about-founder" element={<AboutFounder />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/personal-vibe" element={<PersonalVibeSettings />} />
+          </Routes>
+        </React.StrictMode>
+      </EasterEggProvider>
+    </ThemeProvider>
   );
 }
 

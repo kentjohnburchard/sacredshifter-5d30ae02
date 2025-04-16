@@ -7,8 +7,6 @@ import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import { toast } from 'sonner';
 import { useJourneySongs } from '@/hooks/useJourneySongs';
 import { Button } from '@/components/ui/button';
-import { VisualizerManager } from '@/components/visualizer/VisualizerManager';
-import SimpleFallbackVisualizer from '@/components/visualizer/SimpleFallbackVisualizer';
 import { 
   ChevronDown, 
   ChevronUp,
@@ -16,6 +14,7 @@ import {
   Music,
   BookOpen
 } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
@@ -27,109 +26,14 @@ const JourneyPlayer = () => {
   const [journey, setJourney] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [infoExpanded, setInfoExpanded] = useState(false);
-  const [audioAnalyser, setAudioAnalyser] = useState<AnalyserNode | null>(null);
-  const [audioInitialized, setAudioInitialized] = useState(false);
-  const [visualizerError, setVisualizerError] = useState<string | null>(null);
-  const [audioData, setAudioData] = useState<Uint8Array | undefined>();
-  const [showVisualizer, setShowVisualizer] = useState(true);
   
   const lastPlayedIndex = useRef<number | null>(null);
   const songsRef = useRef<any[]>([]);
   const audioPlayAttemptedRef = useRef(false);
-  const audioContextRef = useRef<AudioContext | null>(null);
   
   const { templates, loading: loadingTemplates } = useJourneyTemplates();
+  
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
-
-  const shouldShowVisualizer = showVisualizer && audioAnalyser !== null && isPlaying;
-
-  useEffect(() => {
-    if (audioInitialized) return;
-
-    console.log("Initializing audio analyzer");
-
-    if (typeof window === 'undefined') {
-      console.log("Not in browser environment, skipping audio analyzer setup");
-      return;
-    }
-    
-    try {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      
-      if (!AudioContextClass) {
-        console.warn("AudioContext not supported in this browser");
-        return;
-      }
-      
-      const audioCtx = audioContextRef.current || new AudioContextClass();
-      audioContextRef.current = audioCtx;
-      
-      const analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 256;
-      setAudioAnalyser(analyser);
-      
-      const connectAudio = () => {
-        try {
-          const audioElement = document.querySelector('audio');
-          
-          if (!audioElement) {
-            console.log("Audio element not found, will retry");
-            setTimeout(connectAudio, 1000);
-            return;
-          }
-          
-          if (audioCtx && analyser && audioCtx.state !== 'closed') {
-            try {
-              const source = audioCtx.createMediaElementSource(audioElement);
-              source.connect(analyser);
-              analyser.connect(audioCtx.destination);
-              console.log("Connected audio analyzer to audio element");
-              setAudioInitialized(true);
-              
-              const dataArray = new Uint8Array(analyser.frequencyBinCount);
-              const updateAudioData = () => {
-                analyser.getByteFrequencyData(dataArray);
-                setAudioData(new Uint8Array(dataArray));
-                requestAnimationFrame(updateAudioData);
-              };
-              updateAudioData();
-              
-            } catch (connectionError: any) {
-              if (connectionError.toString().includes('already connected')) {
-                console.log("Audio element already connected to context");
-                setAudioInitialized(true);
-              } else {
-                console.error("Error connecting analyzer:", connectionError);
-                setVisualizerError("Error connecting audio analyzer");
-              }
-            }
-          }
-        } catch (error) {
-          console.error("Error connecting to audio element:", error);
-          if (error instanceof Error && error.toString().includes('already connected')) {
-            setAudioInitialized(true);
-          } else {
-            setVisualizerError("Error with audio element connection");
-          }
-        }
-      };
-      
-      setTimeout(connectAudio, 1000);
-      
-      return () => {
-        if (audioCtx && audioCtx.state !== 'closed') {
-          try {
-            audioCtx.close().catch(console.error);
-          } catch (e) {
-            console.error("Error closing audio context:", e);
-          }
-        }
-      };
-    } catch (error) {
-      console.error("Failed to initialize audio analyzer:", error);
-      setVisualizerError("Failed to initialize audio analyzer");
-    }
-  }, []);
 
   useEffect(() => {
     if (songs && songs.length > 0) {
@@ -286,13 +190,12 @@ const JourneyPlayer = () => {
             <CardContent className="pt-6">
               <h2 className="text-2xl font-bold text-red-600 mb-4">Journey Not Found</h2>
               <p className="text-gray-600 mb-6">The journey you're looking for doesn't exist or has been removed.</p>
-              <Button 
-                variant="default"
-                className="bg-purple-600 text-white"
+              <button 
+                className="bg-purple-600 text-white px-4 py-2 rounded"
                 onClick={() => navigate('/journey-templates')}
               >
                 Return to Journeys
-              </Button>
+              </button>
             </CardContent>
           </Card>
         </div>
@@ -303,25 +206,6 @@ const JourneyPlayer = () => {
   return (
     <Layout pageTitle={journey?.title || "Sacred Journey"}>
       <div className="max-w-4xl mx-auto p-4 relative z-10">
-        <div className="w-full h-64 mb-6">
-          {visualizerError ? (
-            <SimpleFallbackVisualizer 
-              audioData={audioData}
-              colorScheme={journey?.colorScheme || "purple"}
-            />
-          ) : (
-            <VisualizerManager 
-              size="lg" 
-              isAudioReactive={true}
-              colorScheme={journey?.colorScheme || "purple"}
-              chakra={journey?.chakras?.[0]}
-              frequency={journey?.frequency}
-              isPlaying={isPlaying}
-              analyzerNode={audioAnalyser}
-            />
-          )}
-        </div>
-
         <Card className="backdrop-blur-sm border border-purple-200/30 dark:border-purple-900/30 bg-white/80 dark:bg-black/60">
           <CardContent className="p-6">
             <div className="flex justify-between items-center mb-6">

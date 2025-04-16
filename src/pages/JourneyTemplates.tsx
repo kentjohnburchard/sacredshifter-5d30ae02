@@ -1,6 +1,7 @@
 
-import React from "react";
+import React, { useState } from "react";
 import Layout from "@/components/Layout";
+import { Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
@@ -8,7 +9,8 @@ import { useTheme } from "@/context/ThemeContext";
 import { useJourneyTemplates } from "@/hooks/useJourneyTemplates";
 import JourneyTemplatesGrid from "@/components/frequency-journey/JourneyTemplatesGrid";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Settings } from "lucide-react";
+
+// Remove the SacredAudioPlayer import and instance from this component
 
 const JourneyTemplates = () => {
   const { user } = useAuth();
@@ -41,6 +43,8 @@ const JourneyTemplates = () => {
               </Link>
             )}
           </div>
+          
+          {/* Remove the SacredAudioPlayer from here - it's now exclusively rendered in Layout.tsx */}
           
           <div className="bg-black/30 backdrop-blur-sm text-white p-6 rounded-lg mb-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

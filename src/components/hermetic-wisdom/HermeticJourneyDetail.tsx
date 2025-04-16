@@ -10,7 +10,7 @@ import HermeticTrackUploadModal from "./HermeticTrackUploadModal";
 import HermeticWisdomDrop from "./HermeticWisdomDrop";
 import { getTracksForPrinciple } from "@/services/hermeticPlaylistService";
 import { HermeticTrack } from "@/types/playlist";
-import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
+import FrequencyPlayer from "@/components/FrequencyPlayer";
 
 interface HermeticJourneyDetailProps {
   journey: HermeticJourney;
@@ -67,11 +67,10 @@ const HermeticJourneyDetail: React.FC<HermeticJourneyDetailProps> = ({ journey, 
                 <p className="text-sm font-medium">{currentPlayingTrack.title}</p>
                 <p className="text-xs text-gray-500">{currentPlayingTrack.artist}</p>
               </div>
-              <SacredAudioPlayer
+              <FrequencyPlayer
                 audioUrl={currentPlayingTrack.audioUrl}
                 isPlaying={isAudioPlaying}
                 onPlayToggle={() => setIsAudioPlaying(!isAudioPlaying)}
-                frequency={journey.frequency || 528}
               />
             </div>
           )}

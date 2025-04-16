@@ -10,9 +10,9 @@ import songMappings, {
   functionalityDescriptions, 
   getSongsByFunctionality 
 } from '@/utils/songMappings';
+import RandomizingAudioPlayer from '@/components/audio/RandomizingAudioPlayer';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
 
 const SongMappingViewer = () => {
   const [selectedFunctionality, setSelectedFunctionality] = useState<AppFunctionality>('hermetic-principle');
@@ -125,11 +125,11 @@ const SongMappingViewer = () => {
                       
                       {selectedSong?.id === song.id && (
                         <div className="mt-3 pt-3 border-t border-gray-100">
-                          <SacredAudioPlayer
+                          <RandomizingAudioPlayer
                             audioUrl={song.audioUrl}
                             frequency={song.frequency}
-                            isPlaying={isPlaying}
-                            onPlayToggle={() => setIsPlaying(!isPlaying)}
+                            autoPlay={isPlaying}
+                            onPlayStateChange={setIsPlaying}
                           />
                         </div>
                       )}

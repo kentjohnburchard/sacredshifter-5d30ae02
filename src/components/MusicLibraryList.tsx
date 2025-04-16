@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Play, Pause, Download, Trash2, Music } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import SimpleAudioPlayer from '@/components/audio/SimpleAudioPlayer';
+import RandomizingAudioPlayer from '@/components/audio/RandomizingAudioPlayer';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,7 +16,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import SacredAudioPlayer from '@/components/audio/SacredAudioPlayer';
 
 interface MusicLibraryListProps {
   musicList: MeditationMusic[];
@@ -59,6 +58,7 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
 
   const confirmDelete = async () => {
     if (deletingId) {
+      // If the track being deleted is currently playing, stop it
       if (playingId === deletingId) {
         setPlayingId(null);
       }
@@ -89,7 +89,7 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
   }
 
   return (
-    <div>
+    <div className="space-y-2">
       {musicList.map((music) => (
         <Card key={music.id} className="bg-white/90 backdrop-blur-md border border-purple-200 overflow-hidden">
           <CardContent className="p-3">
@@ -145,10 +145,10 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
             
             {playingId === music.id && (
               <div className="mt-2 pt-2 border-t border-gray-100">
-                <SimpleAudioPlayer
+                <RandomizingAudioPlayer
                   audioUrl={music.audio_url}
                   groupId={music.group_id}
-                  onPlayToggle={(isPlaying: boolean) => {
+                  onPlayStateChange={(isPlaying) => {
                     if (!isPlaying) {
                       setPlayingId(null);
                     }
@@ -181,8 +181,6 @@ const MusicLibraryList: React.FC<MusicLibraryListProps> = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      
-      <SacredAudioPlayer />
     </div>
   );
 };

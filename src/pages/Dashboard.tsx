@@ -1,10 +1,16 @@
 
 import React from "react";
-import { Navigate } from "react-router-dom";
+import Layout from "@/components/Layout";
+import UserDashboard from "@/components/UserDashboard";
 
 const Dashboard: React.FC = () => {
-  // Redirect to the journey-templates page for now
-  return <Navigate to="/journey-templates" replace />;
+  return (
+    <Layout pageTitle="Dashboard">
+      <div className="container mx-auto px-4 py-8">
+        <UserDashboard />
+      </div>
+    </Layout>
+  );
 };
 
 export default Dashboard;

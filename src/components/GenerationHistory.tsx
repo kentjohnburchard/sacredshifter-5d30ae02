@@ -5,7 +5,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Music, Music4 } from "lucide-react";
 import Player from "./Player";
 import { GeneratedTrack } from "@/hooks/musicGeneration/types";
-import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
 
 interface GenerationHistoryProps {
   tracks?: GeneratedTrack[];
@@ -26,14 +25,7 @@ const GenerationHistory: React.FC<GenerationHistoryProps> = ({
     <div className="w-full max-w-3xl mx-auto animate-slide-up">
       <div className="space-y-6">
         {tracks.map(track => (
-          <Player 
-            key={track.id} 
-            track={{
-              ...track,
-              audioUrl: (track as any).audioUrl || (track as any).url || (track as any).source || ''
-            }} 
-            onDelete={onDelete} 
-          />
+          <Player key={track.id} track={track} onDelete={onDelete} />
         ))}
       </div>
     </div>

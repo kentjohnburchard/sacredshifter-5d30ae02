@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -18,33 +17,23 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import SacredVisualizerCanvas from '../visualizer/SacredVisualizerCanvas';
-import { ChakraType, SacredGeometryType } from '../visualizer/sacred-geometries';
-import { useAppStore } from '@/store';
-import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
 
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
   const navigate = useNavigate();
   const { playAudio, isPlaying, currentAudio, setOnEndedCallback, togglePlayPause } = useGlobalAudioPlayer();
-  const { audioData, frequencyData } = useAppStore();
-  const { isInitialized: isAudioInitialized } = useAudioAnalyzer();
   
   const [journey, setJourney] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [infoExpanded, setInfoExpanded] = useState(false);
-  const [showVisualizer, setShowVisualizer] = useState(true);
-  const [visualizerMode, setVisualizerMode] = useState<SacredGeometryType>('chakraBeam');
   
   const lastPlayedIndex = useRef<number | null>(null);
   const songsRef = useRef<any[]>([]);
   const audioPlayAttemptedRef = useRef(false);
   
   const { templates, loading: loadingTemplates } = useJourneyTemplates();
+  
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
-
-  // Define shouldShowVisualizer variable to control when visualizer is displayed
-  const shouldShowVisualizer = showVisualizer && isPlaying;
 
   useEffect(() => {
     if (songs && songs.length > 0) {
@@ -97,11 +86,7 @@ const JourneyPlayer = () => {
           playAudio({
             title: nextSong.title || (journey?.title + " (continued)"),
             artist: "Sacred Shifter",
-            source: audioUrl,
-            customData: {
-              chakra: journey?.chakras?.[0]?.toLowerCase(),
-              frequency: nextSong.frequency
-            }
+            source: audioUrl
           });
         } else {
           console.error("JourneyPlayer: Invalid audio URL for next song");
@@ -170,19 +155,10 @@ const JourneyPlayer = () => {
           playAudio({
             title: selectedSong.title || journey.title,
             artist: "Sacred Shifter",
-            source: audioUrl,
-            customData: {
-              chakra: journey.chakras?.[0]?.toLowerCase(),
-              frequency: selectedSong.frequency
-            }
+            source: audioUrl
           });
           
           console.log("JourneyPlayer: Audio playback initialized");
-          
-          // Show toast when audio is loaded
-          toast.success("Journey audio loaded successfully", {
-            id: "journey-audio-loaded"
-          });
         } else {
           console.error("JourneyPlayer: Invalid audio URL");
           toast.error("Could not play audio: Invalid URL");
@@ -192,15 +168,6 @@ const JourneyPlayer = () => {
       }
     }, 500);
   }, [journey, songs, loadingSongs, isLoading, playAudio, journeyId]);
-
-  // Handle visualizer mode changes
-  const cycleVisualizerMode = () => {
-    const modes: SacredGeometryType[] = ['chakraBeam', 'flowerOfLife', 'fibonacciSpiral', 'primeFlow', 'chakraSpiral', 'merkaba', 'metatronCube', 'sriYantra'];
-    const currentIndex = modes.indexOf(visualizerMode);
-    const nextIndex = (currentIndex + 1) % modes.length;
-    setVisualizerMode(modes[nextIndex]);
-    toast.info(`Visualizer: ${modes[nextIndex]}`);
-  };
 
   if (isLoading || loadingSongs || loadingTemplates) {
     return (
@@ -223,12 +190,12 @@ const JourneyPlayer = () => {
             <CardContent className="pt-6">
               <h2 className="text-2xl font-bold text-red-600 mb-4">Journey Not Found</h2>
               <p className="text-gray-600 mb-6">The journey you're looking for doesn't exist or has been removed.</p>
-              <Button 
-                onClick={() => navigate('/journey-templates')}
+              <button 
                 className="bg-purple-600 text-white px-4 py-2 rounded"
+                onClick={() => navigate('/journey-templates')}
               >
                 Return to Journeys
-              </Button>
+              </button>
             </CardContent>
           </Card>
         </div>
@@ -239,30 +206,6 @@ const JourneyPlayer = () => {
   return (
     <Layout pageTitle={journey?.title || "Sacred Journey"}>
       <div className="max-w-4xl mx-auto p-4 relative z-10">
-        {/* Enhanced Visualizer */}
-        <div className="w-full h-64 mb-4 rounded-xl overflow-hidden shadow-lg">
-          <SacredVisualizerCanvas
-            frequencyData={frequencyData || undefined}
-            chakra={journey?.chakras?.[0]?.toLowerCase() as ChakraType || 'crown'}
-            visualizerMode={visualizerMode}
-            enableControls={true}
-            enablePostProcessing={true}
-            intensity={frequencyData ? Array.from(frequencyData).reduce((sum, val) => sum + val, 0) / (frequencyData.length * 255) : 0}
-            isActive={isPlaying}
-          />
-        </div>
-        
-        <div className="mb-4 flex justify-end">
-          <Button 
-            onClick={cycleVisualizerMode}
-            variant="outline" 
-            size="sm"
-            className="text-purple-600 border-purple-300 hover:bg-purple-100"
-          >
-            Change Visualization
-          </Button>
-        </div>
-
         <Card className="backdrop-blur-sm border border-purple-200/30 dark:border-purple-900/30 bg-white/80 dark:bg-black/60">
           <CardContent className="p-6">
             <div className="flex justify-between items-center mb-6">

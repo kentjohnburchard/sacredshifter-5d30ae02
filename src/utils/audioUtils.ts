@@ -1,251 +1,175 @@
 
 /**
- * Audio Utilities for Sacred Shifter
- * A collection of helper functions for working with audio
+ * Utility functions for generating audio frequencies and tones
  */
 
 /**
- * Format seconds into a minutes:seconds display
- * @param seconds - The number of seconds
- * @returns A string in the format "MM:SS"
- */
-export function formatTime(seconds: number): string {
-  if (isNaN(seconds) || seconds < 0) {
-    return '0:00';
-  }
-  
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = Math.floor(seconds % 60);
-  
-  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-}
-
-/**
- * Calculate sound frequency for a given note/octave
- * @param note - The note (C, C#, D, etc.)
- * @param octave - The octave number
- * @returns The frequency in Hz
- */
-export function calculateNoteFrequency(note: string, octave: number): number {
-  const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-  const noteIndex = notes.indexOf(note.toUpperCase());
-  
-  if (noteIndex === -1) {
-    return 0; // Invalid note
-  }
-  
-  // A4 = 440Hz
-  const a4 = 440;
-  // A4 is octave 4, note 'A', which is index 9
-  const semitoneOffset = (octave - 4) * 12 + (noteIndex - 9);
-  
-  // Equal temperament formula: f = f0 * 2^(n/12)
-  return a4 * Math.pow(2, semitoneOffset / 12);
-}
-
-/**
- * Get the closest musical note to a given frequency
- * @param frequency - The frequency in Hz
- * @returns An object containing the note, octave and cents deviation
- */
-export function getClosestNote(frequency: number): { note: string, octave: number, cents: number } {
-  if (frequency <= 0) {
-    return { note: 'A', octave: 4, cents: 0 };
-  }
-  
-  const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-  
-  // A4 = 440Hz
-  const a4 = 440;
-  
-  // Calculate how many semitones away from A4 this frequency is
-  const semitoneOffset = 12 * Math.log2(frequency / a4);
-  
-  // Get the closest semitone
-  const closestSemitone = Math.round(semitoneOffset);
-  
-  // Calculate the octave and note
-  let noteIndex = (9 + closestSemitone) % 12;
-  if (noteIndex < 0) noteIndex += 12;
-  
-  const octave = 4 + Math.floor((9 + closestSemitone) / 12);
-  const note = notes[noteIndex];
-  
-  // Calculate cents deviation (100 cents = 1 semitone)
-  const cents = Math.round((semitoneOffset - closestSemitone) * 100);
-  
-  return { note, octave, cents };
-}
-
-/**
- * Check if a frequency is a prime number or within a small tolerance of one
- * @param frequency - The frequency to check
- * @param tolerance - The tolerance in Hz
- * @returns True if the frequency is prime or within tolerance
- */
-export function isPrimeFrequency(frequency: number, tolerance: number = 0.5): boolean {
-  // Check for common prime frequencies
-  const primeFrequencies = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37];
-  
-  for (const prime of primeFrequencies) {
-    if (Math.abs(frequency - prime) <= tolerance) {
-      return true;
-    }
-    
-    // Also check for prime frequencies in higher octaves (doubled)
-    let octavePrime = prime;
-    while (octavePrime * 2 <= frequency + tolerance) {
-      octavePrime *= 2;
-      if (Math.abs(frequency - octavePrime) <= tolerance) {
-        return true;
-      }
-    }
-  }
-  
-  return false;
-}
-
-/**
- * Calculate the Solfeggio frequency for a specific index
- * @param index - The index (0-8 for traditional Solfeggio frequencies)
- * @returns The frequency in Hz
- */
-export function solfeggioFrequency(index: number): number {
-  const frequencies = [174, 285, 396, 417, 528, 639, 741, 852, 963];
-  return frequencies[index % frequencies.length] || 528; // Default to 528Hz if invalid index
-}
-
-/**
- * Create a tone with the specified frequency
+ * Creates an audio buffer containing a sine wave of the specified frequency
+ * 
+ * @param audioContext - The Web Audio API context
  * @param frequency - The frequency in Hz to generate
- * @param duration - Duration in seconds (default: 2)
- * @param volume - Volume from 0 to 1 (default: 0.5)
- * @returns An object with play and stop methods
+ * @param duration - Duration of the tone in seconds
+ * @param volume - Volume of the tone (0-1)
+ * @returns AudioBuffer containing the generated tone
  */
-export function createTone(frequency: number, duration: number = 2, volume: number = 0.5) {
-  // Create audio context
-  const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-  const audioCtx = new AudioContext();
+export function createTone(
+  audioContext: AudioContext,
+  frequency: number,
+  duration: number = 5,
+  volume: number = 0.5
+): AudioBuffer {
+  // Create an audio buffer for the tone
+  const sampleRate = audioContext.sampleRate;
+  const bufferSize = duration * sampleRate;
+  const buffer = audioContext.createBuffer(2, bufferSize, sampleRate);
   
-  // Create oscillator
-  const oscillator = audioCtx.createOscillator();
-  oscillator.type = 'sine';
-  oscillator.frequency.value = frequency;
+  // Generate the sine wave data for left and right channels
+  const leftChannel = buffer.getChannelData(0);
+  const rightChannel = buffer.getChannelData(1);
   
-  // Create gain node for volume control
-  const gainNode = audioCtx.createGain();
-  gainNode.gain.value = volume;
+  // Fill the buffer with a sine wave of the given frequency
+  for (let i = 0; i < bufferSize; i++) {
+    const value = Math.sin(2 * Math.PI * frequency * (i / sampleRate)) * volume;
+    leftChannel[i] = value;
+    rightChannel[i] = value;
+  }
   
-  // Connect nodes
-  oscillator.connect(gainNode);
-  gainNode.connect(audioCtx.destination);
+  return buffer;
+}
+
+/**
+ * Generates a binaural beat between two frequencies
+ * 
+ * @param audioContext - The Web Audio API context
+ * @param baseFrequency - The base frequency in Hz
+ * @param targetFrequency - The target frequency in Hz (the difference creates the binaural beat)
+ * @param duration - Duration in seconds
+ * @param volume - Volume of the tone (0-1)
+ * @returns AudioBuffer containing the binaural beat
+ */
+export function createBinauralBeat(
+  audioContext: AudioContext,
+  baseFrequency: number,
+  targetFrequency: number,
+  duration: number = 10,
+  volume: number = 0.5
+): AudioBuffer {
+  const sampleRate = audioContext.sampleRate;
+  const bufferSize = duration * sampleRate;
+  const buffer = audioContext.createBuffer(2, bufferSize, sampleRate);
   
-  let isPlaying = false;
-  let stopTimeout: number | null = null;
+  // Generate separate frequencies for left and right channels
+  const leftChannel = buffer.getChannelData(0);
+  const rightChannel = buffer.getChannelData(1);
   
-  return {
-    // Play the tone
-    play: () => {
-      if (isPlaying) return;
-      
-      oscillator.start();
-      isPlaying = true;
-      
-      // Auto-stop after duration
-      if (duration > 0) {
-        stopTimeout = window.setTimeout(() => {
-          if (isPlaying) {
-            oscillator.stop();
-            isPlaying = false;
-          }
-        }, duration * 1000);
-      }
-    },
+  for (let i = 0; i < bufferSize; i++) {
+    const t = i / sampleRate;
+    // Left channel gets base frequency
+    leftChannel[i] = Math.sin(2 * Math.PI * baseFrequency * t) * volume;
+    // Right channel gets target frequency
+    rightChannel[i] = Math.sin(2 * Math.PI * targetFrequency * t) * volume;
+  }
+  
+  return buffer;
+}
+
+/**
+ * Creates a frequency that slowly modulates between the given range
+ * 
+ * @param audioContext - The Web Audio API context
+ * @param frequency - The center frequency in Hz
+ * @param variationHz - How much to vary the frequency by (in Hz)
+ * @param modulationSpeed - Speed of modulation in Hz (how fast the frequency changes)
+ * @param duration - Duration in seconds
+ * @param volume - Volume of the tone (0-1)
+ * @returns AudioBuffer containing the modulated frequency
+ */
+export function createModulatedTone(
+  audioContext: AudioContext,
+  frequency: number,
+  variationHz: number = 5,
+  modulationSpeed: number = 0.1,
+  duration: number = 10,
+  volume: number = 0.5
+): AudioBuffer {
+  const sampleRate = audioContext.sampleRate;
+  const bufferSize = duration * sampleRate;
+  const buffer = audioContext.createBuffer(2, bufferSize, sampleRate);
+  
+  const leftChannel = buffer.getChannelData(0);
+  const rightChannel = buffer.getChannelData(1);
+  
+  let phase = 0;
+  
+  for (let i = 0; i < bufferSize; i++) {
+    const t = i / sampleRate;
     
-    // Stop the tone
-    stop: () => {
-      if (!isPlaying) return;
-      
-      if (stopTimeout) {
-        clearTimeout(stopTimeout);
-      }
-      
-      oscillator.stop();
-      isPlaying = false;
-    },
+    // Calculate the current frequency with modulation
+    const currentFreq = frequency + Math.sin(2 * Math.PI * modulationSpeed * t) * variationHz;
     
-    // Check if tone is playing
-    isPlaying: () => isPlaying,
+    // Generate a sample using the varying frequency
+    phase += 2 * Math.PI * currentFreq / sampleRate;
+    const sample = Math.sin(phase) * volume;
     
-    // Change frequency of the tone
-    setFrequency: (newFrequency: number) => {
-      oscillator.frequency.value = newFrequency;
-    },
+    leftChannel[i] = sample;
+    rightChannel[i] = sample;
+  }
+  
+  return buffer;
+}
+
+/**
+ * Create an audio blob URL for a given frequency
+ * 
+ * @param frequency - The frequency to generate in Hz
+ * @param duration - Duration of the sound in seconds
+ * @param withAmbient - Whether to mix with ambient sounds
+ * @returns Promise resolving to a blob URL for the audio
+ */
+export async function createFrequencyBlobUrl(
+  frequency: number,
+  duration: number = 60,
+  withAmbient: boolean = true
+): Promise<string> {
+  return new Promise((resolve) => {
+    // This would normally generate real audio, but for now we'll use 
+    // placeholder URLs based on frequency to avoid heavy browser computation
     
-    // Change volume of the tone
-    setVolume: (newVolume: number) => {
-      gainNode.gain.value = newVolume;
+    // For frequencies in the Solfeggio range (396-963 Hz)
+    if (frequency >= 396 && frequency <= 963) {
+      resolve(`/sounds/frequency-${Math.round(frequency)}hz.mp3`);
     }
+    // For Earth frequency (7.83 Hz Schumann resonance)
+    else if (frequency < 20) {
+      resolve("/sounds/schumann-resonance.mp3");
+    }
+    // Default placeholder
+    else {
+      resolve("/sounds/focus-ambient.mp3");
+    }
+  });
+}
+
+/**
+ * Maps frequency to a meaningful description
+ * @param frequency - The frequency in Hz
+ * @returns A string description of the frequency
+ */
+export function getFrequencyName(frequency: number): string {
+  // Map known frequencies to their common names
+  const frequencyMap: Record<number, string> = {
+    396: "Liberation Tone (396 Hz)",
+    417: "Transformation Tone (417 Hz)",
+    432: "Miracle Tone (432 Hz)",
+    528: "Love Frequency (528 Hz)",
+    639: "Connection Frequency (639 Hz)",
+    741: "Expression Frequency (741 Hz)",
+    852: "Spiritual Doorway (852 Hz)",
+    963: "Divine Frequency (963 Hz)",
+    7.83: "Schumann Resonance (Earth's Heartbeat)",
+    40: "Gamma Waves (Focus)",
+    8: "Theta Waves (Meditation)"
   };
-}
-
-/**
- * Smoothly fade in audio for pleasing transition
- * @param audioElement - The audio element to fade in
- * @param duration - Fade duration in milliseconds
- * @param targetVolume - The target volume (0.0 to 1.0)
- */
-export function fadeInAudio(audioElement: HTMLAudioElement, duration: number = 1000, targetVolume: number = 1.0): void {
-  if (!audioElement) return;
   
-  // Start with 0 volume
-  audioElement.volume = 0;
-  
-  // Calculate volume increment per step
-  const steps = 20;
-  const volumeStep = targetVolume / steps;
-  const stepDuration = duration / steps;
-  
-  let currentStep = 0;
-  
-  const fadeInterval = setInterval(() => {
-    currentStep++;
-    const newVolume = Math.min(currentStep * volumeStep, targetVolume);
-    audioElement.volume = newVolume;
-    
-    if (currentStep >= steps) {
-      clearInterval(fadeInterval);
-    }
-  }, stepDuration);
-}
-
-/**
- * Smoothly fade out audio for pleasing transition
- * @param audioElement - The audio element to fade out
- * @param duration - Fade duration in milliseconds
- * @param callback - Optional callback function to execute after fade completes
- */
-export function fadeOutAudio(audioElement: HTMLAudioElement, duration: number = 1000, callback?: () => void): void {
-  if (!audioElement) return;
-  
-  // Get current volume
-  const startVolume = audioElement.volume;
-  
-  // Calculate volume decrement per step
-  const steps = 20;
-  const volumeStep = startVolume / steps;
-  const stepDuration = duration / steps;
-  
-  let currentStep = 0;
-  
-  const fadeInterval = setInterval(() => {
-    currentStep++;
-    const newVolume = Math.max(startVolume - (currentStep * volumeStep), 0);
-    audioElement.volume = newVolume;
-    
-    if (currentStep >= steps) {
-      clearInterval(fadeInterval);
-      if (callback) callback();
-    }
-  }, stepDuration);
+  return frequencyMap[frequency] || `${frequency} Hz Tone`;
 }

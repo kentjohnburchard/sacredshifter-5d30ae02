@@ -18,10 +18,7 @@ const FrequencyDetailPage = () => {
           Immerse yourself in the healing vibrations and sacred geometry of this frequency
         </p>
         
-        <FrequencyExperiencePlayer 
-          audioUrl="/frequencies/528hz-love.mp3"
-          frequency={frequencyId ? parseInt(frequencyId, 10) : 528}
-        />
+        <FrequencyExperiencePlayer />
       </div>
     </Layout>
   );

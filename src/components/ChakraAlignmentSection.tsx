@@ -6,38 +6,16 @@ import { Play } from "lucide-react";
 import chakraData, { ChakraData } from "@/data/chakraData";
 import ChakraDetailModal from "./chakras/ChakraDetailModal";
 
-interface ChakraDetailData {
-  name: string;
-  sanskritName: string;
-  frequency: number;
-  description: string;
-  element: string;
-  location: string;
-  associations?: string;
-  color?: string;
-  id?: string;
-}
-
 const ChakraAlignmentSection: React.FC = () => {
   const [selectedChakra, setSelectedChakra] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeChakra, setActiveChakra] = useState<ChakraDetailData | null>(null);
+  const [activeChakra, setActiveChakra] = useState<ChakraData | null>(null);
   
   useEffect(() => {
     if (selectedChakra) {
       const chakra = chakraData.find(c => c.id === selectedChakra);
       if (chakra) {
-        const detailData: ChakraDetailData = {
-          name: chakra.name,
-          sanskritName: chakra.sanskrit,
-          frequency: chakra.frequency,
-          description: chakra.valesWisdom || chakra.emotionalThemes.join(", "),
-          element: chakra.element,
-          location: chakra.location,
-          associations: chakra.emotionalThemes.join(", "),
-          color: chakra.color,
-        };
-        setActiveChakra(detailData);
+        setActiveChakra(chakra);
         setIsModalOpen(true);
       }
     } else {

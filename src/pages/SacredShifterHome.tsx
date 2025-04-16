@@ -6,85 +6,24 @@ import Layout from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Music, Heart, Sparkles, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
+import EnhancedGeometryVisualizer from "@/components/sacred-geometry/EnhancedGeometryVisualizer";
 import { useTheme } from "@/context/ThemeContext";
 import ConsciousnessToggle from "@/components/ConsciousnessToggle";
-import { initializeAudioAfterInteraction, resumeAudioContext } from '@/utils/audioContextInitializer';
-import { preloadCoreAudioFiles } from '@/utils/audioPreloader';
-import { toast } from "sonner";
-import { useAppStore } from "@/store";
-import FallbackVisualizer from "@/components/visualizer/FallbackVisualizer";
 
 const SacredShifterHome: React.FC = () => {
   const { liftTheVeil, currentQuote } = useTheme();
-  const { audioInitialized, setAudioInitialized, setStatusMessage } = useAppStore();
-  const [showAmbientPlayer, setShowAmbientPlayer] = useState(false);
-  
-  // Initialize audio context and preload audio files when component mounts
-  useEffect(() => {
-    // Initialize audio as soon as possible
-    const initAudio = () => {
-      console.log("Initializing audio on SacredShifterHome mount");
-      initializeAudioAfterInteraction();
-      
-      // Preload our core audio files
-      preloadCoreAudioFiles();
-      
-      // Create and hide an audio element to help initialize the audio system
-      const audioElement = document.querySelector('audio#preload-audio') as HTMLAudioElement || document.createElement('audio');
-      audioElement.id = 'preload-audio';
-      audioElement.src = '/sounds/focus-ambient.mp3';
-      audioElement.loop = true;
-      audioElement.volume = 0.1;
-      audioElement.style.display = 'none';
-      
-      if (!audioElement.parentElement) {
-        document.body.appendChild(audioElement);
-      }
-      
-      // Set up audio play error handling
-      audioElement.addEventListener('error', (e) => {
-        console.error("Error loading audio element:", e);
-        setStatusMessage("Audio loading error. Check your internet connection.");
-      });
-      
-      // Attempt to play the audio to initialize the audio system
-      audioElement.play().then(() => {
-        console.log("🎵 Audio system initialized successfully");
-        setAudioInitialized(true);
-        
-        // Pause it shortly after to avoid unwanted sound
-        setTimeout(() => {
-          audioElement.pause();
-        }, 100);
-      }).catch(err => {
-        console.warn("Audio system initialization requires user interaction:", err);
-      });
-    };
-    
-    // Set up event listeners for user interaction
-    const userInteractionHandler = () => {
-      initAudio();
-      resumeAudioContext().catch(console.error);
-      document.removeEventListener('click', userInteractionHandler);
-      document.removeEventListener('touchstart', userInteractionHandler);
-    };
-    
-    document.addEventListener('click', userInteractionHandler);
-    document.addEventListener('touchstart', userInteractionHandler);
-    
-    // Try to initialize immediately as well
-    initAudio();
-    
-    return () => {
-      document.removeEventListener('click', userInteractionHandler);
-      document.removeEventListener('touchstart', userInteractionHandler);
-    };
-  }, [setAudioInitialized, setStatusMessage]);
+  const [showVisualizer, setShowVisualizer] = useState(true);
+  const [geometryExpanded, setGeometryExpanded] = useState(false);
   
   // Determine background classes based on mode
   const bgClasses = liftTheVeil 
     ? "bg-gradient-to-b from-pink-900/30 to-purple-900/30"
     : "bg-gradient-to-b from-indigo-900/30 to-purple-900/30";
+    
+  // Handle visualizer expand/collapse state change
+  const handleVisualizerExpandChange = (expanded: boolean) => {
+    setGeometryExpanded(expanded);
+  };
 
   return (
     <Layout pageTitle="Sacred Shifter" useBlueWaveBackground={!liftTheVeil}>
@@ -92,19 +31,9 @@ const SacredShifterHome: React.FC = () => {
         {/* Hidden Easter Egg Toggle */}
         <ConsciousnessToggle />
         
-        {/* Optional ambient visualizer */}
-        {showAmbientPlayer && (
-          <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
-            <FallbackVisualizer 
-              colorScheme={liftTheVeil ? '#e879f9' : '#9b87f5'} 
-              isPlaying={true}
-            />
-          </div>
-        )}
-        
         <div className="flex flex-col items-center justify-center min-h-[70vh] text-center relative">
           {/* Main Content */}
-          <div className="transition-all duration-500">
+          <div className={`transition-all duration-500 ${geometryExpanded ? 'opacity-20' : 'opacity-100'}`}>
             {/* Logo with Animation */}
             <motion.div
               initial={{ opacity: 0, y: -20 }}
@@ -152,28 +81,25 @@ const SacredShifterHome: React.FC = () => {
             </div>
 
             {/* Call to Action Button */}
-            <CallToAction 
-              to="/dashboard" 
-              onClick={() => {
-                // Initialize audio on click
-                initializeAudioAfterInteraction();
-                resumeAudioContext().catch(console.error);
-                if (!audioInitialized) {
-                  toast.info("Audio system initialized. Experience the full power of sound healing.");
-                  setAudioInitialized(true);
-                }
-                
-                // Show the ambient player
-                setShowAmbientPlayer(true);
-              }}
-            >
+            <CallToAction to="/dashboard">
               Begin Your Journey
             </CallToAction>
+          </div>
+          
+          {/* Sacred Geometry Visualizer */}
+          <div className={`w-full max-w-4xl mx-auto mt-8 mb-16 ${geometryExpanded ? 'z-30' : 'z-10'}`}>
+            <EnhancedGeometryVisualizer 
+              showControls={true}
+              isAudioReactive={true}
+              expandable={true}
+              onExpandStateChange={handleVisualizerExpandChange}
+              mode={liftTheVeil ? 'spiral' : 'fractal'}
+            />
           </div>
         </div>
 
         {/* Feature Cards */}
-        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16 mb-24 transition-opacity duration-500`}>
+        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16 mb-24 transition-opacity duration-500 ${geometryExpanded ? 'opacity-0' : 'opacity-100'}`}>
           {[
             { 
               title: 'Sound Healing', 

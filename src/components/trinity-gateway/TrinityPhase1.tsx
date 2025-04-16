@@ -1,12 +1,12 @@
+
 import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Triangle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import FrequencyPlayer from "@/components/FrequencyPlayer";
 import { toast } from "sonner";
-import { useGlobalAudioPlayer } from "@/hooks/useGlobalAudioPlayer";
-import SacredAudioPlayer from "@/components/audio/SacredAudioPlayer";
 
 interface TrinityPhase1Props {
   onComplete: () => void;
@@ -14,60 +14,42 @@ interface TrinityPhase1Props {
 }
 
 const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete, skipPhase }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [secondsElapsed, setSecondsElapsed] = useState(0);
   const [teslaQuoteShown, setTeslaQuoteShown] = useState(false);
-  const { currentAudio, playAudio, isPlaying, togglePlayPause } = useGlobalAudioPlayer();
   
   const PHASE_DURATION = 180; // 3 minutes in seconds
-  const AUDIO_URL = "/frequencies/396hz-root.mp3";
   
-  const isThisFrequencyPlaying = 
-    isPlaying && 
-    currentAudio?.source === AUDIO_URL && 
-    currentAudio?.customData?.frequency === 396;
-  
+  // Toggle audio playback
   const togglePlayback = useCallback(() => {
-    if (isThisFrequencyPlaying) {
-      togglePlayPause();
-    } else {
-      playAudio({
-        title: "Phase 1: Release (396Hz)",
-        artist: "Sacred Shifter",
-        source: AUDIO_URL,
-        customData: {
-          frequency: 396,
-          chakra: "Root",
-          phaseId: "trinity-phase-1"
-        }
-      });
-    }
-    
-    if (!isThisFrequencyPlaying) {
+    setIsPlaying(!isPlaying);
+    if (!isPlaying) {
       toast.info("Beginning Phase 1: Release (396Hz)");
     } else {
       toast.info("Frequency paused");
     }
-  }, [isThisFrequencyPlaying, playAudio, togglePlayPause]);
+  }, [isPlaying]);
   
+  // Track progress and show Tesla quote at specific time
   useEffect(() => {
     let timer: NodeJS.Timeout;
     
-    if (isThisFrequencyPlaying) {
+    if (isPlaying) {
       timer = setInterval(() => {
         setSecondsElapsed(prev => {
           const newSeconds = prev + 1;
           setProgress((newSeconds / PHASE_DURATION) * 100);
           
+          // Check for Tesla quote Easter egg at 3:33 (203 seconds total)
           if (newSeconds === 33 && !teslaQuoteShown) {
             toast.info("\"If you want to find the secrets of the universe, think in terms of energy, frequency and vibration.\" — Tesla");
             setTeslaQuoteShown(true);
           }
           
+          // Auto-advance when phase is complete
           if (newSeconds >= PHASE_DURATION) {
-            if (isThisFrequencyPlaying) {
-              togglePlayPause();
-            }
+            setIsPlaying(false);
             setTimeout(() => onComplete(), 1000);
             toast.success("Phase 1 complete: Root chakra released");
             return PHASE_DURATION;
@@ -81,14 +63,16 @@ const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete, skipPhase }) 
     return () => {
       clearInterval(timer);
     };
-  }, [isThisFrequencyPlaying, onComplete, teslaQuoteShown, togglePlayPause]);
+  }, [isPlaying, onComplete, teslaQuoteShown]);
   
+  // Format time as MM:SS
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
   
+  // Use the passed skipPhase function or fallback to onComplete if it's not provided
   const handleSkip = () => {
     if (skipPhase) {
       skipPhase();
@@ -110,8 +94,8 @@ const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete, skipPhase }) 
           <div className="flex justify-center mb-4">
             <motion.div
               animate={{
-                rotate: isThisFrequencyPlaying ? [0, 360] : 0,
-                scale: isThisFrequencyPlaying ? [1, 1.05, 1] : 1
+                rotate: isPlaying ? [0, 360] : 0,
+                scale: isPlaying ? [1, 1.05, 1] : 1
               }}
               transition={{
                 rotate: { duration: 20, repeat: Infinity, ease: "linear" },
@@ -129,9 +113,9 @@ const TrinityPhase1: React.FC<TrinityPhase1Props> = ({ onComplete, skipPhase }) 
           </p>
           
           <div className="flex justify-center mb-6">
-            <SacredAudioPlayer
-              audioUrl={AUDIO_URL}
-              isPlaying={isThisFrequencyPlaying}
+            <FrequencyPlayer
+              frequencyId="396hz"
+              isPlaying={isPlaying}
               onPlayToggle={togglePlayback}
               frequency={396}
             />

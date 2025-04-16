@@ -33,18 +33,3 @@ export const formatAstroData = (dateString: string): string => {
     return dateString;
   }
 };
-
-/**
- * Format chakra name, adding proper capitalization and spacing
- */
-export function formatChakraName(name: string): string {
-  if (!name) return '';
-  
-  // Split by hyphens, underscores, or spaces
-  const words = name.split(/[-_\s]+/);
-  
-  // Capitalize each word and join with spaces
-  return words
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
-}

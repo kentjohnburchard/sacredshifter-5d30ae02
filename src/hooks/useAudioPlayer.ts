@@ -1,59 +1,34 @@
 
 import { useState, useEffect, useRef } from 'react';
 
-interface Track {
-  title: string;
-  artist?: string;
-  source: string;
-  imageUrl?: string;
-  customData?: {
-    frequency?: number;
-    chakra?: string;
-    [key: string]: any;
-  };
-}
-
 export function useAudioPlayer() {
-  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
+  const [currentAudioTime, setCurrentAudioTime] = useState(0);
   const [audioLoaded, setAudioLoaded] = useState(false);
   const [audioError, setAudioError] = useState<string | null>(null);
-  const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
-  
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
-  const audioSourceConnectedRef = useRef<boolean>(false);
-  
-  // Initialize the audio element and audio context
+  const audioSourceRef = useRef<string | null>(null);
+
+  // Ensure the audio element exists
   useEffect(() => {
-    // Create audio element if it doesn't exist
     if (!audioRef.current) {
-      console.log("Initializing audio element");
+      // Create an audio element if it doesn't exist yet
       const audioElement = document.querySelector('audio#global-audio-player') as HTMLAudioElement || document.createElement('audio');
       audioElement.id = 'global-audio-player';
       audioElement.style.display = 'none';
-      audioElement.crossOrigin = 'anonymous';
+      audioElement.crossOrigin = 'anonymous'; // Important for analyzing cross-origin media
       
       if (!audioElement.parentElement) {
         document.body.appendChild(audioElement);
       }
       
       audioRef.current = audioElement;
-    }
-    
-    // Initialize the AudioContext
-    if (!audioContextRef.current) {
-      console.log("Initializing audio context");
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      if (AudioContext) {
-        audioContextRef.current = new AudioContext();
-      }
+      console.log("Creating new Audio element");
     }
     
     return () => {
-      // Don't remove the audio element on unmount
+      // Don't remove the audio element on unmount, let it persist
     };
   }, []);
 
@@ -64,55 +39,30 @@ export function useAudioPlayer() {
     const audio = audioRef.current;
     
     const handleTimeUpdate = () => {
-      setCurrentTime(audio.currentTime);
+      setCurrentAudioTime(audio.currentTime);
     };
     
     const handleLoadedMetadata = () => {
-      console.log("Audio loaded, duration:", audio.duration);
       setDuration(audio.duration);
       setAudioLoaded(true);
       setAudioError(null);
+      console.log("Audio loaded, duration:", audio.duration);
     };
     
     const handlePlay = () => {
+      setIsAudioPlaying(true);
       console.log("Audio play event detected");
-      setIsPlaying(true);
-      
-      // Notify any listeners about the state change
-      const event = new CustomEvent('audioPlayStateChange', {
-        detail: { isPlaying: true, currentAudio: currentTrack }
-      });
-      window.dispatchEvent(event);
-      
-      // Ensure audio context is running
-      if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
-        audioContextRef.current.resume().catch(err => {
-          console.error("Error resuming audio context:", err);
-        });
-      }
     };
     
     const handlePause = () => {
+      setIsAudioPlaying(false);
       console.log("Audio pause event detected");
-      setIsPlaying(false);
-      
-      // Notify any listeners about the state change
-      const event = new CustomEvent('audioPlayStateChange', {
-        detail: { isPlaying: false, currentAudio: currentTrack }
-      });
-      window.dispatchEvent(event);
     };
     
     const handleError = (e: any) => {
       console.error("Audio error:", e);
       setAudioError("Failed to load audio");
       setAudioLoaded(false);
-      
-      // Notify any listeners about the error
-      const event = new CustomEvent('audioPlayStateChange', {
-        detail: { isPlaying: false, error: "Failed to load audio" }
-      });
-      window.dispatchEvent(event);
     };
     
     // Remove existing event listeners to prevent duplicates
@@ -139,16 +89,16 @@ export function useAudioPlayer() {
         audio.removeEventListener('error', handleError);
       }
     };
-  }, [currentTrack]);
+  }, [audioRef.current]);
 
   // Function to set the audio source
   const setAudioSource = (source: string) => {
     if (!audioRef.current) return;
     
-    console.log("Setting audio source to:", source);
-    
     // Only change the source if it's different from current
-    if (audioRef.current.src !== source) {
+    if (audioSourceRef.current !== source) {
+      console.log("Setting audio source to:", source);
+      audioSourceRef.current = source;
       audioRef.current.src = source;
       audioRef.current.load();
       setAudioLoaded(false);
@@ -157,12 +107,12 @@ export function useAudioPlayer() {
   };
 
   // Function to toggle play/pause
-  const togglePlay = () => {
+  const togglePlayPause = () => {
     if (!audioRef.current) return;
     
-    console.log("Toggle play called, current state:", isPlaying);
+    console.log("Toggle play/pause called, current state:", isAudioPlaying);
     
-    if (isPlaying) {
+    if (isAudioPlaying) {
       audioRef.current.pause();
     } else {
       // Ensure we have a src before playing
@@ -170,32 +120,22 @@ export function useAudioPlayer() {
         // Set volume to ensure it's audible
         audioRef.current.volume = 0.7;
         
-        // Start the audio context if needed
-        if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
-          audioContextRef.current.resume().catch(err => {
-            console.error("Error resuming audio context:", err);
-          });
-        }
-        
         console.log("Attempting to play audio...");
-        audioRef.current.play()
-          .then(() => {
-            console.log("Audio playback started successfully");
-          })
-          .catch(error => {
-            console.error("Error playing audio:", error);
-            setAudioError("Failed to play audio");
-            
-            // Some browsers require user interaction before audio can play
-            // If we get this specific error, we'll inform the user
-            if (error.name === 'NotAllowedError') {
-              console.log("User interaction required to play audio");
-              // Use this opportunity to also initialize the audio context
-              if (audioContextRef.current) {
-                audioContextRef.current.resume().catch(console.error);
-              }
-            }
-          });
+        const playPromise = audioRef.current.play();
+        
+        // Handle the play promise to catch any errors
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              console.log("Audio playback started successfully");
+            })
+            .catch(error => {
+              console.error("Error playing audio:", error);
+              setAudioError("Failed to play audio");
+            });
+        }
+      } else {
+        console.warn("Cannot play - no audio source set");
       }
     }
   };
@@ -205,26 +145,18 @@ export function useAudioPlayer() {
     if (!audioRef.current) return;
     
     audioRef.current.currentTime = time;
-    setCurrentTime(time);
-  };
-  
-  // Function to set the current time
-  const setCurrentTimeValue = (time: number) => {
-    seekTo(time);
+    setCurrentAudioTime(time);
   };
 
   return {
-    isPlaying,
+    isAudioPlaying,
     duration,
-    currentTime,
-    togglePlay,
+    currentAudioTime,
+    togglePlayPause,
     seekTo,
     setAudioSource,
     audioRef,
     audioLoaded,
-    audioError,
-    audioContext: audioContextRef.current,
-    currentTrack,
-    setCurrentTime: setCurrentTimeValue
+    audioError
   };
 }

@@ -1,5 +1,5 @@
 
-import { SongMapping, FunctionalityMap, AppFunctionality, FunctionalityDescription } from "@/types/music";
+import { SongMapping, FunctionalityMap, AppFunctionality } from "@/types/music";
 
 // Descriptions for each functionality type
 export const functionalityDescriptions: FunctionalityMap = {
@@ -52,16 +52,6 @@ export const functionalityDescriptions: FunctionalityMap = {
     name: 'Grounding',
     description: 'Connect with the earth and stabilize energy',
     color: 'from-stone-500 to-green-800'
-  },
-  'chakra': {
-    name: 'Chakra',
-    description: 'Specific frequencies for chakra alignment',
-    color: 'from-purple-500 to-pink-500'
-  },
-  'frequency': {
-    name: 'Frequency',
-    description: 'Pure frequency experiences',
-    color: 'from-blue-500 to-purple-500'
   }
 };
 
