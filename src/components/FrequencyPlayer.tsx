@@ -56,8 +56,8 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
     }
   }, []);
   
-  // Use the audio analyzer hook with the global audio element
-  const { audioContext, analyser } = useAudioAnalyzer(audioRef.current);
+  // Use the audio analyzer hook with proper null check
+  const { audioContext, analyser } = audioRef.current ? useAudioAnalyzer(audioRef.current) : { audioContext: null, analyser: null };
   
   // Check if this frequency is currently playing
   const isCurrentlyPlaying = React.useMemo(() => {
