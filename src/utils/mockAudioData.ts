@@ -1,71 +1,78 @@
 
 /**
- * Utility functions for generating mock audio data for visualizers
- */
-
-/**
- * Creates mock frequency data
- * @returns Uint8Array with mock frequency data
+ * Create mock frequency data for visualizer testing when no real audio is playing
  */
 export const createMockFrequencyData = (): Uint8Array => {
-  const dataArray = new Uint8Array(128);
-  const time = Date.now() * 0.001;
+  const data = new Uint8Array(128);
   
-  for (let i = 0; i < dataArray.length; i++) {
-    // Create some variation with different sine waves
-    const value = 
-      128 + 
-      50 * Math.sin(time + i * 0.05) +
-      70 * Math.sin(time * 0.7 + i * 0.1) * Math.exp(-i * 0.01);
+  // Create a few peaks to simulate frequency spectrum
+  for (let i = 0; i < data.length; i++) {
+    // Base level
+    let value = Math.random() * 30;
     
-    dataArray[i] = Math.min(255, Math.max(0, Math.floor(value)));
+    // Add some peaks
+    if (i % 12 === 0) {
+      value += Math.random() * 100 + 50;
+    } else if (i % 5 === 0) {
+      value += Math.random() * 70 + 20;
+    }
+    
+    // Add some randomness
+    value += Math.sin(i * 0.1) * 20;
+    
+    // Ensure within valid range
+    data[i] = Math.min(255, Math.max(0, Math.floor(value)));
   }
   
-  return dataArray;
+  return data;
 };
 
 /**
- * Creates mock waveform data
- * @returns Uint8Array with mock waveform data
+ * Create mock waveform data for visualizer testing when no real audio is playing
  */
 export const createMockWaveformData = (): Uint8Array => {
-  const dataArray = new Uint8Array(128);
-  const time = Date.now() * 0.001;
+  const data = new Uint8Array(128);
+  const center = 128;
+  const amplitude = 60;
   
-  for (let i = 0; i < dataArray.length; i++) {
-    // Create a smooth wave pattern
-    const phase = (i / dataArray.length) * Math.PI * 2;
-    const value = 128 + 
-                  64 * Math.sin(phase * 3 + time * 5) +
-                  32 * Math.sin(phase * 7 + time * 3);
-    
-    dataArray[i] = Math.min(255, Math.max(0, Math.floor(value)));
+  for (let i = 0; i < data.length; i++) {
+    // Create a sine wave with some noise
+    data[i] = center + Math.sin(i * 0.2) * amplitude * Math.random() * 0.5;
   }
   
-  return dataArray;
+  return data;
 };
 
+let intervalId: number | null = null;
+
 /**
- * Start a mock audio data generator that periodically updates
- * with new mock frequency and waveform data
- * @param setFrequencyData Function to set frequency data
- * @param setWaveformData Function to set waveform data
- * @param interval Update interval in milliseconds
- * @returns Function to stop the mock generator
+ * Start generating mock audio data at regular intervals
+ * @param onFrequencyData Callback to receive frequency data
+ * @param onWaveformData Callback to receive waveform data
+ * @param updateInterval Interval in ms between updates
+ * @returns Function to stop the generator
  */
 export const startMockAudioDataGenerator = (
-  setFrequencyData: (data: Uint8Array) => void,
-  setWaveformData: (data: Uint8Array) => void,
-  interval: number = 50
+  onFrequencyData: (data: Uint8Array) => void,
+  onWaveformData: (data: Uint8Array) => void,
+  updateInterval: number = 100
 ): () => void => {
-  // Start interval to periodically generate new mock data
-  const intervalId = setInterval(() => {
-    setFrequencyData(createMockFrequencyData());
-    setWaveformData(createMockWaveformData());
-  }, interval);
-  
-  // Return function to stop the generator
-  return () => {
+  // Clear any existing interval
+  if (intervalId !== null) {
     clearInterval(intervalId);
+  }
+  
+  // Start new update interval
+  intervalId = window.setInterval(() => {
+    onFrequencyData(createMockFrequencyData());
+    onWaveformData(createMockWaveformData());
+  }, updateInterval);
+  
+  // Return cleanup function
+  return () => {
+    if (intervalId !== null) {
+      clearInterval(intervalId);
+      intervalId = null;
+    }
   };
 };

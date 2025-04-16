@@ -11,6 +11,7 @@ import PixiJSVisualizer from '@/components/visualizer/PixiJSVisualizer';
 import { isPrime } from '@/utils/primeCalculations';
 import { toast } from 'sonner';
 import { startMockAudioDataGenerator } from '@/utils/mockAudioData';
+import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
 
 interface SacredAudioPlayerWithVisualizerProps {
   journey?: JourneyProps;
@@ -28,12 +29,14 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
   isFullscreen = false,
   forcePlay = false
 }) => {
-  const { audioData, isPlaying, setIsPlaying, setPrimeSequence, visualizationMode, setVisualizationMode, setAudioData, setFrequencyData } = useAppStore();
+  const { audioData, isPlaying, setIsPlaying, setPrimeSequence, visualizationMode, setVisualizationMode, frequencyData } = useAppStore();
   const [showVisualizer, setShowVisualizer] = useState(true);
   const [visualizerMode, setVisualizerMode] = useState<VisualizerMode>('primeFlow');
   const [primeFrequencies, setPrimeFrequencies] = useState<number[]>([]);
   const [showPrimeIndicator, setShowPrimeIndicator] = useState(false);
   const [usePixiVisualizer, setUsePixiVisualizer] = useState(false);
+  
+  const { isInitialized: isAudioAnalyzerInitialized } = useAudioAnalyzer();
   
   // Update local visualizer mode when global mode changes
   useEffect(() => {
@@ -57,19 +60,27 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
 
   // Use mock audio data when no actual audio data is available
   useEffect(() => {
-    // If we don't have audio data, generate mock data for visualization
-    if (!audioData || audioData.every(val => val === 0)) {
+    // If we don't have audio data or analyzer isn't initialized, generate mock data for visualization
+    if ((!audioData || audioData.every(val => val === 0)) && !isAudioAnalyzerInitialized) {
       console.log("No audio data detected, using mock data generator");
       
       const stopMockGenerator = startMockAudioDataGenerator(
-        (freqData) => setFrequencyData(freqData),
-        (waveData) => setAudioData(waveData),
+        (freqData) => {
+          if (!isAudioAnalyzerInitialized) {
+            useAppStore.getState().setFrequencyData(freqData);
+          }
+        },
+        (waveData) => {
+          if (!isAudioAnalyzerInitialized) {
+            useAppStore.getState().setAudioData(waveData);
+          }
+        },
         100 // Update every 100ms
       );
       
       return () => stopMockGenerator();
     }
-  }, [audioData, setAudioData, setFrequencyData]);
+  }, [audioData, isAudioAnalyzerInitialized]);
 
   // Determine which chakra to use (use first if multiple are provided)
   const chakra = journey?.chakras?.[0]?.toLowerCase() as any;
@@ -87,7 +98,7 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
 
   // Prime number detection logic
   useEffect(() => {
-    if (!audioData || !isPlaying) return;
+    if (!frequencyData || !isPlaying) return;
     
     // Analyze audio data for dominant frequencies
     // This is a simple implementation - in a real app you'd use FFT analysis
@@ -95,11 +106,11 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
     
     // Find peaks in the frequency data (simple approach)
     const threshold = 200; // Adjust as needed
-    for (let i = 0; i < audioData.length; i++) {
-      if (audioData[i] > threshold) {
+    for (let i = 0; i < frequencyData.length; i++) {
+      if (frequencyData[i] > threshold) {
         // Map index to frequency (rough approximation)
         // Assuming audioData represents 0-20000Hz range
-        const freq = Math.round(i * (20000 / audioData.length));
+        const freq = Math.round(i * (20000 / frequencyData.length));
         if (isPrime(freq)) {
           dominantFrequencies.push(freq);
         }
@@ -117,7 +128,7 @@ const SacredAudioPlayerWithVisualizer: React.FC<SacredAudioPlayerWithVisualizerP
       setShowPrimeIndicator(true);
       setTimeout(() => setShowPrimeIndicator(false), 800);
     }
-  }, [audioData, isPlaying, setPrimeSequence]);
+  }, [frequencyData, isPlaying, setPrimeSequence]);
 
   const toggleVisualizer = () => {
     setShowVisualizer(prev => !prev);

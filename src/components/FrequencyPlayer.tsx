@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import SacredAudioPlayer from '@/components/audio/SacredAudioPlayer';
 import { useAppStore } from '@/store';
 import { toast } from 'sonner';
-import { initializeAudioAfterInteraction, resumeAudioContext } from '@/utils/audioContextInitializer';
+import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
 
 export interface FrequencyPlayerProps {
   audioUrl?: string;
@@ -30,6 +30,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = (props) => {
   
   // Get relevant state and functions from the store
   const { setIsPlaying, setAudioPlaybackError } = useAppStore();
+  const { resumeAudioContext } = useAudioAnalyzer();
   const initializationAttempted = useRef(false);
   const [audioLoaded, setAudioLoaded] = useState(false);
   
@@ -37,7 +38,6 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = (props) => {
   useEffect(() => {
     if (!initializationAttempted.current) {
       initializationAttempted.current = true;
-      initializeAudioAfterInteraction();
       
       // Log important information
       console.log("🔊 FrequencyPlayer mounted with:", {
@@ -57,9 +57,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = (props) => {
     if (forcePlay && audioSource) {
       setTimeout(() => {
         console.log("🎵 Attempting force play...");
-        resumeAudioContext().catch(error => {
-          console.error("Failed to resume audio context:", error);
-        });
+        resumeAudioContext();
         setIsPlaying(true);
         if (props.onPlayToggle) {
           props.onPlayToggle(true);
@@ -71,7 +69,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = (props) => {
     return () => {
       console.log("🔊 FrequencyPlayer unmounting");
     };
-  }, [audioSource, forcePlay, props.isPlaying, props.onPlayToggle, setIsPlaying, effectiveAudioSource]);
+  }, [audioSource, forcePlay, props.isPlaying, props.onPlayToggle, setIsPlaying, effectiveAudioSource, resumeAudioContext]);
   
   const handlePlayToggle = (isPlaying: boolean) => {
     console.log("FrequencyPlayer: handlePlayToggle called with", isPlaying);

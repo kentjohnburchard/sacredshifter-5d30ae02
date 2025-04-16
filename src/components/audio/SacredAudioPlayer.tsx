@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { JourneyProps } from '@/types/journey';
@@ -7,9 +8,9 @@ import { useAppStore } from '@/store';
 import { Play, Pause, SkipBack, SkipForward, Volume2, Volume1, VolumeX } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { getAudioContext, resumeAudioContext } from '@/utils/audioContextInitializer';
+import AudioContextService from '@/services/AudioContextService';
 import { testAudioUrl, getFallbackAudioUrl } from '@/utils/audioUrlHelper';
-import { createMockFrequencyData, createMockWaveformData } from '@/utils/mockAudioData';
+import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
 
 interface SacredAudioPlayerProps {
   journey?: JourneyProps;
@@ -50,9 +51,11 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     audioRef,
     audioLoaded
   } = useAudioPlayer();
+  
+  const { connectAudioElement, resumeAudioContext } = useAudioAnalyzer();
   const [volume, setVolume] = useState(70);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
-  const { setAudioData, setFrequencyData, setIsPlaying, setAudioPlaybackError } = useAppStore();
+  const { setIsPlaying, setAudioPlaybackError } = useAppStore();
   
   const audioPlayAttempted = useRef(false);
   const [audioSourceValid, setAudioSourceValid] = useState(false);
@@ -77,6 +80,13 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
   const rawAudioUrl = audioUrl || url;
   const effectiveAudioUrl = rawAudioUrl || fallbackAudioRef.current;
   
+  // Once the audio element is loaded and ready, connect it to our analyzer
+  useEffect(() => {
+    if (audioRef.current && audioLoaded) {
+      connectAudioElement(audioRef.current);
+    }
+  }, [audioRef, audioLoaded, connectAudioElement]);
+
   useEffect(() => {
     if (audioTestingInProgress.current || testingRetries.current >= maxTestingRetries) {
       if (testingRetries.current >= maxTestingRetries && !audioSourceValid) {
@@ -97,7 +107,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
       console.log(`Testing audio (attempt ${testingRetries.current}): ${effectiveAudioUrl}`);
       
       try {
-        const isValid = await testAudioUrl(effectiveAudioUrl, 3000);
+        const isValid = await testAudioUrl(effectiveAudioUrl, 5000); // Increased timeout for better reliability
         
         if (isValid) {
           console.log(`Audio test succeeded for: ${effectiveAudioUrl}`);
@@ -144,10 +154,9 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
     testAudio();
   }, [effectiveAudioUrl, setGlobalAudioSource, onError, onAudioLoaded]);
 
-  const handleTogglePlay = () => {
-    resumeAudioContext().catch(e => {
-      console.warn("Could not resume audio context:", e);
-    });
+  const handleTogglePlay = async () => {
+    // Always resume the audio context when trying to play
+    await resumeAudioContext();
     
     if (!audioSourceValid && testingRetries.current >= 1) {
       console.log("Forcing audio to be valid after retry attempts");
@@ -181,64 +190,7 @@ const SacredAudioPlayer: React.FC<SacredAudioPlayerProps> = ({
       }, 1000);
     }
   }, [forcePlay, isPlaying, audioSourceValid]);
-  
-  useEffect(() => {
-    if (isPlaying) {
-      const setupVisualizer = async () => {
-        try {
-          const audioContext = getAudioContext();
-          if (!audioContext || !audioRef.current) return;
-          
-          const analyser = audioContext.createAnalyser();
-          analyser.fftSize = 256;
-          
-          const source = audioContext.createMediaElementSource(audioRef.current);
-          source.connect(analyser);
-          analyser.connect(audioContext.destination);
-          
-          const bufferLength = analyser.frequencyBinCount;
-          const dataArray = new Uint8Array(bufferLength);
-          
-          const updateData = () => {
-            if (!isPlaying) return;
-            
-            analyser.getByteFrequencyData(dataArray);
-            setFrequencyData(new Uint8Array(dataArray));
-            
-            analyser.getByteTimeDomainData(dataArray);
-            setAudioData(new Uint8Array(dataArray));
-            
-            requestAnimationFrame(updateData);
-          };
-          
-          updateData();
-        } catch (e: any) {
-          if (!e.toString().includes('already connected')) {
-            throw e;
-          }
-        }
-      };
-      
-      setupVisualizer();
-    } else {
-      const useMockVisualizerData = () => {
-        const mockFrequencyData = createMockFrequencyData();
-        const mockWaveformData = createMockWaveformData();
-        
-        const updateInterval = isPlaying ? 50 : 1000;
-        
-        const intervalId = setInterval(() => {
-          setFrequencyData(mockFrequencyData);
-          setAudioData(mockWaveformData);
-        }, updateInterval);
-        
-        return () => clearInterval(intervalId);
-      };
-      
-      useMockVisualizerData();
-    }
-  }, [isPlaying, audioRef, setAudioData, setFrequencyData]);
-  
+
   return (
     <div className="bg-black/50 p-4 rounded-b-xl backdrop-blur-sm">
       <div className="flex flex-col text-white">

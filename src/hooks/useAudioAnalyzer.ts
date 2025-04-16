@@ -1,97 +1,91 @@
 
 import { useState, useEffect, useRef } from 'react';
+import AudioContextService from '@/services/AudioContextService';
 import { useAppStore } from '@/store';
 
 /**
- * Hook to create and manage an AudioContext and AnalyserNode for audio visualization
- * @param audioElement Reference to the audio element to analyze
- * @returns Object containing the audioContext and analyser node
+ * Hook to provide access to the global AudioContext and AnalyserNode for audio visualization
  */
-const useAudioAnalyzer = (audioElement: HTMLAudioElement | null) => {
-  const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
-  const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
-  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
+export function useAudioAnalyzer() {
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
   const { setAudioData, setFrequencyData } = useAppStore();
-  
+  const frameRef = useRef<number | null>(null);
+  const audioService = AudioContextService.getInstance();
+
+  // Initialize the audio service
   useEffect(() => {
-    // Only setup if we have an audio element
-    if (!audioElement) return;
-    
-    let ctx: AudioContext | null = null;
-    let analyzerNode: AnalyserNode | null = null;
-    let sourceNode: MediaElementAudioSourceNode | null = null;
-    
-    try {
-      // Create audio context
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContext) {
-        console.warn("AudioContext is not supported by this browser");
-        return;
-      }
+    const initialize = () => {
+      const result = audioService.initialize();
+      setIsInitialized(result);
       
-      ctx = new AudioContext();
-      setAudioContext(ctx);
-      
-      // Create analyzer node
-      analyzerNode = ctx.createAnalyser();
-      analyzerNode.fftSize = 256; // Power of 2: 32, 64, 128, 256, 512, 1024, 2048
-      analyzerNode.smoothingTimeConstant = 0.8; // Between 0 and 1
-      setAnalyser(analyzerNode);
-      
-      // Connect the audio element to the analyzer
-      try {
-        sourceNode = ctx.createMediaElementSource(audioElement);
-        sourceNodeRef.current = sourceNode;
-        sourceNode.connect(analyzerNode);
-        analyzerNode.connect(ctx.destination);
-        
-        console.log("Audio analyzer successfully connected");
-      } catch (e: any) {
-        // If it's already connected error, we can ignore it
-        if (e.name === 'InvalidAccessError' || e.message?.includes('already connected')) {
-          console.log("Audio element already connected to an audio context");
-        } else {
-          console.error("Error connecting audio element to analyzer:", e);
-        }
-      }
-      
-      // Setup interval to capture audio data
-      const dataCapture = () => {
-        if (analyzerNode) {
-          const frequencyData = new Uint8Array(analyzerNode.frequencyBinCount);
-          const timeData = new Uint8Array(analyzerNode.frequencyBinCount);
-          
-          analyzerNode.getByteFrequencyData(frequencyData);
-          analyzerNode.getByteTimeDomainData(timeData);
-          
-          setFrequencyData(frequencyData);
-          setAudioData(timeData);
-        }
-        requestAnimationFrame(dataCapture);
-      };
-      
-      const animationId = requestAnimationFrame(dataCapture);
-      
-      return () => {
-        cancelAnimationFrame(animationId);
-        
-        // Don't disconnect the source node to prevent issues with reusing the audio element
-        if (ctx && ctx.state !== 'closed') {
-          try {
-            ctx.close();
-          } catch (e) {
-            console.error("Error closing audio context:", e);
+      if (result) {
+        // Set up audio data capture
+        const captureAudioData = () => {
+          if (audioService.isConnected) {
+            const data = audioService.getAudioData();
+            if (data) {
+              setFrequencyData(data.frequencyData);
+              setAudioData(data.waveformData);
+            }
           }
-        }
-      };
+          frameRef.current = requestAnimationFrame(captureAudioData);
+        };
+        
+        frameRef.current = requestAnimationFrame(captureAudioData);
+      }
+    };
+
+    // Initialize on first render
+    initialize();
+    
+    // Also set up event listeners for user interaction
+    const handleInteraction = () => {
+      if (!isInitialized) {
+        initialize();
+      }
+      audioService.resume().catch(console.error);
+    };
+    
+    document.addEventListener('click', handleInteraction, { once: true });
+    document.addEventListener('touchstart', handleInteraction, { once: true });
+    
+    return () => {
+      document.removeEventListener('click', handleInteraction);
+      document.removeEventListener('touchstart', handleInteraction);
       
-    } catch (error) {
-      console.error("Error setting up audio analyzer:", error);
-      return;
+      if (frameRef.current) {
+        cancelAnimationFrame(frameRef.current);
+      }
+    };
+  }, [isInitialized, setAudioData, setFrequencyData]);
+
+  // Function to connect audio element
+  const connectAudioElement = (audioElement: HTMLAudioElement) => {
+    if (!isInitialized) {
+      audioService.initialize();
+      setIsInitialized(true);
     }
-  }, [audioElement, setAudioData, setFrequencyData]);
-  
-  return { audioContext, analyser };
-};
+    
+    const result = audioService.connectAudioElement(audioElement);
+    setIsConnected(result);
+    return result;
+  };
+
+  // Function to resume audio context
+  const resumeAudioContext = async () => {
+    const result = await audioService.resume();
+    return result;
+  };
+
+  return {
+    audioContext: audioService.audioContext,
+    analyser: audioService.analyser,
+    isInitialized,
+    isConnected,
+    connectAudioElement,
+    resumeAudioContext
+  };
+}
 
 export default useAudioAnalyzer;

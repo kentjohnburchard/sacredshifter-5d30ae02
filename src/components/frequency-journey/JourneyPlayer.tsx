@@ -20,75 +20,28 @@ import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import SacredVisualizerCanvas from '../visualizer/SacredVisualizerCanvas';
 import { ChakraType, SacredGeometryType } from '../visualizer/sacred-geometries';
+import { useAppStore } from '@/store';
+import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
 
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
   const navigate = useNavigate();
   const { playAudio, isPlaying, currentAudio, setOnEndedCallback, togglePlayPause } = useGlobalAudioPlayer();
+  const { audioData, frequencyData } = useAppStore();
+  const { isInitialized: isAudioInitialized } = useAudioAnalyzer();
   
   const [journey, setJourney] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [infoExpanded, setInfoExpanded] = useState(false);
   const [showVisualizer, setShowVisualizer] = useState(true);
-  const [audioData, setAudioData] = useState<Uint8Array | null>(null);
   const [visualizerMode, setVisualizerMode] = useState<SacredGeometryType>('chakraBeam');
   
   const lastPlayedIndex = useRef<number | null>(null);
   const songsRef = useRef<any[]>([]);
   const audioPlayAttemptedRef = useRef(false);
-  const audioAnalyserRef = useRef<AnalyserNode | null>(null);
   
   const { templates, loading: loadingTemplates } = useJourneyTemplates();
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
-
-  // Set up audio analyser for visualization
-  useEffect(() => {
-    // Check if we already have an analyser
-    if (audioAnalyserRef.current) return;
-    
-    // Find audio element
-    const audioElement = document.getElementById('global-audio-player') as HTMLAudioElement;
-    if (!audioElement) {
-      console.log("Audio element not found, will try again later");
-      return;
-    }
-    
-    try {
-      // Set up AudioContext
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContext) {
-        console.warn("AudioContext not supported");
-        return;
-      }
-      
-      const audioContext = new AudioContext();
-      const analyser = audioContext.createAnalyser();
-      analyser.fftSize = 256;
-      
-      // Connect audio to analyser
-      const source = audioContext.createMediaElementSource(audioElement);
-      source.connect(analyser);
-      analyser.connect(audioContext.destination);
-      
-      audioAnalyserRef.current = analyser;
-      
-      // Start updating frequency data
-      const dataArray = new Uint8Array(analyser.frequencyBinCount);
-      const updateFrequencyData = () => {
-        if (audioAnalyserRef.current) {
-          audioAnalyserRef.current.getByteFrequencyData(dataArray);
-          setAudioData(new Uint8Array(dataArray));
-        }
-        requestAnimationFrame(updateFrequencyData);
-      };
-      
-      updateFrequencyData();
-      
-      console.log("Audio analyser set up successfully");
-    } catch (error) {
-      console.error("Failed to set up audio analyser:", error);
-    }
-  }, []);
 
   // Define shouldShowVisualizer variable to control when visualizer is displayed
   const shouldShowVisualizer = showVisualizer && isPlaying;
@@ -144,7 +97,11 @@ const JourneyPlayer = () => {
           playAudio({
             title: nextSong.title || (journey?.title + " (continued)"),
             artist: "Sacred Shifter",
-            source: audioUrl
+            source: audioUrl,
+            customData: {
+              chakra: journey?.chakras?.[0]?.toLowerCase(),
+              frequency: nextSong.frequency
+            }
           });
         } else {
           console.error("JourneyPlayer: Invalid audio URL for next song");
@@ -221,6 +178,11 @@ const JourneyPlayer = () => {
           });
           
           console.log("JourneyPlayer: Audio playback initialized");
+          
+          // Show toast when audio is loaded
+          toast.success("Journey audio loaded successfully", {
+            id: "journey-audio-loaded"
+          });
         } else {
           console.error("JourneyPlayer: Invalid audio URL");
           toast.error("Could not play audio: Invalid URL");
@@ -280,12 +242,12 @@ const JourneyPlayer = () => {
         {/* Enhanced Visualizer */}
         <div className="w-full h-64 mb-4 rounded-xl overflow-hidden shadow-lg">
           <SacredVisualizerCanvas
-            frequencyData={audioData || undefined}
+            frequencyData={frequencyData || undefined}
             chakra={journey?.chakras?.[0]?.toLowerCase() as ChakraType || 'crown'}
             visualizerMode={visualizerMode}
             enableControls={true}
             enablePostProcessing={true}
-            intensity={audioData ? Array.from(audioData).reduce((sum, val) => sum + val, 0) / (audioData.length * 255) : 0}
+            intensity={frequencyData ? Array.from(frequencyData).reduce((sum, val) => sum + val, 0) / (frequencyData.length * 255) : 0}
             isActive={isPlaying}
           />
         </div>
