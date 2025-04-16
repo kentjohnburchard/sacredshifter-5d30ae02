@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
@@ -35,43 +35,41 @@ function AppContent() {
         <ThemeProvider>
           <TooltipProvider>
             <QueryClientProvider client={queryClient}>
-              <Router>
-                <Routes>
-                  {/* Core routes */}
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/admin/journey-audio-admin" element={<JourneyAudioAdmin />} />
-                  
-                  {/* Frequency routes */}
-                  <Route path="/frequency-library" element={<FrequencyLibrary />} />
-                  <Route path="/frequency/:id" element={<FrequencyDetail />} />
-                  
-                  {/* Chakra routes */}
-                  <Route path="/chakra-assessment" element={<ChakraSelfAssessment />} />
-                  
-                  {/* Vale routes */}
-                  <Route path="/vale-mysteries" element={<ValeMysteries />} />
-                  
-                  {/* Hermetic routes */}
-                  <Route path="/hermetic-principles" element={<HermeticPrinciples />} />
-                  
-                  {/* Egyptian Wisdom routes */}
-                  <Route path="/egyptian-wisdom" element={<EgyptianWisdom />} />
-                  
-                  {/* Consciousness Shifter route */}
-                  <Route path="/consciousness-shifter" element={<ConsciousnessShifter />} />
-                  
-                  {/* Digital Twin route */}
-                  <Route path="/digital-twin" element={<DigitalTwinPage />} />
-                  
-                  {/* Journey routes */}
-                  <Route path="/journey-templates" element={<JourneyTemplates />} />
-                  <Route path="/journey-detail/:id" element={<JourneyDetailPage />} />
-                  <Route path="/journey-player/:id" element={<JourneyPlayer />} />
-                </Routes>
-              </Router>
+              <Routes>
+                {/* Core routes */}
+                <Route path="/" element={<HomePage />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/journey-audio-admin" element={<JourneyAudioAdmin />} />
+                
+                {/* Frequency routes */}
+                <Route path="/frequency-library" element={<FrequencyLibrary />} />
+                <Route path="/frequency/:id" element={<FrequencyDetail />} />
+                
+                {/* Chakra routes */}
+                <Route path="/chakra-assessment" element={<ChakraSelfAssessment />} />
+                
+                {/* Vale routes */}
+                <Route path="/vale-mysteries" element={<ValeMysteries />} />
+                
+                {/* Hermetic routes */}
+                <Route path="/hermetic-principles" element={<HermeticPrinciples />} />
+                
+                {/* Egyptian Wisdom routes */}
+                <Route path="/egyptian-wisdom" element={<EgyptianWisdom />} />
+                
+                {/* Consciousness Shifter route */}
+                <Route path="/consciousness-shifter" element={<ConsciousnessShifter />} />
+                
+                {/* Digital Twin route */}
+                <Route path="/digital-twin" element={<DigitalTwinPage />} />
+                
+                {/* Journey routes */}
+                <Route path="/journey-templates" element={<JourneyTemplates />} />
+                <Route path="/journey-detail/:id" element={<JourneyDetailPage />} />
+                <Route path="/journey-player/:id" element={<JourneyPlayer />} />
+              </Routes>
             </QueryClientProvider>
           </TooltipProvider>
         </ThemeProvider>
