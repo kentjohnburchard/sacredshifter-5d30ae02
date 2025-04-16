@@ -1,48 +1,17 @@
 
 /**
- * Calculate the prime factors of a given number
- * @param num The number to calculate prime factors for
- * @returns Array of prime factors
+ * Prime number utility functions for frequency calculations
  */
-export const calculatePrimeFactors = (num: number): number[] => {
-  if (num <= 1) return [num];
-  
-  // Check if the number itself is prime
-  if (isPrime(num)) return [num];
-  
-  const factors: number[] = [];
-  let tempNum = num;
-  
-  // Check division by 2
-  while (tempNum % 2 === 0) {
-    factors.push(2);
-    tempNum /= 2;
-  }
-  
-  // Check for odd prime factors
-  for (let i = 3; i <= Math.sqrt(tempNum); i += 2) {
-    while (tempNum % i === 0) {
-      factors.push(i);
-      tempNum /= i;
-    }
-  }
-  
-  // If tempNum is a prime number greater than 2
-  if (tempNum > 2) {
-    factors.push(tempNum);
-  }
-  
-  return factors;
-};
 
 /**
- * Check if a number is prime
+ * Checks if a number is prime
  * @param num The number to check
- * @returns Boolean indicating if the number is prime
+ * @returns boolean indicating if the number is prime
  */
-export const isPrime = (num: number): boolean => {
+export function isPrime(num: number): boolean {
   if (num <= 1) return false;
   if (num <= 3) return true;
+  
   if (num % 2 === 0 || num % 3 === 0) return false;
   
   let i = 5;
@@ -52,94 +21,78 @@ export const isPrime = (num: number): boolean => {
   }
   
   return true;
-};
+}
 
 /**
- * Generate a sequence of prime numbers
- * @param count Number of prime numbers to generate
- * @returns Array of prime numbers
+ * Calculates the prime factors of a number
+ * @param num The number to factor
+ * @returns Array of prime factors
  */
-export const generatePrimeSequence = (count: number): number[] => {
-  const primes: number[] = [];
-  let num = 2;
+export function calculatePrimeFactors(num: number): number[] {
+  const factors: number[] = [];
+  let n = num;
   
-  while (primes.length < count) {
-    if (isPrime(num)) {
-      primes.push(num);
-    }
-    num++;
+  // Check for factor of 2
+  while (n % 2 === 0) {
+    factors.push(2);
+    n /= 2;
   }
   
-  return primes;
-};
-
-/**
- * Get the first n prime numbers
- * @param n Number of prime numbers to get
- * @returns Array of the first n prime numbers
- */
-export const getFirstNPrimes = (n: number): number[] => {
-  return generatePrimeSequence(n);
-};
-
-/**
- * Generate Fibonacci numbers
- * @param count Number of Fibonacci numbers to generate
- * @returns Array of Fibonacci numbers
- */
-export const generateFibonacciSequence = (count: number): number[] => {
-  if (count <= 0) return [];
-  if (count === 1) return [0];
-  
-  const sequence = [0, 1];
-  
-  for (let i = 2; i < count; i++) {
-    sequence.push(sequence[i - 1] + sequence[i - 2]);
-  }
-  
-  return sequence;
-};
-
-/**
- * Check if a sequence of numbers contains patterns (like arithmetic or geometric progressions)
- * @param numbers Array of numbers to check for patterns
- * @returns Object with pattern information
- */
-export const detectSequencePatterns = (numbers: number[]): {
-  hasArithmeticProgression: boolean;
-  hasGeometricProgression: boolean;
-  commonDifference?: number;
-  commonRatio?: number;
-} => {
-  if (numbers.length < 3) {
-    return {
-      hasArithmeticProgression: false,
-      hasGeometricProgression: false
-    };
-  }
-
-  // Check for arithmetic progression
-  const differences = [];
-  for (let i = 1; i < numbers.length; i++) {
-    differences.push(numbers[i] - numbers[i - 1]);
-  }
-  
-  const hasArithmeticProgression = differences.every(diff => diff === differences[0]);
-  
-  // Check for geometric progression
-  const ratios = [];
-  for (let i = 1; i < numbers.length; i++) {
-    if (numbers[i - 1] !== 0) {
-      ratios.push(numbers[i] / numbers[i - 1]);
+  // Check for odd factors
+  for (let i = 3; i * i <= n; i += 2) {
+    while (n % i === 0) {
+      factors.push(i);
+      n /= i;
     }
   }
   
-  const hasGeometricProgression = ratios.length > 0 && ratios.every(ratio => Math.abs(ratio - ratios[0]) < 0.0001);
+  // If n is a prime number > 2
+  if (n > 2) {
+    factors.push(n);
+  }
+  
+  return factors;
+}
+
+/**
+ * Finds the nearest prime number to a given frequency
+ * @param frequency The frequency to analyze
+ * @returns The nearest prime number
+ */
+export function findNearestPrime(frequency: number): number {
+  if (isPrime(frequency)) return frequency;
+  
+  let lower = frequency - 1;
+  let higher = frequency + 1;
+  
+  while (true) {
+    if (isPrime(lower)) return lower;
+    if (isPrime(higher)) return higher;
+    lower--;
+    higher++;
+  }
+}
+
+/**
+ * Analyzes a frequency for mathematical properties
+ * @param frequency The frequency to analyze
+ * @returns An object with mathematical properties
+ */
+export function analyzeFrequency(frequency: number): {
+  isPrime: boolean;
+  factors: number[];
+  nearestPrime: number;
+  primeRatio: number;
+} {
+  const isItPrime = isPrime(frequency);
+  const factors = isItPrime ? [frequency] : calculatePrimeFactors(frequency);
+  const nearestPrime = isItPrime ? frequency : findNearestPrime(frequency);
+  const primeRatio = frequency / nearestPrime;
   
   return {
-    hasArithmeticProgression,
-    hasGeometricProgression,
-    commonDifference: hasArithmeticProgression ? differences[0] : undefined,
-    commonRatio: hasGeometricProgression ? ratios[0] : undefined
+    isPrime: isItPrime,
+    factors,
+    nearestPrime,
+    primeRatio
   };
-};
+}

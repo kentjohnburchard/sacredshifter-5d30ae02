@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { motion } from 'framer-motion';
@@ -26,6 +25,7 @@ interface SacredGeometryVisualizerProps {
   sensitivity?: number;
   expandable?: boolean;
   onExpandStateChange?: (expanded: boolean) => void;
+  liftedVeil?: boolean;
 }
 
 const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
@@ -43,12 +43,12 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
   sensitivity = 1,
   expandable = false,
   onExpandStateChange,
+  liftedVeil = false,
 }) => {
   const [currentShape, setCurrentShape] = useState<GeometryShape>(defaultShape);
   const [expanded, setExpanded] = useState(false);
   const [visualizerMode, setVisualizerMode] = useState<'fractal' | 'spiral' | 'mandala'>(mode || 'fractal');
   
-  // Update shape when defaultShape prop changes
   useEffect(() => {
     if (defaultShape !== currentShape) {
       setCurrentShape(defaultShape);
@@ -67,7 +67,7 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
 
   const effectiveSize = expanded ? 'xl' : size;
 
-  const shapeOptions: { value: GeometryShape; label: string }[] = [
+  const shapeOptions = [
     { value: 'flower-of-life', label: 'Flower of Life' },
     { value: 'seed-of-life', label: 'Seed of Life' },
     { value: 'metatrons-cube', label: 'Metatron\'s Cube' },
@@ -88,7 +88,6 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
     return null;
   }
   
-  // Container classes based on expanded state
   const containerBaseClass = "sacred-geometry-container rounded-xl shadow-xl bg-black/20 relative";
   const containerSizeClass = expanded 
     ? "fixed inset-0 z-50 flex flex-col justify-center items-center bg-black/80 pt-12" 
@@ -125,6 +124,7 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
             frequency={frequency}
             mode={visualizerMode}
             sensitivity={sensitivity}
+            liftedVeil={liftedVeil}
           />
         </div>
         
@@ -144,7 +144,7 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
                 <ToggleGroupItem 
                   key={option.value} 
                   value={option.value}
-                  className="px-3 py-1 text-xs text-white data-[state=on]:bg-purple-700 rounded flex items-center gap-2"
+                  className={`px-3 py-1 text-xs text-white data-[state=on]:${liftedVeil ? 'bg-pink-700' : 'bg-purple-700'} rounded flex items-center gap-2`}
                 >
                   {option.icon} {option.label}
                 </ToggleGroupItem>
@@ -175,7 +175,7 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
                   <ToggleGroupItem 
                     key={option.value} 
                     value={option.value}
-                    className="px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs text-white data-[state=on]:bg-purple-700 rounded"
+                    className={`px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs text-white data-[state=on]:${liftedVeil ? 'bg-pink-700' : 'bg-purple-700'} rounded`}
                   >
                     {option.label}
                   </ToggleGroupItem>
@@ -190,7 +190,9 @@ const SacredGeometryVisualizer: React.FC<SacredGeometryVisualizerProps> = ({
             <Button
               variant="outline"
               onClick={toggleExpand}
-              className="bg-purple-900/30 border-purple-400/30 text-purple-100 hover:bg-purple-900/50"
+              className={`bg-purple-900/30 border-purple-400/30 text-purple-100 hover:bg-purple-900/50 ${
+                liftedVeil ? 'bg-pink-900/30 border-pink-400/30 text-pink-100 hover:bg-pink-900/50' : ''
+              }`}
             >
               Return to Player
             </Button>

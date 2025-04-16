@@ -3,6 +3,8 @@
  * Maps frequency values to their corresponding audio tracks in Supabase storage
  */
 
+import { isPrime, calculatePrimeFactors } from './primeCalculations';
+
 interface FrequencyTrack {
   frequency: number;
   pureTone: string;
@@ -110,8 +112,6 @@ export const getFrequencyDescription = (frequency: number): string => {
   let description = `${frequency}Hz frequency`;
   
   // Add mathematical properties to the description
-  import { isPrime, calculatePrimeFactors } from './primeCalculations';
-  
   if (isPrime(frequency)) {
     description += " (Prime Frequency)";
   } else {

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Play, Info } from 'lucide-react';
@@ -46,7 +46,7 @@ const journeyTemplates = [
 ];
 
 const JourneyTemplatesPage = () => {
-  const router = useRouter();
+  const navigate = useNavigate();
   const { liftTheVeil } = useTheme();
   const [activeJourney, setActiveJourney] = useState<string | null>(null);
 
@@ -63,7 +63,7 @@ const JourneyTemplatesPage = () => {
   
   // Navigate to the journey detail page
   const viewJourneyDetails = (journeyId: string) => {
-    router.push(`/journeys/${journeyId}`);
+    navigate(`/journeys/${journeyId}`);
   };
 
   return (

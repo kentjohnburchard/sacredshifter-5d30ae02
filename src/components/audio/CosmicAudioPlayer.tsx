@@ -22,7 +22,6 @@ import PrimeAudioVisualizer from "@/components/audio/PrimeAudioVisualizer";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTheme } from "@/context/ThemeContext";
 
-// List of predefined geometry shapes
 const SACRED_SHAPES = [
   'flower-of-life',
   'seed-of-life',
@@ -35,7 +34,6 @@ const SACRED_SHAPES = [
   'sphere'
 ];
 
-// Color themes for the player
 const COLOR_THEMES = [
   { name: "Cosmic Purple", value: "cosmic-purple" },
   { name: "Sacred Gold", value: "sacred-gold" },
@@ -58,6 +56,7 @@ interface CosmicAudioPlayerProps {
   initialColorTheme?: string;
   chakra?: string;
   initialIsExpanded?: boolean;
+  onExpandStateChange?: (expanded: boolean) => void;
 }
 
 const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
@@ -73,8 +72,8 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
   initialColorTheme = 'cosmic-purple',
   chakra,
   initialIsExpanded = false,
+  onExpandStateChange,
 }) => {
-  // Audio state
   const [isPlaying, setIsPlaying] = useState(autoPlay);
   const [volume, setVolume] = useState(0.7);
   const [isMuted, setIsMuted] = useState(false);
@@ -82,7 +81,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
   const [duration, setDuration] = useState(0);
   const [activePrimes, setActivePrimes] = useState<number[]>([]);
   
-  // UI state
   const [isExpanded, setIsExpanded] = useState(initialIsExpanded);
   const [colorTheme, setColorTheme] = useState(initialColorTheme);
   const [currentShape, setCurrentShape] = useState<string>(initialShape);
@@ -90,7 +88,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
   const [showControls, setShowControls] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
   
-  // Refs
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -98,7 +95,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
   const dragControls = useDragControls();
   const { liftTheVeil } = useTheme();
   
-  // For global audio player
   const { 
     playAudio, 
     isPlaying: globalIsPlaying, 
@@ -106,15 +102,12 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     togglePlayPause 
   } = useGlobalAudioPlayer();
   
-  // Set up audio context and analyzer
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
-    // Initialize AudioContext
     if (!audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       
-      // Create analyser node
       const analyser = audioContextRef.current.createAnalyser();
       analyser.fftSize = 2048;
       analyser.smoothingTimeConstant = 0.8;
@@ -124,39 +117,32 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     }
     
     return () => {
-      // Cleanup audio context on unmount
       if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
         audioContextRef.current.close().catch(console.error);
       }
     };
   }, []);
   
-  // Connect audio element to audio context when it's ready
   useEffect(() => {
     const connectAudio = () => {
       if (!audioRef.current || !audioContextRef.current || !analyserRef.current) return;
       
       try {
-        // Create media element source
         const source = audioContextRef.current.createMediaElementSource(audioRef.current);
         
-        // Connect source -> analyser -> destination
         source.connect(analyserRef.current);
         analyserRef.current.connect(audioContextRef.current.destination);
         
         console.log("Audio connected to analyser");
       } catch (error) {
         console.error("Error connecting audio:", error);
-        // If already connected, this will throw - that's fine
       }
     };
     
-    // Use timeout to ensure DOM is ready
     const timer = setTimeout(connectAudio, 100);
     return () => clearTimeout(timer);
   }, []);
   
-  // Set up audio event listeners
   useEffect(() => {
     if (!audioRef.current) return;
     
@@ -172,7 +158,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     
     const handlePlay = () => {
       setIsPlaying(true);
-      // Resume AudioContext if it's suspended
       if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
         audioContextRef.current.resume();
       }
@@ -193,7 +178,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     audio.addEventListener('pause', handlePause);
     audio.addEventListener('ended', handleEnded);
     
-    // Set initial volume
     audio.volume = volume;
     
     return () => {
@@ -205,16 +189,11 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     };
   }, []);
   
-  // Handle prime number detection
   const handlePrimeDetected = (prime: number) => {
-    // Add to active primes if not already there
     setActivePrimes(prevPrimes => {
       if (!prevPrimes.includes(prime)) {
-        // Keep only the last 5 primes
         const newPrimes = [prime, ...prevPrimes].slice(0, 5);
         console.log("Prime detected:", prime, "Active primes:", newPrimes);
-        
-        // Show toast for new prime
         toast.info(`Prime Frequency Detected: ${prime}Hz`);
         return newPrimes;
       }
@@ -222,24 +201,20 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     });
   };
   
-  // Format time display (mm:ss)
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
   
-  // Toggle play/pause
   const togglePlay = () => {
     if (!audioRef.current) return;
     
     if (audioRef.current.paused) {
-      // Try to resume AudioContext if it's suspended
       if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
         audioContextRef.current.resume();
       }
       
-      // Resume audio
       const playPromise = audioRef.current.play();
       if (playPromise) {
         playPromise.catch(error => {
@@ -252,7 +227,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     }
   };
   
-  // Handle volume changes
   const handleVolumeChange = (values: number[]) => {
     const newVolume = values[0];
     setVolume(newVolume);
@@ -261,7 +235,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     
     audioRef.current.volume = newVolume;
     
-    // Update mute state based on volume
     if (newVolume === 0) {
       setIsMuted(true);
     } else if (isMuted) {
@@ -269,7 +242,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     }
   };
   
-  // Toggle mute
   const toggleMute = () => {
     if (!audioRef.current) return;
     
@@ -278,7 +250,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     audioRef.current.muted = newMutedState;
   };
   
-  // Handle seeking
   const handleSeek = (values: number[]) => {
     if (!audioRef.current || !duration) return;
     
@@ -287,24 +258,24 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     setCurrentTime(seekTime);
   };
   
-  // Toggle between expanded and minimized modes
   const toggleExpanded = () => {
-    setIsExpanded(!isExpanded);
+    const newExpandedState = !isExpanded;
+    setIsExpanded(newExpandedState);
+    if (onExpandStateChange) {
+      onExpandStateChange(newExpandedState);
+    }
   };
   
-  // Handle shape change
   const handleShapeChange = (shape: string) => {
     setCurrentShape(shape);
     toast.info(`Sacred geometry changed to ${shape.replace(/-/g, ' ')}`);
   };
   
-  // Handle color theme change
   const handleColorThemeChange = (theme: string) => {
     setColorTheme(theme);
     toast.info(`Color theme changed to ${theme.replace(/-/g, ' ')}`);
   };
   
-  // Get the CSS classes based on current color theme
   const getThemeClasses = () => {
     const baseClasses = "cosmic-audio-player rounded-lg shadow-xl transition-all duration-300";
     
@@ -320,23 +291,19 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
     return `${baseClasses} ${themeClasses[colorTheme as keyof typeof themeClasses] || themeClasses["cosmic-purple"]}`;
   };
   
-  // Start audio drag
   const startDrag = (event: React.PointerEvent<HTMLDivElement>) => {
     dragControls.start(event);
     setIsDragging(true);
   };
   
-  // End audio drag
   const endDrag = () => {
     setIsDragging(false);
   };
   
-  // Toggle controls visibility
   const toggleControls = () => {
     setShowControls(!showControls);
   };
   
-  // Toggle visualizer visibility
   const toggleVisualizer = () => {
     setIsVisualizerOpen(!isVisualizerOpen);
   };
@@ -364,7 +331,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
           isExpanded ? 'w-full h-full rounded-none' : 'w-full border'
         } overflow-hidden relative`}
       >
-        {/* Drag handle */}
         {!isExpanded && (
           <div 
             className="absolute top-0 left-0 right-0 h-8 cursor-move flex items-center justify-center"
@@ -376,7 +342,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
         )}
         
         <CardContent className={`p-0 ${isExpanded ? 'h-full flex flex-col' : ''}`}>
-          {/* Audio element */}
           <audio 
             ref={audioRef}
             src={defaultAudioUrl} 
@@ -384,9 +349,7 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
             autoPlay={autoPlay}
           />
           
-          {/* Main container */}
           <div className={`flex flex-col ${isExpanded ? 'h-full' : ''}`}>
-            {/* Visualizer section */}
             <AnimatePresence>
               {isVisualizerOpen && (
                 <motion.div
@@ -399,7 +362,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                   transition={{ duration: 0.3 }}
                   className={`w-full relative ${isExpanded ? 'flex-1' : 'h-[250px]'} overflow-hidden`}
                 >
-                  {/* Main 3D Sacred Geometry Visualizer */}
                   <div className="absolute inset-0 z-10">
                     <SacredGeometryVisualizer
                       defaultShape={currentShape as any}
@@ -414,7 +376,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                     />
                   </div>
                   
-                  {/* Prime number frequency visualizer (overlay) */}
                   <div className="absolute inset-0 z-20 opacity-80">
                     <PrimeAudioVisualizer
                       audioContext={audioContextRef.current}
@@ -427,7 +388,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                     />
                   </div>
                   
-                  {/* Active prime numbers display */}
                   <div className="absolute bottom-4 left-4 right-4 z-30 flex flex-wrap gap-2 justify-center">
                     {activePrimes.map((prime, index) => (
                       <div 
@@ -446,7 +406,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
               )}
             </AnimatePresence>
             
-            {/* Player controls section */}
             <AnimatePresence>
               {showControls && (
                 <motion.div
@@ -456,7 +415,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                   transition={{ duration: 0.3 }}
                   className={`p-4 ${isExpanded ? 'pb-8' : ''}`}
                 >
-                  {/* Title and controls row */}
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex-1 min-w-0">
                       <h3 className="font-medium text-white truncate">
@@ -468,7 +426,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                     </div>
                     
                     <div className="flex items-center space-x-1">
-                      {/* Toggle visualizer button */}
                       <Button
                         size="icon"
                         variant="ghost"
@@ -478,7 +435,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                         <PanelLeft className="h-4 w-4" />
                       </Button>
                       
-                      {/* Expand/collapse button */}
                       <Button
                         size="icon"
                         variant="ghost"
@@ -494,7 +450,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                     </div>
                   </div>
                   
-                  {/* Time slider */}
                   <div className="mb-4">
                     <Slider
                       value={[currentTime]}
@@ -504,16 +459,13 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                       className="my-2"
                     />
                     
-                    {/* Time display */}
                     <div className="flex justify-between text-xs text-white/60">
                       <span>{formatTime(currentTime)}</span>
                       <span>{formatTime(duration || 0)}</span>
                     </div>
                   </div>
                   
-                  {/* Control buttons */}
                   <div className="flex justify-between items-center">
-                    {/* Main controls */}
                     <div className="flex space-x-2 items-center">
                       <Button
                         variant="ghost"
@@ -560,7 +512,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                       </Button>
                     </div>
                     
-                    {/* Volume control */}
                     {showVolumeControl && (
                       <div className="flex items-center space-x-2">
                         <Button
@@ -587,10 +538,8 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                     )}
                   </div>
                   
-                  {/* Settings row - only show in expanded view or if customization is allowed */}
                   {(isExpanded || allowShapeChange || allowColorChange) && (
                     <div className="mt-4 flex flex-wrap gap-2">
-                      {/* Sacred geometry shape selector */}
                       {allowShapeChange && (
                         <Select
                           value={currentShape}
@@ -611,7 +560,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                         </Select>
                       )}
                       
-                      {/* Color theme selector */}
                       {allowColorChange && (
                         <Select
                           value={colorTheme}
@@ -632,7 +580,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
                         </Select>
                       )}
                       
-                      {/* Frequency display */}
                       {defaultFrequency && (
                         <div className="flex items-center h-8 px-3 rounded-md bg-black/30 border border-white/10">
                           <span className="text-xs text-white/80">{defaultFrequency}Hz</span>
@@ -644,7 +591,6 @@ const CosmicAudioPlayer: React.FC<CosmicAudioPlayerProps> = ({
               )}
             </AnimatePresence>
             
-            {/* Mini control bar - only visible when controls are hidden */}
             {!showControls && (
               <div className="p-2 flex justify-between items-center">
                 <Button
