@@ -37,9 +37,16 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
   const { registerPlayerVisuals, isPlaying, currentAudio, resetPlayer } = useGlobalAudioPlayer();
   const errorCountRef = useRef(0);
   const registeredRef = useRef(false);
+  const registerAttemptsRef = useRef(0);
   
   // Format the audio URL when it changes
   useEffect(() => {
+    if (!audioUrl) {
+      console.log("FloatingCosmicPlayer: Empty audio URL provided");
+      return;
+    }
+    
+    console.log("FloatingCosmicPlayer: Setting audio URL:", audioUrl);
     // Format URL if needed
     let formattedUrl = audioUrl;
     if (audioUrl && !audioUrl.startsWith('http')) {
@@ -56,49 +63,68 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
 
   // Register this player with the global audio player
   useEffect(() => {
-    // Skip registration if we've already tried and it failed
+    // Skip registration if we've already successfully registered
     if (registeredRef.current) return;
     
-    if (typeof registerPlayerVisuals !== 'function') {
-      console.error("registerPlayerVisuals is not a function");
+    // Limit registration attempts
+    if (registerAttemptsRef.current > 5) {
+      console.warn("FloatingCosmicPlayer: Too many registration attempts, giving up");
       return;
     }
     
-    // Define the callback to update this player when global state changes
-    const setAudioSourceCallback = (url: string, info?: any) => {
-      console.log("FloatingCosmicPlayer: Global player wants to sync audio:", url);
-      if (url && url !== '') {
-        // Format URL if needed
-        let formattedUrl = url;
-        if (url && !url.startsWith('http')) {
-          formattedUrl = url.startsWith('/') 
-            ? `${window.location.origin}${url}`
-            : `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${url}`;
-        }
-        setAudioUrl(formattedUrl);
-        
-        // Force a re-render of the cosmic player
+    registerAttemptsRef.current++;
+    
+    // Safety check
+    if (!registerPlayerVisuals) {
+      console.error("registerPlayerVisuals function not available");
+      setTimeout(() => {
+        // Force a component update by changing the key
         setPlayerKey(Date.now().toString());
-        
-        // Ensure cosmic player is visible
-        setIsVisible(true);
-      } else {
-        // When url is empty, the global player wants to reset
-        setIsVisible(false);
-      }
-    };
+      }, 1000);
+      return;
+    }
     
     try {
+      // Define the callback to update this player when global state changes
+      const setAudioSourceCallback = (url: string, info?: any) => {
+        console.log("FloatingCosmicPlayer: Global player wants to sync audio:", url);
+        if (url && url !== '') {
+          // Format URL if needed
+          let formattedUrl = url;
+          if (url && !url.startsWith('http')) {
+            formattedUrl = url.startsWith('/') 
+              ? `${window.location.origin}${url}`
+              : `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${url}`;
+          }
+          setAudioUrl(formattedUrl);
+          
+          // Force a re-render of the cosmic player
+          setPlayerKey(Date.now().toString());
+          
+          // Ensure cosmic player is visible
+          setIsVisible(true);
+        } else {
+          // When url is empty, the global player wants to reset
+          console.log("FloatingCosmicPlayer: Received empty URL, hiding player");
+          setIsVisible(false);
+        }
+      };
+      
       // Register with the global player
       registerPlayerVisuals({ setAudioSource: setAudioSourceCallback });
       registeredRef.current = true;
       
-      console.log("FloatingCosmicPlayer: Registered with global audio player");
+      console.log("FloatingCosmicPlayer: Successfully registered with global audio player");
     } catch (error) {
       console.error("Error registering player visuals:", error);
-      toast.error("Audio visualization error");
+      toast.error("Audio visualization error. Trying to recover...");
+      
+      // Try again after a delay
+      setTimeout(() => {
+        setPlayerKey(Date.now().toString());
+      }, 2000);
     }
-  }, [registerPlayerVisuals]);
+  }, [registerPlayerVisuals, playerKey]);
 
   const handleError = (error: any) => {
     console.error("Cosmic player error:", error);

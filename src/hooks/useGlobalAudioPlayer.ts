@@ -65,11 +65,15 @@ export function useGlobalAudioPlayer() {
     playerVisualsRef.current = callbacks;
     
     // If there's currently playing audio, tell the visual player about it
-    if (audioSourceRef.current && isAudioPlaying) {
-      console.log("Global player: Syncing current audio to visual player");
-      playerVisualsRef.current.setAudioSource(audioSourceRef.current, currentAudio);
+    if (audioSourceRef.current && audioSourceRef.current !== '') {
+      console.log("Global player: Syncing current audio to visual player on registration");
+      setTimeout(() => {
+        if (playerVisualsRef.current) {
+          playerVisualsRef.current.setAudioSource(audioSourceRef.current, currentAudio);
+        }
+      }, 100);
     }
-  }, [isAudioPlaying, currentAudio]);
+  }, [currentAudio]);
 
   const playAudio = useCallback((audioInfo: AudioInfo) => {
     console.log("Global player: Playing new song:", audioInfo.title, "URL:", audioInfo.source);
