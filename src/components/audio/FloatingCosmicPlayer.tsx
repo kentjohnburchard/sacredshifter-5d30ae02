@@ -36,6 +36,7 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
   const [audioUrl_, setAudioUrl] = useState<string>('');
   const [playerKey, setPlayerKey] = useState<string>(Date.now().toString());
   const [visualRegistrationState, setVisualRegistrationState] = useState<'pending' | 'registered' | 'failed'>('pending');
+  const [sourceConnected, setSourceConnected] = useState(false);
   
   const cosmicPlayerRef = useRef<any>(null);
   const { registerPlayerVisuals, isPlaying, currentAudio } = useGlobalAudioPlayer();
@@ -45,6 +46,8 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
   const maxRegisterAttempts = 8;
   const registrationTimerRef = useRef<NodeJS.Timeout | null>(null);
   const heartbeatTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
   
   // Clear all timers when component unmounts
   useEffect(() => {
@@ -85,6 +88,53 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
     
   }, [audioUrl]);
 
+  // Connect to global audio source
+  const connectGlobalAudioSource = () => {
+    try {
+      // Get the global audio element
+      const globalAudio = document.querySelector('audio#global-audio-player');
+      if (!globalAudio) {
+        console.error("FloatingCosmicPlayer: Cannot connect source - global audio element not found");
+        return false;
+      }
+
+      console.log("FloatingCosmicPlayer: Connecting to global audio source");
+      
+      // Create audio context and analyzer if they don't exist
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        analyserRef.current = audioContextRef.current.createAnalyser();
+        analyserRef.current.fftSize = 2048;
+      }
+      
+      try {
+        // Create media source from the global audio element
+        const source = audioContextRef.current.createMediaElementSource(globalAudio as HTMLMediaElement);
+        
+        // Connect source -> analyser -> destination
+        source.connect(analyserRef.current!);
+        analyserRef.current!.connect(audioContextRef.current.destination);
+        
+        console.log("FloatingCosmicPlayer: Successfully connected to global audio source");
+        setSourceConnected(true);
+        return true;
+      } catch (error: any) {
+        // If the element is already connected to a node, we'll get an error
+        if (error.name === 'InvalidAccessError' || error.message?.includes('already connected')) {
+          console.log("FloatingCosmicPlayer: Audio element already connected to a node");
+          setSourceConnected(true);
+          return true;
+        }
+        
+        console.error("FloatingCosmicPlayer: Error connecting to global audio source:", error);
+        return false;
+      }
+    } catch (error) {
+      console.error("FloatingCosmicPlayer: Error setting up audio context:", error);
+      return false;
+    }
+  };
+
   // Visual heartbeat check - retry registration if visuals fail to load within 2 seconds
   const startVisualHeartbeatCheck = () => {
     // Clear any existing heartbeat timer
@@ -99,6 +149,9 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
         // Retry registration
         registerAttemptsRef.current = 0;
         attemptVisualRegistration();
+        
+        // Try to connect audio source
+        connectGlobalAudioSource();
         
         // Show toast if still failing after retry
         setTimeout(() => {
@@ -118,6 +171,9 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
     
     // Force a new heartbeat check when component mounts or remounts
     startVisualHeartbeatCheck();
+    
+    // Try to connect to global audio source on mount
+    connectGlobalAudioSource();
     
     return () => {
       // Clear timers on unmount
@@ -183,6 +239,12 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
         console.log("FloatingCosmicPlayer: Visuals registered:", registeredRef.current);
         console.log("Visual sync info:", { audioUrl: audioUrl_, chakra, frequency });
         
+        // Explicitly try to connect to the audio source after successful registration
+        setTimeout(() => {
+          const connected = connectGlobalAudioSource();
+          console.log("FloatingCosmicPlayer: Source connection attempt result:", connected);
+        }, 500);
+        
         // Cancel any pending registration attempts
         if (registrationTimerRef.current) {
           clearTimeout(registrationTimerRef.current);
@@ -212,6 +274,9 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
     if (errorCountRef.current <= 2) {
       toast.error("Audio visualization error. Attempting to recover...");
       
+      // Try reconnecting the audio source
+      connectGlobalAudioSource();
+      
       setTimeout(() => {
         setPlayerKey(Date.now().toString());
       }, 500);
@@ -232,6 +297,7 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
     return null;
   }
 
+  // Pass the audioContext and analyser to CosmicAudioPlayer
   return (
     <CosmicAudioPlayer
       ref={cosmicPlayerRef}
@@ -252,7 +318,10 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
       allowShapeChange={true}
       allowColorChange={true}
       visualModeOnly={visualModeOnly}
-      debugMode={visualRegistrationState === 'failed'} // Enable debug mode when registration fails
+      debugMode={visualRegistrationState === 'failed' || !sourceConnected}
+      providedAudioContext={audioContextRef.current}
+      providedAnalyser={analyserRef.current}
+      sourceConnected={sourceConnected}
     />
   );
 };

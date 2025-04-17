@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 
 export function useAudioPlayer() {
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentAudioTime, setCurrentAudioTime] = useState(0);
@@ -11,21 +11,32 @@ export function useAudioPlayer() {
   const audioSourceRef = useRef<string | null>(null);
   const timeUpdateIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Ensure the audio element exists
+  // Ensure the audio element exists and has a consistent ID
   useEffect(() => {
     if (!audioRef.current) {
-      // Create an audio element if it doesn't exist yet
-      const audioElement = document.querySelector('audio#global-audio-player') as HTMLAudioElement || document.createElement('audio');
-      audioElement.id = 'global-audio-player';
-      audioElement.style.display = 'none';
-      audioElement.crossOrigin = 'anonymous'; // Important for analyzing cross-origin media
+      // Try to find an existing global audio player first
+      const existingAudio = document.querySelector('audio#global-audio-player') as HTMLAudioElement;
       
-      if (!audioElement.parentElement) {
+      if (existingAudio) {
+        console.log("Using existing global audio element");
+        audioRef.current = existingAudio;
+      } else {
+        // Create a new audio element if it doesn't exist yet
+        const audioElement = document.createElement('audio');
+        audioElement.id = 'global-audio-player';
+        audioElement.style.display = 'none';
+        audioElement.crossOrigin = 'anonymous'; // Important for analyzing cross-origin media
+        
         document.body.appendChild(audioElement);
+        audioRef.current = audioElement;
+        console.log("Creating new Audio element");
       }
-      
-      audioRef.current = audioElement;
-      console.log("Creating new Audio element");
+    }
+    
+    // Ensure the audio element has the correct attributes
+    if (audioRef.current) {
+      audioRef.current.id = 'global-audio-player';
+      audioRef.current.crossOrigin = 'anonymous';
     }
     
     return () => {

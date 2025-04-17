@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import {
@@ -61,6 +60,9 @@ interface CosmicAudioPlayerProps {
   isPlaying?: boolean;
   visualModeOnly?: boolean;
   debugMode?: boolean;
+  providedAudioContext?: AudioContext | null;
+  providedAnalyser?: AnalyserNode | null;
+  sourceConnected?: boolean;
 }
 
 const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
@@ -82,6 +84,9 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
   isPlaying: externalIsPlaying,
   visualModeOnly = false,
   debugMode = false,
+  providedAudioContext = null,
+  providedAnalyser = null,
+  sourceConnected = false,
 }, ref) => {
   const [isPlaying, setIsPlaying] = useState(autoPlay && !syncWithGlobalPlayer);
   const [volume, setVolume] = useState(0.7);
@@ -103,14 +108,28 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
   const [showDebugInfo, setShowDebugInfo] = useState(debugMode);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const sourceNodeCreatedRef = useRef<boolean>(false);
+  const audioContextRef = useRef<AudioContext | null>(providedAudioContext);
+  const analyserRef = useRef<AnalyserNode | null>(providedAnalyser);
+  const sourceNodeCreatedRef = useRef<boolean>(sourceConnected);
   const containerRef = useRef<HTMLDivElement>(null);
   const dragControls = useDragControls();
   const { liftTheVeil } = useTheme();
 
-  // Expose methods to parent component via ref
+  useEffect(() => {
+    if (providedAudioContext) {
+      audioContextRef.current = providedAudioContext;
+      setAudioContextInitialized(true);
+    }
+    
+    if (providedAnalyser) {
+      analyserRef.current = providedAnalyser;
+    }
+    
+    if (sourceConnected) {
+      sourceNodeCreatedRef.current = true;
+    }
+  }, [providedAudioContext, providedAnalyser, sourceConnected]);
+
   useImperativeHandle(ref, () => ({
     setAudioSource: (url: string) => {
       console.log("CosmicAudioPlayer: Setting audio source:", url);
@@ -120,21 +139,23 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
     getAudioContext: () => audioContextRef.current
   }));
   
-  // Handle external playing state changes when in sync mode
   useEffect(() => {
     if (syncWithGlobalPlayer && externalIsPlaying !== undefined) {
       setIsPlaying(externalIsPlaying);
     }
   }, [syncWithGlobalPlayer, externalIsPlaying]);
   
-  // Update audio URL when it changes
   useEffect(() => {
     setAudioUrl(defaultAudioUrl);
   }, [defaultAudioUrl]);
   
-  // Initialize audio context only once
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    if (audioContextRef.current && analyserRef.current) {
+      console.log("CosmicAudioPlayer: Using provided audio context and analyser");
+      setAudioContextInitialized(true);
+      return;
+    }
     
     const setupAudioContext = () => {
       if (!audioContextRef.current) {
@@ -148,7 +169,7 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
           analyser.smoothingTimeConstant = 0.8;
           analyserRef.current = analyser;
           
-          console.log("Audio context and analyser initialized");
+          console.log("Audio context and analyser initialized in CosmicAudioPlayer");
         } catch (err) {
           console.error("Error initializing audio context:", err);
           if (onError) onError(err);
@@ -163,112 +184,35 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
     };
   }, [onError]);
   
-  // Connect audio element to analyser only once when both refs exist
   useEffect(() => {
+    if (sourceNodeCreatedRef.current) {
+      // Source already connected, no need to reconnect
+      console.log("CosmicAudioPlayer: Source already connected, skipping connection");
+      setAudioContextInitialized(true);
+      return;
+    }
+    
     if (!audioRef.current || !audioContextRef.current || !analyserRef.current) return;
     
-    // Only create source node if it hasn't been created yet
-    if (!sourceNodeCreatedRef.current) {
-      try {
-        const source = audioContextRef.current.createMediaElementSource(audioRef.current);
-        source.connect(analyserRef.current);
-        analyserRef.current.connect(audioContextRef.current.destination);
-        sourceNodeCreatedRef.current = true;
-        setAudioContextInitialized(true);
-        console.log("Audio connected to analyser successfully");
-      } catch (error) {
-        // If error is about already being connected, we can ignore it
-        if (error instanceof DOMException && error.name === 'InvalidStateError') {
-          console.log("Audio already connected to a source node, continuing");
-          setAudioContextInitialized(true); 
-        } else {
-          console.error("Error connecting audio:", error);
-          if (onError) onError(error);
-        }
+    try {
+      const source = audioContextRef.current.createMediaElementSource(audioRef.current);
+      source.connect(analyserRef.current);
+      analyserRef.current.connect(audioContextRef.current.destination);
+      sourceNodeCreatedRef.current = true;
+      setAudioContextInitialized(true);
+      console.log("CosmicAudioPlayer: Audio connected to analyser successfully");
+    } catch (error) {
+      // If error is about already being connected, we can ignore it
+      if (error instanceof DOMException && error.name === 'InvalidStateError') {
+        console.log("CosmicAudioPlayer: Audio already connected to a source node, continuing");
+        setAudioContextInitialized(true); 
+      } else {
+        console.error("CosmicAudioPlayer: Error connecting audio:", error);
+        if (onError) onError(error);
       }
     }
   }, [onError]);
   
-  // Handle audio element events for non-synced player
-  useEffect(() => {
-    // Skip this setup if we're syncing with the global player
-    if (syncWithGlobalPlayer) return;
-    
-    if (!audioRef.current) return;
-    
-    const audio = audioRef.current;
-    
-    const handleTimeUpdate = () => {
-      setCurrentTime(audio.currentTime);
-    };
-    
-    const handleLoadedMetadata = () => {
-      setDuration(audio.duration);
-    };
-    
-    const handlePlay = () => {
-      setIsPlaying(true);
-      if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
-        audioContextRef.current.resume();
-      }
-    };
-    
-    const handlePause = () => {
-      setIsPlaying(false);
-    };
-    
-    const handleEnded = () => {
-      setIsPlaying(false);
-      setCurrentTime(0);
-    };
-    
-    const handleError = (e: any) => {
-      console.error("Audio player error:", e);
-      setIsPlaying(false);
-      if (onError) onError(e);
-    };
-    
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-    audio.addEventListener('play', handlePlay);
-    audio.addEventListener('pause', handlePause);
-    audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('error', handleError);
-    
-    audio.volume = volume;
-    
-    return () => {
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      audio.removeEventListener('play', handlePlay);
-      audio.removeEventListener('pause', handlePause);
-      audio.removeEventListener('ended', handleEnded);
-      audio.removeEventListener('error', handleError);
-    };
-  }, [onError, syncWithGlobalPlayer]);
-  
-  // Auto-play effect for non-synced player
-  useEffect(() => {
-    if (autoPlay && audioRef.current && !isPlaying && !syncWithGlobalPlayer) {
-      // Wait a moment to ensure everything is initialized
-      const timer = setTimeout(() => {
-        if (audioRef.current) {
-          const playPromise = audioRef.current.play();
-          
-          if (playPromise !== undefined) {
-            playPromise.catch(error => {
-              console.error("Error auto-playing audio:", error);
-              if (onError) onError(error);
-            });
-          }
-        }
-      }, 300);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [autoPlay, onError, isPlaying, syncWithGlobalPlayer]);
-  
-  // Detect prime frequencies in audio
   const handlePrimeDetected = (prime: number) => {
     setActivePrimes(prevPrimes => {
       if (!prevPrimes.includes(prime)) {
@@ -281,7 +225,6 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
     });
   };
   
-  // Format time display
   const formatTime = (seconds: number) => {
     if (!seconds || isNaN(seconds)) return "0:00";
     const mins = Math.floor(seconds / 60);
@@ -289,9 +232,7 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
   
-  // Toggle play/pause - only used for non-synced player
   const togglePlay = () => {
-    // If synced with global player, we should not control audio playback directly
     if (syncWithGlobalPlayer) {
       console.log("CosmicAudioPlayer: In sync mode, playback controlled by global player");
       return;
@@ -316,7 +257,6 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
     }
   };
   
-  // Handle volume change
   const handleVolumeChange = (values: number[]) => {
     const newVolume = values[0];
     setVolume(newVolume);
@@ -332,7 +272,6 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
     }
   };
   
-  // Toggle mute
   const toggleMute = () => {
     if (!audioRef.current || syncWithGlobalPlayer) return;
     
@@ -341,7 +280,6 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
     audioRef.current.muted = newMutedState;
   };
   
-  // Handle seek
   const handleSeek = (values: number[]) => {
     if (!audioRef.current || !duration || syncWithGlobalPlayer) return;
     
@@ -355,7 +293,6 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
     }
   };
   
-  // Toggle expanded state
   const toggleExpanded = () => {
     const newExpandedState = !isExpanded;
     setIsExpanded(newExpandedState);
@@ -364,28 +301,23 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
     }
   };
   
-  // Handle shape change
   const handleShapeChange = (shape: string) => {
     setCurrentShape(shape);
-    // Force a re-render of the visualizer when shape changes
     setVisualizerKey(Date.now().toString());
     toast.success(`Sacred geometry changed to ${shape.replace(/-/g, ' ')}`);
   };
   
-  // Handle color theme change
   const handleColorThemeChange = (theme: string) => {
     setColorTheme(theme);
     toast.success(`Color theme changed to ${theme.replace(/-/g, ' ')}`);
   };
   
-  // Handle visualization mode change
   const handleModeChange = (mode: 'fractal' | 'spiral' | 'mandala' | 'liquid-crystal') => {
     setActiveMode(mode);
     setVisualizerKey(Date.now().toString());
     toast.success(`Visualization mode changed to ${mode.replace(/-/g, ' ')}`);
   };
   
-  // Get theme classes
   const getThemeClasses = () => {
     const baseClasses = "cosmic-audio-player rounded-lg shadow-xl transition-all duration-300";
     
@@ -401,7 +333,6 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
     return `${baseClasses} ${themeClasses[colorTheme as keyof typeof themeClasses] || themeClasses["cosmic-purple"]}`;
   };
   
-  // Drag handlers
   const startDrag = (event: React.PointerEvent<HTMLDivElement>) => {
     dragControls.start(event);
     setIsDragging(true);
@@ -411,22 +342,18 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
     setIsDragging(false);
   };
   
-  // Toggle controls
   const toggleControls = () => {
     setShowControls(!showControls);
   };
   
-  // Toggle visualizer
   const toggleVisualizer = () => {
     setIsVisualizerOpen(!isVisualizerOpen);
   };
   
-  // Toggle debug mode
   const toggleDebugMode = () => {
     setShowDebugInfo(!showDebugInfo);
   };
 
-  // Component rendering
   return (
     <motion.div
       ref={containerRef}
@@ -461,7 +388,6 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
         )}
         
         <CardContent className={`p-0 ${isExpanded ? 'h-full flex flex-col' : ''}`}>
-          {/* We still create an audio element for visualizations in sync mode, but don't connect it for playback */}
           {!syncWithGlobalPlayer && (
             <audio 
               ref={audioRef}
@@ -475,7 +401,6 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
           )}
           
           <div className={`flex flex-col ${isExpanded ? 'h-full' : ''}`}>
-            {/* Visualizer */}
             <AnimatePresence>
               {isVisualizerOpen && (
                 <motion.div
@@ -531,7 +456,6 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
                     )}
                   </div>
                   
-                  {/* Debug Info */}
                   {showDebugInfo && (
                     <div className="absolute top-2 left-2 right-2 z-50 p-2 bg-black/80 text-white rounded text-xs font-mono">
                       <div className="mb-1">
@@ -555,6 +479,8 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
                       <div>Audio Context: {audioContextRef.current ? 'Created' : 'Missing'}</div>
                       <div>Analyser: {analyserRef.current ? 'Created' : 'Missing'}</div>
                       <div>Source Connected: {sourceNodeCreatedRef.current ? 'Yes' : 'No'}</div>
+                      <div>Provided Context: {providedAudioContext ? 'Yes' : 'No'}</div>
+                      <div>Provided Analyser: {providedAnalyser ? 'Yes' : 'No'}</div>
                     </div>
                   )}
                   
@@ -576,7 +502,6 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
               )}
             </AnimatePresence>
             
-            {/* Audio Controls - Only shown when not in visual mode only */}
             <AnimatePresence>
               {showControls && !visualModeOnly && (
                 <motion.div
@@ -630,7 +555,6 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
                     </div>
                   </div>
                   
-                  {/* For synced player, we don't show these controls */}
                   {!syncWithGlobalPlayer && (
                     <>
                       <div className="mb-4">
@@ -822,7 +746,6 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
               )}
             </AnimatePresence>
             
-            {/* Visual-only mode floating controls - Only shown in visual mode only */}
             {visualModeOnly && (
               <div className="absolute bottom-4 right-4 z-40">
                 <div className="flex space-x-2">
