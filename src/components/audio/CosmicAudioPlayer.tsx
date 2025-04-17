@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } f
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import {
   Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, 
-  Maximize2, Minimize2, ChevronDown, Settings, PanelLeft
+  Maximize2, Minimize2, ChevronDown, Settings, PanelLeft, Bug
 } from "lucide-react";
 import * as THREE from "three";
 import { Button } from "@/components/ui/button";
@@ -59,6 +59,8 @@ interface CosmicAudioPlayerProps {
   onError?: (error: any) => void;
   syncWithGlobalPlayer?: boolean;
   isPlaying?: boolean;
+  visualModeOnly?: boolean;
+  debugMode?: boolean;
 }
 
 const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
@@ -78,6 +80,8 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
   onError,
   syncWithGlobalPlayer = false,
   isPlaying: externalIsPlaying,
+  visualModeOnly = false,
+  debugMode = false,
 }, ref) => {
   const [isPlaying, setIsPlaying] = useState(autoPlay && !syncWithGlobalPlayer);
   const [volume, setVolume] = useState(0.7);
@@ -90,12 +94,13 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
   const [colorTheme, setColorTheme] = useState(initialColorTheme);
   const [currentShape, setCurrentShape] = useState<string>(initialShape);
   const [isVisualizerOpen, setIsVisualizerOpen] = useState(true);
-  const [showControls, setShowControls] = useState(true);
+  const [showControls, setShowControls] = useState(!visualModeOnly);
   const [isDragging, setIsDragging] = useState(false);
   const [audioContextInitialized, setAudioContextInitialized] = useState(false);
   const [visualizerKey, setVisualizerKey] = useState<string>(Date.now().toString());
   const [activeMode, setActiveMode] = useState<'fractal' | 'spiral' | 'mandala' | 'liquid-crystal'>('fractal');
   const [audioUrl, setAudioUrl] = useState<string | undefined>(defaultAudioUrl);
+  const [showDebugInfo, setShowDebugInfo] = useState(debugMode);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -278,6 +283,7 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
   
   // Format time display
   const formatTime = (seconds: number) => {
+    if (!seconds || isNaN(seconds)) return "0:00";
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
@@ -415,6 +421,11 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
     setIsVisualizerOpen(!isVisualizerOpen);
   };
   
+  // Toggle debug mode
+  const toggleDebugMode = () => {
+    setShowDebugInfo(!showDebugInfo);
+  };
+
   // Component rendering
   return (
     <motion.div
@@ -423,7 +434,7 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.3 }}
-      drag={!isExpanded}
+      drag={!isExpanded && !visualModeOnly}
       dragControls={dragControls}
       dragMomentum={false}
       dragListener={false}
@@ -439,7 +450,7 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
           isExpanded ? 'w-full h-full rounded-none' : 'w-full border'
         } overflow-hidden relative`}
       >
-        {!isExpanded && (
+        {!isExpanded && !visualModeOnly && (
           <div 
             className="absolute top-0 left-0 right-0 h-8 cursor-move flex items-center justify-center"
             onPointerDown={startDrag}
@@ -464,6 +475,7 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
           )}
           
           <div className={`flex flex-col ${isExpanded ? 'h-full' : ''}`}>
+            {/* Visualizer */}
             <AnimatePresence>
               {isVisualizerOpen && (
                 <motion.div
@@ -519,6 +531,33 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
                     )}
                   </div>
                   
+                  {/* Debug Info */}
+                  {showDebugInfo && (
+                    <div className="absolute top-2 left-2 right-2 z-50 p-2 bg-black/80 text-white rounded text-xs font-mono">
+                      <div className="mb-1">
+                        <strong>Visual Debug:</strong>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="ml-2 h-6 px-2 py-0 text-[10px] bg-red-900/30 hover:bg-red-900/50 border-red-500/30"
+                          onClick={toggleDebugMode}
+                        >
+                          Close
+                        </Button>
+                      </div>
+                      <div>Audio URL: {audioUrl || 'None'}</div>
+                      <div>Chakra: {chakra || 'None'}</div>
+                      <div>Freq: {defaultFrequency || 'None'}</div>
+                      <div>Shape: {currentShape}</div>
+                      <div>Mode: {activeMode}</div>
+                      <div>Sync: {syncWithGlobalPlayer ? 'Yes' : 'No'}</div>
+                      <div>Playing: {isPlaying ? 'Yes' : 'No'}</div>
+                      <div>Audio Context: {audioContextRef.current ? 'Created' : 'Missing'}</div>
+                      <div>Analyser: {analyserRef.current ? 'Created' : 'Missing'}</div>
+                      <div>Source Connected: {sourceNodeCreatedRef.current ? 'Yes' : 'No'}</div>
+                    </div>
+                  )}
+                  
                   <div className="absolute bottom-4 left-4 right-4 z-30 flex flex-wrap gap-2 justify-center">
                     {activePrimes.map((prime, index) => (
                       <div 
@@ -537,8 +576,9 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
               )}
             </AnimatePresence>
             
+            {/* Audio Controls - Only shown when not in visual mode only */}
             <AnimatePresence>
-              {showControls && (
+              {showControls && !visualModeOnly && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
@@ -578,6 +618,15 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
                           <Maximize2 className="h-4 w-4" />
                         )}
                       </Button>
+                      
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/10"
+                        onClick={toggleDebugMode}
+                      >
+                        <Bug className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                   
@@ -593,7 +642,7 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
                           className="my-2"
                         />
                         
-                        <div className="flex justify-between text-xs text-white/60">
+                        <div className="flex justify-between text-xs text-gray-500">
                           <span>{formatTime(currentTime)}</span>
                           <span>{formatTime(duration || 0)}</span>
                         </div>
@@ -772,6 +821,85 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
                 </motion.div>
               )}
             </AnimatePresence>
+            
+            {/* Visual-only mode floating controls - Only shown in visual mode only */}
+            {visualModeOnly && (
+              <div className="absolute bottom-4 right-4 z-40">
+                <div className="flex space-x-2">
+                  {allowShapeChange && (
+                    <Select
+                      value={currentShape}
+                      onValueChange={handleShapeChange}
+                    >
+                      <SelectTrigger 
+                        className="h-8 w-8 p-0 rounded-full bg-black/40 border-none text-white/70 hover:text-white hover:bg-black/60"
+                      >
+                        <Settings className="h-4 w-4" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-900/95 text-white border-slate-700">
+                        <div className="p-2">
+                          <p className="text-xs text-slate-400 mb-2">Sacred Geometry</p>
+                          <div className="grid grid-cols-2 gap-1">
+                            {SACRED_SHAPES.map(shape => (
+                              <SelectItem 
+                                key={shape} 
+                                value={shape}
+                                className="rounded hover:bg-slate-800"
+                              >
+                                {shape.split('-').map(word => 
+                                  word.charAt(0).toUpperCase() + word.slice(1)
+                                ).join(' ')}
+                              </SelectItem>
+                            ))}
+                          </div>
+                          
+                          <p className="text-xs text-slate-400 mt-3 mb-2">Visualization Mode</p>
+                          <div className="grid grid-cols-2 gap-1">
+                            <SelectItem 
+                              value="fractal" 
+                              className="rounded hover:bg-slate-800"
+                              onSelect={() => handleModeChange('fractal')}
+                            >
+                              Fractal Flow
+                            </SelectItem>
+                            <SelectItem 
+                              value="spiral" 
+                              className="rounded hover:bg-slate-800"
+                              onSelect={() => handleModeChange('spiral')}
+                            >
+                              Spiral Vortex
+                            </SelectItem>
+                            <SelectItem 
+                              value="mandala" 
+                              className="rounded hover:bg-slate-800"
+                              onSelect={() => handleModeChange('mandala')}
+                            >
+                              Mandala Form
+                            </SelectItem>
+                            <SelectItem 
+                              value="liquid-crystal" 
+                              className="rounded hover:bg-slate-800"
+                              onSelect={() => handleModeChange('liquid-crystal')}
+                            >
+                              Liquid Crystal
+                            </SelectItem>
+                          </div>
+                        </div>
+                      </SelectContent>
+                    </Select>
+                  )}
+                  
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="h-8 w-8 rounded-full bg-black/40 border-none text-white/70 hover:text-white hover:bg-black/60"
+                    onClick={toggleDebugMode}
+                  >
+                    <Bug className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

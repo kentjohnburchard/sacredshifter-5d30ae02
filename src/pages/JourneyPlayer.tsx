@@ -393,7 +393,7 @@ const JourneyPlayer = () => {
                 <Progress value={progressPercentage} className="w-full" />
                 <div className="flex justify-between text-sm text-gray-500">
                   <span>{formatTime(currentTime)}</span>
-                  <span>{formatTime(duration)}</span>
+                  <span>{formatTime(duration || 0)}</span>
                 </div>
               </div>
             </div>
@@ -480,10 +480,11 @@ const JourneyPlayer = () => {
           chakra={journey?.chakras?.[0]?.toLowerCase() || "all"}
           frequency={currentSongRef.current?.frequency || currentAudio?.frequency}
           initialShape={journey?.id === 'trinity-journey' ? 'metatrons-cube' : 
-                      journey?.id === 'dna-healing' ? 'flower-of-life' :
-                      journey?.id === 'cosmic-connection' ? 'sri-yantra' : 'torus'}
+                       journey?.id === 'dna-healing' ? 'flower-of-life' :
+                       journey?.id === 'cosmic-connection' ? 'sri-yantra' : 'torus'}
           initialColorTheme={'cosmic-purple'}
           initialIsExpanded={false}
+          visualModeOnly={true}
         />
       )}
     </Layout>
