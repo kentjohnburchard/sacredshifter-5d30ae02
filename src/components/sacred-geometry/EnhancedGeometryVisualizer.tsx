@@ -56,12 +56,21 @@ const EnhancedGeometryVisualizer: React.FC<EnhancedGeometryVisualizerProps> = ({
     if (defaultShape !== currentShape) {
       setCurrentShape(defaultShape);
     }
-  }, [defaultShape]);
+  }, [defaultShape, currentShape]);
 
   // Update mode when theme changes
   useEffect(() => {
     setVisualizerMode(liftTheVeil ? 'spiral' : initialMode || 'fractal');
   }, [liftTheVeil, initialMode]);
+
+  // Log audio context and analyser on mount for debugging
+  useEffect(() => {
+    console.log("EnhancedGeometryVisualizer: Received audioContext?", !!audioContext);
+    console.log("EnhancedGeometryVisualizer: Received analyser?", !!analyser);
+    if (analyser) {
+      console.log("EnhancedGeometryVisualizer: Analyser FFT size:", analyser.fftSize);
+    }
+  }, [audioContext, analyser]);
 
   const shouldShow = isVisible !== false;
   
@@ -142,7 +151,7 @@ const EnhancedGeometryVisualizer: React.FC<EnhancedGeometryVisualizerProps> = ({
             <SacredVisualizer 
               shape={currentShape} 
               size={effectiveSize} 
-              isAudioReactive={isAudioReactive}
+              isAudioReactive={isAudioReactive || !!analyser}
               audioContext={audioContext}
               analyser={analyser}
               chakra={chakra}

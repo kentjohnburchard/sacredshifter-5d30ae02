@@ -1,14 +1,21 @@
-
 import React, { useRef, useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 
 interface AudioVisualizerProps {
-  audioRef: React.RefObject<HTMLAudioElement>;
+  audioRef?: React.RefObject<HTMLAudioElement>;
   isPlaying: boolean;
   frequency: number;
+  providedAudioContext?: AudioContext;
+  providedAnalyser?: AnalyserNode;
 }
 
-const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ audioRef, isPlaying, frequency }) => {
+const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ 
+  audioRef, 
+  isPlaying, 
+  frequency,
+  providedAudioContext,
+  providedAnalyser
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -25,7 +32,23 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ audioRef, isPlaying, 
 
   // Initialize audio context and analyzer
   useEffect(() => {
-    if (!audioRef.current) return;
+    // Use provided audio context and analyser if available
+    if (providedAudioContext && providedAnalyser) {
+      console.log("AudioVisualizer: Using provided audio context and analyser");
+      setAudioContext(providedAudioContext);
+      analyserRef.current = providedAnalyser;
+      
+      const bufferLength = providedAnalyser.frequencyBinCount;
+      setBufferLength(bufferLength);
+      
+      const dataArray = new Uint8Array(bufferLength);
+      setDataArray(dataArray);
+      
+      return;
+    }
+    
+    // Otherwise, set up our own audio processing if an audio ref is provided
+    if (!audioRef?.current) return;
 
     const initializeAudio = () => {
       // Create audio context
@@ -45,10 +68,14 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ audioRef, isPlaying, 
       
       // Connect audio element to analyzer
       if (audioRef.current) {
-        const source = ctx.createMediaElementSource(audioRef.current);
-        source.connect(analyser);
-        analyser.connect(ctx.destination);
-        sourceRef.current = source;
+        try {
+          const source = ctx.createMediaElementSource(audioRef.current);
+          source.connect(analyser);
+          analyser.connect(ctx.destination);
+          sourceRef.current = source;
+        } catch (e) {
+          console.error("Error connecting audio source:", e);
+        }
       }
     };
 
@@ -65,11 +92,8 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ audioRef, isPlaying, 
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
-      if (audioContext) {
-        // Don't close the audio context as it may be needed elsewhere
-      }
     };
-  }, [audioRef, audioContext]);
+  }, [audioRef, audioContext, providedAudioContext, providedAnalyser]);
 
   // Animation loop
   useEffect(() => {

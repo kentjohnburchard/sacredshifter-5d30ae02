@@ -37,6 +37,9 @@ export function useAudioPlayer() {
     if (audioRef.current) {
       audioRef.current.id = 'global-audio-player';
       audioRef.current.crossOrigin = 'anonymous';
+      
+      // Make the audio element globally accessible for debugging
+      (window as any).globalAudioElement = audioRef.current;
     }
     
     return () => {
@@ -198,6 +201,7 @@ export function useAudioPlayer() {
     setAudioSource,
     audioRef,
     audioLoaded,
-    audioError
+    audioError,
+    getAudioElement: () => audioRef.current
   };
 }

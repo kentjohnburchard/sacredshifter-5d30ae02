@@ -39,15 +39,16 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
   const [sourceConnected, setSourceConnected] = useState(false);
   
   const cosmicPlayerRef = useRef<any>(null);
-  const { registerPlayerVisuals, isPlaying, currentAudio } = useGlobalAudioPlayer();
+  const { registerPlayerVisuals, isPlaying, currentAudio, getAudioElement, forceVisualSync } = useGlobalAudioPlayer();
   const errorCountRef = useRef(0);
   const registeredRef = useRef(false);
   const registerAttemptsRef = useRef(0);
-  const maxRegisterAttempts = 8;
+  const maxRegisterAttempts = 15; // Increased for reliability
   const registrationTimerRef = useRef<NodeJS.Timeout | null>(null);
   const heartbeatTimerRef = useRef<NodeJS.Timeout | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
+  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
   
   // Clear all timers when component unmounts
   useEffect(() => {
@@ -91,8 +92,8 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
   // Connect to global audio source
   const connectGlobalAudioSource = () => {
     try {
-      // Get the global audio element
-      const globalAudio = document.querySelector('audio#global-audio-player');
+      // Get the global audio element - try both methods for robustness
+      const globalAudio = getAudioElement() || document.querySelector('audio#global-audio-player');
       if (!globalAudio) {
         console.error("FloatingCosmicPlayer: Cannot connect source - global audio element not found");
         return false;
@@ -100,24 +101,49 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
 
       console.log("FloatingCosmicPlayer: Connecting to global audio source");
       
-      // Create audio context and analyzer if they don't exist
+      // Clean up existing context and nodes if they exist
+      if (sourceNodeRef.current) {
+        try {
+          sourceNodeRef.current.disconnect();
+        } catch (e) {
+          // Ignore disconnect errors
+        }
+        sourceNodeRef.current = null;
+      }
+      
+      // Create or reuse audio context
       if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        try {
+          audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        } catch (e) {
+          console.error("Failed to create audio context:", e);
+          return false;
+        }
+      }
+      
+      // Create analyser if it doesn't exist
+      if (!analyserRef.current && audioContextRef.current) {
         analyserRef.current = audioContextRef.current.createAnalyser();
-        analyserRef.current.fftSize = 2048;
+        analyserRef.current.fftSize = 2048; // Higher resolution
       }
       
       try {
-        // Create media source from the global audio element
-        const source = audioContextRef.current.createMediaElementSource(globalAudio as HTMLMediaElement);
-        
-        // Connect source -> analyser -> destination
-        source.connect(analyserRef.current!);
-        analyserRef.current!.connect(audioContextRef.current.destination);
-        
-        console.log("FloatingCosmicPlayer: Successfully connected to global audio source");
-        setSourceConnected(true);
-        return true;
+        // Create media source from the global audio element if it doesn't exist
+        if (!sourceNodeRef.current && audioContextRef.current) {
+          sourceNodeRef.current = audioContextRef.current.createMediaElementSource(globalAudio as HTMLMediaElement);
+          
+          // Connect source -> analyser -> destination
+          sourceNodeRef.current.connect(analyserRef.current!);
+          analyserRef.current!.connect(audioContextRef.current.destination);
+          
+          console.log("FloatingCosmicPlayer: Successfully connected to global audio source");
+          setSourceConnected(true);
+          return true;
+        } else if (sourceNodeRef.current) {
+          console.log("FloatingCosmicPlayer: Audio source already connected");
+          setSourceConnected(true);
+          return true;
+        }
       } catch (error: any) {
         // If the element is already connected to a node, we'll get an error
         if (error.name === 'InvalidAccessError' || error.message?.includes('already connected')) {
@@ -127,8 +153,11 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
         }
         
         console.error("FloatingCosmicPlayer: Error connecting to global audio source:", error);
+        toast.error("Audio visualization error. Try refreshing the page.");
         return false;
       }
+      
+      return false;
     } catch (error) {
       console.error("FloatingCosmicPlayer: Error setting up audio context:", error);
       return false;
@@ -146,6 +175,12 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
       if (!registeredRef.current && audioUrl_) {
         console.log("FloatingCosmicPlayer: Visual heartbeat check - visuals not registered after 2 seconds");
         
+        // Force sync visuals if available
+        if (forceVisualSync) {
+          console.log("FloatingCosmicPlayer: Forcing visual sync from heartbeat");
+          forceVisualSync();
+        }
+        
         // Retry registration
         registerAttemptsRef.current = 0;
         attemptVisualRegistration();
@@ -155,7 +190,7 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
         
         // Show toast if still failing after retry
         setTimeout(() => {
-          if (!registeredRef.current) {
+          if (!registeredRef.current || !sourceConnected) {
             toast.error("Visualizations failed to load. Try refreshing the page.");
             setVisualRegistrationState('failed');
             console.error("FloatingCosmicPlayer: Visual registration still failed after retry");
@@ -173,7 +208,8 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
     startVisualHeartbeatCheck();
     
     // Try to connect to global audio source on mount
-    connectGlobalAudioSource();
+    const connected = connectGlobalAudioSource();
+    console.log("FloatingCosmicPlayer: Initial source connection:", connected);
     
     return () => {
       // Clear timers on unmount
@@ -226,6 +262,11 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
         setAudioUrl(formattedUrl);
         setPlayerKey(Date.now().toString());
         setIsVisible(true);
+        
+        // Try to connect audio source when we get new audio
+        setTimeout(() => {
+          connectGlobalAudioSource();
+        }, 300);
       };
       
       // Register with the global player
@@ -292,10 +333,30 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
     }
   };
   
+  useEffect(() => {
+    // If playback starts, try to ensure source is connected
+    if (isPlaying && !sourceConnected) {
+      console.log("FloatingCosmicPlayer: Playback detected, ensuring source is connected");
+      connectGlobalAudioSource();
+    }
+  }, [isPlaying]);
+  
   if (!isVisible || !audioUrl_) {
     console.log("FloatingCosmicPlayer: Not visible or no audio URL, returning null");
     return null;
   }
+
+  const debugInfo = {
+    registered: registeredRef.current,
+    sourceConnected,
+    visualState: visualRegistrationState,
+    isPlaying,
+    hasAudioContext: !!audioContextRef.current,
+    hasAnalyser: !!analyserRef.current,
+    audioUrl: audioUrl_.substring(0, 30) + "..."
+  };
+
+  console.log("FloatingCosmicPlayer debug:", debugInfo);
 
   // Pass the audioContext and analyser to CosmicAudioPlayer
   return (

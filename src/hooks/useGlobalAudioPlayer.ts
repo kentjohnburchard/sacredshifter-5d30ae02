@@ -26,7 +26,8 @@ export function useGlobalAudioPlayer() {
     setAudioSource,
     audioRef,
     audioLoaded,
-    audioError
+    audioError,
+    getAudioElement
   } = useAudioPlayer();
 
   const [currentAudio, setCurrentAudio] = useState<AudioInfo>({source: ''});
@@ -36,6 +37,7 @@ export function useGlobalAudioPlayer() {
   const playerVisualsRef = useRef<VisualPlayerCallbacks | null>(null);
   const registrationAttempts = useRef<number>(0);
   const syncTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const visualsSyncedRef = useRef<boolean>(false);
 
   // Make sure we're tracking the current audio time
   const [currentTime, setCurrentTime] = useState(0);
@@ -53,6 +55,7 @@ export function useGlobalAudioPlayer() {
   useEffect(() => {
     const handleEnded = () => {
       console.log("useGlobalAudioPlayer: Audio ended, triggering onEnded callback");
+      visualsSyncedRef.current = false;
       if (onEndedCallbackRef.current) {
         onEndedCallbackRef.current();
       }
@@ -71,7 +74,7 @@ export function useGlobalAudioPlayer() {
   }, [audioRef]);
 
   // This function is called by visual players to register themselves
-  const registerPlayerVisuals = useCallback((callbacks: VisualPlayerCallbacks) => {
+  const registerPlayerVisuals = useCallback((callbacks: VisualPlayerCallbacks): boolean => {
     console.log("Global player: Registering visual player callbacks");
     playerVisualsRef.current = callbacks;
     registrationAttempts.current = 0;
@@ -85,6 +88,7 @@ export function useGlobalAudioPlayer() {
       setTimeout(() => {
         if (playerVisualsRef.current) {
           playerVisualsRef.current.setAudioSource(audioSourceRef.current, currentAudio);
+          visualsSyncedRef.current = true;
         }
       }, 100);
     } else {
@@ -102,11 +106,12 @@ export function useGlobalAudioPlayer() {
     
     if (!playerVisualsRef.current) {
       console.log("Global player: No visual player registered yet, will retry");
-      if (registrationAttempts.current < 5) {
+      if (registrationAttempts.current < 15) {  // Increase max attempts
         registrationAttempts.current += 1;
-        syncTimerRef.current = setTimeout(() => syncWithVisualPlayer(audioInfo), 300);
+        syncTimerRef.current = setTimeout(() => syncWithVisualPlayer(audioInfo), 200);
       } else {
         console.warn("Global player: Failed to sync with visual player after multiple attempts");
+        toast.error("Visualization sync issue. Please refresh the page if visuals don't appear.");
       }
       return;
     }
@@ -116,9 +121,11 @@ export function useGlobalAudioPlayer() {
     
     try {
       playerVisualsRef.current.setAudioSource(audioInfo.source, audioInfo);
+      visualsSyncedRef.current = true;
       registrationAttempts.current = 0; // Reset attempts counter after success
     } catch (error) {
       console.error("Error syncing with visual player:", error);
+      visualsSyncedRef.current = false;
       toast.error("Visualization sync error. Please refresh if visuals don't appear.");
     }
   }, []);
@@ -137,6 +144,7 @@ export function useGlobalAudioPlayer() {
     
     // Update the audio source reference for visual sync
     audioSourceRef.current = audioInfo.source;
+    visualsSyncedRef.current = false;
     
     // First pause any currently playing audio
     const audio = audioRef.current;
@@ -167,7 +175,7 @@ export function useGlobalAudioPlayer() {
       // Always sync with visual player when playing new audio
       syncWithVisualPlayer(audioInfo);
       
-    }, 100);
+    }, 200); // Increased timeout for better reliability
   }, [setAudioSource, syncWithVisualPlayer]);
 
   const setOnEndedCallback = useCallback((callback: (() => void) | null) => {
@@ -189,6 +197,7 @@ export function useGlobalAudioPlayer() {
       audio.src = '';
       audioSourceRef.current = '';
       setCurrentAudio({source: ''});
+      visualsSyncedRef.current = false;
       console.log("Global audio player: Reset complete");
       
       // Reset visual player if registered
@@ -198,6 +207,13 @@ export function useGlobalAudioPlayer() {
       }
     }
   }, []);
+  
+  const forceVisualSync = useCallback(() => {
+    if (currentAudio.source && !visualsSyncedRef.current) {
+      console.log("Global player: Force syncing visuals for current audio");
+      syncWithVisualPlayer(currentAudio);
+    }
+  }, [currentAudio, syncWithVisualPlayer]);
 
   return {
     playAudio,
@@ -209,6 +225,8 @@ export function useGlobalAudioPlayer() {
     togglePlayPause,
     resetPlayer,
     seekTo,
-    registerPlayerVisuals
+    registerPlayerVisuals,
+    forceVisualSync,
+    getAudioElement: getAudioElement
   };
 }
