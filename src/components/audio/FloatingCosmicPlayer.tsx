@@ -113,12 +113,19 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
   };
 
   useEffect(() => {
-    if (registeredRef.current) return;
-    
-    // Start registration attempts
+    // Always attempt registration when component mounts
     attemptVisualRegistration();
     
-  }, [registerPlayerVisuals]);
+    // Force a new heartbeat check when component mounts or remounts
+    startVisualHeartbeatCheck();
+    
+    return () => {
+      // Clear timers on unmount
+      if (registrationTimerRef.current) clearTimeout(registrationTimerRef.current);
+      if (heartbeatTimerRef.current) clearTimeout(heartbeatTimerRef.current);
+    };
+    
+  }, []);
 
   const attemptVisualRegistration = () => {
     if (registerAttemptsRef.current >= maxRegisterAttempts) {
@@ -143,6 +150,12 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
       const setAudioSourceCallback = (url: string, info?: any) => {
         console.log("FloatingCosmicPlayer: Global player wants to sync audio:", url);
         
+        if (!url) {
+          console.log("FloatingCosmicPlayer: Received empty URL, hiding player");
+          setIsVisible(false);
+          return;
+        }
+        
         // Always update visuals even if it's the same URL to ensure sync
         let formattedUrl = url || '';
         if (url && !url.startsWith('http')) {
@@ -151,37 +164,40 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
             : `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${url}`;
         }
         
+        console.log("FloatingCosmicPlayer: URL updated from global player:", formattedUrl);
+        
+        // Force re-render with new key to ensure visuals update
         setAudioUrl(formattedUrl);
         setPlayerKey(Date.now().toString());
-        
-        if (url && url !== '') {
-          setIsVisible(true);
-          console.log("FloatingCosmicPlayer: URL updated from global player:", formattedUrl);
-        } else {
-          console.log("FloatingCosmicPlayer: Received empty URL, hiding player");
-          setIsVisible(false);
-        }
+        setIsVisible(true);
       };
       
-      registerPlayerVisuals({ setAudioSource: setAudioSourceCallback });
+      // Register with the global player
+      const success = registerPlayerVisuals({ setAudioSource: setAudioSourceCallback });
       
-      registeredRef.current = true;
-      setVisualRegistrationState('registered');
-      
-      console.log("FloatingCosmicPlayer: Successfully registered with global audio player");
-      console.log("FloatingCosmicPlayer: Visuals registered:", registeredRef.current);
-      console.log("Visual sync info:", { audioUrl: audioUrl_, chakra, frequency });
-      
-      // Cancel any pending registration attempts
-      if (registrationTimerRef.current) {
-        clearTimeout(registrationTimerRef.current);
+      if (success) {
+        registeredRef.current = true;
+        setVisualRegistrationState('registered');
+        
+        console.log("FloatingCosmicPlayer: Successfully registered with global audio player");
+        console.log("FloatingCosmicPlayer: Visuals registered:", registeredRef.current);
+        console.log("Visual sync info:", { audioUrl: audioUrl_, chakra, frequency });
+        
+        // Cancel any pending registration attempts
+        if (registrationTimerRef.current) {
+          clearTimeout(registrationTimerRef.current);
+        }
+      } else {
+        console.warn("FloatingCosmicPlayer: Registration returned false, will retry");
+        if (registerAttemptsRef.current < maxRegisterAttempts) {
+          registrationTimerRef.current = setTimeout(attemptVisualRegistration, 500);
+        }
       }
-      
     } catch (error) {
       console.error("Error registering player visuals:", error);
       
       if (registerAttemptsRef.current < maxRegisterAttempts) {
-        registrationTimerRef.current = setTimeout(attemptVisualRegistration, 1000);
+        registrationTimerRef.current = setTimeout(attemptVisualRegistration, 500);
       } else {
         setVisualRegistrationState('failed');
         toast.error("Audio visualization registration failed. Try refreshing the page.");
@@ -212,6 +228,7 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
   };
   
   if (!isVisible || !audioUrl_) {
+    console.log("FloatingCosmicPlayer: Not visible or no audio URL, returning null");
     return null;
   }
 

@@ -264,9 +264,12 @@ const JourneyPlayer = () => {
         }
         
         if (audioUrl) {
+          // First clear the player
           resetPlayer();
           
+          // Then play the new song after a short delay
           setTimeout(() => {
+            console.log("JourneyPlayer: Playing new track:", newSong.title);
             playAudio({
               title: newSong.title || (journey?.title || "Journey Track"),
               artist: "Sacred Shifter",
@@ -291,6 +294,7 @@ const JourneyPlayer = () => {
   useEffect(() => {
     if (isPlaying && currentAudio?.source) {
       setPlayerVisible(true);
+      console.log("JourneyPlayer: Current audio source:", currentAudio.source);
     }
   }, [isPlaying, currentAudio]);
 
@@ -471,14 +475,14 @@ const JourneyPlayer = () => {
         </Card>
       </div>
       
-      {playerVisible && (currentSongRef.current || currentAudio?.source) && (
+      {currentAudio?.source && (
         <FloatingCosmicPlayer
-          audioUrl={currentSongRef.current?.audioUrl || currentAudio?.source || ''}
-          title={currentSongRef.current?.title || currentAudio?.title || journey?.title || "Sacred Journey"}
+          audioUrl={currentAudio.source}
+          title={currentAudio.title || journey?.title || "Sacred Journey"}
           description={journey?.description || "Sacred sound journey"}
           initiallyVisible={true}
           chakra={journey?.chakras?.[0]?.toLowerCase() || "all"}
-          frequency={currentSongRef.current?.frequency || currentAudio?.frequency}
+          frequency={currentAudio.frequency}
           initialShape={journey?.id === 'trinity-journey' ? 'metatrons-cube' : 
                        journey?.id === 'dna-healing' ? 'flower-of-life' :
                        journey?.id === 'cosmic-connection' ? 'sri-yantra' : 'torus'}
