@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { JourneyTemplate } from '@/data/journeyTemplates';
@@ -8,6 +7,14 @@ import { JourneyAudioMapping } from '@/types/music';
 interface UseJourneyTemplatesProps {
   includeAudioMappings?: boolean;
   includeVisualMappings?: boolean;
+}
+
+interface VisualMapping {
+  journey_template_id: string;
+  visual_file_name: string;
+  visual_url: string | null;
+  id: string;
+  created_at: string;
 }
 
 export const useJourneyTemplates = ({ 
@@ -25,7 +32,6 @@ export const useJourneyTemplates = ({
       try {
         setLoading(true);
         
-        // Using the from() approach with the table name since rpc() has type issues
         const { data: templatesData, error: templatesError } = await supabase
           .from('journey_templates')
           .select(`
@@ -52,35 +58,29 @@ export const useJourneyTemplates = ({
         }
 
         if (templatesData) {
-          // We need to fetch related data for each template
           const templatesWithDetails = await Promise.all(
             templatesData.map(async (template) => {
-              // Fetch frequencies for this template
               const { data: freqData } = await supabase
                 .from('journey_template_frequencies')
                 .select('name, value, description')
                 .eq('journey_template_id', template.id);
 
-              // Fetch features for this template
               const { data: featData } = await supabase
                 .from('journey_template_features')
                 .select('feature')
                 .eq('journey_template_id', template.id);
 
-              // Fetch sound sources for this template
               const { data: soundData } = await supabase
                 .from('journey_template_sound_sources')
                 .select('source')
                 .eq('journey_template_id', template.id);
 
-              // Construct the full template with related data
               return {
                 ...template,
                 frequencies: freqData || [],
                 features: featData ? featData.map(f => f.feature) : [],
                 soundSources: soundData ? soundData.map(s => s.source) : [],
                 tags: [],
-                // Convert snake_case to camelCase for property naming consistency
                 valeQuote: template.vale_quote,
                 guidedPrompt: template.guided_prompt,
                 visualTheme: template.visual_theme,
@@ -92,7 +92,6 @@ export const useJourneyTemplates = ({
           setTemplates(templatesWithDetails);
         }
 
-        // Fetch audio mappings if requested
         if (includeAudioMappings) {
           const { data: mappingsData, error: mappingsError } = await supabase
             .from('journey_template_audio_mappings')
@@ -101,10 +100,8 @@ export const useJourneyTemplates = ({
           if (mappingsError) {
             console.error('Error fetching audio mappings:', mappingsError);
           } else if (mappingsData && Array.isArray(mappingsData)) {
-            // Create a mapping from template ID to audio URL
             const mappings: Record<string, { audioUrl: string, audioFileName: string }> = {};
             
-            // Group by journey_template_id and prioritize is_primary=true entries
             const groupedMappings: Record<string, any[]> = {};
             mappingsData.forEach(mapping => {
               if (!groupedMappings[mapping.journey_template_id]) {
@@ -113,9 +110,7 @@ export const useJourneyTemplates = ({
               groupedMappings[mapping.journey_template_id].push(mapping);
             });
             
-            // For each journey, find the primary track or use the first available
             Object.entries(groupedMappings).forEach(([journeyId, journeyMappings]) => {
-              // Sort by is_primary (true first)
               const sortedMappings = journeyMappings.sort((a, b) => 
                 a.is_primary === b.is_primary ? 0 : a.is_primary ? -1 : 1
               );
@@ -135,16 +130,14 @@ export const useJourneyTemplates = ({
           }
         }
 
-        // Fetch visual mappings if requested
         if (includeVisualMappings) {
           const { data: visualData, error: visualError } = await supabase
             .from('journey_template_visual_mappings')
-            .select('journey_template_id, visual_file_name, visual_url');
+            .select('*') as { data: VisualMapping[] | null, error: any };
 
           if (visualError) {
             console.error('Error fetching visual mappings:', visualError);
           } else if (visualData && Array.isArray(visualData)) {
-            // Create a mapping from template ID to visual URL
             const mappings: Record<string, { visualUrl: string, visualFileName: string }> = {};
             
             visualData.forEach(mapping => {
@@ -164,10 +157,6 @@ export const useJourneyTemplates = ({
         console.error('Error fetching journey templates:', err);
         setError(err.message || 'Failed to load journey templates');
         toast.error('Failed to load journey templates');
-        
-        // Fallback to local data
-        const { default: localTemplates } = await import('@/data/journeyTemplates');
-        setTemplates(localTemplates);
       } finally {
         setLoading(false);
       }
@@ -176,10 +165,8 @@ export const useJourneyTemplates = ({
     fetchJourneyTemplates();
   }, [includeAudioMappings, includeVisualMappings]);
 
-  // Function to add an audio mapping to a journey template
   const addAudioMapping = async (journeyId: string, audioFileName: string, audioUrl?: string, isPrimary: boolean = true) => {
     try {
-      // Insert directly to the table instead of using rpc
       const { data, error } = await supabase
         .from('journey_template_audio_mappings')
         .insert([{
@@ -194,7 +181,6 @@ export const useJourneyTemplates = ({
       }
 
       if (isPrimary) {
-        // Update local state for primary mappings
         setAudioMappings(prev => ({
           ...prev,
           [journeyId]: {
@@ -213,23 +199,20 @@ export const useJourneyTemplates = ({
     }
   };
 
-  // Function to add a visual element mapping to a journey template
   const addVisualMapping = async (journeyId: string, visualFileName: string, visualUrl?: string) => {
     try {
-      // Insert directly to the table
       const { data, error } = await supabase
         .from('journey_template_visual_mappings')
         .insert([{
           journey_template_id: journeyId,
           visual_file_name: visualFileName,
           visual_url: visualUrl
-        }]);
+        }]) as { data: VisualMapping[] | null, error: any };
 
       if (error) {
         throw error;
       }
 
-      // Update local state
       setVisualMappings(prev => ({
         ...prev,
         [journeyId]: {
@@ -247,7 +230,6 @@ export const useJourneyTemplates = ({
     }
   };
 
-  // Function to get audio for a specific journey template
   const getJourneyAudio = (journeyId: string): string | null => {
     if (audioMappings[journeyId]) {
       return audioMappings[journeyId].audioUrl;
@@ -255,7 +237,6 @@ export const useJourneyTemplates = ({
     return null;
   };
 
-  // Function to get visual element for a specific journey template
   const getJourneyVisual = (journeyId: string): string | null => {
     if (visualMappings[journeyId]) {
       return visualMappings[journeyId].visualUrl;

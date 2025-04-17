@@ -450,6 +450,38 @@ export type Database = {
           },
         ]
       }
+      journey_template_visual_mappings: {
+        Row: {
+          created_at: string | null
+          id: string
+          journey_template_id: string | null
+          visual_file_name: string
+          visual_url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          journey_template_id?: string | null
+          visual_file_name: string
+          visual_url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          journey_template_id?: string | null
+          visual_file_name?: string
+          visual_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journey_template_visual_mappings_journey_template_id_fkey"
+            columns: ["journey_template_id"]
+            isOneToOne: false
+            referencedRelation: "journey_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       journey_templates: {
         Row: {
           affirmation: string | null
