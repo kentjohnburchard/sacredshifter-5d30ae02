@@ -7,11 +7,16 @@ import { JourneyAudioMapping } from '@/types/music';
 
 interface UseJourneyTemplatesProps {
   includeAudioMappings?: boolean;
+  includeVisualMappings?: boolean;
 }
 
-export const useJourneyTemplates = ({ includeAudioMappings = true }: UseJourneyTemplatesProps = {}) => {
+export const useJourneyTemplates = ({ 
+  includeAudioMappings = true, 
+  includeVisualMappings = true 
+}: UseJourneyTemplatesProps = {}) => {
   const [templates, setTemplates] = useState<JourneyTemplate[]>([]);
   const [audioMappings, setAudioMappings] = useState<Record<string, { audioUrl: string, audioFileName: string }>>({});
+  const [visualMappings, setVisualMappings] = useState<Record<string, { visualUrl: string, visualFileName: string }>>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -129,6 +134,32 @@ export const useJourneyTemplates = ({ includeAudioMappings = true }: UseJourneyT
             setAudioMappings(mappings);
           }
         }
+
+        // Fetch visual mappings if requested
+        if (includeVisualMappings) {
+          const { data: visualData, error: visualError } = await supabase
+            .from('journey_template_visual_mappings')
+            .select('journey_template_id, visual_file_name, visual_url');
+
+          if (visualError) {
+            console.error('Error fetching visual mappings:', visualError);
+          } else if (visualData && Array.isArray(visualData)) {
+            // Create a mapping from template ID to visual URL
+            const mappings: Record<string, { visualUrl: string, visualFileName: string }> = {};
+            
+            visualData.forEach(mapping => {
+              const visualUrl = mapping.visual_url || 
+                `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${mapping.visual_file_name}`;
+              
+              mappings[mapping.journey_template_id] = {
+                visualUrl,
+                visualFileName: mapping.visual_file_name
+              };
+            });
+            
+            setVisualMappings(mappings);
+          }
+        }
       } catch (err: any) {
         console.error('Error fetching journey templates:', err);
         setError(err.message || 'Failed to load journey templates');
@@ -143,7 +174,7 @@ export const useJourneyTemplates = ({ includeAudioMappings = true }: UseJourneyT
     };
 
     fetchJourneyTemplates();
-  }, [includeAudioMappings]);
+  }, [includeAudioMappings, includeVisualMappings]);
 
   // Function to add an audio mapping to a journey template
   const addAudioMapping = async (journeyId: string, audioFileName: string, audioUrl?: string, isPrimary: boolean = true) => {
@@ -182,10 +213,52 @@ export const useJourneyTemplates = ({ includeAudioMappings = true }: UseJourneyT
     }
   };
 
+  // Function to add a visual element mapping to a journey template
+  const addVisualMapping = async (journeyId: string, visualFileName: string, visualUrl?: string) => {
+    try {
+      // Insert directly to the table
+      const { data, error } = await supabase
+        .from('journey_template_visual_mappings')
+        .insert([{
+          journey_template_id: journeyId,
+          visual_file_name: visualFileName,
+          visual_url: visualUrl
+        }]);
+
+      if (error) {
+        throw error;
+      }
+
+      // Update local state
+      setVisualMappings(prev => ({
+        ...prev,
+        [journeyId]: {
+          visualUrl: visualUrl || `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${visualFileName}`,
+          visualFileName
+        }
+      }));
+
+      toast.success('Visual mapping added successfully');
+      return data;
+    } catch (err: any) {
+      console.error('Error adding visual mapping:', err);
+      toast.error('Failed to add visual mapping');
+      throw err;
+    }
+  };
+
   // Function to get audio for a specific journey template
   const getJourneyAudio = (journeyId: string): string | null => {
     if (audioMappings[journeyId]) {
       return audioMappings[journeyId].audioUrl;
+    }
+    return null;
+  };
+
+  // Function to get visual element for a specific journey template
+  const getJourneyVisual = (journeyId: string): string | null => {
+    if (visualMappings[journeyId]) {
+      return visualMappings[journeyId].visualUrl;
     }
     return null;
   };
@@ -195,7 +268,10 @@ export const useJourneyTemplates = ({ includeAudioMappings = true }: UseJourneyT
     loading,
     error,
     audioMappings,
+    visualMappings,
     addAudioMapping,
-    getJourneyAudio
+    addVisualMapping,
+    getJourneyAudio,
+    getJourneyVisual
   };
 };

@@ -43,6 +43,14 @@ export interface JourneyAudioMapping {
   createdAt: string;
 }
 
+export interface JourneyVisualMapping {
+  journeyId: string;
+  visualFileName: string;
+  visualUrl: string;
+  id: string;
+  createdAt: string;
+}
+
 export interface JourneyFrequency {
   name: string;
   value: string;

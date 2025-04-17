@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 
@@ -7,6 +8,8 @@ interface AudioVisualizerProps {
   frequency: number;
   providedAudioContext?: AudioContext;
   providedAnalyser?: AnalyserNode;
+  visualElementUrl?: string; // New prop for Three.js models or scenes
+  visualType?: 'waveform' | 'frequency' | 'three-js'; // New prop for visualization type
 }
 
 const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ 
@@ -14,12 +17,15 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
   isPlaying, 
   frequency,
   providedAudioContext,
-  providedAnalyser
+  providedAnalyser,
+  visualElementUrl,
+  visualType = 'frequency'
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const threeContainerRef = useRef<HTMLDivElement>(null); // Container for Three.js scene
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
   const [dataArray, setDataArray] = useState<Uint8Array | null>(null);
   const [bufferLength, setBufferLength] = useState<number>(0);
@@ -95,8 +101,9 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
     };
   }, [audioRef, audioContext, providedAudioContext, providedAnalyser]);
 
-  // Animation loop
+  // Animation loop for standard visualizations
   useEffect(() => {
+    if (visualType === 'three-js') return; // Skip for Three.js visualizations
     if (!canvasRef.current || !analyserRef.current || !dataArray) return;
 
     const canvas = canvasRef.current;
@@ -171,15 +178,23 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [isPlaying, dataArray, bufferLength, frequency]);
+  }, [isPlaying, dataArray, bufferLength, frequency, visualType]);
 
   return (
     <Card className="p-0 overflow-hidden border border-gray-200 shadow-sm bg-black/5">
-      <canvas 
-        ref={canvasRef} 
-        className="w-full h-[100px]"
-        height={100}
-      />
+      {visualType === 'three-js' ? (
+        <div 
+          ref={threeContainerRef} 
+          className="w-full h-[300px] bg-black/20"
+          data-visual-url={visualElementUrl}
+        />
+      ) : (
+        <canvas 
+          ref={canvasRef} 
+          className="w-full h-[100px]"
+          height={100}
+        />
+      )}
     </Card>
   );
 };
