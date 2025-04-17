@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -14,8 +15,7 @@ import {
   BookOpen,
   Play,
   Pause,
-  RefreshCcw,
-  Volume
+  RefreshCcw
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -284,12 +284,6 @@ const JourneyPlayer = () => {
     } else {
       checkAudioMappingFallback();
     }
-  };
-
-  const handlePlayerError = (error: any) => {
-    console.error("Journey player error:", error);
-    setPlayerError("Player encountered an error. Try playing a different track.");
-    toast.error("Audio player error. Try a different track.");
   };
 
   const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
