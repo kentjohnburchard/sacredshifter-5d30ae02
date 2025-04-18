@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,7 +18,6 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import FloatingCosmicPlayer from '@/components/audio/FloatingCosmicPlayer';
 import SacredGridVisualizer from '@/components/SacredGridVisualizer';
 
 const JourneyPlayer = () => {
@@ -49,6 +48,8 @@ const JourneyPlayer = () => {
   
   const { templates, loading: loadingTemplates, audioMappings } = useJourneyTemplates();
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
+  
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     if (songs && songs.length > 0) {
@@ -470,12 +471,13 @@ const JourneyPlayer = () => {
               </motion.div>
             )}
             
-            <div className="relative w-full h-[300px] rounded-lg overflow-hidden mb-6 bg-black/20">
+            <div className={`relative ${isFullscreen ? 'fixed inset-0 z-50 bg-black' : 'w-full h-[300px]'} rounded-lg overflow-hidden mb-6`}>
               <SacredGridVisualizer
                 width="100%"
                 height="100%"
                 autoConnect={true}
                 showControls={true}
+                expandable={true}
                 initialSettings={{
                   activeShapes: journey?.chakras?.[0]?.toLowerCase() === 'crown' ? ['flower-of-life', 'metatron-cube'] :
                               journey?.chakras?.[0]?.toLowerCase() === 'third-eye' ? ['sri-yantra', 'fibonacci-spiral'] :
@@ -495,30 +497,17 @@ const JourneyPlayer = () => {
                             'cosmic-violet',
                   mode: '3d',
                   chakraAlignmentMode: true,
-                  sensitivity: 1.2
+                  sensitivity: 1.2,
+                  mirrorEnabled: true,
+                  brightness: 1.2,
+                  symmetry: 8
                 }}
+                onExpandStateChange={setIsFullscreen}
               />
             </div>
           </CardContent>
         </Card>
       </div>
-      
-      {currentAudio?.source && (
-        <FloatingCosmicPlayer
-          audioUrl={currentAudio.source}
-          title={currentAudio.title || journey?.title || "Sacred Journey"}
-          description={journey?.description || "Sacred sound journey"}
-          initiallyVisible={true}
-          chakra={journey?.chakras?.[0]?.toLowerCase() || "all"}
-          frequency={currentAudio.frequency}
-          initialShape={journey?.id === 'trinity-journey' ? 'metatrons-cube' : 
-                       journey?.id === 'dna-healing' ? 'flower-of-life' :
-                       journey?.id === 'cosmic-connection' ? 'sri-yantra' : 'torus'}
-          initialColorTheme={'cosmic-purple'}
-          initialIsExpanded={false}
-          visualModeOnly={true}
-        />
-      )}
     </Layout>
   );
 };

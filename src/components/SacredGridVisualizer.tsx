@@ -1,5 +1,4 @@
-
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { VisualizationSettings, VisualizerProps } from '@/types/visualization';
 import useSacredAudioAnalysis from '@/hooks/useSacredAudioAnalysis';
 import SacredGrid2DVisualizer from '@/components/visualization/SacredGrid2DVisualizer';
@@ -19,16 +18,15 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
   onSettingsChange,
   audioContext: providedAudioContext,
   analyserNode: providedAnalyserNode,
-  musicFunctionality
+  musicFunctionality,
+  expandable = false,
+  onExpandStateChange
 }) => {
-  // Get global audio player if autoConnect is true
   const globalAudioPlayer = autoConnect ? useGlobalAudioPlayer() : null;
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
   
   useEffect(() => {
-    // Get the audio element from global player
     if (globalAudioPlayer) {
-      // Find the global audio element in the DOM instead of using a function that might not exist
       const audioElement = document.querySelector('#global-audio-player');
       if (audioElement instanceof HTMLAudioElement) {
         audioElementRef.current = audioElement;
@@ -39,10 +37,8 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
     }
   }, [globalAudioPlayer, audioRef]);
   
-  // Set up audio context and analyzer
   const { audioContext, analyser } = useAudioAnalyzer(audioElementRef.current);
 
-  // Default settings
   const defaultSettings: VisualizationSettings = {
     activeShapes: ['flower-of-life', 'fibonacci-spiral', 'prime-spiral', 'metatron-cube'],
     speed: 1.0,
@@ -55,15 +51,14 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
     brightness: 1.0
   };
 
-  // State
   const [settings, setSettings] = useState<VisualizationSettings>({
     ...defaultSettings,
     ...initialSettings
   });
   const [controlsExpanded, setControlsExpanded] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Audio analysis
   const audioAnalysis = useSacredAudioAnalysis({
     audioRef: audioElementRef,
     providedAudioContext: providedAudioContext || audioContext,
@@ -71,13 +66,11 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
     sensitivity: settings.sensitivity
   });
 
-  // Register with global audio player if needed
   useEffect(() => {
     if (autoConnect && globalAudioPlayer && globalAudioPlayer.registerPlayerVisuals) {
       try {
         globalAudioPlayer.registerPlayerVisuals({
           setAudioSource: (url: string, info?: any) => {
-            // This function is called when the global audio player loads a new track
             console.log("Sacred Grid Visualizer: Received new audio source", url);
           }
         });
@@ -87,7 +80,6 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
     }
   }, [autoConnect, globalAudioPlayer]);
 
-  // Handle settings change
   const handleSettingsChange = (newSettings: VisualizationSettings) => {
     setSettings(newSettings);
     if (onSettingsChange) {
@@ -95,13 +87,19 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
     }
   };
 
-  // Toggle controls expansion
   const toggleControls = () => {
     setControlsExpanded(prev => !prev);
   };
 
-  // Determine container styles for fullscreen mode
-  const containerStyle: React.CSSProperties = fullScreen
+  const toggleFullscreen = useCallback(() => {
+    const newState = !isFullscreen;
+    setIsFullscreen(newState);
+    if (onExpandStateChange) {
+      onExpandStateChange(newState);
+    }
+  }, [isFullscreen, onExpandStateChange]);
+
+  const containerStyle: React.CSSProperties = isFullscreen
     ? {
         position: 'fixed',
         top: 0,
@@ -110,7 +108,8 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
         bottom: 0,
         zIndex: 50,
         width: '100vw',
-        height: '100vh'
+        height: '100vh',
+        backgroundColor: 'rgba(0, 0, 0, 0.95)'
       }
     : {
         width: typeof width === 'number' ? `${width}px` : width,
@@ -143,18 +142,30 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
       )}
 
       {showControls && (
-        <div className="sacred-grid-controls-container absolute bottom-0 left-0 right-0 p-4 z-10">
+        <div className={`sacred-grid-controls-container ${isFullscreen ? 'fixed bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-4xl px-4' : 'absolute bottom-0 left-0 right-0 p-4'} z-10`}>
           <SacredGridControls
             settings={settings}
             onChange={handleSettingsChange}
-            expanded={controlsExpanded}
-            onToggle={toggleControls}
-            className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md"
+            expanded={isFullscreen}
+            onToggle={toggleFullscreen}
+            className="bg-black/80 dark:bg-gray-900/80 backdrop-blur-md border border-purple-500/20"
             showAudioIndicator={true}
             audioLevel={audioAnalysis.amplitude}
             bpm={audioAnalysis.bpm}
+            showAllControls={isFullscreen}
           />
         </div>
+      )}
+
+      {expandable && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleFullscreen}
+          className="absolute top-2 right-2 z-30 bg-purple-900/40 hover:bg-purple-900/60 text-white"
+        >
+          {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+        </Button>
       )}
     </div>
   );
