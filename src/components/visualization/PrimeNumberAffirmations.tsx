@@ -75,12 +75,12 @@ const getClosestPrimeAffirmation = (prime: number): string => {
 };
 
 const PrimeNumberAffirmations: React.FC<PrimeNumberAffirmationsProps> = ({ enabled = true }) => {
-  const { activePrimeNumbers, registerPrimeCallback } = useGlobalAudioPlayer();
+  const globalAudioPlayer = useGlobalAudioPlayer();
   const [activeAffirmations, setActiveAffirmations] = useState<Array<{prime: number, affirmation: string, id: string}>>([]);
   
   // Listen for new prime numbers and display affirmations
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || !globalAudioPlayer) return;
     
     const handlePrimeDetected = (prime: number) => {
       const affirmation = getClosestPrimeAffirmation(prime);
@@ -99,15 +99,39 @@ const PrimeNumberAffirmations: React.FC<PrimeNumberAffirmationsProps> = ({ enabl
       }, 6000);
     };
     
-    // Register our callback
-    const unregisterFn = registerPrimeCallback(handlePrimeDetected);
+    // Register our callback if the function exists
+    if (typeof globalAudioPlayer.registerPrimeCallback === 'function') {
+      const unregister = globalAudioPlayer.registerPrimeCallback(handlePrimeDetected);
+      return () => {
+        if (typeof unregister === 'function') {
+          unregister();
+        }
+      };
+    }
     
-    return () => {
-      if (unregisterFn) {
-        unregisterFn();
-      }
-    };
-  }, [enabled, registerPrimeCallback]);
+    // If the function doesn't exist, manually check for primes in activePrimeNumbers
+    // This is a fallback mechanism
+    if (globalAudioPlayer.activePrimeNumbers) {
+      const lastCheckedRef = React.useRef<number[]>([]);
+      
+      const checkInterval = setInterval(() => {
+        const currentPrimes = globalAudioPlayer.activePrimeNumbers || [];
+        
+        // Find new primes that weren't in the last check
+        const newPrimes = currentPrimes.filter(
+          prime => !lastCheckedRef.current.includes(prime)
+        );
+        
+        // Handle each new prime
+        newPrimes.forEach(handlePrimeDetected);
+        
+        // Update the last checked primes
+        lastCheckedRef.current = currentPrimes;
+      }, 1000);
+      
+      return () => clearInterval(checkInterval);
+    }
+  }, [enabled, globalAudioPlayer]);
   
   if (!enabled) return null;
   

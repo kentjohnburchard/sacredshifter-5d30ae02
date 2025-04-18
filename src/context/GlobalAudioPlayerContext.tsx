@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useRef, useCallback, ReactNode } from 'react';
 
 export interface VisualRegistration {
@@ -11,7 +10,7 @@ interface PlayerInfo {
   source?: string;
   chakra?: string;
   frequency?: number;
-  id?: string; // Added missing id property
+  id?: string;
 }
 
 interface GlobalAudioPlayerContextType {
@@ -24,15 +23,15 @@ interface GlobalAudioPlayerContextType {
   seekTo: (time: number) => void;
   resetPlayer: () => void;
   setOnEndedCallback: (callback: () => void | null) => void;
-  registerPlayerVisuals: (registration: VisualRegistration) => (() => void) | undefined; // Updated return type
+  registerPlayerVisuals: (registration: VisualRegistration) => (() => void) | undefined;
   setVolume: (volume: number) => void;
   getVolume: () => number;
   currentFrequency: number | null;
   activeFrequencies: number[];
   activePrimeNumbers: number[];
-  registerPrimeCallback: (callback: (prime: number) => void) => (() => void) | undefined; // Updated return type
-  getAudioElement: () => HTMLAudioElement | null; // Added missing method
-  forceVisualSync: () => void; // Added missing method
+  registerPrimeCallback: (callback: (prime: number) => void) => (() => void) | undefined;
+  getAudioElement: () => HTMLAudioElement | null;
+  forceVisualSync: () => void;
 }
 
 export const GlobalAudioPlayerContext = createContext<GlobalAudioPlayerContextType>({} as GlobalAudioPlayerContextType);
@@ -46,7 +45,7 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [volume, setVolumeState] = useState(0.8); // Default volume
+  const [volume, setVolumeState] = useState(0.8);
   const [currentFrequency, setCurrentFrequency] = useState<number | null>(null);
   const [activeFrequencies, setActiveFrequencies] = useState<number[]>([]);
   const [activePrimeNumbers, setActivePrimeNumbers] = useState<number[]>([]);
@@ -57,7 +56,6 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
   const primeCallbacksRef = useRef<((prime: number) => void)[]>([]);
   const lastDetectedPrimesRef = useRef<{[key: number]: number}>({});
   
-  // Create audio element on mount if it doesn't exist
   if (typeof window !== 'undefined' && !audioRef.current) {
     const existingAudio = document.getElementById('global-audio-player');
     
@@ -71,24 +69,18 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
       document.body.appendChild(audioRef.current);
     }
     
-    // Set up event listeners
     audioRef.current.addEventListener('timeupdate', () => {
       setCurrentTime(audioRef.current?.currentTime || 0);
       
-      // Check for prime frequency detection - simulated here
-      // In a real implementation, this would use audio analysis
       if (currentAudio?.frequency) {
         const baseFreq = currentAudio.frequency;
         const time = audioRef.current?.currentTime || 0;
         
-        // Generate "frequencies" based on time to simulate audio analysis
-        // This creates different frequencies at different points in the song
         const detectedFreq = Math.round(baseFreq + (Math.sin(time) * 20));
         
         if (detectedFreq !== currentFrequency) {
           setCurrentFrequency(detectedFreq);
           
-          // Check if it's a prime number using a basic prime check
           const isPrime = (num: number): boolean => {
             if (num <= 1) return false;
             if (num <= 3) return true;
@@ -102,27 +94,18 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
           };
           
           if (isPrime(detectedFreq)) {
-            // Throttle notifications to avoid spam
             const now = Date.now();
             if (!lastDetectedPrimesRef.current[detectedFreq] || 
                 now - lastDetectedPrimesRef.current[detectedFreq] > 5000) {
               
               lastDetectedPrimesRef.current[detectedFreq] = now;
               setActivePrimeNumbers(prev => {
-                // Keep only the last 5 prime numbers
-                const updated = [...prev, detectedFreq].slice(-5);
-                
-                // Notify callbacks of new prime
-                primeCallbacksRef.current.forEach(cb => cb(detectedFreq));
-                
-                return updated;
+                return [...prev, detectedFreq].slice(-5);
               });
             }
           }
           
-          // Update active frequencies list
           setActiveFrequencies(prev => {
-            // Keep only the most recent frequencies
             return [...prev, detectedFreq].slice(-10);
           });
         }
@@ -152,7 +135,6 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
             setIsPlaying(true);
             setCurrentAudio(info);
             
-            // Notify registered visualizers
             visualRegistrationsRef.current.forEach(reg => {
               reg.setAudioSource(info.source || '', info);
             });
@@ -208,7 +190,6 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
   const registerPlayerVisuals = useCallback((registration: VisualRegistration) => {
     visualRegistrationsRef.current.push(registration);
     
-    // Return function to unregister
     return () => {
       visualRegistrationsRef.current = visualRegistrationsRef.current
         .filter(reg => reg !== registration);
@@ -218,7 +199,6 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
   const registerPrimeCallback = useCallback((callback: (prime: number) => void) => {
     primeCallbacksRef.current.push(callback);
     
-    // Return function to unregister
     return () => {
       primeCallbacksRef.current = primeCallbacksRef.current
         .filter(cb => cb !== callback);
@@ -231,7 +211,6 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
       audioRef.current.volume = clampedVolume;
       setVolumeState(clampedVolume);
       
-      // Store in localStorage for persistence
       try {
         localStorage.setItem('sacredShifterVolume', clampedVolume.toString());
       } catch (e) {
@@ -249,12 +228,10 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
     return volume;
   }, [volume]);
 
-  // New method to get the audio element
   const getAudioElement = useCallback((): HTMLAudioElement | null => {
     return audioRef.current;
   }, []);
 
-  // New method to force visual sync
   const forceVisualSync = useCallback(() => {
     if (currentAudio?.source) {
       visualRegistrationsRef.current.forEach(reg => {
