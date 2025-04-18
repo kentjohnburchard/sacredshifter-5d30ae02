@@ -1,4 +1,3 @@
-
 import { Routes, Route } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
@@ -16,8 +15,9 @@ import JourneyTemplatesPage from './pages/journey-templates';
 import Journeys from './pages/Journeys';
 import JourneyPlayer from './pages/JourneyPlayer';
 import SiteMap from './pages/SiteMap';
+import SacredGridDemo from './pages/SacredGridDemo';
 
-const AppRoutes = () => {
+const AppRoutes: React.FC = () => {
   return (
     <>
       <ScrollToTop />
@@ -36,6 +36,7 @@ const AppRoutes = () => {
         <Route path="/journeys" element={<Journeys />} />
         <Route path="/journey-player/:journeyId" element={<JourneyPlayer />} />
         <Route path="/sitemap" element={<SiteMap />} />
+        <Route path="/sacred-grid" element={<SacredGridDemo />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

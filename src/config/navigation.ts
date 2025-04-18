@@ -1,4 +1,3 @@
-
 // Navigation config to manage which pages are active and should be displayed in navigation
 export const activePages = {
   home: true,
@@ -223,3 +222,12 @@ export const getActiveNavItems = () => {
     return isActive && isUnique;
   });
 };
+
+// Sidebar links configuration
+export const sidebarLinks = [
+  {
+    title: "Sacred Grid Visualizer",
+    href: "/sacred-grid",
+    icon: "grid-3x3", // Using a grid icon from Lucide
+  },
+];
