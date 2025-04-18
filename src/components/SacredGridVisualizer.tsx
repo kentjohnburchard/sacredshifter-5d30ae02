@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { VisualizationSettings, VisualizerProps } from '@/types/visualization';
 import useSacredAudioAnalysis from '@/hooks/useSacredAudioAnalysis';
@@ -23,15 +22,24 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
 }) => {
   // Get global audio player if autoConnect is true
   const globalAudioPlayer = autoConnect ? useGlobalAudioPlayer() : null;
-  const audioElementRef = useRef<HTMLAudioElement | null>(
-    globalAudioPlayer ? globalAudioPlayer.getAudioElement() : (audioRef?.current ?? null)
-  );
+  const audioElementRef = useRef<HTMLAudioElement | null>(null);
+  
+  useEffect(() => {
+    // Get the audio element from global player
+    if (globalAudioPlayer) {
+      const audioElement = document.querySelector('#global-audio-player');
+      if (audioElement instanceof HTMLAudioElement) {
+        audioElementRef.current = audioElement;
+        console.log("Connected to global audio player element");
+      }
+    } else if (audioRef?.current) {
+      audioElementRef.current = audioRef.current;
+    }
+  }, [globalAudioPlayer, audioRef]);
   
   // Set up audio context and analyzer
-  const { audioContext, analyser } = useAudioAnalyzer(
-    audioElementRef.current ?? audioRef ?? null
-  );
-  
+  const { audioContext, analyser } = useAudioAnalyzer(audioElementRef.current);
+
   // Default settings
   const defaultSettings: VisualizationSettings = {
     activeShapes: ['flower-of-life', 'fibonacci-spiral', 'prime-spiral', 'metatron-cube'],
@@ -114,7 +122,6 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
       className="sacred-grid-visualizer-container"
       style={containerStyle}
     >
-      {/* Visualizer based on mode */}
       {settings.mode === '2d' ? (
         <SacredGrid2DVisualizer
           width="100%"
@@ -133,7 +140,6 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
         />
       )}
 
-      {/* Controls overlay */}
       {showControls && (
         <div className="sacred-grid-controls-container absolute bottom-0 left-0 right-0 p-4 z-10">
           <SacredGridControls

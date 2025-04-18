@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { toast } from 'sonner';
@@ -214,6 +213,10 @@ export function useGlobalAudioPlayer() {
       syncWithVisualPlayer(currentAudio);
     }
   }, [currentAudio, syncWithVisualPlayer]);
+
+  const getAudioElement = useCallback(() => {
+    return audioRef.current;
+  }, []);
 
   return {
     playAudio,

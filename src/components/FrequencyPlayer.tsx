@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { useTheme } from '@/context/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import { PlayIcon, PauseIcon } from 'lucide-react';
+import SacredGridVisualizer from './SacredGridVisualizer';
 
 interface FrequencyPlayerProps {
   frequency?: number;
@@ -31,7 +33,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
 }) => {
   const { liftTheVeil } = useTheme();
   const { playAudio } = useGlobalAudioPlayer();
-  
+
   const handlePlay = () => {
     // If external control is provided, use that
     if (onPlayToggle) {
@@ -49,7 +51,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       id: frequencyId || id
     });
   };
-  
+
   return (
     <div className="w-full">
       <div className="flex justify-between items-center mb-2">
@@ -77,9 +79,19 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
           )}
         </Button>
       </div>
+      
       {description && (
-        <p className="text-sm opacity-80">{description}</p>
+        <p className="text-sm opacity-80 mb-4">{description}</p>
       )}
+
+      <div className="relative w-full h-[200px] rounded-lg overflow-hidden">
+        <SacredGridVisualizer
+          width="100%"
+          height="100%"
+          autoConnect={true}
+          showControls={false}
+        />
+      </div>
     </div>
   );
 };
