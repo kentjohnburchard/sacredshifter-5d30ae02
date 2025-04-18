@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { VisualizationSettings, VisualizerProps } from '@/types/visualization';
 import useSacredAudioAnalysis from '@/hooks/useSacredAudioAnalysis';
@@ -27,6 +28,7 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
   useEffect(() => {
     // Get the audio element from global player
     if (globalAudioPlayer) {
+      // Find the global audio element in the DOM instead of using a function that might not exist
       const audioElement = document.querySelector('#global-audio-player');
       if (audioElement instanceof HTMLAudioElement) {
         audioElementRef.current = audioElement;
@@ -63,7 +65,7 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
 
   // Audio analysis
   const audioAnalysis = useSacredAudioAnalysis({
-    audioRef: audioRef ?? (globalAudioPlayer ? { current: globalAudioPlayer.getAudioElement() } : undefined),
+    audioRef: audioElementRef,
     providedAudioContext: providedAudioContext || audioContext,
     providedAnalyser: providedAnalyserNode || analyser,
     sensitivity: settings.sensitivity

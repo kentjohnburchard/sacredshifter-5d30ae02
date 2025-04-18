@@ -215,6 +215,11 @@ export function useGlobalAudioPlayer() {
     }
   }, [currentAudio, syncWithVisualPlayer]);
 
+  // Add a new function to get the audio element directly
+  const getAudioElementDirect = useCallback(() => {
+    return audioRef.current;
+  }, [audioRef]);
+
   return {
     playAudio,
     isPlaying,
@@ -227,6 +232,6 @@ export function useGlobalAudioPlayer() {
     seekTo,
     registerPlayerVisuals,
     forceVisualSync,
-    getAudioElement
+    getAudioElement: getAudioElementDirect  // Use our own implementation
   };
 }
