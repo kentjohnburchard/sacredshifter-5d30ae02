@@ -93,7 +93,7 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
   const connectGlobalAudioSource = () => {
     try {
       // Get the global audio element - try both methods for robustness
-      const globalAudio = getAudioElement() || document.querySelector('audio#global-audio-player');
+      const globalAudio = getAudioElement ? getAudioElement() : document.querySelector('audio#global-audio-player');
       if (!globalAudio) {
         console.error("FloatingCosmicPlayer: Cannot connect source - global audio element not found");
         return false;
@@ -270,9 +270,9 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
       };
       
       // Register with the global player
-      const success = registerPlayerVisuals({ setAudioSource: setAudioSourceCallback });
+      const unregisterFn = registerPlayerVisuals({ setAudioSource: setAudioSourceCallback });
       
-      if (success) {
+      if (unregisterFn) {
         registeredRef.current = true;
         setVisualRegistrationState('registered');
         

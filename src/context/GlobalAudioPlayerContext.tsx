@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useRef, useCallback, ReactNode } from 'react';
 
 export interface VisualRegistration {
@@ -10,6 +11,7 @@ interface PlayerInfo {
   source?: string;
   chakra?: string;
   frequency?: number;
+  id?: string; // Added missing id property
 }
 
 interface GlobalAudioPlayerContextType {
@@ -22,13 +24,15 @@ interface GlobalAudioPlayerContextType {
   seekTo: (time: number) => void;
   resetPlayer: () => void;
   setOnEndedCallback: (callback: () => void | null) => void;
-  registerPlayerVisuals: (registration: VisualRegistration) => void;
+  registerPlayerVisuals: (registration: VisualRegistration) => (() => void) | undefined; // Updated return type
   setVolume: (volume: number) => void;
   getVolume: () => number;
   currentFrequency: number | null;
   activeFrequencies: number[];
   activePrimeNumbers: number[];
-  registerPrimeCallback: (callback: (prime: number) => void) => void;
+  registerPrimeCallback: (callback: (prime: number) => void) => (() => void) | undefined; // Updated return type
+  getAudioElement: () => HTMLAudioElement | null; // Added missing method
+  forceVisualSync: () => void; // Added missing method
 }
 
 export const GlobalAudioPlayerContext = createContext<GlobalAudioPlayerContextType>({} as GlobalAudioPlayerContextType);
@@ -245,6 +249,21 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
     return volume;
   }, [volume]);
 
+  // New method to get the audio element
+  const getAudioElement = useCallback((): HTMLAudioElement | null => {
+    return audioRef.current;
+  }, []);
+
+  // New method to force visual sync
+  const forceVisualSync = useCallback(() => {
+    if (currentAudio?.source) {
+      visualRegistrationsRef.current.forEach(reg => {
+        reg.setAudioSource(currentAudio.source || '', currentAudio);
+      });
+      console.log("Forced visual sync for all registered visualizers");
+    }
+  }, [currentAudio]);
+
   return (
     <GlobalAudioPlayerContext.Provider
       value={{
@@ -263,7 +282,9 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
         currentFrequency,
         activeFrequencies,
         activePrimeNumbers,
-        registerPrimeCallback
+        registerPrimeCallback,
+        getAudioElement,
+        forceVisualSync
       }}
     >
       {children}

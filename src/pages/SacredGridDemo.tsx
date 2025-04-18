@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import Layout from '@/components/Layout';
 import SacredGridVisualizer from '@/components/SacredGridVisualizer';
@@ -170,14 +169,16 @@ const SacredGridDemo: React.FC = () => {
                 </p>
               )}
               
-              <Button 
-                onClick={() => forceVisualSync && forceVisualSync()}
-                variant="ghost"
-                className="flex items-center gap-2"
-              >
-                <RotateCcw className="h-4 w-4" />
-                <span>Sync Visuals</span>
-              </Button>
+              {forceVisualSync && (
+                <Button 
+                  onClick={() => forceVisualSync()}
+                  variant="ghost"
+                  className="flex items-center gap-2"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  <span>Sync Visuals</span>
+                </Button>
+              )}
             </div>
             
             {/* Visualizer Container */}

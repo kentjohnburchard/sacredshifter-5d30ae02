@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
@@ -99,10 +100,12 @@ const PrimeNumberAffirmations: React.FC<PrimeNumberAffirmationsProps> = ({ enabl
     };
     
     // Register our callback
-    const unregister = registerPrimeCallback(handlePrimeDetected);
+    const unregisterFn = registerPrimeCallback(handlePrimeDetected);
     
     return () => {
-      unregister && unregister();
+      if (unregisterFn) {
+        unregisterFn();
+      }
     };
   }, [enabled, registerPrimeCallback]);
   

@@ -48,7 +48,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       source: audioUrl || url || '',
       frequency: frequency,
       chakra: description,
-      id: frequencyId || id
+      id: frequencyId || id // This is now allowed in PlayerInfo interface
     });
   };
 
