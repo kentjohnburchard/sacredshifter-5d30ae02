@@ -52,4 +52,6 @@ export interface VisualizerProps {
   audioContext?: AudioContext;
   analyserNode?: AnalyserNode;
   musicFunctionality?: AppFunctionality;
+  expandable?: boolean;
+  onExpandStateChange?: (expanded: boolean) => void;
 }

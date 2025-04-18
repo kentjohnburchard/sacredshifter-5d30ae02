@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { VisualizationSettings, VisualizerProps } from '@/types/visualization';
 import useSacredAudioAnalysis from '@/hooks/useSacredAudioAnalysis';
@@ -6,6 +7,8 @@ import SacredGrid3DVisualizer from '@/components/visualization/SacredGrid3DVisua
 import SacredGridControls from '@/components/visualization/SacredGridControls';
 import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
+import { Button } from '@/components/ui/button';
+import { Maximize2, Minimize2 } from 'lucide-react';
 
 const SacredGridVisualizer: React.FC<VisualizerProps> = ({
   width = '100%',
@@ -146,8 +149,8 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
           <SacredGridControls
             settings={settings}
             onChange={handleSettingsChange}
-            expanded={isFullscreen}
-            onToggle={toggleFullscreen}
+            expanded={controlsExpanded}
+            onToggle={toggleControls}
             className="bg-black/80 dark:bg-gray-900/80 backdrop-blur-md border border-purple-500/20"
             showAudioIndicator={true}
             audioLevel={audioAnalysis.amplitude}

@@ -29,6 +29,7 @@ interface SacredGridControlsProps {
   showAudioIndicator?: boolean;
   audioLevel?: number;
   bpm?: number | null;
+  showAllControls?: boolean;
 }
 
 const SacredGridControls: React.FC<SacredGridControlsProps> = ({
@@ -39,7 +40,8 @@ const SacredGridControls: React.FC<SacredGridControlsProps> = ({
   className,
   showAudioIndicator = false,
   audioLevel = 0,
-  bpm = null
+  bpm = null,
+  showAllControls = false
 }) => {
   // Shape options
   const shapeOptions: { value: SacredGeometryShape; label: string; icon: React.ReactNode }[] = [
@@ -114,7 +116,7 @@ const SacredGridControls: React.FC<SacredGridControlsProps> = ({
 
   return (
     <Card className={`sacred-grid-controls ${expanded ? 'expanded' : 'collapsed'} ${className || ''}`}>
-      <Collapsible open={expanded}>
+      <Collapsible open={expanded || showAllControls}>
         <CollapsibleTrigger asChild>
           <Button 
             variant="ghost" 

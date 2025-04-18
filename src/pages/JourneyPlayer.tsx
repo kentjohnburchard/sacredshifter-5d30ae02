@@ -160,7 +160,7 @@ const JourneyPlayer = () => {
   }, [journeyId, navigate, templates, loadingSongs, loadingTemplates]);
 
   useEffect(() => {
-    if (audioPlayAttemptedRef.current || isLoading || loadingSongs || !journey) {
+    if (!audioPlayAttemptedRef.current || isLoading || loadingSongs || !journey) {
       return;
     }
     
