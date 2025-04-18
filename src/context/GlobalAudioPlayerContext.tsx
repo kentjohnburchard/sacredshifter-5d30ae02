@@ -2,6 +2,7 @@
 import React, { createContext, useState, useCallback, ReactNode } from 'react';
 import { PlayerInfo, VisualRegistration, GlobalAudioPlayerContextType } from '@/types/audioPlayer';
 import { useAudioSetup } from '@/hooks/useAudioSetup';
+import { usePlayerCallbacks } from '@/hooks/usePlayerCallbacks';
 import { isPrime } from '@/utils/audioUtils';
 
 export const GlobalAudioPlayerContext = createContext<GlobalAudioPlayerContextType>({} as GlobalAudioPlayerContextType);
@@ -32,6 +33,13 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
   // Initialize audio element
   initializeAudioElement();
 
+  const { playAudio, togglePlayPause, seekTo } = usePlayerCallbacks(
+    audioRef,
+    setIsPlaying,
+    setCurrentAudio,
+    visualRegistrationsRef
+  );
+
   // Set up event listeners if audio element exists
   if (audioRef.current) {
     audioRef.current.addEventListener('timeupdate', () => {
@@ -51,6 +59,9 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
                 now - lastDetectedPrimesRef.current[detectedFreq] > 5000) {
               lastDetectedPrimesRef.current[detectedFreq] = now;
               setActivePrimeNumbers(prev => [...prev, detectedFreq].slice(-5));
+              
+              // Notify prime number callbacks
+              primeCallbacksRef.current.forEach(callback => callback(detectedFreq));
             }
           }
           
@@ -69,53 +80,6 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
       }
     });
   }
-
-  const playAudio = useCallback((info: PlayerInfo) => {
-    if (audioRef.current && info.source) {
-      audioRef.current.src = info.source;
-      audioRef.current.load();
-      
-      const playPromise = audioRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsPlaying(true);
-            setCurrentAudio(info);
-            
-            visualRegistrationsRef.current.forEach(reg => {
-              reg.setAudioSource(info.source || '', info);
-            });
-          })
-          .catch((error) => {
-            console.error("Playback failed:", error);
-            setIsPlaying(false);
-          });
-      }
-    }
-  }, []);
-
-  const togglePlayPause = useCallback(() => {
-    if (audioRef.current) {
-      if (audioRef.current.paused) {
-        const playPromise = audioRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => setIsPlaying(true))
-            .catch((error) => console.error("Playback failed:", error));
-        }
-      } else {
-        audioRef.current.pause();
-        setIsPlaying(false);
-      }
-    }
-  }, []);
-
-  const seekTo = useCallback((time: number) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = time;
-      setCurrentTime(time);
-    }
-  }, []);
 
   const resetPlayer = useCallback(() => {
     if (audioRef.current) {
