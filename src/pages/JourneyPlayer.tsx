@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -20,6 +19,7 @@ import {
 import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import FloatingCosmicPlayer from '@/components/audio/FloatingCosmicPlayer';
+import SacredGridVisualizer from '@/components/SacredGridVisualizer';
 
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
@@ -264,10 +264,8 @@ const JourneyPlayer = () => {
         }
         
         if (audioUrl) {
-          // First clear the player
           resetPlayer();
           
-          // Then play the new song after a short delay
           setTimeout(() => {
             console.log("JourneyPlayer: Playing new track:", newSong.title);
             playAudio({
@@ -471,6 +469,36 @@ const JourneyPlayer = () => {
                 </Accordion>
               </motion.div>
             )}
+            
+            <div className="relative w-full h-[300px] rounded-lg overflow-hidden mb-6 bg-black/20">
+              <SacredGridVisualizer
+                width="100%"
+                height="100%"
+                autoConnect={true}
+                showControls={true}
+                initialSettings={{
+                  activeShapes: journey?.chakras?.[0]?.toLowerCase() === 'crown' ? ['flower-of-life', 'metatron-cube'] :
+                              journey?.chakras?.[0]?.toLowerCase() === 'third-eye' ? ['sri-yantra', 'fibonacci-spiral'] :
+                              journey?.chakras?.[0]?.toLowerCase() === 'throat' ? ['vesica-piscis', 'torus'] :
+                              journey?.chakras?.[0]?.toLowerCase() === 'heart' ? ['flower-of-life', 'torus'] :
+                              journey?.chakras?.[0]?.toLowerCase() === 'solar-plexus' ? ['metatron-cube', 'prime-spiral'] :
+                              journey?.chakras?.[0]?.toLowerCase() === 'sacral' ? ['fibonacci-spiral', 'vesica-piscis'] :
+                              journey?.chakras?.[0]?.toLowerCase() === 'root' ? ['prime-spiral', 'metatron-cube'] :
+                              ['flower-of-life', 'fibonacci-spiral'],
+                  colorTheme: journey?.chakras?.[0]?.toLowerCase() === 'crown' ? 'cosmic-violet' :
+                            journey?.chakras?.[0]?.toLowerCase() === 'third-eye' ? 'cosmic-violet' :
+                            journey?.chakras?.[0]?.toLowerCase() === 'throat' ? 'ocean-depths' :
+                            journey?.chakras?.[0]?.toLowerCase() === 'heart' ? 'ethereal-mist' :
+                            journey?.chakras?.[0]?.toLowerCase() === 'solar-plexus' ? 'fire-essence' :
+                            journey?.chakras?.[0]?.toLowerCase() === 'sacral' ? 'fire-essence' :
+                            journey?.chakras?.[0]?.toLowerCase() === 'root' ? 'earth-tones' :
+                            'cosmic-violet',
+                  mode: '3d',
+                  chakraAlignmentMode: true,
+                  sensitivity: 1.2
+                }}
+              />
+            </div>
           </CardContent>
         </Card>
       </div>
