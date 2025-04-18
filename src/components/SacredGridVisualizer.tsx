@@ -100,6 +100,10 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
     if (onExpandStateChange) {
       onExpandStateChange(newState);
     }
+    // Auto-expand controls when entering fullscreen mode
+    if (newState) {
+      setControlsExpanded(true);
+    }
   }, [isFullscreen, onExpandStateChange]);
 
   const containerStyle: React.CSSProperties = isFullscreen
@@ -145,7 +149,7 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
       )}
 
       {showControls && (
-        <div className={`sacred-grid-controls-container ${isFullscreen ? 'fixed bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-4xl px-4' : 'absolute bottom-0 left-0 right-0 p-4'} z-10`}>
+        <div className={`sacred-grid-controls-container ${isFullscreen ? 'fixed top-8 left-1/2 transform -translate-x-1/2 w-full max-w-5xl px-4' : 'absolute bottom-0 left-0 right-0 p-4'} z-10`}>
           <SacredGridControls
             settings={settings}
             onChange={handleSettingsChange}
@@ -162,10 +166,10 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
 
       {expandable && (
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
           onClick={toggleFullscreen}
-          className="absolute top-2 right-2 z-30 bg-purple-900/40 hover:bg-purple-900/60 text-white"
+          className="absolute top-2 right-2 z-30 bg-purple-900/40 hover:bg-purple-700 text-white"
         >
           {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
         </Button>

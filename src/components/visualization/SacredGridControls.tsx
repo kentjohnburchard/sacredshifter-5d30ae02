@@ -119,9 +119,9 @@ const SacredGridControls: React.FC<SacredGridControlsProps> = ({
       <Collapsible open={expanded || showAllControls}>
         <CollapsibleTrigger asChild>
           <Button 
-            variant="ghost" 
+            variant="outline" 
             size="sm" 
-            className="w-full flex items-center justify-between py-2"
+            className="w-full flex items-center justify-between py-2 bg-purple-900/80 text-white hover:bg-purple-800 border-purple-400/30"
             onClick={(e) => {
               e.preventDefault();
               onToggle();
@@ -157,10 +157,10 @@ const SacredGridControls: React.FC<SacredGridControlsProps> = ({
         </CollapsibleTrigger>
         
         <CollapsibleContent>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-100/95 dark:bg-gray-800/95">
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-medium mb-2 flex items-center">
+                <h3 className="text-sm font-medium mb-2 flex items-center text-gray-800 dark:text-white">
                   <LayoutGrid className="h-4 w-4 mr-2" />
                   Sacred Geometry Layers
                 </h3>
@@ -174,7 +174,7 @@ const SacredGridControls: React.FC<SacredGridControlsProps> = ({
                       />
                       <Label 
                         htmlFor={`shape-${shape.value}`}
-                        className="flex items-center cursor-pointer"
+                        className="flex items-center cursor-pointer text-gray-700 dark:text-gray-200"
                       >
                         {shape.icon}
                         <span className="ml-2">{shape.label}</span>
@@ -185,56 +185,68 @@ const SacredGridControls: React.FC<SacredGridControlsProps> = ({
               </div>
               
               <div>
-                <h3 className="text-sm font-medium mb-2 flex items-center">
+                <h3 className="text-sm font-medium mb-2 flex items-center text-gray-800 dark:text-white">
                   <RotateCw className="h-4 w-4 mr-2" />
                   Animation Speed
                 </h3>
-                <Slider
-                  value={[settings.speed]}
-                  min={0.1}
-                  max={5}
-                  step={0.1}
-                  onValueChange={handleSpeedChange}
-                  className="py-4"
-                />
+                <div className="px-2">
+                  <Slider
+                    value={[settings.speed]}
+                    min={0.1}
+                    max={5}
+                    step={0.1}
+                    onValueChange={handleSpeedChange}
+                    className="py-4"
+                  />
+                  <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
+                    <span>Slow</span>
+                    <span>Fast</span>
+                  </div>
+                </div>
               </div>
               
               <div>
-                <h3 className="text-sm font-medium mb-2 flex items-center">
+                <h3 className="text-sm font-medium mb-2 flex items-center text-gray-800 dark:text-white">
                   <Sparkles className="h-4 w-4 mr-2" />
                   Brightness
                 </h3>
-                <Slider
-                  value={[settings.brightness]}
-                  min={0.1}
-                  max={2}
-                  step={0.1}
-                  onValueChange={handleBrightnessChange}
-                  className="py-4"
-                />
+                <div className="px-2">
+                  <Slider
+                    value={[settings.brightness]}
+                    min={0.1}
+                    max={2}
+                    step={0.1}
+                    onValueChange={handleBrightnessChange}
+                    className="py-4"
+                  />
+                  <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
+                    <span>Low</span>
+                    <span>High</span>
+                  </div>
+                </div>
               </div>
             </div>
             
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-medium mb-2">Visualization Mode</h3>
+                <h3 className="text-sm font-medium mb-2 text-gray-800 dark:text-white">Visualization Mode</h3>
                 <Tabs defaultValue={settings.mode} onValueChange={handleModeChange as any}>
-                  <TabsList className="grid grid-cols-2">
-                    <TabsTrigger value="2d">2D Mode</TabsTrigger>
-                    <TabsTrigger value="3d">3D Mode</TabsTrigger>
+                  <TabsList className="grid grid-cols-2 bg-purple-900/20 text-purple-900 dark:text-purple-100">
+                    <TabsTrigger value="2d" className="data-[state=active]:bg-purple-700 data-[state=active]:text-white">2D Mode</TabsTrigger>
+                    <TabsTrigger value="3d" className="data-[state=active]:bg-purple-700 data-[state=active]:text-white">3D Mode</TabsTrigger>
                   </TabsList>
                 </Tabs>
               </div>
               
               <div>
-                <h3 className="text-sm font-medium mb-2 flex items-center">
+                <h3 className="text-sm font-medium mb-2 flex items-center text-gray-800 dark:text-white">
                   <Palette className="h-4 w-4 mr-2" />
                   Color Theme
                 </h3>
                 <select
                   value={settings.colorTheme}
                   onChange={(e) => handleThemeChange(e.target.value as ColorTheme)}
-                  className="w-full border rounded py-1.5 px-2 text-sm"
+                  className="w-full border rounded py-1.5 px-2 text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-white border-gray-300 dark:border-gray-600"
                 >
                   {themeOptions.map(theme => (
                     <option key={theme.value} value={theme.value}>
@@ -245,25 +257,31 @@ const SacredGridControls: React.FC<SacredGridControlsProps> = ({
               </div>
               
               <div>
-                <h3 className="text-sm font-medium mb-2 flex items-center">
+                <h3 className="text-sm font-medium mb-2 flex items-center text-gray-800 dark:text-white">
                   <Volume2 className="h-4 w-4 mr-2" />
                   Audio Sensitivity
                 </h3>
-                <Slider
-                  value={[settings.sensitivity]}
-                  min={0.1}
-                  max={2}
-                  step={0.1}
-                  onValueChange={handleSensitivityChange}
-                  className="py-4"
-                />
+                <div className="px-2">
+                  <Slider
+                    value={[settings.sensitivity]}
+                    min={0.1}
+                    max={2}
+                    step={0.1}
+                    onValueChange={handleSensitivityChange}
+                    className="py-4"
+                  />
+                  <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
+                    <span>Low</span>
+                    <span>High</span>
+                  </div>
+                </div>
               </div>
               
               <div>
-                <h3 className="text-sm font-medium mb-2">Options</h3>
-                <div className="space-y-3">
+                <h3 className="text-sm font-medium mb-2 text-gray-800 dark:text-white">Options</h3>
+                <div className="space-y-3 bg-white/30 dark:bg-black/30 p-3 rounded">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="mirror-toggle" className="cursor-pointer">Mirror Effect</Label>
+                    <Label htmlFor="mirror-toggle" className="cursor-pointer text-gray-700 dark:text-gray-300">Mirror Effect</Label>
                     <Switch
                       id="mirror-toggle"
                       checked={settings.mirrorEnabled}
@@ -272,7 +290,7 @@ const SacredGridControls: React.FC<SacredGridControlsProps> = ({
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="chakra-toggle" className="cursor-pointer">Chakra Alignment Mode</Label>
+                    <Label htmlFor="chakra-toggle" className="cursor-pointer text-gray-700 dark:text-gray-300">Chakra Alignment Mode</Label>
                     <Switch
                       id="chakra-toggle"
                       checked={settings.chakraAlignmentMode}

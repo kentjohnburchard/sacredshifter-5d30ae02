@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -8,13 +9,15 @@ import { toast } from 'sonner';
 import { useJourneySongs } from '@/hooks/useJourneySongs';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Slider } from '@/components/ui/slider';
 import { 
   Info,
   Music,
   BookOpen,
   Play,
   Pause,
-  RefreshCcw
+  RefreshCcw,
+  Volume2
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -32,7 +35,9 @@ const JourneyPlayer = () => {
     resetPlayer,
     currentTime,
     duration,
-    seekTo
+    seekTo,
+    setVolume,
+    getVolume
   } = useGlobalAudioPlayer();
   
   const [journey, setJourney] = useState<any>(null);
@@ -40,6 +45,7 @@ const JourneyPlayer = () => {
   const [infoExpanded, setInfoExpanded] = useState(false);
   const [playerVisible, setPlayerVisible] = useState(true);
   const [playerError, setPlayerError] = useState<string | null>(null);
+  const [volume, setLocalVolume] = useState(0.8); // Default volume to 80%
   
   const lastPlayedIndex = useRef<number | null>(null);
   const songsRef = useRef<any[]>([]);
@@ -57,12 +63,27 @@ const JourneyPlayer = () => {
       console.log("JourneyPlayer: Songs loaded:", songs.length);
     }
   }, [songs]);
+  
+  // Set initial volume when component mounts
+  useEffect(() => {
+    if (setVolume) {
+      setVolume(volume);
+    }
+  }, [setVolume]);
 
   const formatTime = (seconds: number) => {
     if (!seconds || isNaN(seconds)) return "0:00";
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+  
+  const handleVolumeChange = (newValue: number[]) => {
+    const volumeValue = newValue[0];
+    setLocalVolume(volumeValue);
+    if (setVolume) {
+      setVolume(volumeValue);
+    }
   };
 
   const selectRandomSong = () => {
@@ -190,8 +211,13 @@ const JourneyPlayer = () => {
               frequency: selectedSong.frequency
             });
             
+            // Set volume to ensure audio is audible
+            if (setVolume) {
+              setVolume(volume);
+            }
+            
             setPlayerVisible(true);
-            console.log("JourneyPlayer: Audio playback initialized");
+            console.log("JourneyPlayer: Audio playback initialized with volume:", volume);
           } else {
             console.error("JourneyPlayer: Invalid audio URL in song");
             checkAudioMappingFallback();
@@ -204,7 +230,7 @@ const JourneyPlayer = () => {
     } else {
       checkAudioMappingFallback();
     }
-  }, [journey, songs, loadingSongs, isLoading, playAudio, journeyId, audioMappings]);
+  }, [journey, songs, loadingSongs, isLoading, playAudio, journeyId, audioMappings, setVolume, volume]);
 
   const checkAudioMappingFallback = () => {
     if (!journeyId || !audioMappings) {
@@ -276,6 +302,11 @@ const JourneyPlayer = () => {
               chakra: journey?.chakras?.[0]?.toLowerCase() || "all",
               frequency: newSong.frequency
             });
+            
+            // Set volume to ensure audio is audible
+            if (setVolume) {
+              setVolume(volume); 
+            }
             
             setPlayerVisible(true);
             setPlayerError(null);
@@ -398,6 +429,23 @@ const JourneyPlayer = () => {
                   <span>{formatTime(currentTime)}</span>
                   <span>{formatTime(duration || 0)}</span>
                 </div>
+              </div>
+              
+              {/* Volume Control */}
+              <div className="mt-3 flex items-center gap-2">
+                <Volume2 className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+                <div className="w-full max-w-[200px] flex items-center">
+                  <Slider
+                    value={[volume]}
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    onValueChange={handleVolumeChange}
+                  />
+                </div>
+                <span className="text-xs text-gray-600 dark:text-gray-300">
+                  {Math.round(volume * 100)}%
+                </span>
               </div>
             </div>
             
