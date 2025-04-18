@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -17,11 +16,16 @@ import {
   Play,
   Pause,
   RefreshCcw,
-  Volume2
+  Volume2,
+  SkipBack,
+  SkipForward,
+  Maximize,
+  Minimize
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import SacredGridVisualizer from '@/components/SacredGridVisualizer';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
@@ -46,6 +50,8 @@ const JourneyPlayer = () => {
   const [playerVisible, setPlayerVisible] = useState(true);
   const [playerError, setPlayerError] = useState<string | null>(null);
   const [volume, setLocalVolume] = useState(0.8); // Default volume to 80%
+  const [activeTab, setActiveTab] = useState('player');
+  const [isVisualizerExpanded, setIsVisualizerExpanded] = useState(false);
   
   const lastPlayedIndex = useRef<number | null>(null);
   const songsRef = useRef<any[]>([]);
@@ -54,8 +60,6 @@ const JourneyPlayer = () => {
   
   const { templates, loading: loadingTemplates, audioMappings } = useJourneyTemplates();
   const { songs, loading: loadingSongs } = useJourneySongs(journeyId);
-  
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     if (songs && songs.length > 0) {
@@ -181,7 +185,7 @@ const JourneyPlayer = () => {
   }, [journeyId, navigate, templates, loadingSongs, loadingTemplates]);
 
   useEffect(() => {
-    if (!audioPlayAttemptedRef.current || isLoading || loadingSongs || !journey) {
+    if (audioPlayAttemptedRef.current || isLoading || loadingSongs || !journey) {
       return;
     }
     
@@ -364,7 +368,7 @@ const JourneyPlayer = () => {
 
   return (
     <Layout pageTitle={journey?.title || "Sacred Journey"}>
-      <div className="max-w-4xl mx-auto p-4 relative z-10">
+      <div className="max-w-5xl mx-auto p-4 relative z-10">
         <Card className="backdrop-blur-sm border border-purple-200/30 dark:border-purple-900/30 bg-white/80 dark:bg-black/60">
           <CardContent className="p-6">
             <div className="flex justify-between items-center mb-6">
@@ -391,168 +395,237 @@ const JourneyPlayer = () => {
               </div>
             </div>
             
-            <div className="bg-purple-100/30 dark:bg-purple-900/30 p-4 rounded-lg mb-6">
-              <div className="flex justify-between items-center mb-4">
-                <div className="flex-1">
-                  <p className="font-medium">
-                    {currentSongRef.current?.title || currentAudio?.title || 'Selected Journey Track'}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
-                    {isPlaying ? 'Playing now' : 'Paused'}
-                    {playerError && <span className="text-red-500 ml-2">⚠️ {playerError}</span>}
-                  </p>
-                </div>
-                <div className="flex space-x-2">
-                  <Button 
-                    onClick={() => togglePlayPause()}
-                    className="bg-purple-600 hover:bg-purple-700"
-                  >
-                    {isPlaying ? (
-                      <><Pause className="h-4 w-4 mr-2" /> Pause</>
-                    ) : (
-                      <><Play className="h-4 w-4 mr-2" /> Play</>
-                    )}
-                  </Button>
-                  <Button 
-                    onClick={handlePlayNewTrack}
-                    className="bg-indigo-600 hover:bg-indigo-700"
-                    title="Try a different track if experiencing issues"
-                  >
-                    <RefreshCcw className="h-4 w-4 mr-2" /> New Track
-                  </Button>
-                </div>
-              </div>
+            {/* Use tabs to separate player controls from visualizer */}
+            <Tabs 
+              defaultValue="player" 
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="mt-4"
+            >
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="player">Player Controls</TabsTrigger>
+                <TabsTrigger value="visualizer">Visualizer</TabsTrigger>
+              </TabsList>
               
-              <div className="space-y-2">
-                <Progress value={progressPercentage} className="w-full" />
-                <div className="flex justify-between text-sm text-gray-500">
-                  <span>{formatTime(currentTime)}</span>
-                  <span>{formatTime(duration || 0)}</span>
-                </div>
-              </div>
-              
-              {/* Volume Control */}
-              <div className="mt-3 flex items-center gap-2">
-                <Volume2 className="h-4 w-4 text-gray-600 dark:text-gray-300" />
-                <div className="w-full max-w-[200px] flex items-center">
-                  <Slider
-                    value={[volume]}
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    onValueChange={handleVolumeChange}
-                  />
-                </div>
-                <span className="text-xs text-gray-600 dark:text-gray-300">
-                  {Math.round(volume * 100)}%
-                </span>
-              </div>
-            </div>
-            
-            {infoExpanded && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                className="mt-6 bg-purple-50/50 dark:bg-purple-900/20 rounded-lg p-6"
-              >
-                {journey?.description && (
-                  <div className="mb-4">
-                    <h3 className="text-lg font-medium text-purple-800 dark:text-purple-300 mb-2">
-                      About This Journey
-                    </h3>
-                    <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
-                      {journey.description}
-                    </p>
+              <TabsContent value="player" className="space-y-4">
+                <div className="bg-purple-100/30 dark:bg-purple-900/30 p-4 rounded-lg">
+                  <div className="flex justify-between items-center mb-4">
+                    <div className="flex-1">
+                      <p className="font-medium">
+                        {currentSongRef.current?.title || currentAudio?.title || 'Selected Journey Track'}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        {isPlaying ? 'Playing now' : 'Paused'}
+                        {playerError && <span className="text-red-500 ml-2">⚠️ {playerError}</span>}
+                      </p>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button 
+                        onClick={() => togglePlayPause()}
+                        className="bg-purple-600 hover:bg-purple-700 flex items-center gap-2"
+                      >
+                        {isPlaying ? (
+                          <><Pause className="h-4 w-4" /> Pause</>
+                        ) : (
+                          <><Play className="h-4 w-4" /> Play</>
+                        )}
+                      </Button>
+                      <Button 
+                        onClick={handlePlayNewTrack}
+                        className="bg-indigo-600 hover:bg-indigo-700 flex items-center gap-2"
+                        title="Try a different track if experiencing issues"
+                      >
+                        <RefreshCcw className="h-4 w-4" /> New Track
+                      </Button>
+                    </div>
                   </div>
-                )}
-                
-                <Accordion type="single" collapsible>
-                  <AccordionItem value="tips">
-                    <AccordionTrigger className="text-purple-800 dark:text-purple-300">
-                      <div className="flex items-center">
-                        <BookOpen className="mr-2 h-5 w-5" />
-                        Tips for the Best Experience
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="text-gray-700 dark:text-gray-300">
-                      <ul className="list-disc list-inside space-y-2">
-                        <li>Wear headphones for optimal binaural effects</li>
-                        <li>Find a quiet, comfortable space</li>
-                        <li>Close your eyes and focus on your breath</li>
-                        <li>Allow the frequencies to resonate through your body</li>
-                        <li>Notice any sensations or images that arise</li>
-                      </ul>
-                    </AccordionContent>
-                  </AccordionItem>
                   
-                  <AccordionItem value="playlist">
-                    <AccordionTrigger className="text-purple-800 dark:text-purple-300">
-                      <div className="flex items-center">
-                        <Music className="mr-2 h-5 w-5" />
-                        Audio Tracks ({songs?.length || 0})
+                  <div className="space-y-2 mt-6">
+                    <Progress value={progressPercentage} className="w-full" />
+                    <div className="flex justify-between text-sm text-gray-500">
+                      <span>{formatTime(currentTime)}</span>
+                      <span>{formatTime(duration || 0)}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between mt-6">
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-purple-700 dark:text-purple-400 hover:text-purple-900 dark:hover:text-purple-300"
+                        onClick={() => seekTo(Math.max(0, currentTime - 10))}
+                      >
+                        <SkipBack className="h-4 w-4" />
+                      </Button>
+                      
+                      <Button
+                        variant="default"
+                        size="icon"
+                        className="h-10 w-10 rounded-full bg-purple-600 hover:bg-purple-700"
+                        onClick={togglePlayPause}
+                      >
+                        {isPlaying ? (
+                          <Pause className="h-5 w-5" />
+                        ) : (
+                          <Play className="h-5 w-5 ml-0.5" />
+                        )}
+                      </Button>
+                      
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-purple-700 dark:text-purple-400 hover:text-purple-900 dark:hover:text-purple-300"
+                        onClick={() => seekTo(Math.min(duration, currentTime + 10))}
+                      >
+                        <SkipForward className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <Volume2 className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+                      <div className="w-full max-w-[200px] flex items-center">
+                        <Slider
+                          value={[volume]}
+                          min={0}
+                          max={1}
+                          step={0.01}
+                          onValueChange={handleVolumeChange}
+                        />
                       </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="text-gray-700 dark:text-gray-300">
-                      {songs && songs.length > 0 ? (
-                        <div className="space-y-2">
-                          {songs.map((song, index) => (
-                            <div 
-                              key={index} 
-                              className="flex justify-between items-center p-2 rounded bg-white/50 dark:bg-gray-800/50"
-                            >
-                              <span>{song.title || `Track ${index + 1}`}</span>
-                              <span className="text-sm text-gray-500">
-                                {song.duration ? `${Math.floor(song.duration / 60)}:${String(song.duration % 60).padStart(2, '0')}` : '~3:00'}
-                              </span>
+                      <span className="text-xs text-gray-600 dark:text-gray-300 w-8">
+                        {Math.round(volume * 100)}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                {infoExpanded && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    className="mt-6 bg-purple-50/50 dark:bg-purple-900/20 rounded-lg p-6"
+                  >
+                    {journey?.description && (
+                      <div className="mb-4">
+                        <h3 className="text-lg font-medium text-purple-800 dark:text-purple-300 mb-2">
+                          About This Journey
+                        </h3>
+                        <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
+                          {journey.description}
+                        </p>
+                      </div>
+                    )}
+                    
+                    <Accordion type="single" collapsible>
+                      <AccordionItem value="tips">
+                        <AccordionTrigger className="text-purple-800 dark:text-purple-300">
+                          <div className="flex items-center">
+                            <BookOpen className="mr-2 h-5 w-5" />
+                            Tips for the Best Experience
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="text-gray-700 dark:text-gray-300">
+                          <ul className="list-disc list-inside space-y-2">
+                            <li>Wear headphones for optimal binaural effects</li>
+                            <li>Find a quiet, comfortable space</li>
+                            <li>Close your eyes and focus on your breath</li>
+                            <li>Allow the frequencies to resonate through your body</li>
+                            <li>Notice any sensations or images that arise</li>
+                          </ul>
+                        </AccordionContent>
+                      </AccordionItem>
+                      
+                      <AccordionItem value="playlist">
+                        <AccordionTrigger className="text-purple-800 dark:text-purple-300">
+                          <div className="flex items-center">
+                            <Music className="mr-2 h-5 w-5" />
+                            Audio Tracks ({songs?.length || 0})
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="text-gray-700 dark:text-gray-300">
+                          {songs && songs.length > 0 ? (
+                            <div className="space-y-2">
+                              {songs.map((song, index) => (
+                                <div 
+                                  key={index} 
+                                  className="flex justify-between items-center p-2 rounded bg-white/50 dark:bg-gray-800/50"
+                                >
+                                  <span>{song.title || `Track ${index + 1}`}</span>
+                                  <span className="text-sm text-gray-500">
+                                    {song.duration ? `${Math.floor(song.duration / 60)}:${String(song.duration % 60).padStart(2, '0')}` : '~3:00'}
+                                  </span>
+                                </div>
+                              ))}
+                              <p className="text-sm text-gray-500 mt-2">
+                                Tracks will continue playing in the Sacred Audio Player
+                              </p>
                             </div>
-                          ))}
-                          <p className="text-sm text-gray-500 mt-2">
-                            Tracks will continue playing in the Sacred Audio Player
-                          </p>
-                        </div>
+                          ) : (
+                            <p>No audio tracks available for this journey.</p>
+                          )}
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </motion.div>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="visualizer" className="space-y-4">
+                <div className="bg-purple-100/30 dark:bg-purple-900/30 p-4 rounded-lg">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold text-purple-800 dark:text-purple-300">
+                      Visual Experience
+                    </h3>
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsVisualizerExpanded(!isVisualizerExpanded)}
+                      className="flex items-center gap-2"
+                    >
+                      {isVisualizerExpanded ? (
+                        <><Minimize className="h-4 w-4" /> Shrink</>
                       ) : (
-                        <p>No audio tracks available for this journey.</p>
+                        <><Maximize className="h-4 w-4" /> Expand</>
                       )}
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </motion.div>
-            )}
-            
-            <div className={`relative ${isFullscreen ? 'fixed inset-0 z-50 bg-black' : 'w-full h-[300px]'} rounded-lg overflow-hidden mb-6`}>
-              <SacredGridVisualizer
-                width="100%"
-                height="100%"
-                autoConnect={true}
-                showControls={true}
-                expandable={true}
-                initialSettings={{
-                  activeShapes: journey?.chakras?.[0]?.toLowerCase() === 'crown' ? ['flower-of-life', 'metatron-cube'] :
-                              journey?.chakras?.[0]?.toLowerCase() === 'third-eye' ? ['sri-yantra', 'fibonacci-spiral'] :
-                              journey?.chakras?.[0]?.toLowerCase() === 'throat' ? ['vesica-piscis', 'torus'] :
-                              journey?.chakras?.[0]?.toLowerCase() === 'heart' ? ['flower-of-life', 'torus'] :
-                              journey?.chakras?.[0]?.toLowerCase() === 'solar-plexus' ? ['metatron-cube', 'prime-spiral'] :
-                              journey?.chakras?.[0]?.toLowerCase() === 'sacral' ? ['fibonacci-spiral', 'vesica-piscis'] :
-                              journey?.chakras?.[0]?.toLowerCase() === 'root' ? ['prime-spiral', 'metatron-cube'] :
-                              ['flower-of-life', 'fibonacci-spiral'],
-                  colorTheme: journey?.chakras?.[0]?.toLowerCase() === 'crown' ? 'cosmic-violet' :
-                            journey?.chakras?.[0]?.toLowerCase() === 'third-eye' ? 'cosmic-violet' :
-                            journey?.chakras?.[0]?.toLowerCase() === 'throat' ? 'ocean-depths' :
-                            journey?.chakras?.[0]?.toLowerCase() === 'heart' ? 'ethereal-mist' :
-                            journey?.chakras?.[0]?.toLowerCase() === 'solar-plexus' ? 'fire-essence' :
-                            journey?.chakras?.[0]?.toLowerCase() === 'sacral' ? 'fire-essence' :
-                            journey?.chakras?.[0]?.toLowerCase() === 'root' ? 'earth-tones' :
-                            'cosmic-violet',
-                  mode: '3d',
-                  chakraAlignmentMode: true,
-                  sensitivity: 1.2,
-                  mirrorEnabled: true,
-                  brightness: 1.2,
-                  symmetry: 8
-                }}
-                onExpandStateChange={setIsFullscreen}
-              />
-            </div>
+                    </Button>
+                  </div>
+                  
+                  <div className={`relative ${isVisualizerExpanded ? 'h-[500px]' : 'h-[300px]'} w-full rounded-lg overflow-hidden transition-all duration-300`}>
+                    <SacredGridVisualizer
+                      width="100%"
+                      height="100%"
+                      autoConnect={true}
+                      showControls={true}
+                      expandable={false}
+                      initialSettings={{
+                        activeShapes: journey?.chakras?.[0]?.toLowerCase() === 'crown' ? ['flower-of-life', 'metatron-cube'] :
+                                    journey?.chakras?.[0]?.toLowerCase() === 'third-eye' ? ['sri-yantra', 'fibonacci-spiral'] :
+                                    journey?.chakras?.[0]?.toLowerCase() === 'throat' ? ['vesica-piscis', 'torus'] :
+                                    journey?.chakras?.[0]?.toLowerCase() === 'heart' ? ['flower-of-life', 'torus'] :
+                                    journey?.chakras?.[0]?.toLowerCase() === 'solar-plexus' ? ['metatron-cube', 'prime-spiral'] :
+                                    journey?.chakras?.[0]?.toLowerCase() === 'sacral' ? ['fibonacci-spiral', 'vesica-piscis'] :
+                                    journey?.chakras?.[0]?.toLowerCase() === 'root' ? ['prime-spiral', 'metatron-cube'] :
+                                    ['flower-of-life', 'fibonacci-spiral'],
+                        colorTheme: journey?.chakras?.[0]?.toLowerCase() === 'crown' ? 'cosmic-violet' :
+                                  journey?.chakras?.[0]?.toLowerCase() === 'third-eye' ? 'cosmic-violet' :
+                                  journey?.chakras?.[0]?.toLowerCase() === 'throat' ? 'ocean-depths' :
+                                  journey?.chakras?.[0]?.toLowerCase() === 'heart' ? 'ethereal-mist' :
+                                  journey?.chakras?.[0]?.toLowerCase() === 'solar-plexus' ? 'fire-essence' :
+                                  journey?.chakras?.[0]?.toLowerCase() === 'sacral' ? 'fire-essence' :
+                                  journey?.chakras?.[0]?.toLowerCase() === 'root' ? 'earth-tones' :
+                                  'cosmic-violet',
+                        mode: '3d',
+                        chakraAlignmentMode: true,
+                        sensitivity: 1.2,
+                        mirrorEnabled: true,
+                        brightness: 1.2,
+                        symmetry: 8
+                      }}
+                    />
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       </div>

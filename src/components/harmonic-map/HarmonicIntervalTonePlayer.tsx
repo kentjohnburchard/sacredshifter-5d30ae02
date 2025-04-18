@@ -1,70 +1,58 @@
 
-import React, { useState, useRef } from "react";
-import { createTone } from "@/utils/audioUtils";
-import { HarmonicInterval } from "@/data/harmonicSequence";
-import { Button } from "../ui/button";
-import { Play, Pause, Volume2, VolumeX } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { createTone } from '@/utils/audioUtils';
+import { PlayIcon, PauseIcon } from 'lucide-react';
+import { useTheme } from '@/context/ThemeContext';
 
 interface HarmonicIntervalTonePlayerProps {
-  interval: HarmonicInterval;
-  autoplay?: boolean;
+  baseFrequency: number;
+  interval: number;
+  label?: string;
+  description?: string;
+  className?: string;
+  color?: string;
 }
 
-const HarmonicIntervalTonePlayer: React.FC<HarmonicIntervalTonePlayerProps> = ({ 
-  interval, 
-  autoplay = false 
+const HarmonicIntervalTonePlayer: React.FC<HarmonicIntervalTonePlayerProps> = ({
+  baseFrequency,
+  interval,
+  label,
+  description,
+  className,
+  color,
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
-  const gainNodeRef = useRef<GainNode | null>(null);
-  
-  // Initialize or get audio context
-  const getAudioContext = () => {
-    if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-    }
-    return audioContextRef.current;
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  const { liftTheVeil } = useTheme();
+
+  const getButtonColor = () => {
+    if (color) return color;
+    return liftTheVeil ? 'bg-pink-600 hover:bg-pink-700' : 'bg-purple-600 hover:bg-purple-700';
   };
 
-  // Generate tone for the harmonic interval frequency
-  const generateTone = () => {
-    try {
-      const audioContext = getAudioContext();
-      if (audioContext.state === "suspended") {
-        audioContext.resume();
-      }
-      
-      // Create a gain node for volume control
-      const gainNode = audioContext.createGain();
-      gainNode.gain.value = isMuted ? 0 : 0.3; // Default volume
-      gainNode.connect(audioContext.destination);
-      gainNodeRef.current = gainNode;
-      
-      // Get the frequency value from the interval
-      const frequency = interval.hertz as number;
-      
-      // Generate the tone
-      const toneBuffer = createTone(audioContext, frequency, 60, 0.3);
-      
-      // Create and configure source node
-      const sourceNode = audioContext.createBufferSource();
-      sourceNode.buffer = toneBuffer;
-      sourceNode.loop = true;
-      sourceNode.connect(gainNode);
-      
-      // Store reference to control later
-      sourceNodeRef.current = sourceNode;
-      
-      return sourceNode;
-    } catch (error) {
-      console.error("Failed to generate tone:", error);
-      return null;
+  const playTone = () => {
+    setIsPlaying(true);
+    
+    // Create new audio element
+    const audioElement = createTone(baseFrequency * interval);
+    setAudio(audioElement);
+    
+    // Stop after 3 seconds
+    setTimeout(() => {
+      setIsPlaying(false);
+    }, 3000);
+  };
+
+  const stopTone = () => {
+    setIsPlaying(false);
+    if (audio) {
+      audio.pause();
+      setAudio(null);
     }
   };
 
-  const togglePlayPause = () => {
+  const togglePlay = () => {
     if (isPlaying) {
       stopTone();
     } else {
@@ -72,94 +60,41 @@ const HarmonicIntervalTonePlayer: React.FC<HarmonicIntervalTonePlayerProps> = ({
     }
   };
 
-  const playTone = () => {
-    try {
-      stopTone(); // Stop any currently playing tone
-      
-      const sourceNode = generateTone();
-      if (sourceNode) {
-        sourceNode.start(0);
-        setIsPlaying(true);
-      }
-    } catch (error) {
-      console.error("Failed to play tone:", error);
-    }
-  };
-
-  const stopTone = () => {
-    if (sourceNodeRef.current) {
-      try {
-        sourceNodeRef.current.stop();
-        sourceNodeRef.current = null;
-        setIsPlaying(false);
-      } catch (error) {
-        console.error("Error stopping tone:", error);
-      }
-    }
-  };
-
-  const toggleMute = () => {
-    if (gainNodeRef.current) {
-      gainNodeRef.current.gain.value = isMuted ? 0.3 : 0;
-      setIsMuted(!isMuted);
-    }
-  };
-
-  // Clean up audio context when component unmounts
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
-      stopTone();
-      if (audioContextRef.current && audioContextRef.current.state !== "closed") {
-        audioContextRef.current.close().catch(console.error);
+      if (audio) {
+        audio.pause();
       }
     };
-  }, []);
+  }, [audio]);
 
-  // Setup autoplay if enabled
-  React.useEffect(() => {
-    if (autoplay && !isPlaying) {
-      // Short delay to ensure component is fully mounted
-      const timer = setTimeout(() => {
-        playTone();
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [autoplay, isPlaying]);
+  const targetFrequency = baseFrequency * interval;
 
   return (
-    <div className="flex items-center gap-2">
-      <Button 
-        onClick={togglePlayPause} 
-        variant="outline"
+    <div className={`flex items-center justify-between p-3 rounded-lg bg-white/10 backdrop-blur-sm ${className || ''}`}>
+      <div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">{label || `${interval}:1 Ratio`}</span>
+          <span className="text-xs bg-white/20 px-2 py-0.5 rounded">{targetFrequency.toFixed(2)} Hz</span>
+        </div>
+        {description && <p className="text-xs opacity-75 mt-1">{description}</p>}
+      </div>
+      <Button
         size="sm"
-        className={`rounded-full w-8 h-8 p-0 flex items-center justify-center ${
-          isPlaying ? `bg-${interval.color.replace('#', '')}` : 'bg-white/10'
-        }`}
+        onClick={togglePlay}
+        className={`${getButtonColor()} flex items-center gap-2 min-w-[80px]`}
       >
         {isPlaying ? (
-          <Pause className="h-4 w-4" />
+          <>
+            <PauseIcon className="h-4 w-4" />
+            <span>Stop</span>
+          </>
         ) : (
-          <Play className="h-4 w-4 ml-0.5" />
+          <>
+            <PlayIcon className="h-4 w-4" />
+            <span>Play</span>
+          </>
         )}
-        <span className="sr-only">
-          {isPlaying ? "Pause" : "Play"} {interval.hertz} Hz
-        </span>
-      </Button>
-      
-      <Button
-        onClick={toggleMute}
-        variant="ghost"
-        size="sm"
-        className="rounded-full w-6 h-6 p-0"
-      >
-        {isMuted ? (
-          <VolumeX className="h-3 w-3" />
-        ) : (
-          <Volume2 className="h-3 w-3" />
-        )}
-        <span className="sr-only">
-          {isMuted ? "Unmute" : "Mute"}
-        </span>
       </Button>
     </div>
   );
