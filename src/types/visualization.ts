@@ -12,6 +12,10 @@ export type SacredGeometryShape =
 
 export type VisualizationMode = '2d' | '3d';
 
+export type VisualizerType = 
+  | 'sacred-geometry'
+  | 'prime-audio';
+
 export type ColorTheme =
   | 'cosmic-violet'  // Default - purple, blue, gold
   | 'chakra-rainbow' // All 7 chakra colors
@@ -30,6 +34,11 @@ export interface VisualizationSettings {
   chakraAlignmentMode: boolean;
   sensitivity: number; // 0.1 to 2.0
   brightness: number; // 0.1 to 2.0
+  showGrid?: boolean; // Whether to show the sacred grid background
+  gridIntensity?: number; // 0.1 to 1.0
+  showPrimeAffirmations?: boolean; // Whether to show prime number affirmations
+  visualizerType?: VisualizerType; // Type of visualization to use
+  rotationSpeed?: number; // 0 to 3.0
 }
 
 export interface AudioAnalysisResult {

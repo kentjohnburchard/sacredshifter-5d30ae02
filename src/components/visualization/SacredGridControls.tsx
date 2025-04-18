@@ -10,13 +10,15 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Sliders, Eye, EyeOff, Circle, Square, 
   LayoutGrid, Palette, RefreshCw, Infinity,
-  Volume2, Music, RotateCw, Sparkles
+  Volume2, Music, RotateCw, Sparkles, Grid, MessageSquareText,
+  AudioLines, CircleDashed
 } from 'lucide-react';
 import { 
   VisualizationSettings, 
   SacredGeometryShape, 
   VisualizationMode,
-  ColorTheme 
+  ColorTheme,
+  VisualizerType
 } from '@/types/visualization';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
@@ -48,7 +50,10 @@ const SacredGridControls: React.FC<SacredGridControlsProps> = ({
     { value: 'flower-of-life', label: 'Flower of Life', icon: <Circle className="h-4 w-4" /> },
     { value: 'metatron-cube', label: 'Metatron\'s Cube', icon: <Square className="h-4 w-4" /> },
     { value: 'fibonacci-spiral', label: 'Fibonacci Spiral', icon: <RefreshCw className="h-4 w-4" /> },
-    { value: 'prime-spiral', label: 'Prime Spiral', icon: <Infinity className="h-4 w-4" /> }
+    { value: 'prime-spiral', label: 'Prime Spiral', icon: <Infinity className="h-4 w-4" /> },
+    { value: 'sri-yantra', label: 'Sri Yantra', icon: <Circle className="h-4 w-4" /> },
+    { value: 'torus', label: 'Torus', icon: <CircleDashed className="h-4 w-4" /> },
+    { value: 'vesica-piscis', label: 'Vesica Piscis', icon: <Circle className="h-4 w-4" /> }
   ];
 
   // Theme options
@@ -59,6 +64,12 @@ const SacredGridControls: React.FC<SacredGridControlsProps> = ({
     { value: 'ocean-depths', label: 'Ocean Depths' },
     { value: 'fire-essence', label: 'Fire Essence' },
     { value: 'ethereal-mist', label: 'Ethereal Mist' }
+  ];
+
+  // Visualizer type options
+  const visualizerTypeOptions: { value: VisualizerType; label: string; icon: React.ReactNode }[] = [
+    { value: 'sacred-geometry', label: 'Sacred Geometry', icon: <Circle className="h-4 w-4" /> },
+    { value: 'prime-audio', label: 'Prime Audio', icon: <AudioLines className="h-4 w-4" /> }
   ];
 
   // Handle shape toggle
@@ -87,6 +98,11 @@ const SacredGridControls: React.FC<SacredGridControlsProps> = ({
   const handleThemeChange = (theme: ColorTheme) => {
     onChange({ ...settings, colorTheme: theme });
   };
+  
+  // Handle visualizer type change
+  const handleVisualizerTypeChange = (type: VisualizerType) => {
+    onChange({ ...settings, visualizerType: type });
+  };
 
   // Handle slider changes
   const handleSpeedChange = (value: number[]) => {
@@ -104,6 +120,14 @@ const SacredGridControls: React.FC<SacredGridControlsProps> = ({
   const handleBrightnessChange = (value: number[]) => {
     onChange({ ...settings, brightness: value[0] });
   };
+  
+  const handleGridIntensityChange = (value: number[]) => {
+    onChange({ ...settings, gridIntensity: value[0] });
+  };
+  
+  const handleRotationSpeedChange = (value: number[]) => {
+    onChange({ ...settings, rotationSpeed: value[0] });
+  };
 
   // Handle switch toggles
   const handleMirrorToggle = (checked: boolean) => {
@@ -112,6 +136,14 @@ const SacredGridControls: React.FC<SacredGridControlsProps> = ({
 
   const handleChakraAlignmentToggle = (checked: boolean) => {
     onChange({ ...settings, chakraAlignmentMode: checked });
+  };
+  
+  const handleGridToggle = (checked: boolean) => {
+    onChange({ ...settings, showGrid: checked });
+  };
+  
+  const handlePrimeAffirmationsToggle = (checked: boolean) => {
+    onChange({ ...settings, showPrimeAffirmations: checked });
   };
 
   return (
@@ -159,30 +191,58 @@ const SacredGridControls: React.FC<SacredGridControlsProps> = ({
         <CollapsibleContent>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-100/95 dark:bg-gray-800/95">
             <div className="space-y-4">
+              {/* Visualizer Type Selection */}
               <div>
                 <h3 className="text-sm font-medium mb-2 flex items-center text-gray-800 dark:text-white">
                   <LayoutGrid className="h-4 w-4 mr-2" />
-                  Sacred Geometry Layers
+                  Visualizer Type
                 </h3>
-                <div className="space-y-2">
-                  {shapeOptions.map(shape => (
-                    <div key={shape.value} className="flex items-center space-x-2">
-                      <Checkbox 
-                        id={`shape-${shape.value}`}
-                        checked={settings.activeShapes.includes(shape.value)}
-                        onCheckedChange={() => toggleShape(shape.value)}
-                      />
-                      <Label 
-                        htmlFor={`shape-${shape.value}`}
-                        className="flex items-center cursor-pointer text-gray-700 dark:text-gray-200"
+                <Tabs 
+                  defaultValue={settings.visualizerType} 
+                  value={settings.visualizerType}
+                  onValueChange={handleVisualizerTypeChange as any}
+                  className="mb-4"
+                >
+                  <TabsList className="grid grid-cols-2 bg-purple-900/20 text-purple-900 dark:text-purple-100">
+                    {visualizerTypeOptions.map(option => (
+                      <TabsTrigger 
+                        key={option.value} 
+                        value={option.value}
+                        className="data-[state=active]:bg-purple-700 data-[state=active]:text-white flex items-center gap-1"
                       >
-                        {shape.icon}
-                        <span className="ml-2">{shape.label}</span>
-                      </Label>
-                    </div>
-                  ))}
-                </div>
+                        {option.icon} {option.label}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </Tabs>
               </div>
+            
+              {settings.visualizerType === 'sacred-geometry' && (
+                <div>
+                  <h3 className="text-sm font-medium mb-2 flex items-center text-gray-800 dark:text-white">
+                    <LayoutGrid className="h-4 w-4 mr-2" />
+                    Sacred Geometry Layers
+                  </h3>
+                  <div className="space-y-2">
+                    {shapeOptions.map(shape => (
+                      <div key={shape.value} className="flex items-center space-x-2">
+                        <Checkbox 
+                          id={`shape-${shape.value}`}
+                          checked={settings.activeShapes.includes(shape.value)}
+                          onCheckedChange={() => toggleShape(shape.value)}
+                        />
+                        <Label 
+                          htmlFor={`shape-${shape.value}`}
+                          className="flex items-center cursor-pointer text-gray-700 dark:text-gray-200"
+                        >
+                          {shape.icon}
+                          <span className="ml-2">{shape.label}</span>
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               
               <div>
                 <h3 className="text-sm font-medium mb-2 flex items-center text-gray-800 dark:text-white">
@@ -225,12 +285,35 @@ const SacredGridControls: React.FC<SacredGridControlsProps> = ({
                   </div>
                 </div>
               </div>
+              
+              {settings.visualizerType === 'sacred-geometry' && settings.mode === '3d' && (
+                <div>
+                  <h3 className="text-sm font-medium mb-2 flex items-center text-gray-800 dark:text-white">
+                    <RotateCw className="h-4 w-4 mr-2" />
+                    Rotation Speed
+                  </h3>
+                  <div className="px-2">
+                    <Slider
+                      value={[settings.rotationSpeed ?? 1.0]}
+                      min={0}
+                      max={3}
+                      step={0.1}
+                      onValueChange={handleRotationSpeedChange}
+                      className="py-4"
+                    />
+                    <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
+                      <span>None</span>
+                      <span>Fast</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             
             <div className="space-y-4">
               <div>
                 <h3 className="text-sm font-medium mb-2 text-gray-800 dark:text-white">Visualization Mode</h3>
-                <Tabs defaultValue={settings.mode} onValueChange={handleModeChange as any}>
+                <Tabs defaultValue={settings.mode} value={settings.mode} onValueChange={handleModeChange as any}>
                   <TabsList className="grid grid-cols-2 bg-purple-900/20 text-purple-900 dark:text-purple-100">
                     <TabsTrigger value="2d" className="data-[state=active]:bg-purple-700 data-[state=active]:text-white">2D Mode</TabsTrigger>
                     <TabsTrigger value="3d" className="data-[state=active]:bg-purple-700 data-[state=active]:text-white">3D Mode</TabsTrigger>
@@ -278,6 +361,40 @@ const SacredGridControls: React.FC<SacredGridControlsProps> = ({
               </div>
               
               <div>
+                <h3 className="text-sm font-medium mb-2 flex items-center text-gray-800 dark:text-white">
+                  <Grid className="h-4 w-4 mr-2" />
+                  Grid Background
+                </h3>
+                <div className="px-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <Label htmlFor="grid-toggle" className="cursor-pointer text-gray-700 dark:text-gray-300">Show Grid</Label>
+                    <Switch
+                      id="grid-toggle"
+                      checked={settings.showGrid ?? true}
+                      onCheckedChange={handleGridToggle}
+                    />
+                  </div>
+                  
+                  {settings.showGrid && (
+                    <div className="mt-2">
+                      <Slider
+                        value={[settings.gridIntensity ?? 0.6]}
+                        min={0.1}
+                        max={1}
+                        step={0.1}
+                        onValueChange={handleGridIntensityChange}
+                        className="py-4"
+                      />
+                      <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
+                        <span>Subtle</span>
+                        <span>Intense</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div>
                 <h3 className="text-sm font-medium mb-2 text-gray-800 dark:text-white">Options</h3>
                 <div className="space-y-3 bg-white/30 dark:bg-black/30 p-3 rounded">
                   <div className="flex items-center justify-between">
@@ -295,6 +412,18 @@ const SacredGridControls: React.FC<SacredGridControlsProps> = ({
                       id="chakra-toggle"
                       checked={settings.chakraAlignmentMode}
                       onCheckedChange={handleChakraAlignmentToggle}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="prime-affirmations-toggle" className="cursor-pointer text-gray-700 dark:text-gray-300 flex items-center">
+                      <MessageSquareText className="h-4 w-4 mr-1" />
+                      Prime Affirmations
+                    </Label>
+                    <Switch
+                      id="prime-affirmations-toggle"
+                      checked={settings.showPrimeAffirmations ?? true}
+                      onCheckedChange={handlePrimeAffirmationsToggle}
                     />
                   </div>
                 </div>

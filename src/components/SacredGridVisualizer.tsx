@@ -8,7 +8,11 @@ import SacredGridControls from '@/components/visualization/SacredGridControls';
 import useAudioAnalyzer from '@/hooks/useAudioAnalyzer';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import { Button } from '@/components/ui/button';
-import { Maximize2, Minimize2 } from 'lucide-react';
+import { Maximize2, Minimize2, Volume2 } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
+import SacredGridBackground from '@/components/visualization/SacredGridBackground';
+import PrimeNumberAffirmations from '@/components/visualization/PrimeNumberAffirmations';
+import PrimeAudioVisualizer from '@/components/audio/PrimeAudioVisualizer';
 
 const SacredGridVisualizer: React.FC<VisualizerProps> = ({
   width = '100%',
@@ -27,6 +31,16 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
 }) => {
   const globalAudioPlayer = autoConnect ? useGlobalAudioPlayer() : null;
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
+  
+  // Get stored volume from localStorage or use default
+  const getInitialVolume = () => {
+    try {
+      const storedVolume = localStorage.getItem('sacredShifterVolume');
+      return storedVolume ? parseFloat(storedVolume) : 0.8;
+    } catch (e) {
+      return 0.8;
+    }
+  };
   
   useEffect(() => {
     if (globalAudioPlayer) {
@@ -51,7 +65,12 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
     mirrorEnabled: true,
     chakraAlignmentMode: false,
     sensitivity: 1.0,
-    brightness: 1.0
+    brightness: 1.0,
+    showGrid: true,
+    gridIntensity: 0.6,
+    showPrimeAffirmations: true,
+    visualizerType: 'sacred-geometry',
+    rotationSpeed: 1.0
   };
 
   const [settings, setSettings] = useState<VisualizationSettings>({
@@ -61,6 +80,7 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
   const [controlsExpanded, setControlsExpanded] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [volume, setVolume] = useState(getInitialVolume());
 
   const audioAnalysis = useSacredAudioAnalysis({
     audioRef: audioElementRef,
@@ -81,7 +101,12 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
         console.error("Error registering SacredGridVisualizer with global player:", err);
       }
     }
-  }, [autoConnect, globalAudioPlayer]);
+    
+    // Set initial volume if connected to global audio player
+    if (globalAudioPlayer && globalAudioPlayer.setVolume) {
+      globalAudioPlayer.setVolume(volume);
+    }
+  }, [autoConnect, globalAudioPlayer, volume]);
 
   const handleSettingsChange = (newSettings: VisualizationSettings) => {
     setSettings(newSettings);
@@ -89,6 +114,14 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
       onSettingsChange(newSettings);
     }
   };
+
+  const handleVolumeChange = useCallback((newValue: number[]) => {
+    const volumeValue = newValue[0];
+    setVolume(volumeValue);
+    if (globalAudioPlayer && globalAudioPlayer.setVolume) {
+      globalAudioPlayer.setVolume(volumeValue);
+    }
+  }, [globalAudioPlayer]);
 
   const toggleControls = () => {
     setControlsExpanded(prev => !prev);
@@ -130,7 +163,34 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
       className="sacred-grid-visualizer-container"
       style={containerStyle}
     >
-      {settings.mode === '2d' ? (
+      {/* Sacred grid background */}
+      {settings.showGrid && (
+        <SacredGridBackground 
+          intensity={settings.gridIntensity} 
+          color={settings.colorTheme === 'cosmic-violet' ? '#9b87f5' : 
+                settings.colorTheme === 'chakra-rainbow' ? '#e5deff' :
+                settings.colorTheme === 'fire-essence' ? '#ff6b6b' :
+                settings.colorTheme === 'ocean-depths' ? '#00bcd4' :
+                settings.colorTheme === 'earth-tones' ? '#8bc34a' :
+                settings.colorTheme === 'ethereal-mist' ? '#ffffff' : '#9b87f5'}
+          pulseSpeed={settings.speed * 0.5}
+        />
+      )}
+      
+      {/* Main visualizer - conditional based on setting */}
+      {settings.visualizerType === 'prime-audio' ? (
+        <PrimeAudioVisualizer
+          audioContext={audioContext || providedAudioContext || null}
+          analyser={analyser || providedAnalyserNode || null}
+          isPlaying={!!globalAudioPlayer?.isPlaying}
+          colorMode={settings.colorTheme === 'cosmic-violet' ? 'standard' :
+                    settings.colorTheme === 'chakra-rainbow' ? 'chakra' :
+                    settings.colorTheme === 'ethereal-mist' ? 'liquid-crystal' : 'standard'}
+          visualMode={'prime'}
+          layout={settings.mode === '3d' ? 'radial' : 'vertical'}
+          sensitivity={settings.sensitivity}
+        />
+      ) : settings.mode === '2d' ? (
         <SacredGrid2DVisualizer
           width="100%"
           height="100%"
@@ -147,7 +207,13 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
           className="sacred-grid-visualizer"
         />
       )}
+      
+      {/* Prime number affirmations overlay */}
+      {settings.showPrimeAffirmations && (
+        <PrimeNumberAffirmations enabled={true} />
+      )}
 
+      {/* Controls container */}
       {showControls && (
         <div className={`sacred-grid-controls-container ${isFullscreen ? 'fixed top-8 left-1/2 transform -translate-x-1/2 w-full max-w-5xl px-4' : 'absolute bottom-0 left-0 right-0 p-4'} z-10`}>
           <SacredGridControls
@@ -164,6 +230,21 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
         </div>
       )}
 
+      {/* Volume control */}
+      <div className={`absolute ${isFullscreen ? 'top-8 left-8' : 'bottom-14 left-4'} z-30 bg-black/60 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center gap-2 transition-all`}>
+        <Volume2 className="h-4 w-4 text-white" />
+        <Slider
+          value={[volume]}
+          min={0}
+          max={1}
+          step={0.01}
+          onValueChange={handleVolumeChange}
+          className="w-24"
+        />
+        <span className="text-xs text-white">{Math.round(volume * 100)}%</span>
+      </div>
+
+      {/* Fullscreen toggle */}
       {expandable && (
         <Button
           variant="outline"
