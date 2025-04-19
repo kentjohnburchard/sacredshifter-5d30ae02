@@ -52,7 +52,7 @@ const Layout: React.FC<LayoutProps> = ({
       {/* Sacred Geometry Visualizer */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-30">
         <SacredGeometryVisualizer
-          shape="flower-of-life"
+          defaultShape="flower-of-life"
           size="xl"
           showControls={false}
           isAudioReactive={false}
