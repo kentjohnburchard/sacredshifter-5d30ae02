@@ -35,9 +35,10 @@ export const getThemeClasses = (theme?: string): string => {
 export const ThemedContainer: React.FC<{
   children: React.ReactNode;
   theme?: string;
-}> = ({ children, theme }) => (
-  <div className={getThemeClasses(theme)}>
-    {children}
-  </div>
-);
-
+}> = ({ children, theme }) => {
+  return (
+    <div className={getThemeClasses(theme)}>
+      {children}
+    </div>
+  );
+};
