@@ -63,7 +63,11 @@ const ChakraDetailModal: React.FC<ChakraDetailModalProps> = ({ chakra, isOpen, o
               Chakra Frequency
             </h3>
             <div className="mt-3">
-              <ChakraTonePlayer chakra={chakra} />
+              <ChakraTonePlayer 
+                frequency={chakra.frequency} 
+                chakra={chakra.name} 
+                description={chakra.description}
+              />
             </div>
           </div>
         </TabsContent>
