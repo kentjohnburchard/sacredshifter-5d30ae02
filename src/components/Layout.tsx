@@ -29,7 +29,7 @@ const Layout: React.FC<LayoutProps> = ({
   showContextActions = true,
   showGlobalWatermark = true,
   showPlayer = true,
-  hideHeader = false, // Restored to false by default so headers are visible on all pages
+  hideHeader = true, // Set to true by default to hide headers
   theme,
   useBlueWaveBackground,
 }) => {
@@ -66,8 +66,8 @@ const Layout: React.FC<LayoutProps> = ({
         <div className={`flex-1 flex flex-col min-h-screen relative z-10 ${themeClasses} ${theme ? `theme-${theme}` : ''}`}>
           {!hideHeader && <Header />}
           
-          {/* Main content area */}
-          <div className={`flex-grow min-h-[calc(100vh-80px)] pb-32 relative ${showNavbar ? 'sm:pl-20 pt-20' : 'pt-0'}`}>
+          {/* Main content area - Adjusted top padding since headers are hidden */}
+          <div className={`flex-grow min-h-[calc(100vh-80px)] pb-32 relative ${showNavbar ? 'sm:pl-20 pt-4' : 'pt-0'}`}>
             {children}
           </div>
           
