@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import Header from './Header';
 import Player from './Player';
 import GlobalWatermark from './GlobalWatermark';
+import { getThemeClasses } from '@/utils/pageUtils';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -36,8 +37,10 @@ const Layout: React.FC<LayoutProps> = ({
     document.title = `${pageTitle} | Sacred Shifter`;
   }, [pageTitle]);
 
+  const themeClasses = getThemeClasses(theme);
+
   return (
-    <div className={`bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen ${theme ? `theme-${theme}` : ''}`}>
+    <div className={`bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen ${themeClasses} ${theme ? `theme-${theme}` : ''}`}>
       {/* Header area */}
       {!hideHeader && (
         <Header 
@@ -51,7 +54,7 @@ const Layout: React.FC<LayoutProps> = ({
         {children}
       </div>
       
-      {/* Audio player - now rendering without passing a track */}
+      {/* Audio player */}
       {showPlayer && <Player />}
       
       {/* Global watermark */}
