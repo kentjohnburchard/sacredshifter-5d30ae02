@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
@@ -29,7 +28,7 @@ const Layout: React.FC<LayoutProps> = ({
   showContextActions = true,
   showGlobalWatermark = true,
   showPlayer = true,
-  hideHeader = false,
+  hideHeader = true, // Changed default to true
   theme,
   useBlueWaveBackground,
 }) => {
@@ -64,9 +63,7 @@ const Layout: React.FC<LayoutProps> = ({
         {showNavbar && <Sidebar />}
         
         <div className={`flex-1 flex flex-col min-h-screen relative z-10 ${themeClasses} ${theme ? `theme-${theme}` : ''}`}>
-          {!hideHeader && (
-            <Header />
-          )}
+          {!hideHeader && <Header />}
           
           {/* Main content area */}
           <div className={`flex-grow min-h-[calc(100vh-80px)] pb-32 relative ${showNavbar ? 'sm:pl-20 pt-20' : 'pt-0'}`}>
