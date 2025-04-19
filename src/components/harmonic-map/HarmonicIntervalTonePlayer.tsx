@@ -1,67 +1,22 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Volume2, VolumeX } from 'lucide-react';
 import { createTone } from '@/utils/audioUtils';
-import { PlayIcon, PauseIcon } from 'lucide-react';
-import { useTheme } from '@/context/ThemeContext';
 import { HarmonicInterval } from '@/data/harmonicSequence';
 
 interface HarmonicIntervalTonePlayerProps {
+  interval: HarmonicInterval;
   baseFrequency?: number;
-  interval?: number;
-  label?: string;
-  description?: string;
-  className?: string;
-  color?: string;
-  interval?: HarmonicInterval;
 }
 
 const HarmonicIntervalTonePlayer: React.FC<HarmonicIntervalTonePlayerProps> = ({
-  baseFrequency = 432,
-  interval: intervalRatio = 1,
-  label,
-  description,
-  className,
-  color,
-  interval: harmonicInterval,
+  interval,
+  baseFrequency = 256
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
-  const { liftTheVeil } = useTheme();
-
-  // Determine which frequency to play
-  const targetFrequency = harmonicInterval 
-    ? typeof harmonicInterval.hertz === 'number' 
-      ? harmonicInterval.hertz 
-      : baseFrequency * parseFloat(String(harmonicInterval.ratio))
-    : baseFrequency * (typeof intervalRatio === 'number' ? intervalRatio : 1);
-
-  const getButtonColor = () => {
-    if (color) return color;
-    if (harmonicInterval?.color) return harmonicInterval.color;
-    return liftTheVeil ? 'bg-pink-600 hover:bg-pink-700' : 'bg-purple-600 hover:bg-purple-700';
-  };
-
-  const playTone = () => {
-    setIsPlaying(true);
-    
-    // Create new audio element
-    const audioElement = createTone(targetFrequency);
-    setAudio(audioElement);
-    
-    // Stop after 3 seconds
-    setTimeout(() => {
-      setIsPlaying(false);
-    }, 3000);
-  };
-
-  const stopTone = () => {
-    setIsPlaying(false);
-    if (audio) {
-      audio.pause();
-      setAudio(null);
-    }
-  };
+  const [oscillator, setOscillator] = useState<OscillatorNode | null>(null);
+  const [gainNode, setGainNode] = useState<GainNode | null>(null);
 
   const togglePlay = () => {
     if (isPlaying) {
@@ -71,46 +26,68 @@ const HarmonicIntervalTonePlayer: React.FC<HarmonicIntervalTonePlayerProps> = ({
     }
   };
 
-  useEffect(() => {
-    return () => {
-      if (audio) {
-        audio.pause();
+  const playTone = () => {
+    const frequency = baseFrequency * interval.ratio;
+    
+    try {
+      const { oscillator: osc, gainNode: gain } = createTone(frequency);
+      
+      // Apply styling based on the interval's color
+      const buttonEl = document.getElementById(`tone-button-${interval.hertz}`);
+      if (buttonEl) {
+        buttonEl.style.boxShadow = `0 0 15px ${interval.color}`;
+        buttonEl.style.backgroundColor = `${interval.color}33`; // Add 33 for 20% opacity
       }
-    };
-  }, [audio]);
+      
+      setOscillator(osc);
+      setGainNode(gain);
+      setIsPlaying(true);
+    } catch (error) {
+      console.error('Error creating tone:', error);
+    }
+  };
 
-  // Determine display text
-  const displayLabel = label || (harmonicInterval?.name 
-    ? `${harmonicInterval.name} (${harmonicInterval.ratio}:1)` 
-    : `${intervalRatio}:1 Ratio`);
+  const stopTone = () => {
+    if (oscillator && gainNode) {
+      // Fade out
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.00001, 
+        oscillator.context.currentTime + 0.5
+      );
+      
+      // Schedule stop after fade
+      setTimeout(() => {
+        oscillator.stop();
+        oscillator.disconnect();
+      }, 500);
+
+      // Reset button styling
+      const buttonEl = document.getElementById(`tone-button-${interval.hertz}`);
+      if (buttonEl) {
+        buttonEl.style.boxShadow = 'none';
+        buttonEl.style.backgroundColor = '';
+      }
+      
+      setOscillator(null);
+      setGainNode(null);
+      setIsPlaying(false);
+    }
+  };
 
   return (
-    <div className={`flex items-center justify-between p-3 rounded-lg bg-white/10 backdrop-blur-sm ${className || ''}`}>
-      <div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">{displayLabel}</span>
-          <span className="text-xs bg-white/20 px-2 py-0.5 rounded">{targetFrequency.toFixed(2)} Hz</span>
-        </div>
-        {description && <p className="text-xs opacity-75 mt-1">{description}</p>}
+    <Button 
+      id={`tone-button-${interval.hertz}`}
+      variant={isPlaying ? "secondary" : "outline"} 
+      size="sm"
+      className={`transition-all ${isPlaying ? 'scale-105' : 'scale-100'} flex flex-col items-center p-2`}
+      onClick={togglePlay}
+    >
+      <div className="flex items-center justify-center">
+        {isPlaying ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
       </div>
-      <Button
-        size="sm"
-        onClick={togglePlay}
-        className={`${getButtonColor()} flex items-center gap-2 min-w-[80px]`}
-      >
-        {isPlaying ? (
-          <>
-            <PauseIcon className="h-4 w-4" />
-            <span>Stop</span>
-          </>
-        ) : (
-          <>
-            <PlayIcon className="h-4 w-4" />
-            <span>Play</span>
-          </>
-        )}
-      </Button>
-    </div>
+      <div className="text-xs mt-1">{interval.name}</div>
+      <div className="text-[0.65rem] opacity-70">{interval.ratio}x</div>
+    </Button>
   );
 };
 

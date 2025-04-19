@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -66,7 +65,7 @@ const ChakraDetailModal: React.FC<ChakraDetailModalProps> = ({ chakra, isOpen, o
               <ChakraTonePlayer 
                 frequency={chakra.frequency} 
                 chakra={chakra.name} 
-                description={chakra.description}
+                description={chakra.description || 'No description available'}
               />
             </div>
           </div>
