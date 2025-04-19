@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 
 const SacredBlueprint: React.FC = () => {
   return (
-    <Layout pageTitle="Sacred Blueprint™">
+    <Layout pageTitle="Sacred Blueprint™" hideHeader={true}>
       <div className="container mx-auto p-4">
         <Card className="bg-black/40 backdrop-blur-md border-purple-500/20">
           <div className="p-6">
