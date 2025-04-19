@@ -18,11 +18,6 @@ interface LayoutProps {
   useBlueWaveBackground?: boolean;
 }
 
-interface HeaderProps {
-  showNavbar?: boolean;
-  isAuthPage?: boolean;
-}
-
 const Layout: React.FC<LayoutProps> = ({ 
   children, 
   pageTitle = "Sacred Shifter", 
@@ -48,10 +43,7 @@ const Layout: React.FC<LayoutProps> = ({
     <div className={`bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen ${themeClasses} ${theme ? `theme-${theme}` : ''}`}>
       {/* Header area */}
       {!hideHeader && (
-        <Header 
-          showNavbar={showNavbar} 
-          isAuthPage={isAuthPage} 
-        />
+        <Header />
       )}
       
       {/* Main content area */}
