@@ -51,7 +51,7 @@ const Layout: React.FC<LayoutProps> = ({
         {children}
       </div>
       
-      {/* Audio player */}
+      {/* Audio player - now rendering without passing a track */}
       {showPlayer && <Player />}
       
       {/* Global watermark */}

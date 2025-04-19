@@ -10,17 +10,33 @@ import {
 import { GeneratedTrack } from "@/hooks/musicGeneration/types";
 
 interface PlayerProps {
-  track: GeneratedTrack;
-  onDelete: (id: string) => void;
+  track?: GeneratedTrack;
+  onDelete?: (id: string) => void;
 }
 
-const Player: React.FC<PlayerProps> = ({ track, onDelete }) => {
+const Player: React.FC<PlayerProps> = ({ 
+  track,
+  onDelete
+}) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.8);
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  
+  // Return placeholder UI if no track is provided
+  if (!track) {
+    return (
+      <Card className="w-full border border-brand-lavender/20 shadow-sm animate-fade-in overflow-hidden bg-white/80 backdrop-blur-sm hover:shadow-md transition-all">
+        <CardContent className="p-5">
+          <div className="flex items-center justify-center h-20 text-gray-500">
+            No audio track is currently selected.
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
   
   useEffect(() => {
     const audio = new Audio(track.musicUrl);
@@ -129,14 +145,16 @@ const Player: React.FC<PlayerProps> = ({ track, onDelete }) => {
               </p>
             </div>
             <div className="flex gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-brand-balancing2/60 hover:text-destructive hover:bg-destructive/10"
-                onClick={() => onDelete(track.id)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              {onDelete && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-brand-balancing2/60 hover:text-destructive hover:bg-destructive/10"
+                  onClick={() => onDelete(track.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="icon"
