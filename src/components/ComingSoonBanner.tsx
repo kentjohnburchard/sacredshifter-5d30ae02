@@ -5,11 +5,15 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 interface ComingSoonBannerProps {
   message?: string;
+  show?: boolean;
 }
 
 const ComingSoonBanner: React.FC<ComingSoonBannerProps> = ({ 
-  message = "Our Sacred Sound Healing platform is evolving! New features coming soon."
+  message = "Our Sacred Sound Healing platform is evolving! New features coming soon.",
+  show = false
 }) => {
+  if (!show) return null;
+
   return (
     <Alert 
       className="bg-gradient-to-r from-purple-500 to-blue-500 text-white border-0 shadow-md mb-8 animate-fade-in"
