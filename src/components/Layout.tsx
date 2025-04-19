@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
@@ -28,7 +29,7 @@ const Layout: React.FC<LayoutProps> = ({
   showContextActions = true,
   showGlobalWatermark = true,
   showPlayer = true,
-  hideHeader = true, // Changed default to true
+  hideHeader = false, // Restored to false (original value)
   theme,
   useBlueWaveBackground,
 }) => {
