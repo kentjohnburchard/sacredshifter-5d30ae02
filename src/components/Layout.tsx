@@ -29,7 +29,7 @@ const Layout: React.FC<LayoutProps> = ({
   showContextActions = true,
   showGlobalWatermark = true,
   showPlayer = true,
-  hideHeader = false, // Restored to false (original value)
+  hideHeader = true, // Changed to true by default to hide headers on all pages
   theme,
   useBlueWaveBackground,
 }) => {
