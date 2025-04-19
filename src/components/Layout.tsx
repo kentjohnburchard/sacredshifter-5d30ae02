@@ -6,6 +6,9 @@ import Player from './Player';
 import GlobalWatermark from './GlobalWatermark';
 import { getThemeClasses } from '@/utils/pageUtils';
 import Sidebar from './Sidebar';
+import StarfieldBackground from './sacred-geometry/StarfieldBackground';
+import { SacredGeometryVisualizer } from './sacred-geometry';
+import { useTheme } from '@/context/ThemeContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -33,6 +36,7 @@ const Layout: React.FC<LayoutProps> = ({
   const { pathname } = useLocation();
   const isHomePage = pathname === "/";
   const isAuthPage = pathname === "/auth";
+  const { liftTheVeil } = useTheme();
   
   useEffect(() => {
     document.title = `${pageTitle} | Sacred Shifter`;
@@ -41,26 +45,40 @@ const Layout: React.FC<LayoutProps> = ({
   const themeClasses = getThemeClasses(theme);
 
   return (
-    <div className="flex min-h-screen w-full">
-      {/* Sidebar for navigation */}
-      {showNavbar && <Sidebar />}
+    <div className="relative flex min-h-screen w-full overflow-hidden bg-gray-950">
+      {/* Starry Night Background */}
+      <StarfieldBackground density="medium" opacity={0.5} isStatic={false} />
       
-      <div className={`flex-1 flex flex-col bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen ${themeClasses} ${theme ? `theme-${theme}` : ''}`}>
-        {/* Header area */}
-        {!hideHeader && (
-          <Header />
-        )}
+      {/* Sacred Geometry Visualizer */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-30">
+        <SacredGeometryVisualizer
+          shape="flower-of-life"
+          size="xl"
+          showControls={false}
+          isAudioReactive={false}
+        />
+      </div>
+      
+      {/* Main Layout Structure */}
+      <div className="flex min-h-screen w-full">
+        {showNavbar && <Sidebar />}
         
-        {/* Main content area */}
-        <div className={`flex-grow min-h-[calc(100vh-80px)] pb-32 ${showNavbar ? 'sm:pl-20 pt-20' : 'pt-0'}`}>
-          {children}
+        <div className={`flex-1 flex flex-col min-h-screen relative z-10 ${themeClasses} ${theme ? `theme-${theme}` : ''}`}>
+          {!hideHeader && (
+            <Header />
+          )}
+          
+          {/* Main content area */}
+          <div className={`flex-grow min-h-[calc(100vh-80px)] pb-32 relative ${showNavbar ? 'sm:pl-20 pt-20' : 'pt-0'}`}>
+            {children}
+          </div>
+          
+          {/* Audio player */}
+          {showPlayer && <Player />}
+          
+          {/* Global watermark */}
+          {showGlobalWatermark && <GlobalWatermark />}
         </div>
-        
-        {/* Audio player */}
-        {showPlayer && <Player />}
-        
-        {/* Global watermark */}
-        {showGlobalWatermark && <GlobalWatermark />}
       </div>
     </div>
   );
