@@ -1,12 +1,9 @@
 
 import React from "react";
-import { LogOut, CreditCard, Library, Music, User, LayoutDashboard, BookOpen, Stars, Compass, CheckSquare, Heart, Zap, Clock, HeartPulse } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
-import { NavigationMenu, NavigationMenuList, NavigationMenuItem } from "@/components/ui/navigation-menu";
-import { Button } from "@/components/ui/button";
+import { LogOut, CreditCard, User, LayoutDashboard } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { cn } from "@/lib/utils";
-import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -16,12 +13,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getActiveNavItems } from "@/config/navigation";
+import { toast } from "sonner";
 
 const Header: React.FC = () => {
-  const location = useLocation();
   const { user, signOut } = useAuth();
-  const activeNavItems = getActiveNavItems();
   
   const handleSignOut = async () => {
     try {
@@ -34,7 +29,7 @@ const Header: React.FC = () => {
   
   return (
     <header className="w-full py-3 px-4 sm:px-6 flex items-center justify-between animate-fade-in bg-white/80 backdrop-blur-sm shadow-sm dark:bg-gray-900/80 fixed top-0 z-50">
-      {/* Logo - Increased size by 50% */}
+      {/* Logo */}
       <div className="flex items-center">
         <Link to="/" className="flex items-center">
           <img 
@@ -45,22 +40,6 @@ const Header: React.FC = () => {
         </Link>
       </div>
       
-      {/* Navigation Links - Add these back */}
-      <div className="hidden md:flex items-center space-x-4">
-        {activeNavItems.slice(0, 5).map((item) => (
-          <Link 
-            key={item.path} 
-            to={item.path}
-            className={cn(
-              "text-sm transition-colors hover:text-purple-600",
-              location.pathname === item.path ? "font-medium text-purple-700" : "text-gray-600"
-            )}
-          >
-            {item.label}
-          </Link>
-        ))}
-      </div>
-      
       {/* User Profile */}
       <div className="flex items-center">
         {user ? (
@@ -68,7 +47,7 @@ const Header: React.FC = () => {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                 <Avatar className="h-10 w-10">
-                  <AvatarImage src="" alt={user.email || "User"} />
+                  <AvatarImage src={user.user_metadata?.avatar_url || ""} alt={user.email || "User"} />
                   <AvatarFallback className="bg-gradient-to-br from-indigo-400 to-purple-600 text-white">
                     {user.email?.charAt(0).toUpperCase() || "U"}
                   </AvatarFallback>
@@ -78,7 +57,9 @@ const Header: React.FC = () => {
             <DropdownMenuContent className="w-56 bg-white dark:bg-gray-900" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">Account</p>
+                  <p className="text-sm font-medium leading-none">
+                    {user.user_metadata?.full_name || "My Account"}
+                  </p>
                   <p className="text-xs leading-none text-muted-foreground truncate">
                     {user.email}
                   </p>
@@ -123,3 +104,4 @@ const Header: React.FC = () => {
 };
 
 export default Header;
+
