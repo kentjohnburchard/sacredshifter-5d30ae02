@@ -1,16 +1,22 @@
 
+import React, { useEffect } from 'react';
 import AppRoutes from './AppRoutes';
 import { ThemeProvider } from './context/ThemeContext';
-import { Toaster } from 'sonner';
-import './styles/liquid-crystal.css';
+import { useLocation } from 'react-router-dom';
 
-function App() {
+const App: React.FC = () => {
+  const location = useLocation();
+
+  // Log navigation for debugging
+  useEffect(() => {
+    console.log('Navigation occurred to:', location.pathname);
+  }, [location.pathname]);
+
   return (
     <ThemeProvider>
       <AppRoutes />
-      <Toaster position="top-center" />
     </ThemeProvider>
   );
-}
+};
 
 export default App;

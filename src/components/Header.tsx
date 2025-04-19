@@ -16,10 +16,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getActiveNavItems } from "@/config/navigation";
 
 const Header: React.FC = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
+  const activeNavItems = getActiveNavItems();
   
   const handleSignOut = async () => {
     try {
@@ -41,6 +43,22 @@ const Header: React.FC = () => {
             className="h-28 sm:h-32 animate-pulse-subtle transition-all hover:scale-105"
           />
         </Link>
+      </div>
+      
+      {/* Navigation Links - Add these back */}
+      <div className="hidden md:flex items-center space-x-4">
+        {activeNavItems.slice(0, 5).map((item) => (
+          <Link 
+            key={item.path} 
+            to={item.path}
+            className={cn(
+              "text-sm transition-colors hover:text-purple-600",
+              location.pathname === item.path ? "font-medium text-purple-700" : "text-gray-600"
+            )}
+          >
+            {item.label}
+          </Link>
+        ))}
       </div>
       
       {/* User Profile */}

@@ -48,7 +48,9 @@ const AppRoutes: React.FC = () => {
         <Route path="/frequency-shift" element={<FrequencyShift />} />
         <Route path="/journey-templates" element={<JourneyTemplatesPage />} />
         <Route path="/journeys" element={<Journeys />} />
+        {/* Fix the journey player route to match both patterns */}
         <Route path="/journey-player/:journeyId" element={<JourneyPlayer />} />
+        <Route path="/journey-player/*" element={<JourneyPlayer />} />
         <Route path="/site-map" element={<SiteMap />} />
         <Route path="/sacred-grid" element={<SacredGridDemo />} />
         <Route path="/harmonic-map" element={<HarmonicMapPage />} />

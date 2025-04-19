@@ -5,6 +5,7 @@ import Header from './Header';
 import Player from './Player';
 import GlobalWatermark from './GlobalWatermark';
 import { getThemeClasses } from '@/utils/pageUtils';
+import Sidebar from './Sidebar';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -40,22 +41,27 @@ const Layout: React.FC<LayoutProps> = ({
   const themeClasses = getThemeClasses(theme);
 
   return (
-    <div className={`bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen ${themeClasses} ${theme ? `theme-${theme}` : ''}`}>
-      {/* Header area */}
-      {!hideHeader && (
-        <Header />
-      )}
+    <div className="flex min-h-screen w-full">
+      {/* Sidebar for navigation */}
+      {showNavbar && <Sidebar />}
       
-      {/* Main content area */}
-      <div className={`min-h-[calc(100vh-80px)] pb-32 ${showNavbar ? 'pt-20' : 'pt-0'}`}>
-        {children}
+      <div className={`flex-1 flex flex-col bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen ${themeClasses} ${theme ? `theme-${theme}` : ''}`}>
+        {/* Header area */}
+        {!hideHeader && (
+          <Header />
+        )}
+        
+        {/* Main content area */}
+        <div className={`flex-grow min-h-[calc(100vh-80px)] pb-32 ${showNavbar ? 'sm:pl-20 pt-20' : 'pt-0'}`}>
+          {children}
+        </div>
+        
+        {/* Audio player */}
+        {showPlayer && <Player />}
+        
+        {/* Global watermark */}
+        {showGlobalWatermark && <GlobalWatermark />}
       </div>
-      
-      {/* Audio player */}
-      {showPlayer && <Player />}
-      
-      {/* Global watermark */}
-      {showGlobalWatermark && <GlobalWatermark />}
     </div>
   );
 };
