@@ -18,6 +18,11 @@ interface LayoutProps {
   useBlueWaveBackground?: boolean;
 }
 
+interface HeaderProps {
+  showNavbar?: boolean;
+  isAuthPage?: boolean;
+}
+
 const Layout: React.FC<LayoutProps> = ({ 
   children, 
   pageTitle = "Sacred Shifter", 

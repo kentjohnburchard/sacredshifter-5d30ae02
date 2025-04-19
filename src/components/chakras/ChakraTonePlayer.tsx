@@ -13,6 +13,12 @@ interface ChakraTonePlayerProps {
   className?: string;
 }
 
+interface AudioData {
+  oscillator: OscillatorNode;
+  gainNode: GainNode;
+  audioContext: AudioContext;
+}
+
 const ChakraTonePlayer: React.FC<ChakraTonePlayerProps> = ({
   frequency,
   chakra,
@@ -21,7 +27,7 @@ const ChakraTonePlayer: React.FC<ChakraTonePlayerProps> = ({
   className,
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  const [audio, setAudio] = useState<AudioData | null>(null);
   const { liftTheVeil } = useTheme();
 
   const getBackgroundColor = () => {
@@ -53,8 +59,8 @@ const ChakraTonePlayer: React.FC<ChakraTonePlayerProps> = ({
     setIsPlaying(true);
     
     // Create new audio element
-    const audioElement = createTone(frequency);
-    setAudio(audioElement);
+    const audioData = createTone(frequency);
+    setAudio(audioData);
     
     // Stop after 3 seconds
     setTimeout(() => {
@@ -65,7 +71,9 @@ const ChakraTonePlayer: React.FC<ChakraTonePlayerProps> = ({
   const stopTone = () => {
     setIsPlaying(false);
     if (audio) {
-      audio.pause();
+      audio.oscillator.stop();
+      audio.oscillator.disconnect();
+      audio.gainNode.disconnect();
       setAudio(null);
     }
   };
@@ -81,7 +89,9 @@ const ChakraTonePlayer: React.FC<ChakraTonePlayerProps> = ({
   useEffect(() => {
     return () => {
       if (audio) {
-        audio.pause();
+        audio.oscillator.stop();
+        audio.oscillator.disconnect();
+        audio.gainNode.disconnect();
       }
     };
   }, [audio]);

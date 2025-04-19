@@ -27,7 +27,8 @@ const HarmonicIntervalTonePlayer: React.FC<HarmonicIntervalTonePlayerProps> = ({
   };
 
   const playTone = () => {
-    const frequency = baseFrequency * interval.ratio;
+    // Calculate the frequency based on the ratio
+    const frequency = baseFrequency * Number(interval.ratio);
     
     try {
       const { oscillator: osc, gainNode: gain } = createTone(frequency);
