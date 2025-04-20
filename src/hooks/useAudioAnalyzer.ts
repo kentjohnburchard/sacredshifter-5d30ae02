@@ -5,7 +5,12 @@ interface AudioContextWindow extends Window {
   webkitAudioContext: typeof AudioContext;
 }
 
-const useAudioAnalyzer = (audioElement: HTMLAudioElement | null) => {
+interface AudioAnalyzerReturn {
+  analyzer: AnalyserNode | null;
+  audioContext: AudioContext | null;
+}
+
+const useAudioAnalyzer = (audioElement: HTMLAudioElement | null): AudioAnalyzerReturn => {
   const [analyzer, setAnalyzer] = useState<AnalyserNode | null>(null);
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
@@ -46,7 +51,7 @@ const useAudioAnalyzer = (audioElement: HTMLAudioElement | null) => {
     };
   }, [audioElement, audioContext]);
 
-  return analyzer;
+  return { analyzer, audioContext };
 };
 
 export default useAudioAnalyzer;

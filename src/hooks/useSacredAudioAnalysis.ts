@@ -1,11 +1,12 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { AudioAnalysisResult } from '@/types/visualization';
 import { extractBPM } from '@/utils/visualizationMath';
 
 interface UseSacredAudioAnalysisProps {
   audioRef?: React.RefObject<HTMLAudioElement>;
-  providedAudioContext?: AudioContext;
-  providedAnalyser?: AnalyserNode;
+  providedAudioContext?: AudioContext | null;
+  providedAnalyser?: AnalyserNode | null;
   sensitivity?: number;
 }
 

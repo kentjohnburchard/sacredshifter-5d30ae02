@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -83,7 +82,7 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
     audioError,
   } = useAudioPlayer();
   
-  const { audioContext, analyser } = useAudioAnalyzer(audioRef);
+  const { analyzer, audioContext } = useAudioAnalyzer(audioRef.current);
 
   useEffect(() => {
     if (!audioRef.current) return;
@@ -200,11 +199,11 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
   }, [liftTheVeil]);
   
   useEffect(() => {
-    if (!analyser || !isAudioPlaying || !showVisualizer) {
+    if (!analyzer || !isAudioPlaying || !showVisualizer) {
       return;
     }
     
-    const bufferLength = analyser.frequencyBinCount;
+    const bufferLength = analyzer.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
     
     let animationFrameId: number;
@@ -225,7 +224,7 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
     };
     
     const updateData = () => {
-      analyser.getByteFrequencyData(dataArray);
+      analyzer.getByteFrequencyData(dataArray);
       
       const dataCopy = new Uint8Array(dataArray);
       audioDataRef.current = dataCopy;
@@ -278,7 +277,7 @@ const SacredAudioPlayer = ({ initiallyExpanded = false }: SacredAudioPlayerProps
         clearTimeout(tooltipTimerRef.current);
       }
     };
-  }, [analyser, isAudioPlaying, showVisualizer, audioContext]);
+  }, [analyzer, isAudioPlaying, showVisualizer, audioContext]);
   
   useEffect(() => {
     if (audioRef.current) {

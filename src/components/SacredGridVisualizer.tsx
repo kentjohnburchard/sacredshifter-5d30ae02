@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { VisualizationSettings, VisualizerProps } from '@/types/visualization';
 import useSacredAudioAnalysis from '@/hooks/useSacredAudioAnalysis';
@@ -54,7 +53,7 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
     }
   }, [globalAudioPlayer, audioRef]);
   
-  const { audioContext, analyser } = useAudioAnalyzer(audioElementRef.current);
+  const { analyzer, audioContext } = useAudioAnalyzer(audioElementRef.current);
 
   const defaultSettings: VisualizationSettings = {
     activeShapes: ['flower-of-life', 'fibonacci-spiral', 'prime-spiral', 'metatron-cube'],
@@ -85,7 +84,7 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
   const audioAnalysis = useSacredAudioAnalysis({
     audioRef: audioElementRef,
     providedAudioContext: providedAudioContext || audioContext,
-    providedAnalyser: providedAnalyserNode || analyser,
+    providedAnalyser: providedAnalyserNode || analyzer,
     sensitivity: settings.sensitivity
   });
 
@@ -181,7 +180,7 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
       {settings.visualizerType === 'prime-audio' ? (
         <PrimeAudioVisualizer
           audioContext={audioContext || providedAudioContext || null}
-          analyser={analyser || providedAnalyserNode || null}
+          analyser={analyzer || providedAnalyserNode || null}
           isPlaying={!!globalAudioPlayer?.isPlaying}
           colorMode={settings.colorTheme === 'cosmic-violet' ? 'standard' :
                     settings.colorTheme === 'chakra-rainbow' ? 'chakra' :
