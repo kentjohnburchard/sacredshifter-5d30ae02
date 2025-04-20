@@ -1,70 +1,73 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Import the existing sacred geometry styles */
-@import './sacred-geometry.css';
-/* Import our new cosmic player styles */
-@import './cosmic-player.css';
-
-/* Customizations */
 body {
-  @apply bg-brand-background text-brand-text;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
-.brand-gradient {
-  background: linear-gradient(135deg, #4A148C 0%, #2D0A5B 50%, #1A0533 100%);
+.scene-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
 }
 
-.neumorphic {
-  background: #1E1E1E;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #191919, #232323);
-  box-shadow:
-    5px 5px 11px #141414,
-    -5px -5px 11px #282828;
+.overlay-controls {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 15px;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
 }
 
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.mode-selector {
+  background: rgba(30, 30, 30, 0.8);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  padding: 8px 12px;
+  font-size: 16px;
+  cursor: pointer;
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-out forwards;
+.audio-controls {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-/* Scrollbar styles */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+.quote-overlay {
+  position: fixed;
+  top: 20px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  color: white;
+  font-size: 1.2rem;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+  z-index: 100;
+  padding: 20px;
+  pointer-events: none;
 }
 
-::-webkit-scrollbar-track {
-  background: #121212;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #301934;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #4A148C;
-}
-
-/* Dark mode adjustments */
-@media (prefers-color-scheme: dark) {
-  ::-webkit-scrollbar-track {
-    background: #0a0a0a;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: #522b80;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #7b1fa2;
-  }
+.quote-text {
+  max-width: 800px;
+  margin: 0 auto;
+  font-family: 'Playfair Display', serif;
 }
