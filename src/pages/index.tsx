@@ -49,20 +49,18 @@ const Home: React.FC = () => {
   const [mode, setMode] = useState<VisualizationMode>('sacred');
   const [audioUrl, setAudioUrl] = useState<string>('');
   const audioRef = useRef<HTMLAudioElement>(null);
-  const analyzer = useAudioAnalyzer(audioRef.current);
-  const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
-  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const { analyzer, audioContext } = useAudioAnalyzer(audioRef.current);
   const [activePrimes, setActivePrimes] = useState<number[]>([]);
   const [mandalaSettings, setMandalaSettings] = useState<MandalaSettings | null>(null);
   const [phiBreathActive, setPhiBreathActive] = useState(false);
   const [showJournal, setShowJournal] = useState(false);
   const [statsCollapsed, setStatsCollapsed] = useState(true);
+  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
   
   // Initialize audio context
   useEffect(() => {
     if (audioRef.current && !audioContext) {
       const context = new (window.AudioContext || (window as any).webkitAudioContext)();
-      setAudioContext(context);
       
       // Connect audio element to context
       const source = context.createMediaElementSource(audioRef.current);
