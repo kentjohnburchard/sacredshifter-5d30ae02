@@ -1,6 +1,10 @@
 
 import { useState, useEffect, useRef } from 'react';
 
+interface AudioContextWindow extends Window {
+  webkitAudioContext: typeof AudioContext;
+}
+
 const useAudioAnalyzer = (audioElement: HTMLAudioElement | null) => {
   const [analyzer, setAnalyzer] = useState<AnalyserNode | null>(null);
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
@@ -12,7 +16,7 @@ const useAudioAnalyzer = (audioElement: HTMLAudioElement | null) => {
     
     try {
       // Create AudioContext
-      const context = new (window.AudioContext || window.webkitAudioContext)();
+      const context = new ((window as unknown as AudioContextWindow).webkitAudioContext || window.AudioContext)();
       setAudioContext(context);
       
       // Create analyzer node

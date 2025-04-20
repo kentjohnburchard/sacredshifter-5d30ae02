@@ -1,10 +1,14 @@
 
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { SceneProps } from '@/types/audio';
 
-const PrimeSymphonyScene: React.FC<SceneProps> = ({ analyzer }) => {
+interface PrimeSymphonySceneProps extends SceneProps {
+  activePrimes?: number[];
+}
+
+const PrimeSymphonyScene: React.FC<PrimeSymphonySceneProps> = ({ analyzer, activePrimes = [] }) => {
   const primeGroupRef = useRef<THREE.Group>(null);
   const dataArray = useRef<Uint8Array | null>(null);
   const primeRefs = useRef<THREE.Mesh[]>([]);
@@ -48,22 +52,45 @@ const PrimeSymphonyScene: React.FC<SceneProps> = ({ analyzer }) => {
     primeRefs.current.forEach((sphere, i) => {
       if (!sphere) return;
       
+      const prime = primes[i];
+      const isActivePrime = activePrimes.includes(prime);
+      
       // Map this prime to a frequency bin
       const freqIndex = Math.floor((i / primes.length) * dataArray.current!.length);
-      const value = dataArray.current![freqIndex] / 256;
+      let value = dataArray.current![freqIndex] / 256;
+      
+      // If this prime is in the active primes list, boost its visual effect
+      if (isActivePrime) {
+        value = Math.max(value, 0.5 + Math.sin(Date.now() * 0.003) * 0.3);
+      } else if (activePrimes.length > 0) {
+        // Reduce non-active primes if we have active ones
+        value *= 0.3;
+      }
       
       // Set the size based on the frequency value
       const scale = 0.5 + value * 2;
       sphere.scale.set(scale, scale, scale);
       
-      // Set color based on frequency
+      // Set color based on frequency and active status
       if (sphere.material instanceof THREE.MeshStandardMaterial) {
-        const hue = (i / primes.length) * 0.3 + 0.6; // Shift toward purple spectrum
-        const saturation = 0.7 + value * 0.3;
-        const lightness = 0.4 + value * 0.6;
+        let hue, saturation, lightness;
+        
+        if (isActivePrime) {
+          // Active primes get special golden color
+          hue = 0.15; // Gold/yellow hue
+          saturation = 0.8 + value * 0.2;
+          lightness = 0.4 + value * 0.6;
+          sphere.material.emissiveIntensity = 1 + value * 3;
+        } else {
+          // Regular prime coloring
+          hue = (i / primes.length) * 0.3 + 0.6; // Shift toward purple spectrum
+          saturation = 0.7 + value * 0.3;
+          lightness = 0.4 + value * 0.6;
+          sphere.material.emissiveIntensity = value * 2;
+        }
         
         sphere.material.color.setHSL(hue, saturation, lightness);
-        sphere.material.emissiveIntensity = value * 2;
+        sphere.material.emissive.setHSL(hue, 1, lightness * 0.5);
       }
     });
     
@@ -87,20 +114,25 @@ const PrimeSymphonyScene: React.FC<SceneProps> = ({ analyzer }) => {
   
   return (
     <group ref={primeGroupRef}>
-      {positions.map((pos, i) => (
-        <mesh 
-          key={i} 
-          position={[pos[0], pos[1], pos[2]]}
-          ref={el => { if (el) primeRefs.current[i] = el; }}
-        >
-          <sphereGeometry args={[0.05, 16, 16]} />
-          <meshStandardMaterial 
-            color={new THREE.Color().setHSL((i / positions.length) * 0.3 + 0.6, 0.8, 0.5)}
-            emissive={new THREE.Color().setHSL((i / positions.length) * 0.3 + 0.6, 1, 0.5)}
-            emissiveIntensity={0.5}
-          />
-        </mesh>
-      ))}
+      {positions.map((pos, i) => {
+        const prime = primes[i];
+        const isActive = activePrimes.includes(prime);
+        
+        return (
+          <mesh 
+            key={i} 
+            position={[pos[0], pos[1], pos[2]]}
+            ref={el => { if (el) primeRefs.current[i] = el; }}
+          >
+            <sphereGeometry args={[0.05, 16, 16]} />
+            <meshStandardMaterial 
+              color={new THREE.Color().setHSL((i / positions.length) * 0.3 + 0.6, 0.8, 0.5)}
+              emissive={new THREE.Color().setHSL((i / positions.length) * 0.3 + 0.6, 1, 0.5)}
+              emissiveIntensity={isActive ? 2.0 : 0.5}
+            />
+          </mesh>
+        );
+      })}
     </group>
   );
 };

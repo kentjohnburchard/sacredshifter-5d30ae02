@@ -71,3 +71,32 @@ body {
   margin: 0 auto;
   font-family: 'Playfair Display', serif;
 }
+
+/* Scrollbar hiding for control panels */
+.hide-scrollbar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Fancy animations for phi breath */
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  }
+}
+
+.pulse-animation {
+  animation: pulse-glow 3s infinite alternate;
+}

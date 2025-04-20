@@ -6,133 +6,92 @@ import { SceneProps } from '@/types/audio';
 
 const CymaticTileScene: React.FC<SceneProps> = ({ analyzer }) => {
   const tilesRef = useRef<THREE.Group>(null);
-  const tileRefs = useRef<THREE.Mesh[]>([]);
   const dataArray = useRef<Uint8Array | null>(null);
+  const tiles = useRef<THREE.Mesh[][]>([]);
   
   if (analyzer && !dataArray.current) {
     dataArray.current = new Uint8Array(analyzer.frequencyBinCount);
   }
   
-  const tileCount = 6; // Number of tiles in each direction (6x6 grid)
-  
-  // Create a grid of cymatic tiles
-  const createTiles = useMemo(() => {
-    const tiles = [];
-    const tileSize = 0.8;
-    const spacing = 1.0;
+  // Create a grid of tiles
+  const grid = useMemo(() => {
+    const size = 8; // 8x8 grid
+    const tileSize = 0.4;
+    const spacing = 0.1;
+    const totalSize = size * (tileSize + spacing);
+    const offset = -totalSize / 2 + tileSize / 2;
     
-    for (let x = 0; x < tileCount; x++) {
-      for (let z = 0; z < tileCount; z++) {
-        const posX = (x - tileCount / 2 + 0.5) * spacing;
-        const posZ = (z - tileCount / 2 + 0.5) * spacing;
+    const group = new THREE.Group();
+    
+    // Initialize the tiles array
+    const tilesArray: THREE.Mesh[][] = [];
+    
+    // Create tiles
+    for (let x = 0; x < size; x++) {
+      tilesArray[x] = [];
+      for (let z = 0; z < size; z++) {
+        const geometry = new THREE.BoxGeometry(tileSize, 0.1, tileSize);
+        const material = new THREE.MeshStandardMaterial({
+          color: new THREE.Color().setHSL((x + z) / (size * 2), 0.7, 0.5),
+          emissive: new THREE.Color().setHSL((x + z) / (size * 2), 1, 0.3),
+          emissiveIntensity: 0.5
+        });
         
-        // Each tile is a slightly different color
-        const hue = ((x + z) / (tileCount * 2)) * 0.3 + 0.5; // Blue to purple range
-        const color = new THREE.Color().setHSL(hue, 0.7, 0.5);
+        const tile = new THREE.Mesh(geometry, material);
+        tile.position.x = offset + x * (tileSize + spacing);
+        tile.position.z = offset + z * (tileSize + spacing);
         
-        tiles.push(
-          <mesh 
-            key={`tile-${x}-${z}`} 
-            position={[posX, 0, posZ]}
-            ref={el => { if (el) tileRefs.current.push(el); }}
-          >
-            <planeGeometry args={[tileSize, tileSize, 16, 16]} />
-            <meshStandardMaterial 
-              color={color}
-              emissive={color}
-              emissiveIntensity={0.3}
-              side={THREE.DoubleSide}
-              wireframe={true}
-            />
-          </mesh>
-        );
+        group.add(tile);
+        tilesArray[x][z] = tile;
       }
     }
     
-    return tiles;
+    tiles.current = tilesArray;
+    return group;
   }, []);
   
-  useFrame((state) => {
+  useFrame(() => {
     if (!tilesRef.current || !analyzer || !dataArray.current) return;
     
     // Get frequency data
     analyzer.getByteFrequencyData(dataArray.current);
     
-    const time = state.clock.getElapsedTime();
+    const size = tiles.current.length;
     
-    // Update each tile with cymatic patterns
-    tileRefs.current.forEach((tile, index) => {
-      if (!tile) return;
-      
-      const x = Math.floor(index / tileCount);
-      const z = index % tileCount;
-      
-      // Get a frequency band for this tile
-      const freqBandWidth = Math.floor(dataArray.current!.length / (tileCount * tileCount));
-      const freqStart = index * freqBandWidth;
-      const freqEnd = freqStart + freqBandWidth;
-      
-      if (freqEnd > dataArray.current!.length) return;
-      
-      // Calculate average for this frequency band
-      let sum = 0;
-      for (let i = freqStart; i < freqEnd; i++) {
-        sum += dataArray.current![i];
-      }
-      const average = sum / freqBandWidth / 256;
-      
-      // Create wave patterns on the tile
-      const geometry = tile.geometry as THREE.PlaneGeometry;
-      const position = geometry.attributes.position;
-      
-      for (let i = 0; i < position.count; i++) {
-        const x = position.getX(i);
-        const y = position.getY(i);
+    // Animate tiles based on frequency data
+    for (let x = 0; x < size; x++) {
+      for (let z = 0; z < size; z++) {
+        const tile = tiles.current[x][z];
+        if (!tile) continue;
         
-        // Different cymatic pattern for each tile
-        const pattern = (x + z) % 4;
-        let z = 0;
+        // Map this tile to a frequency bin
+        const binIndex = Math.floor(((x * size + z) / (size * size)) * dataArray.current.length);
+        const value = dataArray.current[binIndex] / 256;
         
-        switch (pattern) {
-          case 0:
-            // Circular waves
-            z = Math.sin(Math.sqrt(x * x + y * y) * 10 - time * 3) * average * 0.3;
-            break;
-          case 1:
-            // Grid waves
-            z = Math.sin(x * 10 - time * 2) * Math.sin(y * 10 - time * 2) * average * 0.3;
-            break;
-          case 2:
-            // Diagonal waves
-            z = Math.sin((x + y) * 10 - time * 3) * average * 0.3;
-            break;
-          case 3:
-            // Radial waves
-            z = Math.sin(Math.atan2(y, x) * 5 + Math.sqrt(x * x + y * y) * 8 - time * 3) * average * 0.3;
-            break;
+        // Animate height based on frequency
+        tile.scale.y = 0.1 + value * 2;
+        
+        // Change color intensity based on frequency
+        if (tile.material instanceof THREE.MeshStandardMaterial) {
+          tile.material.emissiveIntensity = value * 2;
+          
+          // Adjust color based on frequency
+          const hue = (x + z) / (size * 2) + value * 0.2;
+          const saturation = 0.7 + value * 0.3;
+          const lightness = 0.3 + value * 0.4;
+          
+          tile.material.color.setHSL(hue, saturation, lightness);
+          tile.material.emissive.setHSL(hue, 1, lightness * 0.5);
         }
-        
-        position.setZ(i, z);
       }
-      
-      position.needsUpdate = true;
-      
-      // Update material properties
-      if (tile.material instanceof THREE.MeshStandardMaterial) {
-        // Intensity based on audio
-        tile.material.emissiveIntensity = 0.3 + average * 2;
-      }
-    });
+    }
     
-    // Rotate the entire grid slowly
-    tilesRef.current.rotation.x = -Math.PI / 3; // Tilt to see better
-    tilesRef.current.rotation.y += 0.001;
+    // Rotate the entire grid
+    tilesRef.current.rotation.y += 0.002;
   });
   
   return (
-    <group ref={tilesRef}>
-      {createTiles}
-    </group>
+    <primitive object={grid} ref={tilesRef} />
   );
 };
 
