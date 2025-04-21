@@ -1,0 +1,38 @@
+
+[
+  {
+    "frequency": 221,
+    "chakra": "Root",
+    "color": "#dc2626",
+    "archetype": "Grounding",
+    "description": "Anchors and stabilizes energy, connecting you with the Earth and providing a sense of home and security."
+  },
+  {
+    "frequency": 272,
+    "chakra": "Sacral",
+    "color": "#ea580c",
+    "archetype": "Creativity",
+    "description": "Supports emotional fluidity, sensuality, and creative force. Prime 17 — the seer and the intuitive artist."
+  },
+  {
+    "frequency": 304,
+    "chakra": "Solar Plexus",
+    "color": "#FACC15",
+    "archetype": "Power",
+    "description": "Aligns with personal will and directional clarity. Associated with Prime 19 – the path of sovereign leadership."
+  },
+  {
+    "frequency": 528,
+    "chakra": "Heart",
+    "color": "#22c55e",
+    "archetype": "Harmony",
+    "description": "Known as the Love frequency. Heals, regenerates, and brings balance. Connects your vibration to Prime 13 — transformation through the heart."
+  },
+  {
+    "frequency": 639,
+    "chakra": "Throat",
+    "color": "#2563eb",
+    "archetype": "Expression",
+    "description": "Increases communication skills, honesty, and clear expression. Linked with Prime 17 — communicating vision."
+  }
+]
