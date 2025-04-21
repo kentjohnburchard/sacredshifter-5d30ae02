@@ -1,4 +1,3 @@
-
 import { Routes, Route } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
@@ -29,6 +28,7 @@ import Focus from './pages/Focus';
 import JourneyTemplates from './pages/JourneyTemplates';
 import Astrology from './pages/Astrology';
 import Contact from './pages/Contact';
+import PrimeFrequencyActivation from './pages/PrimeFrequencyActivation';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -48,7 +48,6 @@ const AppRoutes: React.FC = () => {
         <Route path="/frequency-shift" element={<FrequencyShift />} />
         <Route path="/journey-templates" element={<JourneyTemplatesPage />} />
         <Route path="/journeys" element={<Journeys />} />
-        {/* Fix the journey player route to match both patterns */}
         <Route path="/journey-player/:journeyId" element={<JourneyPlayer />} />
         <Route path="/journey-player/*" element={<JourneyPlayer />} />
         <Route path="/site-map" element={<SiteMap />} />
@@ -65,6 +64,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/journey-templates" element={<JourneyTemplates />} />
         <Route path="/astrology" element={<Astrology />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/prime-frequency" element={<PrimeFrequencyActivation />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

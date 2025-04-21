@@ -1,7 +1,7 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
+import { Link } from 'react-router-dom';
 import QuoteOverlay from '@/components/QuoteOverlay';
 import ChakraScene from '@/components/ChakraScene';
 import SacredGeometryScene from '@/components/SacredGeometryScene';
@@ -57,12 +57,10 @@ const Home: React.FC = () => {
   const [statsCollapsed, setStatsCollapsed] = useState(true);
   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
   
-  // Initialize audio context
   useEffect(() => {
     if (audioRef.current && !audioContext) {
       const context = new (window.AudioContext || (window as any).webkitAudioContext)();
       
-      // Connect audio element to context
       const source = context.createMediaElementSource(audioRef.current);
       source.connect(context.destination);
       sourceNodeRef.current = source;
@@ -82,7 +80,6 @@ const Home: React.FC = () => {
   };
   
   const handleModeChange = (newMode: VisualizationMode) => {
-    // If switching to phi breath mode, pause audio
     if (newMode === 'phibreath') {
       if (audioRef.current && !audioRef.current.paused) {
         audioRef.current.pause();
@@ -90,7 +87,6 @@ const Home: React.FC = () => {
       setPhiBreathActive(true);
     } else {
       setMode(newMode);
-      // If coming from phi breath, resume audio
       if (mode === 'phibreath') {
         setPhiBreathActive(false);
       }
@@ -148,27 +144,18 @@ const Home: React.FC = () => {
     }
   };
   
-  // Session completion handler
   const handleSessionComplete = () => {
     setShowJournal(true);
   };
   
   return (
     <div className="min-h-screen bg-black text-white font-sans">
-      {/* 3D Scene */}
       <div className="scene-container">
         <Canvas>
-          {/* Lights */}
           <ambientLight intensity={0.5} />
           <pointLight position={[10, 10, 10]} intensity={1} />
-          
-          {/* Dynamic scene based on selected mode */}
           {renderVisualization()}
-          
-          {/* Stars background */}
           <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-          
-          {/* Camera controls */}
           <OrbitControls 
             enableZoom={true}
             enablePan={false}
@@ -181,17 +168,14 @@ const Home: React.FC = () => {
         </Canvas>
       </div>
       
-      {/* Quote Overlay */}
       <QuoteOverlay />
       
-      {/* Phi Breath Mode Overlay */}
       <PhiBreath 
         active={phiBreathActive} 
         onToggle={togglePhiBreath} 
         audioContext={audioContext}
       />
       
-      {/* Journal Modal */}
       <SessionJournal
         show={showJournal}
         onClose={() => setShowJournal(false)}
@@ -201,7 +185,6 @@ const Home: React.FC = () => {
         audioUrl={audioUrl}
       />
       
-      {/* Stats Visualizer */}
       <VisualizerStats 
         analyzer={analyzer}
         collapsed={statsCollapsed}
@@ -209,8 +192,14 @@ const Home: React.FC = () => {
         activePrimes={activePrimes.map(prime => prime * 100)}
       />
       
-      {/* Advanced Controls Panel */}
       <div className="fixed left-4 top-4 bottom-4 w-72 flex flex-col space-y-4 overflow-y-auto hide-scrollbar z-10">
+        <Link 
+          to="/prime-frequency" 
+          className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-4 py-2 rounded-md shadow-lg text-center"
+        >
+          Try Prime Frequency Activation
+        </Link>
+        
         <PrimeExplorer 
           onPrimesChange={setActivePrimes}
           audioContext={audioContext}
@@ -230,9 +219,7 @@ const Home: React.FC = () => {
         />
       </div>
       
-      {/* Control Panel */}
       <div className="overlay-controls">
-        {/* Visualization Mode Selection */}
         <select 
           className="mode-selector" 
           value={mode}
@@ -256,7 +243,6 @@ const Home: React.FC = () => {
           <option value="phibreath">Phi Breath Mode</option>
         </select>
         
-        {/* Audio Controls */}
         <div className="audio-controls">
           <input 
             type="file" 
