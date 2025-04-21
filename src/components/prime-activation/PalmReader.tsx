@@ -2,21 +2,25 @@
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Upload, Camera, Circle } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 interface PalmReaderProps {
   onComplete: (profile: any) => void;
 }
 
 const PalmReader: React.FC<PalmReaderProps> = ({ onComplete }) => {
+  const { toast } = useToast();
   const [leftPalmImage, setLeftPalmImage] = useState<string | null>(null);
   const [rightPalmImage, setRightPalmImage] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState<boolean>(false);
   const [hasM, setHasM] = useState<{ left: boolean; right: boolean }>({ left: false, right: false });
 
   const leftInputRef = useRef<HTMLInputElement>(null);
-  const leftCameraInputRef = useRef<HTMLInputElement>(null);
   const rightInputRef = useRef<HTMLInputElement>(null);
-  const rightCameraInputRef = useRef<HTMLInputElement>(null);
+  
+  // Create separate refs for camera inputs
+  const leftCameraRef = useRef<HTMLInputElement>(null);
+  const rightCameraRef = useRef<HTMLInputElement>(null);
 
   const handlePalmUpload = (setter: React.Dispatch<React.SetStateAction<string | null>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -26,6 +30,31 @@ const PalmReader: React.FC<PalmReaderProps> = ({ onComplete }) => {
         setter(reader.result as string);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const activateCamera = (cameraRef: React.RefObject<HTMLInputElement>) => {
+    // Check if the device has camera support first
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      // Let the user know we're activating the camera
+      toast({
+        title: "Camera Access",
+        description: "Please allow camera access when prompted.",
+        duration: 3000,
+      });
+      
+      // Click the proper camera input which has the capture attribute
+      if (cameraRef.current) {
+        cameraRef.current.click();
+      }
+    } else {
+      // If camera is not supported, inform the user
+      toast({
+        title: "Camera Not Available",
+        description: "Your device or browser doesn't support camera access. Please upload an image instead.",
+        variant: "destructive",
+        duration: 5000,
+      });
     }
   };
 
@@ -107,14 +136,14 @@ const PalmReader: React.FC<PalmReaderProps> = ({ onComplete }) => {
                   variant="ghost"
                   type="button"
                   className="flex items-center gap-2 text-purple-300"
-                  onClick={() => leftCameraInputRef.current?.click()}
+                  onClick={() => activateCamera(leftCameraRef)}
                   aria-label="Take Left Palm Photo"
                 >
                   <Camera className="h-6 w-6" />
                   Take Photo
                 </Button>
                 <input
-                  ref={leftCameraInputRef}
+                  ref={leftCameraRef}
                   type="file"
                   accept="image/*"
                   capture="environment"
@@ -147,7 +176,7 @@ const PalmReader: React.FC<PalmReaderProps> = ({ onComplete }) => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => leftCameraInputRef.current?.click()}
+                onClick={() => activateCamera(leftCameraRef)}
                 className="flex gap-1"
                 aria-label="Retake Photo"
               >
@@ -211,14 +240,14 @@ const PalmReader: React.FC<PalmReaderProps> = ({ onComplete }) => {
                   variant="ghost"
                   type="button"
                   className="flex items-center gap-2 text-indigo-300"
-                  onClick={() => rightCameraInputRef.current?.click()}
+                  onClick={() => activateCamera(rightCameraRef)}
                   aria-label="Take Right Palm Photo"
                 >
                   <Camera className="h-6 w-6" />
                   Take Photo
                 </Button>
                 <input
-                  ref={rightCameraInputRef}
+                  ref={rightCameraRef}
                   type="file"
                   accept="image/*"
                   capture="environment"
@@ -251,7 +280,7 @@ const PalmReader: React.FC<PalmReaderProps> = ({ onComplete }) => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => rightCameraInputRef.current?.click()}
+                onClick={() => activateCamera(rightCameraRef)}
                 className="flex gap-1"
                 aria-label="Retake Photo"
               >
@@ -301,4 +330,3 @@ const PalmReader: React.FC<PalmReaderProps> = ({ onComplete }) => {
 };
 
 export default PalmReader;
-
