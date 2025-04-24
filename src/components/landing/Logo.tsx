@@ -13,18 +13,23 @@ const Logo: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ 
             opacity: 1,
-            filter: "drop-shadow(0 0 20px rgba(138, 43, 226, 0.6))"
+            filter: "drop-shadow(0 0 20px rgba(138, 43, 226, 0.7))"
           }}
           transition={{ duration: 1.5 }}
+          style={{
+            filter: "drop-shadow(0 0 20px rgba(138, 43, 226, 0.7))"
+          }}
         />
-        {/* Improved gradients with softer edges */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-40 pointer-events-none rounded-[30%]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-transparent opacity-40 pointer-events-none rounded-[30%]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent opacity-40 pointer-events-none rounded-[30%]" />
-        <div className="absolute inset-0 bg-gradient-to-l from-black via-transparent to-transparent opacity-40 pointer-events-none rounded-[30%]" />
+        {/* Improved gradients with even softer edges */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-50 pointer-events-none rounded-[40%]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent opacity-50 pointer-events-none rounded-[40%]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent opacity-50 pointer-events-none rounded-[40%]" />
+        <div className="absolute inset-0 bg-gradient-to-l from-black/60 via-transparent to-transparent opacity-50 pointer-events-none rounded-[40%]" />
         
-        {/* New: Added glow effect around logo */}
-        <div className="absolute inset-0 bg-purple-500/10 blur-3xl animate-pulse-slow rounded-[50%]"></div>
+        {/* Enhanced glow effect around logo */}
+        <div className="absolute inset-0 -z-10 bg-purple-500/15 blur-3xl animate-pulse rounded-[50%]"></div>
+        <div className="absolute inset-0 -z-10 bg-indigo-500/10 blur-2xl animate-pulse-slow rounded-[50%]" 
+          style={{animationDelay: "0.5s"}}></div>
       </div>
     </div>
   );

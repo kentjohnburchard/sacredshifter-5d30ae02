@@ -2,6 +2,8 @@
 import React from 'react';
 import BackgroundCanvas from './BackgroundCanvas';
 import GeometricPatterns from './GeometricPatterns';
+import SacredGridBackground from '@/components/visualization/SacredGridBackground';
+import { useTheme } from '@/context/ThemeContext';
 
 interface MathematicalBackgroundProps {
   children: React.ReactNode;
@@ -10,8 +12,10 @@ interface MathematicalBackgroundProps {
 
 const MathematicalBackground: React.FC<MathematicalBackgroundProps> = ({ 
   children,
-  intensity = 'high' // CHANGED DEFAULT FROM 'medium' to 'high'
+  intensity = 'high' 
 }) => {
+  const { liftTheVeil } = useTheme();
+  
   // Define equations based on intensity
   const equations = [
     'E = mc²',
@@ -33,7 +37,10 @@ const MathematicalBackground: React.FC<MathematicalBackgroundProps> = ({
     equations.push(
       'ψ(r,t) = Ae^{i(k·r-ωt)}',
       'ds² = gᵢⱼdxⁱdxʲ',
-      'H|ψ⟩ = E|ψ⟩'
+      'H|ψ⟩ = E|ψ⟩',
+      'δS = 0',
+      'R_μν - ½Rg_μν = 8πG T_μν',
+      '∇⋅E = ρ/ε₀'
     );
   }
   
@@ -48,8 +55,15 @@ const MathematicalBackground: React.FC<MathematicalBackgroundProps> = ({
       {/* Mathematical canvas background */}
       <BackgroundCanvas equations={equations} />
       
+      {/* Added Sacred Grid background for more visible geometric patterns */}
+      <SacredGridBackground 
+        intensity={1.0}
+        color={liftTheVeil ? '#FF70E9' : '#9b87f5'}
+        pulseSpeed={1.5}
+      />
+      
       {/* Geometric patterns overlay */}
-      <GeometricPatterns patternCount={intensity === 'high' ? 7 : intensity === 'medium' ? 5 : 3} />
+      <GeometricPatterns patternCount={intensity === 'high' ? 9 : intensity === 'medium' ? 7 : 5} />
       
       {/* Gradient overlay for better contrast */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20 pointer-events-none"></div>

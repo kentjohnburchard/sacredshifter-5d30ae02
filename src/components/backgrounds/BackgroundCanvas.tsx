@@ -18,6 +18,9 @@ const BackgroundCanvas: React.FC<BackgroundCanvasProps> = ({
     'ψ(r,t) = Ae^{i(k·r-ωt)}',
     'ds² = gᵢⱼdxⁱdxʲ',
     'H|ψ⟩ = E|ψ⟩',
+    'δS = 0',
+    'R_μν - ½Rg_μν = 8πG T_μν',
+    '∇⋅E = ρ/ε₀',
   ]
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -41,6 +44,7 @@ const BackgroundCanvas: React.FC<BackgroundCanvasProps> = ({
     resize();
     window.addEventListener('resize', resize);
     
+    // INCREASED particle count to 400
     let particles: Array<{
       x: number;
       y: number;
@@ -53,8 +57,8 @@ const BackgroundCanvas: React.FC<BackgroundCanvasProps> = ({
       shape: 'circle' | 'triangle' | 'square' | 'equation' | 'pentagon' | 'hexagon' | 'star';
     }> = [];
     
-    // Create initial particles with more variety - INCREASED NUMBER FROM 180 to 350
-    for (let i = 0; i < 350; i++) {
+    // Create initial particles with more variety
+    for (let i = 0; i < 400; i++) {
       const shape = Math.random() < 0.3 
         ? 'circle' 
         : Math.random() < 0.45 
@@ -65,17 +69,17 @@ const BackgroundCanvas: React.FC<BackgroundCanvasProps> = ({
               ? 'pentagon'
               : Math.random() < 0.8
                 ? 'hexagon'
-                : Math.random() < 0.85
+                : Math.random() < 0.9
                   ? 'star'
                   : 'equation';
 
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        size: Math.random() * 4 + (shape === 'equation' ? 8 : 3), // INCREASED SIZE
-        speed: Math.random() * 0.7 + 0.4, // INCREASED SPEED
-        opacity: Math.random() * 0.9 + 0.4, // INCREASED OPACITY
-        rotationSpeed: (Math.random() - 0.5) * 0.05, // INCREASED ROTATION SPEED
+        size: Math.random() * 5 + (shape === 'equation' ? 9 : 4), // INCREASED SIZE
+        speed: Math.random() * 0.9 + 0.5, // INCREASED SPEED
+        opacity: Math.random() * 0.95 + 0.5, // INCREASED OPACITY
+        rotationSpeed: (Math.random() - 0.5) * 0.08, // INCREASED ROTATION SPEED
         rotation: Math.random() * Math.PI * 2,
         shape,
         equation: shape === 'equation' ? equations[Math.floor(Math.random() * equations.length)] : undefined
@@ -218,7 +222,7 @@ const BackgroundCanvas: React.FC<BackgroundCanvasProps> = ({
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 w-full h-full opacity-90" // INCREASED OPACITY
+      className="fixed inset-0 w-full h-full opacity-95" // INCREASED OPACITY
       style={{ mixBlendMode: 'screen' }}
     />
   );

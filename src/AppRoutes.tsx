@@ -26,7 +26,6 @@ import TrinityGateway from './pages/TrinityGateway';
 import Alignment from './pages/Alignment';
 import EnergyCheck from './pages/EnergyCheck';
 import Focus from './pages/Focus';
-import JourneyTemplates from './pages/JourneyTemplates';
 import Astrology from './pages/Astrology';
 import Contact from './pages/Contact';
 import PrimeFrequencyActivation from './pages/PrimeFrequencyActivation';
@@ -62,7 +61,6 @@ const AppRoutes: React.FC = () => {
         <Route path="/alignment" element={<Alignment />} />
         <Route path="/energy-check" element={<EnergyCheck />} />
         <Route path="/focus" element={<Focus />} />
-        <Route path="/journey-templates" element={<JourneyTemplates />} />
         <Route path="/astrology" element={<Astrology />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/prime-frequency" element={<PrimeFrequencyActivation />} />

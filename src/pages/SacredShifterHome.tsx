@@ -9,6 +9,9 @@ import ExploreSection from '@/components/landing/ExploreSection';
 import JoinSection from '@/components/landing/JoinSection';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from "sonner";
+import ThemeEnhancer from '@/components/ThemeEnhancer';
+import ConsciousnessToggle from '@/components/ConsciousnessToggle';
+import Watermark from '@/components/Watermark';
 
 const SacredShifterHome = () => {
   const { user } = useAuth();
@@ -17,20 +20,22 @@ const SacredShifterHome = () => {
   const [mounted, setMounted] = React.useState(false);
   
   React.useEffect(() => {
-    setMounted(true);
-    
-    // Enhanced logging for debugging
-    console.log('SacredShifterHome component mounted');
-    console.log('User authenticated:', !!user);
-    console.log('Mathematical background rendering with high intensity');
-    
-    // Show welcome toast
-    toast.success("Welcome to Sacred Shifter", {
-      description: "Experience the power of sacred geometry and mathematical harmony",
-      duration: 5000,
-    });
-    
-  }, [user]);
+    if (!mounted) {
+      setMounted(true);
+      
+      // Enhanced logging for debugging
+      console.log('SacredShifterHome component mounted');
+      console.log('User authenticated:', !!user);
+      console.log('Mathematical background rendering with high intensity');
+      
+      // Show welcome toast - only once when component first mounts
+      toast.success("Welcome to Sacred Shifter", {
+        description: "Experience the power of sacred geometry and mathematical harmony",
+        duration: 5000,
+        id: "welcome-toast", // Add ID to prevent duplicates
+      });
+    }
+  }, [mounted, user]);
 
   return (
     <MathematicalBackground intensity="high">
@@ -40,6 +45,11 @@ const SacredShifterHome = () => {
         hideHeader={true}
         showGlobalWatermark={true}
       >
+        {/* Add ThemeEnhancer and ConsciousnessToggle back */}
+        <ThemeEnhancer />
+        <ConsciousnessToggle />
+        <Watermark />
+        
         <HeroSection />
         <FeaturesSection />
         <HermeticSection />

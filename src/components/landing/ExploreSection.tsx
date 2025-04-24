@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Compass, Star, Music } from 'lucide-react';
+import { ArrowRight, Compass, Star, Music, Brain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import NavigationCard from './NavigationCard';
 
@@ -42,10 +42,10 @@ const ExploreSection: React.FC = () => {
           />
           
           <NavigationCard 
-            title="Journey Templates"
-            description="Pre-designed paths for specific transformational experiences."
-            icon={<Compass />}
-            to="/journey-templates"
+            title="Shift Perception"
+            description="Tools for expanding your awareness and perception."
+            icon={<Brain />}
+            to="/shift-perception"
           />
         </div>
         
