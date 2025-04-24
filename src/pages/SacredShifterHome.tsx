@@ -155,12 +155,12 @@ const SacredShifterHome = () => {
               transition={{ duration: 1 }}
             >
               <motion.div 
-                className="mx-auto mb-8"
+                className="mx-auto mb-8 h-24 flex items-center justify-center"
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.3, duration: 1.2 }}
               >
-                <Logo />
+                <Logo className="max-h-full max-w-full object-contain" />
               </motion.div>
               
               <motion.h1 
