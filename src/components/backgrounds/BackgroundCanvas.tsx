@@ -15,6 +15,9 @@ const BackgroundCanvas: React.FC<BackgroundCanvasProps> = ({
     '∫ e^x dx = e^x + C',
     'Σ 1/n² = π²/6',
     '∇×B = μ₀J + μ₀ε₀∂E/∂t',
+    'ψ(r,t) = Ae^{i(k·r-ωt)}',
+    'ds² = gᵢⱼdxⁱdxʲ',
+    'H|ψ⟩ = E|ψ⟩',
   ]
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -26,6 +29,9 @@ const BackgroundCanvas: React.FC<BackgroundCanvasProps> = ({
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+    
+    // Set up the animation
+    let animationFrameId: number;
     
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -44,29 +50,31 @@ const BackgroundCanvas: React.FC<BackgroundCanvasProps> = ({
       opacity: number;
       rotationSpeed: number;
       rotation: number;
-      shape: 'circle' | 'triangle' | 'square' | 'equation' | 'pentagon' | 'hexagon';
+      shape: 'circle' | 'triangle' | 'square' | 'equation' | 'pentagon' | 'hexagon' | 'star';
     }> = [];
     
     // Create initial particles with more variety
-    for (let i = 0; i < 150; i++) {
-      const shape = Math.random() < 0.6 
+    for (let i = 0; i < 180; i++) {
+      const shape = Math.random() < 0.4 
         ? 'circle' 
-        : Math.random() < 0.7 
+        : Math.random() < 0.5 
           ? 'triangle' 
-          : Math.random() < 0.8 
+          : Math.random() < 0.6 
             ? 'square'
-            : Math.random() < 0.9
+            : Math.random() < 0.7
               ? 'pentagon'
-              : Math.random() < 0.95
+              : Math.random() < 0.8
                 ? 'hexagon'
-                : 'equation';
+                : Math.random() < 0.9
+                  ? 'star'
+                  : 'equation';
 
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        size: Math.random() * 3 + (shape === 'equation' ? 4 : 1),
-        speed: Math.random() * 0.7 + 0.2, // Increased speed range
-        opacity: Math.random() * 0.5 + 0.2, // Increased opacity
+        size: Math.random() * 3 + (shape === 'equation' ? 6 : 2),
+        speed: Math.random() * 0.5 + 0.3, // Controlled speed for better visibility
+        opacity: Math.random() * 0.7 + 0.3, // Increased opacity for better visibility
         rotationSpeed: (Math.random() - 0.5) * 0.03,
         rotation: Math.random() * Math.PI * 2,
         shape,
@@ -116,8 +124,8 @@ const BackgroundCanvas: React.FC<BackgroundCanvasProps> = ({
           ctx.beginPath();
           for (let i = 0; i < 5; i++) {
             const angle = (Math.PI * 2 * i) / 5 - Math.PI / 2;
-            const pointX = Math.cos(angle) * size;
-            const pointY = Math.sin(angle) * size;
+            const pointX = Math.cos(angle) * size * 1.5;
+            const pointY = Math.sin(angle) * size * 1.5;
             if (i === 0) ctx.moveTo(pointX, pointY);
             else ctx.lineTo(pointX, pointY);
           }
@@ -129,8 +137,22 @@ const BackgroundCanvas: React.FC<BackgroundCanvasProps> = ({
           ctx.beginPath();
           for (let i = 0; i < 6; i++) {
             const angle = (Math.PI * 2 * i) / 6;
-            const pointX = Math.cos(angle) * size;
-            const pointY = Math.sin(angle) * size;
+            const pointX = Math.cos(angle) * size * 1.5;
+            const pointY = Math.sin(angle) * size * 1.5;
+            if (i === 0) ctx.moveTo(pointX, pointY);
+            else ctx.lineTo(pointX, pointY);
+          }
+          ctx.closePath();
+          ctx.fill();
+          break;
+          
+        case 'star':
+          ctx.beginPath();
+          for (let i = 0; i < 10; i++) {
+            const angle = (Math.PI * 2 * i) / 10 - Math.PI / 2;
+            const length = i % 2 === 0 ? size * 2 : size;
+            const pointX = Math.cos(angle) * length;
+            const pointY = Math.sin(angle) * length;
             if (i === 0) ctx.moveTo(pointX, pointY);
             else ctx.lineTo(pointX, pointY);
           }
@@ -178,20 +200,21 @@ const BackgroundCanvas: React.FC<BackgroundCanvasProps> = ({
         );
       });
       
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
     };
     
     animate();
     
     return () => {
       window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animationFrameId);
     };
   }, [liftTheVeil, equations]);
   
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 w-full h-full opacity-50"
+      className="fixed inset-0 w-full h-full opacity-70"
       style={{ mixBlendMode: 'screen' }}
     />
   );

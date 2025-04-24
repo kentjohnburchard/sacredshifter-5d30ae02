@@ -12,8 +12,17 @@ import { useAuth } from '@/context/AuthContext';
 const SacredShifterHome = () => {
   const { user } = useAuth();
 
+  // Trigger component re-render on mount to ensure animations start
+  const [_, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+    
+    // Log to help with debugging
+    console.log('Rendering SacredShifterHome with mathematical background');
+  }, []);
+
   return (
-    <MathematicalBackground>
+    <MathematicalBackground intensity="high">
       <Layout 
         pageTitle="Sacred Shifter - Transform Your Consciousness" 
         showNavbar={true}
