@@ -1,3 +1,4 @@
+
 import { Routes, Route } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
@@ -35,8 +36,8 @@ const AppRoutes: React.FC = () => {
     <>
       <ScrollToTop />
       <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/home" element={<Home />} />
+        <Route path="/" element={<SacredShifterHome />} />
+        <Route path="/home" element={<SacredShifterHome />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/frequency-library" element={<FrequencyLibrary />} />
         <Route path="/frequencies" element={<FrequencyLibrary />} />

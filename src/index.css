@@ -1,244 +1,112 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
- 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
- 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
- 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
- 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
- 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
- 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
- 
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    
+    --primary: 252 59% 48%;
+    --primary-foreground: 0 0% 98%;
+    
+    --secondary: 270 50% 60%;
+    --secondary-foreground: 0 0% 98%;
+    
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    
+    --accent: 270 50% 60%;
+    --accent-foreground: 0 0% 98%;
+    
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 264 59% 70%;
+    
     --radius: 0.5rem;
   }
- 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
- 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
- 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
- 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
- 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
- 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
- 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
- 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
- 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-  }
 }
- 
+
 @layer base {
-  * {
-    @apply border-border;
-  }
-  html {
-    @apply scroll-smooth overflow-x-hidden;
-  }
   body {
-    @apply bg-gray-950 text-white overflow-x-hidden;
+    @apply bg-black text-white;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-
-  h1 {
-    @apply text-2xl sm:text-3xl lg:text-4xl font-semibold;
-  }
-
-  h2 {
-    @apply text-xl sm:text-2xl lg:text-3xl font-semibold;
-  }
-
-  h3 {
-    @apply text-lg sm:text-xl font-medium;
-  }
-
-  p {
-    @apply text-base sm:text-lg leading-relaxed;
-  }
-
-  /* Responsive spacing utilities */
-  .container-responsive {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
-  }
-
-  .flex-responsive {
-    @apply flex flex-col sm:flex-row gap-4 sm:gap-6 lg:gap-8;
-  }
-
-  .grid-responsive {
-    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8;
-  }
-
-  .grid-responsive-4 {
-    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6;
-  }
-
-  /* Responsive button styles */
-  .btn-responsive {
-    @apply px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded outline-none focus:ring-2 focus:ring-offset-2;
-  }
-
-  /* Card-like component */
-  .card-responsive {
-    @apply bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden p-4 sm:p-6 w-full;
+  
+  .font-playfair {
+    font-family: 'Playfair Display', serif;
   }
 }
 
-/* Custom animations */
-@keyframes pulse-slow {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.3;
+@layer utilities {
+  .animate-pulse-subtle {
+    animation: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.6;
+  
+  .sacred-glass {
+    @apply backdrop-blur-sm bg-white/5 border border-white/10;
   }
 }
 
-@keyframes pulse-medium {
+@keyframes pulse-subtle {
   0%, 100% {
-    transform: scale(1);
-    opacity: 0.4;
+    opacity: 1;
   }
   50% {
-    transform: scale(1.1);
-    opacity: 0.7;
-  }
-}
-
-@keyframes pulse-fast {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.5;
-  }
-  50% {
-    transform: scale(1.15);
     opacity: 0.8;
   }
 }
 
-.animate-pulse-slow {
-  animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+/* ScrollBar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.animate-pulse-medium {
-  animation: pulse-medium 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
 }
 
-.animate-pulse-fast {
-  animation: pulse-fast 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.5);
+  border-radius: 4px;
 }
 
-.cosmic-card {
-  border-top-width: 3px;
-  transition: all 0.3s ease;
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.8);
 }
 
-.cosmic-card:hover {
-  box-shadow: 0 10px 25px rgba(124, 58, 237, 0.1);
-  transform: translateY(-2px);
+/* Apply veil-lifted purple to pink gradient when veil-lifted mode is active */
+.veil-lifted .bg-purple-600 {
+  @apply bg-pink-600;
 }
 
-.cosmic-button {
-  position: relative;
-  overflow: hidden;
+.veil-lifted .from-purple-600 {
+  @apply from-pink-600;
 }
 
-.cosmic-button::after {
-  content: "";
-  position: absolute;
-  width: 200%;
-  height: 200%;
-  top: -50%;
-  left: -50%;
-  background: linear-gradient(
-    to bottom right,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  transform: rotate(45deg);
-  transition: all 0.5s;
+.veil-lifted .to-indigo-600 {
+  @apply to-fuchsia-600;
 }
 
-.cosmic-button:hover::after {
-  left: 100%;
+.veil-lifted .hover\:from-purple-700:hover {
+  @apply hover:from-pink-700;
 }
 
-.shimmer-hover {
-  position: relative;
-  overflow: hidden;
-}
-
-.shimmer-hover::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    to bottom right,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.2) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  transform: rotate(45deg);
-  transition: all 0.5s;
-  opacity: 0;
-}
-
-.shimmer-hover:hover::after {
-  opacity: 1;
-}
-
-/* Font styling */
-.font-playfair {
-  font-family: 'Playfair Display', serif;
-}
-
-.font-modern {
-  font-family: 'Inter', 'Roboto', sans-serif;
-}
-
-.font-lora {
-  font-family: 'Lora', serif;
+.veil-lifted .hover\:to-indigo-700:hover {
+  @apply hover:to-fuchsia-700;
 }
