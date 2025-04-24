@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Music, Sparkles } from 'lucide-react';
+import { Music, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import Logo from './Logo';
+import RotatingSoulText from './RotatingSoulText';
 
 const HeroSection: React.FC = () => {
   return (
@@ -112,25 +112,7 @@ const HeroSection: React.FC = () => {
             <Logo />
           </motion.div>
           
-          <motion.h1 
-            className="text-4xl md:text-6xl font-bold font-playfair tracking-tight"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-          >
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-300">
-              Transform Your Consciousness
-            </span>
-          </motion.h1>
-          
-          <motion.p 
-            className="text-xl md:text-2xl max-w-3xl mx-auto text-purple-100/90"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.8 }}
-          >
-            Sacred sound frequencies, spiritual mathematics, and vibrational healing for your journey to higher consciousness.
-          </motion.p>
+          <RotatingSoulText />
           
           <motion.div 
             className="pt-8 flex flex-wrap justify-center gap-4"
@@ -158,15 +140,6 @@ const HeroSection: React.FC = () => {
                 Explore Frequencies <Music className="ml-2 h-5 w-5" />
               </Link>
             </Button>
-          </motion.div>
-          
-          <motion.div 
-            className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.8 }}
-            transition={{ delay: 2, duration: 0.8 }}
-          >
-            <ArrowRight size={24} className="rotate-90" />
           </motion.div>
         </motion.div>
       </div>
