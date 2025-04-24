@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
@@ -53,6 +52,7 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
   };
   
   const handleActivate = () => {
+    console.log("Sigil clicked, current state:", liftTheVeil);
     setShowRipple(true);
     setTimeout(() => setShowRipple(false), 700);
     
@@ -228,10 +228,10 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
               <div
                 className={`absolute inset-0 rounded-full bg-gradient-radial 
                 ${liftTheVeil 
-                  ? 'from-pink-500/10 via-fuchsia-500/5 to-transparent' 
-                  : 'from-purple-500/10 via-indigo-500/5 to-transparent'
+                  ? 'from-pink-500/30 via-fuchsia-500/20 to-transparent' 
+                  : 'from-purple-500/30 via-indigo-500/20 to-transparent'
                 } 
-                filter blur-md opacity-60 animate-glow mix-blend-soft-light`}
+                filter blur-md opacity-80 animate-glow mix-blend-soft-light`}
               />
               
               <AnimatePresence>

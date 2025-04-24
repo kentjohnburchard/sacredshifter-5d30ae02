@@ -24,15 +24,15 @@ const ThemeEnhancer: React.FC = () => {
     // Apply global theme changes
     if (liftTheVeil) {
       root.classList.add('veil-lifted');
-      root.style.setProperty('--primary-glow', 'rgba(255, 105, 180, 0.15)');
-      root.style.setProperty('--fractal-intensity', '1.2');
+      root.style.setProperty('--primary-glow', 'rgba(255, 105, 180, 0.35)');
+      root.style.setProperty('--fractal-intensity', '1.5');
       
       // Add visual feedback when veil is lifted
       console.log('Veil lifted - consciousness expanded');
     } else {
       root.classList.remove('veil-lifted');
-      root.style.setProperty('--primary-glow', 'rgba(147, 51, 234, 0.15)');
-      root.style.setProperty('--fractal-intensity', '1');
+      root.style.setProperty('--primary-glow', 'rgba(147, 51, 234, 0.35)');
+      root.style.setProperty('--fractal-intensity', '1.2');
       
       console.log('Standard consciousness mode');
     }
@@ -55,19 +55,19 @@ const ThemeEnhancer: React.FC = () => {
             transition={{ duration: 0.8 }}
             className="fixed inset-0 pointer-events-none z-0"
           >
-            {/* Additional visual elements for lifted veil mode */}
+            {/* Enhanced visual elements for lifted veil mode */}
             <div className="absolute inset-0">
               <div className="absolute top-0 left-0 w-full h-full">
-                {/* Subtle energy lines */}
-                <div className="absolute top-0 left-0 w-full h-full opacity-10"
+                {/* Enhanced energy lines with higher opacity */}
+                <div className="absolute top-0 left-0 w-full h-full opacity-25"
                   style={{
-                    backgroundImage: `linear-gradient(0deg, transparent 24%, rgba(242, 180, 255, .3) 25%, rgba(242, 180, 255, .3) 26%, transparent 27%, transparent 74%, rgba(242, 180, 255, .3) 75%, rgba(242, 180, 255, .3) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(242, 180, 255, .3) 25%, rgba(242, 180, 255, .3) 26%, transparent 27%, transparent 74%, rgba(242, 180, 255, .3) 75%, rgba(242, 180, 255, .3) 76%, transparent 77%, transparent)`,
+                    backgroundImage: `linear-gradient(0deg, transparent 24%, rgba(242, 180, 255, .5) 25%, rgba(242, 180, 255, .5) 26%, transparent 27%, transparent 74%, rgba(242, 180, 255, .5) 75%, rgba(242, 180, 255, .5) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(242, 180, 255, .5) 25%, rgba(242, 180, 255, .5) 26%, transparent 27%, transparent 74%, rgba(242, 180, 255, .5) 75%, rgba(242, 180, 255, .5) 76%, transparent 77%, transparent)`,
                     backgroundSize: '50px 50px',
                   }}
                 />
                 
-                {/* Radial glow */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120vw] h-[120vh] rounded-full bg-gradient-to-br from-pink-500/5 via-purple-500/2 to-transparent" 
+                {/* Enhanced radial glow with higher opacity */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150vw] h-[150vh] rounded-full bg-gradient-to-br from-pink-500/15 via-purple-500/10 to-transparent" 
                   style={{
                     animation: 'pulse 8s infinite alternate',
                     filter: 'blur(80px)',

@@ -70,14 +70,14 @@ const SacredGridBackground: React.FC<SacredGridBackgroundProps> = ({
         }
       }
       
-      // Draw flower of life grid pattern
+      // Draw flower of life grid pattern with enhanced opacity
       const drawFlowerOfLifeGrid = () => {
         const gridSize = Math.min(width, height) * 0.15;
         const cols = Math.ceil(width / gridSize) + 1;
         const rows = Math.ceil(height / gridSize) + 1;
         
-        // Base opacity fluctuates with time
-        const baseOpacity = (Math.sin(time * 0.5) * 0.2 + 0.5) * intensity;
+        // Base opacity fluctuates with time - INCREASED significantly
+        const baseOpacity = (Math.sin(time * 0.5) * 0.3 + 0.7) * intensity;
         
         for (let i = -1; i <= cols; i++) {
           for (let j = -1; j <= rows; j++) {
@@ -95,18 +95,18 @@ const SacredGridBackground: React.FC<SacredGridBackgroundProps> = ({
             const distFromCenter = Math.sqrt(dx * dx + dy * dy);
             const maxDist = Math.sqrt(centerX * centerX + centerY * centerY);
             
-            // Opacity decreases with distance from center
-            const distanceOpacity = 1 - (distFromCenter / maxDist);
+            // Opacity decreases with distance from center, but with a higher base
+            const distanceOpacity = Math.max(0.3, 1 - (distFromCenter / maxDist));
             
             // Size fluctuates slightly based on time
-            const sizeFluctuation = Math.sin(i * 0.5 + j * 0.5 + time) * 0.2 + 0.8;
+            const sizeFluctuation = Math.sin(i * 0.5 + j * 0.5 + time) * 0.2 + 1.0; // Increased size
             
             // Create subtle animation by shifting positions slightly
-            const shiftX = Math.sin(time + i * 0.5) * gridSize * 0.1;
-            const shiftY = Math.cos(time + j * 0.5) * gridSize * 0.1;
+            const shiftX = Math.sin(time + i * 0.5) * gridSize * 0.15; // Increased movement
+            const shiftY = Math.cos(time + j * 0.5) * gridSize * 0.15; // Increased movement
             
             // Draw circle with gradient
-            const circleRadius = gridSize * 0.5 * sizeFluctuation;
+            const circleRadius = gridSize * 0.55 * sizeFluctuation; // Increased radius
             const gradient = ctx.createRadialGradient(
               x + shiftX, y + shiftY, 0,
               x + shiftX, y + shiftY, circleRadius
@@ -114,25 +114,25 @@ const SacredGridBackground: React.FC<SacredGridBackgroundProps> = ({
             
             const opacity = baseOpacity * distanceOpacity;
             
-            // Inner glow color
-            gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${opacity * 0.5})`);
-            // Outer edge color - more transparent
-            gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+            // Inner glow color - increased opacity
+            gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${opacity * 0.7})`);
+            // Outer edge color - more visible but still transparent
+            gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, ${opacity * 0.2})`);
             
             ctx.beginPath();
             ctx.arc(x + shiftX, y + shiftY, circleRadius, 0, Math.PI * 2);
             ctx.fillStyle = gradient;
             ctx.fill();
             
-            // Draw sacred geometry lines connecting nearby circles
+            // Draw sacred geometry lines connecting nearby circles - increased opacity
             if (i > 0 && j > 0) {
-              // Connect to adjacent circles with fading lines
-              const lineOpacity = opacity * 0.3;
+              // Connect to adjacent circles with fading lines - more visible
+              const lineOpacity = opacity * 0.5; // Increased from 0.3
               ctx.beginPath();
               ctx.moveTo(x + shiftX, y + shiftY);
               ctx.lineTo(x - gridSize + shiftX, y + shiftY);
               ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${lineOpacity})`;
-              ctx.lineWidth = 0.5;
+              ctx.lineWidth = 0.75; // Increased from 0.5
               ctx.stroke();
               
               ctx.beginPath();
@@ -169,7 +169,7 @@ const SacredGridBackground: React.FC<SacredGridBackgroundProps> = ({
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 w-full h-full z-0 opacity-50"
+      className="absolute inset-0 w-full h-full z-0 opacity-80" // Increased from 0.5
       style={{ mixBlendMode: 'screen' }}
     />
   );

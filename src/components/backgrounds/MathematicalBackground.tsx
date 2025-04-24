@@ -55,18 +55,18 @@ const MathematicalBackground: React.FC<MathematicalBackgroundProps> = ({
       {/* Mathematical canvas background */}
       <BackgroundCanvas equations={equations} />
       
-      {/* Added Sacred Grid background for more visible geometric patterns */}
+      {/* Added Sacred Grid background with higher intensity for more visible geometric patterns */}
       <SacredGridBackground 
-        intensity={1.0}
+        intensity={liftTheVeil ? 2.0 : 1.5}
         color={liftTheVeil ? '#FF70E9' : '#9b87f5'}
         pulseSpeed={1.5}
       />
       
-      {/* Geometric patterns overlay */}
+      {/* Geometric patterns overlay with increased opacity */}
       <GeometricPatterns patternCount={intensity === 'high' ? 9 : intensity === 'medium' ? 7 : 5} />
       
-      {/* Gradient overlay for better contrast */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20 pointer-events-none"></div>
+      {/* Enhanced gradient overlay for better contrast */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/30 pointer-events-none"></div>
       
       {/* Content container */}
       <div className="relative z-10">

@@ -68,6 +68,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Set lift the veil mode with visual feedback
   const setLiftTheVeil = useCallback(async (mode: boolean) => {
     try {
+      console.log("Toggling Lift the Veil mode to:", mode);
+      
       // Update local state immediately for responsive UI
       setLiftTheVeilState(mode);
       
@@ -145,6 +147,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       root.style.setProperty('--theme-primary', '#4facfe');
       root.style.setProperty('--theme-secondary', '#00f2fe');
     }
+    
+    // Log state changes for debugging
+    console.log("Theme context updated, liftTheVeil:", liftTheVeil);
+    
   }, [liftTheVeil]);
 
   return (
