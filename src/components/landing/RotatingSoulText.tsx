@@ -3,34 +3,56 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const soulPhrases = [
-  {
-    title: "Remember Your Soul",
-    description: "A direct call to rediscover your deepest essence."
-  },
-  {
-    title: "Awaken & Remember",
-    description: "Pairs the twin pillars of spiritual awakening and soul‐memory."
-  },
-  {
-    title: "Remember Who You Are",
-    description: "Personal, intimate, and soul-centric."
-  },
-  {
-    title: "Awakening the Soul Within",
-    description: "Descriptive yet succinct—promises an inner journey."
-  },
-  {
-    title: "Remember, Awaken, Evolve",
-    description: "A three-step roadmap: remembrance, awakening, evolution."
-  },
-  {
-    title: "Ignite Your Inner Light",
-    description: "Action-oriented invitation to spark your soul's brilliance."
-  },
-  {
-    title: "Reclaim Your Inner Light",
-    description: "Emphasizes rediscovery of innate spiritual radiance."
-  }
+  "Remember Your Soul",
+  "Awaken & Remember",
+  "Remember Who You Are", 
+  "Awakening the Soul Within",
+  "Remember, Awaken, Evolve",
+  "Ignite Your Inner Light",
+  "Reclaim Your Inner Light",
+  "Rediscover Your True Self",
+  "Awaken Your Inner Truth",
+  "Remember the Infinite",
+  "Rekindle Your Soul Flame",
+  "Awaken the Wisdom Within",
+  "Remind Yourself You're Infinite", 
+  "Remember, Radiate, Rise",
+  "Your Soul's Journey Awaits",
+  "Remember Your Sacred Spark",
+  "Awaken to Your Essence",
+  "Remember, Feel, Become",
+  "The Art of Remembering You",
+  "Ignite Your Soul's Song",
+  "Remember the Light Within", 
+  "Awaken Your Cosmic Self",
+  "Remember Your Heart's Call",
+  "Your Soul, Remembered",
+  "Awaken the Divine Within", 
+  "Remember the Truth of You",
+  "Spark Your Soul Memory",
+  "Remember, Shine, Transcend",
+  "The Soul's Awakening Path", 
+  "Remember Beyond the Mind",
+  "Awaken to Soul Purpose", 
+  "Remember Your Eternal Voice",
+  "Ignite Your Inner Guide", 
+  "Remember the Soul's Call",
+  "Awaken the Heart's Fire", 
+  "Remember the Infinite Within",
+  "Rekindle Your Inner Radiance", 
+  "Awaken Your Soul's Vision",
+  "Remember Your Cosmic Heart", 
+  "Remember, Awaken, Align", 
+  "Awaken the Memory of You",
+  "Remember Your Sacred Self", 
+  "Ignite the Soul's Journey", 
+  "Remember, Emerge, Transcend", 
+  "Awaken Your Hidden Light", 
+  "Remember the Soul's Fire", 
+  "Awaken, Remember, Transform", 
+  "Remember Your Inner Whisper", 
+  "Awaken Your True Light", 
+  "Remember, Awaken, Be"
 ];
 
 const RotatingSoulText = () => {
@@ -39,7 +61,7 @@ const RotatingSoulText = () => {
   React.useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % soulPhrases.length);
-    }, 5000); // Change text every 5 seconds
+    }, 8000); // Change text every 8 seconds (slowed down)
 
     return () => clearInterval(timer);
   }, []);
@@ -52,22 +74,14 @@ const RotatingSoulText = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.8 }} // Slower transition
           className="absolute text-center"
         >
           <h1 className="text-4xl md:text-6xl font-bold font-playfair tracking-tight mb-4">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-300">
-              {soulPhrases[currentIndex].title}
+              {soulPhrases[currentIndex]}
             </span>
           </h1>
-          <motion.p 
-            className="text-xl md:text-2xl max-w-3xl mx-auto text-purple-100/90"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            {soulPhrases[currentIndex].description}
-          </motion.p>
         </motion.div>
       </AnimatePresence>
     </div>
