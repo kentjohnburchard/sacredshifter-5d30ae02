@@ -72,6 +72,10 @@
   .animate-spin-slow {
     animation: spin-slow 20s linear infinite;
   }
+
+  .animate-cosmic-pulse {
+    animation: cosmic-pulse 5s ease-in-out infinite alternate;
+  }
 }
 
 @keyframes pulse-subtle {
@@ -111,6 +115,21 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes cosmic-pulse {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0.7;
+    transform: scale(0.95);
   }
 }
 
@@ -155,11 +174,32 @@
 }
 
 .veil-lifted ::-webkit-scrollbar-thumb {
-  background: rgba(236, 72, 153, 0.5);
+  background: rgba(236, 72, 153, 0.7);
 }
 
 .veil-lifted ::-webkit-scrollbar-thumb:hover {
-  background: rgba(236, 72, 153, 0.8);
+  background: rgba(236, 72, 153, 0.9);
+}
+
+/* Enhanced Veil-Lifted Text Colors */
+.veil-lifted h1, .veil-lifted h2, .veil-lifted h3 {
+  @apply text-pink-300;
+}
+
+.veil-lifted .text-purple-300 {
+  @apply text-pink-300;
+}
+
+.veil-lifted .text-purple-400 {
+  @apply text-pink-400;
+}
+
+.veil-lifted .text-purple-500 {
+  @apply text-pink-500;
+}
+
+.veil-lifted .text-purple-600 {
+  @apply text-pink-600;
 }
 
 /* Enhanced Transition Effects */
@@ -171,3 +211,8 @@ body {
   transition: background-color 0.5s ease-in-out;
 }
 
+/* Cosmic Background for Lifted Veil */
+.veil-lifted .cosmic-background {
+  @apply bg-gradient-to-br from-pink-900/20 to-fuchsia-900/20;
+  background-image: radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.2) 0%, transparent 60%);
+}

@@ -48,25 +48,46 @@ const MathematicalBackground: React.FC<MathematicalBackgroundProps> = ({
   React.useEffect(() => {
     console.log(`MathematicalBackground rendered with intensity: ${intensity}`);
     console.log(`Using ${equations.length} equations and ${intensity === 'high' ? 7 : intensity === 'medium' ? 5 : 3} geometric patterns`);
-  }, [intensity, equations]);
+    console.log(`Current consciousness mode: ${liftTheVeil ? 'veil-lifted' : 'standard'}`);
+  }, [intensity, equations, liftTheVeil]);
   
   return (
-    <div className="relative min-h-screen overflow-hidden bg-black">
+    <div className={`relative min-h-screen overflow-hidden bg-black ${liftTheVeil ? 'cosmic-background' : ''}`}>
       {/* Mathematical canvas background */}
       <BackgroundCanvas equations={equations} />
       
       {/* Added Sacred Grid background with higher intensity for more visible geometric patterns */}
       <SacredGridBackground 
-        intensity={liftTheVeil ? 2.0 : 1.5}
+        intensity={liftTheVeil ? 2.5 : 1.8}
         color={liftTheVeil ? '#FF70E9' : '#9b87f5'}
-        pulseSpeed={1.5}
+        pulseSpeed={liftTheVeil ? 1.8 : 1.5}
       />
       
       {/* Geometric patterns overlay with increased opacity */}
       <GeometricPatterns patternCount={intensity === 'high' ? 9 : intensity === 'medium' ? 7 : 5} />
       
       {/* Enhanced gradient overlay for better contrast */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/30 pointer-events-none"></div>
+      <div className={`absolute inset-0 bg-gradient-to-b ${
+        liftTheVeil 
+          ? 'from-pink-900/30 via-transparent to-fuchsia-900/30' 
+          : 'from-black/30 via-transparent to-black/30'
+      } pointer-events-none`}></div>
+      
+      {/* Added cosmic effects when veil is lifted */}
+      {liftTheVeil && (
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 opacity-50 mix-blend-screen"
+            style={{
+              backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(255, 105, 180, 0.4) 0%, transparent 50%)',
+            }}
+          ></div>
+          <div className="absolute inset-0 opacity-50 mix-blend-overlay"
+            style={{
+              backgroundImage: 'radial-gradient(circle at 30% 70%, rgba(139, 92, 246, 0.4) 0%, transparent 60%)',
+            }}
+          ></div>
+        </div>
+      )}
       
       {/* Content container */}
       <div className="relative z-10">
