@@ -1,19 +1,22 @@
+
 import React from 'react';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/context/AuthContext';
-import ComingSoonBanner from '@/components/ComingSoonBanner';
+import UserDashboard from '@/components/UserDashboard';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
 
   return (
-    <Layout>
+    <Layout 
+      pageTitle="Dashboard | Sacred Shifter"
+      showNavbar={true}
+      showContextActions={true}
+      showGlobalWatermark={true}
+    >
       <div className="container mx-auto px-4 py-8">
-        {/* Remove or comment out the ComingSoonBanner */}
-        {/* <ComingSoonBanner show={false} /> */}
-        
-        <div className="max-w-5xl mx-auto">
-          <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+        <div className="max-w-7xl mx-auto">
+          <UserDashboard />
         </div>
       </div>
     </Layout>
