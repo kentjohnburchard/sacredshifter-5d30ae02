@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
@@ -30,6 +29,7 @@ import { hermeticPrinciples } from '@/data/hermeticPrinciples';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useAuth } from '@/context/AuthContext';
 import AnimatedBackground from '@/components/AnimatedBackground';
+import Logo from '@/components/navigation/SidebarLogo';
 
 const SacredShifterHome = () => {
   const { liftTheVeil } = useTheme();
@@ -37,7 +37,6 @@ const SacredShifterHome = () => {
   const [activeHermeticPrinciple, setActiveHermeticPrinciple] = useState<string>("vibration");
   const [scrolled, setScrolled] = useState(false);
 
-  // Handle scroll effects
   useEffect(() => {
     const handleScroll = () => {
       const isScrolled = window.scrollY > 50;
@@ -50,7 +49,6 @@ const SacredShifterHome = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [scrolled]);
 
-  // Convert hermetic principles object to array for easier mapping
   const hermeticPrinciplesArray = Object.values(hermeticPrinciples);
 
   return (
@@ -61,12 +59,9 @@ const SacredShifterHome = () => {
         hideHeader={true}
         showGlobalWatermark={true}
       >
-        {/* Hero Section with Sacred Geometry Animation */}
         <div className="w-full relative min-h-screen flex items-center justify-center overflow-hidden">
-          {/* Background Overlay */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/80 z-0"></div>
           
-          {/* Sacred Geometry Animated Overlay */}
           <div className="absolute inset-0 z-0 opacity-70 pointer-events-none">
             <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
               <defs>
@@ -76,13 +71,11 @@ const SacredShifterHome = () => {
                 </radialGradient>
               </defs>
               
-              {/* Flower of Life Pattern */}
               <motion.g
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 0.7, scale: 1 }}
                 transition={{ duration: 2 }}
               >
-                {/* Center Circle */}
                 <motion.circle 
                   cx="50" cy="50" r="8" 
                   fill="none" 
@@ -99,7 +92,6 @@ const SacredShifterHome = () => {
                   }}
                 />
                 
-                {/* Surrounding Circles - First Layer */}
                 {Array.from({ length: 6 }).map((_, i) => {
                   const angle = (Math.PI * 2 * i) / 6;
                   const x = 50 + 16 * Math.cos(angle);
@@ -126,7 +118,6 @@ const SacredShifterHome = () => {
                   );
                 })}
                 
-                {/* Second Layer */}
                 {Array.from({ length: 12 }).map((_, i) => {
                   const angle = (Math.PI * 2 * i) / 12;
                   const x = 50 + 24 * Math.cos(angle);
@@ -156,7 +147,6 @@ const SacredShifterHome = () => {
             </svg>
           </div>
           
-          {/* Content */}
           <div className="container mx-auto px-4 z-10">
             <motion.div 
               className="text-center space-y-6"
@@ -170,11 +160,7 @@ const SacredShifterHome = () => {
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.3, duration: 1.2 }}
               >
-                <img 
-                  src="/lovable-uploads/b9b4b625-472c-484e-a49a-41aaf4f604a5.png" 
-                  alt="Sacred Shifter" 
-                  className="h-32 md:h-48 mx-auto animate-pulse-subtle" 
-                />
+                <Logo />
               </motion.div>
               
               <motion.h1 
@@ -237,7 +223,6 @@ const SacredShifterHome = () => {
           </div>
         </div>
         
-        {/* Site Features */}
         <section className="py-24 relative overflow-hidden">
           <div className="absolute inset-0 bg-black/50 z-0"></div>
           <div className="container mx-auto px-4 relative z-10">
@@ -302,11 +287,9 @@ const SacredShifterHome = () => {
           </div>
         </section>
         
-        {/* Hermetic Principles Section */}
         <section className="py-24 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-purple-900/40 to-gray-900/40 z-0"></div>
           
-          {/* Sacred Geometry Background */}
           <div className="absolute inset-0 opacity-20">
             <div className="absolute w-full h-full">
               {Array.from({ length: 7 }).map((_, i) => {
@@ -431,7 +414,6 @@ const SacredShifterHome = () => {
           </div>
         </section>
         
-        {/* Explore and Navigation Section */}
         <section className="py-24 relative overflow-hidden">
           <div className="absolute inset-0 bg-black/50 z-0"></div>
           <div className="container mx-auto px-4 relative z-10">
@@ -484,7 +466,6 @@ const SacredShifterHome = () => {
           </div>
         </section>
         
-        {/* Join the Sacred Shift CTA */}
         {!user && (
           <section className="py-24 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-purple-900/40 to-black/70 z-0"></div>
@@ -540,7 +521,6 @@ const SacredShifterHome = () => {
   );
 };
 
-// Helper Components
 interface FeatureCardProps {
   title: string;
   description: string;
