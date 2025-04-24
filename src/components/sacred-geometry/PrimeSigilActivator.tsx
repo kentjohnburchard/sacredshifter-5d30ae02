@@ -29,36 +29,15 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
     lg: 80
   }[size];
 
-  const playActivationTone = () => {
-    try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      oscillator.frequency.value = liftTheVeil ? 528 : 963;
-      oscillator.type = 'sine';
-      
-      gainNode.gain.value = 0.2;
-      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1.5);
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      oscillator.start();
-      setTimeout(() => oscillator.stop(), 1500);
-    } catch (error) {
-      console.error("Audio playback error:", error);
-    }
-  };
-  
   const handleActivate = () => {
     console.log("Sigil clicked, current state:", liftTheVeil);
     setShowRipple(true);
+    
+    // Immediate visual feedback
     setTimeout(() => setShowRipple(false), 700);
     
+    // Toggle the veil state
     setLiftTheVeil(!liftTheVeil);
-    
-    playActivationTone();
     
     console.log(`Sacred prime mode ${!liftTheVeil ? 'activated' : 'deactivated'}`);
   };
@@ -208,7 +187,7 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
                     points={`
                       ${center},${center-maxRadius/3}
                       ${center+maxRadius/3*Math.sin(2*Math.PI/3)},${center+maxRadius/3*Math.cos(2*Math.PI/3)}
-                      ${center+maxRadius/3*Math.sin(4*Math.PI/3)},${center+maxRadius/3*Math.cos(4*Math.PI/3)}
+                      ${center+maxRadius/3*Math.sin(4*Math.PI/3)},${center+maxRadius/3*Math.PI/3)}
                     `}
                     fill="none"
                     stroke="currentColor"

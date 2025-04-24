@@ -38,96 +38,37 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [currentElement, setCurrentElement] = useState("water");
   const [currentWatermarkStyle, setCurrentWatermarkStyle] = useState("zodiac");
 
-  // Initialize from preferences
-  useEffect(() => {
-    if (preferences) {
-      // Set consciousness mode
-      const consciousnessMode = preferences.consciousness_mode || "standard";
-      setLiftTheVeilState(consciousnessMode === "lift-the-veil");
-      
-      // Set theme and element preferences
-      if (preferences.theme_gradient) {
-        setCurrentTheme(preferences.theme_gradient);
-      } else {
-        // Set default theme based on consciousness mode
-        setCurrentTheme(consciousnessMode === "lift-the-veil" 
-          ? "linear-gradient(to right, #FF36AB, #B967FF)" 
-          : "linear-gradient(to right, #4facfe, #00f2fe)");
-      }
-      
-      if (preferences.element) {
-        setCurrentElement(preferences.element);
-      }
-      
-      if (preferences.watermark_style) {
-        setCurrentWatermarkStyle(preferences.watermark_style);
-      }
+  // Simplified theme toggling with more robust state management
+  const setLiftTheVeil = useCallback((mode: boolean) => {
+    console.log("Toggling Lift the Veil mode to:", mode);
+    
+    // Update local state
+    setLiftTheVeilState(mode);
+    
+    // Change theme based on consciousness mode
+    if (mode) {
+      // Pink-focused theme for lifted veil
+      setCurrentTheme("linear-gradient(to right, #FF36AB, #B967FF)");
+      document.documentElement.classList.add('veil-lifted');
+    } else {
+      // Purple-focused theme for standard mode
+      setCurrentTheme("linear-gradient(to right, #4facfe, #00f2fe)");
+      document.documentElement.classList.remove('veil-lifted');
     }
-  }, [preferences]);
-
-  // Set lift the veil mode with visual feedback
-  const setLiftTheVeil = useCallback(async (mode: boolean) => {
-    try {
-      console.log("Toggling Lift the Veil mode to:", mode);
-      
-      // Update local state immediately for responsive UI
-      setLiftTheVeilState(mode);
-      
-      // Change theme based on consciousness mode
-      if (mode) {
-        // Pink-focused theme for lifted veil
-        setCurrentTheme("linear-gradient(to right, #FF36AB, #B967FF)");
-        document.documentElement.classList.add('veil-lifted');
-      } else {
-        // Purple-focused theme for standard mode
-        setCurrentTheme("linear-gradient(to right, #4facfe, #00f2fe)");
-        document.documentElement.classList.remove('veil-lifted');
+    
+    // Show toast notification to confirm the change
+    toast.success(
+      mode ? "Veil Lifted! Welcome to heightened perception." : "Returning to standard consciousness",
+      {
+        icon: <Sparkles className={mode ? "text-pink-500" : "text-purple-500"} />,
+        duration: 3000
       }
-      
-      // Show toast notification to confirm the change
-      toast.success(
-        mode ? "Veil Lifted! Welcome to heightened perception." : "Returning to standard consciousness",
-        {
-          icon: <Sparkles className={mode ? "text-pink-500" : "text-purple-500"} />,
-          duration: 3000
-        }
-      );
-      
-      // Update user preferences if they're logged in
-      if (preferences) {
-        await saveUserPreferences({
-          ...preferences,
-          consciousness_mode: mode ? "lift-the-veil" : "standard"
-        });
-      }
-    } catch (error) {
-      console.error("Error toggling Lift the Veil Mode:", error);
-      // Revert state if save failed
-      setLiftTheVeilState(!mode);
-      toast.error("Failed to change consciousness mode");
-    }
-  }, [preferences, saveUserPreferences]);
+    );
+  }, []);
 
   // For backward compatibility, alias kentMode to liftTheVeil
   const kentMode = liftTheVeil;
   const setKentMode = setLiftTheVeil;
-
-  // Update current quote when randomQuote changes
-  useEffect(() => {
-    if (randomQuote) {
-      setCurrentQuote(randomQuote.text);
-    }
-  }, [randomQuote]);
-
-  // Refresh the quote
-  const refreshQuote = useCallback(() => {
-    const quote = getRandomQuote();
-    if (quote) {
-      setCurrentQuote(quote.text);
-    } else {
-      refreshRandomQuote();
-    }
-  }, [getRandomQuote, refreshRandomQuote]);
 
   // Add global CSS variables for theme colors with improved contrast
   useEffect(() => {
@@ -140,13 +81,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       root.style.setProperty('--theme-primary', '#FF36AB');
       root.style.setProperty('--theme-secondary', '#B967FF');
       
-      // Add additional property to detect theme in CSS selectors
       root.setAttribute('data-theme', 'veil-lifted');
-      
-      // Force repaint of DOM elements
-      document.body.style.transition = 'background-color 0.5s ease-in-out';
-      document.body.style.backgroundColor = '#0A0A0A';
-      setTimeout(() => { document.body.style.backgroundColor = '#050505'; }, 10);
     } else {
       root.style.setProperty('--primary-accent', '#8B5CF6');
       root.style.setProperty('--secondary-accent', '#6366F1');
@@ -155,18 +90,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       root.style.setProperty('--theme-primary', '#4facfe');
       root.style.setProperty('--theme-secondary', '#00f2fe');
       
-      // Reset theme attribute
       root.setAttribute('data-theme', 'standard');
-      
-      // Force repaint
-      document.body.style.transition = 'background-color 0.5s ease-in-out';
-      document.body.style.backgroundColor = '#050505';
-      setTimeout(() => { document.body.style.backgroundColor = '#0A0A0A'; }, 10);
     }
     
-    // Log state changes for debugging
     console.log("Theme context updated, liftTheVeil:", liftTheVeil);
-    
   }, [liftTheVeil]);
 
   return (
@@ -176,7 +103,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       kentMode, 
       setKentMode,
       currentQuote, 
-      refreshQuote,
+      refreshQuote: getRandomQuote,
       currentTheme,
       currentElement,
       currentWatermarkStyle
