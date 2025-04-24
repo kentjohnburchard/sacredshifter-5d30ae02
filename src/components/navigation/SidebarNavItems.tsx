@@ -1,4 +1,3 @@
-
 import React from 'react';
 import NavLink from './NavLink';
 import { useLocation } from 'react-router-dom';
@@ -30,9 +29,9 @@ import {
 
 // Map of route paths to their corresponding icons
 const iconMap: Record<string, React.FC<any>> = {
+  '/dashboard': LayoutDashboard,
   '/': LayoutDashboard,
   '/home': LayoutDashboard,
-  '/dashboard': LayoutDashboard,
   '/sacred-blueprint': LayoutTemplate,
   '/frequency-library': Music,
   '/frequencies': Music,
@@ -81,8 +80,8 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
   // Filter out duplicate home routes by path
   const displayedPaths = new Set<string>();
   const filteredNavItems = activeNavItems.filter(item => {
-    // Consider '/' and '/home' and '/dashboard' as the same home route
-    const normalizedPath = ['/home', '/dashboard', '/'].includes(item.path) ? 'home' : item.path;
+    // Consider '/' and '/home' as the same home route, but keep /dashboard separate
+    const normalizedPath = ['/home', '/'].includes(item.path) ? 'home' : item.path;
     
     if (displayedPaths.has(normalizedPath)) {
       return false;

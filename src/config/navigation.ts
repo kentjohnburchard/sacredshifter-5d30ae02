@@ -1,3 +1,4 @@
+
 // Navigation config to manage which pages are active and should be displayed in navigation
 export const activePages = {
   home: true,
@@ -36,7 +37,7 @@ export type PageKey = keyof typeof activePages;
 // Navigation items configuration
 export const navItems = [
   {
-    path: "/",
+    path: "/dashboard",
     key: "dashboard" as PageKey,
     icon: "LayoutDashboard",
     label: "Dashboard",
