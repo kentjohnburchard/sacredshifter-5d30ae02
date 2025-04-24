@@ -26,10 +26,15 @@ const ThemeEnhancer: React.FC = () => {
       root.classList.add('veil-lifted');
       root.style.setProperty('--primary-glow', 'rgba(255, 105, 180, 0.15)');
       root.style.setProperty('--fractal-intensity', '1.2');
+      
+      // Add visual feedback when veil is lifted
+      console.log('Veil lifted - consciousness expanded');
     } else {
       root.classList.remove('veil-lifted');
       root.style.setProperty('--primary-glow', 'rgba(147, 51, 234, 0.15)');
       root.style.setProperty('--fractal-intensity', '1');
+      
+      console.log('Standard consciousness mode');
     }
     
   }, [liftTheVeil]);

@@ -91,11 +91,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
       );
       
-      // Then update in database
-      await saveUserPreferences({
-        ...preferences,
-        consciousness_mode: mode ? "lift-the-veil" : "standard"
-      });
+      // Update user preferences if they're logged in
+      if (preferences) {
+        await saveUserPreferences({
+          ...preferences,
+          consciousness_mode: mode ? "lift-the-veil" : "standard"
+        });
+      }
     } catch (error) {
       console.error("Error toggling Lift the Veil Mode:", error);
       // Revert state if save failed

@@ -58,6 +58,8 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
     setLiftTheVeil(!liftTheVeil);
     
     playActivationTone();
+    
+    console.log(`Sacred prime mode ${!liftTheVeil ? 'activated' : 'deactivated'}`);
   };
 
   const createGoldenSpiralPath = (centerX: number, centerY: number, maxRadius: number): string => {
@@ -101,7 +103,8 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
   };
   
   const createPrimeDots = (centerX: number, centerY: number, radius: number): {cx: number, cy: number, r: number}[] => {
-    return primes.slice(0, 7).map((prime, i) => {
+    return Array.from({ length: 7 }).map((_, i) => {
+      const prime = [2, 3, 5, 7, 11, 13, 17][i];
       const angle = (i / 7) * Math.PI * 2;
       const distance = (radius / 2) * (0.4 + (prime % 5) / 10);
       return {
