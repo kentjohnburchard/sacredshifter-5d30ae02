@@ -81,19 +81,20 @@ const CosmicFooter: React.FC<CosmicFooterProps> = ({
             className="group relative flex flex-col items-center justify-center text-[10px] sm:text-xs"
           >
             <motion.div 
-              whileHover={{ y: -2 }}
-              className="flex items-center justify-center p-1 sm:p-1.5 rounded-full bg-gradient-to-br from-purple-900 to-indigo-900 group-hover:from-purple-700 group-hover:to-indigo-700"
+              whileHover={{ y: -2, scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center justify-center p-1 sm:p-1.5 rounded-full bg-gradient-to-br from-purple-700 to-indigo-700 group-hover:from-purple-500 group-hover:to-indigo-500 shadow-lg shadow-purple-900/30"
             >
               {link.icon}
               <motion.span 
-                className="absolute -top-6 sm:-top-8 bg-black/80 text-white text-[10px] sm:text-xs px-1 sm:px-2 py-0.5 sm:py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap"
+                className="absolute -top-6 sm:-top-8 bg-black/90 text-white text-[10px] sm:text-xs px-1 sm:px-2 py-0.5 sm:py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap"
                 animate={{ y: [0, -2, 0] }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
                 {link.name}
               </motion.span>
             </motion.div>
-            <span className="mt-0.5 sm:mt-1 opacity-80 group-hover:opacity-100">{link.name}</span>
+            <span className="mt-0.5 sm:mt-1 opacity-90 group-hover:opacity-100 drop-shadow-sm">{link.name}</span>
           </Link>
         ))}
       </div>

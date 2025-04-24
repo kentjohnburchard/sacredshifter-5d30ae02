@@ -10,7 +10,7 @@ interface MathematicalBackgroundProps {
 
 const MathematicalBackground: React.FC<MathematicalBackgroundProps> = ({ 
   children,
-  intensity = 'medium' 
+  intensity = 'high' // CHANGED DEFAULT FROM 'medium' to 'high'
 }) => {
   // Define equations based on intensity
   const equations = [
@@ -37,6 +37,12 @@ const MathematicalBackground: React.FC<MathematicalBackgroundProps> = ({
     );
   }
   
+  // Enhanced logging for debugging
+  React.useEffect(() => {
+    console.log(`MathematicalBackground rendered with intensity: ${intensity}`);
+    console.log(`Using ${equations.length} equations and ${intensity === 'high' ? 7 : intensity === 'medium' ? 5 : 3} geometric patterns`);
+  }, [intensity, equations]);
+  
   return (
     <div className="relative min-h-screen overflow-hidden bg-black">
       {/* Mathematical canvas background */}
@@ -46,7 +52,7 @@ const MathematicalBackground: React.FC<MathematicalBackgroundProps> = ({
       <GeometricPatterns patternCount={intensity === 'high' ? 7 : intensity === 'medium' ? 5 : 3} />
       
       {/* Gradient overlay for better contrast */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/30 pointer-events-none"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20 pointer-events-none"></div>
       
       {/* Content container */}
       <div className="relative z-10">

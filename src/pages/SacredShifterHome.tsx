@@ -8,18 +8,29 @@ import HermeticSection from '@/components/landing/HermeticSection';
 import ExploreSection from '@/components/landing/ExploreSection';
 import JoinSection from '@/components/landing/JoinSection';
 import { useAuth } from '@/context/AuthContext';
+import { toast } from "sonner";
 
 const SacredShifterHome = () => {
   const { user } = useAuth();
 
   // Trigger component re-render on mount to ensure animations start
-  const [_, setMounted] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
+  
   React.useEffect(() => {
     setMounted(true);
     
-    // Log to help with debugging
-    console.log('Rendering SacredShifterHome with mathematical background');
-  }, []);
+    // Enhanced logging for debugging
+    console.log('SacredShifterHome component mounted');
+    console.log('User authenticated:', !!user);
+    console.log('Mathematical background rendering with high intensity');
+    
+    // Show welcome toast
+    toast.success("Welcome to Sacred Shifter", {
+      description: "Experience the power of sacred geometry and mathematical harmony",
+      duration: 5000,
+    });
+    
+  }, [user]);
 
   return (
     <MathematicalBackground intensity="high">
