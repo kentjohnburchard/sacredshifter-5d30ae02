@@ -3,6 +3,8 @@ import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import MathematicalBackground from '@/components/backgrounds/MathematicalBackground';
+import Logo from '@/components/navigation/SidebarLogo';
 import { 
   ArrowRight, 
   Sparkles, 
@@ -29,7 +31,6 @@ import { hermeticPrinciples } from '@/data/hermeticPrinciples';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useAuth } from '@/context/AuthContext';
 import AnimatedBackground from '@/components/AnimatedBackground';
-import Logo from '@/components/navigation/SidebarLogo';
 
 const SacredShifterHome = () => {
   const { liftTheVeil } = useTheme();
@@ -52,7 +53,7 @@ const SacredShifterHome = () => {
   const hermeticPrinciplesArray = Object.values(hermeticPrinciples);
 
   return (
-    <AnimatedBackground theme={liftTheVeil ? 'temple' : 'cosmic'} intensity="medium" staticBackground={false}>
+    <MathematicalBackground>
       <Layout 
         pageTitle="Sacred Shifter - Transform Your Consciousness" 
         showNavbar={true}
@@ -517,7 +518,7 @@ const SacredShifterHome = () => {
           </section>
         )}
       </Layout>
-    </AnimatedBackground>
+    </MathematicalBackground>
   );
 };
 
