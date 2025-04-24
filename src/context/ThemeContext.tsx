@@ -66,7 +66,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [preferences]);
 
   // Set lift the veil mode with visual feedback
-  const setLiftTheVeil = async (mode: boolean) => {
+  const setLiftTheVeil = useCallback(async (mode: boolean) => {
     try {
       // Update local state immediately for responsive UI
       setLiftTheVeilState(mode);
@@ -104,7 +104,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setLiftTheVeilState(!mode);
       toast.error("Failed to change consciousness mode");
     }
-  };
+  }, [preferences, saveUserPreferences]);
 
   // For backward compatibility, alias kentMode to liftTheVeil
   const kentMode = liftTheVeil;
