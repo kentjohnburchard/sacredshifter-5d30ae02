@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
@@ -184,11 +185,7 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
                   className="origin-center"
                 >
                   <polygon 
-                    points={`
-                      ${center},${center-maxRadius/3}
-                      ${center+maxRadius/3*Math.sin(2*Math.PI/3)},${center+maxRadius/3*Math.cos(2*Math.PI/3)}
-                      ${center+maxRadius/3*Math.sin(4*Math.PI/3)},${center+maxRadius/3*Math.PI/3)}
-                    `}
+                    points={`${center},${center-maxRadius/3} ${center+maxRadius/3*Math.sin(2*Math.PI/3)},${center+maxRadius/3*Math.cos(2*Math.PI/3)} ${center+maxRadius/3*Math.sin(4*Math.PI/3)},${center+maxRadius/3*Math.cos(4*Math.PI/3)}`}
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="1"
