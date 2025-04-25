@@ -5,7 +5,6 @@ import { getActiveNavItems, type PageKey, navItems } from "@/config/navigation";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, Check, ChevronDown, ChevronRight, LucideIcon } from "lucide-react";
 import * as Icons from "lucide-react";
-import { getHumanReadablePageName } from "@/utils/pageUtils";
 import { useTheme } from "@/context/ThemeContext";
 
 interface SidebarNavItemsProps {
