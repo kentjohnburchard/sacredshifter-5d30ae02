@@ -7,7 +7,7 @@ const ConsciousnessToggle: React.FC = () => {
   const { liftTheVeil } = useTheme();
   const { toggleEasterEggMode } = useEasterEggContext();
   
-  // Simple toggle function that uses the context
+  // Simple toggle function that triggers the state change through the context
   const handleToggle = () => {
     console.log("ConsciousnessToggle: Initiating toggle, current state:", liftTheVeil);
     toggleEasterEggMode();

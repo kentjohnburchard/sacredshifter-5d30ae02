@@ -1,8 +1,6 @@
 
 import React, { createContext, useContext, useEffect } from "react";
 import { useTheme } from "./ThemeContext";
-import { toast } from "sonner";
-import { Sparkles } from "lucide-react";
 
 type EasterEggContextType = {
   isEasterEggMode: boolean;
@@ -24,6 +22,9 @@ export const EasterEggProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const toggleEasterEggMode = () => {
     const newState = !liftTheVeil;
     console.log("EasterEgg toggle triggered, switching from", liftTheVeil, "to", newState);
+    
+    // Call the setLiftTheVeil function from ThemeContext
+    // This will handle state updates, localStorage persistence, and toast notifications
     setLiftTheVeil(newState);
   };
 
