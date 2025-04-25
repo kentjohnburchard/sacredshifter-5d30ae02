@@ -1,37 +1,23 @@
 
 import React from "react";
 import { useTheme } from "@/context/ThemeContext";
-import { Sparkles } from "lucide-react";
-import { toast } from "sonner";
+import { useEasterEggContext } from "@/context/EasterEggContext";
 
 const ConsciousnessToggle: React.FC = () => {
-  const { liftTheVeil, setLiftTheVeil } = useTheme();
+  const { liftTheVeil } = useTheme();
+  const { toggleEasterEggMode } = useEasterEggContext();
   
-  // Simple toggle function
+  // Simple toggle function that uses the context
   const handleToggle = () => {
-    const newState = !liftTheVeil;
-    console.log("ConsciousnessToggle: Toggling consciousness state to:", newState);
-    setLiftTheVeil(newState);
-    
-    toast.success(newState ? "Veil Lifted! Consciousness Expanded" : "Standard Mode activated", {
-      icon: <Sparkles className={newState ? "text-pink-500" : "text-indigo-500"} />,
-      duration: 3000,
-      position: "top-center"
-    });
+    console.log("ConsciousnessToggle: Initiating toggle, current state:", liftTheVeil);
+    toggleEasterEggMode();
   };
   
-  // Return only the toggle triggers
   return (
     <>
-      {/* Hidden clickable areas */}
+      {/* Single clickable area */}
       <div 
         className="fixed bottom-16 right-4 z-[1000] w-12 h-12 opacity-0"
-        onClick={handleToggle}
-        aria-hidden="true"
-      />
-      
-      <div 
-        className="fixed top-2 left-1/2 transform -translate-x-1/2 z-[1000] w-40 h-10 opacity-0"
         onClick={handleToggle}
         aria-hidden="true"
       />

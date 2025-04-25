@@ -53,6 +53,16 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
       localStorage.setItem('liftTheVeil', String(mode));
       console.log("Theme state saved to localStorage:", mode);
+      
+      // Show appropriate toast based on new state
+      toast.success(
+        mode ? "Veil Lifted! Consciousness expanded" : "Returning to standard consciousness",
+        {
+          icon: <Sparkles className={mode ? "text-pink-500" : "text-indigo-500"} />,
+          duration: 3000,
+          position: "top-center"
+        }
+      );
     } catch (e) {
       console.error("Could not save theme state to localStorage:", e);
     }
