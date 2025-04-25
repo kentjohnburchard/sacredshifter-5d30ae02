@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import SidebarLogo from "@/components/navigation/SidebarLogo";
@@ -22,7 +21,6 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
   const [isHovering, setIsHovering] = useState(false);
   const { liftTheVeil } = useTheme();
   
-  // Mount safety for SSR/hydration
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -66,26 +64,21 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  // Calculate sidebar state based on device and interaction
   const effectivelyCollapsed = isMobileMenuOpen ? false : isCollapsed;
   
-  // Background and border colors based on theme
   const themeClasses = liftTheVeil 
-    ? "bg-gradient-to-b from-pink-900 via-pink-800 to-pink-900 border-pink-700" 
-    : "bg-gradient-to-b from-purple-900 via-purple-800 to-purple-900 border-purple-700";
+    ? "bg-gradient-to-b from-pink-900 via-pink-700 to-fuchsia-900" // strong pink/fuchsia gradient
+    : "bg-gradient-to-b from-purple-800 via-purple-900 to-indigo-900"; // strong purple/indigo gradient
 
-  // Log theme state when it changes
   useEffect(() => {
     console.log("Sidebar theme updated, liftTheVeil:", liftTheVeil);
     console.log("Applied theme classes:", themeClasses);
   }, [liftTheVeil, themeClasses]);
 
-  // Don't render UI during SSR to avoid hydration mismatch
   if (!isMounted) return null;
 
   return (
     <>
-      {/* Mobile menu button */}
       <Button
         variant="ghost"
         size="sm"
@@ -96,7 +89,6 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         <Menu className="h-5 w-5 text-white" />
       </Button>
       
-      {/* Mobile overlay backdrop */}
       {isMobileMenuOpen && (
         <div 
           className="fixed inset-0 bg-black/50 z-40 sm:hidden"
@@ -104,7 +96,6 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         />
       )}
       
-      {/* Unified sidebar for both mobile and desktop */}
       <aside 
         className={cn(
           "fixed left-0 top-0 z-40 flex h-full flex-col border-r shadow-lg transition-all duration-300 sm:translate-x-0",
@@ -125,7 +116,6 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           }
         }}
       >
-        {/* Desktop expand/collapse button */}
         <Button 
           variant="ghost" 
           size="sm" 
@@ -143,7 +133,6 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           )}
         </Button>
 
-        {/* Mobile close button */}
         <Button 
           variant="ghost" 
           size="sm" 
@@ -157,12 +146,10 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           <ChevronLeft className="h-5 w-5" />
         </Button>
 
-        {/* Logo */}
         <div className={`flex items-center justify-center py-3 sm:py-5 ${effectivelyCollapsed ? "px-2" : "px-4"}`}>
           <SidebarLogo className={effectivelyCollapsed ? "scale-75" : ""} />
         </div>
 
-        {/* Navigation items */}
         <ScrollArea className="flex-1 px-2 sm:px-3 py-2">
           <SidebarNavItems 
             isCollapsed={effectivelyCollapsed}
@@ -176,7 +163,6 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           />
         </ScrollArea>
 
-        {/* User dropdown */}
         <div className={cn(
           "border-t px-3 py-4", 
           liftTheVeil ? "border-pink-700" : "border-purple-700"

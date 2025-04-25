@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { getActiveNavItems, type PageKey, navItems } from "@/config/navigation";
@@ -61,7 +60,6 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
     <div className="space-y-1 py-2">
       {activeNavLinks.map((item) => {
         const isActive = location.pathname === item.path;
-        
         return (
           <NavLinkItem
             key={item.path}
@@ -88,7 +86,6 @@ const NavLinkItem: React.FC<NavLinkItemProps> = ({
   isCollapsed,
   isActive,
   onClick,
-  liftTheVeil
 }) => {
   // Dynamic import of Lucide icons - with fallback to default icon
   const IconComponent = useMemo(() => {
@@ -97,20 +94,13 @@ const NavLinkItem: React.FC<NavLinkItemProps> = ({
     return Icons[icon] || Icons.Layers;
   }, [icon]);
   
-  // Classes for the nav link - changes based on active state and theme mode
-  const linkClasses = useMemo(() => {
-    return cn(
-      "group flex w-full items-center rounded-md border border-transparent px-2 py-1 hover:bg-purple-700/10 nav-link",
-      isActive ? cn(
-        "bg-purple-700/15 font-medium",
-        liftTheVeil ? "text-pink-500 hover:text-pink-400" : "text-purple-600 hover:text-purple-500"
-      ) : cn(
-        "text-gray-500 hover:bg-purple-700/10", 
-        liftTheVeil ? "hover:text-pink-600" : "hover:text-purple-600"
-      ),
-      isCollapsed ? "justify-center" : "justify-start",
-    );
-  }, [isActive, isCollapsed, liftTheVeil]);
+  // IMPORTANT: Always use text-white, no matter theme or state!
+  const linkClasses = cn(
+    "group flex w-full items-center rounded-md border border-transparent px-2 py-1 hover:bg-white/10 nav-link text-white",
+    isActive ? "bg-white/10 font-bold" : "",
+    isCollapsed ? "justify-center" : "justify-start",
+    // No theme color text classes at all
+  );
 
   return (
     <NavLink
@@ -121,22 +111,18 @@ const NavLinkItem: React.FC<NavLinkItemProps> = ({
       <div className="relative flex min-h-[32px] w-full items-center gap-2">
         <IconComponent 
           className={cn(
-            "h-[18px] w-[18px] shrink-0",
-            isActive ? 
-              (liftTheVeil ? "text-pink-500" : "text-purple-600") : 
-              "text-gray-500"
+            "h-[18px] w-[18px] shrink-0 text-white"
           )} 
         />
         
         {!isCollapsed && (
-          <span className="truncate text-sm">{label}</span>
+          <span className="truncate text-sm text-white">{label}</span>
         )}
         
         {isActive && !isCollapsed && (
           <span 
             className={cn(
-              "ml-auto h-1.5 w-1.5 rounded-full", 
-              liftTheVeil ? "bg-pink-500" : "bg-purple-600"
+              "ml-auto h-1.5 w-1.5 rounded-full bg-white"
             )}
           />
         )}
