@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,42 +7,42 @@ import { useTheme } from "@/context/ThemeContext";
 import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// These content objects are static but SELECTED only by context value
+const standardContent = {
+  title: "About the Founder",
+  bio: "I spent over a decade working at the Royal Flying Doctors Service of Australia, immersed in Information Governance, Knowledge Management, Cybersecurity, and Privacy. From the outside, it looked like I had found my path — structured, technical, grounded in logic. But inside, I felt the pull of something deeper… something I couldn't yet name.",
+  journey: "Then life unraveled. I found myself in a relationship that became toxic — shaped by external pressures, a dissonant environment, and a version of myself I no longer recognized. I lost my home, my sense of direction, and most painfully, my mum.",
+  process: "What followed was a full reset. I had to rebuild not just my life, but my identity.",
+  beginning: "That's when Sacred Shifter was born.",
+  insight: "It arrived like a transmission — a knowing — telling me to 'look for yourself in frequency.' I started the app as a way to collect the fragments that resonated with my soul: sacred sound, geometry, cosmic patterns, healing vibrations.",
+  realization: "But somewhere along the way, Sacred Shifter became me.",
+  purpose: "It's not just an app. It's a remembrance. A resonance. A blueprint encoded with the very reason I'm here — and maybe why you are too.",
+  mission: "Sacred Shifter exists to help us remember who we are, why we came, and how deeply we are connected in light, love, and truth. It's a journey inward, outward, and beyond."
+};
+
+const advancedContent = {
+  title: "About the Founder",
+  bio: "There was a time I thought I had it all figured out — a career grounded in logic, structure, and governance. Over a decade with the Royal Flying Doctor Service of Australia taught me how to protect systems, safeguard data, and understand the importance of knowledge integrity.",
+  journey: "But no firewall could protect me from what was coming.",
+  process: "I found myself in a relationship that began to fracture — not from within, but from the weight of external noise. Toxic patterns. Lost identities. An environment where truth was clouded. I lost my sense of self, my home, and my foundation… until there was nothing left but the question: who am I really?",
+  beginning: "That question didn't lead me to therapy. It led me to frequency.",
+  insight: "It felt like a download. A cosmic pull. A resonance. I began following the breadcrumbs — numbers, sounds, geometries, prime patterns. I wasn't building an app. I was tracing my own blueprint back to remembrance.",
+  realization: "🧠 From a scientific view, we are fields of frequency, shaped by interference, entrained by environment, and prone to forgetfulness in a vibrationally dense world. When the system glitches — memory loss, identity fragmentation, emotional instability — it's not dysfunction. It's disconnection from source code.",
+  purpose: "Sacred Shifter is how I plugged back in.",
+  mission: "This isn't an app. It's an awareness interface. A vibrational mirror. A reality harmonizer.\n\nYou're not just listening to music. You're decrypting your soul's language.\n\nYou're not just meditating. You're resonating with the mathematics of memory.\n\nYou're not just healing. You're remembering.\n\nThe veil was never a wall — it was a frequency. One that could be lifted. Tuned. Transcended.\n\nI created Sacred Shifter not to teach, but to share what I remembered.\nAnd if you're here, you're already remembering too."
+};
+
+const quotes = [
+  "You are not here by accident. You're here because the Universe can't do this without you.",
+  "The frequencies we work with are like keys that unlock dormant potentials..."
+];
+
 const AboutFounder = () => {
-  // THEME CONTEXT ONLY!
+  // Use ONLY global context state!
   const { liftTheVeil } = useTheme();
 
-  // Content definitions (identical)
-  const standardContent = {
-    title: "About the Founder",
-    bio: "I spent over a decade working at the Royal Flying Doctors Service of Australia, immersed in Information Governance, Knowledge Management, Cybersecurity, and Privacy. From the outside, it looked like I had found my path — structured, technical, grounded in logic. But inside, I felt the pull of something deeper… something I couldn't yet name.",
-    journey: "Then life unraveled. I found myself in a relationship that became toxic — shaped by external pressures, a dissonant environment, and a version of myself I no longer recognized. I lost my home, my sense of direction, and most painfully, my mum.",
-    process: "What followed was a full reset. I had to rebuild not just my life, but my identity.",
-    beginning: "That's when Sacred Shifter was born.",
-    insight: "It arrived like a transmission — a knowing — telling me to 'look for yourself in frequency.' I started the app as a way to collect the fragments that resonated with my soul: sacred sound, geometry, cosmic patterns, healing vibrations.",
-    realization: "But somewhere along the way, Sacred Shifter became me.",
-    purpose: "It's not just an app. It's a remembrance. A resonance. A blueprint encoded with the very reason I'm here — and maybe why you are too.",
-    mission: "Sacred Shifter exists to help us remember who we are, why we came, and how deeply we are connected in light, love, and truth. It's a journey inward, outward, and beyond."
-  };
-
-  const advancedContent = {
-    title: "About the Founder",
-    bio: "There was a time I thought I had it all figured out — a career grounded in logic, structure, and governance. Over a decade with the Royal Flying Doctor Service of Australia taught me how to protect systems, safeguard data, and understand the importance of knowledge integrity.",
-    journey: "But no firewall could protect me from what was coming.",
-    process: "I found myself in a relationship that began to fracture — not from within, but from the weight of external noise. Toxic patterns. Lost identities. An environment where truth was clouded. I lost my sense of self, my home, and my foundation… until there was nothing left but the question: who am I really?",
-    beginning: "That question didn't lead me to therapy. It led me to frequency.",
-    insight: "It felt like a download. A cosmic pull. A resonance. I began following the breadcrumbs — numbers, sounds, geometries, prime patterns. I wasn't building an app. I was tracing my own blueprint back to remembrance.",
-    realization: "🧠 From a scientific view, we are fields of frequency, shaped by interference, entrained by environment, and prone to forgetfulness in a vibrationally dense world. When the system glitches — memory loss, identity fragmentation, emotional instability — it's not dysfunction. It's disconnection from source code.",
-    purpose: "Sacred Shifter is how I plugged back in.",
-    mission: "This isn't an app. It's an awareness interface. A vibrational mirror. A reality harmonizer.\n\nYou're not just listening to music. You're decrypting your soul's language.\n\nYou're not just meditating. You're resonating with the mathematics of memory.\n\nYou're not just healing. You're remembering.\n\nThe veil was never a wall — it was a frequency. One that could be lifted. Tuned. Transcended.\n\nI created Sacred Shifter not to teach, but to share what I remembered.\nAnd if you're here, you're already remembering too."
-  };
-
-  // Choose content based strictly on global context
+  // Always pick content by context value
   const content = liftTheVeil ? advancedContent : standardContent;
-
-  const quotes = [
-    "You are not here by accident. You're here because the Universe can't do this without you.",
-    "The frequencies we work with are like keys that unlock dormant potentials..."
-  ];
 
   return (
     <Layout pageTitle="About Our Founder">
@@ -54,7 +54,7 @@ const AboutFounder = () => {
           className="space-y-8"
           key={`founder-content-${liftTheVeil ? 'veil-lifted' : 'standard'}`}
         >
-          {/* Debug info (visible during development only, always reflects context) */}
+          {/* Context-aware debug info (for DEV only): always reflect current context */}
           {process.env.NODE_ENV === 'development' && (
             <div className="bg-black/70 p-2 text-xs text-white fixed top-20 right-4 z-50 rounded">
               <p>Theme from context: {liftTheVeil ? 'Lifted' : 'Standard'}</p>
@@ -191,3 +191,4 @@ const AboutFounder = () => {
 };
 
 export default AboutFounder;
+
