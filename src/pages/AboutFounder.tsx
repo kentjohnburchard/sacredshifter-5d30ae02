@@ -38,10 +38,10 @@ const quotes = [
 ];
 
 const AboutFounder = () => {
-  // Use ONLY global context state!
+  // Use ONLY global context state; ensure context is up-to-date!
   const { liftTheVeil } = useTheme();
 
-  // Always pick content by context value
+  // Always pick content by context value (this will re-render on every toggle)
   const content = liftTheVeil ? advancedContent : standardContent;
 
   return (
@@ -54,7 +54,7 @@ const AboutFounder = () => {
           className="space-y-8"
           key={`founder-content-${liftTheVeil ? 'veil-lifted' : 'standard'}`}
         >
-          {/* Context-aware debug info (for DEV only): always reflect current context */}
+          {/* Context-aware debug info for DEV only */}
           {process.env.NODE_ENV === 'development' && (
             <div className="bg-black/70 p-2 text-xs text-white fixed top-20 right-4 z-50 rounded">
               <p>Theme from context: {liftTheVeil ? 'Lifted' : 'Standard'}</p>
@@ -191,4 +191,3 @@ const AboutFounder = () => {
 };
 
 export default AboutFounder;
-
