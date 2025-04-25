@@ -1,38 +1,28 @@
-
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import Layout from "@/components/Layout";
-import { Card, CardContent } from "@/components/ui/card";
-import { useTheme } from "@/context/ThemeContext";
+import Layout from "@/components/Layout"; // Assuming Layout component exists
+import { Card, CardContent } from "@/components/ui/card"; // Assuming Card components exist
+import { useTheme } from "@/context/ThemeContext"; // Assuming ThemeContext exists
 import { Sparkles } from "lucide-react";
+import { cn } from "@/lib/utils"; // Make sure you have a cn utility (like from clsx/tailwind-merge)
 
 const AboutFounder = () => {
   const { liftTheVeil } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
+  // Local state to track theme, primarily used to trigger key changes for remounts/animations
   const [themeModeState, setThemeModeState] = useState(liftTheVeil);
-  
-  // Ensure we track and update on theme changes
+
+  // Update local state and visibility when component mounts or theme context changes
   useEffect(() => {
     setIsVisible(true);
     setThemeModeState(liftTheVeil);
     console.log("About Founder theme updated, liftTheVeil:", liftTheVeil);
   }, [liftTheVeil]);
-  
-  // Listen for global theme change events
-  useEffect(() => {
-    const handleThemeChange = (event: Event) => {
-      const customEvent = event as CustomEvent;
-      const newThemeState = customEvent.detail?.liftTheVeil;
-      
-      console.log("AboutFounder caught themeChanged event:", newThemeState);
-      setThemeModeState(newThemeState);
-    };
-    
-    window.addEventListener('themeChanged', handleThemeChange);
-    return () => window.removeEventListener('themeChanged', handleThemeChange);
-  }, []);
 
-  // Content based on consciousness mode
+  // NOTE: Removed the potentially redundant window event listener for 'themeChanged'
+  // The useEffect above reacting to liftTheVeil from context should be sufficient.
+
+  // Content definitions
   const standardContent = {
     title: "Meet Our Founder",
     bio: "I spent over a decade working at the Royal Flying Doctors Service of Australia, immersed in Information Governance, Knowledge Management, Cybersecurity, and Privacy. From the outside, it looked like I had found my path — structured, technical, grounded in logic. But inside, I felt the pull of something deeper… something I couldn't yet name.",
@@ -57,10 +47,10 @@ const AboutFounder = () => {
     mission: "This isn't an app. It's an awareness interface. A vibrational mirror. A reality harmonizer.\n\nYou're not just listening to music. You're decrypting your soul's language.\n\nYou're not just meditating. You're resonating with the mathematics of memory.\n\nYou're not just healing. You're remembering.\n\nThe veil was never a wall — it was a frequency. One that could be lifted. Tuned. Transcended.\n\nI created Sacred Shifter not to teach, but to share what I remembered.\nAnd if you're here, you're already remembering too."
   };
 
-  // Choose content based on consciousness mode - use themeModeState to force re-render
+  // Choose content based on consciousness mode - use themeModeState to force re-render via keys
   const content = themeModeState ? advancedContent : standardContent;
-  
-  // Quotes to display - reduced to two primary quotes
+
+  // Quotes to display
   const quotes = [
     "You are not here by accident. You're here because the Universe can't do this without you.",
     "The frequencies we work with are like keys that unlock dormant potentials..."
@@ -79,9 +69,9 @@ const AboutFounder = () => {
         >
           {/* Debug info (visible during development only) */}
           {process.env.NODE_ENV === 'development' && (
-            <div className="bg-black/70 p-2 text-xs">
-              <p>Theme state from context: {liftTheVeil ? 'Veil Lifted' : 'Standard'}</p>
-              <p>Local theme state: {themeModeState ? 'Veil Lifted' : 'Standard'}</p>
+            <div className="bg-black/70 p-2 text-xs text-white fixed top-20 right-4 z-50 rounded">
+              <p>Theme from context: {liftTheVeil ? 'Lifted' : 'Standard'}</p>
+              <p>Local theme state: {themeModeState ? 'Lifted' : 'Standard'}</p>
               <p>Showing content: {themeModeState ? 'Advanced' : 'Standard'}</p>
             </div>
           )}
@@ -92,40 +82,40 @@ const AboutFounder = () => {
               {content.title}
             </h1>
           </div>
-          
+
           {/* First Quote - Top */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
-            className={`p-6 rounded-lg ${themeModeState 
-              ? 'bg-gradient-to-r from-indigo-900/20 to-purple-900/20 border border-pink-500/20' 
+            className={`p-6 rounded-lg ${themeModeState
+              ? 'bg-gradient-to-r from-indigo-900/20 to-purple-900/20 border border-pink-500/20'
               : 'bg-gradient-to-r from-purple-900/20 to-indigo-900/20 border border-purple-500/20'}`}
           >
-            <motion.p 
-              animate={{ 
-                textShadow: themeModeState 
+            <motion.p
+              animate={{
+                textShadow: themeModeState
                   ? ['0 0 3px rgba(236,72,153,0.3)', '0 0 7px rgba(236,72,153,0.5)', '0 0 3px rgba(236,72,153,0.3)']
                   : ['0 0 3px rgba(147,51,234,0.3)', '0 0 7px rgba(147,51,234,0.5)', '0 0 3px rgba(147,51,234,0.3)']
               }}
-              transition={{ 
-                duration: 4, 
-                repeat: Infinity, 
-                repeatType: "reverse" 
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                repeatType: "reverse"
               }}
               className="text-center italic text-lg md:text-xl text-white"
             >
               "{quotes[0]}"
             </motion.p>
           </motion.div>
-          
+
           {/* Main Founder Content */}
           <div className="flex flex-col md:flex-row gap-8 items-center">
             <div className="w-full md:w-1/3">
               <Card className={`overflow-hidden ${themeModeState ? 'border-purple-400 shadow-purple-300/20 shadow-lg' : ''}`}>
-                <img 
-                  src="/lovable-uploads/8c0eebe4-41d3-4f82-9604-4eb14e468a6b.png" 
-                  alt="Kent Burchard - Founder" 
+                <img
+                  src="/lovable-uploads/8c0eebe4-41d3-4f82-9604-4eb14e468a6b.png" // Ensure this path is correct
+                  alt="Kent Burchard - Founder"
                   className={`w-full h-auto transition-all duration-1000 ${themeModeState ? 'filter saturate-110 brightness-105' : ''}`}
                 />
                 <CardContent className="p-4">
@@ -134,15 +124,22 @@ const AboutFounder = () => {
                 </CardContent>
               </Card>
             </div>
-            
+
             <div className="w-full md:w-2/3 space-y-4">
               <Card className={themeModeState ? 'border-purple-300 bg-gradient-to-b from-purple-50 to-white dark:from-purple-950/20 dark:to-gray-900' : ''}>
                 <CardContent className="p-6">
+                  {/* Apply text color fixes here */}
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.8, delay: 0.2 }}
-                    className="space-y-4"
+                    className={cn(
+                      "space-y-4",
+                      // Added text colors for advanced mode for contrast:
+                      themeModeState ? "text-gray-800 dark:text-purple-100" : ""
+                      // You can change text-gray-800 and dark:text-purple-100
+                      // to other contrasting colors if needed for your design.
+                    )}
                     key={themeModeState ? "veil-lifted-bio" : "standard-bio"} // Force re-render on mode change
                   >
                     <p>{content.bio}</p>
@@ -156,13 +153,13 @@ const AboutFounder = () => {
                   </motion.div>
                 </CardContent>
               </Card>
-              
+
               <motion.div
-                animate={{ 
-                  opacity: [0.7, 1, 0.7], 
-                  scale: themeModeState ? [1, 1.01, 1] : 1 
+                animate={{
+                  opacity: [0.7, 1, 0.7],
+                  scale: themeModeState ? [1, 1.01, 1] : 1
                 }}
-                transition={{ 
+                transition={{
                   duration: themeModeState ? 3 : 0,
                   repeat: themeModeState ? Infinity : 0,
                   repeatType: "reverse"
@@ -182,20 +179,20 @@ const AboutFounder = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.8 }}
-            className={`p-6 rounded-lg ${themeModeState 
-              ? 'bg-gradient-to-r from-indigo-900/20 to-purple-900/20 border border-pink-500/20' 
+            className={`p-6 rounded-lg ${themeModeState
+              ? 'bg-gradient-to-r from-indigo-900/20 to-purple-900/20 border border-pink-500/20'
               : 'bg-gradient-to-r from-purple-900/20 to-indigo-900/20 border border-purple-500/20'}`}
           >
-            <motion.p 
-              animate={{ 
-                textShadow: themeModeState 
+            <motion.p
+              animate={{
+                textShadow: themeModeState
                   ? ['0 0 3px rgba(236,72,153,0.3)', '0 0 7px rgba(236,72,153,0.5)', '0 0 3px rgba(236,72,153,0.3)']
                   : ['0 0 3px rgba(147,51,234,0.3)', '0 0 7px rgba(147,51,234,0.5)', '0 0 3px rgba(147,51,234,0.3)']
               }}
-              transition={{ 
-                duration: 4, 
-                repeat: Infinity, 
-                repeatType: "reverse" 
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                repeatType: "reverse"
               }}
               className="text-center italic text-lg md:text-xl text-white"
             >
@@ -206,7 +203,7 @@ const AboutFounder = () => {
             </div>
           </motion.div>
 
-          {/* Footer signature/branding - simple and elegant */}
+          {/* Footer signature/branding */}
           <div className="mt-8 text-center">
             <p className={`text-sm ${themeModeState ? 'text-pink-400' : 'text-purple-400'} italic`}>
               Sacred Shifter — Remembering Our Truth Through Sound & Frequency
