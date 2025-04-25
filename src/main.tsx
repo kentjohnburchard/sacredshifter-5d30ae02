@@ -30,8 +30,6 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <BrowserRouter>
       <EasterEggProvider>
-        <ThemeEnhancer />
-        <ConsciousnessToggle />
         <Toaster 
           position="top-center" 
           richColors 
@@ -43,10 +41,14 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
             }
           }} 
         />
+        <ThemeEnhancer />
+        <ConsciousnessToggle />
         <App />
       </EasterEggProvider>
     </BrowserRouter>
   </React.StrictMode>,
 );
 
+// Add extra debugging help
 console.log("Application rendering complete");
+console.log("TOGGLE DEBUG: To manually toggle consciousness state, run in console: localStorage.setItem('liftTheVeil', 'true') or localStorage.setItem('liftTheVeil', 'false')");

@@ -13,15 +13,15 @@ const EasterEggContext = createContext<EasterEggContextType>({
 });
 
 export const EasterEggProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { liftTheVeil, setLiftTheVeil } = useTheme();
+  const { liftTheVeil, toggleConsciousnessMode } = useTheme();
 
   // Map liftTheVeil to isEasterEggMode for backward compatibility
   const isEasterEggMode = liftTheVeil;
 
-  // Single source of truth for toggle function - simply inverts the current state
+  // Use the centralized toggle function from ThemeContext
   const toggleEasterEggMode = () => {
     console.log("EasterEgg: Toggle triggered, current state:", liftTheVeil);
-    setLiftTheVeil(!liftTheVeil);
+    toggleConsciousnessMode();
   };
 
   return (

@@ -15,6 +15,7 @@ type ThemeContextType = {
   currentTheme: string;
   currentElement: string;
   currentWatermarkStyle: string;
+  toggleConsciousnessMode: () => void; // New toggle function
 };
 
 const ThemeContext = createContext<ThemeContextType>({
@@ -27,6 +28,7 @@ const ThemeContext = createContext<ThemeContextType>({
   currentTheme: "linear-gradient(to right, #4facfe, #00f2fe)",
   currentElement: "water",
   currentWatermarkStyle: "zodiac",
+  toggleConsciousnessMode: () => {}, // New toggle function
 });
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -38,7 +40,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [currentElement, setCurrentElement] = useState("water");
   const [currentWatermarkStyle, setCurrentWatermarkStyle] = useState("zodiac");
   
-  // Initialize theme state from localStorage on mount
+  // Initialize theme state from localStorage on mount - ONCE, synchronously
   useEffect(() => {
     try {
       const savedMode = localStorage.getItem('liftTheVeil');
@@ -57,16 +59,44 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, []);
 
-  // Define the toggle function with better state handling
+  // NEW TOGGLE FUNCTION - simplified to avoid state synchronization issues
+  const toggleConsciousnessMode = useCallback(() => {
+    setLiftTheVeilState(prevState => {
+      const newState = !prevState;
+      console.log(`ThemeContext: toggleConsciousnessMode called, switching from ${prevState} to ${newState}`);
+      
+      // Save to localStorage immediately
+      try {
+        localStorage.setItem('liftTheVeil', String(newState));
+        console.log("Theme state saved to localStorage:", newState);
+      } catch (e) {
+        console.error("Could not save theme state to localStorage:", e);
+      }
+      
+      // Show toast with NEW state (not previous state)
+      toast.success(
+        newState ? "Veil Lifted! Consciousness expanded" : "Returning to standard consciousness",
+        {
+          icon: <Sparkles className={newState ? "text-pink-500" : "text-indigo-500"} />,
+          duration: 3000,
+          position: "top-center"
+        }
+      );
+      
+      return newState;
+    });
+  }, []);
+
+  // Legacy setter function - now simplified to use the toggle logic
   const setLiftTheVeil = useCallback((newMode: boolean) => {
-    console.log("ThemeContext: Toggle called with newMode =", newMode);
+    console.log("ThemeContext: setLiftTheVeil called with newMode =", newMode);
     
     setLiftTheVeilState(prevMode => {
       // Only update if state is actually changing
       if (prevMode !== newMode) {
         console.log(`ThemeContext: State changing from ${prevMode} to ${newMode}`);
         
-        // Save to localStorage FIRST
+        // Save to localStorage
         try {
           localStorage.setItem('liftTheVeil', String(newMode));
           console.log("Theme state saved to localStorage:", newMode);
@@ -74,23 +104,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           console.error("Could not save theme state to localStorage:", e);
         }
         
-        // Show toast AFTER state is updated
-        toast.success(
-          newMode ? "Veil Lifted! Consciousness expanded" : "Returning to standard consciousness",
-          {
-            icon: <Sparkles className={newMode ? "text-pink-500" : "text-indigo-500"} />,
-            duration: 3000,
-            position: "top-center"
-          }
-        );
-        
         return newMode;
       }
       
       console.log("ThemeContext: No change in state, remaining:", prevMode);
       return prevMode;
     });
-    
   }, []);
 
   // Make kentMode a direct reference to liftTheVeil
@@ -143,7 +162,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       refreshQuote: getRandomQuote,
       currentTheme,
       currentElement,
-      currentWatermarkStyle
+      currentWatermarkStyle,
+      toggleConsciousnessMode // Expose the new toggle function
     }}>
       {children}
     </ThemeContext.Provider>
