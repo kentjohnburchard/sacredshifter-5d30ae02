@@ -15,7 +15,7 @@ type ThemeContextType = {
   currentTheme: string;
   currentElement: string;
   currentWatermarkStyle: string;
-  toggleConsciousnessMode: () => void; // New toggle function
+  toggleConsciousnessMode: () => void; // Toggle function
 };
 
 const ThemeContext = createContext<ThemeContextType>({
@@ -28,7 +28,7 @@ const ThemeContext = createContext<ThemeContextType>({
   currentTheme: "linear-gradient(to right, #4facfe, #00f2fe)",
   currentElement: "water",
   currentWatermarkStyle: "zodiac",
-  toggleConsciousnessMode: () => {}, // New toggle function
+  toggleConsciousnessMode: () => {},
 });
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -40,44 +40,43 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [currentElement, setCurrentElement] = useState("water");
   const [currentWatermarkStyle, setCurrentWatermarkStyle] = useState("zodiac");
   
-  // Initialize theme state from localStorage on mount - ONCE, synchronously
+  // Initialize theme state from localStorage ONLY on mount
   useEffect(() => {
     try {
       const savedMode = localStorage.getItem('liftTheVeil');
+      console.log("ThemeContext: Initial localStorage check:", savedMode);
+      
       if (savedMode !== null) {
         const parsedMode = savedMode === 'true';
-        console.log("ThemeContext: Initializing from localStorage:", parsedMode);
+        console.log("ThemeContext: Initializing state from localStorage:", parsedMode);
         setLiftTheVeilState(parsedMode);
-        
-        if (parsedMode) {
-          document.documentElement.classList.add('veil-lifted');
-          setCurrentTheme("linear-gradient(to right, #FF36AB, #B967FF)");
-        }
+      } else {
+        console.log("ThemeContext: No saved mode found, using default (false)");
       }
     } catch (e) {
       console.error("Error reading theme from localStorage:", e);
     }
   }, []);
 
-  // NEW TOGGLE FUNCTION - simplified to avoid state synchronization issues
+  // The CRITICAL toggle function - completely rewritten for reliability
   const toggleConsciousnessMode = useCallback(() => {
     setLiftTheVeilState(prevState => {
       const newState = !prevState;
-      console.log(`ThemeContext: toggleConsciousnessMode called, switching from ${prevState} to ${newState}`);
+      console.log(`ThemeContext: toggleConsciousnessMode executed, flipping from ${prevState} to ${newState}`);
       
-      // Save to localStorage immediately
+      // Save to localStorage
       try {
         localStorage.setItem('liftTheVeil', String(newState));
-        console.log("Theme state saved to localStorage:", newState);
+        console.log("ThemeContext: Saved new state to localStorage:", newState);
       } catch (e) {
-        console.error("Could not save theme state to localStorage:", e);
+        console.error("ThemeContext: Failed to save to localStorage:", e);
       }
       
-      // Show toast with NEW state (not previous state)
+      // Show toast with the NEW state
       toast.success(
-        newState ? "Veil Lifted! Consciousness expanded" : "Returning to standard consciousness",
+        newState ? "Veil Lifted! Consciousness expanded." : "Returning to standard consciousness",
         {
-          icon: <Sparkles className={newState ? "text-pink-500" : "text-indigo-500"} />,
+          icon: <Sparkles className={newState ? "text-pink-500" : "text-purple-500"} />,
           duration: 3000,
           position: "top-center"
         }
@@ -87,28 +86,25 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   }, []);
 
-  // Legacy setter function - now simplified to use the toggle logic
+  // Legacy setter - simplified to use toggleConsciousnessMode when appropriate
   const setLiftTheVeil = useCallback((newMode: boolean) => {
-    console.log("ThemeContext: setLiftTheVeil called with newMode =", newMode);
+    console.log("ThemeContext: setLiftTheVeil called with:", newMode);
     
     setLiftTheVeilState(prevMode => {
-      // Only update if state is actually changing
-      if (prevMode !== newMode) {
-        console.log(`ThemeContext: State changing from ${prevMode} to ${newMode}`);
-        
-        // Save to localStorage
-        try {
-          localStorage.setItem('liftTheVeil', String(newMode));
-          console.log("Theme state saved to localStorage:", newMode);
-        } catch (e) {
-          console.error("Could not save theme state to localStorage:", e);
-        }
-        
-        return newMode;
+      if (prevMode === newMode) {
+        console.log("ThemeContext: No change needed, same state:", newMode);
+        return prevMode;
       }
       
-      console.log("ThemeContext: No change in state, remaining:", prevMode);
-      return prevMode;
+      console.log(`ThemeContext: Changing state from ${prevMode} to ${newMode}`);
+      
+      try {
+        localStorage.setItem('liftTheVeil', String(newMode));
+      } catch (e) {
+        console.error("Could not save theme state to localStorage:", e);
+      }
+      
+      return newMode;
     });
   }, []);
 
@@ -163,7 +159,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       currentTheme,
       currentElement,
       currentWatermarkStyle,
-      toggleConsciousnessMode // Expose the new toggle function
+      toggleConsciousnessMode
     }}>
       {children}
     </ThemeContext.Provider>
