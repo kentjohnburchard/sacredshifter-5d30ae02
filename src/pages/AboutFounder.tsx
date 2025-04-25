@@ -1,20 +1,15 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
-import Layout from "@/components/Layout"; // Assuming Layout component exists
-import { Card, CardContent } from "@/components/ui/card"; // Assuming Card components exist
-import { useTheme } from "@/context/ThemeContext"; // Assuming ThemeContext exists
+import Layout from "@/components/Layout";
+import { Card, CardContent } from "@/components/ui/card";
+import { useTheme } from "@/context/ThemeContext";
 import { Sparkles } from "lucide-react";
-import { cn } from "@/lib/utils"; // Make sure you have a cn utility (like from clsx/tailwind-merge)
+import { cn } from "@/lib/utils";
 
 const AboutFounder = () => {
-  // Use THEME CONTEXT ONLY — no local state for mode, no listeners
+  // THEME CONTEXT ONLY!
   const { liftTheVeil } = useTheme();
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
 
   // Content definitions (identical)
   const standardContent = {
@@ -41,10 +36,9 @@ const AboutFounder = () => {
     mission: "This isn't an app. It's an awareness interface. A vibrational mirror. A reality harmonizer.\n\nYou're not just listening to music. You're decrypting your soul's language.\n\nYou're not just meditating. You're resonating with the mathematics of memory.\n\nYou're not just healing. You're remembering.\n\nThe veil was never a wall — it was a frequency. One that could be lifted. Tuned. Transcended.\n\nI created Sacred Shifter not to teach, but to share what I remembered.\nAnd if you're here, you're already remembering too."
   };
 
-  // Use LIFT THE VEIL from context, not local state!
+  // Choose content based strictly on global context
   const content = liftTheVeil ? advancedContent : standardContent;
 
-  // Quotes to display
   const quotes = [
     "You are not here by accident. You're here because the Universe can't do this without you.",
     "The frequencies we work with are like keys that unlock dormant potentials..."
@@ -55,26 +49,24 @@ const AboutFounder = () => {
       <div className="max-w-4xl mx-auto px-4 py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           className="space-y-8"
           key={`founder-content-${liftTheVeil ? 'veil-lifted' : 'standard'}`}
         >
-          {/* Debug info (visible during development only, now live updates!) */}
+          {/* Debug info (visible during development only, always reflects context) */}
           {process.env.NODE_ENV === 'development' && (
             <div className="bg-black/70 p-2 text-xs text-white fixed top-20 right-4 z-50 rounded">
               <p>Theme from context: {liftTheVeil ? 'Lifted' : 'Standard'}</p>
               <p>Showing content: {liftTheVeil ? 'Advanced' : 'Standard'}</p>
             </div>
           )}
-
           {/* Title Section */}
           <div className="flex items-center justify-between">
             <h1 className={`text-3xl font-bold ${liftTheVeil ? 'bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 text-transparent bg-clip-text' : 'text-purple-900 dark:text-purple-100'}`}>
               {content.title}
             </h1>
           </div>
-
           {/* First Quote - Top */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -100,7 +92,6 @@ const AboutFounder = () => {
               "{quotes[0]}"
             </motion.p>
           </motion.div>
-
           {/* Main Founder Content */}
           <div className="flex flex-col md:flex-row gap-8 items-center">
             <div className="w-full md:w-1/3">
@@ -116,7 +107,6 @@ const AboutFounder = () => {
                 </CardContent>
               </Card>
             </div>
-
             <div className="w-full md:w-2/3 space-y-4">
               <Card className={liftTheVeil ? 'border-purple-300 bg-gradient-to-b from-purple-50 to-white dark:from-purple-950/20 dark:to-gray-900' : ''}>
                 <CardContent className="p-6">
@@ -141,7 +131,6 @@ const AboutFounder = () => {
                   </motion.div>
                 </CardContent>
               </Card>
-
               <motion.div
                 animate={{
                   opacity: [0.7, 1, 0.7],
@@ -161,7 +150,6 @@ const AboutFounder = () => {
               </motion.div>
             </div>
           </div>
-
           {/* Second Quote - Bottom */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -190,7 +178,6 @@ const AboutFounder = () => {
               <Sparkles className={`h-5 w-5 ${liftTheVeil ? 'text-pink-400' : 'text-purple-400'} animate-pulse`} />
             </div>
           </motion.div>
-
           {/* Footer signature/branding */}
           <div className="mt-8 text-center">
             <p className={`text-sm ${liftTheVeil ? 'text-pink-400' : 'text-purple-400'} italic`}>
