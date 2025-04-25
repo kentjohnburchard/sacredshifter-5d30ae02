@@ -48,7 +48,7 @@ const AboutFounder = () => {
     mission: "This isn't an app. It's an awareness interface. A vibrational mirror. A reality harmonizer.\n\nYou're not just listening to music. You're decrypting your soul's language.\n\nYou're not just meditating. You're resonating with the mathematics of memory.\n\nYou're not just healing. You're remembering.\n\nThe veil was never a wall — it was a frequency. One that could be lifted. Tuned. Transcended.\n\nI created Sacred Shifter not to teach, but to share what I remembered.\nAnd if you're here, you're already remembering too."
   };
 
-  // Choose content based on consciousness mode
+  // Choose content based on consciousness mode - FORCED RE-RENDER
   const content = liftTheVeil ? advancedContent : standardContent;
   
   // Quotes to display - reduced to two primary quotes
@@ -65,6 +65,7 @@ const AboutFounder = () => {
           animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.8 }}
           className="space-y-8"
+          key={liftTheVeil ? "veil-lifted-content" : "standard-content"} // Force re-render on mode change
         >
           {/* Debug info (visible during development only) */}
           {process.env.NODE_ENV === 'development' && (
@@ -132,6 +133,7 @@ const AboutFounder = () => {
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.8, delay: 0.2 }}
                     className="space-y-4"
+                    key={liftTheVeil ? "veil-lifted-bio" : "standard-bio"} // Force re-render on mode change
                   >
                     <p>{content.bio}</p>
                     <p>{content.journey}</p>

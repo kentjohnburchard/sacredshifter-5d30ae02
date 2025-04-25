@@ -1,170 +1,134 @@
 
-import React from 'react';
-import NavLink from './NavLink';
-import { useLocation } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import { useTheme } from '@/context/ThemeContext';
-import { getActiveNavItems } from '@/config/navigation';
-import {
-  Music,
-  Heart,
-  HeartPulse,
-  Sparkles,
-  Activity,
-  BookOpen,
-  Mail,
-  User,
-  Settings,
-  Triangle,
-  Flame,
-  Compass,
-  Clock,
-  Map,
-  Brain,
-  BarChart3,
-  Star,
-  LayoutTemplate,
-  LayoutDashboard,
-  ChevronRight,
-} from 'lucide-react';
-
-// Map of route paths to their corresponding icons
-const iconMap: Record<string, React.FC<any>> = {
-  '/dashboard': LayoutDashboard,
-  '/': LayoutDashboard,
-  '/home': LayoutDashboard,
-  '/sacred-blueprint': LayoutTemplate,
-  '/frequency-library': Music,
-  '/frequencies': Music,
-  '/heart-center': Heart,
-  '/emotion-engine': HeartPulse,
-  '/timeline': Activity,
-  '/music-generator': Music,
-  '/mirror-portal': Compass,
-  '/frequency-shift': Sparkles,
-  '/shift-perception': Brain,
-  '/soul-scribe': BookOpen,
-  '/deity-oracle': Flame,
-  '/astral-attunement': Star,
-  '/subscription': User,
-  '/trinity-gateway': Triangle,
-  '/about-founder': User,
-  '/contact': Mail,
-  '/hermetic-wisdom': BookOpen,
-  '/alignment': BarChart3,
-  '/focus': Brain,
-  '/energy-check': Activity,
-  '/astrology': Star,
-  '/heart-dashboard': Heart,
-  '/harmonic-map': Map,
-  '/journey-templates': Map,
-  '/personal-vibe': Settings,
-  '/site-map': Map,
-  '/profile': User,
-  '/landing': LayoutDashboard,
-  '/journey-player': Map,
-  '/journeys': Map
-};
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import { getActiveNavItems, type PageKey, navItems } from "@/config/navigation";
+import { cn } from "@/lib/utils";
+import { ArrowLeft, Check, ChevronDown, ChevronRight, LucideIcon } from "lucide-react";
+import * as Icons from "lucide-react";
+import { getHumanReadablePageName } from "@/utils/pageUtils";
+import { useTheme } from "@/context/ThemeContext";
 
 interface SidebarNavItemsProps {
   isCollapsed?: boolean;
   onLinkClick?: () => void;
 }
 
-const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({ 
-  isCollapsed, 
-  onLinkClick 
+interface NavLinkItemProps {
+  icon?: string;
+  label: string;
+  path: string;
+  isCollapsed?: boolean;
+  pageKey: PageKey;
+  isActive: boolean;
+  onClick?: () => void;
+  liftTheVeil: boolean;
+}
+
+const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
+  isCollapsed = false,
+  onLinkClick,
 }) => {
-  const location = useLocation();
   const { liftTheVeil } = useTheme();
-  const activeNavItems = getActiveNavItems();
+  const location = useLocation();
+  const [activeNavLinks, setActiveNavLinks] = useState<typeof navItems>([]);
   
-  // Log theme state on changes
-  React.useEffect(() => {
+  // Added logging to debug theme changes
+  useEffect(() => {
     console.log("SidebarNavItems theme updated, liftTheVeil:", liftTheVeil);
   }, [liftTheVeil]);
-  
-  // Filter out duplicate home routes by path
-  const displayedPaths = new Set<string>();
-  const filteredNavItems = activeNavItems.filter(item => {
-    // Consider '/' and '/home' as the same home route, but keep /dashboard separate
-    const normalizedPath = ['/home', '/'].includes(item.path) ? 'home' : item.path;
-    
-    if (displayedPaths.has(normalizedPath)) {
-      return false;
-    }
-    displayedPaths.add(normalizedPath);
-    return true;
-  });
 
-  // Helper to check if path is active, including partially matching routes like journey-player
-  const isPathActive = (path: string) => {
-    // Check for exact match
-    if (location.pathname === path) return true;
-    
-    // Special case for journey player routes
-    if (path === '/journey-player' && location.pathname.startsWith('/journey-player/')) return true;
-    
-    return false;
-  };
+  useEffect(() => {
+    // Get active nav items based on application config
+    const items = getActiveNavItems();
+    setActiveNavLinks(items);
+  }, []);
 
   return (
-    <div className="space-y-1">
-      {filteredNavItems.map((item) => {
-        const isActive = isPathActive(item.path);
-        const IconComponent = iconMap[item.path] || LayoutDashboard;
-        
-        // Determine colors based on theme state
-        const activeBackgroundColor = liftTheVeil ? "bg-pink-700/80" : "bg-purple-700/80";
-        const hoverBackgroundColor = liftTheVeil ? "hover:bg-pink-800/70" : "hover:bg-purple-800/70";
-        const glowEffect = liftTheVeil 
-          ? "shadow-[0_0_12px_4px_rgba(236,72,153,0.8)]" 
-          : "shadow-[0_0_12px_4px_rgba(147,51,234,0.8)]";
+    <div className="space-y-1 py-2">
+      {activeNavLinks.map((item) => {
+        const isActive = location.pathname === item.path;
+        console.log("Active nav link:", item.path);
         
         return (
-          <NavLink
+          <NavLinkItem
             key={item.path}
-            to={item.path}
-            isMobile={false}
+            icon={item.icon}
+            label={item.label}
+            path={item.path}
+            pageKey={item.key}
+            isCollapsed={isCollapsed}
+            isActive={isActive}
             onClick={onLinkClick}
-            className={cn(
-              "flex items-center py-2 px-3 text-sm rounded-md transition-colors group relative",
-              isActive
-                ? `${activeBackgroundColor} text-white font-bold` 
-                : "text-white font-medium", 
-              !isActive && liftTheVeil && "hover:bg-pink-800/70 hover:text-white",
-              !isActive && !liftTheVeil && "hover:bg-purple-800/70 hover:text-white"
-            )}
-          >
-            {/* Active item indicator - subtle glow effect */}
-            {isActive && (
-              <div className={cn(
-                "absolute inset-0 rounded-md opacity-40",
-                glowEffect
-              )} />
-            )}
-            
-            <div className="flex items-center z-10 relative w-full">
-              <IconComponent className="h-5 w-5 mr-3 shrink-0 text-white" />
-              
-              {/* Label - ensure it's visible but collapses properly */}
-              <span 
-                className={cn(
-                  "text-white transition-opacity duration-200 whitespace-nowrap overflow-hidden",
-                  isCollapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
-                )}
-              >
-                {item.label}
-              </span>
-              
-              {isCollapsed && (
-                <ChevronRight className="h-4 w-4 ml-auto text-white" />
-              )}
-            </div>
-          </NavLink>
+            liftTheVeil={liftTheVeil}
+          />
         );
       })}
     </div>
+  );
+};
+
+// NavLink component that renders an individual navigation item
+const NavLinkItem: React.FC<NavLinkItemProps> = ({
+  icon,
+  label,
+  path,
+  isCollapsed,
+  isActive,
+  onClick,
+  liftTheVeil
+}) => {
+  // Dynamic import of Lucide icons - with fallback to default icon
+  const IconComponent = useMemo(() => {
+    if (!icon || typeof icon !== 'string') return Icons.Layers;
+    // @ts-ignore - we know these icon names exist in Lucide
+    return Icons[icon] || Icons.Layers;
+  }, [icon]);
+  
+  // Classes for the nav link - changes based on active state and theme mode
+  const linkClasses = useMemo(() => {
+    return cn(
+      "group flex w-full items-center rounded-md border border-transparent px-2 py-1 hover:bg-purple-700/10 nav-link",
+      isActive ? cn(
+        "bg-purple-700/15 font-medium",
+        liftTheVeil ? "text-pink-500 hover:text-pink-400" : "text-purple-600 hover:text-purple-500"
+      ) : cn(
+        "text-gray-500 hover:bg-purple-700/10", 
+        liftTheVeil ? "hover:text-pink-600" : "hover:text-purple-600"
+      ),
+      isCollapsed ? "justify-center" : "justify-start",
+    );
+  }, [isActive, isCollapsed, liftTheVeil]);
+
+  return (
+    <NavLink
+      to={path}
+      className={linkClasses}
+      onClick={onClick}
+    >
+      <div className="relative flex min-h-[32px] w-full items-center gap-2">
+        <IconComponent 
+          className={cn(
+            "h-[18px] w-[18px] shrink-0",
+            isActive ? 
+              (liftTheVeil ? "text-pink-500" : "text-purple-600") : 
+              "text-gray-500"
+          )} 
+        />
+        
+        {!isCollapsed && (
+          <span className="truncate text-sm">{label}</span>
+        )}
+        
+        {isActive && !isCollapsed && (
+          <span 
+            className={cn(
+              "ml-auto h-1.5 w-1.5 rounded-full", 
+              liftTheVeil ? "bg-pink-500" : "bg-purple-600"
+            )}
+          />
+        )}
+      </div>
+    </NavLink>
   );
 };
 

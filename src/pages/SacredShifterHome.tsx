@@ -42,7 +42,7 @@ const SacredShifterHome = () => {
 
   // Listen for theme changes to force re-renders when necessary
   React.useEffect(() => {
-    const handleThemeChange = () => {
+    const handleThemeChange = (event: Event) => {
       console.log('Theme changed event detected in SacredShifterHome');
       // Force component re-render
       setMounted(prevState => !prevState);

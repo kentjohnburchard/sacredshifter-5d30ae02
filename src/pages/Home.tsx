@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
@@ -106,7 +107,7 @@ const Home: React.FC = () => {
               <div className="bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30 p-8 rounded-lg">
                 <h2 className="text-2xl font-bold mb-4">Begin Your Sacred Journey</h2>
                 <p className="mb-6">Create an account to unlock personalized frequencies and track your progress.</p>
-                <Link to="/auth?signup=true">
+                <Link to="/auth">
                   <Button size="lg">
                     Sign Up Now <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
