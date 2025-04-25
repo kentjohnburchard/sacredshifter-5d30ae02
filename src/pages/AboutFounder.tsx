@@ -9,22 +9,38 @@ import { cn } from "@/lib/utils"; // Make sure you have a cn utility (like from 
 const AboutFounder = () => {
   const { liftTheVeil } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
-  // Local state to track theme, primarily used to trigger key changes for remounts/animations
+  // Local state to track theme, updated by context change OR custom event
   const [themeModeState, setThemeModeState] = useState(liftTheVeil);
 
-  // Update local state and visibility when component mounts or theme context changes
+  // Update local state and visibility when component mounts or theme context changes (Standard way)
   useEffect(() => {
     setIsVisible(true);
+    // Update based on context - might be overridden by event listener if event fires after
     setThemeModeState(liftTheVeil);
-    console.log("About Founder theme updated, liftTheVeil:", liftTheVeil);
+    console.log("About Founder theme updated via context, liftTheVeil:", liftTheVeil);
   }, [liftTheVeil]);
 
-  // NOTE: Removed the potentially redundant window event listener for 'themeChanged'
-  // The useEffect above reacting to liftTheVeil from context should be sufficient.
+  // Listen for global theme change events (Restored custom event listener)
+   useEffect(() => {
+    const handleThemeChange = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      // Make sure detail property and liftTheVeil exist, provide default if not
+      // Using liftTheVeil from context as fallback IF detail is missing
+      const newThemeState = customEvent.detail?.liftTheVeil ?? liftTheVeil;
+
+      console.log("AboutFounder caught themeChanged event:", newThemeState);
+      // Update state based on the event
+      setThemeModeState(newThemeState);
+    };
+
+    window.addEventListener('themeChanged', handleThemeChange);
+    // Cleanup the listener when the component unmounts
+    return () => window.removeEventListener('themeChanged', handleThemeChange);
+  }, [liftTheVeil]); // Dependency array includes liftTheVeil because it's used as a fallback
 
   // Content definitions
   const standardContent = {
-    title: "Meet Our Founder",
+    title: "About the Founder",
     bio: "I spent over a decade working at the Royal Flying Doctors Service of Australia, immersed in Information Governance, Knowledge Management, Cybersecurity, and Privacy. From the outside, it looked like I had found my path — structured, technical, grounded in logic. But inside, I felt the pull of something deeper… something I couldn't yet name.",
     journey: "Then life unraveled. I found myself in a relationship that became toxic — shaped by external pressures, a dissonant environment, and a version of myself I no longer recognized. I lost my home, my sense of direction, and most painfully, my mum.",
     process: "What followed was a full reset. I had to rebuild not just my life, but my identity.",
@@ -36,8 +52,8 @@ const AboutFounder = () => {
   };
 
   const advancedContent = {
-    title: "Remembering Truth",
-    bio: "There was a time I thought I had it all figured out — a career grounded in logic, structure, and governance. Over a decade with the Flying Doctors taught me how to protect systems, safeguard data, and understand the importance of knowledge integrity.",
+    title: "About the Founder",
+    bio: "There was a time I thought I had it all figured out — a career grounded in logic, structure, and governance. Over a decade with the Royal Flying Doctor Service of Australia taught me how to protect systems, safeguard data, and understand the importance of knowledge integrity.",
     journey: "But no firewall could protect me from what was coming.",
     process: "I found myself in a relationship that began to fracture — not from within, but from the weight of external noise. Toxic patterns. Lost identities. An environment where truth was clouded. I lost my sense of self, my home, and my foundation… until there was nothing left but the question: who am I really?",
     beginning: "That question didn't lead me to therapy. It led me to frequency.",
@@ -47,7 +63,7 @@ const AboutFounder = () => {
     mission: "This isn't an app. It's an awareness interface. A vibrational mirror. A reality harmonizer.\n\nYou're not just listening to music. You're decrypting your soul's language.\n\nYou're not just meditating. You're resonating with the mathematics of memory.\n\nYou're not just healing. You're remembering.\n\nThe veil was never a wall — it was a frequency. One that could be lifted. Tuned. Transcended.\n\nI created Sacred Shifter not to teach, but to share what I remembered.\nAnd if you're here, you're already remembering too."
   };
 
-  // Choose content based on consciousness mode - use themeModeState to force re-render via keys
+  // Choose content based on consciousness mode - use themeModeState updated by context OR event
   const content = themeModeState ? advancedContent : standardContent;
 
   // Quotes to display
@@ -137,8 +153,7 @@ const AboutFounder = () => {
                       "space-y-4",
                       // Added text colors for advanced mode for contrast:
                       themeModeState ? "text-gray-800 dark:text-purple-100" : ""
-                      // You can change text-gray-800 and dark:text-purple-100
-                      // to other contrasting colors if needed for your design.
+                      // You can change these colors if needed.
                     )}
                     key={themeModeState ? "veil-lifted-bio" : "standard-bio"} // Force re-render on mode change
                   >
