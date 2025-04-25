@@ -18,7 +18,7 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
   withLabel = false,
   withTooltip = true
 }) => {
-  const { liftTheVeil, setLiftTheVeil } = useTheme();
+  const { liftTheVeil, toggleConsciousnessMode } = useTheme();
   const [isHovered, setIsHovered] = useState(false);
   const [showRipple, setShowRipple] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -28,6 +28,10 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
     console.log("PrimeSigilActivator initial state:", liftTheVeil);
   }, []);
 
+  useEffect(() => {
+    console.log("PrimeSigilActivator detected state change:", liftTheVeil);
+  }, [liftTheVeil]);
+
   const dimensions = {
     sm: 40,
     md: 60,
@@ -35,23 +39,13 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
   }[size];
 
   const handleActivate = () => {
-    const newState = !liftTheVeil;
-    console.log("Sigil clicked, toggling state from", liftTheVeil, "to", newState);
+    console.log("Sigil clicked, current state before toggle:", liftTheVeil);
     setShowRipple(true);
-    
     setTimeout(() => setShowRipple(false), 700);
     
-    setLiftTheVeil(newState);
+    toggleConsciousnessMode();
     
-    toast.success(
-      newState ? "Veil Lifted! Consciousness expanded." : "Returning to standard consciousness",
-      { 
-        icon: <span className={newState ? "text-pink-500" : "text-purple-500"}>✨</span>,
-        duration: 3000
-      }
-    );
-    
-    console.log(`Sacred prime mode ${newState ? 'activated' : 'deactivated'}`);
+    console.log("PrimeSigilActivator: Toggle function called");
     
     document.body.classList.toggle('force-update');
     setTimeout(() => document.body.classList.toggle('force-update'), 10);

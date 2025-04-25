@@ -8,7 +8,7 @@ const ConsciousnessToggle: React.FC = () => {
   // Log mount state
   useEffect(() => {
     console.log("ConsciousnessToggle mounted, current state:", liftTheVeil);
-  }, []);
+  }, [liftTheVeil]);
   
   // Log when state changes
   useEffect(() => {

@@ -60,6 +60,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // The CRITICAL toggle function - completely rewritten for reliability
   const toggleConsciousnessMode = useCallback(() => {
+    console.log("TOGGLE FUNCTION CALLED - Current state before toggle:", liftTheVeil);
+    
     setLiftTheVeilState(prevState => {
       const newState = !prevState;
       console.log(`ThemeContext: toggleConsciousnessMode executed, flipping from ${prevState} to ${newState}`);

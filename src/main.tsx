@@ -5,6 +5,7 @@ import App from './App';
 import './index.css';
 import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from "sonner";
+import { ThemeProvider } from '@/context/ThemeContext';
 import { EasterEggProvider } from './context/EasterEggContext';
 import ThemeEnhancer from './components/ThemeEnhancer';
 import ConsciousnessToggle from './components/ConsciousnessToggle';
@@ -37,22 +38,24 @@ initializeTheme();
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <BrowserRouter>
-      <EasterEggProvider>
-        <Toaster 
-          position="top-center" 
-          richColors 
-          toastOptions={{
-            duration: 3000,
-            style: { 
-              background: 'rgba(30, 20, 60, 0.9)', 
-              color: 'white',
-            }
-          }} 
-        />
-        <ThemeEnhancer />
-        <ConsciousnessToggle />
-        <App />
-      </EasterEggProvider>
+      <ThemeProvider>
+        <EasterEggProvider>
+          <Toaster 
+            position="top-center" 
+            richColors 
+            toastOptions={{
+              duration: 3000,
+              style: { 
+                background: 'rgba(30, 20, 60, 0.9)', 
+                color: 'white',
+              }
+            }} 
+          />
+          <ThemeEnhancer />
+          <ConsciousnessToggle />
+          <App />
+        </EasterEggProvider>
+      </ThemeProvider>
     </BrowserRouter>
   </React.StrictMode>,
 );
