@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useLoveQuotes } from "@/hooks/useLoveQuotes";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
@@ -32,19 +33,18 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const { preferences, saveUserPreferences } = useUserPreferences();
   const { randomQuote, refreshRandomQuote, getRandomQuote } = useLoveQuotes();
   const [currentQuote, setCurrentQuote] = useState("");
-  const [liftTheVeil, setLiftTheVeilState] = useState(false);
+  const [liftTheVeil, setLiftTheVeilState] = useState<boolean>(false);
   const [currentTheme, setCurrentTheme] = useState("linear-gradient(to right, #4facfe, #00f2fe)");
   const [currentElement, setCurrentElement] = useState("water");
   const [currentWatermarkStyle, setCurrentWatermarkStyle] = useState("zodiac");
-
+  
+  // Initialize theme state from localStorage on mount
   useEffect(() => {
-    console.log("ThemeProvider mounted, initial state:", liftTheVeil);
-    
     try {
       const savedMode = localStorage.getItem('liftTheVeil');
       if (savedMode !== null) {
         const parsedMode = savedMode === 'true';
-        console.log("Initializing theme from localStorage:", parsedMode);
+        console.log("ThemeContext: Initializing from localStorage:", parsedMode);
         setLiftTheVeilState(parsedMode);
         
         if (parsedMode) {
@@ -57,50 +57,52 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, []);
 
-  const setLiftTheVeil = useCallback((mode: boolean) => {
-    console.log("ThemeContext: Attempting to set consciousness mode to:", mode, "Current mode:", liftTheVeil);
+  // Define the toggle function with better state handling
+  const setLiftTheVeil = useCallback((newMode: boolean) => {
+    console.log("ThemeContext: Toggle called with newMode =", newMode);
     
-    if (mode !== liftTheVeil) {
-      console.log("ThemeContext: State change detected, updating from", liftTheVeil, "to", mode);
-      
-      setLiftTheVeilState(mode);
-      
-      try {
-        localStorage.setItem('liftTheVeil', String(mode));
-        console.log("Theme state saved to localStorage:", mode);
+    setLiftTheVeilState(prevMode => {
+      // Only update if state is actually changing
+      if (prevMode !== newMode) {
+        console.log(`ThemeContext: State changing from ${prevMode} to ${newMode}`);
         
+        // Save to localStorage FIRST
+        try {
+          localStorage.setItem('liftTheVeil', String(newMode));
+          console.log("Theme state saved to localStorage:", newMode);
+        } catch (e) {
+          console.error("Could not save theme state to localStorage:", e);
+        }
+        
+        // Show toast AFTER state is updated
         toast.success(
-          mode ? "Veil Lifted! Consciousness expanded" : "Returning to standard consciousness",
+          newMode ? "Veil Lifted! Consciousness expanded" : "Returning to standard consciousness",
           {
-            icon: <Sparkles className={mode ? "text-pink-500" : "text-indigo-500"} />,
+            icon: <Sparkles className={newMode ? "text-pink-500" : "text-indigo-500"} />,
             duration: 3000,
             position: "top-center"
           }
         );
-      } catch (e) {
-        console.error("Could not save theme state to localStorage:", e);
+        
+        return newMode;
       }
       
-      if (mode) {
-        setCurrentTheme("linear-gradient(to right, #FF36AB, #B967FF)");
-        document.documentElement.classList.add('veil-lifted');
-      } else {
-        setCurrentTheme("linear-gradient(to right, #4facfe, #00f2fe)");
-        document.documentElement.classList.remove('veil-lifted');
-      }
-      
-      const event = new CustomEvent('themeChanged', { detail: { liftTheVeil: mode } });
-      window.dispatchEvent(event);
-    } else {
-      console.log("ThemeContext: No state change needed, staying at", mode);
-    }
-  }, [liftTheVeil]);
+      console.log("ThemeContext: No change in state, remaining:", prevMode);
+      return prevMode;
+    });
+    
+  }, []);
 
+  // Make kentMode a direct reference to liftTheVeil
   const kentMode = liftTheVeil;
   const setKentMode = setLiftTheVeil;
 
+  // Apply theme changes when state changes
   useEffect(() => {
     const root = document.documentElement;
+    
+    console.log("ThemeContext: Applying theme changes, liftTheVeil =", liftTheVeil);
+    
     if (liftTheVeil) {
       root.style.setProperty('--primary-accent', '#FF36AB');
       root.style.setProperty('--secondary-accent', '#B967FF');
@@ -110,7 +112,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       root.style.setProperty('--theme-secondary', '#B967FF');
       
       root.setAttribute('data-theme', 'veil-lifted');
-      console.log("Theme set to pink mode (veil-lifted)");
+      root.classList.add('veil-lifted');
+      setCurrentTheme("linear-gradient(to right, #FF36AB, #B967FF)");
     } else {
       root.style.setProperty('--primary-accent', '#8B5CF6');
       root.style.setProperty('--secondary-accent', '#6366F1');
@@ -120,13 +123,14 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       root.style.setProperty('--theme-secondary', '#00f2fe');
       
       root.setAttribute('data-theme', 'standard');
-      console.log("Theme set to purple mode (standard)");
+      root.classList.remove('veil-lifted');
+      setCurrentTheme("linear-gradient(to right, #4facfe, #00f2fe)");
     }
     
-    console.log("Theme context updated, liftTheVeil:", liftTheVeil);
-    
+    // Dispatch event for components that need to react to theme changes
     const event = new CustomEvent('themeChanged', { detail: { liftTheVeil } });
     window.dispatchEvent(event);
+    
   }, [liftTheVeil]);
 
   return (

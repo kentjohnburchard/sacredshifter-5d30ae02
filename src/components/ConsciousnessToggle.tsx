@@ -7,7 +7,7 @@ const ConsciousnessToggle: React.FC = () => {
   const { liftTheVeil } = useTheme();
   const { toggleEasterEggMode } = useEasterEggContext();
   
-  // Simple toggle function that triggers the state change through the context
+  // Simple toggle function with enhanced logging
   const handleToggle = () => {
     console.log("ConsciousnessToggle: Initiating toggle, current state:", liftTheVeil);
     toggleEasterEggMode();
@@ -15,19 +15,18 @@ const ConsciousnessToggle: React.FC = () => {
   
   return (
     <>
-      {/* Single clickable area */}
+      {/* Larger clickable area to ensure toggle works */}
       <div 
-        className="fixed bottom-16 right-4 z-[1000] w-12 h-12 opacity-0"
+        className="fixed bottom-16 right-4 z-[1000] w-16 h-16 opacity-0 cursor-pointer"
         onClick={handleToggle}
         aria-hidden="true"
+        data-testid="consciousness-toggle"
       />
 
-      {/* Theme state indicator (visible only in dev mode) */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="fixed bottom-2 right-2 z-[1000] bg-black/70 text-white text-xs p-1 rounded">
-          Mode: {liftTheVeil ? 'Veil Lifted' : 'Standard'}
-        </div>
-      )}
+      {/* Theme state indicator (visible in all modes for debugging) */}
+      <div className="fixed bottom-2 right-2 z-[1000] bg-black/70 text-white text-xs p-1 rounded">
+        Mode: {liftTheVeil ? 'Veil Lifted' : 'Standard'}
+      </div>
     </>
   );
 };
