@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useLoveQuotes } from "@/hooks/useLoveQuotes";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
@@ -45,7 +44,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Simplified theme toggling with more robust state management
   const setLiftTheVeil = useCallback((mode: boolean) => {
-    console.log("ThemeContext: Toggling Lift the Veil mode to:", mode);
+    console.log("ThemeContext: Setting consciousness mode to:", mode);
     
     // Update local state
     setLiftTheVeilState(mode);
@@ -53,22 +52,23 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // Save to localStorage for persistence
     try {
       localStorage.setItem('liftTheVeil', String(mode));
+      console.log("Theme state saved to localStorage:", mode);
     } catch (e) {
       console.error("Could not save theme state to localStorage:", e);
     }
     
     // Change theme based on consciousness mode
     if (mode) {
-      // Pink-focused theme for lifted veil
       setCurrentTheme("linear-gradient(to right, #FF36AB, #B967FF)");
       document.documentElement.classList.add('veil-lifted');
-      console.log("Added veil-lifted class to document");
     } else {
-      // Purple-focused theme for standard mode
       setCurrentTheme("linear-gradient(to right, #4facfe, #00f2fe)");
       document.documentElement.classList.remove('veil-lifted');
-      console.log("Removed veil-lifted class from document");
     }
+    
+    // Dispatch theme change event
+    const event = new CustomEvent('themeChanged', { detail: { liftTheVeil: mode } });
+    window.dispatchEvent(event);
   }, []);
 
   // For backward compatibility, alias kentMode to liftTheVeil

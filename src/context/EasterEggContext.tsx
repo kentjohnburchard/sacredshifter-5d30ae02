@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useEffect } from "react";
 import { useTheme } from "./ThemeContext";
 import { toast } from "sonner";
 import { Sparkles } from "lucide-react";
@@ -15,7 +15,6 @@ const EasterEggContext = createContext<EasterEggContextType>({
 });
 
 export const EasterEggProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Use the liftTheVeil state from ThemeContext
   const { liftTheVeil, setLiftTheVeil } = useTheme();
 
   // Log initial state for debugging
@@ -26,16 +25,13 @@ export const EasterEggProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // Map liftTheVeil to isEasterEggMode for backward compatibility
   const isEasterEggMode = liftTheVeil;
 
-  // Toggle function that updates both contexts
+  // Simplified toggle function that updates both contexts
   const toggleEasterEggMode = () => {
     const newState = !liftTheVeil;
-    console.log("Easter egg toggle, changing from", liftTheVeil, "to", newState);
+    console.log("Easter egg toggle triggered, current state:", liftTheVeil, "new state:", newState);
     setLiftTheVeil(newState);
     
-    // Log status for debugging
-    console.log(`Sacred prime mode ${newState ? 'activated' : 'deactivated'}`);
-    
-    // Show toast notification when done via direct DOM manipulation since we're in a context
+    // Show toast notification
     if (window.document) {
       toast.success(
         newState ? "Veil Lifted! Consciousness expanded." : "Returning to standard consciousness",
