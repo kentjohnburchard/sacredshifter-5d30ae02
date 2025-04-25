@@ -97,6 +97,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
       )}
       
       <aside 
+        key={liftTheVeil ? "veil-lifted" : "veil-default"}
         className={cn(
           "fixed left-0 top-0 z-40 flex h-full flex-col border-r shadow-lg transition-all duration-300 sm:translate-x-0",
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full sm:translate-x-0",
