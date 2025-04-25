@@ -67,8 +67,8 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
   const effectivelyCollapsed = isMobileMenuOpen ? false : isCollapsed;
   
   const themeClasses = liftTheVeil 
-    ? "bg-gradient-to-b from-pink-900 via-pink-700 to-fuchsia-900" // strong pink/fuchsia gradient
-    : "bg-gradient-to-b from-purple-800 via-purple-900 to-indigo-900"; // strong purple/indigo gradient
+    ? "sidebar-gradient veil-lifted-gradient"
+    : "sidebar-gradient veil-default-gradient";
 
   useEffect(() => {
     console.log("Sidebar theme updated, liftTheVeil:", liftTheVeil);
@@ -100,7 +100,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         className={cn(
           "fixed left-0 top-0 z-40 flex h-full flex-col border-r shadow-lg transition-all duration-300 sm:translate-x-0",
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full sm:translate-x-0",
-          effectivelyCollapsed ? "w-20" : "w-64",
+          isMobileMenuOpen ? "w-64" : (isCollapsed ? "w-20" : "w-64"),
           themeClasses,
           className
         )}
