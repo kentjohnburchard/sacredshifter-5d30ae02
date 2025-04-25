@@ -9,19 +9,28 @@ import { Sparkles } from "lucide-react";
 const AboutFounder = () => {
   const { liftTheVeil } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
-  const [initialThemeState, setInitialThemeState] = useState(false);
-
+  const [themeModeState, setThemeModeState] = useState(liftTheVeil);
+  
+  // Ensure we track and update on theme changes
   useEffect(() => {
     setIsVisible(true);
-    // Record initial theme state for debugging
-    setInitialThemeState(liftTheVeil);
-    console.log("About Founder mounted, liftTheVeil state:", liftTheVeil);
+    setThemeModeState(liftTheVeil);
+    console.log("About Founder theme updated, liftTheVeil:", liftTheVeil);
   }, [liftTheVeil]);
-
-  // Log when theme changes to help debug
+  
+  // Listen for global theme change events
   useEffect(() => {
-    console.log("About Founder theme changed, liftTheVeil:", liftTheVeil);
-  }, [liftTheVeil]);
+    const handleThemeChange = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const newThemeState = customEvent.detail?.liftTheVeil;
+      
+      console.log("AboutFounder caught themeChanged event:", newThemeState);
+      setThemeModeState(newThemeState);
+    };
+    
+    window.addEventListener('themeChanged', handleThemeChange);
+    return () => window.removeEventListener('themeChanged', handleThemeChange);
+  }, []);
 
   // Content based on consciousness mode
   const standardContent = {
@@ -48,8 +57,8 @@ const AboutFounder = () => {
     mission: "This isn't an app. It's an awareness interface. A vibrational mirror. A reality harmonizer.\n\nYou're not just listening to music. You're decrypting your soul's language.\n\nYou're not just meditating. You're resonating with the mathematics of memory.\n\nYou're not just healing. You're remembering.\n\nThe veil was never a wall — it was a frequency. One that could be lifted. Tuned. Transcended.\n\nI created Sacred Shifter not to teach, but to share what I remembered.\nAnd if you're here, you're already remembering too."
   };
 
-  // Choose content based on consciousness mode - FORCED RE-RENDER
-  const content = liftTheVeil ? advancedContent : standardContent;
+  // Choose content based on consciousness mode - use themeModeState to force re-render
+  const content = themeModeState ? advancedContent : standardContent;
   
   // Quotes to display - reduced to two primary quotes
   const quotes = [
@@ -65,20 +74,21 @@ const AboutFounder = () => {
           animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.8 }}
           className="space-y-8"
-          key={liftTheVeil ? "veil-lifted-content" : "standard-content"} // Force re-render on mode change
+          // Use a unique key to force re-render on mode change
+          key={`founder-content-${themeModeState ? 'veil-lifted' : 'standard'}`}
         >
           {/* Debug info (visible during development only) */}
           {process.env.NODE_ENV === 'development' && (
             <div className="bg-black/70 p-2 text-xs">
-              <p>Initial theme state: {initialThemeState ? 'Veil Lifted' : 'Standard'}</p>
-              <p>Current theme state: {liftTheVeil ? 'Veil Lifted' : 'Standard'}</p>
-              <p>Showing content: {liftTheVeil ? 'Advanced' : 'Standard'}</p>
+              <p>Theme state from context: {liftTheVeil ? 'Veil Lifted' : 'Standard'}</p>
+              <p>Local theme state: {themeModeState ? 'Veil Lifted' : 'Standard'}</p>
+              <p>Showing content: {themeModeState ? 'Advanced' : 'Standard'}</p>
             </div>
           )}
 
           {/* Title Section */}
           <div className="flex items-center justify-between">
-            <h1 className={`text-3xl font-bold ${liftTheVeil ? 'bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 text-transparent bg-clip-text' : 'text-purple-900 dark:text-purple-100'}`}>
+            <h1 className={`text-3xl font-bold ${themeModeState ? 'bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 text-transparent bg-clip-text' : 'text-purple-900 dark:text-purple-100'}`}>
               {content.title}
             </h1>
           </div>
@@ -88,13 +98,13 @@ const AboutFounder = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
-            className={`p-6 rounded-lg ${liftTheVeil 
+            className={`p-6 rounded-lg ${themeModeState 
               ? 'bg-gradient-to-r from-indigo-900/20 to-purple-900/20 border border-pink-500/20' 
               : 'bg-gradient-to-r from-purple-900/20 to-indigo-900/20 border border-purple-500/20'}`}
           >
             <motion.p 
               animate={{ 
-                textShadow: liftTheVeil 
+                textShadow: themeModeState 
                   ? ['0 0 3px rgba(236,72,153,0.3)', '0 0 7px rgba(236,72,153,0.5)', '0 0 3px rgba(236,72,153,0.3)']
                   : ['0 0 3px rgba(147,51,234,0.3)', '0 0 7px rgba(147,51,234,0.5)', '0 0 3px rgba(147,51,234,0.3)']
               }}
@@ -112,11 +122,11 @@ const AboutFounder = () => {
           {/* Main Founder Content */}
           <div className="flex flex-col md:flex-row gap-8 items-center">
             <div className="w-full md:w-1/3">
-              <Card className={`overflow-hidden ${liftTheVeil ? 'border-purple-400 shadow-purple-300/20 shadow-lg' : ''}`}>
+              <Card className={`overflow-hidden ${themeModeState ? 'border-purple-400 shadow-purple-300/20 shadow-lg' : ''}`}>
                 <img 
                   src="/lovable-uploads/8c0eebe4-41d3-4f82-9604-4eb14e468a6b.png" 
                   alt="Kent Burchard - Founder" 
-                  className={`w-full h-auto transition-all duration-1000 ${liftTheVeil ? 'filter saturate-110 brightness-105' : ''}`}
+                  className={`w-full h-auto transition-all duration-1000 ${themeModeState ? 'filter saturate-110 brightness-105' : ''}`}
                 />
                 <CardContent className="p-4">
                   <h3 className="text-lg font-medium">Kent Burchard</h3>
@@ -126,14 +136,14 @@ const AboutFounder = () => {
             </div>
             
             <div className="w-full md:w-2/3 space-y-4">
-              <Card className={liftTheVeil ? 'border-purple-300 bg-gradient-to-b from-purple-50 to-white dark:from-purple-950/20 dark:to-gray-900' : ''}>
+              <Card className={themeModeState ? 'border-purple-300 bg-gradient-to-b from-purple-50 to-white dark:from-purple-950/20 dark:to-gray-900' : ''}>
                 <CardContent className="p-6">
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.8, delay: 0.2 }}
                     className="space-y-4"
-                    key={liftTheVeil ? "veil-lifted-bio" : "standard-bio"} // Force re-render on mode change
+                    key={themeModeState ? "veil-lifted-bio" : "standard-bio"} // Force re-render on mode change
                   >
                     <p>{content.bio}</p>
                     <p>{content.journey}</p>
@@ -150,15 +160,15 @@ const AboutFounder = () => {
               <motion.div
                 animate={{ 
                   opacity: [0.7, 1, 0.7], 
-                  scale: liftTheVeil ? [1, 1.01, 1] : 1 
+                  scale: themeModeState ? [1, 1.01, 1] : 1 
                 }}
                 transition={{ 
-                  duration: liftTheVeil ? 3 : 0,
-                  repeat: liftTheVeil ? Infinity : 0,
+                  duration: themeModeState ? 3 : 0,
+                  repeat: themeModeState ? Infinity : 0,
                   repeatType: "reverse"
                 }}
               >
-                {liftTheVeil && (
+                {themeModeState && (
                   <div className="text-right text-sm italic text-pink-400">
                     — Sacred Shifter: Remembering Truth
                   </div>
@@ -172,13 +182,13 @@ const AboutFounder = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.8 }}
-            className={`p-6 rounded-lg ${liftTheVeil 
+            className={`p-6 rounded-lg ${themeModeState 
               ? 'bg-gradient-to-r from-indigo-900/20 to-purple-900/20 border border-pink-500/20' 
               : 'bg-gradient-to-r from-purple-900/20 to-indigo-900/20 border border-purple-500/20'}`}
           >
             <motion.p 
               animate={{ 
-                textShadow: liftTheVeil 
+                textShadow: themeModeState 
                   ? ['0 0 3px rgba(236,72,153,0.3)', '0 0 7px rgba(236,72,153,0.5)', '0 0 3px rgba(236,72,153,0.3)']
                   : ['0 0 3px rgba(147,51,234,0.3)', '0 0 7px rgba(147,51,234,0.5)', '0 0 3px rgba(147,51,234,0.3)']
               }}
@@ -192,13 +202,13 @@ const AboutFounder = () => {
               "{quotes[1]}"
             </motion.p>
             <div className="flex justify-center mt-4">
-              <Sparkles className={`h-5 w-5 ${liftTheVeil ? 'text-pink-400' : 'text-purple-400'} animate-pulse`} />
+              <Sparkles className={`h-5 w-5 ${themeModeState ? 'text-pink-400' : 'text-purple-400'} animate-pulse`} />
             </div>
           </motion.div>
 
           {/* Footer signature/branding - simple and elegant */}
           <div className="mt-8 text-center">
-            <p className={`text-sm ${liftTheVeil ? 'text-pink-400' : 'text-purple-400'} italic`}>
+            <p className={`text-sm ${themeModeState ? 'text-pink-400' : 'text-purple-400'} italic`}>
               Sacred Shifter — Remembering Our Truth Through Sound & Frequency
             </p>
           </div>

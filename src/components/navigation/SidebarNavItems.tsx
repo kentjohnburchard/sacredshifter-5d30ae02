@@ -31,9 +31,13 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
   const location = useLocation();
   const [activeNavLinks, setActiveNavLinks] = useState<typeof navItems>([]);
   
+  // Force re-render when theme changes
+  const [themeState, setThemeState] = useState(liftTheVeil);
+  
   // Added logging to debug theme changes
   useEffect(() => {
     console.log("SidebarNavItems theme updated, liftTheVeil:", liftTheVeil);
+    setThemeState(liftTheVeil); // Update local state to force re-render
   }, [liftTheVeil]);
 
   useEffect(() => {
@@ -42,11 +46,21 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
     setActiveNavLinks(items);
   }, []);
 
+  // Listen for global theme change events
+  useEffect(() => {
+    const handleThemeChange = () => {
+      console.log("SidebarNavItems detected theme change event");
+      setThemeState(prev => !prev); // Toggle to force re-render
+    };
+    
+    window.addEventListener('themeChanged', handleThemeChange);
+    return () => window.removeEventListener('themeChanged', handleThemeChange);
+  }, []);
+
   return (
     <div className="space-y-1 py-2">
       {activeNavLinks.map((item) => {
         const isActive = location.pathname === item.path;
-        console.log("Active nav link:", item.path);
         
         return (
           <NavLinkItem

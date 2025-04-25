@@ -84,6 +84,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
       );
       
+      // Dispatch event for components that need to react to theme changes
+      const event = new CustomEvent('themeChanged', { 
+        detail: { liftTheVeil: newState } 
+      });
+      window.dispatchEvent(event);
+      console.log("ThemeContext: Dispatched themeChanged event with new state:", newState);
+      
       return newState;
     });
   }, []);
@@ -105,6 +112,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       } catch (e) {
         console.error("Could not save theme state to localStorage:", e);
       }
+      
+      // Dispatch event for components that need to react to theme changes
+      const event = new CustomEvent('themeChanged', { 
+        detail: { liftTheVeil: newMode } 
+      });
+      window.dispatchEvent(event);
+      console.log("ThemeContext: Dispatched themeChanged event with new state:", newMode);
       
       return newMode;
     });
@@ -144,9 +158,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setCurrentTheme("linear-gradient(to right, #4facfe, #00f2fe)");
     }
     
-    // Dispatch event for components that need to react to theme changes
+    // Dispatch event for components that need to react to theme changes - now also called here for redundancy
     const event = new CustomEvent('themeChanged', { detail: { liftTheVeil } });
     window.dispatchEvent(event);
+    console.log("ThemeContext: Dispatched themeChanged event on theme change:", liftTheVeil);
     
   }, [liftTheVeil]);
 
