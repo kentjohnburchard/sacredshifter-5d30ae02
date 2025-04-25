@@ -27,6 +27,7 @@ export const activePages = {
   focus: true,
   hermeticWisdom: true,
   journeyTemplates: true,
+  journeys: true,
   astrology: true,
   siteMap: true,
 };
@@ -219,6 +220,8 @@ export const getActiveNavItems = () => {
     if (isUnique) {
       uniqueKeys.add(item.path);
     }
+    
+    console.log(`Navigation item: ${item.label}, Active: ${isActive}, Path: ${item.path}`);
     
     return isActive && isUnique;
   });

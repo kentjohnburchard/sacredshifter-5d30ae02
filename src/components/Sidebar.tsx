@@ -74,6 +74,12 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
     ? "bg-gradient-to-b from-pink-900 via-pink-800 to-pink-900 border-pink-700" 
     : "bg-gradient-to-b from-purple-900 via-purple-800 to-purple-900 border-purple-700";
 
+  // Log theme state when it changes
+  useEffect(() => {
+    console.log("Sidebar theme updated, liftTheVeil:", liftTheVeil);
+    console.log("Applied theme classes:", themeClasses);
+  }, [liftTheVeil, themeClasses]);
+
   // Don't render UI during SSR to avoid hydration mismatch
   if (!isMounted) return null;
 
@@ -161,8 +167,11 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           <SidebarNavItems 
             isCollapsed={effectivelyCollapsed}
             onLinkClick={() => {
-              setIsCollapsed(true);
-              setIsMobileMenuOpen(false);
+              if (window.innerWidth < 640) {
+                setIsMobileMenuOpen(false);
+              } else {
+                setIsCollapsed(true);
+              }
             }} 
           />
         </ScrollArea>

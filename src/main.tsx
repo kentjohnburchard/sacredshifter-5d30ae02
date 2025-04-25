@@ -9,6 +9,10 @@ import { EasterEggProvider } from './context/EasterEggContext';
 import ThemeEnhancer from './components/ThemeEnhancer';
 import ConsciousnessToggle from './components/ConsciousnessToggle';
 
+// Add console log for debugging
+console.log("Starting Sacred Shifter application");
+
+// Create root element and render application
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <BrowserRouter>
@@ -31,3 +35,5 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     </BrowserRouter>
   </React.StrictMode>,
 );
+
+console.log("Application rendering complete");

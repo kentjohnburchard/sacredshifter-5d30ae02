@@ -29,6 +29,7 @@ import Focus from './pages/Focus';
 import Astrology from './pages/Astrology';
 import Contact from './pages/Contact';
 import PrimeFrequencyActivation from './pages/PrimeFrequencyActivation';
+import Subscription from './pages/Subscription';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -42,6 +43,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/frequencies" element={<FrequencyLibrary />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/subscription" element={<Subscription />} />
         <Route path="/about-founder" element={<AboutFounder />} />
         <Route path="/meditation" element={<Meditation />} />
         <Route path="/hermetic-wisdom" element={<HermeticWisdom />} />

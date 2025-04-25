@@ -12,9 +12,11 @@ import { toast } from "sonner";
 import ThemeEnhancer from '@/components/ThemeEnhancer';
 import ConsciousnessToggle from '@/components/ConsciousnessToggle';
 import Watermark from '@/components/Watermark';
+import { useTheme } from '@/context/ThemeContext';
 
 const SacredShifterHome = () => {
   const { user } = useAuth();
+  const { liftTheVeil } = useTheme();
 
   // Trigger component re-render on mount to ensure animations start
   const [mounted, setMounted] = React.useState(false);
@@ -27,6 +29,7 @@ const SacredShifterHome = () => {
       console.log('SacredShifterHome component mounted');
       console.log('User authenticated:', !!user);
       console.log('Mathematical background rendering with high intensity');
+      console.log('Current consciousness mode:', liftTheVeil ? 'veil-lifted' : 'standard');
       
       // Show welcome toast - only once when component first mounts
       toast.success("Welcome to Sacred Shifter", {
@@ -35,7 +38,7 @@ const SacredShifterHome = () => {
         id: "welcome-toast", // Add ID to prevent duplicates
       });
     }
-  }, [mounted, user]);
+  }, [mounted, user, liftTheVeil]);
 
   return (
     <MathematicalBackground intensity="high">

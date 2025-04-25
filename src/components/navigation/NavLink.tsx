@@ -20,6 +20,13 @@ const NavLink: React.FC<NavLinkProps> = ({
   const location = useLocation();
   const isActive = location.pathname === to;
   
+  React.useEffect(() => {
+    // Log navigation for debugging
+    if (isActive) {
+      console.log("Active nav link:", to);
+    }
+  }, [isActive, to]);
+  
   // CRITICAL FIX: Use explicit/specific Tailwind classes instead of opacity utility
   // This ensures classes don't get purged during production build
   const mobileActiveClass = isActive 

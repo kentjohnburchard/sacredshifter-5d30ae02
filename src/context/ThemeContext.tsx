@@ -70,10 +70,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const kentMode = liftTheVeil;
   const setKentMode = setLiftTheVeil;
 
-  // Add global CSS variables for theme colors with improved contrast
+  // Add global CSS variables for theme colors
   useEffect(() => {
     const root = document.documentElement;
     if (liftTheVeil) {
+      // Set pink theme variables
       root.style.setProperty('--primary-accent', '#FF36AB');
       root.style.setProperty('--secondary-accent', '#B967FF');
       root.style.setProperty('--text-accent', '#FF70E9');
@@ -82,7 +83,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       root.style.setProperty('--theme-secondary', '#B967FF');
       
       root.setAttribute('data-theme', 'veil-lifted');
+      console.log("Theme set to pink mode (veil-lifted)");
     } else {
+      // Set purple theme variables
       root.style.setProperty('--primary-accent', '#8B5CF6');
       root.style.setProperty('--secondary-accent', '#6366F1');
       root.style.setProperty('--text-accent', '#A78BFA');
@@ -91,6 +94,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       root.style.setProperty('--theme-secondary', '#00f2fe');
       
       root.setAttribute('data-theme', 'standard');
+      console.log("Theme set to purple mode (standard)");
     }
     
     console.log("Theme context updated, liftTheVeil:", liftTheVeil);

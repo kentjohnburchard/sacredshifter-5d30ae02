@@ -1,3 +1,4 @@
+
 import React from 'react';
 import NavLink from './NavLink';
 import { useLocation } from 'react-router-dom';
@@ -62,6 +63,7 @@ const iconMap: Record<string, React.FC<any>> = {
   '/profile': User,
   '/landing': LayoutDashboard,
   '/journey-player': Map,
+  '/journeys': Map
 };
 
 interface SidebarNavItemsProps {
@@ -76,6 +78,11 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
   const location = useLocation();
   const { liftTheVeil } = useTheme();
   const activeNavItems = getActiveNavItems();
+  
+  // Log theme state on changes
+  React.useEffect(() => {
+    console.log("SidebarNavItems theme updated, liftTheVeil:", liftTheVeil);
+  }, [liftTheVeil]);
   
   // Filter out duplicate home routes by path
   const displayedPaths = new Set<string>();
@@ -107,6 +114,13 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
         const isActive = isPathActive(item.path);
         const IconComponent = iconMap[item.path] || LayoutDashboard;
         
+        // Determine colors based on theme state
+        const activeBackgroundColor = liftTheVeil ? "bg-pink-700/80" : "bg-purple-700/80";
+        const hoverBackgroundColor = liftTheVeil ? "hover:bg-pink-800/70" : "hover:bg-purple-800/70";
+        const glowEffect = liftTheVeil 
+          ? "shadow-[0_0_12px_4px_rgba(236,72,153,0.8)]" 
+          : "shadow-[0_0_12px_4px_rgba(147,51,234,0.8)]";
+        
         return (
           <NavLink
             key={item.path}
@@ -116,19 +130,17 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
             className={cn(
               "flex items-center py-2 px-3 text-sm rounded-md transition-colors group relative",
               isActive
-                ? liftTheVeil 
-                  ? "bg-pink-700/80 text-white font-bold" 
-                  : "bg-purple-700/80 text-white font-bold"
+                ? `${activeBackgroundColor} text-white font-bold` 
                 : "text-white font-medium", 
-              liftTheVeil && !isActive && "hover:bg-pink-800/70 hover:text-white",
-              !liftTheVeil && !isActive && "hover:bg-purple-800/70 hover:text-white"
+              !isActive && liftTheVeil && "hover:bg-pink-800/70 hover:text-white",
+              !isActive && !liftTheVeil && "hover:bg-purple-800/70 hover:text-white"
             )}
           >
             {/* Active item indicator - subtle glow effect */}
             {isActive && (
               <div className={cn(
                 "absolute inset-0 rounded-md opacity-40",
-                liftTheVeil ? "shadow-[0_0_12px_4px_rgba(236,72,153,0.8)]" : "shadow-[0_0_12px_4px_rgba(147,51,234,0.8)]"
+                glowEffect
               )} />
             )}
             
