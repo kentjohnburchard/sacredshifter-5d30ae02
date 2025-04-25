@@ -38,37 +38,56 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [currentElement, setCurrentElement] = useState("water");
   const [currentWatermarkStyle, setCurrentWatermarkStyle] = useState("zodiac");
 
+  // Debug log for initial mount
+  useEffect(() => {
+    console.log("ThemeProvider mounted, initial state:", liftTheVeil);
+  }, []);
+
   // Simplified theme toggling with more robust state management
   const setLiftTheVeil = useCallback((mode: boolean) => {
-    console.log("Toggling Lift the Veil mode to:", mode);
+    console.log("ThemeContext: Toggling Lift the Veil mode to:", mode);
     
     // Update local state
     setLiftTheVeilState(mode);
+    
+    // Save to localStorage for persistence
+    try {
+      localStorage.setItem('liftTheVeil', String(mode));
+    } catch (e) {
+      console.error("Could not save theme state to localStorage:", e);
+    }
     
     // Change theme based on consciousness mode
     if (mode) {
       // Pink-focused theme for lifted veil
       setCurrentTheme("linear-gradient(to right, #FF36AB, #B967FF)");
       document.documentElement.classList.add('veil-lifted');
+      console.log("Added veil-lifted class to document");
     } else {
       // Purple-focused theme for standard mode
       setCurrentTheme("linear-gradient(to right, #4facfe, #00f2fe)");
       document.documentElement.classList.remove('veil-lifted');
+      console.log("Removed veil-lifted class from document");
     }
-    
-    // Show toast notification to confirm the change
-    toast.success(
-      mode ? "Veil Lifted! Welcome to heightened perception." : "Returning to standard consciousness",
-      {
-        icon: <Sparkles className={mode ? "text-pink-500" : "text-purple-500"} />,
-        duration: 3000
-      }
-    );
   }, []);
 
   // For backward compatibility, alias kentMode to liftTheVeil
   const kentMode = liftTheVeil;
   const setKentMode = setLiftTheVeil;
+
+  // Initialize theme from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedMode = localStorage.getItem('liftTheVeil');
+      if (savedMode !== null) {
+        const parsedMode = savedMode === 'true';
+        console.log("Initializing theme from localStorage:", parsedMode);
+        setLiftTheVeil(parsedMode);
+      }
+    } catch (e) {
+      console.error("Error reading theme from localStorage:", e);
+    }
+  }, [setLiftTheVeil]);
 
   // Add global CSS variables for theme colors
   useEffect(() => {
@@ -98,6 +117,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
     
     console.log("Theme context updated, liftTheVeil:", liftTheVeil);
+    
+    // Dispatch a custom event that can be listened to by other components
+    const event = new CustomEvent('themeChanged', { detail: { liftTheVeil } });
+    window.dispatchEvent(event);
   }, [liftTheVeil]);
 
   return (

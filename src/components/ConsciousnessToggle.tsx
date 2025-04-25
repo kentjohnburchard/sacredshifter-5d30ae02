@@ -26,6 +26,11 @@ const ConsciousnessToggle: React.FC = () => {
     }
   }, [clickCount]);
   
+  // Log initial state for debugging
+  useEffect(() => {
+    console.log("ConsciousnessToggle mounted, liftTheVeil:", liftTheVeil);
+  }, []);
+  
   // Handle click on the logo or secret area
   const handleSecretClick = () => {
     // Increment click counter
@@ -42,6 +47,7 @@ const ConsciousnessToggle: React.FC = () => {
     if (newCount >= CLICKS_TO_TRIGGER) {
       setClickCount(0);
       const newMode = !liftTheVeil;
+      console.log("ConsciousnessToggle: Secret click sequence completed, toggling mode to:", newMode);
       setLiftTheVeil(newMode);
       
       // Show a small toast to indicate the mode change
@@ -84,6 +90,13 @@ const ConsciousnessToggle: React.FC = () => {
         onClick={handleSecretClick}
         aria-hidden="true"
       />
+
+      {/* Theme state indicator (visible only in dev mode) */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed bottom-2 right-2 z-[1000] bg-black/70 text-white text-xs p-1 rounded">
+          Mode: {liftTheVeil ? 'Veil Lifted' : 'Standard'}
+        </div>
+      )}
     </>
   );
 };

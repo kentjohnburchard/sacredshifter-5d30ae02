@@ -40,6 +40,21 @@ const SacredShifterHome = () => {
     }
   }, [mounted, user, liftTheVeil]);
 
+  // Listen for theme changes to force re-renders when necessary
+  React.useEffect(() => {
+    const handleThemeChange = () => {
+      console.log('Theme changed event detected in SacredShifterHome');
+      // Force component re-render
+      setMounted(prevState => !prevState);
+    };
+
+    window.addEventListener('themeChanged', handleThemeChange);
+    
+    return () => {
+      window.removeEventListener('themeChanged', handleThemeChange);
+    };
+  }, []);
+
   return (
     <MathematicalBackground intensity="high">
       <Layout 
@@ -48,7 +63,7 @@ const SacredShifterHome = () => {
         hideHeader={true}
         showGlobalWatermark={true}
       >
-        {/* Add ThemeEnhancer and ConsciousnessToggle back */}
+        {/* ThemeEnhancer and ConsciousnessToggle for changing modes */}
         <ThemeEnhancer />
         <ConsciousnessToggle />
         <Watermark />

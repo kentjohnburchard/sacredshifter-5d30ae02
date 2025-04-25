@@ -1,6 +1,8 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useTheme } from "./ThemeContext";
+import { toast } from "sonner";
+import { Sparkles } from "lucide-react";
 
 type EasterEggContextType = {
   isEasterEggMode: boolean;
@@ -16,22 +18,32 @@ export const EasterEggProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // Use the liftTheVeil state from ThemeContext
   const { liftTheVeil, setLiftTheVeil } = useTheme();
 
+  // Log initial state for debugging
+  useEffect(() => {
+    console.log("EasterEggProvider initialized, liftTheVeil state:", liftTheVeil);
+  }, []);
+
   // Map liftTheVeil to isEasterEggMode for backward compatibility
   const isEasterEggMode = liftTheVeil;
 
   // Toggle function that updates both contexts
   const toggleEasterEggMode = () => {
-    setLiftTheVeil(!liftTheVeil);
+    const newState = !liftTheVeil;
+    console.log("Easter egg toggle, changing from", liftTheVeil, "to", newState);
+    setLiftTheVeil(newState);
+    
     // Log status for debugging
-    console.log(`Sacred prime mode ${!liftTheVeil ? 'activated' : 'deactivated'}`);
+    console.log(`Sacred prime mode ${newState ? 'activated' : 'deactivated'}`);
     
     // Show toast notification when done via direct DOM manipulation since we're in a context
     if (window.document) {
-      // This is a simple way to trigger a notification without importing toast in context
-      const event = new CustomEvent('toggleEasterEgg', {
-        detail: { isEasterEggMode: !liftTheVeil }
-      });
-      window.dispatchEvent(event);
+      toast.success(
+        newState ? "Veil Lifted! Consciousness expanded." : "Returning to standard consciousness",
+        {
+          icon: <Sparkles className={newState ? "text-pink-500" : "text-purple-500"} />,
+          duration: 3000
+        }
+      );
     }
   };
 

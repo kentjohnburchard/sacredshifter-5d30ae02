@@ -7,9 +7,16 @@ import PrimeSigilActivator from '@/components/sacred-geometry/PrimeSigilActivato
 const ThemeEnhancer: React.FC = () => {
   const { liftTheVeil } = useTheme();
   
+  // Log initial state for debugging
+  useEffect(() => {
+    console.log("ThemeEnhancer mounted, liftTheVeil:", liftTheVeil);
+  }, []);
+  
   // Apply global CSS variables when theme changes
   useEffect(() => {
     const root = document.documentElement;
+    
+    console.log("ThemeEnhancer effect updating UI, liftTheVeil:", liftTheVeil);
     
     // Apply different logo hue/filter when veil is lifted
     const logo = document.querySelector('.app-logo') as HTMLElement;
@@ -27,12 +34,22 @@ const ThemeEnhancer: React.FC = () => {
       root.style.setProperty('--primary-glow', 'rgba(255, 105, 180, 0.6)');
       root.style.setProperty('--fractal-intensity', '1.8');
       
+      // Force navigation elements to update their styling
+      document.querySelectorAll('.nav-link').forEach(el => {
+        el.classList.add('veil-lifted-nav');
+      });
+      
       // Add visual feedback when veil is lifted
       console.log('Veil lifted - consciousness expanded');
     } else {
       root.classList.remove('veil-lifted');
       root.style.setProperty('--primary-glow', 'rgba(147, 51, 234, 0.5)');
       root.style.setProperty('--fractal-intensity', '1.2');
+      
+      // Reset navigation styling
+      document.querySelectorAll('.nav-link').forEach(el => {
+        el.classList.remove('veil-lifted-nav');
+      });
       
       console.log('Standard consciousness mode');
     }

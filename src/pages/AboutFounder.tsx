@@ -9,10 +9,19 @@ import { Sparkles } from "lucide-react";
 const AboutFounder = () => {
   const { liftTheVeil } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
+  const [initialThemeState, setInitialThemeState] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
-  }, []);
+    // Record initial theme state for debugging
+    setInitialThemeState(liftTheVeil);
+    console.log("About Founder mounted, liftTheVeil state:", liftTheVeil);
+  }, [liftTheVeil]);
+
+  // Log when theme changes to help debug
+  useEffect(() => {
+    console.log("About Founder theme changed, liftTheVeil:", liftTheVeil);
+  }, [liftTheVeil]);
 
   // Content based on consciousness mode
   const standardContent = {
@@ -57,6 +66,15 @@ const AboutFounder = () => {
           transition={{ duration: 0.8 }}
           className="space-y-8"
         >
+          {/* Debug info (visible during development only) */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="bg-black/70 p-2 text-xs">
+              <p>Initial theme state: {initialThemeState ? 'Veil Lifted' : 'Standard'}</p>
+              <p>Current theme state: {liftTheVeil ? 'Veil Lifted' : 'Standard'}</p>
+              <p>Showing content: {liftTheVeil ? 'Advanced' : 'Standard'}</p>
+            </div>
+          )}
+
           {/* Title Section */}
           <div className="flex items-center justify-between">
             <h1 className={`text-3xl font-bold ${liftTheVeil ? 'bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 text-transparent bg-clip-text' : 'text-purple-900 dark:text-purple-100'}`}>

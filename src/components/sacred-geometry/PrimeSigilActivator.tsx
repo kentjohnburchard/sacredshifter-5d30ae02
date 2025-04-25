@@ -1,9 +1,9 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { generatePrimeSequence } from '@/utils/primeCalculations';
+import { toast } from "sonner";
 
 interface PrimeSigilActivatorProps {
   className?: string;
@@ -24,6 +24,10 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
   const svgRef = useRef<SVGSVGElement>(null);
   const primes = useRef(generatePrimeSequence(12)).current;
 
+  useEffect(() => {
+    console.log("PrimeSigilActivator initial state:", liftTheVeil);
+  }, []);
+
   const dimensions = {
     sm: 40,
     md: 60,
@@ -31,16 +35,26 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
   }[size];
 
   const handleActivate = () => {
-    console.log("Sigil clicked, current state:", liftTheVeil);
+    const newState = !liftTheVeil;
+    console.log("Sigil clicked, toggling state from", liftTheVeil, "to", newState);
     setShowRipple(true);
     
-    // Immediate visual feedback
     setTimeout(() => setShowRipple(false), 700);
     
-    // Toggle the veil state
-    setLiftTheVeil(!liftTheVeil);
+    setLiftTheVeil(newState);
     
-    console.log(`Sacred prime mode ${!liftTheVeil ? 'activated' : 'deactivated'}`);
+    toast.success(
+      newState ? "Veil Lifted! Consciousness expanded." : "Returning to standard consciousness",
+      { 
+        icon: <span className={newState ? "text-pink-500" : "text-purple-500"}>✨</span>,
+        duration: 3000
+      }
+    );
+    
+    console.log(`Sacred prime mode ${newState ? 'activated' : 'deactivated'}`);
+    
+    document.body.classList.toggle('force-update');
+    setTimeout(() => document.body.classList.toggle('force-update'), 10);
   };
 
   const createGoldenSpiralPath = (centerX: number, centerY: number, maxRadius: number): string => {

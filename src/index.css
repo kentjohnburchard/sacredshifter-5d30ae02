@@ -153,56 +153,78 @@
 }
 
 /* Apply veil-lifted purple to pink gradient when veil-lifted mode is active */
+html.veil-lifted .bg-purple-600,
 .veil-lifted .bg-purple-600 {
   @apply bg-pink-600;
 }
 
+html.veil-lifted .text-purple-600,
+.veil-lifted .text-purple-600 {
+  @apply text-pink-600;
+}
+
+html.veil-lifted .from-purple-600,
 .veil-lifted .from-purple-600 {
   @apply from-pink-600;
 }
 
+html.veil-lifted .to-indigo-600,
 .veil-lifted .to-indigo-600 {
   @apply to-fuchsia-600;
 }
 
+html.veil-lifted .hover\:from-purple-700:hover,
 .veil-lifted .hover\:from-purple-700:hover {
   @apply hover:from-pink-700;
 }
 
+html.veil-lifted .hover\:to-indigo-700:hover,
 .veil-lifted .hover\:to-indigo-700:hover {
   @apply hover:to-fuchsia-700;
 }
 
+html.veil-lifted ::-webkit-scrollbar-thumb,
 .veil-lifted ::-webkit-scrollbar-thumb {
   background: rgba(236, 72, 153, 0.7);
 }
 
+html.veil-lifted ::-webkit-scrollbar-thumb:hover,
 .veil-lifted ::-webkit-scrollbar-thumb:hover {
   background: rgba(236, 72, 153, 0.9);
 }
 
 /* Enhanced Veil-Lifted Text Colors */
-.veil-lifted h1, .veil-lifted h2, .veil-lifted h3 {
+html.veil-lifted h1, 
+html.veil-lifted h2, 
+html.veil-lifted h3,
+.veil-lifted h1, 
+.veil-lifted h2, 
+.veil-lifted h3 {
   @apply text-pink-300;
 }
 
+html.veil-lifted .text-purple-300,
 .veil-lifted .text-purple-300 {
   @apply text-pink-300;
 }
 
+html.veil-lifted .text-purple-400,
 .veil-lifted .text-purple-400 {
   @apply text-pink-400;
 }
 
+html.veil-lifted .text-purple-500,
 .veil-lifted .text-purple-500 {
   @apply text-pink-500;
 }
 
+html.veil-lifted .text-purple-600,
 .veil-lifted .text-purple-600 {
   @apply text-pink-600;
 }
 
 /* Enhanced Transition Effects */
+html.veil-lifted,
 .veil-lifted {
   transition: all 0.5s ease-in-out;
 }
@@ -211,7 +233,24 @@ body {
   transition: background-color 0.5s ease-in-out;
 }
 
+/* Sidebar navigation styles */
+html.veil-lifted .sidebar-nav a,
+.veil-lifted .sidebar-nav a {
+  @apply text-pink-200 hover:text-pink-100 !important;
+}
+
+html.veil-lifted .sidebar-nav a.active,
+.veil-lifted .sidebar-nav a.active {
+  @apply bg-pink-600/20 text-pink-100 !important;
+}
+
+html.veil-lifted .veil-lifted-nav,
+.veil-lifted .veil-lifted-nav {
+  @apply text-pink-400 !important;
+}
+
 /* Cosmic Background for Lifted Veil */
+html.veil-lifted .cosmic-background,
 .veil-lifted .cosmic-background {
   @apply bg-gradient-to-br from-pink-900/20 to-fuchsia-900/20;
   background-image: radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.2) 0%, transparent 60%);
