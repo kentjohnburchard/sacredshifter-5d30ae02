@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
@@ -6,8 +5,6 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Heart, Music, Sparkles, Star } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/context/AuthContext';
-
-// ADD: Import GeometricPatterns as animated background
 import { GeometricPatterns } from '@/components/backgrounds';
 
 const Home: React.FC = () => {
@@ -15,14 +12,10 @@ const Home: React.FC = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* NEW: Animated geometric background */}
-      <GeometricPatterns patternCount={9} />
-
-      {/* Content overlays the animated background */}
+      <GeometricPatterns patternCount={10} />
       <Layout>
         <div className="container mx-auto px-4 py-8 relative z-10">
           <div className="max-w-5xl mx-auto">
-            {/* Hero Section */}
             <section className="text-center py-12">
               <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-600">
                 Welcome to Sacred Shifter
@@ -45,7 +38,6 @@ const Home: React.FC = () => {
               </div>
             </section>
             
-            {/* Features Section */}
             <section className="py-12">
               <h2 className="text-3xl font-bold mb-8 text-center">Discover Your Journey</h2>
               
@@ -109,7 +101,6 @@ const Home: React.FC = () => {
               </div>
             </section>
             
-            {/* Call to Action */}
             {!user && (
               <section className="py-12 text-center">
                 <div className="bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30 p-8 rounded-lg">
