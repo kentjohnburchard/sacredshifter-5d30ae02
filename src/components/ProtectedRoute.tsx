@@ -14,6 +14,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const [checkingOnboarding, setCheckingOnboarding] = useState(false);
   const location = useLocation();
 
+  console.log("ProtectedRoute: User authenticated?", !!user, "Loading?", loading);
+
   useEffect(() => {
     const checkOnboarding = async () => {
       if (!user) return;
@@ -42,7 +44,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     }
   }, [user, location.pathname]);
 
-  if (loading || checkingOnboarding) {
+  if (loading) {
+    console.log("ProtectedRoute: Still loading authentication state");
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent"></div>
@@ -51,6 +54,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   if (!user) {
+    console.log("ProtectedRoute: No user, redirecting to auth page");
     // Explicitly store the intended path before redirecting
     const currentPath = location.pathname;
     if (currentPath !== "/auth") {
@@ -59,6 +63,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <Navigate to="/auth" replace state={{ from: location }} />;
   }
   
+  console.log("ProtectedRoute: User authenticated, rendering protected content");
   // Always return children for now since onboarding is disabled
   return <>{children}</>;
 

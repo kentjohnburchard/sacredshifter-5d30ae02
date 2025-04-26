@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -18,6 +19,7 @@ const Auth = () => {
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
 
   // Test user accounts
   const testUsers = [
@@ -28,6 +30,7 @@ const Auth = () => {
 
   // Check if we should show signup tab by default
   useEffect(() => {
+    console.log("Auth page: Checking params and user state");
     if (searchParams.get('signup') === 'true') {
       setActiveTab('signup');
     } else if (searchParams.get('test') === 'true') {
@@ -37,23 +40,31 @@ const Auth = () => {
 
   // If user is already logged in, redirect to dashboard
   useEffect(() => {
+    console.log("Auth page: User authenticated?", !!user);
     if (user) {
-      navigate('/dashboard');
+      const redirectPath = sessionStorage.getItem('redirectAfterLogin') || '/dashboard';
+      console.log(`Auth page: User authenticated, redirecting to ${redirectPath}`);
+      sessionStorage.removeItem('redirectAfterLogin'); // Clear the stored path
+      navigate(redirectPath);
     }
   }, [user, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log(`Auth page: Attempting login for ${email}`);
     setLoading(true);
     try {
       const { error } = await signIn({ email, password });
       if (error) {
+        console.error("Login error:", error.message);
         toast.error(error.message);
       } else {
+        console.log("Login successful, waiting for auth state update");
         toast.success('Successfully signed in!');
-        navigate('/dashboard');
+        // The redirect will happen in useEffect when user state updates
       }
     } catch (error: any) {
+      console.error("Login exception:", error);
       toast.error(error.message || 'Failed to sign in');
     } finally {
       setLoading(false);
@@ -62,15 +73,19 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log(`Auth page: Attempting signup for ${email}`);
     setLoading(true);
     try {
       const { error } = await signUp({ email, password });
       if (error) {
+        console.error("Signup error:", error.message);
         toast.error(error.message);
       } else {
+        console.log("Signup successful");
         toast.success('Registration successful! Please check your email for confirmation.');
       }
     } catch (error: any) {
+      console.error("Signup exception:", error);
       toast.error(error.message || 'Failed to sign up');
     } finally {
       setLoading(false);
@@ -78,9 +93,9 @@ const Auth = () => {
   };
 
   const loginWithTestUser = async (testEmail: string, testPassword: string) => {
+    console.log(`Auth page: Attempting login with test account: ${testEmail}`);
     setLoading(true);
     try {
-      console.log(`Attempting to login with test account: ${testEmail}`);
       const { error } = await signIn({ 
         email: testEmail, 
         password: testPassword 
@@ -92,7 +107,7 @@ const Auth = () => {
       } else {
         console.log("Test login successful");
         toast.success(`Logged in as test user: ${testEmail}`);
-        navigate('/dashboard');
+        // The redirect will happen in useEffect when user state updates
       }
     } catch (error: any) {
       console.error("Test login exception:", error);

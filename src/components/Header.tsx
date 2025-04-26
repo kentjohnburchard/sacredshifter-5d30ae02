@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { LogOut, CreditCard, User, LayoutDashboard } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -17,6 +17,11 @@ import { toast } from "sonner";
 
 const Header: React.FC = () => {
   const { user, signOut } = useAuth();
+  
+  // Debug log to track user authentication state
+  useEffect(() => {
+    console.log("Header component: User authenticated?", !!user, user?.email);
+  }, [user]);
   
   const handleSignOut = async () => {
     try {
@@ -104,4 +109,3 @@ const Header: React.FC = () => {
 };
 
 export default Header;
-
