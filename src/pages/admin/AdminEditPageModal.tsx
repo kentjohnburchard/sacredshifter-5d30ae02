@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { useUpdateNavigationItem } from "./useNavigationItems";
 
 type PageConfig = {
   path: string;
@@ -36,7 +36,7 @@ const AdminEditPageModal: React.FC<AdminEditPageModalProps> = ({
 
   const labelMap: Record<"label" | "path", string> = {
     label: "Page Name / Label",
-    path: "Page Route / Path"
+    path: "Page Route / Path",
   };
 
   return (
@@ -51,9 +51,6 @@ const AdminEditPageModal: React.FC<AdminEditPageModalProps> = ({
             onChange={e => setVal(e.target.value)}
             className="w-full px-3 py-2 border rounded bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-400 dark:bg-gray-800 dark:text-white"
           />
-        </div>
-        <div className="text-sm text-gray-500 mb-4">
-          This is just a UI preview; to persist navigation changes, update <code>src/config/navigation.ts</code>
         </div>
         <div className="flex gap-3 justify-end">
           <Button variant="secondary" onClick={onClose}>Cancel</Button>

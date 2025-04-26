@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { navItems, activePages } from "@/config/navigation";
@@ -34,61 +33,138 @@ const iconMap: Record<string, React.FC<{ className?: string }>> = {
   // Add more as needed!
 };
 
+import {
+  useNavigationItems,
+  useUpdateNavigationItem,
+  useAddNavigationItem,
+  useDeleteNavigationItem,
+  NavigationItem,
+} from "./useNavigationItems";
+import { Plus } from "lucide-react";
+
 type PageConfig = (typeof navItems)[number] & { isActive: boolean };
 
 const AdminPagesCanvas: React.FC = () => {
   const { toast } = useToast();
-  // Generate a list of all navigation-configured pages
-  const allPages: PageConfig[] = navItems.map(item => ({
-    ...item,
-    isActive: activePages[item.key],
-  }));
 
-  // Modal/confirm management states
-  const [editingPage, setEditingPage] = useState<PageConfig | null>(null);
+  // Use Supabase-powered navigation
+  const { data: allPages = [], isLoading, error } = useNavigationItems();
+  const updateItem = useUpdateNavigationItem();
+  const deleteItem = useDeleteNavigationItem();
+  const addItem = useAddNavigationItem();
+
+  const [editingPage, setEditingPage] = useState<NavigationItem | null>(null);
   const [editingField, setEditingField] = useState<"label" | "path" | null>(null);
-  const [deletingPage, setDeletingPage] = useState<PageConfig | null>(null);
+  const [deletingPage, setDeletingPage] = useState<NavigationItem | null>(null);
 
-  const handleEdit = (page: PageConfig) => {
+  // Add page modal state
+  const [adding, setAdding] = useState(false);
+
+  // Handle field edit
+  const handleEdit = (page: NavigationItem) => {
     setEditingField("label");
     setEditingPage(page);
   };
 
-  const handleLink = (page: PageConfig) => {
+  const handleLink = (page: NavigationItem) => {
     setEditingField("path");
     setEditingPage(page);
   };
 
-  const handleDelete = (page: PageConfig) => {
+  const handleDelete = (page: NavigationItem) => {
     setDeletingPage(page);
   };
 
-  const handleModalClose = () => {
-    setEditingPage(null);
-    setEditingField(null);
-  };
-  const handleModalSave = (updatedValue: string) => {
+  // Save field change to Supabase
+  const handleModalSave = async (updatedValue: string) => {
     if (!editingPage || !editingField) return;
-    toast({
-      title: "Config changes aren't live yet",
-      description: `Pretend-updating page "${editingPage.label}" (${editingField}): ${updatedValue}.\nThis UI is a preview—persist these changes in src/config/navigation.ts.`,
-      variant: "default",
-    });
-    console.log(`Would update page [${editingPage.label}] (${editingField}) to "${updatedValue}"`);
+    try {
+      await updateItem.mutateAsync({
+        id: editingPage.id,
+        field: editingField,
+        value: updatedValue,
+      });
+      toast({
+        title: "Navigation Updated",
+        description: `Updated ${editingField === "label" ? "name" : "route"} for "${editingPage.label}".`,
+        variant: "default",
+      });
+    } catch (e: any) {
+      toast({
+        title: "Update failed",
+        description: e.message,
+        variant: "destructive",
+      });
+    }
     setEditingPage(null);
     setEditingField(null);
   };
 
-  const handleConfirmDelete = () => {
-    if (deletingPage) {
+  // Save deletion
+  const handleConfirmDelete = async () => {
+    if (!deletingPage) return;
+    try {
+      await deleteItem.mutateAsync(deletingPage.id);
       toast({
-        title: "Delete simulation",
-        description: `Pretend-deleting page "${deletingPage.label}".\nThis will really be effective after supporting backend/config CRUD.`,
+        title: "Navigation Deleted",
+        description: `Deleted page "${deletingPage.label}".`,
         variant: "destructive",
       });
-      console.log(`Would delete page [${deletingPage.label}]`);
+    } catch (e: any) {
+      toast({
+        title: "Delete failed",
+        description: e.message,
+        variant: "destructive",
+      });
     }
     setDeletingPage(null);
+  };
+
+  // Add new page
+  const handleAddPage = async (newPage: Partial<NavigationItem>) => {
+    try {
+      await addItem.mutateAsync({
+        label: newPage.label || "New Page",
+        path: newPage.path || "/new-page",
+        icon: newPage.icon || "layout-dashboard",
+        order: allPages.length,
+        active: true,
+      });
+      toast({
+        title: "Page added",
+        description: `New navigation page "${newPage.label}" added.`,
+        variant: "default",
+      });
+    } catch (e: any) {
+      toast({
+        title: "Add failed",
+        description: e.message,
+        variant: "destructive",
+      });
+    }
+    setAdding(false);
+  };
+
+  // Handle toggling active/inactive
+  const handleToggleActive = async (page: NavigationItem) => {
+    try {
+      await updateItem.mutateAsync({
+        id: page.id,
+        field: "active",
+        value: !page.active,
+      });
+      toast({
+        title: page.active ? "Page hidden" : "Page shown",
+        description: `"${page.label}" is now ${page.active ? "hidden" : "shown"} in navigation.`,
+        variant: "default",
+      });
+    } catch (e: any) {
+      toast({
+        title: "Toggle failed",
+        description: e.message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -103,76 +179,96 @@ const AdminPagesCanvas: React.FC = () => {
         <p className="text-gray-600 mb-2">
           Manage your website pages, their navigation status, and linking.
         </p>
-        <Button variant="outline" size="sm" className="flex items-center gap-2 mb-3" disabled>
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-2 mb-3"
+          onClick={() => setAdding(true)}
+        >
           <Plus className="h-4 w-4" />
-          Add New Page (Coming Soon)
+          Add New Page
         </Button>
       </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Route</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Icon</TableHead>
-            <TableHead>Shown in Navigation?</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {allPages.map(page => (
-            <TableRow key={page.path}>
-              <TableCell>
-                <Link to={page.path} className="text-purple-600 hover:underline">
-                  {page.path}
-                </Link>
-              </TableCell>
-              <TableCell>{page.label}</TableCell>
-              <TableCell>
-                {page.icon && iconMap[page.icon] ? (
-                  React.createElement(iconMap[page.icon], { className: "h-6 w-6 text-purple-500" })
-                ) : (
-                  <Sidebar className="h-6 w-6 text-gray-400" />
-                )}
-              </TableCell>
-              <TableCell>
-                {page.isActive ? (
-                  <span className="flex items-center gap-1 text-emerald-700 font-semibold"><Eye className="h-4 w-4" /> Yes</span>
-                ) : (
-                  <span className="flex items-center gap-1 text-gray-400"><EyeOff className="h-4 w-4" /> Hidden</span>
-                )}
-              </TableCell>
-              <TableCell>
-                <Button size="icon" variant="ghost" aria-label="Edit page"
-                  onClick={() => handleEdit(page)}
-                  className="hover:bg-purple-100 focus:outline-none active:bg-purple-200"
-                >
-                  <Edit className="h-4 w-4 text-purple-600" />
-                </Button>
-                <Button size="icon" variant="ghost" aria-label="Delete page"
-                  onClick={() => handleDelete(page)}
-                  className="hover:bg-red-100 focus:outline-none active:bg-red-200"
-                >
-                  <Trash2 className="h-4 w-4 text-red-500" />
-                </Button>
-                <Button size="icon" variant="ghost" aria-label="Edit link"
-                  onClick={() => handleLink(page)}
-                  className="hover:bg-blue-100 focus:outline-none active:bg-blue-200"
-                >
-                  <LinkIcon className="h-4 w-4 text-blue-500" />
-                </Button>
-              </TableCell>
+      {/* Loading / error state */}
+      {isLoading && <div className="py-8 text-center text-gray-500">Loading pages…</div>}
+      {error && <div className="py-8 text-center text-red-400">Failed to load: {String(error.message || error)}</div>}
+      {!isLoading && !error && (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Route</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Icon</TableHead>
+              <TableHead>Shown in Navigation?</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {allPages.map(page => (
+              <TableRow key={page.id}>
+                <TableCell>
+                  <Link to={page.path} className="text-purple-600 hover:underline">
+                    {page.path}
+                  </Link>
+                </TableCell>
+                <TableCell>{page.label}</TableCell>
+                <TableCell>{page.icon}</TableCell>
+                <TableCell>
+                  <Button
+                    onClick={() => handleToggleActive(page)}
+                    size="sm"
+                    variant={page.active ? "default" : "outline"}
+                  >
+                    {page.active ? "Shown" : "Hidden"}
+                  </Button>
+                </TableCell>
+                <TableCell className="flex gap-1">
+                  <Button size="icon" variant="ghost" aria-label="Edit page"
+                    onClick={() => handleEdit(page)}
+                  >
+                    <Edit className="h-4 w-4 text-purple-600" />
+                  </Button>
+                  <Button size="icon" variant="ghost" aria-label="Delete page"
+                    onClick={() => handleDelete(page)}
+                  >
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </Button>
+                  <Button size="icon" variant="ghost" aria-label="Edit link"
+                    onClick={() => handleLink(page)}
+                  >
+                    <LinkIcon className="h-4 w-4 text-blue-500" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
       {/* Edit Modal */}
       <AdminEditPageModal
         open={!!editingPage}
         field={editingField}
         page={editingPage}
-        onClose={handleModalClose}
+        onClose={() => {
+          setEditingPage(null);
+          setEditingField(null);
+        }}
         onSave={handleModalSave}
       />
+      {/* Add Modal */}
+      {adding && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 min-w-[350px] max-w-[90vw]">
+            <div className="text-xl font-bold mb-3 text-gray-800 dark:text-gray-100">
+              Add Navigation Page
+            </div>
+            <AddPageForm
+              onAdd={handleAddPage}
+              onCancel={() => setAdding(false)}
+            />
+          </div>
+        </div>
+      )}
       {/* Delete confirm */}
       {deletingPage && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/30">
@@ -180,10 +276,6 @@ const AdminPagesCanvas: React.FC = () => {
             <div className="text-lg font-bold mb-2 text-red-700">Delete page?</div>
             <div className="mb-4">
               Are you sure you want to delete <span className="font-semibold">{deletingPage.label}</span>?
-              <br />
-              <span className="text-xs text-gray-500">
-                (Simulation: Pages can only be changed in code for now.)
-              </span>
             </div>
             <div className="flex gap-3 justify-end">
               <Button variant="secondary" onClick={() => setDeletingPage(null)}>Cancel</Button>
@@ -194,10 +286,55 @@ const AdminPagesCanvas: React.FC = () => {
       )}
       <div className="pt-6">
         <div className="text-gray-500 text-xs">
-          More controls & direct-edit capabilities coming soon. For now, editing navigation and routes must still be done in <code>src/config/navigation.ts</code> and AppRoutes.
+          Navigation changes are <strong>LIVE</strong>. All edits persist to the Supabase database and affect navigation immediately!
         </div>
       </div>
     </div>
+  );
+};
+
+// AddPageForm helper
+const AddPageForm: React.FC<{
+  onAdd: (vals: any) => void;
+  onCancel: () => void;
+}> = ({ onAdd, onCancel }) => {
+  const [label, setLabel] = useState("");
+  const [path, setPath] = useState("");
+  const [icon, setIcon] = useState("");
+
+  return (
+    <form
+      className="space-y-3"
+      onSubmit={e => {
+        e.preventDefault();
+        onAdd({ label, path, icon });
+      }}
+    >
+      <input
+        placeholder="Page Name / Label"
+        value={label}
+        onChange={e => setLabel(e.target.value)}
+        className="w-full px-3 py-2 border rounded bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-400 dark:bg-gray-800 dark:text-white"
+        required
+      />
+      <input
+        placeholder="Route e.g. /about"
+        value={path}
+        onChange={e => setPath(e.target.value)}
+        className="w-full px-3 py-2 border rounded bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-400 dark:bg-gray-800 dark:text-white"
+        required
+      />
+      <input
+        placeholder="Icon (lucide icon, e.g. layout-dashboard)"
+        value={icon}
+        onChange={e => setIcon(e.target.value)}
+        className="w-full px-3 py-2 border rounded bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-400 dark:bg-gray-800 dark:text-white"
+      />
+      <div className="flex gap-3 justify-end">
+        <Button variant="secondary" type="button" onClick={onCancel}>Cancel</Button>
+        <Button type="submit" disabled={!label.trim() || !path.trim()}>Add</Button>
+      </div>
+    </form>
   );
 };
 
