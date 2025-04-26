@@ -45,21 +45,9 @@ const NavLink: React.FC<NavLinkProps> = ({
       to={to} 
       className={`${baseClass} ${className} !opacity-100`}
       onClick={onClick}
-      style={{ 
-        opacity: 1,
-        color: "white",
-        visibility: "visible",
-        display: "block" 
-      }}
     >
       <span 
-        className="!text-white !opacity-100 font-bold" 
-        style={{ 
-          color: "white", 
-          opacity: 1,
-          visibility: "visible", 
-          display: "inline" 
-        }}
+        className="!text-white !opacity-100 font-bold"
       >
         {children}
       </span>
