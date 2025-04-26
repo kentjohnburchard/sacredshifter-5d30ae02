@@ -1,20 +1,22 @@
 
 import React, { useEffect } from 'react';
-import AppRoutes from './AppRoutes';
+// Remove the React Router import
+// import { useLocation } from 'react-router-dom';
+// Remove AppRoutes import (not needed, app is rendered by router now)
+// import AppRoutes from './AppRoutes';
 import { ThemeProvider } from './context/ThemeContext';
-import { useLocation } from 'react-router-dom';
+
+// You may need a custom hook/useRoute for location logging, but for now, remove logging
 
 const App: React.FC = () => {
-  const location = useLocation();
-
-  // Log navigation for debugging
-  useEffect(() => {
-    console.log('Navigation occurred to:', location.pathname);
-  }, [location.pathname]);
-
+  // If you really want path logs, use your own useRoute hook, else just remove:
+  // const { path } = useRoute();
+  // useEffect(() => {
+  //   console.log('Navigation occurred to:', path);
+  // }, [path]);
   return (
     <ThemeProvider>
-      <AppRoutes />
+      {/* The rendered page/component comes from RouterProvider in main.tsx */}
     </ThemeProvider>
   );
 };
