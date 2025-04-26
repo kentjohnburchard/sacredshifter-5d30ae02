@@ -21,7 +21,7 @@ const AboutFounder = () => {
   }, [liftTheVeil]);
 
   // Listen for global theme change events (Restored custom event listener)
-   useEffect(() => {
+  useEffect(() => {
     const handleThemeChange = (event: Event) => {
       const customEvent = event as CustomEvent;
       // Make sure detail property and liftTheVeil exist, provide default if not
@@ -46,7 +46,7 @@ const AboutFounder = () => {
     process: "What followed was a full reset. I had to rebuild not just my life, but my identity.",
     beginning: "That's when Sacred Shifter was born.",
     insight: "It arrived like a transmission, a knowing, telling me to 'look for yourself in frequency.' I started the app as a way to collect the fragments that resonated with my soul: sacred sound, geometry, cosmic patterns, healing vibrations.",
-    realisation: "But somewhere along the way, Sacred Shifter became me.",
+    realization: "But somewhere along the way, Sacred Shifter became me.",
     purpose: "It's not just an app. It's a remembrance. A resonance. A blueprint encoded with the very reason I'm here — and maybe why you are too.",
     mission: "Sacred Shifter exists to help us remember who we are, why we came, and how deeply we are connected in light, love, and truth. It's a journey inward, outward, and beyond."
   };

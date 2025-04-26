@@ -44,16 +44,16 @@ function matchPath(routePath: string, location: string): { matched: boolean, par
 function findMatchedRoute(
   routes: RouteObject[],
   location: string
-): { element: ReactNode, params: Params } | null {
+): { element: React.ReactNode, params: Params } | null {
   for (const route of routes) {
     const { matched, params } = matchPath(route.path, location);
     if (matched) {
       if (route.children) {
-        // Check for nested routes with remainder path
-        const rest = location.replace(
-          new RegExp(pathToRegexp(route.path).pattern),
-          ""
-        );
+        // Find the "rest" of the path by removing the matched prefix (using the regex match)
+        const { regex } = pathToRegexp(route.path);
+        const match = location.match(regex);
+        // If match found, match[0].length gives the length of the matched segment
+        const rest = match && match[0] ? location.slice(match[0].length) : "";
         if (rest && rest !== "") {
           const nested = findMatchedRoute(route.children, rest.startsWith("/") ? rest : "/" + rest);
           if (nested) return nested;
