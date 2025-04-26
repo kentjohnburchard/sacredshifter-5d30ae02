@@ -11,7 +11,7 @@ const SidebarLogo: React.FC<SidebarLogoProps> = ({ className }) => {
     <div className={`flex justify-center items-center w-full px-4 ${className}`}>
       <Link to="/" className="flex items-center w-full">
         <img
-          src="/lovable-uploads/55c4de0c-9d48-42df-a6a2-1bb6520acb46.png"
+          src="/lovable-uploads/6dafef18-8a06-46e1-bc1b-2325f13a67f7.png"
           alt="Sacred Shifter Logo"
           className="h-16 w-full object-contain"
         />

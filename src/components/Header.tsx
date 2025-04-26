@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { LogOut, CreditCard, User, LayoutDashboard } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -18,7 +17,6 @@ import { toast } from "sonner";
 const Header: React.FC = () => {
   const { user, signOut } = useAuth();
   
-  // Debug log to track user authentication state
   useEffect(() => {
     console.log("Header component: User authenticated?", !!user, user?.email);
   }, [user]);
@@ -34,18 +32,16 @@ const Header: React.FC = () => {
   
   return (
     <header className="w-full py-3 px-4 sm:px-6 flex items-center justify-between animate-fade-in bg-white/80 backdrop-blur-sm shadow-sm dark:bg-gray-900/80 fixed top-0 z-50">
-      {/* Logo */}
       <div className="flex items-center">
         <Link to="/" className="flex items-center">
           <img 
-            src="/lovable-uploads/b9b4b625-472c-484e-a49a-41aaf4f604a5.png" 
+            src="/lovable-uploads/6dafef18-8a06-46e1-bc1b-2325f13a67f7.png" 
             alt="Sacred Shifter Logo" 
             className="h-28 sm:h-32 animate-pulse-subtle transition-all hover:scale-105"
           />
         </Link>
       </div>
       
-      {/* User Profile */}
       <div className="flex items-center">
         {user ? (
           <DropdownMenu>

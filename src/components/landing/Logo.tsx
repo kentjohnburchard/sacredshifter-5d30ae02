@@ -7,7 +7,7 @@ const Logo: React.FC = () => {
     <div className="flex items-center justify-center">
       <div className="relative">
         <motion.img 
-          src="/lovable-uploads/55c4de0c-9d48-42df-a6a2-1bb6520acb46.png" 
+          src="/lovable-uploads/6dafef18-8a06-46e1-bc1b-2325f13a67f7.png" 
           alt="Sacred Shifter Logo" 
           className="h-[32rem] sm:h-[36rem] transition-all hover:scale-105"
           initial={{ opacity: 0 }}
