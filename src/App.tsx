@@ -1,16 +1,13 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { ThemeProvider } from './context/ThemeContext';
+import AppRoutes from './AppRoutes';
 
-interface AppProps {
-  children?: React.ReactNode;
-}
-
-const App: React.FC<AppProps> = ({ children }) => {
-  // You can re-enable navigation logging here if needed, but nothing currently.
+// App does not need children, it renders AppRoutes
+const App: React.FC = () => {
   return (
     <ThemeProvider>
-      {children}
+      <AppRoutes />
     </ThemeProvider>
   );
 };
