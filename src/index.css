@@ -282,3 +282,59 @@ html.veil-lifted .veil-lifted-nav,
   color: inherit !important;
   background: none !important;
 }
+
+/* NEW: Strong .veil-lifted global color rules for sidebar, nav, and heading text */
+html.veil-lifted .sidebar-gradient, .veil-lifted .sidebar-gradient, .veil-lifted-gradient {
+  background: linear-gradient(to bottom, #FF36AB 0%, #B967FF 65%, #6418ad 100%) !important;
+}
+html.veil-lifted .sidebar-nav a,
+.veil-lifted .sidebar-nav a,
+html.veil-lifted .sidebar-nav a.active,
+.veil-lifted .sidebar-nav a.active {
+  color: #FFB6E6 !important; /* Pink pastel nav text default */
+  background: none !important;
+  transition: color 0.3s;
+}
+html.veil-lifted .sidebar-nav a.active,
+.veil-lifted .sidebar-nav a.active {
+  color: #FFF1FA !important;
+  background: rgba(255,54,171,0.145) !important;
+}
+html.veil-lifted .sidebar-nav .icon,
+.veil-lifted .sidebar-nav svg {
+  color: #FF70E9 !important;
+  fill: #FF70E9 !important;
+}
+html.veil-lifted h1, html.veil-lifted h2, html.veil-lifted h3,
+.veil-lifted h1, .veil-lifted h2, .veil-lifted h3 {
+  color: #FF70E9 !important; /* Brighter, saturated pink headers */
+  background: none !important;
+}
+
+html.veil-lifted .text-purple-300,
+.veil-lifted .text-purple-300 {
+  @apply text-pink-300;
+}
+html.veil-lifted .text-purple-400,
+.veil-lifted .text-purple-400 {
+  @apply text-pink-400;
+}
+html.veil-lifted .text-purple-500,
+.veil-lifted .text-purple-500 {
+  @apply text-pink-500;
+}
+html.veil-lifted .text-purple-600,
+.veil-lifted .text-purple-600 {
+  @apply text-pink-600;
+}
+
+/* Remove all duplicate or unused .veil-lifted .sidebar-nav global overrides */
+html.veil-lifted .sidebar-nav a,
+.veil-lifted .sidebar-nav a,
+html.veil-lifted .sidebar-nav a.active,
+.veil-lifted .sidebar-nav a.active,
+html.veil-lifted .veil-lifted-nav,
+.veil-lifted .veil-lifted-nav {
+  color: inherit !important;
+  background: none !important;
+}

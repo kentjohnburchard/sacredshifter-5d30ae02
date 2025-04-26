@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import SidebarLogo from "@/components/navigation/SidebarLogo";
@@ -62,11 +61,9 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
 
   const effectivelyCollapsed = isMobileMenuOpen ? false : isCollapsed;
 
-  const themeClasses = liftTheVeil
-    ? "sidebar-gradient veil-lifted-gradient"
-    : "sidebar-gradient veil-default-gradient";
-
-  // Remove all local kentMode or alternate theme logic
+  // Always keep sidebar-gradient class for bg, .veil-lifted will override if needed via CSS
+  // Only apply Tailwind accent classes to nav/user items that don't conflict with veil-lifted CSS override
+  const themeClasses = "sidebar-gradient";
 
   if (!isMounted) return null;
 
@@ -107,6 +104,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
             setIsHovering(false);
           }
         }}
+        data-theme={liftTheVeil ? 'veil-lifted' : 'standard'}
       >
         <Button
           variant="ghost"
@@ -140,6 +138,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           <SidebarLogo className={effectivelyCollapsed ? "scale-75" : ""} />
         </div>
         <ScrollArea className="flex-1 px-2 sm:px-3 py-2">
+          {/* SidebarNavItems will pickup nav link color from .veil-lifted global CSS */}
           <SidebarNavItems
             isCollapsed={effectivelyCollapsed}
             onLinkClick={() => {
@@ -163,4 +162,3 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
 };
 
 export default Sidebar;
-

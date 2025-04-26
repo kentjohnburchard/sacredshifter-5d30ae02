@@ -38,10 +38,10 @@ const quotes = [
 ];
 
 const AboutFounder = () => {
-  // Use ONLY global context state; ensure context is up-to-date!
+  // Always get `liftTheVeil` from context, triggers rerender automatically
   const { liftTheVeil } = useTheme();
 
-  // Always pick content by context value (this will re-render on every toggle)
+  // Always select content by context value so it switches instantly
   const content = liftTheVeil ? advancedContent : standardContent;
 
   return (
@@ -63,7 +63,12 @@ const AboutFounder = () => {
           )}
           {/* Title Section */}
           <div className="flex items-center justify-between">
-            <h1 className={`text-3xl font-bold ${liftTheVeil ? 'bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 text-transparent bg-clip-text' : 'text-purple-900 dark:text-purple-100'}`}>
+            <h1 className={cn(
+              "text-3xl font-bold",
+              liftTheVeil
+                ? "bg-gradient-to-r from-pink-400 via-pink-500 to-purple-400 text-transparent bg-clip-text"
+                : "text-purple-900 dark:text-purple-100"
+            )}>
               {content.title}
             </h1>
           </div>
@@ -72,9 +77,12 @@ const AboutFounder = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
-            className={`p-6 rounded-lg ${liftTheVeil
-              ? 'bg-gradient-to-r from-indigo-900/20 to-purple-900/20 border border-pink-500/20'
-              : 'bg-gradient-to-r from-purple-900/20 to-indigo-900/20 border border-purple-500/20'}`}
+            className={cn(
+              "p-6 rounded-lg text-white",
+              liftTheVeil
+                ? "bg-gradient-to-r from-pink-900/30 to-purple-900/20 border border-pink-400/20"
+                : "bg-gradient-to-r from-purple-900/20 to-indigo-900/20 border border-purple-400/20"
+            )}
           >
             <motion.p
               animate={{
@@ -87,7 +95,7 @@ const AboutFounder = () => {
                 repeat: Infinity,
                 repeatType: "reverse"
               }}
-              className="text-center italic text-lg md:text-xl text-white"
+              className="text-center italic text-lg md:text-xl"
             >
               "{quotes[0]}"
             </motion.p>
@@ -95,7 +103,7 @@ const AboutFounder = () => {
           {/* Main Founder Content */}
           <div className="flex flex-col md:flex-row gap-8 items-center">
             <div className="w-full md:w-1/3">
-              <Card className={`overflow-hidden ${liftTheVeil ? 'border-purple-400 shadow-purple-300/20 shadow-lg' : ''}`}>
+              <Card className={liftTheVeil ? 'border-pink-400 shadow-pink-300/20 shadow-lg' : ''}>
                 <img
                   src="/lovable-uploads/8c0eebe4-41d3-4f82-9604-4eb14e468a6b.png"
                   alt="Kent Burchard - Founder"
@@ -108,7 +116,7 @@ const AboutFounder = () => {
               </Card>
             </div>
             <div className="w-full md:w-2/3 space-y-4">
-              <Card className={liftTheVeil ? 'border-purple-300 bg-gradient-to-b from-purple-50 to-white dark:from-purple-950/20 dark:to-gray-900' : ''}>
+              <Card className={liftTheVeil ? 'border-pink-300 bg-gradient-to-b from-pink-50 to-white dark:from-fuchsia-950/30 dark:to-gray-900' : ''}>
                 <CardContent className="p-6">
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -116,7 +124,7 @@ const AboutFounder = () => {
                     transition={{ duration: 0.8, delay: 0.2 }}
                     className={cn(
                       "space-y-4",
-                      liftTheVeil ? "text-gray-800 dark:text-purple-100" : ""
+                      liftTheVeil ? "text-pink-100 dark:text-pink-200" : ""
                     )}
                     key={liftTheVeil ? "veil-lifted-bio" : "standard-bio"}
                   >
@@ -155,9 +163,12 @@ const AboutFounder = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.8 }}
-            className={`p-6 rounded-lg ${liftTheVeil
-              ? 'bg-gradient-to-r from-indigo-900/20 to-purple-900/20 border border-pink-500/20'
-              : 'bg-gradient-to-r from-purple-900/20 to-indigo-900/20 border border-purple-500/20'}`}
+            className={cn(
+              "p-6 rounded-lg",
+              liftTheVeil
+                ? "bg-gradient-to-r from-pink-900/30 to-purple-900/20 border border-pink-400/20"
+                : "bg-gradient-to-r from-purple-900/20 to-indigo-900/20 border border-purple-400/20"
+            )}
           >
             <motion.p
               animate={{
@@ -170,7 +181,7 @@ const AboutFounder = () => {
                 repeat: Infinity,
                 repeatType: "reverse"
               }}
-              className="text-center italic text-lg md:text-xl text-white"
+              className="text-center italic text-lg md:text-xl"
             >
               "{quotes[1]}"
             </motion.p>
@@ -180,7 +191,10 @@ const AboutFounder = () => {
           </motion.div>
           {/* Footer signature/branding */}
           <div className="mt-8 text-center">
-            <p className={`text-sm ${liftTheVeil ? 'text-pink-400' : 'text-purple-400'} italic`}>
+            <p className={cn(
+              "text-sm italic",
+              liftTheVeil ? "text-pink-400" : "text-purple-400"
+            )}>
               Sacred Shifter — Remembering Our Truth Through Sound & Frequency
             </p>
           </div>
