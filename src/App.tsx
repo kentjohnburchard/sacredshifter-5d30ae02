@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 
 interface AppProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 const App: React.FC<AppProps> = ({ children }) => {
