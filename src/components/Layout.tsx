@@ -1,6 +1,4 @@
-
 import React, { useEffect } from 'react';
-// Replace the useRoute import with useLocation from react-router-dom
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
 import Player from './Player';
@@ -10,6 +8,7 @@ import Sidebar from './Sidebar';
 import StarfieldBackground from './sacred-geometry/StarfieldBackground';
 import { SacredGeometryVisualizer } from './sacred-geometry';
 import { useTheme } from '@/context/ThemeContext';
+import ConsciousnessToggle from './ConsciousnessToggle';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -34,7 +33,6 @@ const Layout: React.FC<LayoutProps> = ({
   theme,
   useBlueWaveBackground,
 }) => {
-  // Use react-router-dom's hook
   const { pathname } = useLocation();
   const isHomePage = pathname === "/";
   const isAuthPage = pathname === "/auth";
@@ -48,10 +46,8 @@ const Layout: React.FC<LayoutProps> = ({
 
   return (
     <div className="relative flex min-h-screen w-full overflow-hidden bg-gray-950">
-      {/* Starry Night Background */}
       <StarfieldBackground density="medium" opacity={0.5} isStatic={false} />
       
-      {/* Sacred Geometry Visualizer */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-30">
         <SacredGeometryVisualizer
           defaultShape="flower-of-life"
@@ -61,22 +57,20 @@ const Layout: React.FC<LayoutProps> = ({
         />
       </div>
       
-      {/* Main Layout Structure */}
+      <ConsciousnessToggle />
+
       <div className="flex min-h-screen w-full">
         {showNavbar && <Sidebar />}
         
         <div className={`flex-1 flex flex-col min-h-screen relative z-10 ${themeClasses} ${theme ? `theme-${theme}` : ''}`}>
           {!hideHeader && <Header />}
           
-          {/* Main content area - Adjusted top padding since headers are hidden */}
           <div className={`flex-grow min-h-[calc(100vh-80px)] pb-32 relative ${showNavbar ? 'sm:pl-20 pt-4' : 'pt-0'}`}>
             {children}
           </div>
           
-          {/* Audio player */}
           {showPlayer && <Player />}
           
-          {/* Global watermark */}
           {showGlobalWatermark && <GlobalWatermark />}
         </div>
       </div>
