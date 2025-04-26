@@ -4,7 +4,34 @@ import { Link } from "react-router-dom";
 import { navItems, activePages } from "@/config/navigation";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2, Eye, EyeOff, Plus, Link as LinkIcon } from "lucide-react";
+
+// Import ALL possible Lucide icons you use in navItems.config (add more if needed)
+import { 
+  Edit, Trash2, Eye, EyeOff, Plus, Link as LinkIcon, Sidebar, Home, Music, Star, Users, User as UserIcon, 
+  Grid, BookOpen, Headphones, Map, Heart, Leaf 
+} from "lucide-react";
+
+// Map icon string names to the actual Lucide React components.
+// Add to this as you use more icons in navItems.
+const iconMap: Record<string, React.FC<{ className?: string }>> = {
+  "Sidebar": Sidebar,
+  "Home": Home,
+  "Music": Music,
+  "Star": Star,
+  "Users": Users,
+  "User": UserIcon,
+  "Grid": Grid,
+  "BookOpen": BookOpen,
+  "Headphones": Headphones,
+  "Map": Map,
+  "Heart": Heart,
+  "Leaf": Leaf,
+  "Edit": Edit,
+  "Trash2": Trash2,
+  "Plus": Plus,
+  "Link": LinkIcon,
+  // Add more as needed!
+};
 
 const AdminPagesCanvas: React.FC = () => {
   // Generate a list of all navigation-configured pages
@@ -50,12 +77,10 @@ const AdminPagesCanvas: React.FC = () => {
               </TableCell>
               <TableCell>{page.label}</TableCell>
               <TableCell>
-                {/* Only use lucide icons from the allowed set */}
-                {page.icon ? (
-                  // @ts-ignore
-                  React.createElement(require("lucide-react")[page.icon] ?? require("lucide-react").Sidebar, { className: "h-6 w-6 text-purple-500" })
+                {page.icon && iconMap[page.icon] ? (
+                  React.createElement(iconMap[page.icon], { className: "h-6 w-6 text-purple-500" })
                 ) : (
-                  <span className="text-gray-400">—</span>
+                  <Sidebar className="h-6 w-6 text-gray-400" />
                 )}
               </TableCell>
               <TableCell>
@@ -90,4 +115,3 @@ const AdminPagesCanvas: React.FC = () => {
 };
 
 export default AdminPagesCanvas;
-
