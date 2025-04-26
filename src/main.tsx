@@ -1,4 +1,3 @@
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -123,7 +122,11 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           />
           <ThemeEnhancer />
           <ConsciousnessToggle />
-          <App />
+          {/* Instead of rendering <App /> here, use App to wrap the providers' children */}
+          <App>
+            {/* Move all routable children here */}
+            {/* If any children should be directly inside App, move them here */}
+          </App>
         </EasterEggProvider>
       </ThemeProvider>
     </RouterProvider>
