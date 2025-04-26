@@ -40,7 +40,6 @@ import {
   useDeleteNavigationItem,
   NavigationItem,
 } from "./useNavigationItems";
-import { Plus } from "lucide-react";
 
 type PageConfig = (typeof navItems)[number] & { isActive: boolean };
 
