@@ -1,7 +1,7 @@
 
 import React from "react";
-// Use custom router's useRoute and Link
-import { useRoute, Link } from "@/lib/spa-router";
+// Use react-router-dom's useLocation and Link
+import { useLocation, Link } from "react-router-dom";
 import { Info, HelpCircle, Code2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +12,7 @@ const tabs = [
 ];
 
 const SacredShifterInfoDropdown: React.FC = () => {
-  const { path } = useRoute();
+  const { pathname: path } = useLocation();
   const activeIndex = tabs.findIndex(tab => path === tab.path);
 
   // Simple show/hide for dropdown

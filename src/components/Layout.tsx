@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
-// Replace the useLocation import with useRoute from your custom spa-router
-import { useRoute } from '@/lib/spa-router';
+// Replace the useRoute import with useLocation from react-router-dom
+import { useLocation } from 'react-router-dom';
 import Header from './Header';
 import Player from './Player';
 import GlobalWatermark from './GlobalWatermark';
@@ -34,8 +34,8 @@ const Layout: React.FC<LayoutProps> = ({
   theme,
   useBlueWaveBackground,
 }) => {
-  // Use the custom router's hook
-  const { path: pathname } = useRoute();
+  // Use react-router-dom's hook
+  const { pathname } = useLocation();
   const isHomePage = pathname === "/";
   const isAuthPage = pathname === "/auth";
   const { liftTheVeil } = useTheme();
@@ -85,4 +85,3 @@ const Layout: React.FC<LayoutProps> = ({
 };
 
 export default Layout;
-

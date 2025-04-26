@@ -1,7 +1,7 @@
 
+// Use react-router-dom's Link and useLocation
 import React from "react";
-// Use spa-router's Link and useRoute instead of react-router-dom
-import { Link, useRoute } from "@/lib/spa-router";
+import { Link, useLocation } from "react-router-dom";
 
 interface NavLinkProps {
   to: string;
@@ -18,11 +18,10 @@ const NavLink: React.FC<NavLinkProps> = ({
   isMobile = false,
   onClick
 }) => {
-  const { path } = useRoute();
-  const isActive = path === to;
+  const { pathname } = useLocation();
+  const isActive = pathname === to;
 
   React.useEffect(() => {
-    // Log navigation for debugging
     if (isActive) {
       console.log("Active nav link:", to);
     }

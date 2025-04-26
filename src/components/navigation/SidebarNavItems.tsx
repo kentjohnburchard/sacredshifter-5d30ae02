@@ -1,13 +1,12 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-// Remove import { NavLink, useLocation } from "react-router-dom";
 import { getActiveNavItems, type PageKey, navItems } from "@/config/navigation";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, Check, ChevronDown, ChevronRight, LucideIcon } from "lucide-react";
 import * as Icons from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
-// Use spa-router's hooks and Link
-import { useRoute, Link } from "@/lib/spa-router";
+// Use react-router-dom's hooks and Link
+import { useLocation, Link } from "react-router-dom";
 
 interface SidebarNavItemsProps {
   isCollapsed?: boolean;
@@ -30,7 +29,7 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
   onLinkClick,
 }) => {
   const { liftTheVeil } = useTheme();
-  const { path: locationPath } = useRoute();
+  const { pathname: locationPath } = useLocation();
   const [activeNavLinks, setActiveNavLinks] = useState<typeof navItems>([]);
 
   const [themeState, setThemeState] = useState(liftTheVeil);
@@ -103,7 +102,6 @@ const NavLinkItem: React.FC<NavLinkItemProps> = ({
       to={path}
       className={linkClasses}
       onClick={onClick}
-      activeClassName=""
     >
       <div className="relative flex min-h-[32px] w-full items-center gap-2">
         <IconComponent
