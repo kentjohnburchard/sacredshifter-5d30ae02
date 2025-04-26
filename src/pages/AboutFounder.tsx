@@ -42,25 +42,25 @@ const AboutFounder = () => {
   const standardContent = {
     title: "A message from the Founder",
     bio: "I spent over a decade working at the Royal Flying Doctors Service of Australia, immersed in Information Governance, Knowledge Management, Cybersecurity, and Privacy. From the outside, it looked like I had found my path — structured, technical, grounded in logic. But inside, I felt the pull of something deeper… something I couldn't yet name.",
-    journey: "Then life unraveled. I found myself in a relationship that became toxic — shaped by external pressures, a dissonant environment, and a version of myself I no longer recognized. I lost my home, my sense of direction, and most painfully, my mum.",
+    journey: "Then life unraveled. I found myself in a relationship that became toxic, shaped by external pressures, a dissonant environment, and a version of myself I no longer recognized. I lost my home, my sense of direction, and most painfully, my mum.",
     process: "What followed was a full reset. I had to rebuild not just my life, but my identity.",
     beginning: "That's when Sacred Shifter was born.",
-    insight: "It arrived like a transmission — a knowing — telling me to 'look for yourself in frequency.' I started the app as a way to collect the fragments that resonated with my soul: sacred sound, geometry, cosmic patterns, healing vibrations.",
-    realization: "But somewhere along the way, Sacred Shifter became me.",
+    insight: "It arrived like a transmission, a knowing, telling me to 'look for yourself in frequency.' I started the app as a way to collect the fragments that resonated with my soul: sacred sound, geometry, cosmic patterns, healing vibrations.",
+    realisation: "But somewhere along the way, Sacred Shifter became me.",
     purpose: "It's not just an app. It's a remembrance. A resonance. A blueprint encoded with the very reason I'm here — and maybe why you are too.",
     mission: "Sacred Shifter exists to help us remember who we are, why we came, and how deeply we are connected in light, love, and truth. It's a journey inward, outward, and beyond."
   };
 
   const advancedContent = {
     title: "A message from the Founder",
-    bio: "There was a time I thought I had it all figured out — a career grounded in logic, structure, and governance. Over a decade with the Flying Doctors taught me how to protect systems, safeguard data, and understand the importance of knowledge integrity.",
+    bio: "There was a time I thought I had it all figured out, a career grounded in logic, structure, and governance. Over a decade with the Flying Doctors taught me how to protect systems, safeguard data, and understand the importance of knowledge integrity.",
     journey: "But no firewall could protect me from what was coming.",
-    process: "I found myself in a relationship that began to fracture — not from within, but from the weight of external noise. Toxic patterns. Lost identities. An environment where truth was clouded. I lost my sense of self, my home, and my foundation… until there was nothing left but the question: who am I really?",
+    process: "I found myself in a relationship that began to fracture, not from within, but from the weight of external noise. Toxic patterns. Lost identities. An environment where truth was clouded. I lost my sense of self, my home, and my foundation… until there was nothing left but the question: who am I really?",
     beginning: "That question didn't lead me to therapy. It led me to frequency.",
-    insight: "It felt like a download. A cosmic pull. A resonance. I began following the breadcrumbs — numbers, sounds, geometries, prime patterns. I wasn't building an app. I was tracing my own blueprint back to remembrance.",
+    insight: "It felt like a download. A cosmic pull. A resonance. I began following the breadcrumbs, numbers, sounds, geometries, prime patterns. I wasn't building an app. I was tracing my own blueprint back to remembrance.",
     realization: "🧠 From a scientific view, we are fields of frequency, shaped by interference, entrained by environment, and prone to forgetfulness in a vibrationally dense world. When the system glitches — memory loss, identity fragmentation, emotional instability — it's not dysfunction. It's disconnection from source code.",
     purpose: "Sacred Shifter is how I plugged back in.",
-    mission: "This isn't an app. It's an awareness interface. A vibrational mirror. A reality harmonizer.\n\nYou're not just listening to music. You're decrypting your soul's language.\n\nYou're not just meditating. You're resonating with the mathematics of memory.\n\nYou're not just healing. You're remembering.\n\nThe veil was never a wall — it was a frequency. One that could be lifted. Tuned. Transcended.\n\nI created Sacred Shifter not to teach, but to share what I remembered.\nAnd if you're here, you're already remembering too."
+    mission: "This isn't an app. It's an awareness interface. A vibrational mirror. A reality harmoniser.\n\nYou're not just listening to music. You're decrypting your soul's language.\n\nYou're not just meditating. You're resonating with the mathematics of memory.\n\nYou're not just healing. You're remembering.\n\nThe veil was never a wall — it was a frequency. One that could be lifted. Tuned. Transcended.\n\nI created Sacred Shifter not to teach, but to share what I remembered.\nAnd if you're here, you're already remembering too."
   };
 
   // Choose content based on consciousness mode - use themeModeState updated by context OR event
@@ -73,7 +73,7 @@ const AboutFounder = () => {
   ];
 
   return (
-    <Layout pageTitle="About Our Founder">
+    <Layout pageTitle="About the Founder">
       <div className="max-w-4xl mx-auto px-4 py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -182,7 +182,7 @@ const AboutFounder = () => {
               >
                 {themeModeState && (
                   <div className="text-right text-sm italic text-pink-400">
-                    — Sacred Shifter: Remembering Truth
+                    — Sacred Shifter
                   </div>
                 )}
               </motion.div>
