@@ -31,32 +31,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     console.log("AuthProvider: Initializing auth state");
 
-    // First set up the auth state listener with a synchronous callback
+    // First set up the auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
       console.log(`Auth state changed: ${event}`, newSession?.user?.email);
+      
+      // Update state synchronously within the callback
       setSession(newSession);
       setUser(newSession?.user ?? null);
       setLoading(false);
     });
 
-    // Then fetch the current session (after listener is set up)
-    supabase.auth.getSession().then(({ data, error }) => {
-      console.log("Initial session check:", data?.session?.user?.email);
-      if (error) {
-        console.error('Error fetching session:', error.message);
-        setSession(null);
-        setUser(null);
-      } else if (data?.session) {
-        setSession(data.session);
-        setUser(data.session.user);
-        console.log("User authenticated:", data.session.user.email);
-      } else {
-        console.log("No active session found");
-        setSession(null);
-        setUser(null);
+    // Then fetch the current session
+    const initializeAuth = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error fetching session:', error.message);
+        } else if (data?.session) {
+          console.log("Initial session found:", data.session.user.email);
+          setSession(data.session);
+          setUser(data.session.user);
+        } else {
+          console.log("No active session found");
+        }
+        
+        setLoading(false);
+      } catch (err) {
+        console.error("Failed to initialize auth:", err);
+        setLoading(false);
       }
-      setLoading(false);
-    });
+    };
+
+    initializeAuth();
 
     // Cleanup function
     return () => {
@@ -67,6 +74,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async ({ email, password }: { email: string; password: string }) => {
     console.log(`Attempting to sign in: ${email}`);
+    setLoading(true);
+    
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -75,6 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (error) {
         console.error("Sign in error:", error.message);
+        setLoading(false);
         return { error };
       }
       
@@ -82,12 +92,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { error: null };
     } catch (error: any) {
       console.error("Unexpected error during sign in:", error);
+      setLoading(false);
       return { error };
     }
   };
 
   const signUp = async ({ email, password }: { email: string; password: string }) => {
     console.log(`Attempting to sign up: ${email}`);
+    setLoading(true);
+    
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -96,6 +109,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (error) {
         console.error("Sign up error:", error.message);
+        setLoading(false);
         return { error };
       }
       
@@ -103,6 +117,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { error: null };
     } catch (error: any) {
       console.error("Unexpected error during sign up:", error);
+      setLoading(false);
       return { error };
     }
   };
@@ -110,10 +125,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     console.log("Signing out");
     try {
+      setLoading(true);
       await supabase.auth.signOut();
       console.log("Sign out successful");
+      // Don't manually update state here, the onAuthStateChange will handle it
     } catch (error) {
       console.error('Error signing out:', error);
+    } finally {
+      setLoading(false);
     }
   };
 

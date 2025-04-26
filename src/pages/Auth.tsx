@@ -16,7 +16,7 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'login' | 'signup' | 'test'>('login');
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, signUp, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const location = useLocation();
@@ -40,14 +40,14 @@ const Auth = () => {
 
   // If user is already logged in, redirect to dashboard
   useEffect(() => {
-    console.log("Auth page: User authenticated?", !!user);
-    if (user) {
+    console.log("Auth page: User authenticated?", !!user, "Auth loading?", authLoading);
+    if (user && !authLoading) {
       const redirectPath = sessionStorage.getItem('redirectAfterLogin') || '/dashboard';
       console.log(`Auth page: User authenticated, redirecting to ${redirectPath}`);
       sessionStorage.removeItem('redirectAfterLogin'); // Clear the stored path
-      navigate(redirectPath);
+      navigate(redirectPath, { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, authLoading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +57,7 @@ const Auth = () => {
       const { error } = await signIn({ email, password });
       if (error) {
         console.error("Login error:", error.message);
-        toast.error(error.message);
+        toast.error(error.message || "Login failed");
       } else {
         console.log("Login successful, waiting for auth state update");
         toast.success('Successfully signed in!');
@@ -79,7 +79,7 @@ const Auth = () => {
       const { error } = await signUp({ email, password });
       if (error) {
         console.error("Signup error:", error.message);
-        toast.error(error.message);
+        toast.error(error.message || "Signup failed");
       } else {
         console.log("Signup successful");
         toast.success('Registration successful! Please check your email for confirmation.');
@@ -116,6 +116,17 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-4 bg-gradient-to-br from-purple-50 to-indigo-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking authentication status...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4 bg-gradient-to-br from-purple-50 to-indigo-50">

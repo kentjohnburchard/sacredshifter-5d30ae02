@@ -23,20 +23,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       // Always set onboarding as completed for now to prevent redirect loops
       setOnboardingCompleted(true);
       return;
-      
-      /* Commented out until onboarding functionality is fully implemented
-      try {
-        setCheckingOnboarding(true);
-        const isCompleted = await checkOnboardingStatus(user.id);
-        setOnboardingCompleted(isCompleted);
-      } catch (error) {
-        console.error("Error checking onboarding status:", error);
-        // Default to completed if there's an error to prevent redirect loop
-        setOnboardingCompleted(true);
-      } finally {
-        setCheckingOnboarding(false);
-      }
-      */
     };
     
     if (user) {
@@ -58,6 +44,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     // Explicitly store the intended path before redirecting
     const currentPath = location.pathname;
     if (currentPath !== "/auth") {
+      console.log("ProtectedRoute: Storing redirect path:", currentPath);
       sessionStorage.setItem("redirectAfterLogin", currentPath);
     }
     return <Navigate to="/auth" replace state={{ from: location }} />;
@@ -66,19 +53,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   console.log("ProtectedRoute: User authenticated, rendering protected content");
   // Always return children for now since onboarding is disabled
   return <>{children}</>;
-
-  /* Uncomment when onboarding flow is ready
-  // If we're not on the onboarding page and onboarding is not completed, redirect to onboarding
-  if (
-    onboardingCompleted === false && 
-    location.pathname !== "/onboarding" && 
-    !checkingOnboarding
-  ) {
-    return <Navigate to="/onboarding" replace />;
-  }
-  
-  return <>{children}</>;
-  */
 };
 
 export default ProtectedRoute;
