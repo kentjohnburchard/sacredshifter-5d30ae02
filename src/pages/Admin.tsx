@@ -29,6 +29,16 @@ const Admin: React.FC = () => {
               View all current audio mappings between journey templates and audio files.
             </p>
           </Link>
+
+          <Link
+            to="/admin/pages"
+            className="block p-6 bg-white rounded-lg border border-indigo-200 shadow-sm hover:bg-indigo-50"
+          >
+            <h3 className="text-lg font-semibold mb-2">Pages Admin Canvas</h3>
+            <p className="text-gray-600">
+              View, organize, and soon edit all pages, navigation setup, and their connections.
+            </p>
+          </Link>
         </div>
       </div>
     </Layout>
@@ -36,3 +46,4 @@ const Admin: React.FC = () => {
 };
 
 export default Admin;
+

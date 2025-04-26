@@ -32,6 +32,10 @@ import Subscription from './pages/Subscription';
 import SacredShifterWhat from './pages/SacredShifterWhat';
 import SacredShifterWhy from './pages/SacredShifterWhy';
 import SacredShifterHow from './pages/SacredShifterHow';
+import Admin from './pages/Admin';
+import JourneyAudioManager from './pages/admin/JourneyAudioManager';
+import JourneyAudioMappingsViewer from './pages/admin/JourneyAudioMappingsViewer';
+import AdminPagesCanvas from './pages/admin/AdminPagesCanvas';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -71,6 +75,10 @@ const AppRoutes: React.FC = () => {
         <Route path="/about/what" element={<SacredShifterWhat />} />
         <Route path="/about/why" element={<SacredShifterWhy />} />
         <Route path="/about/how" element={<SacredShifterHow />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/admin/journey-audio-admin" element={<JourneyAudioManager />} />
+        <Route path="/admin/journey-audio-mappings" element={<JourneyAudioMappingsViewer />} />
+        <Route path="/admin/pages" element={<AdminPagesCanvas />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
