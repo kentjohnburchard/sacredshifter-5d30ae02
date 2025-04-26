@@ -29,38 +29,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // First set up the auth state listener
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, newSession) => {
-        console.log(`Auth event: ${event}`);
-        setSession(newSession);
-        setUser(newSession?.user ?? null);
-        setLoading(false);
-      }
-    );
+    // CORRECT: Use a synchronous callback to prevent state update issues!
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+      setSession(newSession);
+      setUser(newSession?.user ?? null);
+      setLoading(false);
+    });
 
-    // Then check for existing session
-    const getSession = async () => {
-      try {
-        const { data, error } = await supabase.auth.getSession();
-        if (error) {
-          console.error('Error fetching session:', error.message);
-        } else if (data?.session) {
-          setSession(data.session);
-          setUser(data.session.user);
-        }
-      } catch (error) {
-        console.error('Unexpected error during getSession:', error);
-      } finally {
-        setLoading(false);
+    // Fetch session on mount (after listener set up)
+    supabase.auth.getSession().then(({ data, error }) => {
+      if (error) {
+        console.error('Error fetching session:', error.message);
+        setSession(null);
+        setUser(null);
+      } else if (data?.session) {
+        setSession(data.session);
+        setUser(data.session.user);
+      } else {
+        setSession(null);
+        setUser(null);
       }
-    };
-
-    getSession();
+      setLoading(false);
+    });
 
     // Cleanup function to unsubscribe when component unmounts
     return () => {
-      authListener?.subscription.unsubscribe();
+      subscription.unsubscribe();
     };
   }, []);
 
@@ -119,3 +113,4 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 };
 
 export default AuthContext;
+
