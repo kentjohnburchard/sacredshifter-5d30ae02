@@ -1,6 +1,7 @@
 
 import React from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+// Use custom router's useRoute and Link
+import { useRoute, Link } from "@/lib/spa-router";
 import { Info, HelpCircle, Code2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -11,9 +12,8 @@ const tabs = [
 ];
 
 const SacredShifterInfoDropdown: React.FC = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const activeIndex = tabs.findIndex(tab => location.pathname === tab.path);
+  const { path } = useRoute();
+  const activeIndex = tabs.findIndex(tab => path === tab.path);
 
   // Simple show/hide for dropdown
   const [open, setOpen] = React.useState(false);
@@ -36,20 +36,18 @@ const SacredShifterInfoDropdown: React.FC = () => {
         {open && (
           <div className="absolute z-40 mt-2 w-full min-w-[170px] bg-[#181C24] border border-gray-700 rounded-xl shadow-xl">
             {tabs.map((tab, i) => (
-              <button
+              <Link
+                to={tab.path}
                 key={tab.path}
                 className={cn(
                   "flex items-center w-full px-4 py-2 gap-2 text-left hover:bg-[#23283A] focus:bg-[#23283A] transition",
-                  location.pathname === tab.path ? "bg-[#23283A] text-purple-300" : "text-gray-100"
+                  path === tab.path ? "bg-[#23283A] text-purple-300" : "text-gray-100"
                 )}
-                onClick={() => {
-                  setOpen(false);
-                  navigate(tab.path);
-                }}
+                onClick={() => setOpen(false)}
               >
                 <tab.icon className="h-4 w-4 mr-2" />
                 {tab.label}
-              </button>
+              </Link>
             ))}
           </div>
         )}
@@ -59,4 +57,3 @@ const SacredShifterInfoDropdown: React.FC = () => {
 };
 
 export default SacredShifterInfoDropdown;
-

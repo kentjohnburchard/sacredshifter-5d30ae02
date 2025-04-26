@@ -1,6 +1,7 @@
 
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+// Use spa-router's Link and useRoute instead of react-router-dom
+import { Link, useRoute } from "@/lib/spa-router";
 
 interface NavLinkProps {
   to: string;
@@ -17,9 +18,9 @@ const NavLink: React.FC<NavLinkProps> = ({
   isMobile = false,
   onClick
 }) => {
-  const location = useLocation();
-  const isActive = location.pathname === to;
-  
+  const { path } = useRoute();
+  const isActive = path === to;
+
   React.useEffect(() => {
     // Log navigation for debugging
     if (isActive) {
@@ -27,8 +28,6 @@ const NavLink: React.FC<NavLinkProps> = ({
     }
   }, [isActive, to]);
   
-  // CRITICAL FIX: Use explicit/specific Tailwind classes instead of opacity utility
-  // This ensures classes don't get purged during production build
   const mobileActiveClass = isActive 
     ? "bg-[#9966FF]/20 !text-white font-bold" 
     : "!text-white font-bold hover:bg-[#9966FF]/15"; 
