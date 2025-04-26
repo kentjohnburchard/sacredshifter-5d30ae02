@@ -4,14 +4,15 @@ import { Link } from "react-router-dom";
 import { navItems, activePages } from "@/config/navigation";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
-// Import ALL possible Lucide icons you use in navItems.config (add more if needed)
-import { 
-  Edit, Trash2, Eye, EyeOff, Plus, Link as LinkIcon, Sidebar, Home, Music, Star, Users, User as UserIcon, 
-  Grid, BookOpen, Headphones, Map, Heart, Leaf 
+// Import ALL possible Lucide icons used in navItems.config (add more if needed)
+import {
+  Edit, Trash2, Eye, EyeOff, Plus, Link as LinkIcon, Sidebar, Home, Music, Star, Users, User as UserIcon,
+  Grid, BookOpen, Headphones, Map, Heart, Leaf
 } from "lucide-react";
 
-// Map icon string names to the actual Lucide React components.
+// Map icon string names to the Lucide React components.
 // Add to this as you use more icons in navItems.
 const iconMap: Record<string, React.FC<{ className?: string }>> = {
   "Sidebar": Sidebar,
@@ -34,11 +35,36 @@ const iconMap: Record<string, React.FC<{ className?: string }>> = {
 };
 
 const AdminPagesCanvas: React.FC = () => {
+  const { toast } = useToast();
   // Generate a list of all navigation-configured pages
   const allPages = navItems.map(item => ({
     ...item,
     isActive: activePages[item.key],
   }));
+
+  const handleEdit = (pageLabel: string) => {
+    toast({
+      title: "Edit Page (Coming Soon)",
+      description: `Editing of "${pageLabel}" will be available soon.`,
+      variant: "default",
+    });
+  };
+
+  const handleDelete = (pageLabel: string) => {
+    toast({
+      title: "Delete Page (Coming Soon)",
+      description: `Ability to delete "${pageLabel}" is coming soon.`,
+      variant: "default",
+    });
+  };
+
+  const handleLink = (pageLabel: string) => {
+    toast({
+      title: "Update Page Link (Coming Soon)",
+      description: `Editing the link or navigation for "${pageLabel}" is coming soon.`,
+      variant: "default",
+    });
+  };
 
   return (
     <div className="container mx-auto py-8">
@@ -91,14 +117,23 @@ const AdminPagesCanvas: React.FC = () => {
                 )}
               </TableCell>
               <TableCell>
-                <Button size="icon" variant="ghost" disabled>
-                  <Edit className="h-4 w-4" />
+                <Button size="icon" variant="ghost" aria-label="Edit page"
+                  onClick={() => handleEdit(page.label)}
+                  className="hover:bg-purple-100 focus:outline-none active:bg-purple-200"
+                >
+                  <Edit className="h-4 w-4 text-purple-600" />
                 </Button>
-                <Button size="icon" variant="ghost" disabled>
-                  <Trash2 className="h-4 w-4" />
+                <Button size="icon" variant="ghost" aria-label="Delete page"
+                  onClick={() => handleDelete(page.label)}
+                  className="hover:bg-red-100 focus:outline-none active:bg-red-200"
+                >
+                  <Trash2 className="h-4 w-4 text-red-500" />
                 </Button>
-                <Button size="icon" variant="ghost" disabled>
-                  <LinkIcon className="h-4 w-4" />
+                <Button size="icon" variant="ghost" aria-label="Edit link"
+                  onClick={() => handleLink(page.label)}
+                  className="hover:bg-blue-100 focus:outline-none active:bg-blue-200"
+                >
+                  <LinkIcon className="h-4 w-4 text-blue-500" />
                 </Button>
               </TableCell>
             </TableRow>
@@ -107,7 +142,7 @@ const AdminPagesCanvas: React.FC = () => {
       </Table>
       <div className="pt-6">
         <div className="text-gray-500 text-xs">
-          More controls & direct-edit capabilities coming soon. For now, editing navigation and routes must still be done in <code>src/config/navigation.ts</code> and AppRoutes. 
+          More controls & direct-edit capabilities coming soon. For now, editing navigation and routes must still be done in <code>src/config/navigation.ts</code> and AppRoutes.
         </div>
       </div>
     </div>
