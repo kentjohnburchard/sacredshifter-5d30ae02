@@ -40,7 +40,7 @@ const AboutFounder = () => {
 
   // Content definitions
   const standardContent = {
-    title: "Meet Our Founder",
+    title: "A message from the Founder",
     bio: "I spent over a decade working at the Royal Flying Doctors Service of Australia, immersed in Information Governance, Knowledge Management, Cybersecurity, and Privacy. From the outside, it looked like I had found my path — structured, technical, grounded in logic. But inside, I felt the pull of something deeper… something I couldn't yet name.",
     journey: "Then life unraveled. I found myself in a relationship that became toxic — shaped by external pressures, a dissonant environment, and a version of myself I no longer recognized. I lost my home, my sense of direction, and most painfully, my mum.",
     process: "What followed was a full reset. I had to rebuild not just my life, but my identity.",
@@ -52,7 +52,7 @@ const AboutFounder = () => {
   };
 
   const advancedContent = {
-    title: "Remembering Truth",
+    title: "A message from the Founder",
     bio: "There was a time I thought I had it all figured out — a career grounded in logic, structure, and governance. Over a decade with the Flying Doctors taught me how to protect systems, safeguard data, and understand the importance of knowledge integrity.",
     journey: "But no firewall could protect me from what was coming.",
     process: "I found myself in a relationship that began to fracture — not from within, but from the weight of external noise. Toxic patterns. Lost identities. An environment where truth was clouded. I lost my sense of self, my home, and my foundation… until there was nothing left but the question: who am I really?",
