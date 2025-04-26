@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <GeometricPatterns patternCount={10} />
+      <GeometricPatterns triangleCount={7} circleCount={7} squareCount={7} />
       <Layout>
         <div className="container mx-auto px-4 py-8 relative z-10">
           <div className="max-w-5xl mx-auto">
