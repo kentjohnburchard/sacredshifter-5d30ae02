@@ -66,11 +66,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
     ? "sidebar-gradient veil-lifted-gradient"
     : "sidebar-gradient veil-default-gradient";
 
-  useEffect(() => {
-    // debug
-    console.log("Sidebar theme updated, liftTheVeil:", liftTheVeil);
-    console.log("Applied theme classes:", themeClasses);
-  }, [liftTheVeil, themeClasses]);
+  // Remove all local kentMode or alternate theme logic
 
   if (!isMounted) return null;
 
@@ -167,3 +163,4 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
 };
 
 export default Sidebar;
+

@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useLoveQuotes } from "@/hooks/useLoveQuotes";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
@@ -8,21 +7,17 @@ import { Sparkles } from "lucide-react";
 type ThemeContextType = {
   liftTheVeil: boolean;
   setLiftTheVeil: (mode: boolean) => void;
-  kentMode: boolean; // Keep for backward compatibility
-  setKentMode: (mode: boolean) => void; // Keep for backward compatibility
   currentQuote: string;
   refreshQuote: () => void;
   currentTheme: string;
   currentElement: string;
   currentWatermarkStyle: string;
-  toggleConsciousnessMode: () => void; // Toggle function
+  toggleConsciousnessMode: () => void;
 };
 
 const ThemeContext = createContext<ThemeContextType>({
   liftTheVeil: false,
   setLiftTheVeil: () => {},
-  kentMode: false,
-  setKentMode: () => {},
   currentQuote: "",
   refreshQuote: () => {},
   currentTheme: "linear-gradient(to right, #4facfe, #00f2fe)",
@@ -40,7 +35,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [currentElement, setCurrentElement] = useState("water");
   const [currentWatermarkStyle, setCurrentWatermarkStyle] = useState("zodiac");
   
-  // Initialize theme state from localStorage ONLY on mount
   useEffect(() => {
     try {
       const savedMode = localStorage.getItem('liftTheVeil');
@@ -58,7 +52,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, []);
 
-  // The CRITICAL toggle function - completely rewritten for reliability
   const toggleConsciousnessMode = useCallback(() => {
     console.log("TOGGLE FUNCTION CALLED - Current state before toggle:", liftTheVeil);
     
@@ -66,7 +59,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const newState = !prevState;
       console.log(`ThemeContext: toggleConsciousnessMode executed, flipping from ${prevState} to ${newState}`);
       
-      // Save to localStorage
       try {
         localStorage.setItem('liftTheVeil', String(newState));
         console.log("ThemeContext: Saved new state to localStorage:", newState);
@@ -74,7 +66,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         console.error("ThemeContext: Failed to save to localStorage:", e);
       }
       
-      // Show toast with the NEW state
       toast.success(
         newState ? "Veil Lifted! Consciousness expanded." : "Returning to standard consciousness",
         {
@@ -84,7 +75,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
       );
       
-      // Dispatch event for components that need to react to theme changes
       const event = new CustomEvent('themeChanged', { 
         detail: { liftTheVeil: newState } 
       });
@@ -95,7 +85,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   }, []);
 
-  // Legacy setter - simplified to use toggleConsciousnessMode when appropriate
   const setLiftTheVeil = useCallback((newMode: boolean) => {
     console.log("ThemeContext: setLiftTheVeil called with:", newMode);
     
@@ -113,7 +102,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         console.error("Could not save theme state to localStorage:", e);
       }
       
-      // Dispatch event for components that need to react to theme changes
       const event = new CustomEvent('themeChanged', { 
         detail: { liftTheVeil: newMode } 
       });
@@ -124,11 +112,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   }, []);
 
-  // Make kentMode a direct reference to liftTheVeil
-  const kentMode = liftTheVeil;
-  const setKentMode = setLiftTheVeil;
-
-  // Apply theme changes when state changes
   useEffect(() => {
     const root = document.documentElement;
     
@@ -158,7 +141,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setCurrentTheme("linear-gradient(to right, #4facfe, #00f2fe)");
     }
     
-    // Dispatch event for components that need to react to theme changes - now also called here for redundancy
     const event = new CustomEvent('themeChanged', { detail: { liftTheVeil } });
     window.dispatchEvent(event);
     console.log("ThemeContext: Dispatched themeChanged event on theme change:", liftTheVeil);
@@ -169,8 +151,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     <ThemeContext.Provider value={{ 
       liftTheVeil, 
       setLiftTheVeil, 
-      kentMode, 
-      setKentMode,
       currentQuote, 
       refreshQuote: getRandomQuote,
       currentTheme,

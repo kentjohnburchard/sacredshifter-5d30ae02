@@ -1,45 +1,28 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { useTheme } from "@/context/ThemeContext";
+import { ToggleLeft, ToggleRight } from "lucide-react";
 
 const ConsciousnessToggle: React.FC = () => {
   const { liftTheVeil, toggleConsciousnessMode } = useTheme();
-  
-  // Log mount state
-  useEffect(() => {
-    console.log("ConsciousnessToggle mounted, current state:", liftTheVeil);
-  }, [liftTheVeil]);
-  
-  // Log when state changes
-  useEffect(() => {
-    console.log("ConsciousnessToggle detected state change:", liftTheVeil);
-  }, [liftTheVeil]);
-  
-  // Direct simple toggle that calls ThemeContext
-  const handleToggle = () => {
-    console.log("ConsciousnessToggle: Click detected, calling toggle function");
-    toggleConsciousnessMode();
-  };
-  
+
+  // Minimal, always-correct toggle button: top-right, large
   return (
     <>
-      {/* Larger clickable area with better z-index */}
-      <div 
-        className="fixed bottom-16 right-4 z-[1000] w-24 h-24 opacity-50 hover:opacity-100 
-                  bg-purple-500/30 rounded-full cursor-pointer flex items-center justify-center
-                  transition-all duration-300 ease-in-out hover:scale-110"
-        onClick={handleToggle}
-        aria-hidden="true"
+      <button
+        onClick={toggleConsciousnessMode}
+        className="fixed top-4 right-4 z-[1000] bg-gray-800/80 hover:bg-pink-500/80 transition-colors rounded-full shadow-lg p-3 flex items-center justify-center"
+        aria-label="Toggle Consciousness Mode"
         data-testid="consciousness-toggle"
       >
-        <div className={`w-12 h-12 rounded-full ${liftTheVeil ? 'bg-pink-600/70' : 'bg-purple-600/60'} 
-                        flex items-center justify-center transition-colors duration-500`}>
-          <span className="sr-only">Toggle Consciousness Mode</span>
-        </div>
-      </div>
-
-      {/* Enhanced theme state indicator */}
-      <div className="fixed bottom-2 right-2 z-[1000] bg-black/80 text-white text-xs p-1 rounded">
+        {liftTheVeil ? (
+          <ToggleRight className="h-8 w-8 text-pink-400" />
+        ) : (
+          <ToggleLeft className="h-8 w-8 text-purple-300" />
+        )}
+      </button>
+      {/* Small mode indicator below */}
+      <div className="fixed top-20 right-4 z-[1000] bg-black/80 text-white text-xs px-2 py-1 rounded">
         Mode: <span className={liftTheVeil ? 'text-pink-400' : 'text-purple-400'}>
           {liftTheVeil ? 'Veil Lifted' : 'Standard'}
         </span>
