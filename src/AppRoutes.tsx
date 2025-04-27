@@ -1,4 +1,3 @@
-
 import { Routes, Route } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
@@ -34,7 +33,7 @@ import SacredShifterWhat from './pages/SacredShifterWhat';
 import SacredShifterWhy from './pages/SacredShifterWhy';
 import SacredShifterHow from './pages/SacredShifterHow';
 import Admin from './pages/Admin';
-// FIX: Import JourneyAudioManager from correct location
+import ComingSoon from './pages/ComingSoon';
 import JourneyAudioManager from './components/admin/JourneyAudioManager';
 import JourneyAudioMappingsViewer from './pages/admin/JourneyAudioMappingsViewer';
 import AdminPagesCanvas from './pages/admin/AdminPagesCanvas';
@@ -45,6 +44,7 @@ const AppRoutes: React.FC = () => {
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<SacredShifterHome />} />
+        <Route path="/coming-soon" element={<ComingSoon />} />
         <Route path="/home" element={<SacredShifterHome />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/frequency-library" element={<FrequencyLibrary />} />
@@ -78,7 +78,6 @@ const AppRoutes: React.FC = () => {
         <Route path="/about/why" element={<SacredShifterWhy />} />
         <Route path="/about/how" element={<SacredShifterHow />} />
         <Route path="/admin" element={<Admin />} />
-        {/* FIXED: corrected path for JourneyAudioManager */}
         <Route path="/admin/journey-audio-admin" element={<JourneyAudioManager />} />
         <Route path="/admin/journey-audio-mappings" element={<JourneyAudioMappingsViewer />} />
         <Route path="/admin/pages" element={<AdminPagesCanvas />} />
@@ -89,4 +88,3 @@ const AppRoutes: React.FC = () => {
 };
 
 export default AppRoutes;
-
