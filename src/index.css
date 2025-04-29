@@ -444,7 +444,7 @@ html.veil-lifted .veil-lifted-nav,
 
 /* Add mode-specific button and UI styling */
 .standard-mode .btn-accent {
-  @apply bg-gradient-to-r from-purple-600 to-blue-500;
+  @apply bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600;
 }
 
 .veil-mode .btn-accent {
@@ -779,4 +779,3 @@ html.veil-lifted .veil-lifted-nav,
 
 /* Add mode-specific button and UI styling */
 .standard-mode .btn-accent {
-  @apply bg-gradient-to-r from-purple-600 to-
