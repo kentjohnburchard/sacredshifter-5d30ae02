@@ -126,7 +126,8 @@ export const useLightbearerProgress = () => {
         
         // Check if leveled up
         if (typeof data === 'object' && data !== null && 'leveled_up' in data) {
-          const hasLeveledUp = data.leveled_up;
+          const responseData = data as LevelUpEvent;
+          const hasLeveledUp = responseData.leveled_up;
           if (hasLeveledUp) {
             setRecentLevelUp(true);
             // Reset after 5 seconds

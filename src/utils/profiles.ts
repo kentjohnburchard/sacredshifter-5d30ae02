@@ -11,7 +11,7 @@ export interface Profile {
   onboarding_completed: boolean;
   initial_mood: string | null;
   primary_intention: string | null;
-  energy_level: string | null;
+  energy_level: string | null; // Keeping this as string to match database schema
   interests: string[];
   updated_at: string;
 }
@@ -96,7 +96,28 @@ export const fetchProfile = async (userId: string): Promise<ExtendedProfile | nu
       throw error;
     }
     
-    return data as ExtendedProfile;
+    if (data) {
+      // Ensure the data conforms to ExtendedProfile type
+      return {
+        id: data.id,
+        full_name: data.full_name,
+        display_name: data.display_name || "Lightbearer",
+        bio: data.bio,
+        avatar_url: data.avatar_url,
+        onboarding_completed: Boolean(data.onboarding_completed),
+        initial_mood: data.initial_mood,
+        primary_intention: data.primary_intention,
+        energy_level: data.energy_level, // Keep as string
+        interests: Array.isArray(data.interests) ? data.interests : [],
+        updated_at: data.updated_at || new Date().toISOString(),
+        earned_badges: Array.isArray(data.earned_badges) ? data.earned_badges : [],
+        light_level: Number(data.light_level) || 1,
+        light_points: Number(data.light_points) || 0,
+        last_level_up: data.last_level_up
+      } as ExtendedProfile;
+    }
+    
+    return null;
   } catch (error) {
     console.error('Error in fetchProfile:', error);
     return null;
