@@ -104,7 +104,7 @@ export const fetchProfile = async (userId: string): Promise<ExtendedProfile | nu
 };
 
 // Add the missing updateProfile function
-export const updateProfile = async (userId: string, updates: Partial<ExtendedProfile>) => {
+export const updateProfile = async (userId: string, updates: Partial<Profile>) => {
   try {
     const { error } = await supabase
       .from('profiles')
