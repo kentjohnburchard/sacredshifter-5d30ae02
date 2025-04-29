@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -124,8 +125,8 @@ export const useLightbearerProgress = () => {
         fetchUserStats();
         
         // Check if leveled up
-        if (typeof levelUpData === 'object' && levelUpData !== null && 'leveled_up' in levelUpData) {
-          const hasLeveledUp = levelUpData.leveled_up;
+        if (typeof data === 'object' && data !== null && 'leveled_up' in data) {
+          const hasLeveledUp = data.leveled_up;
           if (hasLeveledUp) {
             setRecentLevelUp(true);
             // Reset after 5 seconds

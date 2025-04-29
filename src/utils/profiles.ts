@@ -1,4 +1,6 @@
+
 import { User } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface Profile {
   id: string;
@@ -20,6 +22,9 @@ export interface ExtendedProfile extends Profile {
   light_points: number;
   last_level_up: string | null;
 }
+
+// Also export the Profile type as ProfileType for backward compatibility
+export type ProfileType = ExtendedProfile;
 
 export const defaultProfileValues = {
   full_name: null,
@@ -46,7 +51,6 @@ const defaultProfile: ExtendedProfile = {
   energy_level: null,
   interests: [],
   updated_at: new Date().toISOString(),
-  // Add the missing properties
   earned_badges: [],
   last_level_up: null,
   light_level: 1,
@@ -57,7 +61,6 @@ export const createProfileFromUser = (
   user: User,
   displayName: string | null = null
 ): ExtendedProfile => {
-  // Also fix the other instance in the file
   const newProfile: ExtendedProfile = {
     id: user.id,
     full_name: null,
@@ -70,7 +73,6 @@ export const createProfileFromUser = (
     energy_level: null,
     interests: [],
     updated_at: new Date().toISOString(),
-    // Add the missing properties
     earned_badges: [],
     last_level_up: null,
     light_level: 1,
@@ -78,6 +80,68 @@ export const createProfileFromUser = (
   };
 
   return newProfile;
+};
+
+// Add the missing fetchProfile function
+export const fetchProfile = async (userId: string): Promise<ExtendedProfile | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+    
+    if (error) {
+      console.error('Error fetching profile:', error);
+      throw error;
+    }
+    
+    return data as ExtendedProfile;
+  } catch (error) {
+    console.error('Error in fetchProfile:', error);
+    return null;
+  }
+};
+
+// Add the missing updateProfile function
+export const updateProfile = async (userId: string, updates: Partial<ExtendedProfile>) => {
+  try {
+    const { error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', userId);
+    
+    if (error) {
+      console.error('Error updating profile:', error);
+      throw error;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error in updateProfile:', error);
+    throw error;
+  }
+};
+
+// Add the missing checkOnboardingStatus function
+export const checkOnboardingStatus = async (userId: string): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('onboarding_completed')
+      .eq('id', userId)
+      .single();
+    
+    if (error) {
+      console.error('Error checking onboarding status:', error);
+      return false;
+    }
+    
+    return data?.onboarding_completed || false;
+  } catch (error) {
+    console.error('Error in checkOnboardingStatus:', error);
+    return false;
+  }
 };
 
 export default defaultProfile;
