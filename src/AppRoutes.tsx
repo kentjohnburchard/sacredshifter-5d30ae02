@@ -41,6 +41,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Soundscapes from './pages/Soundscapes';
 import CircleHomePage from './pages/circle/index';
 import PremiumHomePage from './pages/premium/index';
+import ComingSoon from './components/ComingSoon';
 
 const AppRoutes: React.FC = () => {
   return (

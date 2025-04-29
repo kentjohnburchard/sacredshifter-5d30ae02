@@ -13,23 +13,60 @@ import { supabase } from '@/integrations/supabase/client';
  */
 export const fetchCommunityPosts = async () => {
   try {
-    // Example query - to be implemented when database is ready
-    const { data, error } = await supabase
-      .from('community_posts')
-      .select(`
-        *,
-        author:user_id (id, name, avatar_url),
-        comments:community_comments (
-          id, 
-          content, 
-          created_at,
-          author:user_id (id, name, avatar_url)
-        )
-      `)
-      .order('created_at', { ascending: false });
+    // Placeholder implementation until database tables are created
+    // In a real implementation, we would query the community_posts table
     
-    if (error) throw error;
-    return data;
+    // Mock data for development
+    return [
+      {
+        id: '1',
+        title: 'Welcome to Sacred Circle',
+        content: 'This is a place for spiritual growth and connection.',
+        created_at: new Date().toISOString(),
+        author: {
+          id: 'user1',
+          name: 'Cosmic Guide',
+          avatarUrl: '/placeholder.svg',
+        },
+        likes: 12,
+        comments: [
+          {
+            id: 'c1',
+            content: 'Thank you for creating this sacred space!',
+            created_at: new Date(),
+            author: {
+              id: 'user2',
+              name: 'Light Seeker',
+              avatarUrl: '/placeholder.svg',
+            }
+          }
+        ]
+      },
+      {
+        id: '2',
+        title: 'Frequency Healing Discussion',
+        content: 'What are your experiences with 528Hz frequency?',
+        created_at: new Date().toISOString(),
+        author: {
+          id: 'user3',
+          name: 'Frequency Master',
+          avatarUrl: '/placeholder.svg',
+        },
+        likes: 8,
+        comments: [
+          {
+            id: 'c2',
+            content: 'I love meditating to 528Hz. It helps me connect to my heart chakra.',
+            created_at: new Date(),
+            author: {
+              id: 'user4',
+              name: 'Heart Healer',
+              avatarUrl: '/placeholder.svg',
+            }
+          }
+        ]
+      }
+    ];
   } catch (error) {
     console.error('Error fetching community posts:', error);
     return [];
@@ -52,23 +89,23 @@ export const createCommunityPost = async (content: string) => {
  */
 export const fetchCommunityProfile = async (userId: string) => {
   try {
-    // Example query - to be implemented when database is ready
-    const { data, error } = await supabase
-      .from('community_profiles')
-      .select(`
-        *,
-        badges:community_user_badges (
-          badge:badge_id (id, name, description)
-        ),
-        circles:community_user_circles (
-          circle:circle_id (id, name, description, member_count)
-        )
-      `)
-      .eq('user_id', userId)
-      .single();
+    // Placeholder implementation until database tables are created
     
-    if (error) throw error;
-    return data;
+    // Mock data for development
+    return {
+      userId,
+      name: 'Soul Explorer',
+      avatarUrl: '/placeholder.svg',
+      bio: 'Seeking wisdom across dimensions.',
+      badges: [
+        { name: 'Meditation Guide', description: 'Completed 10 meditation sessions' },
+        { name: 'Frequency Master', description: 'Explored all sound frequencies' }
+      ],
+      circles: [
+        { id: 'c1', name: 'Meditation', description: 'Daily meditation practices', member_count: 120 },
+        { id: 'c2', name: 'Sacred Geometry', description: 'Exploring geometric patterns', member_count: 85 }
+      ]
+    };
   } catch (error) {
     console.error('Error fetching community profile:', error);
     return null;
@@ -80,13 +117,29 @@ export const fetchCommunityProfile = async (userId: string) => {
  */
 export const fetchCommunityCommunities = async () => {
   try {
-    // Example query - to be implemented when database is ready
-    const { data, error } = await supabase
-      .from('community_circles')
-      .select('*');
+    // Placeholder implementation until database tables are created
     
-    if (error) throw error;
-    return data;
+    // Mock data for development
+    return [
+      { 
+        id: 'c1', 
+        name: 'Meditation', 
+        description: 'Daily meditation practices', 
+        member_count: 120 
+      },
+      { 
+        id: 'c2', 
+        name: 'Sacred Geometry', 
+        description: 'Exploring geometric patterns', 
+        member_count: 85 
+      },
+      { 
+        id: 'c3', 
+        name: 'Frequency Healing', 
+        description: 'Sound healing techniques', 
+        member_count: 95 
+      }
+    ];
   } catch (error) {
     console.error('Error fetching community circles:', error);
     return [];

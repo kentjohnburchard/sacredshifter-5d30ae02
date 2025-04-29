@@ -13,13 +13,47 @@ import { supabase } from '@/integrations/supabase/client';
  */
 export const fetchPremiumExperiences = async () => {
   try {
-    // Example query - to be implemented when database is ready
-    const { data, error } = await supabase
-      .from('premium_experiences')
-      .select('*');
+    // Placeholder implementation until database tables are created
     
-    if (error) throw error;
-    return data;
+    // Mock data for development
+    return [
+      {
+        id: 'exp1',
+        title: 'Cosmic Consciousness Expansion',
+        description: 'A guided journey to expand your awareness beyond the physical realm and connect with cosmic consciousness.',
+        imageUrl: '/placeholder.svg',
+        durationMinutes: 45,
+        level: 'Intermediate',
+        category: 'Meditation'
+      },
+      {
+        id: 'exp2',
+        title: 'Sacred Heart Activation',
+        description: 'Activate your heart chakra with this powerful frequency experience designed to open channels of compassion and love.',
+        imageUrl: '/placeholder.svg',
+        durationMinutes: 30,
+        level: 'Beginner',
+        category: 'Frequency Healing'
+      },
+      {
+        id: 'exp3',
+        title: 'Metatron\'s Cube Visualization',
+        description: 'Connect with the ancient sacred geometry of Metatron\'s Cube to access higher dimensional wisdom.',
+        imageUrl: '/placeholder.svg',
+        durationMinutes: 60,
+        level: 'Advanced',
+        category: 'Sacred Geometry'
+      },
+      {
+        id: 'exp4',
+        title: 'Quantum Timeline Healing',
+        description: 'Use quantum principles to access and heal past timelines, creating a harmonious present and future.',
+        imageUrl: '/placeholder.svg',
+        durationMinutes: 50,
+        level: 'Advanced',
+        category: 'Timeline Work'
+      }
+    ];
   } catch (error) {
     console.error('Error fetching premium experiences:', error);
     return [];
@@ -28,18 +62,11 @@ export const fetchPremiumExperiences = async () => {
 
 export const fetchPremiumExperienceById = async (experienceId: string) => {
   try {
-    // Example query - to be implemented when database is ready
-    const { data, error } = await supabase
-      .from('premium_experiences')
-      .select(`
-        *,
-        frequencies:premium_experience_frequencies (frequency)
-      `)
-      .eq('id', experienceId)
-      .single();
+    // Placeholder implementation until database tables are created
     
-    if (error) throw error;
-    return data;
+    // Mock data lookup
+    const experiences = await fetchPremiumExperiences();
+    return experiences.find(exp => exp.id === experienceId) || null;
   } catch (error) {
     console.error('Error fetching premium experience:', error);
     return null;
@@ -56,18 +83,11 @@ export const verifyPremiumAccess = async () => {
     
     if (!user) return false;
     
-    // Query user's subscription status
-    const { data, error } = await supabase
-      .from('user_subscriptions')
-      .select('is_active, tier, expires_at')
-      .eq('user_id', user.user?.id)
-      .single();
+    // In a real implementation, we would query the user_subscriptions table
+    // For now, return true for development purposes
     
-    if (error || !data) return false;
-    
-    // Check if subscription is active and not expired
-    const isActive = data.is_active && new Date(data.expires_at) > new Date();
-    return isActive && data.tier === 'premium';
+    // Mock verification (always true for development)
+    return true;
   } catch (error) {
     console.error('Error verifying premium access:', error);
     return false;
@@ -84,16 +104,10 @@ export const saveUserProgress = async (experienceId: string, progress: number) =
     
     if (!user) throw new Error('User not authenticated');
     
-    const { error } = await supabase
-      .from('premium_user_progress')
-      .upsert({
-        user_id: user.user?.id,
-        experience_id: experienceId,
-        progress_percentage: progress,
-        last_accessed: new Date()
-      });
+    // In a real implementation, we would insert/update data in the premium_user_progress table
+    console.log(`Saving progress for user ${user.user?.id}: ${progress}% on experience ${experienceId}`);
     
-    if (error) throw error;
+    // Mock success for development
     return true;
   } catch (error) {
     console.error('Error saving user progress:', error);
