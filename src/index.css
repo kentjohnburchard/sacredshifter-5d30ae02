@@ -73,6 +73,22 @@
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
   }
   
+  /* New: Improved text contrast for dark backgrounds */
+  .text-glow-light {
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+  }
+  
+  .text-glow-purple {
+    color: rgba(216, 180, 254, 0.95); /* Purple-200 with high opacity */
+    text-shadow: 0 0 8px rgba(168, 85, 247, 0.5); /* Purple-600 glow */
+  }
+  
+  .text-glow-pink {
+    color: rgba(249, 168, 212, 0.95); /* Pink-200 with high opacity */
+    text-shadow: 0 0 8px rgba(236, 72, 153, 0.5); /* Pink-500 glow */
+  }
+  
   .card-accessible {
     @apply backdrop-blur-sm bg-black/80 border border-white/20;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
@@ -448,7 +464,7 @@ html.veil-lifted .veil-lifted-nav,
 }
 
 .veil-mode .btn-accent {
-  @apply bg-gradient-to-r from-pink-600 to-fuchsia-500;
+  @apply bg-gradient-to-r from-pink-600 to-fuchsia-500 hover:from-pink-700 hover:to-fuchsia-600;
 }
 
 .standard-mode .glow-accent {
