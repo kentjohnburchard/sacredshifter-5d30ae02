@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import { Card } from '@/components/ui/card';
 import { 
@@ -16,6 +16,21 @@ import {
 const Astrology: React.FC = () => {
   const [birthDataSubmitted, setBirthDataSubmitted] = React.useState(false);
   const [dominantElement, setDominantElement] = React.useState("Fire");
+  const [userData, setUserData] = React.useState({
+    birthDate: "1990-01-01",
+    birthTime: "12:00",
+    birthLocation: "New York, NY"
+  });
+  
+  const handleBirthDataSubmit = (data: any) => {
+    setUserData(data);
+    setBirthDataSubmitted(true);
+  };
+  
+  const handleNatalChartSubmit = (data: any) => {
+    console.log("Generating natal chart with data:", data);
+    // Process natal chart data
+  };
   
   return (
     <Layout pageTitle="Astrology | Sacred Shifter">
@@ -34,7 +49,7 @@ const Astrology: React.FC = () => {
             {!birthDataSubmitted ? (
               <Card className="p-6 bg-black/60 border-purple-500/30">
                 <h2 className="text-xl font-semibold mb-4 text-purple-100">Enter Your Birth Information</h2>
-                <UserBirthDataForm onSubmit={() => setBirthDataSubmitted(true)} />
+                <UserBirthDataForm />
               </Card>
             ) : (
               <>
@@ -46,14 +61,14 @@ const Astrology: React.FC = () => {
                 </div>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <BirthChart />
+                  <BirthChart data={userData} />
                   <ElementalProfile dominantElement={dominantElement} />
                   <PlanetaryTransits />
                 </div>
                 
                 <Card className="p-6 bg-black/60 border-purple-500/30">
                   <h2 className="text-xl font-semibold mb-4 text-purple-100">Detailed Natal Chart</h2>
-                  <NatalChartForm />
+                  <NatalChartForm onSubmit={handleNatalChartSubmit} />
                 </Card>
               </>
             )}

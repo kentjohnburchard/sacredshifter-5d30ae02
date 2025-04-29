@@ -6,6 +6,14 @@ import { hermeticPrinciples } from '@/data/hermeticPrinciples';
 import { Sparkles } from 'lucide-react';
 
 const HermeticPrinciples: React.FC = () => {
+  // Convert the record to an array if it's not already one
+  const principlesArray = Array.isArray(hermeticPrinciples) 
+    ? hermeticPrinciples 
+    : Object.entries(hermeticPrinciples).map(([id, data]) => ({
+        id,
+        ...data
+      }));
+
   return (
     <Layout pageTitle="Hermetic Principles | Sacred Shifter">
       <div className="container mx-auto px-4 py-8">
@@ -19,7 +27,7 @@ const HermeticPrinciples: React.FC = () => {
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {hermeticPrinciples.map((principle) => (
+          {principlesArray.map((principle) => (
             <Card key={principle.id} className="bg-black/80 border-amber-500/40 backdrop-blur-md shadow-xl overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-amber-950/50 to-yellow-950/50 p-4">
                 <CardTitle className="text-xl font-bold flex items-center gap-2">

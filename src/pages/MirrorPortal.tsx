@@ -2,7 +2,7 @@
 import React from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MirrorPortal as MirrorPortalComponent } from '@/components/heart-center/MirrorPortal';
+import MirrorPortalComponent from '@/components/heart-center/MirrorPortal';
 
 const MirrorPortal: React.FC = () => {
   return (

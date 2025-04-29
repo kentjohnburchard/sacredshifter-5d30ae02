@@ -10,7 +10,7 @@ import EditEntryDialog from '@/components/timeline/EditEntryDialog';
 
 const Timeline: React.FC = () => {
   const [viewMode, setViewMode] = useState<'vertical' | 'spiral'>('vertical');
-  const [activeFilter, setActiveFilter] = useState<string>('all');
+  const [activeTagFilter, setActiveTagFilter] = useState<string>('all');
   const [showEditDialog, setShowEditDialog] = useState<boolean>(false);
   const [currentEntry, setCurrentEntry] = useState<any>(null);
 
@@ -19,7 +19,7 @@ const Timeline: React.FC = () => {
   };
   
   const handleFilterChange = (filter: string) => {
-    setActiveFilter(filter);
+    setActiveTagFilter(filter);
   };
   
   const handleEditEntry = (entry: any) => {
@@ -46,21 +46,21 @@ const Timeline: React.FC = () => {
         
         <Card className="p-6 bg-black/60 border-purple-500/30 mb-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-            <FiltersBar activeFilter={activeFilter} onFilterChange={handleFilterChange} />
+            <FiltersBar activeTagFilter={activeTagFilter} onFilterChange={handleFilterChange} />
             <ToggleView viewMode={viewMode} onViewChange={handleViewChange} />
           </div>
           
           {viewMode === 'vertical' ? (
-            <TimelineViewer filter={activeFilter} onEditEntry={handleEditEntry} />
+            <TimelineViewer activeTagFilter={activeTagFilter} onEdit={handleEditEntry} />
           ) : (
-            <SpiralView filter={activeFilter} onEditEntry={handleEditEntry} />
+            <SpiralView activeTagFilter={activeTagFilter} onEdit={handleEditEntry} />
           )}
         </Card>
         
         {showEditDialog && currentEntry && (
           <EditEntryDialog
             entry={currentEntry}
-            isOpen={showEditDialog}
+            open={showEditDialog}
             onClose={handleCloseDialog}
           />
         )}
