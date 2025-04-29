@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
@@ -43,9 +44,12 @@ const Layout: React.FC<LayoutProps> = ({
   }, [pageTitle]);
 
   const themeClasses = getThemeClasses(theme);
+  
+  // Determine the consciousness mode class based on liftTheVeil state
+  const consciousnessClass = liftTheVeil ? 'veil-mode' : 'standard-mode';
 
   return (
-    <div className="relative flex min-h-screen w-full overflow-hidden bg-gray-950">
+    <div className={`relative flex min-h-screen w-full overflow-hidden bg-gray-950 ${consciousnessClass}`}>
       <StarfieldBackground density="medium" opacity={0.5} isStatic={false} />
       
       <div className="fixed inset-0 z-0 pointer-events-none opacity-30">
@@ -59,10 +63,10 @@ const Layout: React.FC<LayoutProps> = ({
       
       <ConsciousnessToggle />
 
-      <div className="flex min-h-screen w-full">
+      <div className={`flex min-h-screen w-full ${consciousnessClass}`}>
         {showNavbar && <Sidebar />}
         
-        <div className={`flex-1 flex flex-col min-h-screen relative z-10 ${themeClasses} ${theme ? `theme-${theme}` : ''}`}>
+        <div className={`flex-1 flex flex-col min-h-screen relative z-10 ${themeClasses} ${theme ? `theme-${theme}` : ''} ${consciousnessClass}`}>
           {!hideHeader && <Header />}
           
           <div className={`flex-grow min-h-[calc(100vh-80px)] pb-32 relative ${showNavbar ? 'sm:pl-20 pt-4' : 'pt-0'}`}>

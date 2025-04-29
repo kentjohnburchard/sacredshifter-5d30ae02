@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '@/context/ThemeContext';
 
 interface PageLayoutProps {
   children: React.ReactNode;
@@ -20,13 +21,17 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
   className = '',
 }) => {
   const navigate = useNavigate();
+  const { liftTheVeil } = useTheme();
   
   const handleBack = () => {
     navigate(-1);
   };
   
+  // Determine consciousness mode class
+  const consciousnessClass = liftTheVeil ? 'veil-mode' : 'standard-mode';
+  
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-gray-900 to-black text-white ${className}`}>
+    <div className={`min-h-screen bg-gradient-to-br from-gray-900 to-black text-white ${consciousnessClass} ${className}`}>
       <header className="bg-black/40 backdrop-blur-sm">
         <div className="container mx-auto py-4 px-4">
           <div className="flex items-center gap-4">

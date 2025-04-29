@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useLoveQuotes } from "@/hooks/useLoveQuotes";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
@@ -13,6 +14,7 @@ type ThemeContextType = {
   currentElement: string;
   currentWatermarkStyle: string;
   toggleConsciousnessMode: () => void;
+  isContentAccessible: (requireLiftedVeil: boolean, requireSubscription: boolean) => boolean;
 };
 
 const ThemeContext = createContext<ThemeContextType>({
@@ -24,6 +26,7 @@ const ThemeContext = createContext<ThemeContextType>({
   currentElement: "water",
   currentWatermarkStyle: "zodiac",
   toggleConsciousnessMode: () => {},
+  isContentAccessible: () => false,
 });
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -112,6 +115,18 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   }, []);
 
+  // Helper function to check if content is accessible based on consciousness mode and subscription
+  const isContentAccessible = useCallback((requireLiftedVeil: boolean, requireSubscription: boolean) => {
+    // For now, only check the liftTheVeil state
+    // The subscription check will be implemented separately
+    if (requireLiftedVeil && !liftTheVeil) {
+      return false;
+    }
+    
+    // We don't check subscription here yet, but the structure is prepared for it
+    return true;
+  }, [liftTheVeil]);
+
   useEffect(() => {
     const root = document.documentElement;
     
@@ -127,6 +142,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       
       root.setAttribute('data-theme', 'veil-lifted');
       root.classList.add('veil-lifted');
+      root.classList.add('veil-mode');
+      root.classList.remove('standard-mode');
       setCurrentTheme("linear-gradient(to right, #FF36AB, #B967FF)");
     } else {
       root.style.setProperty('--primary-accent', '#8B5CF6');
@@ -138,6 +155,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       
       root.setAttribute('data-theme', 'standard');
       root.classList.remove('veil-lifted');
+      root.classList.remove('veil-mode');
+      root.classList.add('standard-mode');
       setCurrentTheme("linear-gradient(to right, #4facfe, #00f2fe)");
     }
     
@@ -156,7 +175,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       currentTheme,
       currentElement,
       currentWatermarkStyle,
-      toggleConsciousnessMode
+      toggleConsciousnessMode,
+      isContentAccessible
     }}>
       {children}
     </ThemeContext.Provider>

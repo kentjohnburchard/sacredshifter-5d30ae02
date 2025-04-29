@@ -1,3 +1,4 @@
+
 import { Routes, Route } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
@@ -37,6 +38,7 @@ import ComingSoon from './pages/ComingSoon';
 import JourneyAudioManager from './components/admin/JourneyAudioManager';
 import JourneyAudioMappingsViewer from './pages/admin/JourneyAudioMappingsViewer';
 import AdminPagesCanvas from './pages/admin/AdminPagesCanvas';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -46,25 +48,53 @@ const AppRoutes: React.FC = () => {
         <Route path="/" element={<SacredShifterHome />} />
         <Route path="/coming-soon" element={<ComingSoon />} />
         <Route path="/home" element={<SacredShifterHome />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
         <Route path="/frequency-library" element={<FrequencyLibrary />} />
         <Route path="/frequencies" element={<FrequencyLibrary />} />
         <Route path="/auth" element={<Auth />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/subscription" element={<Subscription />} />
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        } />
+        <Route path="/subscription" element={
+          <ProtectedRoute>
+            <Subscription />
+          </ProtectedRoute>
+        } />
         <Route path="/about-founder" element={<AboutFounder />} />
         <Route path="/meditation" element={<Meditation />} />
         <Route path="/hermetic-wisdom" element={<HermeticWisdom />} />
         <Route path="/frequency-shift" element={<FrequencyShift />} />
         <Route path="/journey-templates" element={<JourneyTemplatesPage />} />
-        <Route path="/journeys" element={<Journeys />} />
-        <Route path="/journey-player/:journeyId" element={<JourneyPlayer />} />
-        <Route path="/journey-player/*" element={<JourneyPlayer />} />
+        <Route path="/journeys" element={
+          <ProtectedRoute>
+            <Journeys />
+          </ProtectedRoute>
+        } />
+        <Route path="/journey-player/:journeyId" element={
+          <ProtectedRoute>
+            <JourneyPlayer />
+          </ProtectedRoute>
+        } />
+        <Route path="/journey-player/*" element={
+          <ProtectedRoute>
+            <JourneyPlayer />
+          </ProtectedRoute>
+        } />
         <Route path="/site-map" element={<SiteMap />} />
         <Route path="/sacred-grid" element={<SacredGridDemo />} />
         <Route path="/harmonic-map" element={<HarmonicMapPage />} />
         <Route path="/heart-center" element={<HeartCenter />} />
-        <Route path="/heart-dashboard" element={<HeartDashboard />} />
+        <Route path="/heart-dashboard" element={
+          <ProtectedRoute>
+            <HeartDashboard />
+          </ProtectedRoute>
+        } />
         <Route path="/sacred-blueprint" element={<SacredBlueprint />} />
         <Route path="/shift-perception" element={<ShiftPerception />} />
         <Route path="/trinity-gateway" element={<TrinityGateway />} />
@@ -77,10 +107,26 @@ const AppRoutes: React.FC = () => {
         <Route path="/about/what" element={<SacredShifterWhat />} />
         <Route path="/about/why" element={<SacredShifterWhy />} />
         <Route path="/about/how" element={<SacredShifterHow />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/admin/journey-audio-admin" element={<JourneyAudioManager />} />
-        <Route path="/admin/journey-audio-mappings" element={<JourneyAudioMappingsViewer />} />
-        <Route path="/admin/pages" element={<AdminPagesCanvas />} />
+        <Route path="/admin" element={
+          <ProtectedRoute>
+            <Admin />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/journey-audio-admin" element={
+          <ProtectedRoute>
+            <JourneyAudioManager />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/journey-audio-mappings" element={
+          <ProtectedRoute>
+            <JourneyAudioMappingsViewer />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/pages" element={
+          <ProtectedRoute>
+            <AdminPagesCanvas />
+          </ProtectedRoute>
+        } />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
