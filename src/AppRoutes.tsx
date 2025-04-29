@@ -7,7 +7,7 @@ import NotFound from './pages/NotFound';
 import Dashboard from './pages/Dashboard';
 import FrequencyLibrary from './pages/FrequencyLibrary';
 import SacredShifterHome from './pages/SacredShifterHome';
-import HomePage from './pages/HomePage';  // Import our new HomePage
+import HomePage from './pages/HomePage';
 import Auth from './pages/Auth';
 import Profile from './pages/Profile';
 import AboutFounder from './pages/AboutFounder';
@@ -24,6 +24,7 @@ import HeartCenter from './pages/HeartCenter';
 import HeartDashboard from './pages/HeartDashboard';
 import SacredBlueprint from './pages/SacredBlueprint';
 import ShiftPerception from './pages/ShiftPerception';
+import HermeticPrinciples from './pages/HermeticPrinciples';
 import TrinityGateway from './pages/TrinityGateway';
 import Alignment from './pages/Alignment';
 import EnergyCheck from './pages/EnergyCheck';
@@ -85,6 +86,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/about-founder" element={<AboutFounder />} />
         <Route path="/meditation" element={<Meditation />} />
         <Route path="/hermetic-wisdom" element={<HermeticWisdom />} />
+        <Route path="/hermetic-principles" element={<HermeticPrinciples />} />
         <Route path="/frequency-shift" element={<FrequencyShift />} />
         <Route path="/journey-templates" element={<JourneyTemplatesPage />} />
         <Route path="/journeys" element={

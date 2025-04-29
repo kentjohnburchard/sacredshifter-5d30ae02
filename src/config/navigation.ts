@@ -13,6 +13,7 @@ export const activePages = {
   mirrorPortal: false,
   frequencyShift: false,
   shiftPerception: true,
+  hermeticPrinciples: true,
   soulScribe: false,
   deityOracle: false,
   astralAttunement: false,
@@ -102,6 +103,12 @@ export const navItems = [
     key: "shiftPerception" as PageKey,
     icon: "Brain",
     label: "Shift Perception",
+  },
+  {
+    path: "/hermetic-principles",
+    key: "hermeticPrinciples" as PageKey,
+    icon: "BookText",
+    label: "Hermetic Principles",
   },
   {
     path: "/soul-scribe",
@@ -220,8 +227,6 @@ export const getActiveNavItems = () => {
     if (isUnique) {
       uniqueKeys.add(item.path);
     }
-    
-    console.log(`Navigation item: ${item.label}, Active: ${isActive}, Path: ${item.path}`);
     
     return isActive && isUnique;
   });
