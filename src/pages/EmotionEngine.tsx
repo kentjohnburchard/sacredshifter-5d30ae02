@@ -1,62 +1,38 @@
 
-import React from "react";
-import Layout from "@/components/Layout";
-import ComingSoonBanner from "@/components/ComingSoonBanner";
+import React from 'react';
+import Layout from '@/components/Layout';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ComingSoon } from '@/components/ComingSoon';
 
-const EmotionEngine = () => {
+const EmotionEngine: React.FC = () => {
   return (
-    <Layout pageTitle="Emotion Engine™">
+    <Layout pageTitle="Emotion Engine™ | Sacred Shifter">
       <div className="container mx-auto px-4 py-8">
-        <ComingSoonBanner 
-          message="Our Emotion Engine™ is evolving! Advanced emotional tracking and optimization features are coming soon."
-        />
+        <h1 className="text-3xl font-bold mb-6 text-center text-white bg-clip-text text-transparent bg-gradient-to-r from-pink-300 to-red-300"
+            style={{textShadow: '0 2px 10px rgba(236, 72, 153, 0.7)'}}>
+          Emotion Engine™
+        </h1>
+        <p className="text-lg text-center text-white mb-12 max-w-3xl mx-auto"
+           style={{textShadow: '0 1px 4px rgba(0, 0, 0, 0.8)'}}>
+          Process, transform, and transmute your emotions with powerful frequency tools.
+        </p>
         
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white/20 backdrop-blur-md shadow-xl rounded-xl p-8 border border-purple-200/20">
-            <h2 className="text-2xl font-bold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
-              Track and Optimize Your Emotional Well-being
-            </h2>
-            
-            <p className="text-white/80 mb-6 text-center">
-              Advanced tools for tracking and optimizing your emotional well-being and reality perception for spiritual growth.
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-              <div className="bg-black/30 p-6 rounded-lg border border-purple-300/10">
-                <h3 className="text-xl font-semibold mb-4 text-purple-300">Emotion Tracking</h3>
-                <p className="text-white/70">
-                  Track your emotions throughout the day and identify patterns that affect your vibrational frequency.
-                </p>
-              </div>
-              
-              <div className="bg-black/30 p-6 rounded-lg border border-purple-300/10">
-                <h3 className="text-xl font-semibold mb-4 text-purple-300">Reality Perception</h3>
-                <p className="text-white/70">
-                  Understand how your perception shapes your reality and learn techniques to shift to higher vibrational states.
-                </p>
-              </div>
-              
-              <div className="bg-black/30 p-6 rounded-lg border border-purple-300/10">
-                <h3 className="text-xl font-semibold mb-4 text-purple-300">Frequency Analysis</h3>
-                <p className="text-white/70">
-                  Get insights into how your emotional patterns affect your energetic signature and spiritual growth.
-                </p>
-              </div>
-              
-              <div className="bg-black/30 p-6 rounded-lg border border-purple-300/10">
-                <h3 className="text-xl font-semibold mb-4 text-purple-300">Growth Recommendations</h3>
-                <p className="text-white/70">
-                  Receive personalized recommendations for practices that can help you maintain higher vibrational states.
-                </p>
-              </div>
-            </div>
-            
-            <div className="mt-10 text-center">
-              <p className="text-white/60 italic">
-                Coming soon: Integration with Sacred Blueprint™ for deeper insights into your spiritual journey.
-              </p>
-            </div>
-          </div>
+        <div className="space-y-10">
+          <Card className="bg-black/80 border-pink-500/40 backdrop-blur-md p-6 shadow-xl">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold mb-4 text-center text-pink-200"
+                  style={{textShadow: '0 0 10px rgba(236, 72, 153, 0.7)'}}>
+                Emotion Processing Engine
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ComingSoon 
+                title="Emotion Engine™ Coming Soon"
+                description="Our advanced emotional processing technology is being calibrated for optimal frequency alignment."
+                expectedDate="Fall 2025"
+              />
+            </CardContent>
+          </Card>
         </div>
       </div>
     </Layout>
@@ -64,4 +40,3 @@ const EmotionEngine = () => {
 };
 
 export default EmotionEngine;
-

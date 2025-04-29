@@ -50,6 +50,11 @@ import Timeline from './pages/Timeline';
 import Intentions from './pages/Intentions';
 import Lightbearer from '@/pages/Lightbearer';
 import SacredCircle from '@/pages/SacredCircle';
+import MirrorPortal from '@/pages/MirrorPortal';
+import EmotionEngine from '@/pages/EmotionEngine';
+import SoulScribe from '@/pages/SoulScribe';
+import DeityOracle from '@/pages/DeityOracle';
+import AstralAttunement from '@/pages/AstralAttunement';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -128,6 +133,12 @@ const AppRoutes: React.FC = () => {
         <Route path="/soundscapes" element={<Soundscapes />} />
         <Route path="/timeline" element={<Timeline />} />
         <Route path="/intentions" element={<Intentions />} />
+        <Route path="/mirror-portal" element={<MirrorPortal />} />
+        <Route path="/emotion-engine" element={<EmotionEngine />} />
+        <Route path="/soul-scribe" element={<SoulScribe />} />
+        <Route path="/deity-oracle" element={<DeityOracle />} />
+        <Route path="/astral-attunement" element={<AstralAttunement />} />
+        <Route path="/music-generator" element={<MusicGeneration />} />
         
         {/* New Routes */}
         <Route path="/lightbearer" element={

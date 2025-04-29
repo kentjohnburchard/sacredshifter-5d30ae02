@@ -47,6 +47,11 @@ const SoulProgressCard: React.FC = () => {
     );
   }
 
+  // Ensure we have default values for missing properties
+  const lightbearerLevel = stats.lightbearer_level || stats.light_level || 1;
+  const soulBadges = stats.badges || stats.earned_badges || [];
+  const lightPoints = stats.light_points || 0;
+
   return (
     <Card className="border-white/20 bg-gradient-to-br from-indigo-500/5 to-purple-500/5">
       <CardHeader className="p-4">
@@ -67,7 +72,7 @@ const SoulProgressCard: React.FC = () => {
               variant="outline" 
               className="bg-indigo-500/20 border-indigo-400/30 text-indigo-200"
             >
-              Level {stats.lightbearer_level}
+              Level {lightbearerLevel}
             </Badge>
           </div>
 
@@ -75,11 +80,11 @@ const SoulProgressCard: React.FC = () => {
           <div>
             <div className="flex justify-between text-xs mb-1.5">
               <span className="text-gray-400">Soul Points</span>
-              <span className="text-gray-300">{stats.light_points} points</span>
+              <span className="text-gray-300">{lightPoints} points</span>
             </div>
-            <Progress value={progressPercentage} className="h-2" />
+            <Progress value={progressPercentage || 0} className="h-2" />
             <div className="flex justify-end mt-1">
-              <span className="text-xs text-gray-400">{progressPercentage}% to next level</span>
+              <span className="text-xs text-gray-400">{progressPercentage || 0}% to next level</span>
             </div>
           </div>
 
@@ -91,13 +96,13 @@ const SoulProgressCard: React.FC = () => {
                 Soul Badges
               </span>
               <span className="text-xs text-gray-400">
-                {stats.badges?.length || 0} unlocked
+                {soulBadges.length || 0} unlocked
               </span>
             </div>
             
-            {stats.badges && stats.badges.length > 0 ? (
+            {soulBadges && soulBadges.length > 0 ? (
               <div className="flex flex-wrap gap-1.5 mt-2">
-                {stats.badges.map((badge, index) => (
+                {soulBadges.map((badge, index) => (
                   <Badge 
                     key={index}
                     variant="outline" 

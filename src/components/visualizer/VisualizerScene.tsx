@@ -1,108 +1,92 @@
 
-import React from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Stars } from '@react-three/drei';
-import SacredGeometryScene from '@/components/SacredGeometryScene';
-import ChakraScene from '@/components/ChakraScene';
-import LeylineScene from '@/components/visualizer/LeylineScene';
-import CymaticScene from '@/components/visualizer/CymaticScene';
-import MirrorverseScene from '@/components/visualizer/MirrorverseScene';
-import YinYangScene from '@/components/visualizer/YinYangScene';
-import MetatronScene from '@/components/visualizer/MetatronScene';
-import PrimeSymphonyScene from '@/components/visualizer/PrimeSymphonyScene';
-import NebulaScene from '@/components/visualizer/NebulaScene';
-import FractalScene from '@/components/visualizer/FractalScene';
-import GalaxyScene from '@/components/visualizer/GalaxyScene';
-import CymaticTileScene from '@/components/visualizer/CymaticTileScene';
-import HologramScene from '@/components/visualizer/HologramScene';
-import CosmicCollisionScene from '@/components/visualizer/CosmicCollisionScene';
-import MandalaScene from '@/components/visualizer/MandalaScene';
-import { MandalaSettings } from '@/components/MandalaBuilder';
-
-type VisualizationMode = 
-  'sacred' | 
-  'chakra' | 
-  'leyline' | 
-  'cymatic' | 
-  'mirrorverse' | 
-  'yinyang' | 
-  'metatron' | 
-  'prime' | 
-  'nebula' | 
-  'fractal' | 
-  'galaxy' | 
-  'cymatictile' | 
-  'hologram' | 
-  'collision' |
-  'mandala' |
-  'phibreath';
+import React, { useEffect, useState } from 'react';
+import { NebulaScene } from './NebulaScene';
+import { FractalScene } from './FractalScene';
+import { CymaticScene } from './CymaticScene';
+import { GalaxyScene } from './GalaxyScene';
+import { MandalaScene } from './MandalaScene';
+import { MetatronScene } from './MetatronScene';
+import { YinYangScene } from './YinYangScene';
+import { MirrorverseScene } from './MirrorverseScene';
+import { HologramScene } from './HologramScene';
+import { LeylineScene } from './LeylineScene';
+import { CosmicCollisionScene } from './CosmicCollisionScene';
+import { CymaticTileScene } from './CymaticTileScene';
+import { PrimeSymphonyScene } from './PrimeSymphonyScene';
+import { FractalAudioVisualizer } from './FractalAudioVisualizer';
 
 interface VisualizerSceneProps {
-  mode: VisualizationMode;
-  analyzer: AnalyserNode | null;
-  activePrimes: number[];
-  mandalaSettings: MandalaSettings | null;
+  scene: string;
+  audioAnalyzer?: AnalyserNode | null;
+  audioData?: Uint8Array;
+  isPlaying?: boolean;
 }
 
-const VisualizerScene: React.FC<VisualizerSceneProps> = ({ 
-  mode, 
-  analyzer, 
-  activePrimes,
-  mandalaSettings 
+const VisualizerScene: React.FC<VisualizerSceneProps> = ({
+  scene,
+  audioAnalyzer = null,
+  audioData,
+  isPlaying = false,
 }) => {
-  const renderVisualization = () => {
-    switch (mode) {
-      case 'sacred':
-        return <SacredGeometryScene analyzer={analyzer} />;
-      case 'chakra':
-        return <ChakraScene analyzer={analyzer} />;
-      case 'leyline':
-        return <LeylineScene analyzer={analyzer} />;
-      case 'cymatic':
-        return <CymaticScene analyzer={analyzer} />;
-      case 'mirrorverse':
-        return <MirrorverseScene analyzer={analyzer} />;
-      case 'yinyang':
-        return <YinYangScene analyzer={analyzer} />;
-      case 'metatron':
-        return <MetatronScene analyzer={analyzer} />;
-      case 'prime':
-        return <PrimeSymphonyScene analyzer={analyzer} activePrimes={activePrimes} />;
+  const [currentScene, setCurrentScene] = useState<React.ReactNode | null>(null);
+
+  useEffect(() => {
+    renderScene(scene);
+  }, [scene, audioAnalyzer, isPlaying]);
+
+  const renderScene = (sceneType: string) => {
+    switch (sceneType) {
       case 'nebula':
-        return <NebulaScene analyzer={analyzer} />;
+        setCurrentScene(<NebulaScene audioAnalyzer={audioAnalyzer} isPlaying={isPlaying} />);
+        break;
       case 'fractal':
-        return <FractalScene analyzer={analyzer} />;
+        setCurrentScene(<FractalScene audioAnalyzer={audioAnalyzer} isPlaying={isPlaying} />);
+        break;
+      case 'cymatics':
+        setCurrentScene(<CymaticScene audioAnalyzer={audioAnalyzer} isPlaying={isPlaying} />);
+        break;
       case 'galaxy':
-        return <GalaxyScene analyzer={analyzer} />;
-      case 'cymatictile':
-        return <CymaticTileScene analyzer={analyzer} />;
-      case 'hologram':
-        return <HologramScene analyzer={analyzer} />;
-      case 'collision':
-        return <CosmicCollisionScene analyzer={analyzer} />;
+        setCurrentScene(<GalaxyScene audioAnalyzer={audioAnalyzer} isPlaying={isPlaying} />);
+        break;
       case 'mandala':
-        return <MandalaScene analyzer={analyzer} mandalaSettings={mandalaSettings || undefined} />;
+        setCurrentScene(<MandalaScene audioAnalyzer={audioAnalyzer} isPlaying={isPlaying} />);
+        break;
+      case 'metatron':
+        setCurrentScene(<MetatronScene audioAnalyzer={audioAnalyzer} isPlaying={isPlaying} />);
+        break;
+      case 'yinyang':
+        setCurrentScene(<YinYangScene audioAnalyzer={audioAnalyzer} isPlaying={isPlaying} />);
+        break;
+      case 'mirrorverse':
+        setCurrentScene(<MirrorverseScene audioAnalyzer={audioAnalyzer} isPlaying={isPlaying} />);
+        break;
+      case 'hologram':
+        setCurrentScene(<HologramScene audioAnalyzer={audioAnalyzer} isPlaying={isPlaying} />);
+        break;
+      case 'leylines':
+        setCurrentScene(<LeylineScene audioAnalyzer={audioAnalyzer} isPlaying={isPlaying} />);
+        break;
+      case 'cosmic-collision':
+        setCurrentScene(<CosmicCollisionScene audioAnalyzer={audioAnalyzer} isPlaying={isPlaying} />);
+        break;
+      case 'cymatic-tiles':
+        setCurrentScene(<CymaticTileScene audioAnalyzer={audioAnalyzer} isPlaying={isPlaying} />);
+        break;
+      case 'prime-symphony':
+        setCurrentScene(<PrimeSymphonyScene audioAnalyzer={audioAnalyzer} isPlaying={isPlaying} />);
+        break;
+      case 'fractal-audio':
+        setCurrentScene(<FractalAudioVisualizer audioAnalyzer={audioAnalyzer} isPlaying={isPlaying} />);
+        break;
       default:
-        return <SacredGeometryScene analyzer={analyzer} />;
+        setCurrentScene(<NebulaScene audioAnalyzer={audioAnalyzer} isPlaying={isPlaying} />);
     }
   };
 
   return (
-    <Canvas>
-      <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} intensity={1} />
-      {renderVisualization()}
-      <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-      <OrbitControls 
-        enableZoom={true}
-        enablePan={false}
-        enableRotate={true}
-        zoomSpeed={0.5}
-        rotateSpeed={0.5}
-        maxDistance={50}
-        minDistance={3}
-      />
-    </Canvas>
+    <div className="visualizer-scene-container w-full h-full">
+      {currentScene}
+    </div>
   );
 };
 

@@ -1,37 +1,34 @@
 
-import React from "react";
-import Layout from "@/components/Layout";
-import { CosmicContainer } from "@/components/sacred-geometry";
-import SacredFlowerOfLife from "@/components/sacred-geometry/shapes/SacredFlowerOfLife";
+import React from 'react';
+import Layout from '@/components/Layout';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { MirrorPortal as MirrorPortalComponent } from '@/components/heart-center/MirrorPortal';
 
-const MirrorPortal = () => {
+const MirrorPortal: React.FC = () => {
   return (
-    <Layout pageTitle="Mirror Portal" theme="cosmic">
-      <div className="container max-w-6xl mx-auto px-4 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-playfair mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-600">
-            Mirror Portal
-          </h1>
-          <p className="text-lg text-gray-200 max-w-2xl mx-auto">
-            Reflect, transform, and transcend through the sacred mirror of self-realization
-          </p>
-        </div>
+    <Layout pageTitle="Mirror Portal | Sacred Shifter">
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-6 text-center text-white bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-purple-300"
+            style={{textShadow: '0 2px 10px rgba(100, 72, 253, 0.7)'}}>
+          Mirror Portal
+        </h1>
+        <p className="text-lg text-center text-white mb-12 max-w-3xl mx-auto"
+           style={{textShadow: '0 1px 4px rgba(0, 0, 0, 0.8)'}}>
+          Discover your reflection through the sacred mirror of consciousness.
+        </p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          <div className="flex flex-col justify-center">
-            <h2 className="text-2xl font-playfair mb-4 text-purple-300">The Divine Reflection</h2>
-            <p className="text-gray-300 mb-4">
-              The Mirror Portal helps you see your true self beyond the illusions of the ego.
-              By confronting your reflections with compassion, you can transform your perceptions.
-            </p>
-            <p className="text-gray-300">
-              Enter the portal to begin your journey of deep self-reflection and transformation.
-            </p>
-          </div>
-          
-          <div className="h-96">
-            <SacredFlowerOfLife />
-          </div>
+        <div className="space-y-10">
+          <Card className="bg-black/80 border-indigo-500/40 backdrop-blur-md p-6 shadow-xl">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold mb-4 text-center text-indigo-200"
+                  style={{textShadow: '0 0 10px rgba(100, 72, 253, 0.7)'}}>
+                Self-Reflection Portal
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <MirrorPortalComponent />
+            </CardContent>
+          </Card>
         </div>
       </div>
     </Layout>

@@ -1,51 +1,47 @@
 
 import React from 'react';
 import Layout from '@/components/Layout';
-import PerceptionChecklist from '@/components/shift-perception/PerceptionChecklist';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import QuoteSlider from '@/components/shift-perception/QuoteSlider';
-import { Card } from '@/components/ui/card';
+import PerceptionChecklist from '@/components/shift-perception/PerceptionChecklist';
 
 const ShiftPerception: React.FC = () => {
   return (
-    <Layout pageTitle="Shift Perception">
+    <Layout pageTitle="Shift Perception | Sacred Shifter">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl md:text-4xl font-bold mb-6 text-center text-white bg-clip-text text-transparent bg-gradient-to-r from-purple-200 to-indigo-200 animate-fade-in"
-            style={{textShadow: '0 2px 10px rgba(147, 51, 234, 0.7)'}}>
+        <h1 className="text-3xl font-bold mb-6 text-center text-white bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-purple-300"
+            style={{textShadow: '0 2px 10px rgba(100, 72, 253, 0.7)'}}>
           Shift Perception
         </h1>
-        <p className="text-lg text-center text-gray-100 mb-12 max-w-3xl mx-auto text-enhanced"
-           style={{textShadow: '0 1px 5px rgba(0, 0, 0, 0.7)'}}>
-          Tools and practices to expand your consciousness and shift your perception of reality.
+        <p className="text-lg text-center text-white mb-12 max-w-3xl mx-auto"
+           style={{textShadow: '0 1px 4px rgba(0, 0, 0, 0.8)'}}>
+          Transform how you see reality through conscious awareness practices
         </p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <section className="py-8 animate-fade-in" style={{animationDelay: '0.2s'}}>
-            <Card className="bg-black/80 border-purple-500/40 backdrop-blur-md p-6 h-full shadow-xl hover:shadow-2xl transition-all">
-              <h2 className="text-2xl font-bold mb-6 text-purple-200 text-glow-purple"
-                  style={{textShadow: '0 0 10px rgba(168, 85, 247, 0.7)'}}>
-                Perception Checklist
-              </h2>
-              <p className="text-white mb-6 text-enhanced"
-                 style={{textShadow: '0 1px 4px rgba(0, 0, 0, 0.8)'}}>
-                Track your expanding consciousness with this checklist:
-              </p>
-              <PerceptionChecklist />
-            </Card>
-          </section>
-          
-          <section className="py-8 animate-fade-in" style={{animationDelay: '0.4s'}}>
-            <Card className="bg-black/80 border-purple-500/40 backdrop-blur-md p-6 h-full shadow-xl hover:shadow-2xl transition-all">
-              <h2 className="text-2xl font-bold mb-6 text-purple-200 text-glow-purple"
-                  style={{textShadow: '0 0 10px rgba(168, 85, 247, 0.7)'}}>
-                Wisdom Quotes
-              </h2>
-              <p className="text-white mb-6 text-enhanced"
-                 style={{textShadow: '0 1px 4px rgba(0, 0, 0, 0.8)'}}>
-                Contemplate these insights to shift your perspective:
-              </p>
+        <div className="space-y-12">
+          <Card className="bg-black/80 border-purple-500/40 backdrop-blur-md p-6 shadow-xl">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold mb-4 text-center text-purple-200"
+                  style={{textShadow: '0 0 10px rgba(139, 92, 246, 0.7)'}}>
+                Consciousness Shifting Wisdom
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
               <QuoteSlider />
-            </Card>
-          </section>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-black/80 border-purple-500/40 backdrop-blur-md p-6 shadow-xl">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold mb-4 text-center text-purple-200"
+                  style={{textShadow: '0 0 10px rgba(139, 92, 246, 0.7)'}}>
+                Perception Shift Indicators
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PerceptionChecklist />
+            </CardContent>
+          </Card>
         </div>
       </div>
     </Layout>
