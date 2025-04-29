@@ -1,6 +1,7 @@
+
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress-fixed";
+import { Progress } from "@/components/ui/progress";
 import { Star, Sparkles } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useLightbearerProgress } from "@/hooks/useLightbearerProgress";
