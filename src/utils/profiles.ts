@@ -11,7 +11,7 @@ export interface Profile {
   onboarding_completed: boolean;
   initial_mood: string | null;
   primary_intention: string | null;
-  energy_level: string | null; // Keeping this as string to match database schema
+  energy_level: number | null; // Changed from string to number
   interests: string[];
   updated_at: string;
 }
@@ -97,7 +97,7 @@ export const fetchProfile = async (userId: string): Promise<ExtendedProfile | nu
     }
     
     if (data) {
-      // Ensure the data conforms to ExtendedProfile type
+      // Ensure the data conforms to ExtendedProfile type, with proper number conversion
       return {
         id: data.id,
         full_name: data.full_name,
@@ -107,14 +107,18 @@ export const fetchProfile = async (userId: string): Promise<ExtendedProfile | nu
         onboarding_completed: Boolean(data.onboarding_completed),
         initial_mood: data.initial_mood,
         primary_intention: data.primary_intention,
-        energy_level: data.energy_level, // Keep as string
+        energy_level: data.energy_level !== null 
+          ? (typeof data.energy_level === 'string' 
+              ? parseInt(data.energy_level, 10) 
+              : Number(data.energy_level)) 
+          : null,
         interests: Array.isArray(data.interests) ? data.interests : [],
         updated_at: data.updated_at || new Date().toISOString(),
         earned_badges: Array.isArray(data.earned_badges) ? data.earned_badges : [],
         light_level: Number(data.light_level) || 1,
         light_points: Number(data.light_points) || 0,
         last_level_up: data.last_level_up
-      } as ExtendedProfile;
+      };
     }
     
     return null;
@@ -127,9 +131,20 @@ export const fetchProfile = async (userId: string): Promise<ExtendedProfile | nu
 // Add the missing updateProfile function
 export const updateProfile = async (userId: string, updates: Partial<Profile>) => {
   try {
+    // Ensure energy_level is properly typed when sent to Supabase
+    const processedUpdates = { 
+      ...updates,
+      // Convert energy_level to a number if it exists and isn't already a number
+      ...(updates.energy_level !== undefined && {
+        energy_level: typeof updates.energy_level === 'string' 
+          ? parseInt(updates.energy_level, 10) 
+          : updates.energy_level
+      })
+    };
+    
     const { error } = await supabase
       .from('profiles')
-      .update(updates)
+      .update(processedUpdates)
       .eq('id', userId);
     
     if (error) {
