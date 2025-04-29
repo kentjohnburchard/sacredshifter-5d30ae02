@@ -460,11 +460,13 @@ html.veil-lifted .veil-lifted-nav,
 
 /* Add mode-specific button and UI styling */
 .standard-mode .btn-accent {
-  @apply bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600;
+  @apply bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white shadow-lg;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 .veil-mode .btn-accent {
-  @apply bg-gradient-to-r from-pink-600 to-fuchsia-500 hover:from-pink-700 hover:to-fuchsia-600;
+  @apply bg-gradient-to-r from-pink-600 to-fuchsia-500 hover:from-pink-700 hover:to-fuchsia-600 text-white shadow-lg;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 .standard-mode .glow-accent {
@@ -489,7 +491,7 @@ html.veil-lifted .veil-lifted-nav,
 /* New: Improved Button Styling */
 .btn-primary {
   @apply py-2 px-4 rounded-md font-medium text-white shadow-lg;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
 }
 
 .standard-mode .btn-primary {
@@ -585,3 +587,178 @@ html.veil-lifted .veil-lifted-nav,
     @apply px-4;
   }
 }
+
+/* Global text readability enhancements */
+h1 {
+  @apply font-bold;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+h2, h3, h4, h5, h6 {
+  @apply font-semibold;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+p, span, a, label, button {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+/* Enhanced text contrast for content on dark backgrounds */
+.text-enhanced {
+  @apply text-white font-medium;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.text-contrast-high {
+  @apply text-white;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+/* Enhanced glow effects */
+.text-glow-light {
+  color: rgba(255, 255, 255, 0.98);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+}
+
+.text-glow-purple {
+  color: rgba(226, 195, 255, 0.98); /* Brighter purple */
+  text-shadow: 0 0 10px rgba(168, 85, 247, 0.8); /* Stronger glow */
+}
+
+.text-glow-pink {
+  color: rgba(255, 195, 225, 0.98); /* Brighter pink */
+  text-shadow: 0 0 10px rgba(236, 72, 153, 0.8); /* Stronger glow */
+}
+
+/* Enhanced card styling for better visibility */
+.card-accessible {
+  @apply backdrop-blur-sm bg-black/80 border border-white/30;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+}
+
+.ethereal-card {
+  @apply backdrop-blur-md bg-black/80 border border-white/20 transition-all duration-300;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(255, 255, 255, 0.05);
+}
+
+.ethereal-card:hover {
+  @apply border-white/30;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), inset 0 0 40px rgba(255, 255, 255, 0.08);
+}
+
+/* Enhanced button styling with better shadows */
+.btn-primary {
+  @apply py-2 px-4 rounded-md font-medium text-white shadow-lg;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.standard-mode .btn-primary {
+  @apply bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700;
+  box-shadow: 0 4px 12px -1px rgba(99, 102, 241, 0.6);
+}
+
+.veil-mode .btn-primary {
+  @apply bg-gradient-to-r from-pink-600 to-fuchsia-600 hover:from-pink-700 hover:to-fuchsia-700;
+  box-shadow: 0 4px 12px -1px rgba(236, 72, 153, 0.6);
+}
+
+/* New: Improved Form Controls */
+.form-control {
+  @apply bg-gray-900 border-gray-700 text-white rounded-md px-4 py-2 w-full;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+.form-control::placeholder {
+  @apply text-gray-400;
+}
+
+.form-control:focus {
+  @apply border-purple-500 ring-2 ring-purple-500/50 outline-none;
+}
+
+.veil-mode .form-control:focus {
+  @apply border-pink-500 ring-2 ring-pink-500/50;
+}
+
+/* New: Improved Card Content */
+.card-content {
+  @apply p-5 backdrop-blur-sm rounded-lg;
+}
+
+.standard-mode .card-content {
+  @apply bg-gray-900/80 border border-purple-500/20;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.veil-mode .card-content {
+  @apply bg-gray-900/80 border border-pink-500/20;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* New: Improved Labels */
+.form-label {
+  @apply block text-sm font-medium mb-1 text-white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+/* New: Responsive Container */
+.responsive-container {
+  @apply w-full px-4 mx-auto;
+  max-width: 100%;
+}
+
+@media (min-width: 640px) {
+  .responsive-container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .responsive-container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .responsive-container {
+    max-width: 1280px;
+  }
+}
+
+/* Mobile-first responsive adjustments */
+@media (max-width: 640px) {
+  h1 {
+    @apply text-3xl;
+  }
+  
+  h2 {
+    @apply text-2xl;
+  }
+  
+  .container {
+    @apply px-4;
+  }
+}
+
+/* Global text readability enhancements */
+h1 {
+  @apply font-bold;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+h2, h3, h4, h5, h6 {
+  @apply font-semibold;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+p, span, a, label, button {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+/* Enhanced

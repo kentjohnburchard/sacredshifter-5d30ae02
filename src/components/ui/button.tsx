@@ -48,9 +48,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <Comp
         className={cn(
           buttonVariants({ variant, size, className }), 
-          "relative overflow-hidden"
+          "relative overflow-hidden shadow-lg"
         )}
         ref={ref}
+        style={{textShadow: '0 1px 3px rgba(0, 0, 0, 0.6)'}}
         {...props}
       />
     )

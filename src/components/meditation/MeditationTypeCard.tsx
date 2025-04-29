@@ -10,17 +10,23 @@ interface MeditationTypeCardProps {
 
 const MeditationTypeCard: React.FC<MeditationTypeCardProps> = ({ meditation, onSelect }) => {
   return (
-    <Card className="overflow-hidden border border-white/20 backdrop-blur-sm bg-black/70 hover:bg-black/80 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20">
+    <Card className="overflow-hidden border border-white/30 backdrop-blur-sm bg-black/80 hover:bg-black/90 transition-all duration-300 hover:shadow-xl shadow-lg">
       <CardContent className="p-0">
-        <div className={`p-1 bg-gradient-to-r ${meditation.gradientClasses || 'from-purple-500/80 to-indigo-500/80'}`}>
+        <div className={`p-1 bg-gradient-to-r ${meditation.gradientClasses || 'from-purple-500/90 to-indigo-500/90'}`}>
           {/* Decorative header strip */}
         </div>
         
         <div className="p-5">
-          <h3 className="text-xl font-semibold mb-2 text-purple-200">{meditation.title}</h3>
-          <p className="text-gray-200 text-sm mb-4">{meditation.description}</p>
+          <h3 className="text-xl font-semibold mb-2 text-purple-200"
+              style={{textShadow: '0 1px 4px rgba(0, 0, 0, 0.7)'}}>
+            {meditation.title}
+          </h3>
+          <p className="text-gray-200 text-sm mb-4"
+             style={{textShadow: '0 1px 3px rgba(0, 0, 0, 0.8)'}}>
+            {meditation.description}
+          </p>
           
-          <div className="flex justify-between items-center mb-4 text-gray-300">
+          <div className="flex justify-between items-center mb-4 text-gray-200">
             <div className="flex items-center">
               <Clock className="h-4 w-4 mr-1 text-purple-300" />
               <span className="text-sm">{meditation.duration} min</span>
@@ -33,7 +39,8 @@ const MeditationTypeCard: React.FC<MeditationTypeCardProps> = ({ meditation, onS
           
           <button 
             onClick={onSelect}
-            className="w-full py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md flex items-center justify-center transition-colors"
+            className="w-full py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md flex items-center justify-center transition-colors shadow-lg"
+            style={{textShadow: '0 1px 3px rgba(0, 0, 0, 0.5)'}}
           >
             <span className="mr-2">Start Meditation</span>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

@@ -1,10 +1,11 @@
+
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import Layout from "@/components/Layout"; // Assuming Layout component exists
-import { Card, CardContent } from "@/components/ui/card"; // Assuming Card components exist
-import { useTheme } from "@/context/ThemeContext"; // Assuming ThemeContext exists
+import Layout from "@/components/Layout"; 
+import { Card, CardContent } from "@/components/ui/card"; 
+import { useTheme } from "@/context/ThemeContext"; 
 import { Sparkles } from "lucide-react";
-import { cn } from "@/lib/utils"; // Make sure you have a cn utility (like from clsx/tailwind-merge)
+import { cn } from "@/lib/utils"; 
 
 const AboutFounder = () => {
   const { liftTheVeil } = useTheme();
@@ -94,7 +95,10 @@ const AboutFounder = () => {
 
           {/* Title Section */}
           <div className="flex items-center justify-between">
-            <h1 className={`text-3xl font-bold ${themeModeState ? 'bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 text-transparent bg-clip-text' : 'text-purple-900 dark:text-purple-100'}`}>
+            <h1 className={`text-3xl font-bold ${themeModeState 
+              ? 'text-pink-300 bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 text-transparent bg-clip-text shadow-md' 
+              : 'text-purple-300 shadow-lg'}`}
+              style={{textShadow: themeModeState ? '0 2px 10px rgba(236, 72, 153, 0.6)' : '0 2px 10px rgba(147, 51, 234, 0.6)'}}>
               {content.title}
             </h1>
           </div>
@@ -105,21 +109,21 @@ const AboutFounder = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
             className={`p-6 rounded-lg ${themeModeState
-              ? 'bg-gradient-to-r from-indigo-900/20 to-purple-900/20 border border-pink-500/20'
-              : 'bg-gradient-to-r from-purple-900/20 to-indigo-900/20 border border-purple-500/20'}`}
+              ? 'bg-gradient-to-r from-indigo-900/60 to-purple-900/60 border border-pink-500/30 shadow-lg'
+              : 'bg-gradient-to-r from-purple-900/60 to-indigo-900/60 border border-purple-500/30 shadow-lg'}`}
           >
             <motion.p
               animate={{
                 textShadow: themeModeState
-                  ? ['0 0 3px rgba(236,72,153,0.3)', '0 0 7px rgba(236,72,153,0.5)', '0 0 3px rgba(236,72,153,0.3)']
-                  : ['0 0 3px rgba(147,51,234,0.3)', '0 0 7px rgba(147,51,234,0.5)', '0 0 3px rgba(147,51,234,0.3)']
+                  ? ['0 0 6px rgba(236,72,153,0.5)', '0 0 12px rgba(236,72,153,0.7)', '0 0 6px rgba(236,72,153,0.5)']
+                  : ['0 0 6px rgba(147,51,234,0.5)', '0 0 12px rgba(147,51,234,0.7)', '0 0 6px rgba(147,51,234,0.5)']
               }}
               transition={{
                 duration: 4,
                 repeat: Infinity,
                 repeatType: "reverse"
               }}
-              className="text-center italic text-lg md:text-xl text-white"
+              className="text-center italic text-lg md:text-xl text-white font-medium"
             >
               "{quotes[0]}"
             </motion.p>
@@ -128,34 +132,34 @@ const AboutFounder = () => {
           {/* Main Founder Content */}
           <div className="flex flex-col md:flex-row gap-8 items-center">
             <div className="w-full md:w-1/3">
-              <Card className={`overflow-hidden ${themeModeState ? 'border-purple-400 shadow-purple-300/20 shadow-lg' : ''}`}>
+              <Card className={`overflow-hidden ${themeModeState 
+                ? 'border-purple-400 shadow-purple-300/40 shadow-lg' 
+                : 'border-purple-500/40 shadow-purple-500/30 shadow-lg'}`}>
                 <img
-                  src="/lovable-uploads/8c0eebe4-41d3-4f82-9604-4eb14e468a6b.png" // Ensure this path is correct
+                  src="/lovable-uploads/8c0eebe4-41d3-4f82-9604-4eb14e468a6b.png"
                   alt="Kent Burchard - Founder"
                   className={`w-full h-auto transition-all duration-1000 ${themeModeState ? 'filter saturate-110 brightness-105' : ''}`}
                 />
-                <CardContent className="p-4">
-                  <h3 className="text-lg font-medium">Kent Burchard</h3>
-                  <p className="text-sm text-gray-500">Founder</p>
+                <CardContent className="p-4 bg-black/80">
+                  <h3 className="text-lg font-medium text-white">Kent Burchard</h3>
+                  <p className="text-sm text-gray-300">Founder</p>
                 </CardContent>
               </Card>
             </div>
 
             <div className="w-full md:w-2/3 space-y-4">
-              <Card className={themeModeState ? 'border-purple-300 bg-gradient-to-b from-purple-50 to-white dark:from-purple-950/20 dark:to-gray-900' : ''}>
+              <Card className={themeModeState 
+                ? 'border-purple-300/40 bg-black/80 shadow-xl' 
+                : 'border-purple-500/40 bg-black/80 shadow-lg'}>
                 <CardContent className="p-6">
                   {/* Apply text color fixes here */}
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.8, delay: 0.2 }}
-                    className={cn(
-                      "space-y-4",
-                      // Added text colors for advanced mode for contrast:
-                      themeModeState ? "text-gray-800 dark:text-purple-100" : ""
-                      // You can change these colors if needed.
-                    )}
+                    className="space-y-4 text-white"
                     key={themeModeState ? "veil-lifted-bio" : "standard-bio"} // Force re-render on mode change
+                    style={{textShadow: '0 1px 4px rgba(0, 0, 0, 0.8)'}}
                   >
                     <p>{content.bio}</p>
                     <p>{content.journey}</p>
@@ -195,21 +199,21 @@ const AboutFounder = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.8 }}
             className={`p-6 rounded-lg ${themeModeState
-              ? 'bg-gradient-to-r from-indigo-900/20 to-purple-900/20 border border-pink-500/20'
-              : 'bg-gradient-to-r from-purple-900/20 to-indigo-900/20 border border-purple-500/20'}`}
+              ? 'bg-gradient-to-r from-indigo-900/60 to-purple-900/60 border border-pink-500/30 shadow-lg'
+              : 'bg-gradient-to-r from-purple-900/60 to-indigo-900/60 border border-purple-500/30 shadow-lg'}`}
           >
             <motion.p
               animate={{
                 textShadow: themeModeState
-                  ? ['0 0 3px rgba(236,72,153,0.3)', '0 0 7px rgba(236,72,153,0.5)', '0 0 3px rgba(236,72,153,0.3)']
-                  : ['0 0 3px rgba(147,51,234,0.3)', '0 0 7px rgba(147,51,234,0.5)', '0 0 3px rgba(147,51,234,0.3)']
+                  ? ['0 0 6px rgba(236,72,153,0.5)', '0 0 12px rgba(236,72,153,0.7)', '0 0 6px rgba(236,72,153,0.5)']
+                  : ['0 0 6px rgba(147,51,234,0.5)', '0 0 12px rgba(147,51,234,0.7)', '0 0 6px rgba(147,51,234,0.5)']
               }}
               transition={{
                 duration: 4,
                 repeat: Infinity,
                 repeatType: "reverse"
               }}
-              className="text-center italic text-lg md:text-xl text-white"
+              className="text-center italic text-lg md:text-xl text-white font-medium"
             >
               "{quotes[1]}"
             </motion.p>
@@ -220,7 +224,8 @@ const AboutFounder = () => {
 
           {/* Footer signature/branding */}
           <div className="mt-8 text-center">
-            <p className={`text-sm ${themeModeState ? 'text-pink-400' : 'text-purple-400'} italic`}>
+            <p className={`text-sm ${themeModeState ? 'text-pink-400' : 'text-purple-400'} italic`}
+               style={{textShadow: themeModeState ? '0 0 8px rgba(236,72,153,0.5)' : '0 0 8px rgba(147,51,234,0.5)'}}>
               Sacred Shifter — Remembering Our Truth Through Sound & Frequency
             </p>
           </div>
