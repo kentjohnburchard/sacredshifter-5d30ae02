@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @tailwind base;
@@ -192,6 +191,39 @@
   .ethereal-card:hover {
     @apply border-white/25;
     box-shadow: 0 4px 25px rgba(0, 0, 0, 0.5), inset 0 0 30px rgba(255, 255, 255, 0.05);
+  }
+  
+  /* Add text shadow utilities for better readability against transparent backgrounds */
+  .text-shadow-sm {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  }
+  
+  .text-shadow-md {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  }
+  
+  .text-shadow-lg {
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.9);
+  }
+  
+  .text-shadow-xs {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  }
+  
+  /* Enhanced glass effects with increased transparency */
+  .glass-panel {
+    @apply backdrop-blur-sm bg-black/30 border border-white/10;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+  
+  .glass-panel-dark {
+    @apply backdrop-blur-sm bg-black/50 border border-white/5;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+  
+  .glass-panel-light {
+    @apply backdrop-blur-sm bg-white/10 border border-white/20;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   }
 }
 

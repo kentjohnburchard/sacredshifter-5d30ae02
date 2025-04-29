@@ -257,7 +257,7 @@ const TimelineViewer: React.FC = () => {
       chakra: entry.chakra,
       audioUrl: entry.id in musicGenerations ? musicGenerations[entry.id].music_url : null,
       onEdit: handleEditEntry,
-      onAction: handleRevisitJourney,
+      onAction: (id: string) => handleRevisitJourney(entries.find(e => e.id === id) as TimelineEntry),
       actionLabel: "Revisit Journey"
     }));
   }, [filteredEntries, musicGenerations]);

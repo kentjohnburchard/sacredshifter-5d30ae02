@@ -34,22 +34,22 @@ export interface TimelineEntryProps {
 const getEntryColor = (type: string, chakra?: string | null) => {
   if (chakra) {
     switch(chakra.toLowerCase()) {
-      case 'root': return 'from-red-500/30 to-red-700/10';
-      case 'sacral': return 'from-orange-500/30 to-orange-700/10';
-      case 'solar': return 'from-yellow-500/30 to-yellow-700/10';
-      case 'heart': return 'from-green-500/30 to-green-700/10';
-      case 'throat': return 'from-blue-500/30 to-blue-700/10';
-      case 'third eye': return 'from-indigo-500/30 to-indigo-700/10';
-      case 'crown': return 'from-purple-500/30 to-purple-700/10';
+      case 'root': return 'from-red-500/20 to-red-700/5';
+      case 'sacral': return 'from-orange-500/20 to-orange-700/5';
+      case 'solar': return 'from-yellow-500/20 to-yellow-700/5';
+      case 'heart': return 'from-green-500/20 to-green-700/5';
+      case 'throat': return 'from-blue-500/20 to-blue-700/5';
+      case 'third eye': return 'from-indigo-500/20 to-indigo-700/5';
+      case 'crown': return 'from-purple-500/20 to-purple-700/5';
     }
   }
   
   switch(type) {
-    case 'journal': return 'from-blue-500/30 to-blue-700/10';
-    case 'journey': return 'from-purple-500/30 to-purple-700/10';
-    case 'music': return 'from-pink-500/30 to-pink-700/10';
-    case 'intention': return 'from-amber-500/30 to-amber-700/10';
-    default: return 'from-purple-500/30 to-blue-500/10';
+    case 'journal': return 'from-blue-500/20 to-blue-700/5';
+    case 'journey': return 'from-purple-500/20 to-purple-700/5';
+    case 'music': return 'from-pink-500/20 to-pink-700/5';
+    case 'intention': return 'from-amber-500/20 to-amber-700/5';
+    default: return 'from-purple-500/20 to-blue-500/5';
   }
 }
 
@@ -92,49 +92,47 @@ const TimelineEntryCard: React.FC<TimelineEntryProps> = ({
   const gradientClass = getEntryColor(type, chakra);
   const isLongText = notes && notes.length > 150;
   const displayText = showFullNotes || !isLongText ? notes : notes?.substring(0, 150) + "...";
-  const allTags = tag ? [tag, ...tags] : tags;
+  const allTags = tag ? [tag, ...(tags || [])] : tags || [];
   
   return (
     <Card className={`
-      overflow-hidden border border-gray-500/20 shadow-md hover:shadow-lg transition-all
-      bg-gradient-to-r ${gradientClass} backdrop-blur-sm
-      relative before:absolute before:inset-0 before:bg-black/10 before:z-0
-      after:absolute after:-inset-1 after:rounded-lg after:z-[-1] after:bg-gradient-to-r
-      after:${gradientClass} after:blur-sm after:opacity-40
+      overflow-hidden border border-gray-500/10 shadow-md hover:shadow-lg transition-all
+      bg-gradient-to-r ${gradientClass} backdrop-blur-md
+      relative before:absolute before:inset-0 before:bg-black/5 before:z-0
     `}>
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-400/60 to-blue-400/60" />
-      <div className="absolute top-1 left-1 w-2 h-2 rounded-full bg-white/40" />
-      <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-white/40" />
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-400/40 to-blue-400/40" />
+      <div className="absolute top-1 left-1 w-2 h-2 rounded-full bg-white/20" />
+      <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-white/20" />
       
       <CardContent className="p-5 relative z-10">
         <div className="flex justify-between items-start">
           <div className="flex space-x-3 items-start">
             <div className={`
               p-2 rounded-full 
-              ${type === 'journal' ? 'bg-blue-500/20' : 
-                type === 'journey' ? 'bg-purple-500/20' : 
-                type === 'music' ? 'bg-pink-500/20' : 
-                'bg-amber-500/20'}
+              ${type === 'journal' ? 'bg-blue-500/10' : 
+                type === 'journey' ? 'bg-purple-500/10' : 
+                type === 'music' ? 'bg-pink-500/10' : 
+                'bg-amber-500/10'}
             `}>
               {getTypeIcon(type)}
             </div>
             
             <div>
-              <h3 className="text-lg font-medium text-white">{title}</h3>
+              <h3 className="text-lg font-medium text-white text-shadow-md">{title}</h3>
               <div className="mt-1">
                 <MoonPhaseDisplay timestamp={created_at} />
               </div>
             </div>
           </div>
           
-          <Badge className="capitalize">
+          <Badge className="capitalize bg-black/30 text-shadow-xs">
             {getTypeLabel(type)}
           </Badge>
         </div>
         
         {frequency && (
           <div className="mt-3 flex items-center">
-            <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/30 flex items-center gap-1">
+            <Badge variant="outline" className="bg-purple-900/20 text-purple-200 border-purple-500/20 flex items-center gap-1 text-shadow-xs">
               <Music className="h-3 w-3" />
               {frequency}Hz
             </Badge>
@@ -148,7 +146,7 @@ const TimelineEntryCard: React.FC<TimelineEntryProps> = ({
               <Badge 
                 key={idx} 
                 variant="outline"
-                className="bg-blue-900/20 border-blue-500/30 text-blue-200 text-xs"
+                className="bg-blue-900/10 border-blue-500/20 text-blue-200 text-xs text-shadow-xs"
               >
                 {tagItem}
               </Badge>
@@ -158,11 +156,11 @@ const TimelineEntryCard: React.FC<TimelineEntryProps> = ({
         
         {notes && (
           <div className="mt-3 text-gray-100/90">
-            <p className="text-sm">{displayText}</p>
+            <p className="text-sm text-shadow-sm">{displayText}</p>
             {isLongText && (
               <button 
                 onClick={() => setShowFullNotes(!showFullNotes)} 
-                className="mt-1 text-xs text-purple-300 hover:text-purple-200"
+                className="mt-1 text-xs text-purple-300 hover:text-purple-200 text-shadow-xs"
               >
                 {showFullNotes ? "Show less" : "Read more"}
               </button>
@@ -184,7 +182,7 @@ const TimelineEntryCard: React.FC<TimelineEntryProps> = ({
             variant="outline" 
             size="sm"
             onClick={() => onEdit(id)}
-            className="border-gray-500/50 text-gray-300 hover:bg-gray-800/50"
+            className="border-gray-500/30 text-gray-300 hover:bg-gray-800/30 bg-black/20 backdrop-blur-sm text-shadow-xs"
           >
             <Edit className="h-3.5 w-3.5 mr-1.5" />
             Edit Entry
@@ -195,7 +193,7 @@ const TimelineEntryCard: React.FC<TimelineEntryProps> = ({
               variant="outline" 
               size="sm"
               onClick={() => onAction(id)}
-              className="border-purple-500/50 text-purple-200 hover:bg-purple-900/30"
+              className="border-purple-500/30 text-purple-200 hover:bg-purple-900/20 bg-black/10 backdrop-blur-sm text-shadow-xs"
             >
               <ArrowRight className="h-3.5 w-3.5 mr-1.5" />
               {actionLabel}

@@ -50,7 +50,7 @@ const MathematicalBackground: React.FC<MathematicalBackgroundProps> = ({
       <BackgroundCanvas equations={equations} />
       
       {/* Sacred Grid background - enhancing visibility */}
-      <div className="absolute inset-0 opacity-70"> {/* Increased opacity */}
+      <div className="absolute inset-0 opacity-80"> {/* Increased opacity */}
         <SacredGridBackground 
           intensity={liftTheVeil ? 0.9 : 0.8}
           color={liftTheVeil ? '#FF70E9' : '#9b87f5'}
@@ -58,33 +58,33 @@ const MathematicalBackground: React.FC<MathematicalBackgroundProps> = ({
         />
       </div>
       
-      {/* Geometric patterns overlay with increased opacity */}
-      <div className="absolute inset-0 opacity-60"> {/* Increased opacity */}
+      {/* Geometric patterns overlay with reduced opacity for more transparency */}
+      <div className="absolute inset-0 opacity-40"> {/* Reduced opacity */}
         <GeometricPatterns 
-          triangleCount={intensity === 'high' ? 9 : intensity === 'medium' ? 7 : 5}
-          circleCount={intensity === 'high' ? 9 : intensity === 'medium' ? 7 : 5}
-          squareCount={intensity === 'high' ? 9 : intensity === 'medium' ? 7 : 5}
+          triangleCount={intensity === 'high' ? 7 : intensity === 'medium' ? 5 : 3}
+          circleCount={intensity === 'high' ? 7 : intensity === 'medium' ? 5 : 3}
+          squareCount={intensity === 'high' ? 7 : intensity === 'medium' ? 5 : 3}
         />
       </div>
       
-      {/* Enhanced gradient overlay for better contrast */}
+      {/* Reduced gradient overlay for better transparency */}
       <div className={`absolute inset-0 bg-gradient-to-b ${
         liftTheVeil 
-          ? 'from-pink-900/35 via-transparent to-fuchsia-900/35' 
-          : 'from-black/35 via-transparent to-black/35'
+          ? 'from-pink-900/20 via-transparent to-fuchsia-900/20' 
+          : 'from-black/20 via-transparent to-black/20'
       } pointer-events-none`}></div>
       
       {/* Added cosmic effects when veil is lifted */}
       {liftTheVeil && (
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 opacity-50 mix-blend-screen"
+          <div className="absolute inset-0 opacity-30 mix-blend-screen"
             style={{
-              backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(255, 105, 180, 0.4) 0%, transparent 50%)',
+              backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(255, 105, 180, 0.3) 0%, transparent 50%)',
             }}
           ></div>
-          <div className="absolute inset-0 opacity-50 mix-blend-overlay"
+          <div className="absolute inset-0 opacity-30 mix-blend-overlay"
             style={{
-              backgroundImage: 'radial-gradient(circle at 30% 70%, rgba(139, 92, 246, 0.4) 0%, transparent 60%)',
+              backgroundImage: 'radial-gradient(circle at 30% 70%, rgba(139, 92, 246, 0.3) 0%, transparent 60%)',
             }}
           ></div>
         </div>

@@ -51,24 +51,24 @@ const Layout: React.FC<LayoutProps> = ({
   return (
     <div className={`relative flex min-h-screen w-full overflow-x-hidden bg-black ${consciousnessClass}`}>
       {/* Add the sacred grid background similar to Coming Soon page */}
-      <div className="absolute inset-0 z-0 opacity-60">
+      <div className="absolute inset-0 z-0 opacity-70">
         <SacredGridBackground 
-          intensity={liftTheVeil ? 0.8 : 0.7}
+          intensity={liftTheVeil ? 0.85 : 0.75}
           color={liftTheVeil ? '#FF70E9' : '#9b87f5'}
           pulseSpeed={liftTheVeil ? 0.7 : 0.5}
         />
       </div>
       
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/60 via-transparent to-black/60 pointer-events-none" />
+      {/* Gradient overlay with reduced opacity for more transparency */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/40 via-transparent to-black/40 pointer-events-none" />
       
-      {/* Existing starfield with reduced opacity */}
-      <div className="fixed inset-0 z-0 opacity-30">
-        <StarfieldBackground density="medium" opacity={0.4} isStatic={false} />
+      {/* Existing starfield with slightly increased opacity */}
+      <div className="fixed inset-0 z-0 opacity-40">
+        <StarfieldBackground density="medium" opacity={0.5} isStatic={false} />
       </div>
       
       {/* Sacred Geometry with adjusted opacity */}
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-50">
         <SacredGeometryVisualizer
           defaultShape="flower-of-life"
           size="xl"

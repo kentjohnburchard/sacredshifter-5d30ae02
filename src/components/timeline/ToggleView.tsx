@@ -17,8 +17,8 @@ const ToggleView: React.FC<ToggleViewProps> = ({ viewMode, onViewChange }) => {
         variant={viewMode === 'vertical' ? 'default' : 'outline'}
         size="sm"
         className={viewMode === 'vertical' 
-          ? 'bg-purple-600 hover:bg-purple-700' 
-          : 'border-purple-500/30 text-purple-200'
+          ? 'bg-purple-600/80 backdrop-blur-sm hover:bg-purple-700/90 text-white text-shadow-sm' 
+          : 'border-purple-500/30 text-purple-200 text-shadow-sm bg-transparent hover:bg-purple-500/20'
         }
         onClick={() => onViewChange('vertical')}
       >
@@ -30,8 +30,8 @@ const ToggleView: React.FC<ToggleViewProps> = ({ viewMode, onViewChange }) => {
         variant={viewMode === 'spiral' ? 'default' : 'outline'}
         size="sm"
         className={viewMode === 'spiral' 
-          ? 'bg-purple-600 hover:bg-purple-700' 
-          : 'border-purple-500/30 text-purple-200'
+          ? 'bg-purple-600/80 backdrop-blur-sm hover:bg-purple-700/90 text-white text-shadow-sm' 
+          : 'border-purple-500/30 text-purple-200 text-shadow-sm bg-transparent hover:bg-purple-500/20'
         }
         onClick={() => onViewChange('spiral')}
       >

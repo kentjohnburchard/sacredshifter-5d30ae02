@@ -10,18 +10,17 @@ interface SpiralViewProps {
 const SpiralView: React.FC<SpiralViewProps> = ({ entries }) => {
   if (!entries.length) {
     return (
-      <div className="flex items-center justify-center h-96 text-gray-500">
+      <div className="flex items-center justify-center h-96 text-gray-500 text-shadow-sm backdrop-blur-sm bg-black/20 rounded-lg p-8">
         No entries found with current filters
       </div>
     );
   }
 
   // This is a simplified spiral layout
-  // A true spiral would be more complex and likely use SVG or Canvas
   return (
-    <div className="relative w-full min-h-[800px] flex items-center justify-center">
+    <div className="relative w-full min-h-[800px] flex items-center justify-center overflow-hidden">
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <div className="w-16 h-16 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 opacity-40 blur-md"></div>
+        <div className="w-16 h-16 rounded-full bg-gradient-to-r from-purple-600/50 to-blue-600/50 opacity-60 blur-md"></div>
       </div>
 
       {entries.map((entry, index) => {
@@ -50,7 +49,7 @@ const SpiralView: React.FC<SpiralViewProps> = ({ entries }) => {
         );
       })}
       
-      <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 text-sm text-gray-500 italic">
+      <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 text-sm text-gray-500 italic text-shadow-sm">
         Note: This is a simplified spiral view. Scroll around to explore entries.
       </div>
     </div>

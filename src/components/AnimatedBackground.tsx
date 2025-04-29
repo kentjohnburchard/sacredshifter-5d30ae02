@@ -1,4 +1,3 @@
-
 import React from "react";
 import { motion } from "framer-motion";
 
@@ -19,11 +18,6 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
   isActive = true,
   staticBackground = false
 }) => {
-  // Developer note: Animation has been intentionally slowed down and softened
-  // to ensure it's accessible for users with sensory sensitivities or those
-  // who may be sensitive to motion or rapid visual changes. All animations use
-  // gentle transitions with long durations and mild opacity shifts.
-
   // Create array of objects for the wave elements
   const getWaves = () => {
     // Reduced number of waves to decrease visual noise
@@ -33,33 +27,33 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
       id: `wave-${i}`,
       delay: i * 0.7,
       duration: staticBackground ? 0 : 15 + i * 3, // No animation if static, otherwise slow animation
-      opacity: 0.15 + (i * 0.05), // Increased base opacity for better visibility
+      opacity: 0.2 + (i * 0.05), // Reduced base opacity for better transparency
     }));
   };
   
   const waves = getWaves();
   
-  // Get theme colors with increased opacity
+  // Get theme colors with reduced opacity for better transparency
   const getThemeColors = () => {
     switch(theme) {
       case 'ethereal':
         return {
-          from: 'from-blue-500/40',   // Increased opacity
-          to: 'to-purple-500/40',     // Increased opacity
-          particle: 'bg-blue-200/60'  // Increased opacity
+          from: 'from-blue-500/25',   // Reduced opacity
+          to: 'to-purple-500/25',     // Reduced opacity
+          particle: 'bg-blue-200/40'  // Reduced opacity
         };
       case 'temple':
         return {
-          from: 'from-amber-500/40',  // Increased opacity
-          to: 'to-red-500/40',        // Increased opacity
-          particle: 'bg-amber-200/60' // Increased opacity
+          from: 'from-amber-500/25',  // Reduced opacity
+          to: 'to-red-500/25',        // Reduced opacity
+          particle: 'bg-amber-200/40' // Reduced opacity
         };
       case 'cosmic':
       default:
         return {
-          from: 'from-purple-500/40', // Increased opacity
-          to: 'to-blue-500/40',       // Increased opacity
-          particle: 'bg-purple-200/60' // Increased opacity
+          from: 'from-purple-500/25', // Reduced opacity
+          to: 'to-blue-500/25',       // Reduced opacity
+          particle: 'bg-purple-200/40' // Reduced opacity
         };
     }
   };
@@ -78,10 +72,10 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
             transition={{ duration: 2 }}
           >
             <motion.div
-              className={`w-[1500px] h-[1500px] rounded-full bg-gradient-to-br ${colors.from} ${colors.to} filter blur-3xl motion-reduce`} // Increased size significantly
+              className={`w-[1800px] h-[1800px] rounded-full bg-gradient-to-br ${colors.from} ${colors.to} filter blur-3xl motion-reduce`} // Increased size for better coverage
               animate={staticBackground ? {} : {
                 scale: [1, 1.05, 1], // Reduced scale animation
-                opacity: [wave.opacity, wave.opacity + 0.05, wave.opacity], // Increased opacity change
+                opacity: [wave.opacity, wave.opacity + 0.05, wave.opacity], // Subtle opacity change
               }}
               transition={{
                 duration: wave.duration,
@@ -94,12 +88,12 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
           </motion.div>
         ))}
 
-        {/* Increased number of floating particles and made them more visible */}
-        {!staticBackground && Array.from({ length: 8 }).map((_, i) => { // Increased from 5 to 8
-          const size = Math.random() * 6 + 3; // Increased size
+        {/* Floating particles with reduced number and opacity */}
+        {!staticBackground && Array.from({ length: 5 }).map((_, i) => {
+          const size = Math.random() * 4 + 2;
           const x = Math.random() * 100;
           const y = Math.random() * 100;
-          const duration = Math.random() * 20 + 15; // Very slow animation
+          const duration = Math.random() * 20 + 15;
           
           return (
             <motion.div
@@ -114,7 +108,7 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
               animate={staticBackground ? {} : {
                 y: [0, -20, 0], 
                 x: [0, Math.random() * 10 - 5, 0],
-                opacity: [0.7, 0.9, 0.7], // Increased opacity
+                opacity: [0.4, 0.6, 0.4], // Reduced opacity values
               }}
               transition={{
                 duration: staticBackground ? 0 : duration,

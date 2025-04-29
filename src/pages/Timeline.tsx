@@ -30,22 +30,22 @@ const Timeline: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="mb-8"
         >
-          <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
+          <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400 text-shadow-lg">
             Your Sacred Journey
           </h1>
-          <p className="mt-2 text-gray-300 max-w-2xl">
+          <p className="mt-2 text-gray-300 max-w-2xl text-shadow-sm">
             Witness your evolution across time and space. Each entry marks a sacred shift in your consciousness,
             aligned with cosmic rhythms and your soul's progression.
           </p>
         </motion.div>
         
         <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full mb-6">
-          <TabsList className="grid grid-cols-2 w-full max-w-md mx-auto bg-gray-800/50">
-            <TabsTrigger value="journey" className="flex items-center gap-1.5 data-[state=active]:bg-purple-700">
+          <TabsList className="grid grid-cols-2 w-full max-w-md mx-auto bg-gray-800/30 backdrop-blur-sm">
+            <TabsTrigger value="journey" className="flex items-center gap-1.5 data-[state=active]:bg-purple-700/80 text-shadow-sm">
               <Calendar className="h-4 w-4" />
               Journey Timeline
             </TabsTrigger>
-            <TabsTrigger value="primes" className="flex items-center gap-1.5 data-[state=active]:bg-purple-700">
+            <TabsTrigger value="primes" className="flex items-center gap-1.5 data-[state=active]:bg-purple-700/80 text-shadow-sm">
               <Star className="h-4 w-4" />
               Prime Sequences
             </TabsTrigger>
@@ -57,10 +57,10 @@ const Timeline: React.FC = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
         >
-          <TabsContent value="journey" className="bg-black/30 backdrop-blur-sm text-white p-6 rounded-lg border border-gray-800/50">
+          <TabsContent value="journey" className="bg-black/20 backdrop-blur-sm text-white p-6 rounded-lg border border-gray-800/30">
             <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
-                <p className="text-gray-300 max-w-2xl">
+                <p className="text-gray-300 max-w-2xl text-shadow-sm">
                   Track your frequency shifts and consciousness expansion through your personal timeline.
                   Your journey is unique and evolving with each experience.
                 </p>
@@ -69,13 +69,13 @@ const Timeline: React.FC = () => {
             <TimelineViewer />
           </TabsContent>
           
-          <TabsContent value="primes" className="bg-black/30 backdrop-blur-sm text-white p-6 rounded-lg border border-gray-800/50">
+          <TabsContent value="primes" className="bg-black/20 backdrop-blur-sm text-white p-6 rounded-lg border border-gray-800/30">
             <div className="mb-6">
-              <h2 className="text-xl font-medium mb-2 flex items-center gap-2">
+              <h2 className="text-xl font-medium mb-2 flex items-center gap-2 text-shadow-md">
                 <Star className="h-5 w-5 text-amber-400" />
                 Sacred Prime Sequences
               </h2>
-              <p className="text-gray-300">
+              <p className="text-gray-300 text-shadow-sm">
                 Your sacred prime number sequences visualized during frequency journeys.
                 Each sequence represents mathematical patterns of consciousness.
               </p>
@@ -83,11 +83,11 @@ const Timeline: React.FC = () => {
             
             {primeHistory.length === 0 ? (
               <div className="text-center py-10">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-900/30 flex items-center justify-center">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-900/20 flex items-center justify-center">
                   <Star className="h-8 w-8 text-purple-400" />
                 </div>
-                <h3 className="text-lg font-medium mb-2 text-gray-200">No Prime Sequences Recorded Yet</h3>
-                <p className="text-gray-400 text-sm mt-2 max-w-md mx-auto">
+                <h3 className="text-lg font-medium mb-2 text-gray-200 text-shadow-sm">No Prime Sequences Recorded Yet</h3>
+                <p className="text-gray-400 text-sm mt-2 max-w-md mx-auto text-shadow-xs">
                   Experience journeys with the visualizer enabled to record your unique prime number sequences.
                   These sequences reflect cosmic mathematical patterns unique to your consciousness.
                 </p>
@@ -101,12 +101,12 @@ const Timeline: React.FC = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
                   >
-                    <Card className="bg-purple-900/20 backdrop-blur-md border-purple-500/30 overflow-hidden">
-                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-400/60 to-blue-400/60" />
+                    <Card className="bg-purple-900/10 backdrop-blur-md border-purple-500/20 overflow-hidden">
+                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-400/40 to-blue-400/40" />
                       <CardHeader className="pb-2">
-                        <CardTitle className="text-sm text-purple-100 flex justify-between">
+                        <CardTitle className="text-sm text-purple-100 flex justify-between text-shadow-sm">
                           <span>{entry.journeyTitle || 'Prime Sequence'}</span>
-                          <div className="flex items-center text-xs text-purple-300/70">
+                          <div className="flex items-center text-xs text-purple-300/70 text-shadow-xs">
                             <Clock className="h-3.5 w-3.5 mr-1" />
                             {formatDistanceToNow(new Date(entry.timestamp), { addSuffix: true })}
                           </div>
@@ -115,7 +115,7 @@ const Timeline: React.FC = () => {
                       <CardContent>
                         <div className="flex flex-wrap gap-1">
                           {entry.primes.map((prime, i) => (
-                            <Badge key={i} variant="outline" className="bg-purple-700/30 text-xs">
+                            <Badge key={i} variant="outline" className="bg-purple-700/20 text-xs border-purple-500/30">
                               {prime}
                             </Badge>
                           ))}
