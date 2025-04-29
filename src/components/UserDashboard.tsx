@@ -147,6 +147,8 @@ const UserDashboard: React.FC = () => {
     fetchUserStats();
   }, [user]);
 
+  console.log("UserDashboard rendering with activeTab:", activeTab);
+  
   return (
     <div className="space-y-8">
       <div className="space-y-2">

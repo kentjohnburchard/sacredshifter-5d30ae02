@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { fetchProfile, ProfileType } from "@/utils/profiles";
 import { motion } from "framer-motion";
 import { CircleUser } from "lucide-react";
