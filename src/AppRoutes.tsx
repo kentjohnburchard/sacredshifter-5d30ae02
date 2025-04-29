@@ -6,6 +6,7 @@ import NotFound from './pages/NotFound';
 import Dashboard from './pages/Dashboard';
 import FrequencyLibrary from './pages/FrequencyLibrary';
 import SacredShifterHome from './pages/SacredShifterHome';
+import HomePage from './pages/HomePage';  // Import our new HomePage
 import Auth from './pages/Auth';
 import Profile from './pages/Profile';
 import AboutFounder from './pages/AboutFounder';
@@ -48,8 +49,8 @@ const AppRoutes: React.FC = () => {
     <>
       <ScrollToTop />
       <Routes>
-        {/* Redirect root path to coming-soon */}
-        <Route path="/" element={<Navigate to="/coming-soon" replace />} />
+        {/* Redirect root path to our new Home Page */}
+        <Route path="/" element={<HomePage />} />
         <Route path="/coming-soon" element={<ComingSoon />} />
         <Route path="/home" element={<SacredShifterHome />} />
         <Route path="/original-home" element={<Home />} />

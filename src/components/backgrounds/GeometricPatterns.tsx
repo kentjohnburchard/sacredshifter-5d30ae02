@@ -1,6 +1,4 @@
-
 import React from 'react';
-import { motion } from 'framer-motion';
 
 const SHAPE_COLOR = "#fff";
 
@@ -205,7 +203,7 @@ const GeometricPatterns: React.FC<GeometricPatternsProps> = ({
       </motion.div>
 
       {/* ACCESSIBILITY: Add prefers-reduced-motion media query styles */}
-      <style jsx global>{`
+      <style>{`
         @media (prefers-reduced-motion: reduce) {
           /* Significantly reduce or disable animations for users with motion sensitivity */
           .absolute {

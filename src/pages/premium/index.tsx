@@ -1,67 +1,91 @@
 
 import React from 'react';
 import Layout from '@/components/Layout';
-import PremiumPortal from '@/components/premium/PremiumPortal';
 import { PremiumProvider } from '@/contexts/PremiumContext';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Sparkles, Star } from 'lucide-react';
 
 const PremiumHomePage: React.FC = () => {
+  const premiumFeatures = [
+    "Exclusive Sacred Journeys",
+    "Advanced Frequency Healing",
+    "Divine Blueprint Access",
+    "Soul Awakening Sessions",
+    "Higher Consciousness Meditations"
+  ];
+
   return (
     <Layout pageTitle="Ascended Path | Sacred Shifter" showNavbar={true} showGlobalWatermark={true}>
       <PremiumProvider>
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-10 veil-mode">
-              <div className="inline-block p-2 rounded-full bg-pink-900/30 text-sm border border-pink-500/20 mb-3">
-                Premium Access
-              </div>
-              <h1 className="text-4xl font-bold text-glow-pink mb-3">The Ascended Path</h1>
-              <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-                Welcome to your premium sacred journey. Experience advanced frequencies, guided meditations, and transformational practices.
+            <div className="text-center mb-12">
+              <Badge className="mb-4 bg-gradient-to-r from-purple-600 to-pink-600 py-2 px-4 text-md">Premium Experience</Badge>
+              <h1 className="text-5xl font-bold text-glow-purple mb-4">Ascended Path</h1>
+              <p className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+                Elevate your consciousness journey with our premium sacred experiences designed to accelerate your spiritual growth
               </p>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-12">
-              {["Sacred Journeys", "Meditation Library", "Frequency Templates", "Blueprint Builder"].map((feature, i) => (
-                <Card key={i} className="ethereal-card veil-mode text-center p-6">
-                  <div className="w-12 h-12 rounded-full bg-pink-900/40 flex items-center justify-center mx-auto mb-3">
-                    <span className="text-glow-pink">{i + 1}</span>
-                  </div>
-                  <h3 className="text-xl font-medium text-glow-pink mb-2">{feature}</h3>
-                  <p className="text-sm text-gray-300">Unlock your consciousness with premium tools and guidance.</p>
+            {/* Featured Experiences */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+              {premiumFeatures.map((feature, index) => (
+                <Card key={index} className="ethereal-card">
+                  <CardContent className="p-6 text-center">
+                    <h3 className="text-xl font-medium text-glow-pink mb-2">{feature}</h3>
+                    <p className="text-sm text-gray-300">Unlock your consciousness with premium tools and guidance.</p>
+                  </CardContent>
                 </Card>
               ))}
             </div>
             
-            <div className="mb-12">
-              <Card className="ethereal-card veil-mode overflow-hidden">
-                <div className="grid grid-cols-1 lg:grid-cols-2">
-                  <div className="p-8">
-                    <h2 className="text-2xl font-bold text-glow-pink mb-4">This Week's Featured Experience</h2>
-                    <h3 className="text-xl mb-2">Sacred Cosmic Portal Activation</h3>
-                    <p className="text-gray-300 mb-4">
-                      Access higher dimensions of consciousness with this guided journey that combines ancient wisdom with quantum frequencies.
-                    </p>
-                    <Button className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700">
-                      Begin Featured Journey
-                    </Button>
-                  </div>
-                  <div className="bg-gradient-to-br from-pink-900/30 to-purple-900/30 flex items-center justify-center p-8">
-                    <div className="w-32 h-32 rounded-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 flex items-center justify-center border border-pink-500/30">
-                      <div className="w-24 h-24 rounded-full bg-gradient-to-r from-pink-500/40 to-purple-500/40 flex items-center justify-center border border-pink-500/40">
-                        <div className="w-16 h-16 rounded-full bg-gradient-to-r from-pink-500/60 to-purple-500/60 flex items-center justify-center">
-                          <span className="text-glow-pink">✧</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
+            {/* Upgrade CTA */}
+            <div className="text-center mb-16">
+              <div className="max-w-3xl mx-auto bg-gradient-to-r from-purple-900/40 to-pink-900/40 p-10 rounded-2xl backdrop-blur-sm border border-purple-500/30">
+                <Star className="h-16 w-16 text-amber-400 mx-auto mb-4" />
+                <h2 className="text-3xl font-bold text-white mb-4">
+                  Transcend Your Consciousness
+                </h2>
+                <p className="text-xl text-gray-200 mb-8">
+                  Join the Ascended Path and access premium sacred journeys, frequency healings, and divine connections.
+                </p>
+                <Button 
+                  size="lg" 
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-full px-8 py-6 text-lg"
+                >
+                  <Sparkles className="mr-2 h-5 w-5" />
+                  Upgrade to Premium
+                </Button>
+              </div>
             </div>
             
-            <h2 className="text-2xl font-bold text-glow-pink mb-6 text-center">Sacred Experiences</h2>
-            <PremiumPortal />
+            {/* Testimonials */}
+            <div className="mb-16">
+              <h2 className="text-3xl font-bold text-center text-glow-purple mb-8">
+                Ascended Testimonials
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[
+                  {
+                    name: "Ethan Light",
+                    quote: "The premium meditations have completely transformed my relationship with consciousness. I've experienced depths I didn't know existed.",
+                  },
+                  {
+                    name: "Sophia Moon",
+                    quote: "The frequency healing journeys on the Ascended Path helped me release energetic blockages I'd carried for decades. Life-changing!",
+                  }
+                ].map((testimonial, index) => (
+                  <Card key={index} className="ethereal-card p-6">
+                    <CardContent className="p-0">
+                      <p className="italic text-gray-200 mb-4">"{testimonial.quote}"</p>
+                      <p className="font-medium text-purple-300">— {testimonial.name}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </PremiumProvider>

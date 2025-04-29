@@ -1,346 +1,205 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardContent } from '@/components/ui/card';
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Button } from '@/components/ui/button';
-import { Heart, Send, MessageCircle, Calendar, Clock, Sparkles } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/context/AuthContext';
+import { Heart, Star, Sparkles, Users } from 'lucide-react';
+import { motion } from 'framer-motion';
 
-interface LoveStats {
-  hugsReceived: number;
-  hugsSent: number;
-  totalMirrorSessions: number;
-  intentionsSet: number;
-  favoritePlaylist: string;
-  totalListeningTime: number; // in minutes
-  streakDays: number;
+interface LoveDashboardProps {
+  loveScore?: number;
+  loveLevel?: number;
+  loveBadges?: Array<{
+    id: string;
+    name: string;
+    description: string;
+    level: number;
+  }>;
+  loveJourneys?: Array<{
+    id: string;
+    name: string;
+    completedAt: Date;
+    score: number;
+  }>;
+  loveCommunity?: Array<{
+    id: string;
+    name: string;
+    avatar: string;
+    connectionLevel: number;
+  }>;
 }
 
-const LoveDashboard: React.FC = () => {
-  const { user } = useAuth();
-  const [stats, setStats] = useState<LoveStats>({
-    hugsReceived: 0,
-    hugsSent: 0,
-    totalMirrorSessions: 0,
-    intentionsSet: 0,
-    favoritePlaylist: "Love Codes",
-    totalListeningTime: 0,
-    streakDays: 0
-  });
-  const [loading, setLoading] = useState(true);
+const LoveDashboard: React.FC<LoveDashboardProps> = ({
+  loveScore = 78,
+  loveLevel = 3,
+  loveBadges = [
+    { id: '1', name: 'Heart Opener', description: 'Completed first heart meditation', level: 1 },
+    { id: '2', name: 'Compassion Guide', description: 'Shared love with 5 others', level: 2 },
+    { id: '3', name: 'Divine Love', description: 'Achieved heart-mind coherence', level: 3 },
+  ],
+  loveJourneys = [
+    { id: '1', name: 'Heart Opening', completedAt: new Date(2023, 5, 15), score: 85 },
+    { id: '2', name: 'Compassion Flow', completedAt: new Date(2023, 6, 22), score: 92 },
+    { id: '3', name: 'Divine Connection', completedAt: new Date(2023, 7, 10), score: 78 },
+  ],
+  loveCommunity = [
+    { id: '1', name: 'Sophia Light', avatar: '/avatars/sophia.jpg', connectionLevel: 4 },
+    { id: '2', name: 'Aiden Star', avatar: '/avatars/aiden.jpg', connectionLevel: 3 },
+    { id: '3', name: 'Luna Wisdom', avatar: '/avatars/luna.jpg', connectionLevel: 5 },
+  ]
+}) => {
+  // Calculate next level threshold
+  const currentLevelThreshold = loveLevel * 25;
+  const nextLevelThreshold = (loveLevel + 1) * 25;
+  const progressToNextLevel = ((loveScore - currentLevelThreshold) / (nextLevelThreshold - currentLevelThreshold)) * 100;
   
-  const calculateLoveLevel = () => {
-    const totalActions = 
-      stats.hugsReceived + 
-      stats.hugsSent + 
-      stats.totalMirrorSessions + 
-      stats.intentionsSet + 
-      Math.floor(stats.totalListeningTime / 30); // Count 30 min as an action
-      
-    if (totalActions >= 50) return { level: 5, name: "Love Guardian" };
-    if (totalActions >= 30) return { level: 4, name: "Heart Alchemist" };
-    if (totalActions >= 15) return { level: 3, name: "Soul Nurturer" };
-    if (totalActions >= 5) return { level: 2, name: "Heart Explorer" };
-    return { level: 1, name: "Love Initiate" };
+  // Get heart level title
+  const getHeartLevelTitle = (level: number) => {
+    switch(level) {
+      case 1: return 'Heart Awakening';
+      case 2: return 'Compassion Flowing';
+      case 3: return 'Heart Coherence';
+      case 4: return 'Divine Love';
+      case 5: return 'Universal Heart';
+      default: return 'Heart Explorer';
+    }
   };
   
-  const loveLevel = calculateLoveLevel();
-  const progressPercent = (loveLevel.level / 5) * 100;
-  
-  useEffect(() => {
-    const fetchStats = async () => {
-      if (!user) return;
-      
-      try {
-        setLoading(true);
-        
-        const { data: hugsData, error: hugsError } = await supabase
-          .from('soul_hugs')
-          .select('sender_id, recipient_id')
-          .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`);
-          
-        if (hugsError) throw hugsError;
-        
-        const { data: mirrorData, error: mirrorError } = await supabase
-          .from('mirror_moments')
-          .select('id')
-          .eq('user_id', user.id);
-          
-        if (mirrorError) throw mirrorError;
-        
-        const { data: intentionsData, error: intentionsError } = await supabase
-          .from('user_intentions')
-          .select('id')
-          .eq('user_id', user.id);
-          
-        if (intentionsError) throw intentionsError;
-        
-        const { data: sessionData, error: sessionError } = await supabase
-          .from('sessions')
-          .select('id, created_at, updated_at')
-          .eq('user_id', user.id);
-          
-        if (sessionError) throw sessionError;
-        
-        let totalMinutes = 0;
-        
-        if (sessionData && sessionData.length > 0) {
-          sessionData.forEach((session: any) => {
-            if (session.created_at && session.updated_at) {
-              const startTime = new Date(session.created_at).getTime();
-              const endTime = new Date(session.updated_at).getTime();
-              const durationMinutes = (endTime - startTime) / (1000 * 60);
-              
-              if (durationMinutes >= 1 && durationMinutes <= 120) {
-                totalMinutes += durationMinutes;
-              } else {
-                totalMinutes += 5;
-              }
-            } else {
-              totalMinutes += 5;
-            }
-          });
-        }
-        
-        const { data: recentActivity, error: recentError } = await supabase
-          .from('timeline_snapshots')
-          .select('created_at')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
-          
-        let streakCount = 0;
-        if (!recentError && recentActivity && recentActivity.length > 0) {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          
-          const activityDays = new Set();
-          recentActivity.forEach((item: any) => {
-            const activityDate = new Date(item.created_at);
-            activityDate.setHours(0, 0, 0, 0);
-            
-            const daysDiff = Math.floor((today.getTime() - activityDate.getTime()) / (1000 * 3600 * 24));
-            if (daysDiff >= 0 && daysDiff < 7) {
-              activityDays.add(daysDiff);
-            }
-          });
-          
-          streakCount = activityDays.size;
-        }
-        
-        const { data: frequencyData, error: frequencyError } = await supabase
-          .from('sessions')
-          .select('frequency_id')
-          .eq('user_id', user.id);
-          
-        let favoritePlaylist = "Love Codes";
-        
-        if (!frequencyError && frequencyData && frequencyData.length > 0) {
-          const frequencyCounts = frequencyData.reduce((acc: any, item: any) => {
-            if (item.frequency_id) {
-              acc[item.frequency_id] = (acc[item.frequency_id] || 0) + 1;
-            }
-            return acc;
-          }, {});
-          
-          let maxCount = 0;
-          let mostUsedFrequencyId = null;
-          
-          for (const [freqId, count] of Object.entries(frequencyCounts)) {
-            if (Number(count) > maxCount) {
-              maxCount = Number(count);
-              mostUsedFrequencyId = freqId;
-            }
-          }
-          
-          if (mostUsedFrequencyId) {
-            const { data: freqData } = await supabase
-              .from('frequency_library')
-              .select('title')
-              .eq('id', mostUsedFrequencyId)
-              .single();
-              
-            if (freqData) {
-              favoritePlaylist = freqData.title;
-            }
-          }
-        }
-        
-        setStats({
-          hugsReceived: hugsData?.filter((hug: any) => hug.recipient_id === user.id).length || 0,
-          hugsSent: hugsData?.filter((hug: any) => hug.sender_id === user.id).length || 0,
-          totalMirrorSessions: mirrorData?.length || 0,
-          intentionsSet: intentionsData?.length || 0,
-          favoritePlaylist: favoritePlaylist,
-          totalListeningTime: totalMinutes,
-          streakDays: streakCount
-        });
-        
-      } catch (error) {
-        console.error("Error fetching love stats:", error);
-        setStats({
-          hugsReceived: 0,
-          hugsSent: 0,
-          totalMirrorSessions: 0,
-          intentionsSet: 0,
-          favoritePlaylist: "Love Codes",
-          totalListeningTime: 0,
-          streakDays: 0
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchStats();
-  }, [user]);
-
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-6"
-    >
-      <Card className="bg-white/70 backdrop-blur-sm border-pink-200 overflow-hidden">
-        <div className="bg-gradient-to-r from-pink-500 to-purple-600 h-3" />
-        <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div>
-              <h2 className="text-2xl font-bold text-purple-900">Love Level: {loveLevel.level}</h2>
-              <p className="text-pink-600 font-medium">{loveLevel.name}</p>
-            </div>
-            <div className="bg-pink-100 p-3 rounded-full mt-2 md:mt-0">
-              <Heart className={`h-8 w-8 ${loveLevel.level >= 3 ? 'text-pink-600' : 'text-pink-400'}`} />
-            </div>
-          </div>
-          
-          <div className="mt-4">
-            <div className="flex justify-between text-sm text-purple-800 mb-1">
-              <span>Current Level</span>
-              <span>Next Level: {loveLevel.level < 5 ? loveLevel.level + 1 : 'Max'}</span>
-            </div>
-            <Progress value={progressPercent} className="h-2 bg-pink-100" indicatorClassName="bg-gradient-to-r from-pink-500 to-purple-600" />
-          </div>
-          
-          <p className="text-sm text-purple-700 mt-2">
-            {loveLevel.level < 5 
-              ? `Continue your heart journey to reach the next level!` 
-              : `You've reached the highest level of heart mastery!`}
-          </p>
-        </CardContent>
-      </Card>
-      
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-white/50 backdrop-blur-sm border-pink-100">
-          <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-            <div className="bg-pink-50 p-2 rounded-full mb-3">
-              <Send className="h-5 w-5 text-pink-500" />
-            </div>
-            <p className="text-2xl font-bold text-purple-900">{stats.hugsSent}</p>
-            <p className="text-sm text-purple-700">Hugs Sent</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-white/50 backdrop-blur-sm border-pink-100">
-          <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-            <div className="bg-pink-50 p-2 rounded-full mb-3">
-              <Heart className="h-5 w-5 text-pink-500" />
-            </div>
-            <p className="text-2xl font-bold text-purple-900">{stats.hugsReceived}</p>
-            <p className="text-sm text-purple-700">Hugs Received</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-white/50 backdrop-blur-sm border-pink-100">
-          <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-            <div className="bg-pink-50 p-2 rounded-full mb-3">
-              <Sparkles className="h-5 w-5 text-pink-500" />
-            </div>
-            <p className="text-2xl font-bold text-purple-900">{stats.totalMirrorSessions}</p>
-            <p className="text-sm text-purple-700">Mirror Sessions</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-white/50 backdrop-blur-sm border-pink-100">
-          <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-            <div className="bg-pink-50 p-2 rounded-full mb-3">
-              <MessageCircle className="h-5 w-5 text-pink-500" />
-            </div>
-            <p className="text-2xl font-bold text-purple-900">{stats.intentionsSet}</p>
-            <p className="text-sm text-purple-700">Intentions Set</p>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="bg-white/50 backdrop-blur-sm border-pink-100">
-          <CardContent className="p-4">
-            <h3 className="font-medium text-purple-900 flex items-center mb-3">
-              <Clock className="h-4 w-4 mr-2 text-pink-500" />
-              Listening Stats
-            </h3>
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-purple-700">Total Listening Time</span>
-                <span className="text-purple-900 font-medium">{Math.floor(stats.totalListeningTime / 60)}h {stats.totalListeningTime % 60}m</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-purple-700">Favorite Playlist</span>
-                <span className="text-purple-900 font-medium">{stats.favoritePlaylist}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-white/50 backdrop-blur-sm border-pink-100">
-          <CardContent className="p-4">
-            <h3 className="font-medium text-purple-900 flex items-center mb-3">
-              <Calendar className="h-4 w-4 mr-2 text-pink-500" />
-              Heart Practice
-            </h3>
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-purple-700">Current Streak</span>
-                <span className="text-purple-900 font-medium">{stats.streakDays} days</span>
-              </div>
-              <div className="flex items-center mt-2 space-x-1">
-                {[...Array(7)].map((_, index) => (
-                  <div 
-                    key={index}
-                    className={`h-3 w-3 rounded-full ${
-                      index < stats.streakDays 
-                        ? 'bg-gradient-to-r from-pink-500 to-purple-500' 
-                        : 'bg-pink-100'
-                    }`}
+    <div className="space-y-6">
+      {/* Main Love Score Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <Card className="ethereal-card overflow-hidden">
+          <div className="bg-gradient-to-r from-pink-600/30 to-purple-600/30 h-3"></div>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Heart className="mr-2 h-6 w-6 text-pink-400" />
+              Heart Center Dashboard
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col md:flex-row items-center justify-between">
+              <div className="text-center md:text-left mb-6 md:mb-0">
+                <h3 className="text-2xl font-bold text-glow-pink">{getHeartLevelTitle(loveLevel)}</h3>
+                <p className="text-sm text-gray-400">Level {loveLevel} Heart Explorer</p>
+                
+                <div className="mt-4">
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Progress to Level {loveLevel + 1}</span>
+                    <span>{loveScore} / {nextLevelThreshold}</span>
+                  </div>
+                  <Progress 
+                    value={progressToNextLevel} 
+                    className="h-2 bg-gray-800"
                   />
-                ))}
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-center w-32 h-32 rounded-full bg-gradient-to-br from-pink-500/20 to-purple-500/20 border border-pink-500/30">
+                <div className="text-center">
+                  <div className="text-4xl font-bold text-glow-pink">{loveScore}</div>
+                  <div className="text-xs text-gray-300">LOVE SCORE</div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+              <div className="bg-black/30 rounded-lg p-4 text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <Star className="h-5 w-5 text-pink-400 mr-1" />
+                  <span className="font-medium">Heart Achievements</span>
+                </div>
+                <div className="text-3xl font-bold text-glow-pink">{loveBadges.length}</div>
+                <div className="text-xs text-gray-400">Badges Earned</div>
+              </div>
+              
+              <div className="bg-black/30 rounded-lg p-4 text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <Sparkles className="h-5 w-5 text-pink-400 mr-1" />
+                  <span className="font-medium">Heart Journeys</span>
+                </div>
+                <div className="text-3xl font-bold text-glow-pink">{loveJourneys.length}</div>
+                <div className="text-xs text-gray-400">Journeys Completed</div>
+              </div>
+              
+              <div className="bg-black/30 rounded-lg p-4 text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <Users className="h-5 w-5 text-pink-400 mr-1" />
+                  <span className="font-medium">Heart Community</span>
+                </div>
+                <div className="text-3xl font-bold text-glow-pink">{loveCommunity.length}</div>
+                <div className="text-xs text-gray-400">Soul Connections</div>
               </div>
             </div>
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
       
-      <Card className="bg-gradient-to-r from-pink-100/80 to-purple-100/80 backdrop-blur-sm border-pink-200 p-6">
-        <div className="flex flex-col md:flex-row items-center justify-between">
-          <div className="text-center md:text-left mb-4 md:mb-0">
-            <h3 className="text-lg font-semibold text-purple-900">Share the Love</h3>
-            <p className="text-purple-700">Invite others to join your heart-centered journey</p>
-          </div>
-          
-          <Button
-            variant="default"
-            className="bg-gradient-to-r from-pink-500 to-purple-600"
-            onClick={() => {
-              navigator.clipboard.writeText("https://sacredshifter.app/heart");
-              alert("Link copied to clipboard!");
-            }}
-          >
-            <Heart className="mr-2 h-4 w-4" />
-            Share Sacred Shifter
-          </Button>
-        </div>
-      </Card>
-    </motion.div>
+      {/* Recent Heart Journeys */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
+        <Card className="ethereal-card">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Sparkles className="mr-2 h-5 w-5 text-pink-400" />
+              Recent Heart Journeys
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {loveJourneys.map((journey) => (
+                <div key={journey.id} className="flex items-center justify-between bg-black/20 p-3 rounded-lg">
+                  <div>
+                    <h4 className="font-medium text-glow-light">{journey.name}</h4>
+                    <p className="text-xs text-gray-400">
+                      Completed {journey.completedAt.toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="flex items-center">
+                    <Heart className="h-4 w-4 text-pink-400 mr-1" />
+                    <span className="font-medium">{journey.score}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+      
+      {/* Heart Badges */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+      >
+        <Card className="ethereal-card">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Star className="mr-2 h-5 w-5 text-pink-400" />
+              Heart Badges
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {loveBadges.map((badge) => (
+                <div key={badge.id} className="bg-black/20 p-4 rounded-lg text-center">
+                  <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br from-pink-600/30 to-purple-600/30 flex items-center justify-center text-xl font-bold">
+                    {badge.level}
+                  </div>
+                  <h4 className="font-medium text-glow-pink">{badge.name}</h4>
+                  <p className="text-xs text-gray-400 mt-1">{badge.description}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </div>
   );
 };
 
