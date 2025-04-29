@@ -48,8 +48,8 @@ const PremiumContent: React.FC<PremiumContentProps> = ({
       
       {requireSubscription && !isPremiumUser() && redirectToSubscription && (
         <Button 
-          variant="gradient" 
-          className="mt-2"
+          variant="secondary" 
+          className="mt-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
           onClick={() => window.location.href = '/subscription'}
         >
           Upgrade Your Experience

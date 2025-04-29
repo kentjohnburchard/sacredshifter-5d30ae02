@@ -3,6 +3,8 @@ import React from "react";
 import Layout from "@/components/Layout";
 import { CosmicContainer } from "@/components/sacred-geometry";
 import MetatronsCube from "@/components/sacred-geometry/shapes/MetatronsCube";
+import { Card } from "@/components/ui/card";
+import AudioDebugger from "@/components/hermetic-wisdom/AudioDebugger";
 
 const SoulScribe = () => {
   return (
@@ -34,6 +36,13 @@ const SoulScribe = () => {
             <MetatronsCube />
           </div>
         </div>
+        
+        <section className="py-8">
+          <Card className="bg-black/40 border-purple-500/20 backdrop-blur-md p-6">
+            <h2 className="text-2xl font-bold mb-6 text-purple-300 text-center">Audio Tools</h2>
+            <AudioDebugger />
+          </Card>
+        </section>
       </div>
     </Layout>
   );
