@@ -10,16 +10,16 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md text-enhanced",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-md",
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-md text-enhanced",
         outline:
-          "border-2 border-input bg-background hover:bg-accent hover:text-accent-foreground",
+          "border-2 border-input bg-background/90 hover:bg-accent/60 hover:text-accent-foreground text-enhanced",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm",
-        ghost: "hover:bg-accent/50 hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline font-semibold",
-        gradient: "bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-md text-enhanced",
+        ghost: "hover:bg-accent/60 hover:text-accent-foreground text-enhanced",
+        link: "text-primary underline-offset-4 hover:underline font-semibold text-enhanced",
+        gradient: "bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg text-enhanced",
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -46,7 +46,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : "button"
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(
+          buttonVariants({ variant, size, className }), 
+          "relative overflow-hidden"
+        )}
         ref={ref}
         {...props}
       />

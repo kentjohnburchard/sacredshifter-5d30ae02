@@ -67,32 +67,32 @@ const QuoteSlider: React.FC = () => {
       <div className="flex justify-between mb-4">
         <button
           onClick={goToPrevious}
-          className={`p-2 rounded-full ${
+          className={`p-2 rounded-full transition-all ${
             liftTheVeil 
-              ? 'bg-pink-900/30 hover:bg-pink-900/50 text-pink-300' 
-              : 'bg-purple-900/30 hover:bg-purple-900/50 text-purple-300'
+              ? 'bg-pink-900/40 hover:bg-pink-800/60 text-pink-200 shadow-[0_0_8px_rgba(236,72,153,0.3)]' 
+              : 'bg-purple-900/40 hover:bg-purple-800/60 text-purple-200 shadow-[0_0_8px_rgba(139,92,246,0.3)]'
           }`}
           aria-label="Previous quote"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-5 w-5" />
         </button>
         <button
           onClick={goToNext}
-          className={`p-2 rounded-full ${
+          className={`p-2 rounded-full transition-all ${
             liftTheVeil 
-              ? 'bg-pink-900/30 hover:bg-pink-900/50 text-pink-300' 
-              : 'bg-purple-900/30 hover:bg-purple-900/50 text-purple-300'
+              ? 'bg-pink-900/40 hover:bg-pink-800/60 text-pink-200 shadow-[0_0_8px_rgba(236,72,153,0.3)]' 
+              : 'bg-purple-900/40 hover:bg-purple-800/60 text-purple-200 shadow-[0_0_8px_rgba(139,92,246,0.3)]'
           }`}
           aria-label="Next quote"
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-5 w-5" />
         </button>
       </div>
       
-      <div className={`relative overflow-hidden p-6 rounded-lg ${
+      <div className={`relative overflow-hidden p-6 rounded-lg backdrop-blur-sm ${
         liftTheVeil 
-          ? 'bg-pink-900/20 border border-pink-500/30' 
-          : 'bg-purple-900/20 border border-purple-500/30'
+          ? 'bg-pink-950/40 border border-pink-500/40 shadow-[0_0_15px_rgba(236,72,153,0.15)]' 
+          : 'bg-purple-950/40 border border-purple-500/40 shadow-[0_0_15px_rgba(139,92,246,0.15)]'
       }`}>
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
@@ -105,8 +105,8 @@ const QuoteSlider: React.FC = () => {
             transition={{ type: "tween", duration: 0.5 }}
             className="min-h-[120px] flex flex-col justify-center"
           >
-            <p className="text-white italic mb-2">"{quotes[currentIndex].text}"</p>
-            <p className="text-right text-sm text-gray-300">— {quotes[currentIndex].author}</p>
+            <p className="text-white italic mb-2 text-enhanced">"{quotes[currentIndex].text}"</p>
+            <p className="text-right text-sm text-gray-200">— {quotes[currentIndex].author}</p>
           </motion.div>
         </AnimatePresence>
         
@@ -118,10 +118,12 @@ const QuoteSlider: React.FC = () => {
                 setDirection(index > currentIndex ? 'right' : 'left');
                 setCurrentIndex(index);
               }}
-              className={`w-2 h-2 rounded-full transition-colors ${
+              className={`w-2.5 h-2.5 rounded-full transition-colors ${
                 index === currentIndex
-                  ? (liftTheVeil ? 'bg-pink-500' : 'bg-purple-500')
-                  : 'bg-gray-600 hover:bg-gray-500'
+                  ? (liftTheVeil 
+                      ? 'bg-pink-400 shadow-[0_0_5px_rgba(236,72,153,0.7)]' 
+                      : 'bg-purple-400 shadow-[0_0_5px_rgba(139,92,246,0.7)]')
+                  : 'bg-gray-500 hover:bg-gray-400'
               }`}
               aria-label={`Go to quote ${index + 1}`}
             />

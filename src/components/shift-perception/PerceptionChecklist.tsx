@@ -48,16 +48,18 @@ const PerceptionChecklist: React.FC = () => {
             className={`flex items-center p-3 rounded-lg border cursor-pointer transition-colors ${
               checkedItems.includes(item.id)
                 ? (liftTheVeil 
-                    ? 'bg-pink-900/30 border-pink-500/50' 
-                    : 'bg-purple-900/30 border-purple-500/50')
-                : 'bg-black/30 border-white/10 hover:border-white/30'
+                    ? 'bg-pink-900/50 border-pink-500/70 shadow-[0_0_8px_rgba(236,72,153,0.3)]' 
+                    : 'bg-purple-900/50 border-purple-500/70 shadow-[0_0_8px_rgba(139,92,246,0.3)]')
+                : 'bg-black/50 border-white/20 hover:border-white/40'
             }`}
           >
             <div 
               className={`w-6 h-6 rounded mr-3 flex items-center justify-center ${
                 checkedItems.includes(item.id)
-                  ? (liftTheVeil ? 'bg-pink-500' : 'bg-purple-500')
-                  : 'border border-gray-500'
+                  ? (liftTheVeil 
+                      ? 'bg-pink-500 shadow-[0_0_8px_rgba(236,72,153,0.5)]' 
+                      : 'bg-purple-500 shadow-[0_0_8px_rgba(139,92,246,0.5)]')
+                  : 'border border-gray-400'
               }`}
             >
               {checkedItems.includes(item.id) && <Check className="h-4 w-4 text-white" />}
@@ -69,7 +71,9 @@ const PerceptionChecklist: React.FC = () => {
               onChange={() => toggleItem(item.id)}
               className="sr-only"
             />
-            <span className="text-gray-200">{item.text}</span>
+            <span className="text-white text-enhanced">
+              {item.text}
+            </span>
           </label>
         </motion.div>
       ))}
@@ -80,11 +84,15 @@ const PerceptionChecklist: React.FC = () => {
           animate={{ opacity: 1, height: 'auto' }}
           className={`mt-4 p-4 rounded-lg ${
             liftTheVeil 
-              ? 'bg-pink-900/20 border border-pink-500/30' 
-              : 'bg-purple-900/20 border border-purple-500/30'
+              ? 'bg-pink-900/30 border border-pink-500/40 shadow-[0_0_10px_rgba(236,72,153,0.2)]' 
+              : 'bg-purple-900/30 border border-purple-500/40 shadow-[0_0_10px_rgba(139,92,246,0.2)]'
           }`}
         >
-          <p className={`text-sm ${liftTheVeil ? 'text-pink-200' : 'text-purple-200'}`}>
+          <p className={`text-sm ${
+            liftTheVeil 
+              ? 'text-pink-100 text-enhanced' 
+              : 'text-purple-100 text-enhanced'
+          }`}>
             You've identified {checkedItems.length} signs of shifting perception.
             {checkedItems.length >= 5 && " Your awareness is expanding significantly."}
             {checkedItems.length >= 8 && " You're experiencing a profound shift in consciousness."}

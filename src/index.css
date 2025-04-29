@@ -53,7 +53,7 @@
   /* Improved text readability */
   h1, h2, h3, h4, h5, h6 {
     @apply font-medium tracking-tight;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
   }
 
   p {
@@ -65,17 +65,17 @@
   /* Accessibility focused utilities */
   .text-enhanced {
     @apply text-white font-medium;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
   }
   
   .text-contrast-high {
     @apply text-white;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
   }
   
   .card-accessible {
-    @apply backdrop-blur-sm bg-black/70 border border-white/20;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    @apply backdrop-blur-sm bg-black/80 border border-white/20;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   }
 
   .animate-pulse-subtle {
@@ -83,7 +83,8 @@
   }
   
   .sacred-glass {
-    @apply backdrop-blur-sm bg-black/50 border border-white/10;
+    @apply backdrop-blur-sm bg-black/60 border border-white/20;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   }
   
   .animate-glow {
@@ -111,9 +112,9 @@
     --theme-primary: #5d7cfe;
     --theme-secondary: #00f2fe;
     --glow-intensity: 0.5;
-    --energy-color: rgba(155, 135, 245, 0.6);
-    --portal-glow: rgba(122, 118, 255, 0.7);
-    --pattern-opacity: 0.3;
+    --energy-color: rgba(155, 135, 245, 0.8);
+    --portal-glow: rgba(122, 118, 255, 0.9);
+    --pattern-opacity: 0.4;
   }
   
   /* Veil lifted mode styles - Improved contrast */
@@ -125,9 +126,55 @@
     --theme-primary: #FF45B6;
     --theme-secondary: #C676FF;
     --glow-intensity: 0.8;
-    --energy-color: rgba(255, 69, 182, 0.7);
-    --portal-glow: rgba(198, 118, 255, 0.8);
-    --pattern-opacity: 0.4;
+    --energy-color: rgba(255, 69, 182, 0.8);
+    --portal-glow: rgba(198, 118, 255, 0.9);
+    --pattern-opacity: 0.5;
+  }
+
+  /* New cosmic button effects */
+  .cosmic-btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    z-index: 1;
+  }
+
+  .cosmic-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+    z-index: -1;
+  }
+
+  .cosmic-btn:hover::before {
+    transform: translateX(100%);
+  }
+
+  /* Mystical text glow effects */
+  .mystical-text {
+    text-shadow: 0 0 10px var(--energy-color, rgba(139, 92, 246, 0.7));
+  }
+
+  /* Element glow effects */
+  .glow-element {
+    box-shadow: 0 0 15px var(--energy-color, rgba(139, 92, 246, 0.6));
+  }
+  
+  /* Ethereal card effect */
+  .ethereal-card {
+    @apply backdrop-blur-md bg-black/60 border border-white/15 transition-all duration-300;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 0 30px rgba(255, 255, 255, 0.03);
+  }
+  
+  .ethereal-card:hover {
+    @apply border-white/25;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.5), inset 0 0 30px rgba(255, 255, 255, 0.05);
   }
 }
 
@@ -266,7 +313,7 @@ html.veil-lifted h3,
 .veil-mode h2,
 .veil-mode h3 {
   @apply text-pink-300;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Enhanced shadow for better contrast */
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6), 0 0 10px rgba(236, 72, 153, 0.4); /* Enhanced shadow for better contrast */
 }
 
 /* Enhanced Transition Effects */
@@ -729,3 +776,7 @@ html.veil-lifted .veil-lifted-nav,
   color: inherit !important;
   background: none !important;
 }
+
+/* Add mode-specific button and UI styling */
+.standard-mode .btn-accent {
+  @apply bg-gradient-to-r from-purple-60
