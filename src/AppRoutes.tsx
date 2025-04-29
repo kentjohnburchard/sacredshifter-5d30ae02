@@ -1,5 +1,5 @@
 
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
@@ -39,15 +39,18 @@ import JourneyAudioManager from './components/admin/JourneyAudioManager';
 import JourneyAudioMappingsViewer from './pages/admin/JourneyAudioMappingsViewer';
 import AdminPagesCanvas from './pages/admin/AdminPagesCanvas';
 import ProtectedRoute from './components/ProtectedRoute';
+import Soundscapes from './pages/Soundscapes';
 
 const AppRoutes: React.FC = () => {
   return (
     <>
       <ScrollToTop />
       <Routes>
-        <Route path="/" element={<SacredShifterHome />} />
+        {/* Redirect root path to coming-soon */}
+        <Route path="/" element={<Navigate to="/coming-soon" replace />} />
         <Route path="/coming-soon" element={<ComingSoon />} />
         <Route path="/home" element={<SacredShifterHome />} />
+        <Route path="/original-home" element={<Home />} />
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <Dashboard />
@@ -107,6 +110,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/about/what" element={<SacredShifterWhat />} />
         <Route path="/about/why" element={<SacredShifterWhy />} />
         <Route path="/about/how" element={<SacredShifterHow />} />
+        <Route path="/soundscapes" element={<Soundscapes />} />
         <Route path="/admin" element={
           <ProtectedRoute>
             <Admin />

@@ -1,10 +1,14 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import SacredGridBackground from '@/components/visualization/SacredGridBackground';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, ArrowRight } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 const ComingSoon = () => {
+  const { user } = useAuth();
+  
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-black">
       {/* Sacred geometry background */}
@@ -82,6 +86,24 @@ const ComingSoon = () => {
             <Sparkles className="h-5 w-5" />
             <span className="text-lg font-light tracking-wider">Awakening Begins Soon</span>
           </motion.div>
+          
+          {/* Admin access link - only visible to logged in users */}
+          {user && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 1.8 }}
+              className="mt-12"
+            >
+              <Link 
+                to="/home" 
+                className="inline-flex items-center gap-2 rounded-md border border-purple-500/30 bg-black/70 px-4 py-2 text-purple-300 hover:bg-black/90 hover:text-purple-200 backdrop-blur-sm transition-all duration-300"
+              >
+                <span className="text-sm font-light tracking-wider">Enter Site</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </motion.div>
+          )}
         </motion.div>
       </div>
     </div>
