@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,7 +12,7 @@ import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LoveDashboard from "@/components/heart-center/LoveDashboard";
 import SacredIdentityCard from "@/components/dashboard/SacredIdentityCard";
-import LightbearerStatsCard from "@/components/dashboard/LightbearerStatsCard";
+import SoulProgressCard from "@/components/dashboard/SoulProgressCard";
 
 interface Intention {
   id: string;
@@ -168,7 +169,7 @@ const UserDashboard: React.FC = () => {
           {/* Sacred Identity and Lightbearer Stats Cards - Prominently displayed at the top */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SacredIdentityCard />
-            <LightbearerStatsCard />
+            <SoulProgressCard />
           </div>
           
           {/* Original dashboard stats */}
@@ -272,7 +273,7 @@ const UserDashboard: React.FC = () => {
               </Card>
             </Link>
             
-            <Link to="/music-library">
+            <Link to="/music-generation">
               <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
                 <CardContent className="p-6">
                   <div className="flex items-center mb-4">

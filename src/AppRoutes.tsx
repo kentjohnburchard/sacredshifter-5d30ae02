@@ -1,3 +1,4 @@
+
 import React, { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
@@ -47,6 +48,7 @@ import MusicGeneration from './pages/MusicGeneration';
 import Timeline from './pages/Timeline';
 import Intentions from './pages/Intentions';
 import Lightbearer from '@/pages/Lightbearer';
+import SacredCircle from '@/pages/SacredCircle';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -122,6 +124,20 @@ const AppRoutes: React.FC = () => {
         <Route path="/about/why" element={<SacredShifterWhy />} />
         <Route path="/about/how" element={<SacredShifterHow />} />
         <Route path="/soundscapes" element={<Soundscapes />} />
+        <Route path="/timeline" element={<Timeline />} />
+        <Route path="/intentions" element={<Intentions />} />
+        
+        {/* New Routes */}
+        <Route path="/lightbearer" element={
+          <ProtectedRoute>
+            <Lightbearer />
+          </ProtectedRoute>
+        } />
+        <Route path="/community" element={
+          <ProtectedRoute>
+            <SacredCircle />
+          </ProtectedRoute>
+        } />
         
         {/* Sacred Circle Community Routes */}
         <Route path="/circle" element={<CircleHomePage />} />

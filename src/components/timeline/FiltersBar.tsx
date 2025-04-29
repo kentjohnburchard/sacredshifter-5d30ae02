@@ -1,34 +1,33 @@
 
-import React, { useState } from 'react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Calendar, Filter, Tag, Music } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AnimatePresence, motion } from 'framer-motion';
-
-interface FilterOption {
-  value: string;
-  label: string;
-}
+import React from 'react';
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Filter, 
+  Music,
+  BookOpen,
+  Circle,
+  Calendar,
+  Tag,
+  X
+} from 'lucide-react';
 
 interface FiltersBarProps {
   tags: string[];
   frequencies: number[];
   onTagFilter: (tag: string | null) => void;
-  onFrequencyFilter: (frequency: string) => void;
+  onFrequencyFilter: (freq: string) => void;
   onTypeFilter: (type: string | null) => void;
   activeTagFilter: string | null;
   activeFrequencyFilter: string;
   activeTypeFilter: string | null;
 }
-
-const typeOptions: FilterOption[] = [
-  { value: 'all', label: 'All Types' },
-  { value: 'journal', label: 'Journal' },
-  { value: 'journey', label: 'Journey' },
-  { value: 'music', label: 'Music' },
-  { value: 'intention', label: 'Intention' }
-];
 
 const FiltersBar: React.FC<FiltersBarProps> = ({
   tags,
@@ -40,204 +39,197 @@ const FiltersBar: React.FC<FiltersBarProps> = ({
   activeFrequencyFilter,
   activeTypeFilter
 }) => {
-  const [showFrequencyFilter, setShowFrequencyFilter] = useState(frequencies.length > 0);
-  const [showTagFilter, setShowTagFilter] = useState(tags.length > 0);
-  const [showTypeFilter, setShowTypeFilter] = useState(true);
+  const getTypeIcon = (type: string) => {
+    switch(type) {
+      case 'journal': return <BookOpen className="h-4 w-4" />;
+      case 'journey': return <Calendar className="h-4 w-4" />;
+      case 'music': return <Music className="h-4 w-4" />;
+      case 'intention': return <Circle className="h-4 w-4" />;
+      default: return null;
+    }
+  };
   
   return (
-    <div className="mb-6 space-y-4">
-      <div className="flex flex-wrap gap-3 items-center">
-        <h3 className="text-lg font-medium text-white flex items-center">
-          <Filter className="h-4 w-4 mr-2 text-purple-400" />
-          Filters:
-        </h3>
-        
-        <div className="flex flex-wrap gap-2">
-          {showTypeFilter && (
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setShowTypeFilter(!showTypeFilter)}
-              className="flex items-center gap-1 border-purple-500/30 text-purple-200 bg-purple-900/20"
-            >
-              <Calendar className="h-3.5 w-3.5" />
-              <span>Type</span>
-            </Button>
-          )}
-          
-          {frequencies.length > 0 && (
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setShowFrequencyFilter(!showFrequencyFilter)}
-              className="flex items-center gap-1 border-purple-500/30 text-purple-200 bg-purple-900/20"
-            >
-              <Music className="h-3.5 w-3.5" />
-              <span>Frequency</span>
-            </Button>
-          )}
-          
-          {tags.length > 0 && (
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setShowTagFilter(!showTagFilter)}
-              className="flex items-center gap-1 border-purple-500/30 text-purple-200 bg-purple-900/20"
-            >
-              <Tag className="h-3.5 w-3.5" />
-              <span>Tags</span>
-            </Button>
-          )}
-        </div>
+    <div className="flex flex-wrap items-center gap-3 bg-gray-900/40 p-4 rounded-lg border border-gray-800/30 mb-6">
+      <div className="flex items-center">
+        <Filter className="h-4 w-4 text-gray-400 mr-2" />
+        <span className="text-sm font-medium text-gray-300">Filters:</span>
       </div>
       
-      <AnimatePresence>
-        {showTypeFilter && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
+      {/* Tag Filter */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="border-gray-700/50 text-gray-300 flex items-center gap-1.5"
           >
-            <div className="flex flex-wrap gap-2 items-center p-3 bg-gray-900/30 rounded-md">
-              <span className="text-sm text-gray-300 mr-1">Entry Type:</span>
-              {typeOptions.map(type => (
-                <Badge 
-                  key={type.value}
-                  variant={activeTypeFilter === type.value || (type.value === 'all' && !activeTypeFilter) ? 'default' : 'outline'}
-                  className={`cursor-pointer ${
-                    activeTypeFilter === type.value || (type.value === 'all' && !activeTypeFilter)
-                      ? 'bg-purple-500 hover:bg-purple-600' 
-                      : 'hover:bg-purple-900/30 bg-transparent border-purple-500/30 text-purple-200'
-                  }`}
-                  onClick={() => onTypeFilter(type.value === 'all' ? null : type.value)}
-                >
-                  {type.label}
-                </Badge>
-              ))}
-            </div>
-          </motion.div>
-        )}
-        
-        {showFrequencyFilter && frequencies.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
+            <Tag className="h-3.5 w-3.5" />
+            {activeTagFilter || "All Tags"}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="bg-gray-900/90 backdrop-blur-md border-gray-700/50">
+          <DropdownMenuItem 
+            onClick={() => onTagFilter(null)}
+            className="text-gray-300 focus:bg-gray-800/50 focus:text-white"
           >
-            <div className="flex items-center gap-2 p-3 bg-gray-900/30 rounded-md">
-              <div className="flex items-center gap-2">
-                <Music className="h-4 w-4 text-purple-400" />
-                <span className="text-sm text-gray-300">Frequency:</span>
-              </div>
-              <Select
-                value={activeFrequencyFilter}
-                onValueChange={onFrequencyFilter}
-              >
-                <SelectTrigger className="w-[180px] bg-purple-900/30 border-purple-500/30">
-                  <SelectValue placeholder="All Frequencies" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Frequencies</SelectItem>
-                  {frequencies.map(freq => (
-                    <SelectItem key={freq} value={String(freq)}>
-                      {freq}Hz
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </motion.div>
-        )}
-        
-        {showTagFilter && tags.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
-            <div className="flex flex-wrap gap-2 items-center p-3 bg-gray-900/30 rounded-md">
-              <div className="flex items-center gap-2 mr-1">
-                <Tag className="h-4 w-4 text-blue-400" />
-                <span className="text-sm text-gray-300">Tags:</span>
-              </div>
-              {tags.map(tag => (
-                <Badge 
-                  key={tag}
-                  variant={activeTagFilter === tag ? 'default' : 'outline'}
-                  className={`cursor-pointer ${
-                    activeTagFilter === tag 
-                      ? 'bg-blue-500 hover:bg-blue-600' 
-                      : 'hover:bg-blue-900/30 bg-transparent border-blue-500/30 text-blue-200'
-                  }`}
-                  onClick={() => onTagFilter(activeTagFilter === tag ? null : tag)}
-                >
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            All Tags
+          </DropdownMenuItem>
+          {tags.map(tag => (
+            <DropdownMenuItem 
+              key={tag} 
+              onClick={() => onTagFilter(tag)}
+              className="text-gray-300 focus:bg-gray-800/50 focus:text-white"
+            >
+              {tag}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
       
-      {(activeTagFilter || activeFrequencyFilter !== 'all' || activeTypeFilter) && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="flex flex-wrap gap-2 items-center"
-        >
-          <span className="text-xs text-gray-400">Active filters:</span>
-          
-          {activeTypeFilter && (
-            <Badge 
-              className="bg-purple-500"
-              onClick={() => onTypeFilter(null)}
+      {/* Frequency Filter */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="border-gray-700/50 text-gray-300 flex items-center gap-1.5"
+          >
+            <Music className="h-3.5 w-3.5" />
+            {activeFrequencyFilter === "all" ? "All Frequencies" : `${activeFrequencyFilter}Hz`}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="bg-gray-900/90 backdrop-blur-md border-gray-700/50">
+          <DropdownMenuItem 
+            onClick={() => onFrequencyFilter("all")}
+            className="text-gray-300 focus:bg-gray-800/50 focus:text-white"
+          >
+            All Frequencies
+          </DropdownMenuItem>
+          {frequencies.map(freq => (
+            <DropdownMenuItem 
+              key={freq} 
+              onClick={() => onFrequencyFilter(String(freq))}
+              className="text-gray-300 focus:bg-gray-800/50 focus:text-white"
             >
-              Type: {activeTypeFilter}
-              <span className="ml-1 cursor-pointer">×</span>
-            </Badge>
-          )}
-          
-          {activeTagFilter && (
-            <Badge 
-              className="bg-blue-500"
-              onClick={() => onTagFilter(null)}
-            >
-              Tag: {activeTagFilter}
-              <span className="ml-1 cursor-pointer">×</span>
-            </Badge>
-          )}
-          
-          {activeFrequencyFilter !== 'all' && (
-            <Badge 
-              className="bg-indigo-500"
-              onClick={() => onFrequencyFilter('all')}
-            >
-              Frequency: {activeFrequencyFilter}Hz
-              <span className="ml-1 cursor-pointer">×</span>
-            </Badge>
-          )}
-          
+              {freq}Hz
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+      
+      {/* Entry Type Filter */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="border-gray-700/50 text-gray-300 flex items-center gap-1.5"
+          >
+            {activeTypeFilter ? getTypeIcon(activeTypeFilter) : <BookOpen className="h-3.5 w-3.5" />}
+            {activeTypeFilter ? 
+              (activeTypeFilter.charAt(0).toUpperCase() + activeTypeFilter.slice(1)) : 
+              "All Types"}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="bg-gray-900/90 backdrop-blur-md border-gray-700/50">
+          <DropdownMenuItem 
+            onClick={() => onTypeFilter(null)}
+            className="text-gray-300 focus:bg-gray-800/50 focus:text-white"
+          >
+            All Types
+          </DropdownMenuItem>
+          <DropdownMenuItem 
+            onClick={() => onTypeFilter('journal')}
+            className="text-gray-300 focus:bg-gray-800/50 focus:text-white"
+          >
+            <BookOpen className="h-3.5 w-3.5 mr-1.5" />
+            Journal
+          </DropdownMenuItem>
+          <DropdownMenuItem 
+            onClick={() => onTypeFilter('journey')}
+            className="text-gray-300 focus:bg-gray-800/50 focus:text-white"
+          >
+            <Calendar className="h-3.5 w-3.5 mr-1.5" />
+            Journey
+          </DropdownMenuItem>
+          <DropdownMenuItem 
+            onClick={() => onTypeFilter('music')}
+            className="text-gray-300 focus:bg-gray-800/50 focus:text-white"
+          >
+            <Music className="h-3.5 w-3.5 mr-1.5" />
+            Music
+          </DropdownMenuItem>
+          <DropdownMenuItem 
+            onClick={() => onTypeFilter('intention')}
+            className="text-gray-300 focus:bg-gray-800/50 focus:text-white"
+          >
+            <Circle className="h-3.5 w-3.5 mr-1.5" />
+            Intention
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      
+      {/* Active Filters Display */}
+      <div className="ml-auto flex items-center gap-2">
+        {(activeTagFilter || activeFrequencyFilter !== "all" || activeTypeFilter) && (
+          <div className="flex items-center gap-1.5">
+            {activeTagFilter && (
+              <Badge 
+                variant="outline" 
+                className="bg-blue-500/20 text-blue-200 border-blue-400/30 flex items-center gap-1"
+              >
+                Tag: {activeTagFilter}
+                <X 
+                  className="h-3 w-3 cursor-pointer" 
+                  onClick={() => onTagFilter(null)}
+                />
+              </Badge>
+            )}
+            
+            {activeFrequencyFilter !== "all" && (
+              <Badge 
+                variant="outline" 
+                className="bg-purple-500/20 text-purple-200 border-purple-400/30 flex items-center gap-1"
+              >
+                Freq: {activeFrequencyFilter}Hz
+                <X 
+                  className="h-3 w-3 cursor-pointer" 
+                  onClick={() => onFrequencyFilter("all")}
+                />
+              </Badge>
+            )}
+            
+            {activeTypeFilter && (
+              <Badge 
+                variant="outline" 
+                className="bg-green-500/20 text-green-200 border-green-400/30 flex items-center gap-1"
+              >
+                Type: {activeTypeFilter.charAt(0).toUpperCase() + activeTypeFilter.slice(1)}
+                <X 
+                  className="h-3 w-3 cursor-pointer" 
+                  onClick={() => onTypeFilter(null)}
+                />
+              </Badge>
+            )}
+          </div>
+        )}
+        
+        {(activeTagFilter || activeFrequencyFilter !== "all" || activeTypeFilter) && (
           <Button 
             variant="ghost" 
-            size="sm" 
-            className="text-xs text-gray-400 hover:text-gray-300"
+            size="sm"
             onClick={() => {
               onTagFilter(null);
-              onFrequencyFilter('all');
+              onFrequencyFilter("all");
               onTypeFilter(null);
             }}
+            className="text-gray-400 hover:text-gray-300 hover:bg-gray-800/30"
           >
-            Clear all filters
+            Clear All
           </Button>
-        </motion.div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
