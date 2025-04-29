@@ -129,7 +129,7 @@ export const useLightbearerProgress = () => {
         
         // Check if leveled up
         if (typeof data === 'object' && data !== null && 'leveled_up' in data) {
-          const responseData = data as LevelUpEvent;
+          const responseData = data as unknown as LevelUpEvent;
           const hasLeveledUp = responseData.leveled_up;
           
           if (hasLeveledUp) {
@@ -154,7 +154,7 @@ export const useLightbearerProgress = () => {
           }
         }
         
-        return data as LevelUpEvent;
+        return data as unknown as LevelUpEvent;
       }
       
       return null;

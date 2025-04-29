@@ -736,11 +736,14 @@ export type Database = {
       }
       profiles: {
         Row: {
+          ascension_title: string | null
           avatar_url: string | null
+          badges: string[] | null
           bio: string | null
           display_name: string | null
           earned_badges: string[] | null
           energy_level: number | null
+          frequency_signature: string | null
           full_name: string | null
           id: string
           initial_mood: string | null
@@ -748,16 +751,21 @@ export type Database = {
           last_level_up: string | null
           light_level: number | null
           light_points: number | null
+          lightbearer_level: number | null
           onboarding_completed: boolean | null
           primary_intention: string | null
+          soul_alignment: string | null
           updated_at: string | null
         }
         Insert: {
+          ascension_title?: string | null
           avatar_url?: string | null
+          badges?: string[] | null
           bio?: string | null
           display_name?: string | null
           earned_badges?: string[] | null
           energy_level?: number | null
+          frequency_signature?: string | null
           full_name?: string | null
           id: string
           initial_mood?: string | null
@@ -765,16 +773,21 @@ export type Database = {
           last_level_up?: string | null
           light_level?: number | null
           light_points?: number | null
+          lightbearer_level?: number | null
           onboarding_completed?: boolean | null
           primary_intention?: string | null
+          soul_alignment?: string | null
           updated_at?: string | null
         }
         Update: {
+          ascension_title?: string | null
           avatar_url?: string | null
+          badges?: string[] | null
           bio?: string | null
           display_name?: string | null
           earned_badges?: string[] | null
           energy_level?: number | null
+          frequency_signature?: string | null
           full_name?: string | null
           id?: string
           initial_mood?: string | null
@@ -782,8 +795,10 @@ export type Database = {
           last_level_up?: string | null
           light_level?: number | null
           light_points?: number | null
+          lightbearer_level?: number | null
           onboarding_completed?: boolean | null
           primary_intention?: string | null
+          soul_alignment?: string | null
           updated_at?: string | null
         }
         Relationships: []
