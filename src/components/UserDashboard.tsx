@@ -10,6 +10,8 @@ import {
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LoveDashboard from "@/components/heart-center/LoveDashboard";
+import SacredIdentityCard from "@/components/dashboard/SacredIdentityCard";
+import LightbearerStatsCard from "@/components/dashboard/LightbearerStatsCard";
 
 interface Intention {
   id: string;
@@ -158,6 +160,12 @@ const UserDashboard: React.FC = () => {
         </TabsList>
         
         <TabsContent value="main" className="mt-0 space-y-8">
+          {/* Sacred Identity and Lightbearer Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <SacredIdentityCard />
+            <LightbearerStatsCard />
+          </div>
+          
           <div className="grid grid-cols-4 gap-4">
             <Card className="border rounded-lg overflow-hidden">
               <CardContent className="p-6">
