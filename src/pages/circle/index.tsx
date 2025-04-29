@@ -2,6 +2,7 @@
 import React from 'react';
 import Layout from '@/components/Layout';
 import CircleFeed from '@/components/community/CircleFeed';
+import CircleProfile from '@/components/community/CircleProfile';
 import { CommunityProvider } from '@/contexts/CommunityContext';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 
@@ -21,6 +22,9 @@ const CircleHomePage: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Sidebar */}
               <div className="lg:col-span-1 space-y-6">
+                {/* User Profile */}
+                <CircleProfile />
+                
                 <Card className="ethereal-card">
                   <CardHeader>
                     <h2 className="text-xl font-semibold text-glow-purple">Sacred Circles</h2>
