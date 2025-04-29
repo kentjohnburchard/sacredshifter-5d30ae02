@@ -1,3 +1,4 @@
+
 import React from 'react';
 import BackgroundCanvas from './BackgroundCanvas';
 import GeometricPatterns from './GeometricPatterns';
@@ -43,37 +44,34 @@ const MathematicalBackground: React.FC<MathematicalBackgroundProps> = ({
     );
   }
   
-  // Enhanced logging for debugging
-  React.useEffect(() => {
-    console.log(`MathematicalBackground rendered with intensity: ${intensity}`);
-    console.log(`Using ${equations.length} equations and ${intensity === 'high' ? 7 : intensity === 'medium' ? 5 : 3} geometric patterns`);
-    console.log(`Current consciousness mode: ${liftTheVeil ? 'veil-lifted' : 'standard'}`);
-  }, [intensity, equations, liftTheVeil]);
-  
   return (
     <div className={`relative min-h-screen overflow-hidden bg-black ${liftTheVeil ? 'cosmic-background' : ''}`}>
       {/* Mathematical canvas background */}
       <BackgroundCanvas equations={equations} />
       
-      {/* Sacred Grid background */}
-      <SacredGridBackground 
-        intensity={liftTheVeil ? 2.5 : 1.8}
-        color={liftTheVeil ? '#FF70E9' : '#9b87f5'}
-        pulseSpeed={liftTheVeil ? 1.8 : 1.5}
-      />
+      {/* Sacred Grid background - enhancing visibility */}
+      <div className="absolute inset-0 opacity-70"> {/* Increased opacity */}
+        <SacredGridBackground 
+          intensity={liftTheVeil ? 0.9 : 0.8}
+          color={liftTheVeil ? '#FF70E9' : '#9b87f5'}
+          pulseSpeed={liftTheVeil ? 0.8 : 0.6}
+        />
+      </div>
       
       {/* Geometric patterns overlay with increased opacity */}
-      <GeometricPatterns 
-        triangleCount={intensity === 'high' ? 9 : intensity === 'medium' ? 7 : 5}
-        circleCount={intensity === 'high' ? 9 : intensity === 'medium' ? 7 : 5}
-        squareCount={intensity === 'high' ? 9 : intensity === 'medium' ? 7 : 5}
-      />
+      <div className="absolute inset-0 opacity-60"> {/* Increased opacity */}
+        <GeometricPatterns 
+          triangleCount={intensity === 'high' ? 9 : intensity === 'medium' ? 7 : 5}
+          circleCount={intensity === 'high' ? 9 : intensity === 'medium' ? 7 : 5}
+          squareCount={intensity === 'high' ? 9 : intensity === 'medium' ? 7 : 5}
+        />
+      </div>
       
       {/* Enhanced gradient overlay for better contrast */}
       <div className={`absolute inset-0 bg-gradient-to-b ${
         liftTheVeil 
-          ? 'from-pink-900/30 via-transparent to-fuchsia-900/30' 
-          : 'from-black/30 via-transparent to-black/30'
+          ? 'from-pink-900/35 via-transparent to-fuchsia-900/35' 
+          : 'from-black/35 via-transparent to-black/35'
       } pointer-events-none`}></div>
       
       {/* Added cosmic effects when veil is lifted */}

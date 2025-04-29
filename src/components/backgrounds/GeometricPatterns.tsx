@@ -58,7 +58,7 @@ const GeometricPatterns: React.FC<GeometricPatternsProps> = ({
       <motion.div
         className="absolute inset-0"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 0.55 }}
+        animate={{ opacity: 0.75 }}  // Increased from 0.55
       >
         {/* Triangles */}
         {triangles.map((props, i) => (
@@ -77,7 +77,7 @@ const GeometricPatterns: React.FC<GeometricPatternsProps> = ({
             fill="none"
             animate={{
               rotate: [0, props.rotateDir * 360, 0],
-              opacity: [0.88, 0.66, 0.86],
+              opacity: [0.92, 0.75, 0.90],  // Increased opacity
               x: [0, props.rotateDir * 16, 0],
               y: [0, props.rotateDir * -20, 0],
               scale: [1, 1.12, 1],
@@ -95,8 +95,8 @@ const GeometricPatterns: React.FC<GeometricPatternsProps> = ({
               points="50,18 92,87 8,87"
               fill="none"
               stroke={SHAPE_COLOR}
-              strokeWidth="3.2"
-              opacity="0.93"
+              strokeWidth="3.5"  // Increased from 3.2
+              opacity="0.97"  // Increased from 0.93
               strokeLinejoin="bevel"
             />
           </motion.svg>
@@ -118,7 +118,7 @@ const GeometricPatterns: React.FC<GeometricPatternsProps> = ({
             fill="none"
             animate={{
               rotate: [0, props.rotateDir * 360, 0],
-              opacity: [0.87, 0.63, 0.82],
+              opacity: [0.92, 0.72, 0.88],  // Increased opacity
               x: [0, props.rotateDir * 10, 0],
               y: [0, props.rotateDir * 11, 0],
               scale: [1, 1.08, 1],
@@ -138,8 +138,8 @@ const GeometricPatterns: React.FC<GeometricPatternsProps> = ({
               r="38"
               fill="none"
               stroke={SHAPE_COLOR}
-              strokeWidth="2.8"
-              opacity="0.90"
+              strokeWidth="3.2"  // Increased from 2.8
+              opacity="0.96"  // Increased from 0.90
             />
           </motion.svg>
         ))}
@@ -160,7 +160,7 @@ const GeometricPatterns: React.FC<GeometricPatternsProps> = ({
             fill="none"
             animate={{
               rotate: [0, props.rotateDir * 360, 0],
-              opacity: [0.88, 0.71, 0.84],
+              opacity: [0.92, 0.78, 0.88],  // Increased opacity
               x: [0, props.rotateDir * -6, 0],
               y: [0, props.rotateDir * 12, 0],
               scale: [1, 1.09, 1],
@@ -181,8 +181,8 @@ const GeometricPatterns: React.FC<GeometricPatternsProps> = ({
               height="74"
               fill="none"
               stroke={SHAPE_COLOR}
-              strokeWidth="2.9"
-              opacity="0.91"
+              strokeWidth="3.2"  // Increased from 2.9
+              opacity="0.95"  // Increased from 0.91
               rx="11"
             />
           </motion.svg>
