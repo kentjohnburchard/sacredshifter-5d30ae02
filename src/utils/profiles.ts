@@ -1,19 +1,8 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { ExtendedProfile } from "@/types/supabaseCustomTypes";
 
-export type ProfileType = {
-  id: string;
-  full_name: string | null;
-  display_name: string | null;
-  bio: string | null;
-  avatar_url: string | null;
-  onboarding_completed: boolean;
-  initial_mood: string | null;
-  primary_intention: string | null;
-  energy_level: number | null;
-  interests: string[] | null;
-  updated_at: string;
-};
+export type ProfileType = ExtendedProfile;
 
 export const fetchProfile = async (userId: string): Promise<ProfileType> => {
   try {

@@ -13,6 +13,7 @@ import { updateProfile } from "@/utils/profiles";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { OnboardingData, convertOnboardingDataToProfile } from "@/types/supabaseCustomTypes";
 
 const moods = [
   { value: "peaceful", label: "Peaceful", color: "bg-blue-100 border-blue-300" },
@@ -81,6 +82,15 @@ const Onboarding: React.FC = () => {
     setLoading(true);
     
     try {
+      const onboardingData: OnboardingData = {
+        displayName: name,
+        pathChoices: interests,
+        sacredBio: customIntention || intention,
+        onboardingComplete: true
+      };
+      
+      const profileUpdates = convertOnboardingDataToProfile(user.id, onboardingData);
+      
       await updateProfile(user.id, {
         display_name: name,
         initial_mood: mood,
