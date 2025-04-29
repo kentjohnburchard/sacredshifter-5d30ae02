@@ -23,6 +23,7 @@ const SacredIdentityCard: React.FC = () => {
       try {
         setLoading(true);
         const userProfile = await fetchProfile(user.id);
+        console.log("Fetched profile:", userProfile);
         setProfile(userProfile);
       } catch (error) {
         console.error("Error loading profile:", error);
@@ -33,27 +34,34 @@ const SacredIdentityCard: React.FC = () => {
     
     loadProfile();
   }, [user]);
-  
+
+  // Enhanced placeholder while loading
   if (loading) {
     return (
-      <Card className="h-full border-white/20 bg-gradient-to-br from-indigo-500/5 to-purple-500/5">
-        <CardContent className="p-6 flex justify-center items-center h-[200px]">
-          <div className="text-muted-foreground">Loading profile...</div>
+      <Card className="h-full border-white/20 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 animate-pulse">
+        <CardHeader className="p-6">
+          <CardTitle className="flex items-center gap-2 font-playfair">
+            <CircleUser className="h-5 w-5 text-indigo-400" />
+            Sacred Identity
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 pt-0">
+          <div className="h-[200px] flex flex-col justify-center items-center">
+            <div className="w-32 h-6 bg-indigo-200/20 rounded mb-3"></div>
+            <div className="w-24 h-4 bg-indigo-200/10 rounded mb-6"></div>
+            <div className="w-full h-16 bg-indigo-200/10 rounded"></div>
+          </div>
         </CardContent>
       </Card>
     );
   }
   
-  // Add a fallback in case profile is null
-  if (!profile) {
-    return (
-      <Card className="h-full border-white/20 bg-gradient-to-br from-indigo-500/5 to-purple-500/5">
-        <CardContent className="p-6 flex justify-center items-center h-[200px]">
-          <div className="text-muted-foreground">Profile not available</div>
-        </CardContent>
-      </Card>
-    );
-  }
+  // Default display if no profile
+  const displayName = profile?.display_name || "Sacred Explorer";
+  const fullName = profile?.full_name;
+  const bio = profile?.bio;
+  const interests = profile?.interests || [];
+  const primaryIntention = profile?.primary_intention;
   
   return (
     <Card className="h-full overflow-hidden border-white/20 bg-gradient-to-br from-indigo-500/5 to-purple-500/5">
@@ -69,7 +77,6 @@ const SacredIdentityCard: React.FC = () => {
         <div className="relative">
           {/* Background sacred geometry pattern (subtle) */}
           <div className="absolute inset-0 opacity-5 pointer-events-none">
-            {/* Since the image path is likely invalid, let's use a CSS gradient as a fallback */}
             <div className="w-full h-full bg-gradient-to-r from-indigo-500/5 via-purple-500/5 to-indigo-500/5" />
           </div>
           
@@ -83,19 +90,19 @@ const SacredIdentityCard: React.FC = () => {
               className="mb-3"
             >
               <h3 className="text-2xl font-playfair font-medium bg-clip-text text-transparent bg-gradient-to-r from-indigo-300 to-purple-300">
-                {profile.display_name || "Sacred Explorer"}
+                {displayName}
               </h3>
               
               {/* Real name (if available) */}
-              {profile.full_name && (
+              {fullName && (
                 <p className="text-sm text-gray-400 mt-1">
-                  {profile.full_name}
+                  {fullName}
                 </p>
               )}
             </motion.div>
             
             {/* Sacred Bio */}
-            {profile.bio && (
+            {bio ? (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -103,13 +110,24 @@ const SacredIdentityCard: React.FC = () => {
                 className="mb-4"
               >
                 <div className="italic text-sm text-gray-300 border-l-2 border-purple-400/30 pl-3 py-1">
-                  &ldquo;{profile.bio}&rdquo;
+                  &ldquo;{bio}&rdquo;
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="mb-4"
+              >
+                <div className="italic text-sm text-gray-400 border-l-2 border-purple-400/30 pl-3 py-1">
+                  &ldquo;Begin your sacred journey by setting your intentions&rdquo;
                 </div>
               </motion.div>
             )}
             
             {/* Interests/Paths */}
-            {profile.interests && profile.interests.length > 0 && (
+            {interests && interests.length > 0 ? (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -118,17 +136,37 @@ const SacredIdentityCard: React.FC = () => {
               >
                 <p className="text-xs text-gray-400 mb-2">Sacred Paths:</p>
                 <div className="flex flex-wrap gap-2">
-                  {profile.interests.map((interest, index) => (
+                  {interests.map((interest, index) => (
                     <Badge key={index} variant="secondary" className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-200">
                       {interest}
                     </Badge>
                   ))}
                 </div>
               </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="mt-4"
+              >
+                <p className="text-xs text-gray-400 mb-2">Suggested Paths:</p>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary" className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-200/70">
+                    Meditation
+                  </Badge>
+                  <Badge variant="secondary" className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-200/70">
+                    Frequency Healing
+                  </Badge>
+                  <Badge variant="secondary" className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-200/70">
+                    Sacred Sound
+                  </Badge>
+                </div>
+              </motion.div>
             )}
             
             {/* Primary intention */}
-            {profile.primary_intention && (
+            {primaryIntention ? (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -136,7 +174,17 @@ const SacredIdentityCard: React.FC = () => {
                 className="mt-4"
               >
                 <p className="text-xs text-gray-400">Current Intention:</p>
-                <p className="text-sm text-indigo-200">{profile.primary_intention}</p>
+                <p className="text-sm text-indigo-200">{primaryIntention}</p>
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="mt-4"
+              >
+                <p className="text-xs text-gray-400">Intention:</p>
+                <p className="text-sm text-indigo-200/60">Set an intention in the Energy Check section</p>
               </motion.div>
             )}
           </div>

@@ -94,10 +94,14 @@ const LightbearerStatsCard: React.FC = () => {
   
   useEffect(() => {
     const fetchLightbearerStats = async () => {
-      if (!user) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
       
       try {
         setLoading(true);
+        console.log("Fetching lightbearer stats for user:", user.id);
         
         // Fetch timeline entries count (posts)
         const { data: timelineData, error: timelineError } = await supabase
@@ -105,7 +109,9 @@ const LightbearerStatsCard: React.FC = () => {
           .select('id')
           .eq('user_id', user.id);
           
-        if (timelineError) throw timelineError;
+        if (timelineError) {
+          console.error("Error fetching timeline data:", timelineError);
+        }
         
         // Fetch sessions count
         const { data: sessionsData, error: sessionsError } = await supabase
@@ -113,11 +119,15 @@ const LightbearerStatsCard: React.FC = () => {
           .select('id')
           .eq('user_id', user.id);
           
-        if (sessionsError) throw sessionsError;
+        if (sessionsError) {
+          console.error("Error fetching sessions data:", sessionsError);
+        }
         
         // Calculate stats
         const postCount = timelineData?.length || 0;
         const sessionsCount = sessionsData?.length || 0;
+        
+        console.log("Stats fetched - Posts:", postCount, "Sessions:", sessionsCount);
         
         // Calculate light level (1-10 based on combined activity)
         const totalActivity = postCount + sessionsCount;
@@ -148,7 +158,7 @@ const LightbearerStatsCard: React.FC = () => {
     };
     
     fetchLightbearerStats();
-  }, [user]);
+  }, [user, badges]);
   
   // Find next badge milestone
   const nextMilestone = badges.find(badge => !badge.unlocked);
@@ -161,18 +171,34 @@ const LightbearerStatsCard: React.FC = () => {
     return `${remaining} more to earn "${nextMilestone.name}"`;
   };
   
+  // Enhanced loading state
   if (loading) {
     return (
-      <Card className="h-full border-white/20 bg-gradient-to-br from-indigo-500/5 to-purple-500/5">
-        <CardContent className="p-6 flex justify-center items-center h-[200px]">
-          <div className="text-muted-foreground">Loading stats...</div>
+      <Card className="h-full border-white/20 bg-gradient-to-br from-amber-500/5 to-orange-500/5 animate-pulse">
+        <CardHeader className="p-6">
+          <CardTitle className="flex items-center gap-2 font-playfair">
+            <Star className="h-5 w-5 text-amber-400" />
+            Lightbearer Stats
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 pt-0">
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="rounded-lg bg-amber-500/10 p-4 h-24"></div>
+            <div className="rounded-lg bg-indigo-500/10 p-4 h-24"></div>
+            <div className="rounded-lg bg-purple-500/10 p-4 h-24"></div>
+          </div>
+          <div className="flex justify-around mt-8">
+            <div className="w-12 h-12 rounded-full bg-gray-800/40"></div>
+            <div className="w-12 h-12 rounded-full bg-gray-800/40"></div>
+            <div className="w-12 h-12 rounded-full bg-gray-800/40"></div>
+          </div>
         </CardContent>
       </Card>
     );
   }
   
   return (
-    <Card className="h-full overflow-hidden border-white/20 bg-gradient-to-br from-indigo-500/5 to-purple-500/5">
+    <Card className="h-full overflow-hidden border-white/20 bg-gradient-to-br from-amber-500/5 to-orange-500/5">
       <div className="h-1 bg-gradient-to-r from-amber-500/60 to-orange-500/60" />
       <CardHeader className="p-6">
         <CardTitle className="flex items-center gap-2 font-playfair">

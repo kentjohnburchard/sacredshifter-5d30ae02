@@ -33,6 +33,8 @@ const UserDashboard: React.FC = () => {
       if (!user) return;
       
       try {
+        console.log("Fetching user stats for dashboard...");
+        
         const { data: timelineEntries, error: timelineError } = await supabase
           .from('timeline_snapshots')
           .select('id')
@@ -135,6 +137,7 @@ const UserDashboard: React.FC = () => {
           setDayStreak(activityDays.size);
         }
         
+        console.log("User dashboard stats loaded successfully");
       } catch (error) {
         console.error("Error fetching user stats:", error);
         toast.error("Failed to load user statistics");
@@ -160,13 +163,14 @@ const UserDashboard: React.FC = () => {
         </TabsList>
         
         <TabsContent value="main" className="mt-0 space-y-8">
-          {/* Sacred Identity and Lightbearer Stats Cards */}
+          {/* Sacred Identity and Lightbearer Stats Cards - Prominently displayed at the top */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SacredIdentityCard />
             <LightbearerStatsCard />
           </div>
           
-          <div className="grid grid-cols-4 gap-4">
+          {/* Original dashboard stats */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card className="border rounded-lg overflow-hidden">
               <CardContent className="p-6">
                 <div className="flex justify-between items-center mb-2">
