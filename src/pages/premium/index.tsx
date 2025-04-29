@@ -30,9 +30,9 @@ const PremiumHomePage: React.FC = () => {
                   </div>
                   <h3 className="text-xl font-medium text-glow-pink mb-2">{feature}</h3>
                   <p className="text-sm text-gray-300">Unlock your consciousness with premium tools and guidance.</p>
-                </CardContent>
-              </Card>
-            ))}
+                </Card>
+              ))}
+            </div>
             
             <div className="mb-12">
               <Card className="ethereal-card veil-mode overflow-hidden">
