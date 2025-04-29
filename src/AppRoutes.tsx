@@ -34,12 +34,13 @@ import SacredShifterWhat from './pages/SacredShifterWhat';
 import SacredShifterWhy from './pages/SacredShifterWhy';
 import SacredShifterHow from './pages/SacredShifterHow';
 import Admin from './pages/Admin';
-import ComingSoon from './pages/ComingSoon';
 import JourneyAudioManager from './components/admin/JourneyAudioManager';
 import JourneyAudioMappingsViewer from './pages/admin/JourneyAudioMappingsViewer';
 import AdminPagesCanvas from './pages/admin/AdminPagesCanvas';
 import ProtectedRoute from './components/ProtectedRoute';
 import Soundscapes from './pages/Soundscapes';
+import CircleHomePage from './pages/circle/index';
+import PremiumHomePage from './pages/premium/index';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -111,6 +112,17 @@ const AppRoutes: React.FC = () => {
         <Route path="/about/why" element={<SacredShifterWhy />} />
         <Route path="/about/how" element={<SacredShifterHow />} />
         <Route path="/soundscapes" element={<Soundscapes />} />
+        
+        {/* Sacred Circle Community Routes */}
+        <Route path="/circle" element={<CircleHomePage />} />
+        
+        {/* Premium Ascended Path Routes */}
+        <Route path="/premium" element={
+          <ProtectedRoute>
+            <PremiumHomePage />
+          </ProtectedRoute>
+        } />
+        
         <Route path="/admin" element={
           <ProtectedRoute>
             <Admin />

@@ -1,110 +1,75 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import Layout from '@/components/Layout';
 import { Link } from 'react-router-dom';
-import SacredGridBackground from '@/components/visualization/SacredGridBackground';
-import { Sparkles, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { Button } from '@/components/ui/button';
+import SacredGridBackground from '@/components/visualization/SacredGridBackground';
+import { Card, CardContent } from '@/components/ui/card';
 
-const ComingSoon = () => {
+const ComingSoon: React.FC = () => {
   const { user } = useAuth();
-  
+
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-black">
-      {/* Sacred geometry background */}
-      <div className="absolute inset-0 opacity-40">
+    <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
+      {/* Enhanced Sacred Grid Background */}
+      <div className="absolute inset-0 z-0 opacity-80">
         <SacredGridBackground 
-          intensity={0.3}
-          color="#9b87f5"
-          pulseSpeed={0.5}
+          intensity={0.8}
+          color={'#9b87f5'}
+          pulseSpeed={0.7}
         />
       </div>
-      
+
       {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/60" />
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/60 via-transparent to-black/60 pointer-events-none" />
       
-      {/* Content */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2 }}
-          className="max-w-4xl"
-        >
-          {/* Logo */}
-          <motion.img
-            src="/lovable-uploads/6dafef18-8a06-46e1-bc1b-2325f13a67f7.png"
-            alt="Sacred Shifter"
-            className="mx-auto mb-12 h-32 w-auto"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 1.5, delay: 0.3 }}
-          />
-          
-          {/* Main headline */}
-          <motion.h1 
-            className="mb-8 font-playfair text-4xl font-light tracking-wide text-white md:text-5xl lg:text-6xl"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.5 }}
-          >
-            A Sacred Journey Awaits
-          </motion.h1>
-          
-          {/* Sub headline */}
-          <motion.p 
-            className="mb-12 text-xl text-gray-300 md:text-2xl"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.8 }}
-          >
-            Weaving ancient wisdom with vibrational remembrance
-          </motion.p>
-          
-          {/* Description */}
-          <motion.div
-            className="mb-16 space-y-6 text-lg text-gray-400"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 1.1 }}
-          >
-            <p>
-              Experience transformative healing journeys through sacred sound resonance
-            </p>
-            <p>
-              Expand your consciousness through harmonious frequencies
-            </p>
-          </motion.div>
-          
-          {/* Coming soon badge */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 1.4 }}
-            className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-black/50 px-6 py-3 text-purple-300 backdrop-blur-sm"
-          >
-            <Sparkles className="h-5 w-5" />
-            <span className="text-lg font-light tracking-wider">Awakening Begins Soon</span>
-          </motion.div>
-          
-          {/* Admin access link - only visible to logged in users */}
-          {user && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 1, delay: 1.8 }}
-              className="mt-12"
-            >
-              <Link 
-                to="/home" 
-                className="inline-flex items-center gap-2 rounded-md border border-purple-500/30 bg-black/70 px-4 py-2 text-purple-300 hover:bg-black/90 hover:text-purple-200 backdrop-blur-sm transition-all duration-300"
-              >
-                <span className="text-sm font-light tracking-wider">Enter Site</span>
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </motion.div>
-          )}
-        </motion.div>
+      <div className="relative z-10 max-w-3xl w-full px-4">
+        <Card className="ethereal-card p-8 text-center">
+          <CardContent className="space-y-6">
+            <div className="text-center space-y-4">
+              <h1 className="text-4xl md:text-6xl font-bold text-glow-purple">
+                Sacred Shifter
+              </h1>
+              <p className="text-xl md:text-2xl text-glow-light">
+                Coming Soon
+              </p>
+              <p className="text-lg text-white/90 mt-4 max-w-lg mx-auto">
+                A sacred journey to elevate your consciousness through frequency, geometry and divine wisdom.
+              </p>
+            </div>
+            
+            <div className="space-y-2 pt-4">
+              <p className="text-purple-300">Be the first to experience Sacred Shifter</p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4">
+                <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                  Join the Waiting List
+                </Button>
+                
+                <Button variant="outline" className="border-purple-500/30 hover:bg-purple-500/10">
+                  Learn More
+                </Button>
+              </div>
+            </div>
+            
+            {user && (
+              <div className="pt-6 border-t border-purple-500/20 mt-6">
+                <p className="text-sm text-purple-300 mb-3">Developer Preview Links</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-center">
+                  <Link to="/home" className="text-sm py-2 px-3 rounded bg-purple-900/30 hover:bg-purple-900/50 transition">
+                    Home Preview
+                  </Link>
+                  <Link to="/circle" className="text-sm py-2 px-3 rounded bg-purple-900/30 hover:bg-purple-900/50 transition">
+                    Sacred Circle
+                  </Link>
+                  <Link to="/premium" className="text-sm py-2 px-3 rounded bg-purple-900/30 hover:bg-purple-900/50 transition">
+                    Ascended Path
+                  </Link>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
