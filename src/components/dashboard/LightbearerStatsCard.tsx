@@ -20,6 +20,7 @@ interface BadgeMetadata {
 const LightbearerStatsCard: React.FC = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [lightLevel, setLightLevel] = useState(1);
   const [postsCount, setPostsCount] = useState(0);
   const [rippleReach, setRippleReach] = useState(0);
@@ -95,13 +96,14 @@ const LightbearerStatsCard: React.FC = () => {
   useEffect(() => {
     const fetchLightbearerStats = async () => {
       if (!user) {
+        console.log("LightbearerStatsCard: No user found");
         setLoading(false);
         return;
       }
       
       try {
         setLoading(true);
-        console.log("Fetching lightbearer stats for user:", user.id);
+        console.log("LightbearerStatsCard: Fetching stats for user:", user.id);
         
         // Fetch timeline entries count (posts)
         const { data: timelineData, error: timelineError } = await supabase
@@ -127,7 +129,7 @@ const LightbearerStatsCard: React.FC = () => {
         const postCount = timelineData?.length || 0;
         const sessionsCount = sessionsData?.length || 0;
         
-        console.log("Stats fetched - Posts:", postCount, "Sessions:", sessionsCount);
+        console.log("LightbearerStatsCard: Stats fetched - Posts:", postCount, "Sessions:", sessionsCount);
         
         // Calculate light level (1-10 based on combined activity)
         const totalActivity = postCount + sessionsCount;
@@ -151,7 +153,8 @@ const LightbearerStatsCard: React.FC = () => {
         setBadges(updatedBadges);
         
       } catch (error) {
-        console.error("Error fetching lightbearer stats:", error);
+        console.error("LightbearerStatsCard: Error fetching stats:", error);
+        setError("Failed to load lightbearer stats");
       } finally {
         setLoading(false);
       }
@@ -159,6 +162,8 @@ const LightbearerStatsCard: React.FC = () => {
     
     fetchLightbearerStats();
   }, [user, badges]);
+
+  console.log("LightbearerStatsCard rendering with stats:", { lightLevel, postsCount, rippleReach }, "loading:", loading, "error:", error);
   
   // Find next badge milestone
   const nextMilestone = badges.find(badge => !badge.unlocked);
@@ -174,7 +179,7 @@ const LightbearerStatsCard: React.FC = () => {
   // Enhanced loading state
   if (loading) {
     return (
-      <Card className="h-full border-white/20 bg-gradient-to-br from-amber-500/5 to-orange-500/5 animate-pulse">
+      <Card className="h-full border-white/20 bg-gradient-to-br from-amber-500/5 to-orange-500/5">
         <CardHeader className="p-6">
           <CardTitle className="flex items-center gap-2 font-playfair">
             <Star className="h-5 w-5 text-amber-400" />
@@ -183,14 +188,33 @@ const LightbearerStatsCard: React.FC = () => {
         </CardHeader>
         <CardContent className="p-6 pt-0">
           <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="rounded-lg bg-amber-500/10 p-4 h-24"></div>
-            <div className="rounded-lg bg-indigo-500/10 p-4 h-24"></div>
-            <div className="rounded-lg bg-purple-500/10 p-4 h-24"></div>
+            <div className="rounded-lg bg-amber-500/10 p-4 h-24 animate-pulse"></div>
+            <div className="rounded-lg bg-indigo-500/10 p-4 h-24 animate-pulse"></div>
+            <div className="rounded-lg bg-purple-500/10 p-4 h-24 animate-pulse"></div>
           </div>
           <div className="flex justify-around mt-8">
-            <div className="w-12 h-12 rounded-full bg-gray-800/40"></div>
-            <div className="w-12 h-12 rounded-full bg-gray-800/40"></div>
-            <div className="w-12 h-12 rounded-full bg-gray-800/40"></div>
+            <div className="w-12 h-12 rounded-full bg-gray-800/40 animate-pulse"></div>
+            <div className="w-12 h-12 rounded-full bg-gray-800/40 animate-pulse"></div>
+            <div className="w-12 h-12 rounded-full bg-gray-800/40 animate-pulse"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="h-full border-white/20 bg-gradient-to-br from-red-500/5 to-amber-500/5">
+        <CardHeader className="p-6">
+          <CardTitle className="flex items-center gap-2 font-playfair">
+            <Star className="h-5 w-5 text-amber-400" />
+            Lightbearer Stats
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 pt-0">
+          <div className="h-[200px] flex flex-col justify-center items-center text-center">
+            <p className="text-amber-300">{error}</p>
+            <p className="text-gray-400 text-sm mt-2">Don't worry, your light still shines</p>
           </div>
         </CardContent>
       </Card>

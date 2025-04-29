@@ -30,14 +30,14 @@ export const fetchProfile = async (userId: string): Promise<ProfileType> => {
     const defaultProfile: ProfileType = {
       id: userId,
       full_name: null,
-      display_name: null,
+      display_name: "Sacred Explorer",
       bio: null,
       avatar_url: null,
       onboarding_completed: false,
       initial_mood: null,
       primary_intention: null,
       energy_level: null,
-      interests: null,
+      interests: ["Meditation", "Sound Healing"],
       updated_at: new Date().toISOString()
     };
     

@@ -12,21 +12,25 @@ const SacredIdentityCard: React.FC = () => {
   const { user } = useAuth();
   const [profile, setProfile] = useState<ProfileType | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
     const loadProfile = async () => {
       if (!user) {
+        console.log("SacredIdentityCard: No user found");
         setLoading(false);
         return;
       }
       
       try {
         setLoading(true);
+        console.log("SacredIdentityCard: Fetching profile for user:", user.id);
         const userProfile = await fetchProfile(user.id);
-        console.log("Fetched profile:", userProfile);
+        console.log("SacredIdentityCard: Fetched profile:", userProfile);
         setProfile(userProfile);
       } catch (error) {
-        console.error("Error loading profile:", error);
+        console.error("SacredIdentityCard: Error loading profile:", error);
+        setError("Failed to load your sacred identity");
       } finally {
         setLoading(false);
       }
@@ -35,10 +39,12 @@ const SacredIdentityCard: React.FC = () => {
     loadProfile();
   }, [user]);
 
+  console.log("SacredIdentityCard rendering with profile:", profile, "loading:", loading, "error:", error);
+
   // Enhanced placeholder while loading
   if (loading) {
     return (
-      <Card className="h-full border-white/20 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 animate-pulse">
+      <Card className="h-full border-white/20 bg-gradient-to-br from-indigo-500/5 to-purple-500/5">
         <CardHeader className="p-6">
           <CardTitle className="flex items-center gap-2 font-playfair">
             <CircleUser className="h-5 w-5 text-indigo-400" />
@@ -47,9 +53,28 @@ const SacredIdentityCard: React.FC = () => {
         </CardHeader>
         <CardContent className="p-6 pt-0">
           <div className="h-[200px] flex flex-col justify-center items-center">
-            <div className="w-32 h-6 bg-indigo-200/20 rounded mb-3"></div>
-            <div className="w-24 h-4 bg-indigo-200/10 rounded mb-6"></div>
-            <div className="w-full h-16 bg-indigo-200/10 rounded"></div>
+            <div className="w-32 h-6 bg-indigo-200/20 rounded mb-3 animate-pulse"></div>
+            <div className="w-24 h-4 bg-indigo-200/10 rounded mb-6 animate-pulse"></div>
+            <div className="w-full h-16 bg-indigo-200/10 rounded animate-pulse"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="h-full border-white/20 bg-gradient-to-br from-red-500/5 to-pink-500/5">
+        <CardHeader className="p-6">
+          <CardTitle className="flex items-center gap-2 font-playfair">
+            <CircleUser className="h-5 w-5 text-red-400" />
+            Sacred Identity
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 pt-0">
+          <div className="h-[200px] flex flex-col justify-center items-center text-center">
+            <p className="text-red-300">{error}</p>
+            <p className="text-gray-400 text-sm mt-2">Don't worry, you can continue your journey</p>
           </div>
         </CardContent>
       </Card>
