@@ -49,12 +49,12 @@ const TrinityGateway: React.FC = () => {
   return (
     <Layout pageTitle="Trinity Gateway™">
       <div className="container mx-auto px-4 py-12">
-        <h1 className="text-4xl font-bold mb-6 text-center text-white">Trinity Gateway™</h1>
-        <p className="text-lg text-center text-gray-300 mb-12 max-w-3xl mx-auto">
+        <h1 className="text-4xl font-bold mb-6 text-center text-white text-contrast-high">Trinity Gateway™</h1>
+        <p className="text-lg text-center text-gray-100 mb-12 max-w-3xl mx-auto">
           Access the power of the trinity principles for spiritual transformation.
         </p>
         
-        <Card className="bg-black/40 border-purple-500/20 backdrop-blur-md p-6 max-w-4xl mx-auto">
+        <Card className="bg-black/60 border-purple-500/30 backdrop-blur-md p-6 max-w-4xl mx-auto shadow-lg">
           <TrinityJourney>
             {currentStage === 'intro' && (
               <TrinityIntro onStart={handleStartJourney} />

@@ -36,20 +36,20 @@ const PremiumContent: React.FC<PremiumContentProps> = ({
   }
   
   return (
-    <div className="flex flex-col items-center justify-center p-8 border border-dashed rounded-lg bg-black/40 backdrop-blur-sm text-center">
-      <Lock className="w-10 h-10 mb-3 text-gray-400" />
-      <p className="mb-4 text-gray-300">{fallbackMessage}</p>
+    <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg bg-black/60 backdrop-blur-sm text-center shadow-inner">
+      <Lock className="w-10 h-10 mb-3 text-gray-300" />
+      <p className="mb-4 text-white font-medium">{fallbackMessage}</p>
       
       {requireLiftedVeil && !liftTheVeil && (
-        <p className="mb-4 text-sm text-gray-400">
+        <p className="mb-4 text-sm text-gray-300">
           Toggle "Veil Lifted" mode in the top right corner to see beyond the veil.
         </p>
       )}
       
       {requireSubscription && !isPremiumUser() && redirectToSubscription && (
         <Button 
-          variant="secondary" 
-          className="mt-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
+          variant="gradient"
+          className="mt-2 shadow-lg"
           onClick={() => window.location.href = '/subscription'}
         >
           Upgrade Your Experience
