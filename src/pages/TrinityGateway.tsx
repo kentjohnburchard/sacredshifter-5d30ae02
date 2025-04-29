@@ -36,6 +36,16 @@ const TrinityGateway: React.FC = () => {
     setSelectedElements([]);
   };
   
+  // Handler for setting intention in Phase 2
+  const handleSetIntention = (newIntention: string) => {
+    setIntention(newIntention);
+  };
+  
+  // Handler for selecting elements in Phase 2
+  const handleSelectElements = (elements: string[]) => {
+    setSelectedElements(elements);
+  };
+  
   return (
     <Layout pageTitle="Trinity Gateway™">
       <div className="container mx-auto px-4 py-12">
@@ -53,14 +63,15 @@ const TrinityGateway: React.FC = () => {
               <TrinityPhase1 onComplete={handleCompletePhase1} skipPhase={() => setCurrentStage('phase2')} />
             )}
             {currentStage === 'phase2' && (
-              <TrinityPhase2 onComplete={handleCompletePhase2} skipPhase={() => setCurrentStage('phase3')} />
+              <TrinityPhase2 
+                onComplete={handleCompletePhase2} 
+                skipPhase={() => setCurrentStage('phase3')}
+                onSetIntention={handleSetIntention}
+                onSelectElements={handleSelectElements}
+              />
             )}
             {currentStage === 'phase3' && (
-              <TrinityPhase3 
-                onComplete={handleCompletePhase3} 
-                setIntention={setIntention}
-                setSelectedElements={setSelectedElements}
-              />
+              <TrinityPhase3 onComplete={handleCompletePhase3} />
             )}
             {currentStage === 'activation' && (
               <TrinityActivation 
