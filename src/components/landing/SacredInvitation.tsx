@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Users, Star, Music } from 'lucide-react';
@@ -101,7 +100,7 @@ const SacredInvitation: React.FC = () => {
       </div>
       
       {/* Accessibility Support */}
-      <style jsx="false">{`
+      <style>{`
         @media (prefers-reduced-motion: reduce) {
           .motion-reduce {
             animation: none !important;

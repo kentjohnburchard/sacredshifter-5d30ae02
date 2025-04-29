@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Heart } from 'lucide-react';
@@ -171,7 +170,7 @@ const HeroSection: React.FC = () => {
       </div>
       
       {/* Accessibility Support */}
-      <style jsx="false">{`
+      <style>{`
         @media (prefers-reduced-motion: reduce) {
           .motion-reduce {
             animation: none !important;

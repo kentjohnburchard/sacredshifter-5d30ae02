@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -137,7 +136,7 @@ const CosmicFooter: React.FC = () => {
       </div>
       
       {/* Accessibility Support */}
-      <style jsx="false">{`
+      <style>{`
         @media (prefers-reduced-motion: reduce) {
           .motion-reduce {
             animation: none !important;

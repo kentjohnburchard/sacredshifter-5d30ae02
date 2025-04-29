@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
@@ -131,7 +130,7 @@ const LightBearers: React.FC = () => {
       </div>
       
       {/* Accessibility Support */}
-      <style jsx="false">{`
+      <style>{`
         @media (prefers-reduced-motion: reduce) {
           .motion-reduce {
             animation: none !important;

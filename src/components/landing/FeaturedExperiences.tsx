@@ -137,7 +137,7 @@ const FeaturedExperiences: React.FC = () => {
       </div>
       
       {/* Accessibility Support */}
-      <style jsx="false">{`
+      <style>{`
         @media (prefers-reduced-motion: reduce) {
           .motion-reduce {
             animation: none !important;
