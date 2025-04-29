@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,11 +54,20 @@ const ValeAIGuide: React.FC = () => {
         if (error) throw error;
         
         if (profile) {
+          // Ensure soul_alignment is one of the allowed values
+          let alignmentValue: 'Light' | 'Shadow' | 'Unity' | undefined = undefined;
+          
+          if (profile.soul_alignment === 'Light' || 
+              profile.soul_alignment === 'Shadow' || 
+              profile.soul_alignment === 'Unity') {
+            alignmentValue = profile.soul_alignment as 'Light' | 'Shadow' | 'Unity';
+          }
+          
           setUserContext({
             mood: profile.initial_mood,
             intention: profile.primary_intention,
             energyLevel: profile.energy_level,
-            soulAlignment: profile.soul_alignment,
+            soulAlignment: alignmentValue,
             frequencySignature: profile.frequency_signature,
             lightbearerLevel: profile.lightbearer_level,
             ascensionTitle: profile.ascension_title
