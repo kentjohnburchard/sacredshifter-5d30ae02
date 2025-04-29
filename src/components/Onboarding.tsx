@@ -1,18 +1,41 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
+import { updateProfile } from "@/utils/profiles";
+import { toast } from "sonner";
 
 const Onboarding: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
   
-  const handleComplete = () => {
-    // In a real implementation, you would update the user profile
-    // to mark onboarding as completed
-    navigate("/dashboard");
+  const handleComplete = async () => {
+    if (!user?.id) return;
+    
+    setLoading(true);
+    try {
+      // Update the user profile to mark onboarding as completed
+      // Also set initial soul progression values
+      await updateProfile(user.id, {
+        onboarding_completed: true,
+        lightbearer_level: 1,
+        ascension_title: "Seeker",
+        soul_alignment: "Light",
+        frequency_signature: "",
+        badges: []
+      });
+      
+      toast.success("Welcome to Sacred Shifter!");
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error completing onboarding:", error);
+      toast.error("There was an error completing your onboarding");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -44,8 +67,9 @@ const Onboarding: React.FC = () => {
           <Button 
             onClick={handleComplete}
             className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
+            disabled={loading}
           >
-            Continue to Dashboard
+            {loading ? "Setting up your profile..." : "Continue to Dashboard"}
           </Button>
         </CardFooter>
       </Card>

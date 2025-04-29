@@ -11,9 +11,15 @@ export interface Profile {
   onboarding_completed: boolean;
   initial_mood: string | null;
   primary_intention: string | null;
-  energy_level: number | null; // Changed from string to number
+  energy_level: number | null;
   interests: string[];
   updated_at: string;
+  // New soul progression fields
+  lightbearer_level: number;
+  ascension_title: string;
+  soul_alignment: 'Light' | 'Shadow' | 'Unity';
+  frequency_signature: string;
+  badges: string[];
 }
 
 export interface ExtendedProfile extends Profile {
@@ -36,6 +42,12 @@ export const defaultProfileValues = {
   primary_intention: null,
   energy_level: null,
   interests: [],
+  // New default values for soul progression fields
+  lightbearer_level: 1,
+  ascension_title: "Seeker",
+  soul_alignment: "Light" as 'Light',
+  frequency_signature: "",
+  badges: [],
 };
 
 // Add the missing properties to the default profile object
@@ -54,7 +66,13 @@ const defaultProfile: ExtendedProfile = {
   earned_badges: [],
   last_level_up: null,
   light_level: 1,
-  light_points: 0
+  light_points: 0,
+  // New soul progression fields with default values
+  lightbearer_level: 1,
+  ascension_title: "Seeker",
+  soul_alignment: "Light" as 'Light',
+  frequency_signature: "",
+  badges: [],
 };
 
 export const createProfileFromUser = (
@@ -76,7 +94,13 @@ export const createProfileFromUser = (
     earned_badges: [],
     last_level_up: null,
     light_level: 1,
-    light_points: 0
+    light_points: 0,
+    // New soul progression fields with default values
+    lightbearer_level: 1,
+    ascension_title: "Seeker",
+    soul_alignment: "Light" as 'Light',
+    frequency_signature: "",
+    badges: [],
   };
 
   return newProfile;
@@ -117,7 +141,13 @@ export const fetchProfile = async (userId: string): Promise<ExtendedProfile | nu
         earned_badges: Array.isArray(data.earned_badges) ? data.earned_badges : [],
         light_level: Number(data.light_level) || 1,
         light_points: Number(data.light_points) || 0,
-        last_level_up: data.last_level_up
+        last_level_up: data.last_level_up,
+        // New soul progression fields with graceful fallbacks to defaults
+        lightbearer_level: Number(data.lightbearer_level) || 1,
+        ascension_title: data.ascension_title || "Seeker",
+        soul_alignment: (data.soul_alignment as 'Light' | 'Shadow' | 'Unity') || "Light",
+        frequency_signature: data.frequency_signature || "",
+        badges: Array.isArray(data.badges) ? data.badges : [],
       };
     }
     
@@ -128,7 +158,7 @@ export const fetchProfile = async (userId: string): Promise<ExtendedProfile | nu
   }
 };
 
-// Add the missing updateProfile function
+// Update the updateProfile function to handle the new fields
 export const updateProfile = async (userId: string, updates: Partial<Profile>) => {
   try {
     // Ensure energy_level is properly typed when sent to Supabase

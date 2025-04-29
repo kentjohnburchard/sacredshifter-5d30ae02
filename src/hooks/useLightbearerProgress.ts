@@ -44,7 +44,7 @@ export const useLightbearerProgress = () => {
       
       const { data, error } = await supabase
         .from('profiles')
-        .select('light_points, light_level, earned_badges, last_level_up')
+        .select('light_points, light_level, earned_badges, last_level_up, lightbearer_level, badges')
         .eq('id', user.id)
         .single();
       
@@ -58,7 +58,10 @@ export const useLightbearerProgress = () => {
           light_points: data.light_points || 0,
           light_level: data.light_level || 1,
           earned_badges: data.earned_badges || [],
-          last_level_up: data.last_level_up
+          last_level_up: data.last_level_up,
+          // Include the new fields with fallbacks
+          lightbearer_level: data.lightbearer_level || 1,
+          badges: data.badges || []
         });
       }
     } catch (error) {
@@ -128,7 +131,23 @@ export const useLightbearerProgress = () => {
         if (typeof data === 'object' && data !== null && 'leveled_up' in data) {
           const responseData = data as LevelUpEvent;
           const hasLeveledUp = responseData.leveled_up;
+          
           if (hasLeveledUp) {
+            // If leveled up, update the lightbearer_level in the profile as well
+            if (responseData.new_level) {
+              try {
+                await supabase
+                  .from('profiles')
+                  .update({ 
+                    lightbearer_level: responseData.new_level,
+                    // We could also update ascension_title here based on level
+                  })
+                  .eq('id', user.id);
+              } catch (updateError) {
+                console.error('Error updating lightbearer_level:', updateError);
+              }
+            }
+            
             setRecentLevelUp(true);
             // Reset after 5 seconds
             setTimeout(() => setRecentLevelUp(false), 5000);

@@ -86,6 +86,11 @@ const SacredIdentityCard: React.FC = () => {
   const bio = profile?.bio;
   const interests = profile?.interests || [];
   const primaryIntention = profile?.primary_intention;
+  const ascensionTitle = profile?.ascension_title || "Seeker";
+  const soulAlignment = profile?.soul_alignment || "Light";
+  const lightbearerLevel = profile?.lightbearer_level || 1;
+  const frequencySignature = profile?.frequency_signature || "";
+  const badges = profile?.badges || [];
   
   return (
     <Card className="h-full overflow-hidden border-white/20 bg-gradient-to-br from-indigo-500/5 to-purple-500/5">
@@ -111,11 +116,16 @@ const SacredIdentityCard: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
-              className="mb-3"
+              className="mb-1"
             >
               <h3 className="text-2xl font-playfair font-medium bg-clip-text text-transparent bg-gradient-to-r from-indigo-300 to-purple-300">
                 {displayName}
               </h3>
+              
+              {/* Ascension Title (new) */}
+              <p className="text-xs text-indigo-400/80 mt-1">
+                {ascensionTitle} • Level {lightbearerLevel}
+              </p>
               
               {/* Real name (if available) */}
               {fullName && (
@@ -125,13 +135,37 @@ const SacredIdentityCard: React.FC = () => {
               )}
             </motion.div>
             
+            {/* Soul Alignment Badge (new) */}
+            <motion.div
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="mb-3"
+            >
+              <Badge variant="outline" className={`
+                px-2 py-0.5 text-xs 
+                ${soulAlignment === 'Light' ? 'border-indigo-400/30 text-indigo-300' : 
+                  soulAlignment === 'Shadow' ? 'border-purple-400/30 text-purple-300' : 
+                  'border-teal-400/30 text-teal-300'}
+              `}>
+                {soulAlignment} Path
+              </Badge>
+              
+              {/* Frequency Signature (new) */}
+              {frequencySignature && (
+                <span className="ml-2 text-xs text-gray-400">
+                  {frequencySignature}
+                </span>
+              )}
+            </motion.div>
+            
             {/* Sacred Bio */}
             {bio ? (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="mb-4"
+                className="mb-3"
               >
                 <div className="italic text-sm text-gray-300 border-l-2 border-purple-400/30 pl-3 py-1">
                   &ldquo;{bio}&rdquo;
@@ -142,7 +176,7 @@ const SacredIdentityCard: React.FC = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="mb-4"
+                className="mb-3"
               >
                 <div className="italic text-sm text-gray-400 border-l-2 border-purple-400/30 pl-3 py-1">
                   &ldquo;Begin your sacred journey by setting your intentions&rdquo;
@@ -150,13 +184,32 @@ const SacredIdentityCard: React.FC = () => {
               </motion.div>
             )}
             
+            {/* Badges (new) */}
+            {badges && badges.length > 0 ? (
+              <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.25 }}
+                className="mt-3 mb-2"
+              >
+                <p className="text-xs text-gray-400 mb-1">Soul Achievements:</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {badges.map((badge, index) => (
+                    <Badge key={index} variant="secondary" className="bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-200 text-xs">
+                      {badge}
+                    </Badge>
+                  ))}
+                </div>
+              </motion.div>
+            ) : null}
+            
             {/* Interests/Paths */}
             {interests && interests.length > 0 ? (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="mt-4"
+                className="mt-3"
               >
                 <p className="text-xs text-gray-400 mb-2">Sacred Paths:</p>
                 <div className="flex flex-wrap gap-2">
@@ -172,7 +225,7 @@ const SacredIdentityCard: React.FC = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="mt-4"
+                className="mt-3"
               >
                 <p className="text-xs text-gray-400 mb-2">Suggested Paths:</p>
                 <div className="flex flex-wrap gap-2">
@@ -195,7 +248,7 @@ const SacredIdentityCard: React.FC = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                className="mt-4"
+                className="mt-3"
               >
                 <p className="text-xs text-gray-400">Current Intention:</p>
                 <p className="text-sm text-indigo-200">{primaryIntention}</p>
@@ -205,7 +258,7 @@ const SacredIdentityCard: React.FC = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                className="mt-4"
+                className="mt-3"
               >
                 <p className="text-xs text-gray-400">Intention:</p>
                 <p className="text-sm text-indigo-200/60">Set an intention in the Energy Check section</p>
