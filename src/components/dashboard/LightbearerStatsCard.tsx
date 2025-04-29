@@ -1,325 +1,163 @@
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Star, Sparkles } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { useLightbearerProgress } from "@/hooks/useLightbearerProgress";
 import { motion } from "framer-motion";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Star, Badge as BadgeIcon, Activity } from "lucide-react";
-
-interface BadgeMetadata {
-  name: string;
-  description: string;
-  unlocked: boolean;
-  progress: number;
-  requiredAmount: number;
-  icon: string;
-}
+import { Link } from "react-router-dom";
 
 const LightbearerStatsCard: React.FC = () => {
   const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [lightLevel, setLightLevel] = useState(1);
-  const [postsCount, setPostsCount] = useState(0);
-  const [rippleReach, setRippleReach] = useState(0);
-  const [badges, setBadges] = useState<BadgeMetadata[]>([
-    {
-      name: "Soul Speaker",
-      description: "Make your first 3 sacred posts",
-      unlocked: false,
-      progress: 0,
-      requiredAmount: 3,
-      icon: "message-circle"
-    },
-    {
-      name: "Frequency Keeper",
-      description: "Complete 5 sound journeys",
-      unlocked: false,
-      progress: 0,
-      requiredAmount: 5,
-      icon: "music"
-    },
-    {
-      name: "Wisdom Weaver",
-      description: "Connect with 3 community members",
-      unlocked: false,
-      progress: 0,
-      requiredAmount: 3,
-      icon: "users"
-    }
-  ]);
+  const { 
+    stats, 
+    currentLevel, 
+    progressPercentage, 
+    loading, 
+    recentLevelUp 
+  } = useLightbearerProgress();
   
-  // Animated counter hook
-  const useAnimatedCounter = (value: number) => {
-    const [count, setCount] = useState(0);
-    
-    useEffect(() => {
-      let start = 0;
-      const end = value;
-      const duration = 1000;
-      let timer: number;
-      
-      // No animation for zero values
-      if (end === 0) {
-        setCount(0);
-        return;
-      }
-      
-      const startTime = Date.now();
-      
-      const animateCount = () => {
-        const now = Date.now();
-        const elapsed = now - startTime;
-        
-        if (elapsed > duration) {
-          setCount(end);
-        } else {
-          const progress = elapsed / duration;
-          setCount(Math.round(progress * end));
-          timer = requestAnimationFrame(animateCount);
-        }
-      };
-      
-      timer = requestAnimationFrame(animateCount);
-      return () => cancelAnimationFrame(timer);
-    }, [value]);
-    
-    return count;
-  };
-  
-  const animatedLightLevel = useAnimatedCounter(lightLevel);
-  const animatedPostsCount = useAnimatedCounter(postsCount);
-  const animatedRippleReach = useAnimatedCounter(rippleReach);
-  
-  useEffect(() => {
-    const fetchLightbearerStats = async () => {
-      if (!user) {
-        console.log("LightbearerStatsCard: No user found");
-        setLoading(false);
-        return;
-      }
-      
-      try {
-        setLoading(true);
-        console.log("LightbearerStatsCard: Fetching stats for user:", user.id);
-        
-        // Fetch timeline entries count (posts)
-        const { data: timelineData, error: timelineError } = await supabase
-          .from('timeline_snapshots')
-          .select('id')
-          .eq('user_id', user.id);
-          
-        if (timelineError) {
-          console.error("Error fetching timeline data:", timelineError);
-        }
-        
-        // Fetch sessions count
-        const { data: sessionsData, error: sessionsError } = await supabase
-          .from('sessions')
-          .select('id')
-          .eq('user_id', user.id);
-          
-        if (sessionsError) {
-          console.error("Error fetching sessions data:", sessionsError);
-        }
-        
-        // Calculate stats
-        const postCount = timelineData?.length || 0;
-        const sessionsCount = sessionsData?.length || 0;
-        
-        console.log("LightbearerStatsCard: Stats fetched - Posts:", postCount, "Sessions:", sessionsCount);
-        
-        // Calculate light level (1-10 based on combined activity)
-        const totalActivity = postCount + sessionsCount;
-        const calculatedLightLevel = Math.max(1, Math.min(10, Math.floor(totalActivity / 5) + 1));
-        
-        // Calculate ripple reach (simplified estimation)
-        const calculatedRippleReach = postCount * 3 + sessionsCount * 2;
-        
-        // Update badges progress
-        const updatedBadges = [...badges];
-        updatedBadges[0].progress = Math.min(postCount, updatedBadges[0].requiredAmount);
-        updatedBadges[0].unlocked = postCount >= updatedBadges[0].requiredAmount;
-        
-        updatedBadges[1].progress = Math.min(sessionsCount, updatedBadges[1].requiredAmount);
-        updatedBadges[1].unlocked = sessionsCount >= updatedBadges[1].requiredAmount;
-        
-        // Set the state with fetched data
-        setPostsCount(postCount);
-        setLightLevel(calculatedLightLevel);
-        setRippleReach(calculatedRippleReach);
-        setBadges(updatedBadges);
-        
-      } catch (error) {
-        console.error("LightbearerStatsCard: Error fetching stats:", error);
-        setError("Failed to load lightbearer stats");
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchLightbearerStats();
-  }, [user, badges]);
-
-  console.log("LightbearerStatsCard rendering with stats:", { lightLevel, postsCount, rippleReach }, "loading:", loading, "error:", error);
-  
-  // Find next badge milestone
-  const nextMilestone = badges.find(badge => !badge.unlocked);
-  
-  // Get current milestone message
-  const getMilestoneMessage = () => {
-    if (!nextMilestone) return "All current badges achieved";
-    
-    const remaining = nextMilestone.requiredAmount - nextMilestone.progress;
-    return `${remaining} more to earn "${nextMilestone.name}"`;
-  };
-  
-  // Enhanced loading state
   if (loading) {
     return (
-      <Card className="h-full border-white/20 bg-gradient-to-br from-amber-500/5 to-orange-500/5">
+      <Card className="h-full overflow-hidden border-white/20 bg-gradient-to-br from-amber-500/5 to-yellow-500/5">
+        <div className="h-1 bg-gradient-to-r from-amber-500/60 to-yellow-500/60" />
         <CardHeader className="p-6">
-          <CardTitle className="flex items-center gap-2 font-playfair">
+          <CardTitle className="flex items-center gap-2">
             <Star className="h-5 w-5 text-amber-400" />
-            Lightbearer Stats
+            Lightbearer Status
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 pt-0">
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="rounded-lg bg-amber-500/10 p-4 h-24 animate-pulse"></div>
-            <div className="rounded-lg bg-indigo-500/10 p-4 h-24 animate-pulse"></div>
-            <div className="rounded-lg bg-purple-500/10 p-4 h-24 animate-pulse"></div>
-          </div>
-          <div className="flex justify-around mt-8">
-            <div className="w-12 h-12 rounded-full bg-gray-800/40 animate-pulse"></div>
-            <div className="w-12 h-12 rounded-full bg-gray-800/40 animate-pulse"></div>
-            <div className="w-12 h-12 rounded-full bg-gray-800/40 animate-pulse"></div>
+          <div className="h-[200px] flex flex-col justify-center items-center">
+            <div className="w-32 h-6 bg-amber-200/20 rounded mb-3 animate-pulse"></div>
+            <div className="w-full h-3 bg-amber-200/10 rounded mb-6 animate-pulse"></div>
+            <div className="w-full h-16 bg-amber-200/10 rounded animate-pulse"></div>
           </div>
         </CardContent>
       </Card>
     );
   }
 
-  if (error) {
+  if (!user || !stats || !currentLevel) {
     return (
-      <Card className="h-full border-white/20 bg-gradient-to-br from-red-500/5 to-amber-500/5">
+      <Card className="h-full overflow-hidden border-white/20 bg-gradient-to-br from-amber-500/5 to-yellow-500/5">
+        <div className="h-1 bg-gradient-to-r from-amber-500/60 to-yellow-500/60" />
         <CardHeader className="p-6">
-          <CardTitle className="flex items-center gap-2 font-playfair">
+          <CardTitle className="flex items-center gap-2">
             <Star className="h-5 w-5 text-amber-400" />
-            Lightbearer Stats
+            Lightbearer Status
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 pt-0">
           <div className="h-[200px] flex flex-col justify-center items-center text-center">
-            <p className="text-amber-300">{error}</p>
-            <p className="text-gray-400 text-sm mt-2">Don't worry, your light still shines</p>
+            <p className="text-gray-300">Sign in to view your Lightbearer status</p>
           </div>
         </CardContent>
       </Card>
     );
   }
-  
+
+  // Calculate points needed for next level
+  const pointsForNextLevel = currentLevel.next_threshold 
+    ? currentLevel.next_threshold - stats.light_points 
+    : null;
+
   return (
-    <Card className="h-full overflow-hidden border-white/20 bg-gradient-to-br from-amber-500/5 to-orange-500/5">
-      <div className="h-1 bg-gradient-to-r from-amber-500/60 to-orange-500/60" />
-      <CardHeader className="p-6">
-        <CardTitle className="flex items-center gap-2 font-playfair">
-          <Star className="h-5 w-5 text-amber-400" />
-          Lightbearer Stats
-        </CardTitle>
-      </CardHeader>
-      
-      <CardContent className="p-6 pt-0">
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          {/* Light Level */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="rounded-lg bg-gradient-to-br from-amber-500/10 to-amber-700/10 p-4 text-center"
-          >
-            <div className="text-sm text-amber-200 mb-1 font-medium">Light Level</div>
-            <div className="text-3xl font-bold text-amber-100">{animatedLightLevel}</div>
-          </motion.div>
-          
-          {/* Sacred Posts */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="rounded-lg bg-gradient-to-br from-indigo-500/10 to-indigo-700/10 p-4 text-center"
-          >
-            <div className="text-sm text-indigo-200 mb-1 font-medium">Sacred Posts</div>
-            <div className="text-3xl font-bold text-indigo-100">{animatedPostsCount}</div>
-          </motion.div>
-          
-          {/* Ripple Reach */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="rounded-lg bg-gradient-to-br from-purple-500/10 to-purple-700/10 p-4 text-center"
-          >
-            <div className="text-sm text-purple-200 mb-1 font-medium">Ripple Reach</div>
-            <div className="text-3xl font-bold text-purple-100">{animatedRippleReach}</div>
-          </motion.div>
-        </div>
+    <Link to="/lightbearer">
+      <Card className={`h-full overflow-hidden border-white/20 bg-gradient-to-br from-amber-500/5 to-yellow-500/5 hover:from-amber-500/10 hover:to-yellow-500/10 transition-colors ${recentLevelUp ? 'ring-2 ring-amber-500/30 shadow-lg' : ''}`}>
+        <div className="h-1 bg-gradient-to-r from-amber-500/60 to-yellow-500/60" />
+        <CardHeader className="p-6">
+          <CardTitle className="flex items-center gap-2">
+            <Star className="h-5 w-5 text-amber-400" />
+            Lightbearer Status
+          </CardTitle>
+        </CardHeader>
         
-        {/* Milestone Progress */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="mb-4"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-400">Current Milestone</span>
-            <span className="text-xs text-amber-300">{getMilestoneMessage()}</span>
+        <CardContent className="p-6 pt-0">
+          <div className="relative">
+            {/* Background sacred geometry pattern (subtle) */}
+            <div className="absolute inset-0 opacity-5 pointer-events-none">
+              <div className="w-full h-full bg-gradient-to-r from-amber-500/5 via-yellow-500/5 to-amber-500/5" />
+            </div>
+            
+            {/* Content */}
+            <div className="relative z-10 space-y-5">
+              {/* Level display */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <h3 className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-amber-300 to-yellow-300">
+                    {currentLevel.title}
+                  </h3>
+                  <span className="text-sm text-amber-200/70">
+                    Level {currentLevel.level_num}
+                  </span>
+                </div>
+                  
+                {/* Progress bar */}
+                <div className="space-y-1.5">
+                  <Progress 
+                    value={progressPercentage} 
+                    className="h-2.5 bg-gradient-to-r from-amber-500/20 to-yellow-500/20"
+                  />
+                  
+                  <div className="flex justify-between text-xs text-amber-200/60">
+                    <span>{stats.light_points} points</span>
+                    {pointsForNextLevel !== null ? (
+                      <span>{pointsForNextLevel} until next level</span>
+                    ) : (
+                      <span>Max level reached!</span>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+              
+              {/* Badges preview */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="pt-2"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-amber-200/70 flex items-center gap-1">
+                    <Sparkles className="h-3.5 w-3.5" /> Recent achievements
+                  </span>
+                  <span className="text-xs text-amber-200/50">View all →</span>
+                </div>
+                
+                {stats.earned_badges && stats.earned_badges.length > 0 ? (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {stats.earned_badges.slice(0, 3).map((badge, index) => (
+                      <span 
+                        key={index} 
+                        className="px-2 py-1 bg-amber-500/10 rounded-md text-xs text-amber-200/90 flex items-center"
+                      >
+                        <Star className="h-3 w-3 mr-1" />
+                        {badge}
+                      </span>
+                    ))}
+                    {stats.earned_badges.length > 3 && (
+                      <span className="px-2 py-1 bg-amber-500/10 rounded-md text-xs text-amber-200/90">
+                        +{stats.earned_badges.length - 3} more
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <p className="mt-2 text-xs text-amber-200/50 italic">
+                    Complete activities to earn badges
+                  </p>
+                )}
+              </motion.div>
+            </div>
           </div>
-        </motion.div>
-        
-        {/* Badges Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="mt-4"
-        >
-          <div className="text-sm text-gray-400 mb-3">Sacred Badges</div>
-          <div className="flex justify-around">
-            <TooltipProvider>
-              {badges.map((badge, index) => (
-                <Tooltip key={index}>
-                  <TooltipTrigger asChild>
-                    <motion.div 
-                      className={`w-12 h-12 flex items-center justify-center rounded-full 
-                        ${badge.unlocked 
-                          ? 'bg-gradient-to-br from-amber-500/40 to-amber-700/40 text-amber-200' 
-                          : 'bg-gray-800/40 text-gray-500'}`}
-                      whileHover={{ scale: 1.1 }}
-                      transition={{ type: 'spring', stiffness: 300 }}
-                    >
-                      <BadgeIcon className="h-6 w-6" />
-                    </motion.div>
-                  </TooltipTrigger>
-                  <TooltipContent className="bg-gray-900/90 border-purple-500/30">
-                    <div className="text-white font-medium">{badge.name}</div>
-                    <div className="text-gray-300 text-xs">{badge.description}</div>
-                    <div className="text-amber-300 text-xs mt-1">
-                      {badge.unlocked 
-                        ? 'Achieved' 
-                        : `${badge.progress}/${badge.requiredAmount} completed`}
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              ))}
-            </TooltipProvider>
-          </div>
-        </motion.div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </Link>
   );
 };
 

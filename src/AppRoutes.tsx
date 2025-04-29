@@ -1,5 +1,5 @@
-
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { lazy, Suspense } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
@@ -43,10 +43,18 @@ import Soundscapes from './pages/Soundscapes';
 import CircleHomePage from './pages/circle/index';
 import PremiumHomePage from './pages/premium/index';
 import ComingSoon from './components/ComingSoon';
+import MusicGeneration from './pages/MusicGeneration';
+import Timeline from './pages/Timeline';
+import Intentions from './pages/Intentions';
+import Lightbearer from '@/pages/Lightbearer';
 
 const AppRoutes: React.FC = () => {
   return (
-    <>
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin h-12 w-12 border-b-2 border-purple-500 rounded-full"></div>
+      </div>
+    }>
       <ScrollToTop />
       <Routes>
         {/* Redirect root path to our new Home Page */}
@@ -147,7 +155,7 @@ const AppRoutes: React.FC = () => {
         } />
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </>
+    </Suspense>
   );
 };
 

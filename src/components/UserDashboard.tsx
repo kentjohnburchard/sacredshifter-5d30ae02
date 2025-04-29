@@ -253,7 +253,8 @@ const UserDashboard: React.FC = () => {
             </CardContent>
           </Card>
 
-          <div className="grid grid-cols-3 gap-4">
+          {/* Quick access cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Link to="/energy-check">
               <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
                 <CardContent className="p-6">
