@@ -179,7 +179,6 @@ const SacredCircle: React.FC = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="bg-gray-800/50 border-gray-700/50"
-                    prefix={<Search className="h-4 w-4 text-gray-500" />}
                   />
                 </div>
                 <div className="flex gap-2">

@@ -16,6 +16,10 @@ export interface LightbearerStats {
   // New soul progression fields
   lightbearer_level: number;
   badges: string[];
+  // Additional fields for expanded functionality
+  ascension_title?: string;
+  soul_alignment?: 'Light' | 'Shadow' | 'Unity';
+  frequency_signature?: string;
 }
 
 export interface LevelUpEvent {
