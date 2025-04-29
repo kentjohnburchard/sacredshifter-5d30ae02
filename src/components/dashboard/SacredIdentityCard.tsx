@@ -15,7 +15,10 @@ const SacredIdentityCard: React.FC = () => {
   
   useEffect(() => {
     const loadProfile = async () => {
-      if (!user) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
       
       try {
         setLoading(true);
@@ -41,8 +44,15 @@ const SacredIdentityCard: React.FC = () => {
     );
   }
   
+  // Add a fallback in case profile is null
   if (!profile) {
-    return null;
+    return (
+      <Card className="h-full border-white/20 bg-gradient-to-br from-indigo-500/5 to-purple-500/5">
+        <CardContent className="p-6 flex justify-center items-center h-[200px]">
+          <div className="text-muted-foreground">Profile not available</div>
+        </CardContent>
+      </Card>
+    );
   }
   
   return (
@@ -59,7 +69,8 @@ const SacredIdentityCard: React.FC = () => {
         <div className="relative">
           {/* Background sacred geometry pattern (subtle) */}
           <div className="absolute inset-0 opacity-5 pointer-events-none">
-            <div className="w-full h-full bg-[url('/path/to/sacred-geometry.png')] bg-no-repeat bg-center bg-contain" />
+            {/* Since the image path is likely invalid, let's use a CSS gradient as a fallback */}
+            <div className="w-full h-full bg-gradient-to-r from-indigo-500/5 via-purple-500/5 to-indigo-500/5" />
           </div>
           
           {/* Profile content */}
