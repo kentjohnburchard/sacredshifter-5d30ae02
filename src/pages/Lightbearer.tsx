@@ -434,16 +434,16 @@ const Lightbearer = () => {
                                   </h3>
                                   
                                   <p className={`text-sm mt-1 ${isActive ? 'text-gray-300' : 'text-gray-500'}`}>
-                                    {level === 1 && 'Begin your journey of light with the first steps toward conscious engagement.'}
-                                    {level === 2 && 'Your light begins to shine more brightly as you deepen your practice.'}
-                                    {level === 3 && 'Your radiance expands, illuminating others on their path.'}
-                                    {level === 4 && 'You've harmonized with the frequencies of higher consciousness.'}
-                                    {level === 5 && 'Your energy has ascended to new heights of spiritual awareness.'}
-                                    {level === 6 && 'Your cosmic connection expands beyond ordinary perception.'}
-                                    {level === 7 && 'Your celestial light bridges the earthly and divine.'}
-                                    {level === 8 && 'Divine wisdom flows through you effortlessly.'}
-                                    {level === 9 && 'You embody the sovereign creator energy of the universe.'}
-                                    {level === 10 && 'You've transcended limitations, embodying infinite potential.'}
+                                    {level === 1 && "Begin your journey of light with the first steps toward conscious engagement."}
+                                    {level === 2 && "Your light begins to shine more brightly as you deepen your practice."}
+                                    {level === 3 && "Your radiance expands, illuminating others on their path."}
+                                    {level === 4 && "You've harmonized with the frequencies of higher consciousness."}
+                                    {level === 5 && "Your energy has ascended to new heights of spiritual awareness."}
+                                    {level === 6 && "Your cosmic connection expands beyond ordinary perception."}
+                                    {level === 7 && "Your celestial light bridges the earthly and divine."}
+                                    {level === 8 && "Divine wisdom flows through you effortlessly."}
+                                    {level === 9 && "You embody the sovereign creator energy of the universe."}
+                                    {level === 10 && "You've transcended limitations, embodying infinite potential."}
                                   </p>
                                   
                                   {isActive && (

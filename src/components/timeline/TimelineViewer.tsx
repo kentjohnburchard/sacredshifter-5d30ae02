@@ -1,30 +1,33 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Calendar,
   BookOpen,
   Tag,
   ArrowRight,
   Edit,
   Music,
-  Filter
+  Filter,
+  Calendar,
+  Clock
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/context/AuthContext";
 import { format } from "date-fns";
 import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
 import EditEntryDialog from "./EditEntryDialog";
-import AudioPreview from "./AudioPreview";
+import TimelineEntryCard, { TimelineEntryProps } from "./TimelineEntryCard";
+import FiltersBar from "./FiltersBar";
+import ToggleView from "./ToggleView";
+import SpiralView from "./SpiralView";
+import { Badge } from "@/components/ui/badge";
+
+type ViewMode = 'vertical' | 'spiral';
 
 interface TimelineEntry {
   id: string;
@@ -41,6 +44,7 @@ interface TimelineEntry {
   intention?: string | null;
   created_at: string;
   updated_at: string;
+  entry_type?: 'journal' | 'journey' | 'music' | 'intention';
 }
 
 interface MusicGeneration {
@@ -54,15 +58,18 @@ const TimelineViewer: React.FC = () => {
   const [entries, setEntries] = useState<TimelineEntry[]>([]);
   const [musicGenerations, setMusicGenerations] = useState<Record<string, MusicGeneration>>({});
   const [loading, setLoading] = useState(true);
-  const [activeFilter, setActiveFilter] = useState<string | null>(null);
-  const [frequencyFilter, setFrequencyFilter] = useState<string>("all");
+  const [activeTagFilter, setActiveTagFilter] = useState<string | null>(null);
+  const [activeFrequencyFilter, setActiveFrequencyFilter] = useState<string>("all");
+  const [activeTypeFilter, setActiveTypeFilter] = useState<string | null>(null);
   const [editingEntry, setEditingEntry] = useState<TimelineEntry | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [uniqueFrequencies, setUniqueFrequencies] = useState<Set<number>>(new Set());
+  const [viewMode, setViewMode] = useState<ViewMode>('vertical');
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const allTags = React.useMemo(() => {
+  // Extract all unique tags from the entries
+  const allTags = useMemo(() => {
     const tagSet = new Set<string>();
     
     entries.forEach(entry => {
@@ -83,7 +90,11 @@ const TimelineViewer: React.FC = () => {
       ...entry,
       tags: entry.tags || [],
       journal: entry.notes || '',
-      session_id: entry.session_id || undefined
+      session_id: entry.session_id || undefined,
+      // Determine entry type based on available fields
+      entry_type: entry.session_id ? 'journey' : 
+                 entry.frequency && entry.frequency > 0 ? 'music' : 
+                 entry.intention ? 'intention' : 'journal'
     }));
   };
 
@@ -94,7 +105,10 @@ const TimelineViewer: React.FC = () => {
     }
 
     try {
+      setLoading(true);
       console.log("Fetching timeline entries for user:", user.id);
+      
+      // Fetch timeline snapshots
       const { data: entriesData, error: entriesError } = await supabase
         .from("timeline_snapshots")
         .select("*")
@@ -110,6 +124,7 @@ const TimelineViewer: React.FC = () => {
       console.log("Timeline entries fetched:", entriesData?.length || 0);
       const processedEntries = processJournalEntries(entriesData || []);
 
+      // Extract unique frequencies
       const frequencies = new Set<number>();
       processedEntries.forEach(entry => {
         if (entry.frequency) {
@@ -117,9 +132,9 @@ const TimelineViewer: React.FC = () => {
         }
       });
       setUniqueFrequencies(frequencies);
-
       setEntries(processedEntries);
 
+      // Fetch music generation data for entries with frequencies
       const frequenciesWithData = processedEntries
         .filter(e => e.frequency)
         .map(e => e.frequency as number);
@@ -152,7 +167,7 @@ const TimelineViewer: React.FC = () => {
         return;
       }
 
-      console.log("Music generations fetched:", data?.length || 0, data);
+      console.log("Music generations fetched:", data?.length || 0);
 
       const musicMap: Record<string, MusicGeneration> = {};
       
@@ -170,7 +185,6 @@ const TimelineViewer: React.FC = () => {
                 music_url: matchingMusic.music_url,
                 frequency: matchingMusic.frequency
               };
-              console.log(`Matched music for entry ${entry.id} with frequency ${entry.frequency}Hz`);
             }
           }
         });
@@ -186,33 +200,31 @@ const TimelineViewer: React.FC = () => {
     fetchTimelineEntries();
   }, [user]);
 
-  const handleFilterByTag = (tag: string) => {
-    if (activeFilter === tag) {
-      setActiveFilter(null);
-    } else {
-      setActiveFilter(tag);
-    }
-  };
-
-  const handleFilterByFrequency = (value: string) => {
-    setFrequencyFilter(value);
-  };
-
-  const filteredEntries = React.useMemo(() => {
-    let filtered = activeFilter 
-      ? entries.filter(entry => 
-          entry.tag === activeFilter || 
-          (entry.tags && entry.tags.includes(activeFilter))
-        )
-      : entries;
+  // Filter entries based on active filters
+  const filteredEntries = useMemo(() => {
+    let filtered = entries;
     
-    if (frequencyFilter !== "all") {
-      const frequencyValue = parseFloat(frequencyFilter);
+    // Filter by tag
+    if (activeTagFilter) {
+      filtered = filtered.filter(entry => 
+        entry.tag === activeTagFilter || 
+        (entry.tags && entry.tags.includes(activeTagFilter))
+      );
+    }
+    
+    // Filter by frequency
+    if (activeFrequencyFilter !== "all") {
+      const frequencyValue = parseFloat(activeFrequencyFilter);
       filtered = filtered.filter(entry => entry.frequency === frequencyValue);
     }
     
+    // Filter by type
+    if (activeTypeFilter) {
+      filtered = filtered.filter(entry => entry.entry_type === activeTypeFilter);
+    }
+    
     return filtered;
-  }, [entries, activeFilter, frequencyFilter]);
+  }, [entries, activeTagFilter, activeFrequencyFilter, activeTypeFilter]);
 
   const handleRevisitJourney = (entry: TimelineEntry) => {
     if (entry.frequency) {
@@ -223,23 +235,37 @@ const TimelineViewer: React.FC = () => {
     }
   };
 
-  const handleEditEntry = (entry: TimelineEntry) => {
-    setEditingEntry(entry);
-    setIsEditDialogOpen(true);
+  const handleEditEntry = (id: string) => {
+    const entry = entries.find(e => e.id === id);
+    if (entry) {
+      setEditingEntry(entry);
+      setIsEditDialogOpen(true);
+    }
   };
 
-  const formatDate = (dateString: string) => {
-    return format(new Date(dateString), "MMMM d, yyyy");
-  };
+  // Map entries to the TimelineEntryProps format
+  const entryProps: TimelineEntryProps[] = useMemo(() => {
+    return filteredEntries.map(entry => ({
+      id: entry.id,
+      title: entry.title,
+      created_at: entry.created_at,
+      notes: entry.notes,
+      type: entry.entry_type || 'journal',
+      tag: entry.tag,
+      tags: entry.tags,
+      frequency: entry.frequency,
+      chakra: entry.chakra,
+      audioUrl: entry.id in musicGenerations ? musicGenerations[entry.id].music_url : null,
+      onEdit: handleEditEntry,
+      onAction: handleRevisitJourney,
+      actionLabel: "Revisit Journey"
+    }));
+  }, [filteredEntries, musicGenerations]);
 
-  const truncateText = (text: string | null, maxLength: number = 150) => {
-    if (!text) return "";
-    return text.length > maxLength
-      ? text.substring(0, maxLength) + "..."
-      : text;
-  };
-
-  const journalInsights = React.useMemo(() => {
+  // Analyze user patterns and generate insights
+  const journalInsights = useMemo(() => {
+    if (entries.length < 3) return [];
+    
     const themes: Record<string, number> = {
       healing: 0,
       transformation: 0,
@@ -253,10 +279,10 @@ const TimelineViewer: React.FC = () => {
     };
     
     entries.forEach(entry => {
-      if (entry.journal) {
-        const lowerJournal = entry.journal.toLowerCase();
+      if (entry.notes) {
+        const lowerNotes = entry.notes.toLowerCase();
         Object.keys(themes).forEach(theme => {
-          if (lowerJournal.includes(theme)) {
+          if (lowerNotes.includes(theme)) {
             themes[theme]++;
           }
         });
@@ -272,17 +298,21 @@ const TimelineViewer: React.FC = () => {
     const insights: string[] = [];
     if (sortedThemes.length > 0) {
       insights.push(
-        `Most of your saved moments relate to ${sortedThemes.join(" and ")}.`
+        `Your sacred journey often focuses on ${sortedThemes.join(" and ")}.`
       );
     }
     
     if (themes.chakra > 0) {
-      insights.push("Want to revisit your chakra alignment work?");
+      insights.push("You've been exploring chakra alignment in your practice.");
     }
     
     if (uniqueFrequencies.size > 0) {
       const mostFrequentHz = Array.from(uniqueFrequencies)[0];
-      insights.push(`You've created ${entries.filter(e => e.frequency === mostFrequentHz).length} entries with ${mostFrequentHz}Hz frequency.`);
+      const entriesWithFrequency = entries.filter(e => e.frequency === mostFrequentHz).length;
+      
+      if (entriesWithFrequency > 1) {
+        insights.push(`Your spirit resonates with ${mostFrequentHz}Hz frequency (${entriesWithFrequency} entries).`);
+      }
     }
     
     return insights;
@@ -290,18 +320,17 @@ const TimelineViewer: React.FC = () => {
 
   if (!user) {
     return (
-      <Card className="border border-gray-200 shadow-sm">
+      <Card className="border border-gray-700 bg-gray-900/50 shadow-lg">
         <CardContent className="p-6 text-center">
           <h3 className="text-xl font-medium mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">
-            Frequency Timeline
+            Sacred Timeline
           </h3>
-          <p className="text-gray-600 mb-4">Sign in to view your frequency journey timeline</p>
+          <p className="text-gray-400 mb-4">Sign in to view your cosmic evolution timeline</p>
           <Button 
             onClick={() => navigate("/auth")}
-            variant="outline"
-            className="border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
           >
-            Sign In to View Timeline
+            Begin Your Journey
           </Button>
         </CardContent>
       </Card>
@@ -312,59 +341,15 @@ const TimelineViewer: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h2 className="text-2xl font-medium bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">
-          My Frequency Timeline
+          Your Cosmic Timeline
         </h2>
-        
-        <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
-          {uniqueFrequencies.size > 0 && (
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-gray-500" />
-              <Select
-                value={frequencyFilter}
-                onValueChange={handleFilterByFrequency}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Filter by Frequency" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Frequencies</SelectItem>
-                  {Array.from(uniqueFrequencies).map(freq => (
-                    <SelectItem key={freq} value={String(freq)}>
-                      {freq}Hz
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-          
-          {allTags.length > 0 && (
-            <div className="flex flex-wrap gap-2 items-center">
-              <span className="text-sm text-gray-500 self-center">Tags:</span>
-              {allTags.map(tag => (
-                <Badge 
-                  key={tag}
-                  variant={activeFilter === tag ? "default" : "outline"}
-                  className={`cursor-pointer ${
-                    activeFilter === tag 
-                      ? "bg-purple-500 hover:bg-purple-600" 
-                      : "hover:bg-purple-100"
-                  }`}
-                  onClick={() => handleFilterByTag(tag)}
-                >
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          )}
-        </div>
       </div>
 
       {journalInsights.length > 0 && (
-        <div className="bg-purple-50 border border-purple-100 rounded-lg p-4 text-purple-700">
+        <div className="bg-purple-950/30 border border-purple-500/30 rounded-lg p-4 text-purple-200">
           <h3 className="font-medium mb-2 flex items-center gap-2">
             <BookOpen className="h-4 w-4" />
-            Insights from Your Journey
+            Sacred Journey Insights
           </h3>
           <ul className="space-y-1 text-sm">
             {journalInsights.map((insight, idx) => (
@@ -376,146 +361,124 @@ const TimelineViewer: React.FC = () => {
           </ul>
         </div>
       )}
+      
+      {!loading && (
+        <>
+          <FiltersBar 
+            tags={allTags}
+            frequencies={Array.from(uniqueFrequencies)}
+            onTagFilter={setActiveTagFilter}
+            onFrequencyFilter={setActiveFrequencyFilter}
+            onTypeFilter={setActiveTypeFilter}
+            activeTagFilter={activeTagFilter}
+            activeFrequencyFilter={activeFrequencyFilter}
+            activeTypeFilter={activeTypeFilter}
+          />
+          
+          <ToggleView 
+            viewMode={viewMode}
+            onViewChange={setViewMode}
+          />
+        </>
+      )}
 
       {loading ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500">Loading your timeline...</p>
+        <div className="space-y-6">
+          {[1, 2, 3].map((idx) => (
+            <div key={idx} className="animate-pulse">
+              <div className="h-48 bg-gray-800/50 rounded-lg mb-4"></div>
+              <div className="h-4 bg-gray-800/30 rounded w-1/4 mb-2"></div>
+              <div className="h-3 bg-gray-800/30 rounded w-1/3"></div>
+            </div>
+          ))}
         </div>
       ) : filteredEntries.length === 0 ? (
-        <Card className="border border-gray-200 shadow-sm">
-          <CardContent className="p-6 text-center">
-            <h3 className="text-xl font-medium mb-4 text-gray-700">
+        <Card className="border border-gray-700 bg-gray-900/50 shadow-lg">
+          <CardContent className="p-8 text-center">
+            <h3 className="text-xl font-medium mb-4 text-gray-200">
               No Timeline Entries Yet
             </h3>
-            <p className="text-gray-600 mb-4">
-              {activeFilter || frequencyFilter !== "all"
-                ? `No entries found with the current filters. Try another filter or clear current filters.` 
-                : "Your frequency journey timeline will appear here after you save moments from your sessions."}
+            <p className="text-gray-400 mb-6 max-w-lg mx-auto">
+              {activeTagFilter || activeFrequencyFilter !== "all" || activeTypeFilter
+                ? `No entries found with the current filters. Try adjusting your filters or clear them to see all entries.` 
+                : "Your cosmic journey timeline will appear here after you save moments from your sacred experiences."}
             </p>
-            {(activeFilter || frequencyFilter !== "all") && (
+            {(activeTagFilter || activeFrequencyFilter !== "all" || activeTypeFilter) && (
               <div className="flex gap-2 justify-center">
-                {activeFilter && (
-                  <Button 
-                    variant="outline"
-                    onClick={() => setActiveFilter(null)}
-                    className="mt-2"
-                  >
-                    Clear Tag Filter
-                  </Button>
-                )}
-                {frequencyFilter !== "all" && (
-                  <Button 
-                    variant="outline"
-                    onClick={() => setFrequencyFilter("all")}
-                    className="mt-2"
-                  >
-                    Clear Frequency Filter
-                  </Button>
-                )}
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    setActiveTagFilter(null);
+                    setActiveFrequencyFilter("all");
+                    setActiveTypeFilter(null);
+                  }}
+                  className="border-purple-500/30 text-purple-200"
+                >
+                  Clear All Filters
+                </Button>
               </div>
             )}
+            
+            <div className="mt-8 p-6 border border-purple-500/20 rounded-lg bg-purple-950/20 max-w-md mx-auto">
+              <h4 className="text-lg font-medium mb-3 text-purple-200">Begin Your Sacred Timeline</h4>
+              <p className="text-gray-400 mb-4 text-sm">
+                Capture soul-aligned moments by:
+              </p>
+              <ul className="text-sm text-left space-y-3 mb-6">
+                <li className="flex items-start gap-2">
+                  <Badge variant="outline" className="mt-0.5">1</Badge>
+                  <span>Completing frequency journeys in the Sound Explorer</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Badge variant="outline" className="mt-0.5">2</Badge>
+                  <span>Setting intentions and reflecting on your experiences</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Badge variant="outline" className="mt-0.5">3</Badge>
+                  <span>Creating frequency-aligned music and meditations</span>
+                </li>
+              </ul>
+              <Button 
+                onClick={() => navigate("/music-generation")}
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 w-full"
+              >
+                Start a Frequency Journey
+              </Button>
+            </div>
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-6">
-          {filteredEntries.map(entry => (
-            <Card key={entry.id} className="border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  <div className="flex justify-between items-start">
-                    <h3 className="text-xl font-medium text-gray-800">{entry.title}</h3>
-                    <div className="flex items-center text-gray-500 text-sm">
-                      <Calendar className="h-4 w-4 mr-1" />
-                      {formatDate(entry.created_at)}
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-wrap gap-2 items-center">
-                    {entry.frequency && (
-                      <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200 flex items-center gap-1">
-                        <Music className="h-3 w-3" />
-                        {entry.frequency}Hz
-                      </Badge>
-                    )}
-                    
-                    {entry.tag && (
-                      <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200 border-purple-200">
-                        {entry.tag}
-                      </Badge>
-                    )}
-                    
-                    {entry.tags && Array.isArray(entry.tags) && entry.tags.map(tag => (
-                      <Badge 
-                        key={tag} 
-                        className="bg-purple-100 text-purple-800 hover:bg-purple-200 border-purple-200"
-                      >
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                  
-                  <div className="text-gray-600">
-                    {entry.notes && (
-                      <p className="mb-2">{truncateText(entry.notes)}</p>
-                    )}
-                    
-                    {entry.journal && (
-                      <div className="mt-4">
-                        <div className="flex items-center text-purple-700 text-sm mb-2">
-                          <BookOpen className="h-4 w-4 mr-1" />
-                          <span>Journal Entry</span>
-                        </div>
-                        <p className="text-gray-600">{truncateText(entry.journal)}</p>
-                        {entry.journal.length > 150 && (
-                          <button 
-                            className="text-purple-600 text-sm mt-2 hover:underline focus:outline-none"
-                            onClick={() => {
-                              toast(entry.title, {
-                                description: entry.journal,
-                                duration: 10000,
-                              });
-                            }}
-                          >
-                            Read more
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {musicGenerations[entry.id] && (
-                    <AudioPreview 
-                      audioUrl={musicGenerations[entry.id].music_url} 
-                      title={`${entry.frequency}Hz frequency audio`}
-                    />
-                  )}
-                  
-                  <div className="flex flex-wrap gap-3 mt-4">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="border-purple-200 text-purple-700 hover:bg-purple-50"
-                      onClick={() => handleRevisitJourney(entry)}
-                    >
-                      <ArrowRight className="h-4 w-4 mr-1" />
-                      Revisit Journey
-                    </Button>
-                    
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="border-gray-200 text-gray-700 hover:bg-gray-50"
-                      onClick={() => handleEditEntry(entry)}
-                    >
-                      <Edit className="h-4 w-4 mr-1" />
-                      Edit Entry
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <AnimatePresence mode="wait">
+          {viewMode === 'vertical' ? (
+            <motion.div 
+              key="vertical"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="space-y-6"
+            >
+              {entryProps.map((entry, index) => (
+                <motion.div
+                  key={entry.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <TimelineEntryCard {...entry} />
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="spiral"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <SpiralView entries={entryProps} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       )}
 
       <EditEntryDialog
