@@ -15,7 +15,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     console.log("ProtectedRoute rendering for path:", location.pathname);
     console.log("Auth state:", { authenticated: !!user, loading });
     
-    if (!user && !loading) {
+    if (!loading && !user) {
       console.log("User not authenticated, storing redirect path:", location.pathname);
       sessionStorage.setItem('redirectAfterLogin', location.pathname);
     }

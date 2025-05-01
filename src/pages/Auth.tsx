@@ -90,6 +90,8 @@ const Auth = () => {
       } else {
         console.log("Signup successful");
         toast.success('Registration successful! Please check your email for confirmation.');
+        // Wait a moment and then switch to login tab
+        setTimeout(() => setActiveTab('login'), 2000);
       }
     } catch (error: any) {
       console.error("Signup exception:", error);
@@ -149,7 +151,7 @@ const Auth = () => {
           <p className="text-gray-600 mt-2">Reconnect with your highest self</p>
         </div>
         
-        <Tabs defaultValue={activeTab} onValueChange={(value) => setActiveTab(value as 'login' | 'signup' | 'test')}>
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'login' | 'signup' | 'test')}>
           <TabsList className="grid w-full grid-cols-3 mb-8">
             <TabsTrigger value="login">Login</TabsTrigger>
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
