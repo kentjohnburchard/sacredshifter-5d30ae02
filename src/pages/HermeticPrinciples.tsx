@@ -5,14 +5,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { hermeticPrinciples } from '@/data/hermeticPrinciples';
 import { Sparkles } from 'lucide-react';
 
+interface HermeticPrinciple {
+  id: string;
+  name: string;
+  description: string;
+  application: string;
+}
+
 const HermeticPrinciples: React.FC = () => {
-  // Convert the record to an array if it's not already one
-  const principlesArray = Array.isArray(hermeticPrinciples) 
-    ? hermeticPrinciples 
-    : Object.entries(hermeticPrinciples).map(([id, data]) => ({
-        id,
-        ...data
-      }));
+  // Convert the record to an array for mapping
+  const principlesArray: HermeticPrinciple[] = 
+    Array.isArray(hermeticPrinciples) 
+      ? hermeticPrinciples 
+      : Object.entries(hermeticPrinciples).map(([id, data]: [string, any]) => ({
+          id,
+          ...data
+        }));
 
   return (
     <Layout pageTitle="Hermetic Principles | Sacred Shifter">

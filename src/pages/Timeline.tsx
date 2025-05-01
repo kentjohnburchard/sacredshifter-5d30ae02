@@ -27,9 +27,11 @@ const Timeline: React.FC = () => {
     setShowEditDialog(true);
   };
   
-  const handleCloseDialog = () => {
-    setShowEditDialog(false);
-    setCurrentEntry(null);
+  const handleDialogChange = (open: boolean) => {
+    setShowEditDialog(open);
+    if (!open) {
+      setCurrentEntry(null);
+    }
   };
   
   return (
@@ -61,7 +63,7 @@ const Timeline: React.FC = () => {
           <EditEntryDialog
             entry={currentEntry}
             open={showEditDialog}
-            onClose={handleCloseDialog}
+            onOpenChange={handleDialogChange}
           />
         )}
       </div>

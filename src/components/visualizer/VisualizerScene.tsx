@@ -14,6 +14,7 @@ import CosmicCollisionScene from './CosmicCollisionScene';
 import CymaticTileScene from './CymaticTileScene';
 import PrimeSymphonyScene from './PrimeSymphonyScene';
 import FractalAudioVisualizer from './FractalAudioVisualizer';
+import { SceneProps } from './SceneProps';
 
 interface VisualizerSceneProps {
   scene: string;
