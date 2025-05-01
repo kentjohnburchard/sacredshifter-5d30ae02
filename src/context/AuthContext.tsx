@@ -35,10 +35,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
       console.log(`Auth state changed: ${event}`, newSession?.user?.email);
       
-      // Update state synchronously within the callback
-      setSession(newSession);
-      setUser(newSession?.user ?? null);
-      setLoading(false);
+      if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setSession(null);
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        setUser(newSession?.user ?? null);
+        setSession(newSession);
+      }
+      
+      // Only update loading to false when we have a definite auth state
+      if (event !== 'INITIAL_SESSION') {
+        setLoading(false);
+      }
     });
 
     // Then fetch the current session
@@ -48,15 +56,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         if (error) {
           console.error('Error fetching session:', error.message);
-        } else if (data?.session) {
-          console.log("Initial session found:", data.session.user.email);
-          setSession(data.session);
-          setUser(data.session.user);
+          setLoading(false);
         } else {
-          console.log("No active session found");
+          console.log("Initial session check:", data?.session ? "Found session" : "No active session");
+          setSession(data?.session);
+          setUser(data?.session?.user ?? null);
+          setLoading(false);
         }
-        
-        setLoading(false);
       } catch (err) {
         console.error("Failed to initialize auth:", err);
         setLoading(false);
@@ -89,6 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       console.log("Sign in successful:", data?.user?.email);
+      // Don't set loading false here, let the onAuthStateChange handle it
       return { error: null };
     } catch (error: any) {
       console.error("Unexpected error during sign in:", error);
@@ -114,6 +121,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       console.log("Sign up successful:", data?.user?.email);
+      // Don't manually update state if successfully signed up
+      // The onAuthStateChange will handle it
       return { error: null };
     } catch (error: any) {
       console.error("Unexpected error during sign up:", error);
@@ -126,12 +135,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log("Signing out");
     try {
       setLoading(true);
-      await supabase.auth.signOut();
-      console.log("Sign out successful");
-      // Don't manually update state here, the onAuthStateChange will handle it
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Error signing out:', error);
+        setLoading(false);
+      }
+      // Don't manually update user state here, the onAuthStateChange will handle it
     } catch (error) {
       console.error('Error signing out:', error);
-    } finally {
       setLoading(false);
     }
   };

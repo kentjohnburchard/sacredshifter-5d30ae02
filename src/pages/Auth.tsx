@@ -9,12 +9,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Separator } from '@/components/ui/separator';
-import { Info, Key } from 'lucide-react';
+import { Info, Key, AlertCircle } from 'lucide-react';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [authInProgress, setAuthInProgress] = useState(false);
   const [activeTab, setActiveTab] = useState<'login' | 'signup' | 'test'>('login');
   const { signIn, signUp, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -42,6 +42,7 @@ const Auth = () => {
   useEffect(() => {
     console.log("Auth page: User authenticated?", !!user, "Auth loading?", authLoading);
     if (user && !authLoading) {
+      // Get redirect path or default to dashboard
       const redirectPath = sessionStorage.getItem('redirectAfterLogin') || '/dashboard';
       console.log(`Auth page: User authenticated, redirecting to ${redirectPath}`);
       sessionStorage.removeItem('redirectAfterLogin'); // Clear the stored path
@@ -51,15 +52,18 @@ const Auth = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (authInProgress) return; // Prevent multiple simultaneous requests
+    
     console.log(`Auth page: Attempting login for ${email}`);
-    setLoading(true);
+    setAuthInProgress(true);
+    
     try {
       const { error } = await signIn({ email, password });
       if (error) {
         console.error("Login error:", error.message);
         toast.error(error.message || "Login failed");
       } else {
-        console.log("Login successful, waiting for auth state update");
+        console.log("Login request successful, waiting for auth state update");
         toast.success('Successfully signed in!');
         // The redirect will happen in useEffect when user state updates
       }
@@ -67,14 +71,17 @@ const Auth = () => {
       console.error("Login exception:", error);
       toast.error(error.message || 'Failed to sign in');
     } finally {
-      setLoading(false);
+      setAuthInProgress(false);
     }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (authInProgress) return; // Prevent multiple simultaneous requests
+    
     console.log(`Auth page: Attempting signup for ${email}`);
-    setLoading(true);
+    setAuthInProgress(true);
+    
     try {
       const { error } = await signUp({ email, password });
       if (error) {
@@ -88,13 +95,16 @@ const Auth = () => {
       console.error("Signup exception:", error);
       toast.error(error.message || 'Failed to sign up');
     } finally {
-      setLoading(false);
+      setAuthInProgress(false);
     }
   };
 
   const loginWithTestUser = async (testEmail: string, testPassword: string) => {
+    if (authInProgress) return; // Prevent multiple simultaneous requests
+    
     console.log(`Auth page: Attempting login with test account: ${testEmail}`);
-    setLoading(true);
+    setAuthInProgress(true);
+    
     try {
       const { error } = await signIn({ 
         email: testEmail, 
@@ -113,16 +123,17 @@ const Auth = () => {
       console.error("Test login exception:", error);
       toast.error(error.message || 'Failed to sign in with test account');
     } finally {
-      setLoading(false);
+      setAuthInProgress(false);
     }
   };
 
-  if (authLoading) {
+  // Show loading state when both auth is loading and user has initiated an auth action
+  if (authLoading && authInProgress) {
     return (
       <div className="flex min-h-screen items-center justify-center p-4 bg-gradient-to-br from-purple-50 to-indigo-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Checking authentication status...</p>
+          <p className="text-gray-600">Authenticating...</p>
         </div>
       </div>
     );
@@ -145,6 +156,16 @@ const Auth = () => {
             <TabsTrigger value="test">Test Users</TabsTrigger>
           </TabsList>
           
+          {/* Display auth errors in a clean way */}
+          {authInProgress && (
+            <div className="mb-4 py-2 px-3 bg-purple-50 text-purple-700 text-sm rounded-md border border-purple-200">
+              <div className="flex items-center">
+                <div className="animate-pulse mr-2 h-2 w-2 rounded-full bg-purple-500"></div>
+                <span>Processing authentication request...</span>
+              </div>
+            </div>
+          )}
+          
           <TabsContent value="login">
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
@@ -156,6 +177,7 @@ const Auth = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  disabled={authInProgress}
                 />
               </div>
               
@@ -168,15 +190,16 @@ const Auth = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={authInProgress}
                 />
               </div>
               
               <Button 
                 type="submit" 
                 className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-                disabled={loading}
+                disabled={authInProgress}
               >
-                {loading ? 'Logging in...' : 'Login'}
+                {authInProgress ? 'Logging in...' : 'Login'}
               </Button>
             </form>
           </TabsContent>
@@ -192,6 +215,7 @@ const Auth = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  disabled={authInProgress}
                 />
               </div>
               
@@ -204,6 +228,7 @@ const Auth = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={authInProgress}
                 />
                 <p className="text-xs text-gray-500">Password must be at least 6 characters</p>
               </div>
@@ -211,9 +236,9 @@ const Auth = () => {
               <Button 
                 type="submit" 
                 className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-                disabled={loading}
+                disabled={authInProgress}
               >
-                {loading ? 'Creating account...' : 'Create Account'}
+                {authInProgress ? 'Creating account...' : 'Create Account'}
               </Button>
             </form>
           </TabsContent>
@@ -238,7 +263,7 @@ const Auth = () => {
                       size="sm" 
                       variant="outline"
                       onClick={() => loginWithTestUser(testUser.email, testUser.password)}
-                      disabled={loading}
+                      disabled={authInProgress}
                       className="flex gap-2 items-center"
                     >
                       <Key className="h-4 w-4" />
