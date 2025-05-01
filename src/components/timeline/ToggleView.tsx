@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ViewVertical, CircleDot } from 'lucide-react';
+import { AlignVerticalJustifyCenter, CircleDot } from 'lucide-react';
 
 interface ToggleViewProps {
   viewMode: 'vertical' | 'spiral';
@@ -16,7 +16,7 @@ const ToggleView: React.FC<ToggleViewProps> = ({ viewMode, onViewChange }) => {
         variant={viewMode === 'vertical' ? 'default' : 'outline'}
         onClick={() => onViewChange('vertical')}
       >
-        <ViewVertical className="h-4 w-4 mr-1" />
+        <AlignVerticalJustifyCenter className="h-4 w-4 mr-1" />
         Linear
       </Button>
       <Button

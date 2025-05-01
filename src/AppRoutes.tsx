@@ -1,4 +1,3 @@
-
 import React, { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
@@ -67,7 +66,13 @@ const AppRoutes: React.FC = () => {
       <Routes>
         {/* Redirect root path to our new Home Page */}
         <Route path="/" element={<HomePage />} />
-        <Route path="/coming-soon" element={<ComingSoon />} />
+        <Route path="/coming-soon" element={
+          <ComingSoon 
+            title="Coming Soon" 
+            description="This feature is currently under development" 
+            expectedDate="Q3 2025" 
+          />
+        } />
         <Route path="/home" element={<SacredShifterHome />} />
         <Route path="/original-home" element={<Home />} />
         <Route path="/dashboard" element={
