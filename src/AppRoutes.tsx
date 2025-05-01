@@ -56,6 +56,8 @@ import DeityOracle from '@/pages/DeityOracle';
 import AstralAttunement from '@/pages/AstralAttunement';
 
 const AppRoutes: React.FC = () => {
+  console.log("AppRoutes rendering - checking route configuration");
+  
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center min-h-screen">
@@ -75,11 +77,17 @@ const AppRoutes: React.FC = () => {
         } />
         <Route path="/home" element={<SacredShifterHome />} />
         <Route path="/original-home" element={<Home />} />
-        <Route path="/dashboard" element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        } />
+        
+        {/* Debug this route specifically */}
+        <Route 
+          path="/dashboard" 
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } 
+        />
+        
         <Route path="/frequency-library" element={<FrequencyLibrary />} />
         <Route path="/frequencies" element={<FrequencyLibrary />} />
         <Route path="/auth" element={<Auth />} />
