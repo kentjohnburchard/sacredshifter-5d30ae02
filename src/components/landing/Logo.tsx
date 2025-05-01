@@ -1,4 +1,5 @@
 
+// This component is no longer used on the homepage
 import React from "react";
 import { motion } from "framer-motion";
 

@@ -103,8 +103,8 @@ const HeroSection: React.FC = () => {
         </svg>
       </div>
       
-      {/* Main Content - Moved up to top since logo was removed */}
-      <div className="container mx-auto px-4 z-10 pt-12">
+      {/* Main Content - Positioned at top of page */}
+      <div className="container mx-auto px-4 z-10 pt-24">
         <motion.div 
           className="text-center space-y-8"
           initial={{ opacity: 0, y: 20 }}
