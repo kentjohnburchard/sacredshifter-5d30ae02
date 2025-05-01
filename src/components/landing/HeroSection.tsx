@@ -1,9 +1,9 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import Logo from './Logo';
 
 const HeroSection: React.FC = () => {
   return (
@@ -103,23 +103,14 @@ const HeroSection: React.FC = () => {
         </svg>
       </div>
       
-      {/* Main Content */}
-      <div className="container mx-auto px-4 z-10">
+      {/* Main Content - Moved up to top since logo was removed */}
+      <div className="container mx-auto px-4 z-10 pt-12">
         <motion.div 
           className="text-center space-y-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.5 }}
         >
-          <motion.div 
-            className="mx-auto mb-8"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.5, duration: 2 }}
-          >
-            <Logo />
-          </motion.div>
-          
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-3">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-300 to-indigo-400">
               Sacred Shifter
