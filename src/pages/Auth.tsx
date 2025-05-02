@@ -1,40 +1,39 @@
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
-import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-import { Separator } from '@/components/ui/separator';
-import { Info, Key, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { Separator } from "@/components/ui/separator";
+import { Info, Key, AlertCircle, Loader2 } from "lucide-react";
 
 const Auth = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [authInProgress, setAuthInProgress] = useState(false);
-  const [activeTab, setActiveTab] = useState<'login' | 'signup' | 'test'>('login');
+  const [activeTab, setActiveTab] = useState<"login" | "signup" | "test">("login");
   const { signIn, signUp, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const location = useLocation();
 
   // Test user accounts
   const testUsers = [
-    { email: 'test@sacredshifter.com', password: 'test123', label: 'Standard Test User' },
-    { email: 'admin@sacredshifter.com', password: 'admin123', label: 'Admin Test User' },
-    { email: 'demo@sacredshifter.com', password: 'demo123', label: 'Demo User' }
+    { email: "test@sacredshifter.com", password: "test123", label: "Standard Test User" },
+    { email: "admin@sacredshifter.com", password: "admin123", label: "Admin Test User" },
+    { email: "demo@sacredshifter.com", password: "demo123", label: "Demo User" },
   ];
 
   // Check if we should show signup tab by default
   useEffect(() => {
     console.log("Auth page: Checking params and user state");
-    if (searchParams.get('signup') === 'true') {
-      setActiveTab('signup');
-    } else if (searchParams.get('test') === 'true') {
-      setActiveTab('test');
+    if (searchParams.get("signup") === "true") {
+      setActiveTab("signup");
+    } else if (searchParams.get("test") === "true") {
+      setActiveTab("test");
     }
   }, [searchParams]);
 
@@ -43,9 +42,9 @@ const Auth = () => {
     console.log("Auth page: User authenticated?", !!user, "Auth loading?", authLoading);
     if (user && !authLoading) {
       // Get redirect path or default to dashboard
-      const redirectPath = sessionStorage.getItem('redirectAfterLogin') || '/dashboard';
+      const redirectPath = sessionStorage.getItem("redirectAfterLogin") || "/dashboard";
       console.log(`Auth page: User authenticated, redirecting to ${redirectPath}`);
-      sessionStorage.removeItem('redirectAfterLogin'); // Clear the stored path
+      sessionStorage.removeItem("redirectAfterLogin"); // Clear the stored path
       navigate(redirectPath, { replace: true });
     }
   }, [user, authLoading, navigate]);
@@ -53,24 +52,23 @@ const Auth = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (authInProgress) return; // Prevent multiple simultaneous requests
-    
+
     console.log(`Auth page: Attempting login for ${email}`);
     setAuthInProgress(true);
-    
+
     try {
       const { error } = await signIn({ email, password });
       if (error) {
         console.error("Login error:", error.message);
         toast.error(error.message || "Login failed");
+        setAuthInProgress(false);
       } else {
         console.log("Login request successful, waiting for auth state update");
-        toast.success('Successfully signed in!');
         // The redirect will happen in useEffect when user state updates
       }
     } catch (error: any) {
       console.error("Login exception:", error);
-      toast.error(error.message || 'Failed to sign in');
-    } finally {
+      toast.error(error.message || "Failed to sign in");
       setAuthInProgress(false);
     }
   };
@@ -78,44 +76,48 @@ const Auth = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (authInProgress) return; // Prevent multiple simultaneous requests
-    
+
     console.log(`Auth page: Attempting signup for ${email}`);
     setAuthInProgress(true);
-    
+
     try {
       const { error } = await signUp({ email, password });
       if (error) {
         console.error("Signup error:", error.message);
         toast.error(error.message || "Signup failed");
+        setAuthInProgress(false);
       } else {
         console.log("Signup successful");
-        toast.success('Registration successful! Please check your email for confirmation.');
+        toast.success("Registration successful! Please check your email for confirmation.");
         // Wait a moment and then switch to login tab
-        setTimeout(() => setActiveTab('login'), 2000);
+        setTimeout(() => {
+          setActiveTab("login");
+          setAuthInProgress(false);
+        }, 2000);
       }
     } catch (error: any) {
       console.error("Signup exception:", error);
-      toast.error(error.message || 'Failed to sign up');
-    } finally {
+      toast.error(error.message || "Failed to sign up");
       setAuthInProgress(false);
     }
   };
 
   const loginWithTestUser = async (testEmail: string, testPassword: string) => {
     if (authInProgress) return; // Prevent multiple simultaneous requests
-    
+
     console.log(`Auth page: Attempting login with test account: ${testEmail}`);
     setAuthInProgress(true);
-    
+
     try {
-      const { error } = await signIn({ 
-        email: testEmail, 
-        password: testPassword 
+      const { error } = await signIn({
+        email: testEmail,
+        password: testPassword,
       });
-      
+
       if (error) {
         console.error("Test login error:", error);
         toast.error(`Test login failed: ${error.message}`);
+        setAuthInProgress(false);
       } else {
         console.log("Test login successful");
         toast.success(`Logged in as test user: ${testEmail}`);
@@ -123,14 +125,13 @@ const Auth = () => {
       }
     } catch (error: any) {
       console.error("Test login exception:", error);
-      toast.error(error.message || 'Failed to sign in with test account');
-    } finally {
+      toast.error(error.message || "Failed to sign in with test account");
       setAuthInProgress(false);
     }
   };
 
   // Show loading state when both auth is loading and user has initiated an auth action
-  if (authLoading && authInProgress) {
+  if ((authLoading || authInProgress) && authInProgress) {
     return (
       <div className="flex min-h-screen items-center justify-center p-4 bg-gradient-to-br from-purple-50 to-indigo-50">
         <div className="text-center">
@@ -150,14 +151,17 @@ const Auth = () => {
           </h1>
           <p className="text-gray-600 mt-2">Reconnect with your highest self</p>
         </div>
-        
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'login' | 'signup' | 'test')}>
+
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "login" | "signup" | "test")}
+        >
           <TabsList className="grid w-full grid-cols-3 mb-8">
             <TabsTrigger value="login">Login</TabsTrigger>
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
             <TabsTrigger value="test">Test Users</TabsTrigger>
           </TabsList>
-          
+
           {/* Display auth errors in a clean way */}
           {authInProgress && (
             <div className="mb-4 py-2 px-3 bg-purple-50 text-purple-700 text-sm rounded-md border border-purple-200">
@@ -167,12 +171,12 @@ const Auth = () => {
               </div>
             </div>
           )}
-          
+
           <TabsContent value="login">
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input 
+                <Input
                   id="email"
                   type="email"
                   placeholder="your@email.com"
@@ -183,10 +187,10 @@ const Auth = () => {
                   className="bg-white/90 text-gray-800"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input 
+                <Input
                   id="password"
                   type="password"
                   placeholder="••••••••"
@@ -197,22 +201,29 @@ const Auth = () => {
                   className="bg-white/90 text-gray-800"
                 />
               </div>
-              
-              <Button 
-                type="submit" 
+
+              <Button
+                type="submit"
                 className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
                 disabled={authInProgress}
               >
-                {authInProgress ? 'Logging in...' : 'Login'}
+                {authInProgress ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Logging in...
+                  </>
+                ) : (
+                  "Login"
+                )}
               </Button>
             </form>
           </TabsContent>
-          
+
           <TabsContent value="signup">
             <form onSubmit={handleSignUp} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="signup-email">Email</Label>
-                <Input 
+                <Input
                   id="signup-email"
                   type="email"
                   placeholder="your@email.com"
@@ -223,10 +234,10 @@ const Auth = () => {
                   className="bg-white/90 text-gray-800"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="signup-password">Password</Label>
-                <Input 
+                <Input
                   id="signup-password"
                   type="password"
                   placeholder="••••••••"
@@ -236,28 +247,39 @@ const Auth = () => {
                   disabled={authInProgress}
                   className="bg-white/90 text-gray-800"
                 />
-                <p className="text-xs text-gray-500">Password must be at least 6 characters</p>
+                <p className="text-xs text-gray-500">
+                  Password must be at least 6 characters
+                </p>
               </div>
-              
-              <Button 
-                type="submit" 
+
+              <Button
+                type="submit"
                 className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
                 disabled={authInProgress}
               >
-                {authInProgress ? 'Creating account...' : 'Create Account'}
+                {authInProgress ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating account...
+                  </>
+                ) : (
+                  "Create Account"
+                )}
               </Button>
             </form>
           </TabsContent>
-          
+
           <TabsContent value="test">
             <div className="space-y-5">
               <div className="flex items-center gap-2">
                 <Info className="h-5 w-5 text-amber-500" />
-                <p className="text-sm text-gray-600">These accounts are for testing purposes only.</p>
+                <p className="text-sm text-gray-600">
+                  These accounts are for testing purposes only.
+                </p>
               </div>
-              
+
               <Separator />
-              
+
               {testUsers.map((testUser, index) => (
                 <div key={index} className="p-3 border rounded-lg bg-white/70">
                   <div className="flex justify-between items-center mb-2">
@@ -265,19 +287,25 @@ const Auth = () => {
                       <p className="font-medium">{testUser.label}</p>
                       <p className="text-sm text-gray-500">{testUser.email}</p>
                     </div>
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       variant="outline"
-                      onClick={() => loginWithTestUser(testUser.email, testUser.password)}
+                      onClick={() =>
+                        loginWithTestUser(testUser.email, testUser.password)
+                      }
                       disabled={authInProgress}
                       className="flex gap-2 items-center"
                     >
-                      <Key className="h-4 w-4" />
+                      {authInProgress ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Key className="h-4 w-4" />
+                      )}
                       Login
                     </Button>
                   </div>
                   <div className="text-xs text-gray-500 flex items-center">
-                    <span className="font-medium">Password:</span> 
+                    <span className="font-medium">Password:</span>
                     <span className="ml-2">{testUser.password}</span>
                   </div>
                 </div>
@@ -285,9 +313,12 @@ const Auth = () => {
             </div>
           </TabsContent>
         </Tabs>
-        
+
         <div className="mt-6 text-center text-sm text-gray-600">
-          <p>By continuing, you agree to Sacred Shifter's Terms of Service and Privacy Policy.</p>
+          <p>
+            By continuing, you agree to Sacred Shifter's Terms of Service and
+            Privacy Policy.
+          </p>
         </div>
       </Card>
     </div>

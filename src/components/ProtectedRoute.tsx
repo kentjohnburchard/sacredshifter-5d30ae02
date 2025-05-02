@@ -21,7 +21,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     }
   }, [user, loading, location.pathname]);
 
-  // Show a loading indicator with a timeout to prevent infinite spinner
+  // Show a loading indicator
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -34,7 +34,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   // Only redirect when we're sure user is not authenticated (loading is false)
   if (!user) {
     console.log("Redirecting to auth page from:", location.pathname);
-    return <Navigate to="/auth" state={{ from: location.pathname }} replace />;
+    return <Navigate to="/auth" replace />;
   }
 
   return <>{children}</>;

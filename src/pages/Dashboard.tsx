@@ -15,9 +15,10 @@ const Dashboard: React.FC = () => {
       email: user?.email
     });
 
-    // Show welcome message when user is authenticated
+    // Show welcome message when user is authenticated and loading is complete
     if (user && !loading) {
-      toast.success(`Welcome back, ${user.email?.split('@')[0] || 'Sacred Shifter'}!`, {
+      const username = user.email?.split('@')[0] || 'Sacred Shifter';
+      toast.success(`Welcome back, ${username}!`, {
         id: 'dashboard-welcome', // Prevent duplicate toasts
         duration: 3000
       });
