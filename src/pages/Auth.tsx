@@ -14,7 +14,7 @@ import { Info, Key, AlertCircle, Loader2 } from "lucide-react";
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [authInProgress, setAuthInProgress] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState<"login" | "signup" | "test">("login");
   const { signIn, signUp, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -51,87 +51,82 @@ const Auth = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (authInProgress) return; // Prevent multiple simultaneous requests
-
+    if (isSubmitting) return; // Prevent multiple simultaneous requests
+    
     console.log(`Auth page: Attempting login for ${email}`);
-    setAuthInProgress(true);
-
+    setIsSubmitting(true);
+    
     try {
       const { error } = await signIn({ email, password });
       if (error) {
         console.error("Login error:", error.message);
         toast.error(error.message || "Login failed");
-        setAuthInProgress(false);
-      } else {
-        console.log("Login request successful, waiting for auth state update");
-        // The redirect will happen in useEffect when user state updates
+        setIsSubmitting(false);
       }
+      // Don't set isSubmitting to false on success - we'll be redirected
     } catch (error: any) {
       console.error("Login exception:", error);
       toast.error(error.message || "Failed to sign in");
-      setAuthInProgress(false);
+      setIsSubmitting(false);
     }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (authInProgress) return; // Prevent multiple simultaneous requests
-
+    if (isSubmitting) return; // Prevent multiple simultaneous requests
+    
     console.log(`Auth page: Attempting signup for ${email}`);
-    setAuthInProgress(true);
-
+    setIsSubmitting(true);
+    
     try {
       const { error } = await signUp({ email, password });
       if (error) {
         console.error("Signup error:", error.message);
         toast.error(error.message || "Signup failed");
-        setAuthInProgress(false);
+        setIsSubmitting(false);
       } else {
         console.log("Signup successful");
         toast.success("Registration successful! Please check your email for confirmation.");
         // Wait a moment and then switch to login tab
         setTimeout(() => {
           setActiveTab("login");
-          setAuthInProgress(false);
+          setIsSubmitting(false);
         }, 2000);
       }
     } catch (error: any) {
       console.error("Signup exception:", error);
       toast.error(error.message || "Failed to sign up");
-      setAuthInProgress(false);
+      setIsSubmitting(false);
     }
   };
 
   const loginWithTestUser = async (testEmail: string, testPassword: string) => {
-    if (authInProgress) return; // Prevent multiple simultaneous requests
-
+    if (isSubmitting) return; // Prevent multiple simultaneous requests
+    
     console.log(`Auth page: Attempting login with test account: ${testEmail}`);
-    setAuthInProgress(true);
-
+    setIsSubmitting(true);
+    
     try {
       const { error } = await signIn({
         email: testEmail,
         password: testPassword,
       });
-
+      
       if (error) {
         console.error("Test login error:", error);
         toast.error(`Test login failed: ${error.message}`);
-        setAuthInProgress(false);
-      } else {
-        console.log("Test login successful");
-        toast.success(`Logged in as test user: ${testEmail}`);
-        // The redirect will happen in useEffect when user state updates
+        setIsSubmitting(false);
       }
+      // Don't set isSubmitting to false on success - we'll be redirected
     } catch (error: any) {
       console.error("Test login exception:", error);
       toast.error(error.message || "Failed to sign in with test account");
-      setAuthInProgress(false);
+      setIsSubmitting(false);
     }
   };
 
-  // Show loading state when both auth is loading and user has initiated an auth action
-  if ((authLoading || authInProgress) && authInProgress) {
+  // Show loading state when authentication is in progress
+  if ((authLoading && user) || (isSubmitting && !authLoading)) {
     return (
       <div className="flex min-h-screen items-center justify-center p-4 bg-gradient-to-br from-purple-50 to-indigo-50">
         <div className="text-center">
@@ -155,18 +150,19 @@ const Auth = () => {
         <Tabs
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as "login" | "signup" | "test")}
+          className="space-y-4"
         >
-          <TabsList className="grid w-full grid-cols-3 mb-8">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="login">Login</TabsTrigger>
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
             <TabsTrigger value="test">Test Users</TabsTrigger>
           </TabsList>
 
-          {/* Display auth errors in a clean way */}
-          {authInProgress && (
-            <div className="mb-4 py-2 px-3 bg-purple-50 text-purple-700 text-sm rounded-md border border-purple-200">
+          {/* Display auth in progress indicator */}
+          {isSubmitting && (
+            <div className="my-3 py-2 px-3 bg-purple-50 text-purple-700 text-sm rounded-md border border-purple-200">
               <div className="flex items-center">
-                <div className="animate-pulse mr-2 h-2 w-2 rounded-full bg-purple-500"></div>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 <span>Processing authentication request...</span>
               </div>
             </div>
@@ -183,7 +179,7 @@ const Auth = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  disabled={authInProgress}
+                  disabled={isSubmitting}
                   className="bg-white/90 text-gray-800"
                 />
               </div>
@@ -197,7 +193,7 @@ const Auth = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  disabled={authInProgress}
+                  disabled={isSubmitting}
                   className="bg-white/90 text-gray-800"
                 />
               </div>
@@ -205,9 +201,9 @@ const Auth = () => {
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-                disabled={authInProgress}
+                disabled={isSubmitting}
               >
-                {authInProgress ? (
+                {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Logging in...
@@ -230,7 +226,7 @@ const Auth = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  disabled={authInProgress}
+                  disabled={isSubmitting}
                   className="bg-white/90 text-gray-800"
                 />
               </div>
@@ -244,7 +240,7 @@ const Auth = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  disabled={authInProgress}
+                  disabled={isSubmitting}
                   className="bg-white/90 text-gray-800"
                 />
                 <p className="text-xs text-gray-500">
@@ -255,9 +251,9 @@ const Auth = () => {
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-                disabled={authInProgress}
+                disabled={isSubmitting}
               >
-                {authInProgress ? (
+                {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Creating account...
@@ -270,7 +266,7 @@ const Auth = () => {
           </TabsContent>
 
           <TabsContent value="test">
-            <div className="space-y-5">
+            <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Info className="h-5 w-5 text-amber-500" />
                 <p className="text-sm text-gray-600">
@@ -278,7 +274,7 @@ const Auth = () => {
                 </p>
               </div>
 
-              <Separator />
+              <Separator className="my-2" />
 
               {testUsers.map((testUser, index) => (
                 <div key={index} className="p-3 border rounded-lg bg-white/70">
@@ -293,10 +289,10 @@ const Auth = () => {
                       onClick={() =>
                         loginWithTestUser(testUser.email, testUser.password)
                       }
-                      disabled={authInProgress}
+                      disabled={isSubmitting}
                       className="flex gap-2 items-center"
                     >
-                      {authInProgress ? (
+                      {isSubmitting ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
                         <Key className="h-4 w-4" />

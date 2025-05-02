@@ -15,23 +15,24 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     console.log("ProtectedRoute rendering for path:", location.pathname);
     console.log("Auth state:", { authenticated: !!user, loading });
     
+    // Store the current path for redirection after login
     if (!loading && !user) {
       console.log("User not authenticated, storing redirect path:", location.pathname);
       sessionStorage.setItem('redirectAfterLogin', location.pathname);
     }
   }, [user, loading, location.pathname]);
 
-  // Show a loading indicator
+  // Show a loading indicator when checking auth
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin h-12 w-12 border-b-2 border-purple-500 rounded-full"></div>
-        <div className="ml-3 text-purple-700">Verifying authentication...</div>
+        <div className="animate-spin h-10 w-10 border-b-2 border-purple-500 rounded-full mr-3"></div>
+        <div className="text-lg text-purple-700">Verifying authentication...</div>
       </div>
     );
   }
 
-  // Only redirect when we're sure user is not authenticated (loading is false)
+  // Only redirect when we're sure user is not authenticated
   if (!user) {
     console.log("Redirecting to auth page from:", location.pathname);
     return <Navigate to="/auth" replace />;

@@ -40,13 +40,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(null);
         setSession(null);
       } else if (newSession) {
-        // For SIGNED_IN or TOKEN_REFRESHED
         setUser(newSession.user);
         setSession(newSession);
       }
       
-      // Only update loading to false when we have a definite auth state
-      if (event !== 'INITIAL_SESSION') {
+      // Update loading state for relevant auth events
+      if (['SIGNED_IN', 'SIGNED_OUT', 'TOKEN_REFRESHED', 'USER_UPDATED'].includes(event)) {
         setLoading(false);
       }
     });
@@ -82,10 +81,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signIn = async ({ email, password }: { email: string; password: string }) => {
-    console.log(`Attempting to sign in: ${email}`);
     setLoading(true);
     
     try {
+      console.log(`Attempting to sign in: ${email}`);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -112,10 +111,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signUp = async ({ email, password }: { email: string; password: string }) => {
-    console.log(`Attempting to sign up: ${email}`);
     setLoading(true);
     
     try {
+      console.log(`Attempting to sign up: ${email}`);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -131,7 +130,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log("Sign up successful:", data?.user?.email);
       toast.success("Registration successful! Please check your email for confirmation.");
       
-      // We don't automatically log in after signup since email confirmation may be required
       setTimeout(() => setLoading(false), 500);
       return { error: null };
     } catch (error: any) {
@@ -143,10 +141,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
-    console.log("Signing out");
     setLoading(true);
     
     try {
+      console.log("Signing out");
       const { error } = await supabase.auth.signOut();
       
       if (error) {
@@ -158,7 +156,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // The onAuthStateChange listener will update the state
       }
       
-      // Delay to allow state updates to propagate
       setTimeout(() => setLoading(false), 500);
     } catch (error: any) {
       console.error('Error signing out:', error);
