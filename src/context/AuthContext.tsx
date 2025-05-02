@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
+import { toast } from 'sonner';
 
 interface AuthContextProps {
   user: User | null;
@@ -53,6 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Then fetch the current session
     const initializeAuth = async () => {
       try {
+        console.log("Fetching current session...");
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -91,13 +93,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (error) {
         console.error("Sign in error:", error.message);
+        toast.error(error.message || "Login failed");
         return { error };
       }
       
       console.log("Sign in successful:", data?.user?.email);
+      toast.success("Successfully signed in!");
       return { error: null };
     } catch (error: any) {
       console.error("Unexpected error during sign in:", error);
+      toast.error(error.message || "An unexpected error occurred");
       return { error };
     }
   };
@@ -113,13 +118,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (error) {
         console.error("Sign up error:", error.message);
+        toast.error(error.message || "Registration failed");
         return { error };
       }
       
       console.log("Sign up successful:", data?.user?.email);
+      toast.success("Registration successful! Please check your email for confirmation.");
       return { error: null };
     } catch (error: any) {
       console.error("Unexpected error during sign up:", error);
+      toast.error(error.message || "An unexpected error occurred");
       return { error };
     }
   };
@@ -131,12 +139,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (error) {
         console.error('Error signing out:', error);
+        toast.error(error.message || "Failed to sign out");
       } else {
         console.log("Sign out successful");
+        toast.success("Successfully signed out");
         // The onAuthStateChange listener will update the state
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error signing out:', error);
+      toast.error(error.message || "An unexpected error occurred");
     }
   };
 

@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/context/AuthContext';
 import UserDashboard from '@/components/UserDashboard';
+import { toast } from 'sonner';
 
 const Dashboard: React.FC = () => {
   const { user, loading } = useAuth();
@@ -13,6 +14,14 @@ const Dashboard: React.FC = () => {
       loading,
       email: user?.email
     });
+
+    // Show welcome message when user is authenticated
+    if (user && !loading) {
+      toast.success(`Welcome back, ${user.email?.split('@')[0] || 'Sacred Shifter'}!`, {
+        id: 'dashboard-welcome', // Prevent duplicate toasts
+        duration: 3000
+      });
+    }
   }, [user, loading]);
 
   return (
@@ -26,7 +35,8 @@ const Dashboard: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin h-12 w-12 border-b-2 border-purple-500 rounded-full"></div>
+              <div className="animate-spin h-12 w-12 border-b-2 border-purple-500 rounded-full mr-3"></div>
+              <div className="text-purple-700">Loading your dashboard...</div>
             </div>
           ) : user ? (
             <UserDashboard />

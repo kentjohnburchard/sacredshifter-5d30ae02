@@ -180,6 +180,7 @@ const Auth = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={authInProgress}
+                  className="bg-white/90 text-gray-800"
                 />
               </div>
               
@@ -193,6 +194,7 @@ const Auth = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={authInProgress}
+                  className="bg-white/90 text-gray-800"
                 />
               </div>
               
@@ -218,6 +220,7 @@ const Auth = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={authInProgress}
+                  className="bg-white/90 text-gray-800"
                 />
               </div>
               
@@ -231,6 +234,7 @@ const Auth = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={authInProgress}
+                  className="bg-white/90 text-gray-800"
                 />
                 <p className="text-xs text-gray-500">Password must be at least 6 characters</p>
               </div>
@@ -255,7 +259,7 @@ const Auth = () => {
               <Separator />
               
               {testUsers.map((testUser, index) => (
-                <div key={index} className="p-3 border rounded-lg">
+                <div key={index} className="p-3 border rounded-lg bg-white/70">
                   <div className="flex justify-between items-center mb-2">
                     <div>
                       <p className="font-medium">{testUser.label}</p>

@@ -26,6 +26,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin h-12 w-12 border-b-2 border-purple-500 rounded-full"></div>
+        <div className="ml-3 text-purple-700">Verifying authentication...</div>
       </div>
     );
   }
