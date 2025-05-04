@@ -49,9 +49,9 @@ const Layout: React.FC<LayoutProps> = ({
   const consciousnessClass = liftTheVeil ? 'veil-mode' : 'standard-mode';
 
   return (
-    <div className={`relative flex min-h-screen w-full overflow-x-hidden bg-black ${consciousnessClass}`}>
-      {/* Add the sacred grid background similar to Coming Soon page */}
-      <div className="absolute inset-0 z-0 opacity-70">
+    <div className={`relative flex min-h-screen w-full overflow-x-hidden ${consciousnessClass}`}>
+      {/* Sacred grid background - repositioned as fixed and full viewport */}
+      <div className="fixed inset-0 w-full h-full z-0">
         <SacredGridBackground 
           intensity={liftTheVeil ? 0.85 : 0.75}
           color={liftTheVeil ? '#FF70E9' : '#9b87f5'}
@@ -60,14 +60,14 @@ const Layout: React.FC<LayoutProps> = ({
       </div>
       
       {/* Gradient overlay with reduced opacity for more transparency */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/40 via-transparent to-black/40 pointer-events-none" />
+      <div className="fixed inset-0 z-0 bg-gradient-to-b from-black/30 via-transparent to-black/30 pointer-events-none" />
       
-      {/* Existing starfield with slightly increased opacity */}
+      {/* Existing starfield with full viewport coverage */}
       <div className="fixed inset-0 z-0 opacity-40">
         <StarfieldBackground density="medium" opacity={0.5} isStatic={false} />
       </div>
       
-      {/* Sacred Geometry with adjusted opacity */}
+      {/* Sacred Geometry with adjusted opacity and positioned as fixed */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-50">
         <SacredGeometryVisualizer
           defaultShape="flower-of-life"
@@ -79,10 +79,10 @@ const Layout: React.FC<LayoutProps> = ({
       
       <ConsciousnessToggle />
 
-      <div className={`flex min-h-screen w-full ${consciousnessClass}`}>
+      <div className={`flex min-h-screen w-full ${consciousnessClass} z-10 relative`}>
         {showNavbar && <Sidebar />}
         
-        <div className={`flex-1 flex flex-col min-h-screen relative z-10 ${themeClasses} ${theme ? `theme-${theme}` : ''} ${consciousnessClass}`}>
+        <div className={`flex-1 flex flex-col min-h-screen relative ${themeClasses} ${theme ? `theme-${theme}` : ''} ${consciousnessClass}`}>
           {!hideHeader && <Header />}
           
           <div className={`flex-grow min-h-[calc(100vh-80px)] pb-32 relative ${showNavbar ? 'sm:pl-20 pt-4' : 'pt-0'} overflow-x-hidden`}>

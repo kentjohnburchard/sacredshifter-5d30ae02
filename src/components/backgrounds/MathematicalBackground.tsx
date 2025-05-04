@@ -45,52 +45,55 @@ const MathematicalBackground: React.FC<MathematicalBackgroundProps> = ({
   }
   
   return (
-    <div className={`relative min-h-screen overflow-hidden bg-black ${liftTheVeil ? 'cosmic-background' : ''}`}>
-      {/* Mathematical canvas background */}
-      <BackgroundCanvas equations={equations} />
-      
-      {/* Sacred Grid background - enhancing visibility */}
-      <div className="absolute inset-0 opacity-80"> {/* Increased opacity */}
-        <SacredGridBackground 
-          intensity={liftTheVeil ? 0.9 : 0.8}
-          color={liftTheVeil ? '#FF70E9' : '#9b87f5'}
-          pulseSpeed={liftTheVeil ? 0.8 : 0.6}
-        />
-      </div>
-      
-      {/* Geometric patterns overlay with reduced opacity for more transparency */}
-      <div className="absolute inset-0 opacity-40"> {/* Reduced opacity */}
-        <GeometricPatterns 
-          triangleCount={intensity === 'high' ? 7 : intensity === 'medium' ? 5 : 3}
-          circleCount={intensity === 'high' ? 7 : intensity === 'medium' ? 5 : 3}
-          squareCount={intensity === 'high' ? 7 : intensity === 'medium' ? 5 : 3}
-        />
-      </div>
-      
-      {/* Reduced gradient overlay for better transparency */}
-      <div className={`absolute inset-0 bg-gradient-to-b ${
-        liftTheVeil 
-          ? 'from-pink-900/20 via-transparent to-fuchsia-900/20' 
-          : 'from-black/20 via-transparent to-black/20'
-      } pointer-events-none`}></div>
-      
-      {/* Added cosmic effects when veil is lifted */}
-      {liftTheVeil && (
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 opacity-30 mix-blend-screen"
-            style={{
-              backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(255, 105, 180, 0.3) 0%, transparent 50%)',
-            }}
-          ></div>
-          <div className="absolute inset-0 opacity-30 mix-blend-overlay"
-            style={{
-              backgroundImage: 'radial-gradient(circle at 30% 70%, rgba(139, 92, 246, 0.3) 0%, transparent 60%)',
-            }}
-          ></div>
+    <div className={`relative min-h-screen overflow-hidden ${liftTheVeil ? 'cosmic-background' : ''}`}>
+      {/* Fixed position background elements */}
+      <div className="fixed inset-0 w-full h-full z-0">
+        {/* Mathematical canvas background */}
+        <BackgroundCanvas equations={equations} />
+        
+        {/* Sacred Grid background with increased visibility */}
+        <div className="absolute inset-0 opacity-80">
+          <SacredGridBackground 
+            intensity={liftTheVeil ? 0.9 : 0.8}
+            color={liftTheVeil ? '#FF70E9' : '#9b87f5'}
+            pulseSpeed={liftTheVeil ? 0.8 : 0.6}
+          />
         </div>
-      )}
+        
+        {/* Geometric patterns overlay */}
+        <div className="absolute inset-0 opacity-40">
+          <GeometricPatterns 
+            triangleCount={intensity === 'high' ? 7 : intensity === 'medium' ? 5 : 3}
+            circleCount={intensity === 'high' ? 7 : intensity === 'medium' ? 5 : 3}
+            squareCount={intensity === 'high' ? 7 : intensity === 'medium' ? 5 : 3}
+          />
+        </div>
+        
+        {/* Semi-transparent gradient overlay */}
+        <div className={`absolute inset-0 bg-gradient-to-b ${
+          liftTheVeil 
+            ? 'from-pink-900/20 via-transparent to-fuchsia-900/20' 
+            : 'from-black/20 via-transparent to-black/20'
+        } pointer-events-none`}></div>
+        
+        {/* Added cosmic effects when veil is lifted */}
+        {liftTheVeil && (
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-0 opacity-30 mix-blend-screen"
+              style={{
+                backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(255, 105, 180, 0.3) 0%, transparent 50%)',
+              }}
+            ></div>
+            <div className="absolute inset-0 opacity-30 mix-blend-overlay"
+              style={{
+                backgroundImage: 'radial-gradient(circle at 30% 70%, rgba(139, 92, 246, 0.3) 0%, transparent 60%)',
+              }}
+            ></div>
+          </div>
+        )}
+      </div>
       
-      {/* Content container */}
+      {/* Content container with elevated z-index */}
       <div className="relative z-10">
         {children}
       </div>

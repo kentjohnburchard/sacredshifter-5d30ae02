@@ -1,3 +1,4 @@
+
 import React from "react";
 import { motion } from "framer-motion";
 
@@ -38,22 +39,22 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
     switch(theme) {
       case 'ethereal':
         return {
-          from: 'from-blue-500/25',   // Reduced opacity
-          to: 'to-purple-500/25',     // Reduced opacity
-          particle: 'bg-blue-200/40'  // Reduced opacity
+          from: 'from-blue-500/30',   // Standardized opacity
+          to: 'to-purple-500/30',     // Standardized opacity
+          particle: 'bg-blue-200/40'  // Standardized opacity
         };
       case 'temple':
         return {
-          from: 'from-amber-500/25',  // Reduced opacity
-          to: 'to-red-500/25',        // Reduced opacity
-          particle: 'bg-amber-200/40' // Reduced opacity
+          from: 'from-amber-500/30',  // Standardized opacity
+          to: 'to-red-500/30',        // Standardized opacity
+          particle: 'bg-amber-200/40' // Standardized opacity
         };
       case 'cosmic':
       default:
         return {
-          from: 'from-purple-500/25', // Reduced opacity
-          to: 'to-blue-500/25',       // Reduced opacity
-          particle: 'bg-purple-200/40' // Reduced opacity
+          from: 'from-purple-500/30', // Standardized opacity
+          to: 'to-blue-500/30',       // Standardized opacity
+          particle: 'bg-purple-200/40' // Standardized opacity
         };
     }
   };
@@ -61,8 +62,8 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
   const colors = getThemeColors();
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+    <div className="min-h-screen relative">
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         {waves.map((wave) => (
           <motion.div
             key={wave.id}
@@ -132,7 +133,9 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
         }
       `}</style>
       
-      {children}
+      <div className="relative z-10">
+        {children}
+      </div>
     </div>
   );
 };

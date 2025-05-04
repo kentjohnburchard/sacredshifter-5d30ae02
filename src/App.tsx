@@ -10,7 +10,7 @@ import './styles/premium.css'; // Import Ascended Path styles
 const App: React.FC = () => {
   return (
     <ThemeProvider>
-      <div id="sacred-shifter-app" className="min-h-screen w-full">
+      <div id="sacred-shifter-app" className="min-h-screen w-full relative overflow-x-hidden">
         <AppRoutes />
         <Toaster />
       </div>

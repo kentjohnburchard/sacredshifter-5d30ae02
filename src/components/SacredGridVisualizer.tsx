@@ -147,8 +147,7 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
         bottom: 0,
         zIndex: 50,
         width: '100vw',
-        height: '100vh',
-        backgroundColor: 'rgba(0, 0, 0, 0.95)'
+        height: '100vh'
       }
     : {
         width: typeof width === 'number' ? `${width}px` : width,
@@ -159,68 +158,74 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
   return (
     <div
       ref={containerRef}
-      className="sacred-grid-visualizer-container"
+      className="sacred-grid-visualizer-container bg-transparent"
       style={containerStyle}
     >
       {/* Sacred grid background */}
       {settings.showGrid && (
-        <SacredGridBackground 
-          intensity={settings.gridIntensity} 
-          color={settings.colorTheme === 'cosmic-violet' ? '#9b87f5' : 
-                settings.colorTheme === 'chakra-rainbow' ? '#e5deff' :
-                settings.colorTheme === 'fire-essence' ? '#ff6b6b' :
-                settings.colorTheme === 'ocean-depths' ? '#00bcd4' :
-                settings.colorTheme === 'earth-tones' ? '#8bc34a' :
-                settings.colorTheme === 'ethereal-mist' ? '#ffffff' : '#9b87f5'}
-          pulseSpeed={settings.speed * 0.5}
-        />
+        <div className="absolute inset-0 z-0">
+          <SacredGridBackground 
+            intensity={settings.gridIntensity} 
+            color={settings.colorTheme === 'cosmic-violet' ? '#9b87f5' : 
+                  settings.colorTheme === 'chakra-rainbow' ? '#e5deff' :
+                  settings.colorTheme === 'fire-essence' ? '#ff6b6b' :
+                  settings.colorTheme === 'ocean-depths' ? '#00bcd4' :
+                  settings.colorTheme === 'earth-tones' ? '#8bc34a' :
+                  settings.colorTheme === 'ethereal-mist' ? '#ffffff' : '#9b87f5'}
+            pulseSpeed={settings.speed * 0.5}
+          />
+        </div>
       )}
       
       {/* Main visualizer - conditional based on setting */}
-      {settings.visualizerType === 'prime-audio' ? (
-        <PrimeAudioVisualizer
-          audioContext={audioContext || providedAudioContext || null}
-          analyser={analyzer || providedAnalyserNode || null}
-          isPlaying={!!globalAudioPlayer?.isPlaying}
-          colorMode={settings.colorTheme === 'cosmic-violet' ? 'standard' :
-                    settings.colorTheme === 'chakra-rainbow' ? 'chakra' :
-                    settings.colorTheme === 'ethereal-mist' ? 'liquid-crystal' : 'standard'}
-          visualMode={'prime'}
-          layout={settings.mode === '3d' ? 'radial' : 'vertical'}
-          sensitivity={settings.sensitivity}
-        />
-      ) : settings.mode === '2d' ? (
-        <SacredGrid2DVisualizer
-          width="100%"
-          height="100%"
-          settings={settings}
-          audioAnalysis={audioAnalysis}
-          className="sacred-grid-visualizer"
-        />
-      ) : (
-        <SacredGrid3DVisualizer
-          width="100%"
-          height="100%"
-          settings={settings}
-          audioAnalysis={audioAnalysis}
-          className="sacred-grid-visualizer"
-        />
-      )}
+      <div className="relative z-10">
+        {settings.visualizerType === 'prime-audio' ? (
+          <PrimeAudioVisualizer
+            audioContext={audioContext || providedAudioContext || null}
+            analyser={analyzer || providedAnalyserNode || null}
+            isPlaying={!!globalAudioPlayer?.isPlaying}
+            colorMode={settings.colorTheme === 'cosmic-violet' ? 'standard' :
+                      settings.colorTheme === 'chakra-rainbow' ? 'chakra' :
+                      settings.colorTheme === 'ethereal-mist' ? 'liquid-crystal' : 'standard'}
+            visualMode={'prime'}
+            layout={settings.mode === '3d' ? 'radial' : 'vertical'}
+            sensitivity={settings.sensitivity}
+          />
+        ) : settings.mode === '2d' ? (
+          <SacredGrid2DVisualizer
+            width="100%"
+            height="100%"
+            settings={settings}
+            audioAnalysis={audioAnalysis}
+            className="sacred-grid-visualizer"
+          />
+        ) : (
+          <SacredGrid3DVisualizer
+            width="100%"
+            height="100%"
+            settings={settings}
+            audioAnalysis={audioAnalysis}
+            className="sacred-grid-visualizer"
+          />
+        )}
+      </div>
       
       {/* Prime number affirmations overlay */}
       {settings.showPrimeAffirmations && (
-        <PrimeNumberAffirmations enabled={true} />
+        <div className="absolute inset-0 z-20 pointer-events-none">
+          <PrimeNumberAffirmations enabled={true} />
+        </div>
       )}
 
       {/* Controls container */}
       {showControls && (
-        <div className={`sacred-grid-controls-container ${isFullscreen ? 'fixed top-8 left-1/2 transform -translate-x-1/2 w-full max-w-5xl px-4' : 'absolute bottom-0 left-0 right-0 p-4'} z-10`}>
+        <div className={`sacred-grid-controls-container ${isFullscreen ? 'fixed top-8 left-1/2 transform -translate-x-1/2 w-full max-w-5xl px-4' : 'absolute bottom-0 left-0 right-0 p-4'} z-30`}>
           <SacredGridControls
             settings={settings}
             onChange={handleSettingsChange}
             expanded={controlsExpanded}
             onToggle={toggleControls}
-            className="bg-black/80 dark:bg-gray-900/80 backdrop-blur-md border border-purple-500/20"
+            className="bg-black/70 dark:bg-gray-900/70 backdrop-blur-md border border-purple-500/30"
             showAudioIndicator={true}
             audioLevel={audioAnalysis.amplitude}
             bpm={audioAnalysis.bpm}
@@ -230,7 +235,7 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
       )}
 
       {/* Volume control */}
-      <div className={`absolute ${isFullscreen ? 'top-8 left-8' : 'bottom-14 left-4'} z-30 bg-black/60 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center gap-2 transition-all`}>
+      <div className={`absolute ${isFullscreen ? 'top-8 left-8' : 'bottom-14 left-4'} z-30 bg-black/70 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center gap-2 transition-all`}>
         <Volume2 className="h-4 w-4 text-white" />
         <Slider
           value={[volume]}
@@ -249,7 +254,7 @@ const SacredGridVisualizer: React.FC<VisualizerProps> = ({
           variant="outline"
           size="icon"
           onClick={toggleFullscreen}
-          className="absolute top-2 right-2 z-30 bg-purple-900/40 hover:bg-purple-700 text-white"
+          className="absolute top-2 right-2 z-30 bg-purple-900/50 hover:bg-purple-700/60 text-white"
         >
           {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
         </Button>
