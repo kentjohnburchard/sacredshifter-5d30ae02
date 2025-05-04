@@ -313,6 +313,47 @@ export type Database = {
         }
         Relationships: []
       }
+      journey_soundscapes: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          file_url: string
+          id: string
+          journey_id: number | null
+          source_link: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          file_url: string
+          id?: string
+          journey_id?: number | null
+          source_link?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          file_url?: string
+          id?: string
+          journey_id?: number | null
+          source_link?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journey_soundscapes_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "journeys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       journey_template_audio_mappings: {
         Row: {
           audio_file_name: string
@@ -1420,6 +1461,18 @@ export type Database = {
           is_primary: boolean
           display_order: number
           display_title: string
+        }[]
+      }
+      get_journey_soundscape: {
+        Args: { journey_slug: string }
+        Returns: {
+          id: string
+          journey_id: number
+          title: string
+          description: string
+          file_url: string
+          source_link: string
+          created_at: string
         }[]
       }
       get_random_audio_from_group: {

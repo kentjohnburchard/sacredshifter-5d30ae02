@@ -58,9 +58,12 @@ import {
   ExternalLinkIcon,
   CheckIcon,
   AlertCircleIcon,
-  FileTextIcon
+  FileTextIcon,
+  FileAudio
 } from 'lucide-react';
 import { fetchJourneys, Journey } from '@/services/journeyService';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import SoundscapeManager from '@/components/admin/SoundscapeManager';
 
 const SacredSpectrumAdmin: React.FC = () => {
   const [resources, setResources] = useState<SacredSpectrumResource[]>([]);
@@ -71,6 +74,7 @@ const SacredSpectrumAdmin: React.FC = () => {
   const [selectedResource, setSelectedResource] = useState<SacredSpectrumResource | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileUploading, setFileUploading] = useState(false);
+  const [activeTab, setActiveTab] = useState('resources');
   const { user } = useAuth();
   
   const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<Partial<SacredSpectrumResource>>();
@@ -206,102 +210,118 @@ const SacredSpectrumAdmin: React.FC = () => {
           <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-600">
             Sacred Spectrum Knowledge Archive
           </h1>
-          <Button onClick={handleAddResource} className="bg-gradient-to-r from-purple-600 to-indigo-600">
-            <PlusIcon className="h-4 w-4 mr-2" /> Add Resource
-          </Button>
         </div>
         
-        <div className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-6">
-          {loading ? (
-            <div className="flex justify-center py-12">
-              <div className="animate-spin h-8 w-8 border-b-2 border-purple-600 rounded-full"></div>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="mb-6">
+            <TabsTrigger value="resources">Knowledge Resources</TabsTrigger>
+            <TabsTrigger value="soundscapes">Journey Soundscapes</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="resources">
+            <div className="flex justify-end mb-4">
+              <Button onClick={handleAddResource} className="bg-gradient-to-r from-purple-600 to-indigo-600">
+                <PlusIcon className="h-4 w-4 mr-2" /> Add Resource
+              </Button>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Date Added</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {resources.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-gray-500">
-                        No sacred knowledge resources found. Click "Add Resource" to create your first entry.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    resources.map(resource => (
-                      <TableRow key={resource.id}>
-                        <TableCell className="font-medium">{resource.title}</TableCell>
-                        <TableCell>{resource.category}</TableCell>
-                        <TableCell>
-                          {resource.file_url ? (
-                            <div className="flex items-center">
-                              <FileIcon className="h-4 w-4 mr-1 text-blue-500" />
-                              <span>File</span>
-                            </div>
-                          ) : resource.external_link ? (
-                            <div className="flex items-center">
-                              <ExternalLinkIcon className="h-4 w-4 mr-1 text-green-500" />
-                              <span>Link</span>
-                            </div>
-                          ) : (
-                            <div className="flex items-center">
-                              <FileTextIcon className="h-4 w-4 mr-1 text-gray-500" />
-                              <span>Text</span>
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {resource.is_approved ? (
-                            <div className="flex items-center">
-                              <CheckIcon className="h-4 w-4 mr-1 text-green-500" />
-                              <span>Approved</span>
-                            </div>
-                          ) : (
-                            <div className="flex items-center">
-                              <AlertCircleIcon className="h-4 w-4 mr-1 text-amber-500" />
-                              <span>Needs Review</span>
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {new Date(resource.created_at || '').toLocaleDateString()}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex space-x-2">
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              onClick={() => handleEditResource(resource)}
-                            >
-                              <PencilIcon className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="text-red-500 hover:text-red-700"
-                              onClick={() => handleDeleteResource(resource)}
-                            >
-                              <TrashIcon className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
+            
+            <div className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-6">
+              {loading ? (
+                <div className="flex justify-center py-12">
+                  <div className="animate-spin h-8 w-8 border-b-2 border-purple-600 rounded-full"></div>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Title</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Date Added</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {resources.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                            No sacred knowledge resources found. Click "Add Resource" to create your first entry.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        resources.map(resource => (
+                          <TableRow key={resource.id}>
+                            <TableCell className="font-medium">{resource.title}</TableCell>
+                            <TableCell>{resource.category}</TableCell>
+                            <TableCell>
+                              {resource.file_url ? (
+                                <div className="flex items-center">
+                                  <FileIcon className="h-4 w-4 mr-1 text-blue-500" />
+                                  <span>File</span>
+                                </div>
+                              ) : resource.external_link ? (
+                                <div className="flex items-center">
+                                  <ExternalLinkIcon className="h-4 w-4 mr-1 text-green-500" />
+                                  <span>Link</span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center">
+                                  <FileTextIcon className="h-4 w-4 mr-1 text-gray-500" />
+                                  <span>Text</span>
+                                </div>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {resource.is_approved ? (
+                                <div className="flex items-center">
+                                  <CheckIcon className="h-4 w-4 mr-1 text-green-500" />
+                                  <span>Approved</span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center">
+                                  <AlertCircleIcon className="h-4 w-4 mr-1 text-amber-500" />
+                                  <span>Needs Review</span>
+                                </div>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {new Date(resource.created_at || '').toLocaleDateString()}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex space-x-2">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  onClick={() => handleEditResource(resource)}
+                                >
+                                  <PencilIcon className="h-4 w-4" />
+                                </Button>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="text-red-500 hover:text-red-700"
+                                  onClick={() => handleDeleteResource(resource)}
+                                >
+                                  <TrashIcon className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </TabsContent>
+          
+          <TabsContent value="soundscapes">
+            <SoundscapeManager />
+          </TabsContent>
+        </Tabs>
         
         {/* Form Dialog */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

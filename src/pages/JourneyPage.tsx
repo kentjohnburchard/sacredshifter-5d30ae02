@@ -2,20 +2,24 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { fetchJourneyBySlug, Journey } from '@/services/journeyService';
+import { fetchJourneySoundscape, JourneySoundscape } from '@/services/soundscapeService';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import Layout from '@/components/Layout';
 import { Switch } from '@/components/ui/switch';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Music } from 'lucide-react';
 import JourneyVisualizer from '@/components/sacred-journey/JourneyVisualizer';
 import NotFound from './NotFound';
+import JourneySoundscapePlayer from '@/components/journey/JourneySoundscapePlayer';
 
 const JourneyPage: React.FC = () => {
   const { journeySlug } = useParams<{ journeySlug: string }>();
   const [journey, setJourney] = useState<Journey | null>(null);
+  const [soundscape, setSoundscape] = useState<JourneySoundscape | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [visualsEnabled, setVisualsEnabled] = useState(true);
+  const [audioEnabled, setAudioEnabled] = useState(true);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -41,6 +45,12 @@ const JourneyPage: React.FC = () => {
         }
         
         setJourney(data);
+        
+        // Fetch the associated soundscape if any
+        const soundscapeData = await fetchJourneySoundscape(journeySlug);
+        if (soundscapeData) {
+          setSoundscape(soundscapeData);
+        }
       } catch (error) {
         console.error('Error loading journey:', error);
         toast.error('Failed to load journey content');
@@ -97,17 +107,42 @@ const JourneyPage: React.FC = () => {
               </div>
             )}
 
-            <div className="flex items-center justify-center mt-6 mb-8">
-              <Switch 
-                id="visuals-toggle" 
-                checked={visualsEnabled}
-                onCheckedChange={setVisualsEnabled}
-                className="mr-2"
-              />
-              <label htmlFor="visuals-toggle" className="text-sm text-gray-600">
-                Enable Visual Effects
-              </label>
+            <div className="flex items-center justify-center gap-4 mt-6 mb-4">
+              <div className="flex items-center">
+                <Switch 
+                  id="visuals-toggle" 
+                  checked={visualsEnabled}
+                  onCheckedChange={setVisualsEnabled}
+                  className="mr-2"
+                />
+                <label htmlFor="visuals-toggle" className="text-sm text-gray-600">
+                  Visual Effects
+                </label>
+              </div>
+              
+              {soundscape && (
+                <div className="flex items-center">
+                  <Switch 
+                    id="audio-toggle" 
+                    checked={audioEnabled}
+                    onCheckedChange={setAudioEnabled}
+                    className="mr-2"
+                  />
+                  <label htmlFor="audio-toggle" className="text-sm text-gray-600 flex items-center">
+                    <Music className="h-3 w-3 mr-1" /> Soundscape
+                  </label>
+                </div>
+              )}
             </div>
+            
+            {soundscape && audioEnabled && (
+              <div className="mt-4 mb-6">
+                <JourneySoundscapePlayer 
+                  soundscape={soundscape} 
+                  className="max-w-md mx-auto"
+                />
+              </div>
+            )}
           </header>
 
           <div className="prose prose-purple max-w-none">
