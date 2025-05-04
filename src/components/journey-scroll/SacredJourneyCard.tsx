@@ -1,112 +1,107 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Link } from 'react-router-dom';
+import { JourneyMetadata } from '@/types/journeys';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Lock } from 'lucide-react';
-import { JourneyMetadata } from '../../types/journeys';
-
-// Define background colors based on tags
-const tagBackgroundMap: Record<string, string> = {
-  chakra: 'bg-purple-950/50 border-purple-500/20',
-  breathwork: 'bg-blue-950/50 border-blue-500/20',
-  sound: 'bg-amber-950/50 border-amber-500/20',
-  meditation: 'bg-emerald-950/50 border-emerald-500/20',
-  hermetic: 'bg-indigo-950/50 border-indigo-500/20',
-  default: 'bg-gray-900/80 border-gray-500/20'
-};
+import { Book, Calendar, Clock, Sparkles, Tag } from 'lucide-react';
+import { useTheme } from '@/context/ThemeContext';
+import { motion } from 'framer-motion';
 
 interface SacredJourneyCardProps {
   journey: JourneyMetadata;
 }
 
 const SacredJourneyCard: React.FC<SacredJourneyCardProps> = ({ journey }) => {
-  // Determine card background based on tags
-  const getCardBackground = () => {
-    if (!journey.tags || journey.tags.length === 0) return tagBackgroundMap.default;
-    
-    for (const tag of journey.tags) {
-      const lowerTag = tag.toLowerCase();
-      for (const [key, value] of Object.entries(tagBackgroundMap)) {
-        if (lowerTag.includes(key)) {
-          return value;
-        }
-      }
-    }
-    return tagBackgroundMap.default;
-  };
-
-  const cardBackground = getCardBackground();
-
+  const { liftTheVeil } = useTheme();
+  const isVeilRequired = journey.requiresVeil;
+  const journeyPath = `/journey/${journey.slug}`;
+  
   return (
     <motion.div
-      whileHover={{ 
-        scale: 1.03, 
-        transition: { duration: 0.3 } 
-      }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="h-full"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
     >
-      <Card className={`h-full ${cardBackground} hover:shadow-lg transition-all duration-300 backdrop-blur-sm sacred-glass overflow-hidden`}>
-        {journey.requiresVeil && (
-          <div className="absolute top-3 right-3 z-10">
-            <Badge variant="outline" className="bg-pink-500/20 text-white border-pink-500/30 flex items-center gap-1">
-              <Lock size={14} />
-              <span>Veil Locked</span>
-            </Badge>
-          </div>
-        )}
-        
-        <CardHeader>
-          <CardTitle className="text-xl font-playfair text-white">
-            {journey.title}
-          </CardTitle>
-          <CardDescription className="text-gray-300">
-            {journey.description.substring(0, 100)}{journey.description.length > 100 ? '...' : ''}
-          </CardDescription>
-        </CardHeader>
-        
-        <CardContent>
+      <Link to={journeyPath}>
+        <Card className={`
+          overflow-hidden border-purple-500/30 h-full hover:border-purple-400/50 
+          transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10
+          ${isVeilRequired && !liftTheVeil ? 'bg-black/60 border-pink-500/30 hover:border-pink-400/50' : 'bg-black/60'}
+        `}>
           <div className="relative">
-            {/* Sacred geometry background effect */}
-            <motion.div 
-              className="absolute -inset-10 opacity-20 z-0"
-              animate={{ 
-                rotate: [0, 360],
-                scale: [0.95, 1.05, 0.95]
-              }}
-              transition={{ 
-                rotate: { duration: 20, repeat: Infinity, ease: "linear" },
-                scale: { duration: 4, repeat: Infinity, ease: "easeInOut" } 
-              }}
-              style={{
-                backgroundImage: 'url("/sacred-geometry-bg.svg")',
-                backgroundSize: 'contain',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-                pointerEvents: 'none'
-              }}
-            />
+            {journey.coverImage ? (
+              <div className="h-44 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent z-10"></div>
+                <img 
+                  src={journey.coverImage} 
+                  alt={journey.title}
+                  className="w-full h-full object-cover object-center"
+                />
+              </div>
+            ) : (
+              <div className="h-44 bg-gradient-to-br from-purple-900/30 to-blue-900/30 flex items-center justify-center">
+                <Book className="h-12 w-12 text-purple-400/50" />
+              </div>
+            )}
             
-            {/* Card content */}
-            <div className="mb-4 relative z-10">
-              <p className="text-gray-200 text-sm">
-                {journey.excerpt || "Embark on a transformative journey of consciousness expansion"}
-              </p>
-            </div>
+            {journey.featured && (
+              <div className="absolute top-4 right-4 z-10">
+                <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-medium">
+                  Featured
+                </Badge>
+              </div>
+            )}
           </div>
-        </CardContent>
-        
-        <CardFooter className="flex flex-wrap gap-2">
-          {journey.tags && journey.tags.map(tag => (
-            <Badge key={tag} variant="outline" className="bg-black/30 text-gray-200">
-              {tag}
-            </Badge>
-          ))}
-        </CardFooter>
-      </Card>
+          
+          <CardHeader className="pb-2">
+            <h3 className="text-xl font-bold text-white line-clamp-2">{journey.title}</h3>
+            {isVeilRequired && (
+              <div className="flex items-center gap-1 text-pink-400 text-sm">
+                <Sparkles className="h-3 w-3" />
+                <span>Veil Required</span>
+              </div>
+            )}
+          </CardHeader>
+          
+          <CardContent className="pb-2">
+            <p className="text-gray-300 text-sm line-clamp-3">
+              {journey.description || journey.excerpt || "No description available."}
+            </p>
+          </CardContent>
+          
+          <CardFooter className="pt-2 flex flex-wrap gap-1 text-xs text-gray-400">
+            {journey.date && (
+              <div className="flex items-center mr-3">
+                <Calendar className="h-3 w-3 mr-1" />
+                {new Date(journey.date).toLocaleDateString()}
+              </div>
+            )}
+            
+            {journey.readingTime && (
+              <div className="flex items-center">
+                <Clock className="h-3 w-3 mr-1" />
+                {journey.readingTime} min
+              </div>
+            )}
+          </CardFooter>
+          
+          {journey.tags && journey.tags.length > 0 && (
+            <div className="px-6 pb-4 flex flex-wrap gap-1">
+              {journey.tags.slice(0, 3).map(tag => (
+                <Badge key={tag} variant="outline" className="bg-purple-500/10 text-xs">
+                  {tag}
+                </Badge>
+              ))}
+              {journey.tags.length > 3 && (
+                <Badge variant="outline" className="bg-purple-500/10 text-xs">
+                  +{journey.tags.length - 3}
+                </Badge>
+              )}
+            </div>
+          )}
+        </Card>
+      </Link>
     </motion.div>
   );
 };

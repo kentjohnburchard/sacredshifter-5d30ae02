@@ -1,4 +1,3 @@
-
 import React, { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -23,6 +22,11 @@ const JourneyAudioMapper = lazy(() => import('./pages/JourneyAudioMapper'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const JourneyScroll = lazy(() => import('./pages/JourneyScroll'));
 const HeartDashboard = lazy(() => import('./pages/HeartDashboard'));
+const AboutFounder = lazy(() => import('./pages/AboutFounder'));
+const SiteMap = lazy(() => import('./pages/SiteMap'));
+
+// Add dynamic journey page
+const JourneyPage = lazy(() => import('./pages/journey/[slug]'));
 
 const AppRoutes: React.FC = () => {
   const { user, loading } = useAuth();
@@ -51,10 +55,25 @@ const AppRoutes: React.FC = () => {
         <Route path="/journey-scroll" element={
           <ProtectedRoute><JourneyScroll /></ProtectedRoute>
         } />
+
+        {/* Dynamic Journey Page */}
+        <Route path="/journey/:slug" element={
+          <ProtectedRoute><JourneyPage /></ProtectedRoute>
+        } />
         
         {/* Heart Dashboard */}
         <Route path="/heart-dashboard" element={
           <ProtectedRoute><HeartDashboard /></ProtectedRoute>
+        } />
+
+        {/* About Founder */}
+        <Route path="/about-founder" element={
+          <ProtectedRoute><AboutFounder /></ProtectedRoute>
+        } />
+
+        {/* Site Map */}
+        <Route path="/site-map" element={
+          <ProtectedRoute><SiteMap /></ProtectedRoute>
         } />
         
         {/* Protected routes */}
