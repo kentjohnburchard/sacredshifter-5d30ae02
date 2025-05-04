@@ -1,3 +1,4 @@
+
 import React, { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
@@ -59,6 +60,7 @@ import JourneysManager from '@/pages/admin/JourneysManager';
 import SacredSpectrumAdmin from '@/pages/admin/SacredSpectrumAdmin';
 import SacredSpectrum from '@/pages/SacredSpectrum';
 import JourneyTemplatesAdmin from './pages/JourneyTemplatesAdmin';
+import JourneyBulkImport from './pages/admin/JourneyBulkImport';
 
 const AppRoutes: React.FC = () => {
   console.log("AppRoutes rendering - checking route configuration");
@@ -219,6 +221,13 @@ const AppRoutes: React.FC = () => {
         } />
         
         <Route path="/admin/journey-spirals" element={<JourneyTemplatesAdmin />} />
+        
+        {/* Add the journey bulk import route */}
+        <Route path="/admin/journey-bulk-import" element={
+          <ProtectedRoute>
+            <JourneyBulkImport />
+          </ProtectedRoute>
+        } />
         
         <Route path="*" element={<NotFound />} />
       </Routes>
