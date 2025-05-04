@@ -39,7 +39,7 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { 
-  fetchAllSoundscapes, 
+  fetchAllJourneySoundscapes, 
   createJourneySoundscape, 
   updateJourneySoundscape, 
   deleteJourneySoundscape,
@@ -81,7 +81,7 @@ const SoundscapeManager: React.FC = () => {
   const loadSoundscapes = async () => {
     try {
       setLoading(true);
-      const data = await fetchAllSoundscapes();
+      const data = await fetchAllJourneySoundscapes();
       setSoundscapes(data);
     } catch (error) {
       console.error('Failed to load soundscapes:', error);
@@ -127,7 +127,7 @@ const SoundscapeManager: React.FC = () => {
       file_url: soundscape.file_url
     });
     setUploadedFile(null);
-    setSourceType(soundscape.source_type || 'file');
+    setSourceType(soundscape.source_type);
     setYoutubePreviewUrl(soundscape.source_type === 'youtube' ? soundscape.file_url : '');
     setShowYoutubePreview(soundscape.source_type === 'youtube');
     setIsDialogOpen(true);

@@ -7,7 +7,7 @@ export interface JourneySoundscape {
   title: string;
   description?: string;
   file_url: string;
-  source_type: 'file' | 'youtube' | 'spotify';
+  source_type: 'file' | 'youtube' | 'external';
   source_link?: string;
   created_at?: string;
   updated_at?: string;
@@ -107,11 +107,11 @@ export const createJourneySoundscape = async (soundscape: Omit<JourneySoundscape
 };
 
 // Added function to update a soundscape
-export const updateJourneySoundscape = async (soundscape: Partial<JourneySoundscape> & { id: string }): Promise<JourneySoundscape> => {
+export const updateJourneySoundscape = async (id: string, updates: Partial<JourneySoundscape>): Promise<JourneySoundscape> => {
   const { data, error } = await supabase
     .from('journey_soundscapes')
-    .update(soundscape)
-    .eq('id', soundscape.id)
+    .update(updates)
+    .eq('id', id)
     .select()
     .single();
 
