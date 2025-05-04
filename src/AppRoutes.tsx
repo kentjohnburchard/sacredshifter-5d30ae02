@@ -1,201 +1,117 @@
 import React, { lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
-import ScrollToTop from './components/ScrollToTop';
-import Home from './pages/Home';
-import NotFound from './pages/NotFound';
-import Dashboard from './pages/Dashboard';
-import FrequencyLibrary from './pages/FrequencyLibrary';
-import SacredShifterHome from './pages/SacredShifterHome';
-import HomePage from './pages/HomePage';
-import Auth from './pages/Auth';
-import Profile from './pages/Profile';
-import AboutFounder from './pages/AboutFounder';
-import Meditation from './pages/Meditation';
-import HermeticWisdom from './pages/HermeticWisdom';
-import FrequencyShift from './pages/FrequencyShift';
-import JourneyTemplatesPage from './pages/journey-templates';
-import Journeys from './pages/Journeys';
-import JourneyPlayer from './pages/JourneyPlayer';
-import SiteMap from './pages/SiteMap';
-import SacredGridDemo from './pages/SacredGridDemo';
-import HarmonicMapPage from './pages/HarmonicMap';
-import HeartCenter from './pages/HeartCenter';
-import HeartDashboard from './pages/HeartDashboard';
-import SacredBlueprint from './pages/SacredBlueprint';
-import ShiftPerception from './pages/ShiftPerception';
-import HermeticPrinciples from './pages/HermeticPrinciples';
-import TrinityGateway from './pages/TrinityGateway';
-import Alignment from './pages/Alignment';
-import EnergyCheck from './pages/EnergyCheck';
-import Focus from './pages/Focus';
-import Astrology from './pages/Astrology';
-import Contact from './pages/Contact';
-import PrimeFrequencyActivation from './pages/PrimeFrequencyActivation';
-import Subscription from './pages/Subscription';
-import SacredShifterWhat from './pages/SacredShifterWhat';
-import SacredShifterWhy from './pages/SacredShifterWhy';
-import SacredShifterHow from './pages/SacredShifterHow';
-import Admin from './pages/Admin';
-import JourneyAudioManager from './components/admin/JourneyAudioManager';
-import JourneyAudioMappingsViewer from './pages/admin/JourneyAudioMappingsViewer';
-import AdminPagesCanvas from './pages/admin/AdminPagesCanvas';
-import ProtectedRoute from './components/ProtectedRoute';
-import Soundscapes from './pages/Soundscapes';
-import CircleHomePage from './pages/circle/index';
-import PremiumHomePage from './pages/premium/index';
-import ComingSoon from './components/ComingSoon';
-import MusicGeneration from './pages/MusicGeneration';
-import Timeline from './pages/Timeline';
-import Intentions from './pages/Intentions';
-import Lightbearer from '@/pages/Lightbearer';
-import SacredCircle from '@/pages/SacredCircle';
-import MirrorPortal from '@/pages/MirrorPortal';
-import EmotionEngine from '@/pages/EmotionEngine';
-import SoulScribe from '@/pages/SoulScribe';
-import DeityOracle from '@/pages/DeityOracle';
-import AstralAttunement from '@/pages/AstralAttunement';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import LoadingScreen from '@/components/LoadingScreen';
+import { useAuth } from '@/context/AuthContext';
+import ComingSoon from '@/components/ComingSoon';
+
+// Lazy load page components
+const Home = lazy(() => import('@/pages/index'));
+const AuthPage = lazy(() => import('@/pages/auth'));
+const Timeline = lazy(() => import('@/pages/Timeline'));
+const Frequencies = lazy(() => import('@/pages/Frequencies'));
+const SacredCircle = lazy(() => import('@/pages/SacredCircle'));
+const PrimeFrequencyActivation = lazy(() => import('@/pages/PrimeFrequencyActivation'));
+const PrimeFrequencies = lazy(() => import('@/pages/PrimeFrequencies'));
+const MusicGenerationPage = lazy(() => import('@/pages/MusicGenerationPage'));
+const FrequencyDetailPage = lazy(() => import('@/pages/FrequencyDetailPage'));
+const HermeticWisdom = lazy(() => import('@/pages/HermeticWisdom'));
+const JourneyEditor = lazy(() => import('@/pages/JourneyEditor'));
+const JourneyAudioMapper = lazy(() => import('@/pages/JourneyAudioMapper'));
 
 const AppRoutes: React.FC = () => {
-  console.log("AppRoutes rendering - checking route configuration");
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return <LoadingScreen />;
+  }
   
   return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin h-12 w-12 border-b-2 border-purple-500 rounded-full"></div>
-      </div>
-    }>
-      <ScrollToTop />
+    <Suspense fallback={<LoadingScreen />}>
       <Routes>
-        {/* Redirect root path to our new Home Page */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="/coming-soon" element={
-          <ComingSoon 
-            title="Coming Soon" 
-            description="This feature is currently under development" 
-            expectedDate="Q3 2025" 
-          />
-        } />
-        <Route path="/home" element={<SacredShifterHome />} />
-        <Route path="/original-home" element={<Home />} />
+        {/* Public routes */}
+        <Route path="/auth" element={user ? <Navigate to="/" replace /> : <AuthPage />} />
         
-        {/* Debug this route specifically */}
-        <Route 
-          path="/dashboard" 
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } 
-        />
+        {/* Protected routes */}
+        <Route path="/" element={
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+        } />
         
-        <Route path="/frequency-library" element={<FrequencyLibrary />} />
-        <Route path="/frequencies" element={<FrequencyLibrary />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/profile" element={
+        <Route path="/timeline" element={
           <ProtectedRoute>
-            <Profile />
+            <Timeline />
           </ProtectedRoute>
         } />
-        <Route path="/subscription" element={
-          <ProtectedRoute>
-            <Subscription />
-          </ProtectedRoute>
-        } />
-        <Route path="/about-founder" element={<AboutFounder />} />
-        <Route path="/meditation" element={<Meditation />} />
-        <Route path="/hermetic-wisdom" element={<HermeticWisdom />} />
-        <Route path="/hermetic-principles" element={<HermeticPrinciples />} />
-        <Route path="/frequency-shift" element={<FrequencyShift />} />
-        <Route path="/journey-templates" element={<JourneyTemplatesPage />} />
-        <Route path="/journeys" element={
-          <ProtectedRoute>
-            <Journeys />
-          </ProtectedRoute>
-        } />
-        <Route path="/journey-player/:journeyId" element={
-          <ProtectedRoute>
-            <JourneyPlayer />
-          </ProtectedRoute>
-        } />
-        <Route path="/journey-player/*" element={
-          <ProtectedRoute>
-            <JourneyPlayer />
-          </ProtectedRoute>
-        } />
-        <Route path="/site-map" element={<SiteMap />} />
-        <Route path="/sacred-grid" element={<SacredGridDemo />} />
-        <Route path="/harmonic-map" element={<HarmonicMapPage />} />
-        <Route path="/heart-center" element={<HeartCenter />} />
-        <Route path="/heart-dashboard" element={
-          <ProtectedRoute>
-            <HeartDashboard />
-          </ProtectedRoute>
-        } />
-        <Route path="/sacred-blueprint" element={<SacredBlueprint />} />
-        <Route path="/shift-perception" element={<ShiftPerception />} />
-        <Route path="/trinity-gateway" element={<TrinityGateway />} />
-        <Route path="/alignment" element={<Alignment />} />
-        <Route path="/energy-check" element={<EnergyCheck />} />
-        <Route path="/focus" element={<Focus />} />
-        <Route path="/astrology" element={<Astrology />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/prime-frequency" element={<PrimeFrequencyActivation />} />
-        <Route path="/about/what" element={<SacredShifterWhat />} />
-        <Route path="/about/why" element={<SacredShifterWhy />} />
-        <Route path="/about/how" element={<SacredShifterHow />} />
-        <Route path="/soundscapes" element={<Soundscapes />} />
-        <Route path="/timeline" element={<Timeline />} />
-        <Route path="/intentions" element={<Intentions />} />
-        <Route path="/mirror-portal" element={<MirrorPortal />} />
-        <Route path="/emotion-engine" element={<EmotionEngine />} />
-        <Route path="/soul-scribe" element={<SoulScribe />} />
-        <Route path="/deity-oracle" element={<DeityOracle />} />
-        <Route path="/astral-attunement" element={<AstralAttunement />} />
-        <Route path="/music-generator" element={<MusicGeneration />} />
         
-        {/* New Routes */}
-        <Route path="/lightbearer" element={
+        <Route path="/frequencies" element={
           <ProtectedRoute>
-            <Lightbearer />
+            <Frequencies />
           </ProtectedRoute>
         } />
-        <Route path="/community" element={
+        
+        <Route path="/frequencies/:frequencyId" element={
+          <ProtectedRoute>
+            <FrequencyDetailPage />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/sacred-circle" element={
           <ProtectedRoute>
             <SacredCircle />
           </ProtectedRoute>
         } />
         
-        {/* Sacred Circle Community Routes */}
-        <Route path="/circle" element={<CircleHomePage />} />
-        
-        {/* Premium Ascended Path Routes */}
-        <Route path="/premium" element={
+        <Route path="/prime-activation" element={
           <ProtectedRoute>
-            <PremiumHomePage />
+            <PrimeFrequencyActivation />
           </ProtectedRoute>
         } />
         
-        <Route path="/admin" element={
+        <Route path="/prime-frequencies" element={
           <ProtectedRoute>
-            <Admin />
+            <PrimeFrequencies />
           </ProtectedRoute>
         } />
-        <Route path="/admin/journey-audio-admin" element={
+        
+        <Route path="/music-generation" element={
           <ProtectedRoute>
-            <JourneyAudioManager />
+            <MusicGenerationPage />
           </ProtectedRoute>
         } />
-        <Route path="/admin/journey-audio-mappings" element={
+        
+        <Route path="/hermetic-wisdom" element={
           <ProtectedRoute>
-            <JourneyAudioMappingsViewer />
+            <HermeticWisdom />
           </ProtectedRoute>
         } />
-        <Route path="/admin/pages" element={
+        
+        <Route path="/journey-editor" element={
           <ProtectedRoute>
-            <AdminPagesCanvas />
+            <JourneyEditor />
           </ProtectedRoute>
         } />
-        <Route path="*" element={<NotFound />} />
+        
+        <Route path="/journey-audio-mapper" element={
+          <ProtectedRoute>
+            <JourneyAudioMapper />
+          </ProtectedRoute>
+        } />
+        
+        {/* Coming soon pages */}
+        <Route path="/soul-blueprint" element={
+          <ProtectedRoute>
+            <ComingSoon 
+              title="Soul Blueprint"
+              description="Your unique vibrational signature is being generated."
+              expectedDate="Coming soon"
+            />
+          </ProtectedRoute>
+        } />
+
+        {/* Fallback route */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>
   );
