@@ -7,13 +7,19 @@ interface YouTubeEmbedProps {
   title?: string;
   className?: string;
   allowControls?: boolean;
+  height?: string;
+  autoplay?: boolean;
+  muted?: boolean;
 }
 
 const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({
   youtubeUrl,
   title = 'YouTube video player',
   className = '',
-  allowControls = true
+  allowControls = true,
+  height = '315px',
+  autoplay = false,
+  muted = false
 }) => {
   const [videoId, setVideoId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +41,7 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({
     return <div className="animate-pulse bg-gray-200 h-56 rounded-lg"></div>;
   }
 
-  const embedUrl = `https://www.youtube.com/embed/${videoId}${allowControls ? '' : '?controls=0'}`;
+  const embedUrl = `https://www.youtube.com/embed/${videoId}${allowControls ? '' : '?controls=0'}${autoplay ? (allowControls ? '?autoplay=1' : '&autoplay=1') : ''}${muted ? (autoplay || allowControls ? '&mute=1' : '?mute=1') : ''}`;
 
   return (
     <div className={`relative pt-[56.25%] w-full overflow-hidden rounded-lg shadow-inner ${className}`}>

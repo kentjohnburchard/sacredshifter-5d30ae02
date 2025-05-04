@@ -1,9 +1,10 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import ReactMarkdown from 'react-markdown';
 import { fetchJourneyBySlug, Journey } from '@/services/journeyService';
-import { parseJourneyContent, removeFrontmatter } from '@/utils/journeyLoader';
+import { parseJourneyContent, removeFrontmatter, parseJourneyFrontmatter } from '@/utils/journeyLoader';
 import JourneySoundscapePlayer from '@/components/journey/JourneySoundscapePlayer';
 import SacredGeometryVisualizer from '@/components/sacred-geometry/SacredGeometryVisualizer';
 import SpiralVisualizer from '@/components/visualizer/SpiralVisualizer';
@@ -19,7 +20,7 @@ interface CoreJourneyLoaderResult {
 const loadCoreJourneyContent = async (slug: string): Promise<CoreJourneyLoaderResult> => {
   try {
     // Try to find the journey file in core_content
-    const journeyFiles = import.meta.glob('/src/core_content/journeys/*.md');
+    const journeyFiles = import.meta.glob('/src/core_content/journeys/*.md', { as: 'raw' });
     
     // Check for an exact match with the slug
     const matchingFile = Object.keys(journeyFiles).find(path => {
@@ -28,23 +29,28 @@ const loadCoreJourneyContent = async (slug: string): Promise<CoreJourneyLoaderRe
     });
     
     if (matchingFile) {
-      // Load the file content
-      const module = await journeyFiles[matchingFile]();
-      const content = module.default;
+      // Load the file content as raw text
+      const content = await journeyFiles[matchingFile]();
       
       // Extract the filename from the path
       const filename = matchingFile.split('/').pop()?.replace('.md', '') || '';
       
+      // Parse frontmatter to get journey metadata
+      const frontmatter = parseJourneyFrontmatter(content);
+      
       // Create a journey object from the content
-      const { title, tags, chakra, frequency, veil } = parseJourneyContent(content);
+      const parsedContent = parseJourneyContent(content);
       const journey: Journey = {
         id: 0, // Temporary ID
         filename,
-        title: title || filename,
-        tags: Array.isArray(tags) ? tags.join(', ') : tags,
+        title: frontmatter.title || filename,
+        tags: Array.isArray(frontmatter.tags) ? frontmatter.tags.join(', ') : '',
         content,
-        veil_locked: veil || false,
-        sound_frequencies: frequency?.toString() || ''
+        veil_locked: frontmatter.veil || false,
+        sound_frequencies: frontmatter.frequency?.toString() || parsedContent.frequencies || '',
+        description: parsedContent.intent || '',
+        intent: parsedContent.intent || '',
+        duration: parsedContent.duration || ''
       };
       
       return { content, journey };
@@ -62,7 +68,7 @@ const JourneyPage: React.FC = () => {
   const [journey, setJourney] = useState<Journey | null>(null);
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
-  const [spiralParams] = useSpiralParams(slug || '');
+  const spiralParams = useSpiralParams(slug || '');
   
   useEffect(() => {
     const loadJourney = async () => {

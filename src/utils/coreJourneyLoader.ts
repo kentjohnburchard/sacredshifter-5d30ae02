@@ -1,26 +1,28 @@
 
 import { Journey } from '@/services/journeyService';
-import { parseJourneyFrontmatter, fileNameToSlug } from '@/utils/journeyLoader';
+import { parseJourneyFrontmatter, fileNameToSlug, parseJourneyContent } from '@/utils/journeyLoader';
 
 // This function scans the core_content/journeys directory and loads journey data
 export async function loadCoreJourneys(): Promise<Journey[]> {
   try {
     // In a browser environment, we'll need to fetch the file list first
-    const journeyFiles = import.meta.glob('/src/core_content/journeys/*.md');
+    const journeyFiles = import.meta.glob('/src/core_content/journeys/*.md', { as: 'raw' });
     const journeys: Journey[] = [];
     
     // Process each journey file
     for (const path in journeyFiles) {
       try {
-        // Load the file content
-        const module = await journeyFiles[path]();
-        const content = module.default;
+        // Load the file content as raw text
+        const content = await journeyFiles[path]();
         
         // Extract the filename from the path
         const filename = path.split('/').pop()?.replace('.md', '') || '';
         
         // Parse frontmatter to get journey metadata
         const frontmatter = parseJourneyFrontmatter(content);
+        
+        // Parse journey sections
+        const parsedContent = parseJourneyContent(content);
         
         // Create a journey object
         const journey: Journey = {
@@ -30,9 +32,9 @@ export async function loadCoreJourneys(): Promise<Journey[]> {
           tags: frontmatter.tags?.join(', '),
           content: content,
           veil_locked: frontmatter.veil || false,
-          description: frontmatter.description || '',
-          intent: frontmatter.intent || '',
-          sound_frequencies: frontmatter.frequency?.toString() || ''
+          description: parsedContent.intent || '',
+          intent: parsedContent.intent || '',
+          sound_frequencies: frontmatter.frequency?.toString() || parsedContent.frequencies || ''
         };
         
         journeys.push(journey);

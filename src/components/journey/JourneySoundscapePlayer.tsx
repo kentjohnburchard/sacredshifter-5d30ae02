@@ -137,7 +137,7 @@ const JourneySoundscapePlayer: React.FC<JourneySoundscapePlayerProps> = ({
         {soundscape.source_type === 'youtube' && soundscape.file_url && (
           <div className="mt-2">
             <YouTubeEmbed 
-              url={soundscape.file_url} 
+              youtubeUrl={soundscape.file_url} 
               height="120px"
               autoplay={autoplay}
               muted={isMuted}
