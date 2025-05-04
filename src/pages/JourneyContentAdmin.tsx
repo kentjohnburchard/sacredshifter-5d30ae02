@@ -283,9 +283,6 @@ const JourneyContentAdmin: React.FC = () => {
           <h1 className="text-2xl font-bold">Journey Content & Spiral Admin</h1>
           <div className="space-x-2">
             <Button onClick={handleCreateNewJourney} variant="outline">New Journey</Button>
-            <Button onClick={() => navigate('/admin/journey-bulk-import')} variant="outline">
-              Bulk Import
-            </Button>
             <Button onClick={() => navigate('/journey-templates')}>Back to Journeys</Button>
           </div>
         </div>
