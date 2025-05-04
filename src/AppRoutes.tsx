@@ -8,6 +8,7 @@ import ComingSoon from './components/ComingSoon';
 
 // Lazy load page components
 const Home = lazy(() => import('./pages/Home'));
+const HomePage = lazy(() => import('./pages/HomePage')); // Add the correct HomePage import
 const AuthPage = lazy(() => import('./pages/auth/index'));
 const Timeline = lazy(() => import('./pages/Timeline'));
 const Frequencies = lazy(() => import('./pages/Frequencies'));
@@ -34,15 +35,22 @@ const AppRoutes: React.FC = () => {
         {/* Public routes */}
         <Route path="/auth" element={user ? <Navigate to="/" replace /> : <AuthPage />} />
         
-        {/* Home route first (dashboard or landing page based on auth) */}
+        {/* Home route first (landing page for all users) */}
         <Route path="/" element={
           user ? (
             <ProtectedRoute>
-              <Dashboard />
+              <HomePage /> {/* Use HomePage for authenticated users */}
             </ProtectedRoute>
           ) : (
-            <Home />
+            <HomePage /> {/* Use HomePage for non-authenticated users too */}
           )
+        } />
+        
+        {/* Dashboard route specifically for authenticated users */}
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
         } />
         
         {/* Protected routes */}
