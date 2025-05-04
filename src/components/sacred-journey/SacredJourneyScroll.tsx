@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchJourneys, Journey } from '@/services/journeyService';
 import { useAuth } from '@/context/AuthContext';
-import { Scroll, ScrollBar, ScrollArea, ScrollViewport } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Lock } from 'lucide-react';
 import { toast } from 'sonner';
@@ -73,7 +73,7 @@ const SacredJourneyScroll: React.FC = () => {
                       <Lock 
                         size={16} 
                         className={`${user ? 'text-green-500' : 'text-amber-500'}`} 
-                        title={user ? "Unlocked with your account" : "Login required"}
+                        aria-label={user ? "Unlocked with your account" : "Login required"}
                       />
                     )}
                   </div>
