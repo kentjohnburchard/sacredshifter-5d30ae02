@@ -22,6 +22,7 @@ interface LayoutProps {
   hideHeader?: boolean;
   theme?: string;
   useBlueWaveBackground?: boolean;
+  className?: string; // Added className prop
 }
 
 const Layout: React.FC<LayoutProps> = ({ 
@@ -34,6 +35,7 @@ const Layout: React.FC<LayoutProps> = ({
   hideHeader = true, // Set to true by default to hide headers
   theme,
   useBlueWaveBackground,
+  className = '', // Default to empty string
 }) => {
   const { pathname } = useLocation();
   const isHomePage = pathname === "/";
@@ -50,7 +52,7 @@ const Layout: React.FC<LayoutProps> = ({
   const consciousnessClass = liftTheVeil ? 'veil-mode' : 'standard-mode';
 
   return (
-    <div className={`relative flex min-h-screen w-full overflow-x-hidden ${consciousnessClass}`}>
+    <div className={`relative flex min-h-screen w-full overflow-x-hidden ${consciousnessClass} ${className}`}>
       {/* Fixed position background elements with higher z-index than before */}
       <div className="fixed inset-0 w-full h-full z-0">
         <SacredGridBackground 

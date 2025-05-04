@@ -13,6 +13,27 @@ export interface JourneySoundscape {
   updated_at?: string;
 }
 
+// Helper function to extract YouTube video ID from URL
+export const extractYoutubeVideoId = (url: string): string | null => {
+  const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[7].length === 11) ? match[7] : null;
+};
+
+// Helper function to validate YouTube URL
+export const validateYoutubeUrl = (url: string): boolean => {
+  return extractYoutubeVideoId(url) !== null;
+};
+
+// Function to safely map source_type from database to allowed values
+const mapSourceType = (type: string): 'file' | 'youtube' | 'spotify' => {
+  if (type === 'file' || type === 'youtube' || type === 'spotify') {
+    return type as 'file' | 'youtube' | 'spotify';
+  }
+  // Map any other value (including 'external') to 'file' as a safe default
+  return 'file';
+};
+
 export const fetchJourneySoundscape = async (journeySlug: string): Promise<JourneySoundscape | null> => {
   try {
     // First try to get the journey ID by slug
@@ -57,7 +78,10 @@ export const fetchJourneySoundscape = async (journeySlug: string): Promise<Journ
           .limit(1);
         
         if (similarSoundscapes && similarSoundscapes.length > 0) {
-          return similarSoundscapes[0];
+          return {
+            ...similarSoundscapes[0],
+            source_type: mapSourceType(similarSoundscapes[0].source_type)
+          };
         }
       }
       
@@ -70,7 +94,10 @@ export const fetchJourneySoundscape = async (journeySlug: string): Promise<Journ
       };
     }
     
-    return soundscape;
+    return {
+      ...soundscape,
+      source_type: mapSourceType(soundscape.source_type)
+    };
   } catch (err) {
     console.error("Error in fetchJourneySoundscape:", err);
     return null;
@@ -89,7 +116,10 @@ export const getAllSoundscapes = async (): Promise<JourneySoundscape[]> => {
       throw error;
     }
     
-    return data || [];
+    return (data || []).map(soundscape => ({
+      ...soundscape,
+      source_type: mapSourceType(soundscape.source_type)
+    }));
   } catch (err) {
     console.error("Error in getAllSoundscapes:", err);
     throw err;
@@ -109,7 +139,10 @@ export const createJourneySoundscape = async (soundscape: Omit<JourneySoundscape
       throw error;
     }
     
-    return data;
+    return {
+      ...data,
+      source_type: mapSourceType(data.source_type)
+    };
   } catch (err) {
     console.error("Error in createJourneySoundscape:", err);
     throw err;
@@ -130,7 +163,10 @@ export const updateJourneySoundscape = async (id: string, soundscape: Partial<Jo
       throw error;
     }
     
-    return data;
+    return {
+      ...data,
+      source_type: mapSourceType(data.source_type)
+    };
   } catch (err) {
     console.error("Error in updateJourneySoundscape:", err);
     throw err;

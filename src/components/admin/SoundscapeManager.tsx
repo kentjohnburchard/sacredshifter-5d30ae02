@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { 
-  fetchAllSoundscapes, 
+  getAllSoundscapes, 
   createJourneySoundscape, 
   updateJourneySoundscape, 
   deleteJourneySoundscape,
@@ -39,7 +39,7 @@ const SoundscapeManager: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedSoundscape, setSelectedSoundscape] = useState<JourneySoundscape | null>(null);
-  const [sourceType, setSourceType] = useState<'file' | 'youtube' | 'external'>('file');
+  const [sourceType, setSourceType] = useState<'file' | 'youtube' | 'spotify'>('file');
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -54,7 +54,7 @@ const SoundscapeManager: React.FC = () => {
     const loadData = async () => {
       try {
         const [soundscapesData, journeysData] = await Promise.all([
-          fetchAllSoundscapes(),
+          getAllSoundscapes(),
           fetchJourneys()
         ]);
         setSoundscapes(soundscapesData);
@@ -79,7 +79,7 @@ const SoundscapeManager: React.FC = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSourceTypeChange = (value: 'file' | 'youtube' | 'external') => {
+  const handleSourceTypeChange = (value: 'file' | 'youtube' | 'spotify') => {
     setSourceType(value);
     // Reset source-specific fields
     setFormData(prev => ({
@@ -173,7 +173,7 @@ const SoundscapeManager: React.FC = () => {
         description: formData.description,
         journey_id: parseInt(formData.journey_id),
         source_link: sourceType === 'file' ? undefined : formData.source_link,
-        file_url: sourceType === 'youtube' || sourceType === 'external' ? formData.source_link : formData.file_url,
+        file_url: sourceType === 'youtube' || sourceType === 'spotify' ? formData.source_link : formData.file_url,
         source_type: sourceType
       };
       
@@ -227,9 +227,9 @@ const SoundscapeManager: React.FC = () => {
                         <div className="w-12 h-12 bg-red-100 rounded-md flex items-center justify-center">
                           <Youtube className="text-red-500" />
                         </div>
-                      ) : soundscape.source_type === 'external' ? (
-                        <div className="w-12 h-12 bg-blue-100 rounded-md flex items-center justify-center">
-                          <ExternalLink className="text-blue-500" />
+                      ) : soundscape.source_type === 'spotify' ? (
+                        <div className="w-12 h-12 bg-green-100 rounded-md flex items-center justify-center">
+                          <ExternalLink className="text-green-500" />
                         </div>
                       ) : (
                         <div className="w-12 h-12 bg-purple-100 rounded-md flex items-center justify-center">
@@ -318,7 +318,7 @@ const SoundscapeManager: React.FC = () => {
                 <Label className="text-right">Source Type</Label>
                 <Tabs 
                   value={sourceType} 
-                  onValueChange={(value) => handleSourceTypeChange(value as 'file' | 'youtube' | 'external')} 
+                  onValueChange={(value) => handleSourceTypeChange(value as 'file' | 'youtube' | 'spotify')} 
                   className="col-span-3"
                 >
                   <TabsList className="grid w-full grid-cols-3">
@@ -330,9 +330,9 @@ const SoundscapeManager: React.FC = () => {
                       <Youtube className="h-4 w-4 mr-2" />
                       YouTube
                     </TabsTrigger>
-                    <TabsTrigger value="external" className="flex items-center">
+                    <TabsTrigger value="spotify" className="flex items-center">
                       <ExternalLink className="h-4 w-4 mr-2" />
-                      External Link
+                      Spotify
                     </TabsTrigger>
                   </TabsList>
                   
@@ -368,18 +368,18 @@ const SoundscapeManager: React.FC = () => {
                     </div>
                   </TabsContent>
                   
-                  <TabsContent value="external" className="mt-4">
+                  <TabsContent value="spotify" className="mt-4">
                     <div className="space-y-2">
-                      <Label htmlFor="source_link">External Audio URL</Label>
+                      <Label htmlFor="source_link">Spotify URL</Label>
                       <Input
                         id="source_link"
                         name="source_link"
                         value={formData.source_link}
                         onChange={handleInputChange}
-                        placeholder="https://example.com/audio.mp3"
+                        placeholder="https://open.spotify.com/track/..."
                       />
                       <p className="text-xs text-gray-500">
-                        Enter a direct URL to an audio file
+                        Enter a Spotify track or playlist URL
                       </p>
                     </div>
                   </TabsContent>
