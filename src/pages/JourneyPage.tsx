@@ -11,6 +11,8 @@ import { Loader2, Music } from 'lucide-react';
 import JourneyVisualizer from '@/components/sacred-journey/JourneyVisualizer';
 import NotFound from './NotFound';
 import JourneySoundscapePlayer from '@/components/journey/JourneySoundscapePlayer';
+import SpiralVisualizer from '@/components/visualizer/SpiralVisualizer';
+import useSpiralParams from '@/hooks/useSpiralParams';
 
 const JourneyPage: React.FC = () => {
   const { journeySlug } = useParams<{ journeySlug: string }>();
@@ -20,7 +22,11 @@ const JourneyPage: React.FC = () => {
   const [notFound, setNotFound] = useState(false);
   const [visualsEnabled, setVisualsEnabled] = useState(true);
   const [audioEnabled, setAudioEnabled] = useState(true);
+  const [spiralEnabled, setSpiralEnabled] = useState(true);
   const { user } = useAuth();
+  
+  // Get spiral parameters based on journey slug
+  const spiralParams = useSpiralParams(journeySlug);
 
   useEffect(() => {
     const loadJourney = async () => {
@@ -82,7 +88,10 @@ const JourneyPage: React.FC = () => {
   
   return (
     <Layout pageTitle={journey?.title || 'Journey'}>
-      <div className="container mx-auto px-4 py-8">
+      {/* Spiral Visualizer rendered below the main content but above the background */}
+      {spiralEnabled && <SpiralVisualizer params={spiralParams} />}
+      
+      <div className="container mx-auto px-4 py-8 relative z-10">
         {visualsEnabled && journey?.visual_effects && (
           <JourneyVisualizer 
             visualEffects={journey.visual_effects}
@@ -120,6 +129,18 @@ const JourneyPage: React.FC = () => {
                 />
                 <label htmlFor="visuals-toggle" className="text-sm text-gray-600">
                   Visual Effects
+                </label>
+              </div>
+              
+              <div className="flex items-center">
+                <Switch 
+                  id="spiral-toggle" 
+                  checked={spiralEnabled}
+                  onCheckedChange={setSpiralEnabled}
+                  className="mr-2"
+                />
+                <label htmlFor="spiral-toggle" className="text-sm text-gray-600">
+                  Spiral Background
                 </label>
               </div>
               

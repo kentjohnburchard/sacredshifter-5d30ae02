@@ -7,6 +7,7 @@ import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import { toast } from 'sonner';
 import { useJourneySongs } from '@/hooks/useJourneySongs';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { 
   ChevronDown, 
   ChevronUp,
@@ -17,6 +18,8 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import SpiralVisualizer from '@/components/visualizer/SpiralVisualizer';
+import useSpiralParams from '@/hooks/useSpiralParams';
 
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
@@ -26,10 +29,14 @@ const JourneyPlayer = () => {
   const [journey, setJourney] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [infoExpanded, setInfoExpanded] = useState(false);
+  const [spiralEnabled, setSpiralEnabled] = useState(true);
   
   const lastPlayedIndex = useRef<number | null>(null);
   const songsRef = useRef<any[]>([]);
   const audioPlayAttemptedRef = useRef(false);
+  
+  // Get spiral parameters based on journey ID
+  const spiralParams = useSpiralParams(journeyId);
   
   const { templates, loading: loadingTemplates } = useJourneyTemplates();
   
@@ -205,6 +212,8 @@ const JourneyPlayer = () => {
 
   return (
     <Layout pageTitle={journey?.title || "Sacred Journey"}>
+      {spiralEnabled && <SpiralVisualizer params={spiralParams} />}
+      
       <div className="max-w-4xl mx-auto p-4 relative z-10">
         <Card className="backdrop-blur-sm border border-purple-200/30 dark:border-purple-900/30 bg-white/80 dark:bg-black/60">
           <CardContent className="p-6">
@@ -229,6 +238,20 @@ const JourneyPlayer = () => {
                 >
                   Back to Journeys
                 </Button>
+              </div>
+            </div>
+            
+            <div className="mb-4">
+              <div className="flex items-center">
+                <Switch 
+                  id="spiral-toggle" 
+                  checked={spiralEnabled}
+                  onCheckedChange={setSpiralEnabled}
+                  className="mr-2"
+                />
+                <label htmlFor="spiral-toggle" className="text-sm text-gray-600 dark:text-gray-300">
+                  Spiral Background
+                </label>
               </div>
             </div>
             

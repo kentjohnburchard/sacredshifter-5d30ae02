@@ -1,117 +1,151 @@
-import React from "react";
-import Layout from "@/components/Layout";
-import { Link } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { SacredGeometryVisualizer } from "@/components/sacred-geometry";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { PageLayout } from '@/components/layout/PageLayout';
+import { Button } from '@/components/ui/button';
 
 const SiteMap: React.FC = () => {
   return (
-    <Layout pageTitle="Site Map">
-      <div className="container mx-auto px-4 py-8 relative">
-        {/* Remove the absolute positioned visualizer as it's now handled by Layout */}
-        
-        <h1 className="text-3xl font-bold mb-6 text-center text-white">Sacred Shifter - Complete Site Map</h1>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          <Card className="backdrop-blur-md bg-white/10 dark:bg-gray-800/30 border border-white/10">
-            <CardHeader>
-              <CardTitle>Main Pages</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                <li><Link to="/" className="text-purple-300 hover:text-purple-100 hover:underline">Home</Link></li>
-                <li><Link to="/dashboard" className="text-purple-300 hover:text-purple-100 hover:underline">Cosmic Dashboard</Link></li>
-                <li><Link to="/auth" className="text-purple-300 hover:text-purple-100 hover:underline">Login/Register</Link></li>
-                <li><Link to="/profile" className="text-purple-300 hover:text-purple-100 hover:underline">User Profile</Link></li>
-                <li><Link to="/about" className="text-purple-300 hover:text-purple-100 hover:underline">About Founder</Link></li>
-              </ul>
-            </CardContent>
-          </Card>
-          
-          <Card className="backdrop-blur-md bg-white/10 dark:bg-gray-800/30 border border-white/10">
-            <CardHeader>
-              <CardTitle>Journey & Frequency Pages</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                <li><Link to="/journey-templates" className="text-purple-300 hover:text-purple-100 hover:underline">Journey Templates</Link></li>
-                <li><Link to="/journeys" className="text-purple-300 hover:text-purple-100 hover:underline">My Journeys</Link></li>
-                <li><Link to="/frequencies" className="text-purple-300 hover:text-purple-100 hover:underline">Frequency Library</Link></li>
-                <li><Link to="/frequency-shift" className="text-purple-300 hover:text-purple-100 hover:underline">Frequency Shifting</Link></li>
-                <li><Link to="/meditation" className="text-purple-300 hover:text-purple-100 hover:underline">Meditation</Link></li>
-              </ul>
-            </CardContent>
-          </Card>
-          
-          <Card className="backdrop-blur-md bg-white/10 dark:bg-gray-800/30 border border-white/10">
-            <CardHeader>
-              <CardTitle>Admin & Management</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                <li><Link to="/admin" className="text-purple-300 hover:text-purple-100 hover:underline">Admin Dashboard</Link></li>
-                <li><Link to="/admin/journey-audio-admin" className="text-purple-300 hover:text-purple-100 hover:underline">Journey Audio Admin</Link></li>
-                <li><Link to="/admin/journey-audio-mappings" className="text-purple-300 hover:text-purple-100 hover:underline">Journey Audio Mappings</Link></li>
-                <li><Link to="/admin/frequency-admin" className="text-purple-300 hover:text-purple-100 hover:underline">Frequency Admin</Link></li>
-                <li><Link to="/admin/user-management" className="text-purple-300 hover:text-purple-100 hover:underline">User Management</Link></li>
-              </ul>
-            </CardContent>
-          </Card>
+    <PageLayout title="Site Map">
+      <div className="container mx-auto p-4">
+        <h1 className="text-3xl font-bold mb-4">Site Map</h1>
 
-          <Card className="backdrop-blur-md bg-white/10 dark:bg-gray-800/30 border border-white/10">
-            <CardHeader>
-              <CardTitle>Educational Content</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                <li><Link to="/hermetic" className="text-purple-300 hover:text-purple-100 hover:underline">Hermetic Wisdom</Link></li>
-                <li><Link to="/sacred-geometry" className="text-purple-300 hover:text-purple-100 hover:underline">Sacred Geometry</Link></li>
-                <li><Link to="/frequency-education" className="text-purple-300 hover:text-purple-100 hover:underline">Frequency Education</Link></li>
-                <li><Link to="/chakras" className="text-purple-300 hover:text-purple-100 hover:underline">Chakra System</Link></li>
-                <li><Link to="/resources" className="text-purple-300 hover:text-purple-100 hover:underline">Resources</Link></li>
-              </ul>
-            </CardContent>
-          </Card>
-          
-          <Card className="backdrop-blur-md bg-white/10 dark:bg-gray-800/30 border border-white/10">
-            <CardHeader>
-              <CardTitle>Special Features</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                <li><Link to="/trinity-gateway" className="text-purple-300 hover:text-purple-100 hover:underline">Trinity Gateway</Link></li>
-                <li><Link to="/cosmic-connection" className="text-purple-300 hover:text-purple-100 hover:underline">Cosmic Connection</Link></li>
-                <li><Link to="/dna-activation" className="text-purple-300 hover:text-purple-100 hover:underline">DNA Activation</Link></li>
-                <li><Link to="/quantum-healing" className="text-purple-300 hover:text-purple-100 hover:underline">Quantum Healing</Link></li>
-                <li><Link to="/cosmic-visualizer" className="text-purple-300 hover:text-purple-100 hover:underline">Cosmic Visualizer Tool</Link></li>
-              </ul>
-            </CardContent>
-          </Card>
-          
-          <Card className="backdrop-blur-md bg-white/10 dark:bg-gray-800/30 border border-white/10">
-            <CardHeader>
-              <CardTitle>Settings & Support</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                <li><Link to="/settings" className="text-purple-300 hover:text-purple-100 hover:underline">Account Settings</Link></li>
-                <li><Link to="/support" className="text-purple-300 hover:text-purple-100 hover:underline">Support</Link></li>
-                <li><Link to="/faq" className="text-purple-300 hover:text-purple-100 hover:underline">FAQ</Link></li>
-                <li><Link to="/contact" className="text-purple-300 hover:text-purple-100 hover:underline">Contact Us</Link></li>
-                <li><Link to="/terms" className="text-purple-300 hover:text-purple-100 hover:underline">Terms & Privacy</Link></li>
-              </ul>
-            </CardContent>
-          </Card>
+        {/* General Pages */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">General Pages</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Link to="/">
+              <Button className="w-full justify-start">Home</Button>
+            </Link>
+            <Link to="/about">
+              <Button className="w-full justify-start">About</Button>
+            </Link>
+            <Link to="/contact">
+              <Button className="w-full justify-start">Contact</Button>
+            </Link>
+            <Link to="/pricing">
+              <Button className="w-full justify-start">Pricing</Button>
+            </Link>
+            <Link to="/faq">
+              <Button className="w-full justify-start">FAQ</Button>
+            </Link>
+            <Link to="/terms">
+              <Button className="w-full justify-start">Terms of Service</Button>
+            </Link>
+            <Link to="/privacy">
+              <Button className="w-full justify-start">Privacy Policy</Button>
+            </Link>
+          </div>
         </div>
-        
-        <div className="text-center mt-8">
-          <p className="text-gray-300 dark:text-gray-400 italic">All site pages are accessible through this sitemap</p>
-          <Link to="/dashboard" className="mt-4 inline-block px-4 py-2 bg-purple-600/80 text-white rounded hover:bg-purple-700/90 backdrop-blur-sm">
-            Return to Dashboard
-          </Link>
+
+        {/* Community Pages */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Community Pages</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Link to="/community">
+              <Button className="w-full justify-start">Community Home</Button>
+            </Link>
+            <Link to="/community/forums">
+              <Button className="w-full justify-start">Forums</Button>
+            </Link>
+            <Link to="/community/events">
+              <Button className="w-full justify-start">Events</Button>
+            </Link>
+            <Link to="/community/groups">
+              <Button className="w-full justify-start">Groups</Button>
+            </Link>
+            <Link to="/community/members">
+              <Button className="w-full justify-start">Members</Button>
+            </Link>
+          </div>
+        </div>
+
+        {/* Frequency Journey Pages */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Frequency Journey Pages</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+             <Link to="/journey-templates">
+              <Button className="w-full justify-start">Journey Templates</Button>
+            </Link>
+            <Link to="/frequency-library">
+              <Button className="w-full justify-start">Frequency Library</Button>
+            </Link>
+            <Link to="/my-journeys">
+              <Button className="w-full justify-start">My Journeys</Button>
+            </Link>
+          </div>
+        </div>
+
+        {/* Sacred Geometry Pages */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Sacred Geometry Pages</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Link to="/sacred-geometry">
+              <Button className="w-full justify-start">Sacred Geometry Home</Button>
+            </Link>
+            <Link to="/sacred-geometry/visualizer">
+              <Button className="w-full justify-start">Visualizer</Button>
+            </Link>
+            <Link to="/sacred-geometry/patterns">
+              <Button className="w-full justify-start">Patterns</Button>
+            </Link>
+          </div>
+        </div>
+
+        {/* Hermetic Wisdom Pages */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Hermetic Wisdom Pages</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Link to="/hermetic-wisdom">
+              <Button className="w-full justify-start">Hermetic Wisdom Home</Button>
+            </Link>
+            <Link to="/hermetic-wisdom/principles">
+              <Button className="w-full justify-start">Principles</Button>
+            </Link>
+            <Link to="/hermetic-wisdom/journeys">
+              <Button className="w-full justify-start">Journeys</Button>
+            </Link>
+          </div>
+        </div>
+
+        {/* Account Pages */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Account Pages</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Link to="/profile">
+              <Button className="w-full justify-start">Profile</Button>
+            </Link>
+            <Link to="/settings">
+              <Button className="w-full justify-start">Settings</Button>
+            </Link>
+            <Link to="/billing">
+              <Button className="w-full justify-start">Billing</Button>
+            </Link>
+            <Link to="/auth/login">
+              <Button className="w-full justify-start">Login</Button>
+            </Link>
+             <Link to="/auth/register">
+              <Button className="w-full justify-start">Register</Button>
+            </Link>
+            <Link to="/auth/forgot-password">
+              <Button className="w-full justify-start">Forgot Password</Button>
+            </Link>
+          </div>
+        </div>
+
+        {/* Admin Pages */}
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold mb-4">Admin Pages</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Link to="/admin">
+              <Button className="w-full justify-start">Admin Dashboard</Button>
+            </Link>
+            <Link to="/admin/journey-spirals">
+              <Button className="w-full justify-start">Journey Spirals Admin</Button>
+            </Link>
+          </div>
         </div>
       </div>
-    </Layout>
+    </PageLayout>
   );
 };
 
