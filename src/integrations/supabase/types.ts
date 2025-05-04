@@ -542,6 +542,45 @@ export type Database = {
         }
         Relationships: []
       }
+      journeys: {
+        Row: {
+          assigned_songs: string | null
+          created_at: string | null
+          filename: string
+          id: number
+          strobe_patterns: string | null
+          tags: string | null
+          title: string
+          updated_at: string | null
+          veil_locked: boolean | null
+          visual_effects: string | null
+        }
+        Insert: {
+          assigned_songs?: string | null
+          created_at?: string | null
+          filename: string
+          id?: number
+          strobe_patterns?: string | null
+          tags?: string | null
+          title: string
+          updated_at?: string | null
+          veil_locked?: boolean | null
+          visual_effects?: string | null
+        }
+        Update: {
+          assigned_songs?: string | null
+          created_at?: string | null
+          filename?: string
+          id?: number
+          strobe_patterns?: string | null
+          tags?: string | null
+          title?: string
+          updated_at?: string | null
+          veil_locked?: boolean | null
+          visual_effects?: string | null
+        }
+        Relationships: []
+      }
       lightbearer_activities: {
         Row: {
           activity_type: string

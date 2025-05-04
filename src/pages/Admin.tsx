@@ -39,6 +39,17 @@ const Admin: React.FC = () => {
               View, organize, and soon edit all pages, navigation setup, and their connections.
             </p>
           </Link>
+          
+          {/* New Link for Journey Manager */}
+          <Link
+            to="/admin/journeys"
+            className="block p-6 bg-white rounded-lg border border-purple-200 shadow-sm hover:bg-purple-50"
+          >
+            <h3 className="text-lg font-semibold mb-2">Sacred Journey Manager</h3>
+            <p className="text-gray-600">
+              Manage sacred journeys, their visual effects, audio mappings, and veil access settings.
+            </p>
+          </Link>
         </div>
       </div>
     </Layout>
@@ -46,4 +57,3 @@ const Admin: React.FC = () => {
 };
 
 export default Admin;
-

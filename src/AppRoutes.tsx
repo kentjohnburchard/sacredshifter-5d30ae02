@@ -54,6 +54,8 @@ import EmotionEngine from '@/pages/EmotionEngine';
 import SoulScribe from '@/pages/SoulScribe';
 import DeityOracle from '@/pages/DeityOracle';
 import AstralAttunement from '@/pages/AstralAttunement';
+import JourneyPage from '@/pages/JourneyPage';
+import JourneysManager from '@/pages/admin/JourneysManager';
 
 const AppRoutes: React.FC = () => {
   console.log("AppRoutes rendering - checking route configuration");
@@ -195,6 +197,16 @@ const AppRoutes: React.FC = () => {
             <AdminPagesCanvas />
           </ProtectedRoute>
         } />
+        
+        {/* New Journey Routes */}
+        <Route path="/journey/:journeySlug" element={<JourneyPage />} />
+        
+        <Route path="/admin/journeys" element={
+          <ProtectedRoute>
+            <JourneysManager />
+          </ProtectedRoute>
+        } />
+        
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
