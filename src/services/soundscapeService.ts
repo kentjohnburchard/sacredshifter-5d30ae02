@@ -27,7 +27,8 @@ export const fetchJourneySoundscape = async (journeySlug: string): Promise<Journ
     
     // Ensure source_type is properly typed
     const soundscape = data[0];
-    const source_type = (soundscape.source_type || 'file') as 'file' | 'youtube' | 'external';
+    // Add default source_type as 'file' if it doesn't exist
+    const source_type = ((soundscape as any).source_type || 'file') as 'file' | 'youtube' | 'external';
     
     return {
       ...soundscape,
@@ -54,7 +55,7 @@ export const fetchAllSoundscapes = async (): Promise<JourneySoundscape[]> => {
     // Ensure each item has the proper source_type
     return (data || []).map(item => ({
       ...item,
-      source_type: (item.source_type || 'file') as 'file' | 'youtube' | 'external'
+      source_type: ((item as any).source_type || 'file') as 'file' | 'youtube' | 'external'
     }));
   } catch (error) {
     console.error('Failed to fetch all soundscapes:', error);
