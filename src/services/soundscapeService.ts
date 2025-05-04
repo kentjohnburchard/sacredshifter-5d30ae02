@@ -23,7 +23,16 @@ export const fetchJourneySoundscape = async (journeySlug: string): Promise<Journ
       return null;
     }
     
-    return data?.[0] || null;
+    if (!data?.[0]) return null;
+    
+    // Ensure source_type is properly typed
+    const soundscape = data[0];
+    const source_type = (soundscape.source_type || 'file') as 'file' | 'youtube' | 'external';
+    
+    return {
+      ...soundscape,
+      source_type
+    };
   } catch (error) {
     console.error('Failed to fetch journey soundscape:', error);
     return null;
@@ -42,7 +51,11 @@ export const fetchAllSoundscapes = async (): Promise<JourneySoundscape[]> => {
       return [];
     }
     
-    return data || [];
+    // Ensure each item has the proper source_type
+    return (data || []).map(item => ({
+      ...item,
+      source_type: (item.source_type || 'file') as 'file' | 'youtube' | 'external'
+    }));
   } catch (error) {
     console.error('Failed to fetch all soundscapes:', error);
     return [];
@@ -62,7 +75,10 @@ export const createJourneySoundscape = async (soundscape: Omit<JourneySoundscape
       throw error;
     }
     
-    return data;
+    return {
+      ...data,
+      source_type: data.source_type as 'file' | 'youtube' | 'external'
+    };
   } catch (error) {
     console.error('Failed to create journey soundscape:', error);
     throw error;
@@ -83,7 +99,10 @@ export const updateJourneySoundscape = async (id: string, updates: Partial<Journ
       throw error;
     }
     
-    return data;
+    return {
+      ...data,
+      source_type: data.source_type as 'file' | 'youtube' | 'external'
+    };
   } catch (error) {
     console.error('Failed to update journey soundscape:', error);
     throw error;
