@@ -75,8 +75,8 @@ export const fetchJourneySoundscape = async (
   return null;
 };
 
-// Add a function to get all soundscapes
-export const fetchAllJourneySoundscapes = async (): Promise<JourneySoundscape[]> => {
+// Renamed from fetchAllJourneySoundscapes to fetchAllSoundscapes
+export const fetchAllSoundscapes = async (): Promise<JourneySoundscape[]> => {
   const { data, error } = await supabase
     .from('journey_soundscapes')
     .select('*')

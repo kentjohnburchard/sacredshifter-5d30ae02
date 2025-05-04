@@ -590,8 +590,20 @@ export type Database = {
         Row: {
           assigned_songs: string | null
           created_at: string | null
+          description: string | null
+          duration: string | null
+          env_incense: string | null
+          env_lighting: string | null
+          env_posture: string | null
+          env_temperature: string | null
+          env_tools: string | null
           filename: string
           id: number
+          intent: string | null
+          notes: string | null
+          recommended_users: string | null
+          script: string | null
+          sound_frequencies: string | null
           strobe_patterns: string | null
           tags: string | null
           title: string
@@ -602,8 +614,20 @@ export type Database = {
         Insert: {
           assigned_songs?: string | null
           created_at?: string | null
+          description?: string | null
+          duration?: string | null
+          env_incense?: string | null
+          env_lighting?: string | null
+          env_posture?: string | null
+          env_temperature?: string | null
+          env_tools?: string | null
           filename: string
           id?: number
+          intent?: string | null
+          notes?: string | null
+          recommended_users?: string | null
+          script?: string | null
+          sound_frequencies?: string | null
           strobe_patterns?: string | null
           tags?: string | null
           title: string
@@ -614,8 +638,20 @@ export type Database = {
         Update: {
           assigned_songs?: string | null
           created_at?: string | null
+          description?: string | null
+          duration?: string | null
+          env_incense?: string | null
+          env_lighting?: string | null
+          env_posture?: string | null
+          env_temperature?: string | null
+          env_tools?: string | null
           filename?: string
           id?: number
+          intent?: string | null
+          notes?: string | null
+          recommended_users?: string | null
+          script?: string | null
+          sound_frequencies?: string | null
           strobe_patterns?: string | null
           tags?: string | null
           title?: string
