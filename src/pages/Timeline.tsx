@@ -1,71 +1,54 @@
 
 import React, { useState } from 'react';
 import Layout from '@/components/Layout';
-import { Card } from '@/components/ui/card';
-import TimelineViewer from '@/components/timeline/TimelineViewer';
-import SpiralView from '@/components/timeline/SpiralView';
-import FiltersBar from '@/components/timeline/FiltersBar';
 import ToggleView from '@/components/timeline/ToggleView';
-import EditEntryDialog from '@/components/timeline/EditEntryDialog';
+import { useAuth } from '@/context/AuthContext';
 
 const Timeline: React.FC = () => {
-  const [viewMode, setViewMode] = useState<'vertical' | 'spiral'>('vertical');
-  const [activeTagFilter, setActiveTagFilter] = useState<string>('all');
-  const [showEditDialog, setShowEditDialog] = useState<boolean>(false);
-  const [currentEntry, setCurrentEntry] = useState<any>(null);
+  const { user } = useAuth();
+  const [currentView, setCurrentView] = useState<'timeline' | 'grid'>('timeline');
 
-  const handleViewChange = (mode: 'vertical' | 'spiral') => {
-    setViewMode(mode);
+  const handleViewChange = (view: 'timeline' | 'grid') => {
+    setCurrentView(view);
   };
-  
-  const handleFilterChange = (filter: string) => {
-    setActiveTagFilter(filter);
-  };
-  
-  const handleEditEntry = (entry: any) => {
-    setCurrentEntry(entry);
-    setShowEditDialog(true);
-  };
-  
-  const handleDialogChange = (open: boolean) => {
-    setShowEditDialog(open);
-    if (!open) {
-      setCurrentEntry(null);
-    }
-  };
-  
+
   return (
-    <Layout pageTitle="Timeline | Sacred Shifter">
+    <Layout 
+      pageTitle="Timeline | Sacred Shifter"
+      showNavbar={true}
+      showContextActions={true}
+      showGlobalWatermark={true}
+    >
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6 text-center text-white bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-blue-300"
-            style={{textShadow: '0 2px 10px rgba(139, 92, 246, 0.7)'}}>
-          Sacred Timeline
-        </h1>
-        <p className="text-lg text-center text-white mb-12 max-w-3xl mx-auto"
-           style={{textShadow: '0 1px 4px rgba(0, 0, 0, 0.8)'}}>
-          Track your spiritual journey through time
-        </p>
-        
-        <Card className="p-6 bg-black/60 border-purple-500/30 mb-8">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-            <FiltersBar activeTagFilter={activeTagFilter} onFilterChange={handleFilterChange} />
-            <ToggleView viewMode={viewMode} onViewChange={handleViewChange} />
-          </div>
-          
-          {viewMode === 'vertical' ? (
-            <TimelineViewer activeTagFilter={activeTagFilter} onEdit={handleEditEntry} />
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-indigo-600">
+            Your Spiritual Timeline
+          </h1>
+          <ToggleView view={currentView} onViewChange={handleViewChange} />
+        </div>
+
+        <div className="bg-gray-800/60 rounded-lg p-6 backdrop-blur-sm">
+          {!user ? (
+            <div className="text-center py-12">
+              <h2 className="text-2xl font-bold mb-4">Please sign in to view your timeline</h2>
+              <p className="text-gray-400">
+                Your personal timeline of spiritual growth and frequency shifts will appear here once you're signed in.
+              </p>
+            </div>
+          ) : currentView === 'timeline' ? (
+            <div className="space-y-6">
+              <p className="text-center text-lg text-gray-300">
+                Your spiritual journey timeline will be displayed here.
+              </p>
+            </div>
           ) : (
-            <SpiralView activeTagFilter={activeTagFilter} onEdit={handleEditEntry} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <p className="text-center text-lg text-gray-300 col-span-full">
+                Your spiritual journey grid will be displayed here.
+              </p>
+            </div>
           )}
-        </Card>
-        
-        {showEditDialog && currentEntry && (
-          <EditEntryDialog
-            entry={currentEntry}
-            open={showEditDialog}
-            onOpenChange={handleDialogChange}
-          />
-        )}
+        </div>
       </div>
     </Layout>
   );

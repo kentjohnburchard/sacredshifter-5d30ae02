@@ -1,23 +1,24 @@
+
 import React, { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import ProtectedRoute from '@/components/ProtectedRoute';
-import LoadingScreen from '@/components/LoadingScreen';
-import { useAuth } from '@/context/AuthContext';
-import ComingSoon from '@/components/ComingSoon';
+import ProtectedRoute from './components/ProtectedRoute';
+import LoadingScreen from './components/LoadingScreen';
+import { useAuth } from './context/AuthContext';
+import ComingSoon from './components/ComingSoon';
 
 // Lazy load page components
-const Home = lazy(() => import('@/pages/index'));
-const AuthPage = lazy(() => import('@/pages/auth'));
-const Timeline = lazy(() => import('@/pages/Timeline'));
-const Frequencies = lazy(() => import('@/pages/Frequencies'));
-const SacredCircle = lazy(() => import('@/pages/SacredCircle'));
-const PrimeFrequencyActivation = lazy(() => import('@/pages/PrimeFrequencyActivation'));
-const PrimeFrequencies = lazy(() => import('@/pages/PrimeFrequencies'));
-const MusicGenerationPage = lazy(() => import('@/pages/MusicGenerationPage'));
-const FrequencyDetailPage = lazy(() => import('@/pages/FrequencyDetailPage'));
-const HermeticWisdom = lazy(() => import('@/pages/HermeticWisdom'));
-const JourneyEditor = lazy(() => import('@/pages/JourneyEditor'));
-const JourneyAudioMapper = lazy(() => import('@/pages/JourneyAudioMapper'));
+const Home = lazy(() => import('./pages/index'));
+const AuthPage = lazy(() => import('./pages/Auth'));
+const Timeline = lazy(() => import('./pages/Timeline'));
+const Frequencies = lazy(() => import('./pages/Frequencies'));
+const SacredCircle = lazy(() => import('./pages/SacredCircle'));
+const PrimeFrequencyActivation = lazy(() => import('./pages/PrimeFrequencyActivation'));
+const PrimeFrequencies = lazy(() => import('./pages/PrimeFrequencies'));
+const MusicGenerationPage = lazy(() => import('./pages/MusicGenerationPage'));
+const FrequencyDetailPage = lazy(() => import('./pages/FrequencyDetailPage'));
+const HermeticWisdom = lazy(() => import('./pages/HermeticWisdom'));
+const JourneyEditor = lazy(() => import('./pages/JourneyEditor'));
+const JourneyAudioMapper = lazy(() => import('./pages/JourneyAudioMapper'));
 
 const AppRoutes: React.FC = () => {
   const { user, loading } = useAuth();
