@@ -10,7 +10,9 @@ const queryClient = new QueryClient();
 function Root() {
   return (
     <QueryClientProvider client={queryClient}>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
