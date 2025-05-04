@@ -31,40 +31,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     console.log("AuthProvider: Initializing auth state");
+    let authSubscription: { data: { subscription: { unsubscribe: () => void } } };
 
-    // First set up the auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
-      console.log(`Auth state changed: ${event}`, newSession?.user?.email);
-      
-      if (event === 'SIGNED_OUT') {
-        setUser(null);
-        setSession(null);
-      } else if (newSession) {
-        setUser(newSession.user);
-        setSession(newSession);
-      }
-      
-      // Update loading state for relevant auth events
-      if (['SIGNED_IN', 'SIGNED_OUT', 'TOKEN_REFRESHED', 'USER_UPDATED'].includes(event)) {
-        setLoading(false);
-      }
-    });
-
-    // Then fetch the current session
+    // Initialize auth
     const initializeAuth = async () => {
       try {
         console.log("Fetching current session...");
-        const { data, error } = await supabase.auth.getSession();
         
-        if (error) {
-          console.error('Error fetching session:', error.message);
+        // First, get the current session
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error('Error fetching session:', sessionError.message);
         } else {
-          console.log("Initial session check:", data?.session ? "Found session" : "No active session");
-          setSession(data?.session);
-          setUser(data?.session?.user ?? null);
+          console.log("Initial session check:", sessionData?.session ? "Found session" : "No active session");
+          setSession(sessionData?.session);
+          setUser(sessionData?.session?.user ?? null);
         }
         
-        setLoading(false);
+        // Then set up the auth state listener after initial session check
+        authSubscription = supabase.auth.onAuthStateChange((event, newSession) => {
+          console.log(`Auth state changed: ${event}`, newSession?.user?.email);
+          
+          if (event === 'SIGNED_OUT') {
+            setUser(null);
+            setSession(null);
+          } else if (newSession) {
+            setUser(newSession.user);
+            setSession(newSession);
+          }
+          
+          // Update loading state for relevant auth events
+          if (['SIGNED_IN', 'SIGNED_OUT', 'TOKEN_REFRESHED', 'USER_UPDATED'].includes(event)) {
+            setLoading(false);
+          }
+        });
+        
+        // Set loading to false after a max time to prevent hanging UI
+        setTimeout(() => {
+          setLoading(false);
+        }, 5000);
       } catch (err) {
         console.error("Failed to initialize auth:", err);
         setLoading(false);
@@ -76,7 +82,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Cleanup function
     return () => {
       console.log("AuthProvider: Cleaning up subscription");
-      subscription.unsubscribe();
+      if (authSubscription) {
+        authSubscription.data.subscription.unsubscribe();
+      }
     };
   }, []);
 
