@@ -20,7 +20,7 @@ interface CoreJourneyLoaderResult {
 const loadCoreJourneyContent = async (slug: string): Promise<CoreJourneyLoaderResult> => {
   try {
     // Try to find the journey file in core_content
-    const journeyFiles = import.meta.glob('/src/core_content/journeys/*.md', { as: 'raw' });
+    const journeyFiles = import.meta.glob('/src/core_content/journeys/*.md', { query: '?raw', import: 'default' });
     
     // Check for an exact match with the slug
     const matchingFile = Object.keys(journeyFiles).find(path => {

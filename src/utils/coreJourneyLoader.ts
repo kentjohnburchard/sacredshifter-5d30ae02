@@ -6,7 +6,7 @@ import { parseJourneyFrontmatter, fileNameToSlug, parseJourneyContent } from '@/
 export async function loadCoreJourneys(): Promise<Journey[]> {
   try {
     // In a browser environment, we'll need to fetch the file list first
-    const journeyFiles = import.meta.glob('/src/core_content/journeys/*.md', { as: 'raw' });
+    const journeyFiles = import.meta.glob('/src/core_content/journeys/*.md', { query: '?raw', import: 'default' });
     const journeys: Journey[] = [];
     
     // Process each journey file

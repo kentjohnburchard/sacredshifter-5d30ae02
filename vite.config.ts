@@ -11,5 +11,8 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  assetsInclude: ['**/*.md'], // Add this line to include markdown files as assets
+  assetsInclude: ['**/*.md'], // Include markdown files as assets
+  server: {
+    port: 8080
+  }
 });
