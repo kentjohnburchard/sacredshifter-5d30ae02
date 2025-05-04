@@ -9,6 +9,9 @@ import HermeticSection from '@/components/landing/HermeticSection';
 import JoinSection from '@/components/landing/JoinSection';
 import SacredJourneyScroll from '@/components/sacred-journey/SacredJourneyScroll';
 import SacredResourcesSection from '@/components/landing/SacredResourcesSection';
+import SacredInvitation from '@/components/landing/SacredInvitation';
+import LightBearers from '@/components/landing/LightBearers';
+import CosmicFooter from '@/components/landing/CosmicFooter';
 
 const HomePage: React.FC = () => {
   return (
@@ -42,11 +45,20 @@ const HomePage: React.FC = () => {
         </div>
       </section>
       
-      {/* Sacred Resources Section - Enhanced visibility */}
+      {/* Sacred Resources Section */}
       <SacredResourcesSection />
+      
+      {/* Sacred Circle Invitation Section */}
+      <SacredInvitation />
+
+      {/* Light Bearers Section */}
+      <LightBearers />
       
       <HermeticSection />
       <JoinSection />
+
+      {/* Cosmic Footer */}
+      <CosmicFooter />
     </Layout>
   );
 };
