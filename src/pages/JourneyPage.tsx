@@ -4,9 +4,9 @@ import { useParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import ReactMarkdown from 'react-markdown';
 import { fetchJourneyBySlug, Journey } from '@/services/journeyService';
-import { JourneySoundscapePlayer } from '@/components/journey/JourneySoundscapePlayer';
+import JourneySoundscapePlayer from '@/components/journey/JourneySoundscapePlayer';
 import SacredGeometryVisualizer from '@/components/sacred-geometry/SacredGeometryVisualizer';
-import { SpiralVisualizer } from '@/components/visualizer/SpiralVisualizer';
+import SpiralVisualizer from '@/components/visualizer/SpiralVisualizer';
 import { useSpiralParams } from '@/hooks/useSpiralParams';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -116,7 +116,7 @@ const JourneyPage: React.FC = () => {
                 <Card>
                   <CardContent className="p-6">
                     {content ? (
-                      <ReactMarkdown className="prose max-w-none dark:prose-invert">
+                      <ReactMarkdown>
                         {content}
                       </ReactMarkdown>
                     ) : (
@@ -234,13 +234,15 @@ const JourneyPage: React.FC = () => {
               <Card className="mb-8">
                 <CardContent className="p-0 h-[300px] relative overflow-hidden">
                   <SpiralVisualizer 
-                    isStatic={true} 
-                    coeffA={spiralParams?.coeffA ?? 4} 
-                    coeffB={spiralParams?.coeffB ?? 4}
-                    coeffC={spiralParams?.coeffC ?? 1.3}
-                    freqA={spiralParams?.freqA ?? 44}
-                    freqB={spiralParams?.freqB ?? -17}
-                    freqC={spiralParams?.freqC ?? -54}
+                    params={{
+                      coeffA: spiralParams?.coeffA ?? 4,
+                      coeffB: spiralParams?.coeffB ?? 4,
+                      coeffC: spiralParams?.coeffC ?? 1.3,
+                      freqA: spiralParams?.freqA ?? 44,
+                      freqB: spiralParams?.freqB ?? -17,
+                      freqC: spiralParams?.freqC ?? -54
+                    }}
+                    containerId="journeySpiral"
                   />
                 </CardContent>
               </Card>

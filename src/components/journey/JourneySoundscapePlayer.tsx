@@ -1,33 +1,90 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { JourneySoundscape } from '@/services/soundscapeService';
+import { fetchJourneySoundscape, JourneySoundscape } from '@/services/soundscapeService';
 import { Volume2, VolumeX, Play, Pause, SkipBack } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 
 interface JourneySoundscapePlayerProps {
-  soundscape: JourneySoundscape;
+  journeySlug: string;
   autoPlay?: boolean;
   loop?: boolean;
   className?: string;
 }
 
 const JourneySoundscapePlayer: React.FC<JourneySoundscapePlayerProps> = ({
-  soundscape,
+  journeySlug,
   autoPlay = false,
   loop = true,
   className = ''
 }) => {
+  const [soundscape, setSoundscape] = useState<JourneySoundscape | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.7);
   const [muted, setMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { playAudio } = useGlobalAudioPlayer();
   
-  const isYouTubeEmbed = soundscape.source_type === 'youtube';
+  useEffect(() => {
+    const loadSoundscape = async () => {
+      try {
+        setIsLoading(true);
+        const data = await fetchJourneySoundscape(journeySlug);
+        if (data) {
+          setSoundscape(data);
+          if (autoPlay && data.file_url) {
+            const audioUrl = formatAudioUrl(data.file_url);
+            playAudio({
+              title: data.title,
+              source: audioUrl,
+              artist: "Sacred Shifter"
+            });
+            setIsPlaying(true);
+          }
+        }
+      } catch (err) {
+        console.error("Error loading soundscape:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadSoundscape();
+  }, [journeySlug, autoPlay, playAudio]);
+  
+  const formatAudioUrl = (url: string) => {
+    if (!url) return '';
+    
+    if (!url.startsWith('http') && !url.startsWith('/')) {
+      return `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${url}`;
+    }
+    
+    return url;
+  };
+  
+  // If soundscape is still loading, show a loading state
+  if (isLoading) {
+    return (
+      <div className="p-4 text-center">
+        <p>Loading soundscape...</p>
+      </div>
+    );
+  }
+  
+  // If no soundscape was found
+  if (!soundscape) {
+    return (
+      <div className="p-4 text-center">
+        <p>No soundscape available for this journey</p>
+      </div>
+    );
+  }
   
   // Handle YouTube embeds separately
+  const isYouTubeEmbed = soundscape.source_type === 'youtube';
+  
   if (isYouTubeEmbed && soundscape.source_link) {
     return (
       <div className={`relative rounded-lg overflow-hidden ${className}`}>
@@ -42,28 +99,6 @@ const JourneySoundscapePlayer: React.FC<JourneySoundscapePlayerProps> = ({
     );
   }
   
-  // For regular audio files
-  useEffect(() => {
-    if (soundscape.file_url) {
-      // Format url if needed
-      let audioUrl = soundscape.file_url;
-      
-      if (!audioUrl.startsWith('http') && !audioUrl.startsWith('/')) {
-        // Assume it's a storage file path
-        audioUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioUrl}`;
-      }
-      
-      if (autoPlay) {
-        playAudio({
-          title: soundscape.title,
-          source: audioUrl,
-          artist: "Sacred Shifter"
-        });
-        setIsPlaying(true);
-      }
-    }
-  }, [soundscape, autoPlay, playAudio]);
-  
   const togglePlay = () => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -75,11 +110,7 @@ const JourneySoundscapePlayer: React.FC<JourneySoundscapePlayerProps> = ({
       }
       setIsPlaying(!isPlaying);
     } else if (soundscape.file_url) {
-      let audioUrl = soundscape.file_url;
-      
-      if (!audioUrl.startsWith('http') && !audioUrl.startsWith('/')) {
-        audioUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioUrl}`;
-      }
+      const audioUrl = formatAudioUrl(soundscape.file_url);
       
       playAudio({
         title: soundscape.title,
@@ -158,7 +189,7 @@ const JourneySoundscapePlayer: React.FC<JourneySoundscapePlayerProps> = ({
       {/* Hidden audio element for direct control */}
       <audio 
         ref={audioRef}
-        src={soundscape.file_url}
+        src={formatAudioUrl(soundscape.file_url)}
         preload="auto"
         loop={loop}
         hidden
