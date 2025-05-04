@@ -71,6 +71,10 @@ const AppRoutes: React.FC = () => {
     }>
       <ScrollToTop />
       <Routes>
+        {/* NOTE TO LOVABLE:
+        // Do not delete or auto-modify any route imports.
+        // If a page is missing, generate a placeholder in /pages/ with a stub component. */}
+        
         {/* Redirect root path to our new Home Page */}
         <Route path="/" element={<HomePage />} />
         <Route path="/coming-soon" element={
@@ -80,8 +84,6 @@ const AppRoutes: React.FC = () => {
             expectedDate="Q3 2025" 
           />
         } />
-        <Route path="/home" element={<SacredShifterHome />} />
-        <Route path="/original-home" element={<Home />} />
         
         {/* Debug this route specifically */}
         <Route 
