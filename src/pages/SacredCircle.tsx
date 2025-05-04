@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -8,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { useCommunity } from '@/contexts/CommunityContext';
+import { CommunityProvider, useCommunity } from '@/contexts/CommunityContext';
 import { useAuth } from '@/context/AuthContext';
 import { Sun, Moon, Undo2, Users, Search, MessageCircle, User } from 'lucide-react';
 
@@ -80,7 +81,7 @@ const mockProfiles: LightbearerProfile[] = [
   },
 ];
 
-const SacredCircle: React.FC = () => {
+const SacredCircleContent: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [profiles, setProfiles] = useState<LightbearerProfile[]>([]);
@@ -331,6 +332,15 @@ const SacredCircle: React.FC = () => {
         </div>
       </div>
     </Layout>
+  );
+};
+
+// Wrapper component that provides the CommunityProvider context
+const SacredCircle: React.FC = () => {
+  return (
+    <CommunityProvider>
+      <SacredCircleContent />
+    </CommunityProvider>
   );
 };
 
