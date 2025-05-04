@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
@@ -50,7 +51,7 @@ const Layout: React.FC<LayoutProps> = ({
 
   return (
     <div className={`relative flex min-h-screen w-full overflow-x-hidden ${consciousnessClass}`}>
-      {/* Sacred grid background - repositioned as fixed and full viewport */}
+      {/* Fixed position background elements with higher z-index than before */}
       <div className="fixed inset-0 w-full h-full z-0">
         <SacredGridBackground 
           intensity={liftTheVeil ? 0.85 : 0.75}
@@ -62,18 +63,19 @@ const Layout: React.FC<LayoutProps> = ({
       {/* Gradient overlay with reduced opacity for more transparency */}
       <div className="fixed inset-0 z-0 bg-gradient-to-b from-black/30 via-transparent to-black/30 pointer-events-none" />
       
-      {/* Existing starfield with full viewport coverage */}
+      {/* Starfield with full viewport coverage - static to prevent rerendering */}
       <div className="fixed inset-0 z-0 opacity-40">
-        <StarfieldBackground density="medium" opacity={0.5} isStatic={false} />
+        <StarfieldBackground density="medium" opacity={0.5} isStatic={true} />
       </div>
       
-      {/* Sacred Geometry with adjusted opacity and positioned as fixed */}
+      {/* Sacred Geometry with adjusted opacity and positioned as fixed - static to prevent rerendering */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-50">
         <SacredGeometryVisualizer
           defaultShape="flower-of-life"
           size="xl"
           showControls={false}
           isAudioReactive={false}
+          isStatic={true}
         />
       </div>
       

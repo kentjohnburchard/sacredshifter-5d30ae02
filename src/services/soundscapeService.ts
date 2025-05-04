@@ -1,170 +1,91 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 
 export interface JourneySoundscape {
   id: string;
-  journey_id: number;
+  journey_id: number | null;
   title: string;
-  description: string | null;
+  description?: string;
   file_url: string;
-  source_link: string | null;
-  source_type: 'file' | 'youtube' | 'external';
-  created_at: string;
+  source_type: 'file' | 'youtube' | 'spotify';
+  source_link?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
-export const fetchJourneySoundscape = async (journeySlug: string): Promise<JourneySoundscape | null> => {
-  try {
-    const { data, error } = await supabase
-      .rpc('get_journey_soundscape', { journey_slug: journeySlug });
-    
-    if (error) {
-      console.error('Error fetching journey soundscape:', error);
-      return null;
-    }
-    
-    if (!data?.[0]) return null;
-    
-    // Ensure source_type is properly typed
-    const soundscape = data[0];
-    // Add default source_type as 'file' if it doesn't exist
-    const source_type = ((soundscape as any).source_type || 'file') as 'file' | 'youtube' | 'external';
-    
-    return {
-      ...soundscape,
-      source_type
-    };
-  } catch (error) {
-    console.error('Failed to fetch journey soundscape:', error);
+export const fetchJourneySoundscape = async (
+  journeySlug: string
+): Promise<JourneySoundscape | null> => {
+  // First, try to find a direct mapping
+  const { data: journeySoundscape, error: soundscapeError } = await supabase
+    .from('journey_soundscapes')
+    .select('*')
+    .eq('journey_id', journeySlug)
+    .maybeSingle();
+
+  if (journeySoundscape && !soundscapeError) {
+    return journeySoundscape;
+  }
+
+  // If no direct mapping, try to find by frequency in journey data
+  const { data: journey, error: journeyError } = await supabase
+    .from('journeys')
+    .select('*')
+    .eq('filename', journeySlug)
+    .maybeSingle();
+
+  if (journeyError || !journey) {
+    console.error('Error fetching journey:', journeyError);
     return null;
   }
-};
 
-export const fetchAllSoundscapes = async (): Promise<JourneySoundscape[]> => {
-  try {
-    const { data, error } = await supabase
-      .from('journey_soundscapes')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (error) {
-      console.error('Error fetching all soundscapes:', error);
-      return [];
-    }
-    
-    // Ensure each item has the proper source_type
-    return (data || []).map(item => ({
-      ...item,
-      source_type: ((item as any).source_type || 'file') as 'file' | 'youtube' | 'external'
-    }));
-  } catch (error) {
-    console.error('Failed to fetch all soundscapes:', error);
-    return [];
+  // Extract frequency from tags, title or content if available
+  let frequency = null;
+  const frequencyRegex = /(\d+)(\.\d+)?hz/i;
+  
+  // Check in tags
+  if (journey.tags) {
+    const match = journey.tags.match(frequencyRegex);
+    if (match) frequency = match[1];
   }
-};
+  
+  // Check in title if not found in tags
+  if (!frequency && journey.title) {
+    const match = journey.title.match(frequencyRegex);
+    if (match) frequency = match[1];
+  }
 
-export const createJourneySoundscape = async (soundscape: Omit<JourneySoundscape, 'id' | 'created_at'>): Promise<JourneySoundscape | null> => {
-  try {
-    const { data, error } = await supabase
-      .from('journey_soundscapes')
-      .insert([soundscape])
-      .select()
-      .single();
+  // If frequency found, try to find matching audio
+  if (frequency) {
+    // Check for direct file match first (e.g., 528hz.mp3)
+    const audioUrl = `/audio/${frequency}hz.mp3`;
     
-    if (error) {
-      console.error('Error creating journey soundscape:', error);
-      throw error;
-    }
-    
+    // Return constructed soundscape object
     return {
-      ...data,
-      source_type: data.source_type as 'file' | 'youtube' | 'external'
+      id: `auto-${journeySlug}`,
+      journey_id: journey.id,
+      title: `${frequency}Hz Frequency`,
+      description: `Automatic frequency match for ${journey.title}`,
+      file_url: audioUrl,
+      source_type: 'file'
     };
-  } catch (error) {
-    console.error('Failed to create journey soundscape:', error);
+  }
+
+  // No mapping found
+  return null;
+};
+
+// Add a function to get all soundscapes
+export const fetchAllJourneySoundscapes = async (): Promise<JourneySoundscape[]> => {
+  const { data, error } = await supabase
+    .from('journey_soundscapes')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching soundscapes:', error);
     throw error;
   }
-};
 
-export const updateJourneySoundscape = async (id: string, updates: Partial<JourneySoundscape>): Promise<JourneySoundscape | null> => {
-  try {
-    const { data, error } = await supabase
-      .from('journey_soundscapes')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
-    
-    if (error) {
-      console.error('Error updating journey soundscape:', error);
-      throw error;
-    }
-    
-    return {
-      ...data,
-      source_type: data.source_type as 'file' | 'youtube' | 'external'
-    };
-  } catch (error) {
-    console.error('Failed to update journey soundscape:', error);
-    throw error;
-  }
-};
-
-export const deleteJourneySoundscape = async (id: string): Promise<void> => {
-  try {
-    const { error } = await supabase
-      .from('journey_soundscapes')
-      .delete()
-      .eq('id', id);
-    
-    if (error) {
-      console.error('Error deleting journey soundscape:', error);
-      throw error;
-    }
-  } catch (error) {
-    console.error('Failed to delete journey soundscape:', error);
-    throw error;
-  }
-};
-
-export const uploadSoundscapeFile = async (file: File): Promise<string> => {
-  try {
-    const fileExt = file.name.split('.').pop();
-    const filePath = `soundscapes/${Math.random().toString(36).substring(2)}.${fileExt}`;
-    
-    const { error: uploadError } = await supabase.storage
-      .from('frequency-assets')
-      .upload(filePath, file);
-    
-    if (uploadError) {
-      console.error('Error uploading soundscape file:', uploadError);
-      throw uploadError;
-    }
-    
-    return filePath;
-  } catch (error) {
-    console.error('Failed to upload soundscape file:', error);
-    throw error;
-  }
-};
-
-// YouTube URL utilities
-export const extractYoutubeVideoId = (url: string): string | null => {
-  // Handle various YouTube URL formats
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-  const match = url.match(regExp);
-  return match && match[2].length === 11 ? match[2] : null;
-};
-
-export const validateYoutubeUrl = (url: string): boolean => {
-  const videoId = extractYoutubeVideoId(url);
-  return videoId !== null;
-};
-
-export const getEmbedUrlFromYoutubeUrl = (url: string): string => {
-  const videoId = extractYoutubeVideoId(url);
-  if (!videoId) {
-    return '';
-  }
-  return `https://www.youtube.com/embed/${videoId}`;
+  return data || [];
 };

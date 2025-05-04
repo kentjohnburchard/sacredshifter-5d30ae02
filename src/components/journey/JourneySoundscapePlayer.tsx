@@ -1,233 +1,170 @@
 
-import React, { useState, useRef, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import { 
-  Play, 
-  Pause, 
-  Volume2, 
-  VolumeX, 
-  ExternalLink, 
-  Music 
-} from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
 import { JourneySoundscape } from '@/services/soundscapeService';
-import { Card, CardContent } from '@/components/ui/card';
-import YouTubeEmbed from './YouTubeEmbed';
+import { Volume2, VolumeX, Play, Pause, SkipBack } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
+import { Button } from '@/components/ui/button';
+import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 
 interface JourneySoundscapePlayerProps {
   soundscape: JourneySoundscape;
+  autoPlay?: boolean;
+  loop?: boolean;
   className?: string;
 }
 
-const JourneySoundscapePlayer: React.FC<JourneySoundscapePlayerProps> = ({ 
-  soundscape, 
-  className = '' 
+const JourneySoundscapePlayer: React.FC<JourneySoundscapePlayerProps> = ({
+  soundscape,
+  autoPlay = false,
+  loop = true,
+  className = ''
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.7); // Default to 70% volume
-  const [isMuted, setIsMuted] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [volume, setVolume] = useState(0.7);
+  const [muted, setMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const previousVolumeRef = useRef(volume);
-
-  // Format the audio URL if needed
-  const getAudioUrl = (url: string) => {
-    if (url.startsWith('http')) {
-      return url;
-    }
-    return `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${url}`;
-  };
-
-  const togglePlay = () => {
-    if (soundscape.source_type !== 'file' || !audioRef.current) return;
-    
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      const playPromise = audioRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(error => {
-          console.error("Error playing audio:", error);
-          setError("Unable to play audio. Please try again.");
+  const { playAudio } = useGlobalAudioPlayer();
+  
+  const isYouTubeEmbed = soundscape.source_type === 'youtube';
+  
+  // Handle YouTube embeds separately
+  if (isYouTubeEmbed && soundscape.source_link) {
+    return (
+      <div className={`relative rounded-lg overflow-hidden ${className}`}>
+        <iframe
+          src={`${soundscape.source_link}?autoplay=${autoPlay ? '1' : '0'}&loop=${loop ? '1' : '0'}`}
+          title={soundscape.title}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          className="w-full aspect-video"
+        />
+      </div>
+    );
+  }
+  
+  // For regular audio files
+  useEffect(() => {
+    if (soundscape.file_url) {
+      // Format url if needed
+      let audioUrl = soundscape.file_url;
+      
+      if (!audioUrl.startsWith('http') && !audioUrl.startsWith('/')) {
+        // Assume it's a storage file path
+        audioUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioUrl}`;
+      }
+      
+      if (autoPlay) {
+        playAudio({
+          title: soundscape.title,
+          source: audioUrl,
+          artist: "Sacred Shifter"
         });
+        setIsPlaying(true);
       }
     }
-  };
-
-  const toggleMute = () => {
-    if (soundscape.source_type !== 'file' || !audioRef.current) return;
-    
-    if (isMuted) {
-      audioRef.current.volume = previousVolumeRef.current;
-      setVolume(previousVolumeRef.current);
-    } else {
-      previousVolumeRef.current = volume;
-      audioRef.current.volume = 0;
-      setVolume(0);
+  }, [soundscape, autoPlay, playAudio]);
+  
+  const togglePlay = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play().catch(err => {
+          console.error('Audio playback failed:', err);
+        });
+      }
+      setIsPlaying(!isPlaying);
+    } else if (soundscape.file_url) {
+      let audioUrl = soundscape.file_url;
+      
+      if (!audioUrl.startsWith('http') && !audioUrl.startsWith('/')) {
+        audioUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${audioUrl}`;
+      }
+      
+      playAudio({
+        title: soundscape.title,
+        source: audioUrl,
+        artist: "Sacred Shifter"
+      });
+      setIsPlaying(true);
     }
-    
-    setIsMuted(!isMuted);
   };
-
+  
+  const toggleMute = () => {
+    if (audioRef.current) {
+      audioRef.current.muted = !muted;
+      setMuted(!muted);
+    }
+  };
+  
   const handleVolumeChange = (value: number[]) => {
-    if (soundscape.source_type !== 'file') return;
-    
     const newVolume = value[0];
     setVolume(newVolume);
     
     if (audioRef.current) {
       audioRef.current.volume = newVolume;
     }
-    
-    // Update muted state based on volume
-    if (newVolume === 0) {
-      setIsMuted(true);
-    } else if (isMuted) {
-      setIsMuted(false);
+  };
+  
+  const resetTrack = () => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
     }
   };
-
-  // Set up audio event listeners for file type
-  useEffect(() => {
-    if (soundscape.source_type !== 'file') return;
-
-    const audioElement = audioRef.current;
-    if (!audioElement) return;
-    
-    const handlePlay = () => setIsPlaying(true);
-    const handlePause = () => setIsPlaying(false);
-    const handleEnded = () => {
-      audioElement.currentTime = 0; // Reset to beginning
-      audioElement.play(); // Loop the audio
-    };
-    const handleError = () => {
-      setError("There was an error with the audio playback");
-      setIsPlaying(false);
-    };
-    
-    // Set initial volume
-    audioElement.volume = volume;
-    
-    // Add event listeners
-    audioElement.addEventListener('play', handlePlay);
-    audioElement.addEventListener('pause', handlePause);
-    audioElement.addEventListener('ended', handleEnded);
-    audioElement.addEventListener('error', handleError);
-    
-    // Clean up
-    return () => {
-      audioElement.removeEventListener('play', handlePlay);
-      audioElement.removeEventListener('pause', handlePause);
-      audioElement.removeEventListener('ended', handleEnded);
-      audioElement.removeEventListener('error', handleError);
-    };
-  }, [soundscape.source_type]);
-
-  // Render different player based on source type
-  const renderPlayer = () => {
-    switch (soundscape.source_type) {
-      case 'youtube':
-        return (
-          <div className="mt-2">
-            <YouTubeEmbed youtubeUrl={soundscape.file_url} title={soundscape.title} />
-          </div>
-        );
-      
-      case 'external':
-        return (
-          <div className="flex justify-center mt-3">
-            <Button 
-              onClick={() => window.open(soundscape.file_url, '_blank')}
-              className="bg-purple-900/20 text-purple-200 border border-purple-500/30 hover:bg-purple-800/30"
-            >
-              <ExternalLink className="h-4 w-4 mr-2" /> 
-              Open External Audio
-            </Button>
-          </div>
-        );
-      
-      case 'file':
-      default:
-        return (
-          <div className="flex items-center space-x-3 mt-3">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={togglePlay}
-              className="h-8 w-8 rounded-full p-0 border-purple-500/30 bg-purple-900/20 text-purple-200"
-            >
-              {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-            </Button>
-            
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={toggleMute}
-              className="h-8 w-8 rounded-full p-0 text-purple-300 hover:text-purple-200 hover:bg-purple-900/20"
-            >
-              {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-            </Button>
-            
-            <div className="relative flex-grow">
-              <Slider 
-                value={[volume]} 
-                max={1} 
-                min={0}
-                step={0.01}
-                onValueChange={handleVolumeChange}
-                className="w-full"
-              />
-            </div>
-            
-            {error && (
-              <p className="text-xs text-red-400">{error}</p>
-            )}
-            
-            <audio
-              ref={audioRef}
-              src={getAudioUrl(soundscape.file_url)}
-              loop
-              preload="metadata"
-              className="hidden"
+  
+  return (
+    <div className={`p-3 bg-black/20 backdrop-blur-sm rounded-md ${className}`}>
+      <div className="flex items-center justify-between">
+        <div className="font-medium truncate mr-2">
+          {soundscape.title}
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <Button variant="ghost" size="sm" onClick={resetTrack} className="text-gray-300 hover:text-white">
+            <SkipBack className="h-4 w-4" />
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={togglePlay}
+            className="text-gray-300 hover:text-white"
+          >
+            {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={toggleMute}
+            className="text-gray-300 hover:text-white"
+          >
+            {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          </Button>
+          
+          <div className="w-24">
+            <Slider
+              value={[volume]}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={handleVolumeChange}
+              className="h-1.5"
             />
           </div>
-        );
-    }
-  };
-
-  return (
-    <Card className={`bg-black/20 backdrop-blur-sm border-purple-500/30 ${className}`}>
-      <CardContent className="p-4">
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Music className="h-4 w-4 text-purple-400 mr-2" />
-              <h3 className="font-medium text-purple-300">Journey Soundscape</h3>
-            </div>
-            
-            {soundscape.source_link && (
-              <a 
-                href={soundscape.source_link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-blue-400 hover:text-blue-300 flex items-center"
-              >
-                Source <ExternalLink className="h-3 w-3 ml-1" />
-              </a>
-            )}
-          </div>
-
-          <div className="text-sm">
-            <h4 className="text-white/90 font-medium">{soundscape.title}</h4>
-            {soundscape.description && (
-              <p className="text-white/70 text-xs mt-1">{soundscape.description}</p>
-            )}
-          </div>
-          
-          {renderPlayer()}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+      
+      {/* Hidden audio element for direct control */}
+      <audio 
+        ref={audioRef}
+        src={soundscape.file_url}
+        preload="auto"
+        loop={loop}
+        hidden
+        onEnded={() => setIsPlaying(false)}
+      />
+    </div>
   );
 };
 

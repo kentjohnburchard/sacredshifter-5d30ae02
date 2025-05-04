@@ -1,146 +1,119 @@
 
-import React, { useRef, useEffect } from 'react';
-import * as THREE from 'three';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface StarfieldBackgroundProps {
   density?: 'low' | 'medium' | 'high';
   opacity?: number;
-  isStatic: boolean; // Controls animation
+  isStatic?: boolean;
 }
 
-const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({ 
-  density = 'medium', 
-  opacity = 0.3, 
-  isStatic = false // Changed default to false to enable animation
+const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
+  density = 'medium',
+  opacity = 0.7,
+  isStatic = false,
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const frameIdRef = useRef<number | null>(null);
-  const sceneRef = useRef<THREE.Scene | null>(null);
-  const starsRef = useRef<THREE.Points | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const requestIdRef = useRef<number | null>(null);
+  const starsRef = useRef<{ x: number; y: number; radius: number; opacity: number }[]>([]);
+  const isInitializedRef = useRef(false);
+
+  // Set star count based on density
+  const getStarCount = () => {
+    const base = Math.min(window.innerWidth, window.innerHeight) / 4;
+    switch (density) {
+      case 'low': return base * 0.5;
+      case 'high': return base * 2;
+      default: return base;
+    }
+  };
 
   useEffect(() => {
-    if (!containerRef.current) return;
-    
     console.log("Rendering starfield background, isStatic:", isStatic);
-    
-    // Create scene with transparent background
-    const scene = new THREE.Scene();
-    scene.background = null; // Make background transparent
-    sceneRef.current = scene;
-    
-    // Create camera
-    const camera = new THREE.PerspectiveCamera(
-      75, 
-      containerRef.current.clientWidth / containerRef.current.clientHeight, 
-      0.1, 
-      1000
-    );
-    camera.position.z = 5;
-    
-    // Create renderer with transparency
-    const renderer = new THREE.WebGLRenderer({ 
-      antialias: true,
-      alpha: true 
-    });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
-    renderer.setClearColor(0x000000, 0); // Transparent background
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    rendererRef.current = renderer;
-    
-    // Add the renderer to the DOM
-    containerRef.current.innerHTML = '';
-    containerRef.current.appendChild(renderer.domElement);
-    
-    // Determine star count based on density
-    const getStarCount = () => {
-      switch(density) {
-        case 'low': return 500;
-        case 'high': return 1500;
-        case 'medium':
-        default: return 1000;
-      }
-    };
-    
-    // Create stars
-    const starsGeometry = new THREE.BufferGeometry();
-    const starCount = getStarCount();
-    
-    const positions = new Float32Array(starCount * 3);
-    
-    for (let i = 0; i < starCount; i++) {
-      const i3 = i * 3;
-      positions[i3] = (Math.random() - 0.5) * 100;
-      positions[i3 + 1] = (Math.random() - 0.5) * 100;
-      positions[i3 + 2] = (Math.random() - 0.5) * 100;
-    }
-    
-    starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    
-    const starsMaterial = new THREE.PointsMaterial({
-      color: 0xffffff,
-      size: 0.10,
-      transparent: true,
-      opacity: opacity
-    });
-    
-    const stars = new THREE.Points(starsGeometry, starsMaterial);
-    scene.add(stars);
-    starsRef.current = stars;
-    
-    // Animation loop
-    const animate = () => {
-      if (!rendererRef.current || !sceneRef.current) return;
-      
-      frameIdRef.current = requestAnimationFrame(animate);
-      
-      if (starsRef.current && !isStatic) {
-        // Only rotate if not static
-        starsRef.current.rotation.x += 0.0005;
-        starsRef.current.rotation.y += 0.0008;
-      }
-      
-      renderer.render(scene, camera);
-    };
-    
-    animate();
-    
-    // Handle window resize
     const handleResize = () => {
-      if (!containerRef.current || !camera || !rendererRef.current) return;
-      
-      const width = containerRef.current.clientWidth;
-      const height = containerRef.current.clientHeight;
-      
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-      rendererRef.current.setSize(width, height);
-      
-      renderer.render(scene, camera);
+      if (canvasRef.current) {
+        canvasRef.current.width = window.innerWidth;
+        canvasRef.current.height = window.innerHeight;
+        setDimensions({ width: window.innerWidth, height: window.innerHeight });
+
+        // If static, only redraw on resize but don't start animation loop
+        if (isStatic && isInitializedRef.current) {
+          drawStars();
+        }
+      }
     };
-    
+
+    const initializeStars = () => {
+      if (!isInitializedRef.current) {
+        const count = getStarCount();
+        starsRef.current = Array(count).fill(0).map(() => ({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          radius: Math.random() * 1.5 + 0.5,
+          opacity: Math.random() * 0.8 + 0.2
+        }));
+        isInitializedRef.current = true;
+      }
+    };
+
+    const drawStars = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      starsRef.current.forEach(star => {
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity * opacity})`;
+        ctx.fill();
+      });
+    };
+
+    const animate = () => {
+      drawStars();
+      if (!isStatic) {
+        requestIdRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    handleResize();
     window.addEventListener('resize', handleResize);
     
-    // Cleanup function
+    // Initialize stars once
+    initializeStars();
+    
+    // If static, just draw once and don't animate
+    if (isStatic) {
+      drawStars();
+    } else {
+      // Start animation loop only if not static
+      requestIdRef.current = requestAnimationFrame(animate);
+    }
+
     return () => {
       window.removeEventListener('resize', handleResize);
-      
-      if (frameIdRef.current) {
-        cancelAnimationFrame(frameIdRef.current);
-      }
-      
-      if (starsGeometry) starsGeometry.dispose();
-      if (starsMaterial) starsMaterial.dispose();
-      
-      if (rendererRef.current && containerRef.current && containerRef.current.contains(rendererRef.current.domElement)) {
-        containerRef.current.removeChild(rendererRef.current.domElement);
-        rendererRef.current.dispose();
+      if (requestIdRef.current) {
+        cancelAnimationFrame(requestIdRef.current);
       }
     };
   }, [density, opacity, isStatic]);
 
-  return <div ref={containerRef} className="absolute inset-0 z-0" />;
+  return (
+    <canvas
+      ref={canvasRef}
+      className="w-full h-full"
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        pointerEvents: 'none'
+      }}
+    />
+  );
 };
 
 export default StarfieldBackground;

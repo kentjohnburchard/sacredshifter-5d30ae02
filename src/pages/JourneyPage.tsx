@@ -15,6 +15,15 @@ import SpiralVisualizer from '@/components/visualizer/SpiralVisualizer';
 import useSpiralParams from '@/hooks/useSpiralParams';
 import ReactMarkdown from 'react-markdown';
 
+const DEFAULT_SPIRAL_PARAMS = {
+  coeffA: 4,
+  coeffB: 4,
+  coeffC: 1.3,
+  freqA: 44,
+  freqB: -17,
+  freqC: -54
+};
+
 const JourneyPage: React.FC = () => {
   const { journeySlug } = useParams<{ journeySlug: string }>();
   const [journey, setJourney] = useState<Journey | null>(null);
@@ -26,8 +35,8 @@ const JourneyPage: React.FC = () => {
   const [spiralEnabled, setSpiralEnabled] = useState(true);
   const { user } = useAuth();
   
-  // Get spiral parameters based on journey slug
-  const spiralParams = useSpiralParams(journeySlug);
+  // Get spiral parameters based on journey slug, with fallback to defaults
+  const spiralParams = useSpiralParams(journeySlug) || DEFAULT_SPIRAL_PARAMS;
 
   useEffect(() => {
     const loadJourney = async () => {
@@ -54,9 +63,14 @@ const JourneyPage: React.FC = () => {
         setJourney(data);
         
         // Fetch the associated soundscape if any
-        const soundscapeData = await fetchJourneySoundscape(journeySlug);
-        if (soundscapeData) {
-          setSoundscape(soundscapeData);
+        try {
+          const soundscapeData = await fetchJourneySoundscape(journeySlug);
+          if (soundscapeData) {
+            setSoundscape(soundscapeData);
+          }
+        } catch (soundscapeError) {
+          console.error('Error loading soundscape:', soundscapeError);
+          // Don't fail the whole page load if soundscape fails
         }
       } catch (error) {
         console.error('Error loading journey:', error);
@@ -104,7 +118,7 @@ const JourneyPage: React.FC = () => {
         <div className="max-w-3xl mx-auto">
           <header className="mb-8 text-center">
             <h1 className="text-3xl md:text-4xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-indigo-600">
-              {journey?.title}
+              {journey?.title || "Untitled Journey"}
             </h1>
             
             {journey?.tags && (
@@ -165,6 +179,8 @@ const JourneyPage: React.FC = () => {
                 <JourneySoundscapePlayer 
                   soundscape={soundscape} 
                   className={isYoutubeEmbedded ? 'w-full' : 'max-w-md mx-auto'}
+                  autoPlay={true}
+                  loop={true}
                 />
               </div>
             )}
@@ -175,7 +191,9 @@ const JourneyPage: React.FC = () => {
               <ReactMarkdown>{journey.content}</ReactMarkdown>
             ) : (
               <p className="text-center text-gray-500 py-8">
-                Journey content for {journey?.filename} would be displayed here.
+                {journey?.filename ? 
+                  `Journey content for ${journey.filename} would be displayed here.` : 
+                  "This journey has no content yet. It will be added soon."}
               </p>
             )}
           </div>
