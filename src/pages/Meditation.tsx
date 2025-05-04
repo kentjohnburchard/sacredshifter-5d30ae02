@@ -20,20 +20,31 @@ const Meditation = () => {
     <Layout>
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-light mb-4">
-            <span className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-[#7510c9] to-[#4d00ff]">
-              Sacred Meditation
-            </span>
+          <h1 className="text-4xl font-playfair mb-4 text-white bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-indigo-300"
+              style={{textShadow: '0 2px 10px rgba(147, 51, 234, 0.7)'}}>
+            Sacred Meditation
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-white max-w-2xl mx-auto"
+             style={{textShadow: '0 1px 4px rgba(0, 0, 0, 0.8)'}}>
             Find peace and elevate your consciousness through guided meditations enhanced with sacred frequencies.
           </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mx-auto max-w-4xl">
-          <TabsList className="grid grid-cols-2 w-[400px] mx-auto mb-8">
-            <TabsTrigger value="explore">Explore</TabsTrigger>
-            <TabsTrigger value="player" disabled={!selectedMeditation}>
+          <TabsList className="grid grid-cols-2 w-[400px] mx-auto mb-8 bg-black/80 border border-white/30 shadow-lg">
+            <TabsTrigger 
+              value="explore" 
+              className="text-white data-[state=active]:bg-purple-600/80 data-[state=active]:text-white data-[state=active]:shadow-md"
+              style={{textShadow: '0 1px 3px rgba(0, 0, 0, 0.6)'}}
+            >
+              Explore
+            </TabsTrigger>
+            <TabsTrigger 
+              value="player" 
+              disabled={!selectedMeditation} 
+              className="text-white data-[state=active]:bg-purple-600/80 data-[state=active]:text-white data-[state=active]:shadow-md"
+              style={{textShadow: '0 1px 3px rgba(0, 0, 0, 0.6)'}}
+            >
               Meditation Player
             </TabsTrigger>
           </TabsList>

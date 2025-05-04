@@ -1,4 +1,3 @@
-
 import React from "react";
 import { motion } from "framer-motion";
 
@@ -8,7 +7,7 @@ interface AnimatedBackgroundProps {
   children: React.ReactNode;
   colorScheme?: string;
   isActive?: boolean;
-  staticBackground?: boolean;  // New prop to control animation
+  staticBackground?: boolean;
 }
 
 const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ 
@@ -17,44 +16,44 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
   children,
   colorScheme,
   isActive = true,
-  staticBackground = false  // Default to false for backward compatibility
+  staticBackground = false
 }) => {
   // Create array of objects for the wave elements
   const getWaves = () => {
-    // Reduced number of waves
+    // Reduced number of waves to decrease visual noise
     const count = intensity === 'high' ? 3 : intensity === 'medium' ? 2 : 1;
     
     return Array.from({ length: count }).map((_, i) => ({
       id: `wave-${i}`,
       delay: i * 0.7,
-      duration: staticBackground ? 0 : 15 + i * 3, // No animation if static
-      opacity: 0.08 + (i * 0.02), // Increased base opacity
+      duration: staticBackground ? 0 : 15 + i * 3, // No animation if static, otherwise slow animation
+      opacity: 0.2 + (i * 0.05), // Reduced base opacity for better transparency
     }));
   };
   
   const waves = getWaves();
   
-  // Get theme colors with increased opacity
+  // Get theme colors with reduced opacity for better transparency
   const getThemeColors = () => {
     switch(theme) {
       case 'ethereal':
         return {
-          from: 'from-blue-500/30',   // Increased opacity
-          to: 'to-purple-500/30',     // Increased opacity
-          particle: 'bg-blue-200/50'  // Increased opacity
+          from: 'from-blue-500/25',   // Reduced opacity
+          to: 'to-purple-500/25',     // Reduced opacity
+          particle: 'bg-blue-200/40'  // Reduced opacity
         };
       case 'temple':
         return {
-          from: 'from-amber-500/30',  // Increased opacity
-          to: 'to-red-500/30',        // Increased opacity
-          particle: 'bg-amber-200/50' // Increased opacity
+          from: 'from-amber-500/25',  // Reduced opacity
+          to: 'to-red-500/25',        // Reduced opacity
+          particle: 'bg-amber-200/40' // Reduced opacity
         };
       case 'cosmic':
       default:
         return {
-          from: 'from-purple-500/30', // Increased opacity
-          to: 'to-blue-500/30',       // Increased opacity
-          particle: 'bg-purple-200/50' // Increased opacity
+          from: 'from-purple-500/25', // Reduced opacity
+          to: 'to-blue-500/25',       // Reduced opacity
+          particle: 'bg-purple-200/40' // Reduced opacity
         };
     }
   };
@@ -67,16 +66,16 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
         {waves.map((wave) => (
           <motion.div
             key={wave.id}
-            className="absolute inset-0 flex items-center justify-center"
+            className="absolute inset-0 flex items-center justify-center motion-reduce"
             initial={{ opacity: 0 }}
             animate={{ opacity: wave.opacity }}
             transition={{ duration: 2 }}
           >
             <motion.div
-              className={`w-[1500px] h-[1500px] rounded-full bg-gradient-to-br ${colors.from} ${colors.to} filter blur-3xl`} // Increased size significantly
+              className={`w-[1800px] h-[1800px] rounded-full bg-gradient-to-br ${colors.from} ${colors.to} filter blur-3xl motion-reduce`} // Increased size for better coverage
               animate={staticBackground ? {} : {
                 scale: [1, 1.05, 1], // Reduced scale animation
-                opacity: [wave.opacity, wave.opacity + 0.02, wave.opacity], // Reduced opacity change
+                opacity: [wave.opacity, wave.opacity + 0.05, wave.opacity], // Subtle opacity change
               }}
               transition={{
                 duration: wave.duration,
@@ -89,17 +88,17 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
           </motion.div>
         ))}
 
-        {/* Reduced number of floating particles */}
+        {/* Floating particles with reduced number and opacity */}
         {!staticBackground && Array.from({ length: 5 }).map((_, i) => {
           const size = Math.random() * 4 + 2;
           const x = Math.random() * 100;
           const y = Math.random() * 100;
-          const duration = Math.random() * 18 + 10;
+          const duration = Math.random() * 20 + 15;
           
           return (
             <motion.div
               key={`particle-${i}`}
-              className={`absolute rounded-full ${colors.particle}`}
+              className={`absolute rounded-full ${colors.particle} motion-reduce`}
               style={{
                 width: size,
                 height: size,
@@ -107,21 +106,32 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
                 top: `${y}%`,
               }}
               animate={staticBackground ? {} : {
-                y: [0, -20, 0], // Reduced movement
-                x: [0, Math.random() * 10 - 5, 0], // Reduced movement
-                opacity: [0.5, 0.7, 0.5], // Increased base opacity
+                y: [0, -20, 0], 
+                x: [0, Math.random() * 10 - 5, 0],
+                opacity: [0.4, 0.6, 0.4], // Reduced opacity values
               }}
               transition={{
                 duration: staticBackground ? 0 : duration,
                 repeat: staticBackground ? 0 : Infinity,
                 repeatType: "reverse",
                 ease: "easeInOut",
-                delay: Math.random() * 4,
+                delay: Math.random() * 5,
               }}
             />
           );
         })}
       </div>
+      
+      {/* Add accessibility support */}
+      <style>{`
+        @media (prefers-reduced-motion: reduce) {
+          .motion-reduce {
+            animation: none !important;
+            transition: none !important;
+          }
+        }
+      `}</style>
+      
       {children}
     </div>
   );

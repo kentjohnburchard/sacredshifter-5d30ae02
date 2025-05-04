@@ -9,6 +9,7 @@ import StarfieldBackground from './sacred-geometry/StarfieldBackground';
 import { SacredGeometryVisualizer } from './sacred-geometry';
 import { useTheme } from '@/context/ThemeContext';
 import ConsciousnessToggle from './ConsciousnessToggle';
+import SacredGridBackground from './visualization/SacredGridBackground';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -43,12 +44,31 @@ const Layout: React.FC<LayoutProps> = ({
   }, [pageTitle]);
 
   const themeClasses = getThemeClasses(theme);
+  
+  // Determine the consciousness mode class based on liftTheVeil state
+  const consciousnessClass = liftTheVeil ? 'veil-mode' : 'standard-mode';
 
   return (
-    <div className="relative flex min-h-screen w-full overflow-hidden bg-gray-950">
-      <StarfieldBackground density="medium" opacity={0.5} isStatic={false} />
+    <div className={`relative flex min-h-screen w-full overflow-x-hidden bg-black ${consciousnessClass}`}>
+      {/* Add the sacred grid background similar to Coming Soon page */}
+      <div className="absolute inset-0 z-0 opacity-70">
+        <SacredGridBackground 
+          intensity={liftTheVeil ? 0.85 : 0.75}
+          color={liftTheVeil ? '#FF70E9' : '#9b87f5'}
+          pulseSpeed={liftTheVeil ? 0.7 : 0.5}
+        />
+      </div>
       
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-30">
+      {/* Gradient overlay with reduced opacity for more transparency */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/40 via-transparent to-black/40 pointer-events-none" />
+      
+      {/* Existing starfield with slightly increased opacity */}
+      <div className="fixed inset-0 z-0 opacity-40">
+        <StarfieldBackground density="medium" opacity={0.5} isStatic={false} />
+      </div>
+      
+      {/* Sacred Geometry with adjusted opacity */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-50">
         <SacredGeometryVisualizer
           defaultShape="flower-of-life"
           size="xl"
@@ -59,14 +79,16 @@ const Layout: React.FC<LayoutProps> = ({
       
       <ConsciousnessToggle />
 
-      <div className="flex min-h-screen w-full">
+      <div className={`flex min-h-screen w-full ${consciousnessClass}`}>
         {showNavbar && <Sidebar />}
         
-        <div className={`flex-1 flex flex-col min-h-screen relative z-10 ${themeClasses} ${theme ? `theme-${theme}` : ''}`}>
+        <div className={`flex-1 flex flex-col min-h-screen relative z-10 ${themeClasses} ${theme ? `theme-${theme}` : ''} ${consciousnessClass}`}>
           {!hideHeader && <Header />}
           
-          <div className={`flex-grow min-h-[calc(100vh-80px)] pb-32 relative ${showNavbar ? 'sm:pl-20 pt-4' : 'pt-0'}`}>
-            {children}
+          <div className={`flex-grow min-h-[calc(100vh-80px)] pb-32 relative ${showNavbar ? 'sm:pl-20 pt-4' : 'pt-0'} overflow-x-hidden`}>
+            <div className="max-w-full mx-auto">
+              {children}
+            </div>
           </div>
           
           {showPlayer && <Player />}

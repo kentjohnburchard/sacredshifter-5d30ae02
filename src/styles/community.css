@@ -1,0 +1,174 @@
+
+/**
+ * Sacred Circle Community Styles
+ * 
+ * This file contains styles specific to the free community section.
+ * These styles focus on creating an inclusive, welcoming spiritual atmosphere.
+ */
+
+/* Community Theme Colors */
+:root {
+  --community-primary: #9b87f5;
+  --community-secondary: #7a76ff;
+  --community-accent: #b5a0ff;
+  --community-text: #e9e1ff;
+  --community-gradient: linear-gradient(to right, #5d7cfe, #7a76ff);
+  --community-glow: 0 0 10px rgba(155, 135, 245, 0.6);
+}
+
+/* Community Card Styles */
+.community-card {
+  @apply backdrop-blur-md bg-black/60 border border-purple-500/20;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 0 30px rgba(155, 135, 245, 0.05);
+  transition: all 0.3s ease;
+}
+
+.community-card:hover {
+  @apply border-purple-500/30;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), inset 0 0 30px rgba(155, 135, 245, 0.08);
+}
+
+/* Community Text Elements */
+.community-title {
+  @apply font-bold;
+  color: var(--community-text);
+  text-shadow: var(--community-glow);
+}
+
+.community-subtitle {
+  @apply font-medium;
+  color: var(--community-accent);
+}
+
+/* Community Buttons */
+.community-btn {
+  @apply py-2 px-4 rounded-md text-white shadow-lg;
+  background: var(--community-gradient);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  transition: all 0.3s ease;
+}
+
+.community-btn:hover {
+  @apply shadow-xl;
+  filter: brightness(1.1);
+}
+
+/* Community Badge */
+.community-badge {
+  @apply inline-block py-1 px-3 rounded-full text-xs;
+  background: linear-gradient(to right, #4b0082, #9370db);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+/* Circle Styles */
+.circle-container {
+  @apply rounded-lg border border-purple-500/20 p-4;
+  background: radial-gradient(circle at center, rgba(155, 135, 245, 0.15), transparent 70%);
+}
+
+/* Feed Animations */
+.feed-item-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.feed-item-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Profile Elements */
+.profile-header {
+  background: linear-gradient(to right, #2e1065, #4c1d95);
+  @apply rounded-t-lg h-32 relative overflow-hidden;
+}
+
+.profile-header::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, rgba(155, 135, 245, 0.3), transparent 70%);
+}
+
+/* Community Progress Bar */
+.community-progress {
+  @apply h-2 rounded-full bg-gray-700 overflow-hidden;
+}
+
+.community-progress-bar {
+  @apply h-full rounded-full;
+  background: var(--community-gradient);
+}
+
+/* Contribution Score Badge */
+.contribution-badge {
+  @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium;
+  background: linear-gradient(to right, rgba(123, 104, 238, 0.2), rgba(75, 0, 130, 0.2));
+  border: 1px solid rgba(123, 104, 238, 0.3);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Post Type Badge */
+.post-type-badge {
+  @apply px-2 py-1 rounded-md text-xs inline-block;
+  background: linear-gradient(to right, rgba(75, 0, 130, 0.3), rgba(123, 104, 238, 0.3));
+  border: 1px solid rgba(123, 104, 238, 0.2);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+/* Floating Button */
+.floating-btn {
+  @apply fixed rounded-full shadow-lg flex items-center justify-center transition-all transform;
+  background: linear-gradient(to right, #5d4ea8, #9570DB);
+  box-shadow: 0 4px 15px rgba(123, 104, 238, 0.4);
+}
+
+.floating-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(123, 104, 238, 0.5);
+}
+
+/* Nested Comments */
+.nested-reply {
+  @apply pl-3 mt-2 border-l-2 border-purple-500/20;
+}
+
+/* ACCESSIBILITY: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .floating-btn {
+    transition: none !important;
+    transform: none !important;
+  }
+  
+  .feed-item-enter {
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
+
+/**
+ * Mobile Responsiveness
+ */
+@media (max-width: 768px) {
+  .community-title {
+    font-size: 1.5rem;
+  }
+  
+  .community-card {
+    padding: 1rem;
+  }
+}

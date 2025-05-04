@@ -1,0 +1,171 @@
+
+/**
+ * Ascended Path Premium Styles
+ * 
+ * This file contains styles specific to the premium section.
+ * These styles focus on creating an elevated, exclusive spiritual atmosphere.
+ */
+
+/* Premium Theme Colors */
+:root {
+  --premium-primary: #FF45B6;
+  --premium-secondary: #C676FF;
+  --premium-accent: #FF85ED;
+  --premium-text: #FFE1F8;
+  --premium-gradient: linear-gradient(to right, #FF45B6, #C676FF);
+  --premium-glow: 0 0 15px rgba(255, 69, 182, 0.7);
+}
+
+/* Premium Card Styles */
+.premium-card {
+  @apply backdrop-blur-md bg-black/70 border border-pink-500/30;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), inset 0 0 40px rgba(255, 69, 182, 0.07);
+  transition: all 0.3s ease;
+}
+
+.premium-card:hover {
+  @apply border-pink-500/50;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 0 50px rgba(255, 69, 182, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Premium Text Elements */
+.premium-title {
+  @apply font-bold;
+  color: var(--premium-text);
+  text-shadow: var(--premium-glow);
+}
+
+.premium-subtitle {
+  @apply font-medium;
+  color: var(--premium-accent);
+}
+
+/* Premium Buttons */
+.premium-btn {
+  @apply py-2 px-4 rounded-md text-white shadow-lg;
+  background: var(--premium-gradient);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  transition: all 0.3s ease;
+}
+
+.premium-btn:hover {
+  @apply shadow-xl;
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+/* Premium Badge */
+.premium-badge {
+  @apply inline-block py-1 px-3 rounded-full text-xs;
+  background: linear-gradient(to right, #c026d3, #db2777);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+/* Experience Portal */
+.experience-portal {
+  position: relative;
+  overflow: hidden;
+  @apply rounded-lg border border-pink-500/20 p-6;
+}
+
+.experience-portal::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, rgba(255, 69, 182, 0.2), transparent 80%);
+  z-index: -1;
+}
+
+/* Premium Animations */
+.premium-fade-in {
+  animation: premiumFadeIn 0.8s ease-out forwards;
+}
+
+@keyframes premiumFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Sacred Patterns */
+.sacred-pattern {
+  position: relative;
+}
+
+.sacred-pattern::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='50' cy='50' r='40' stroke='%23FF45B6' stroke-width='0.5' fill='none' opacity='0.3' /%3E%3Ccircle cx='50' cy='50' r='25' stroke='%23C676FF' stroke-width='0.5' fill='none' opacity='0.3' /%3E%3C/svg%3E");
+  background-size: 100px 100px;
+  opacity: 0.1;
+  z-index: -1;
+}
+
+/* Premium Progress Bar */
+.premium-progress {
+  @apply h-2 rounded-full bg-gray-700 overflow-hidden;
+}
+
+.premium-progress-bar {
+  @apply h-full rounded-full;
+  background: var(--premium-gradient);
+}
+
+/**
+ * Mobile Responsiveness
+ */
+@media (max-width: 768px) {
+  .premium-title {
+    font-size: 1.8rem;
+  }
+  
+  .premium-card {
+    padding: 1rem;
+  }
+  
+  .experience-portal {
+    padding: 1rem;
+  }
+}
+
+/* Energy field effect for premium content */
+.energy-field {
+  position: relative;
+}
+
+.energy-field::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  background: radial-gradient(circle at center, rgba(255, 69, 182, 0.15), transparent 70%);
+  border-radius: 50%;
+  z-index: -1;
+  animation: pulse 4s infinite alternate;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 0.8;
+    transform: scale(1.02);
+  }
+}

@@ -542,6 +542,33 @@ export type Database = {
         }
         Relationships: []
       }
+      lightbearer_activities: {
+        Row: {
+          activity_type: string
+          created_at: string | null
+          description: string | null
+          id: string
+          points: number
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          points: number
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          points?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       love_quotes: {
         Row: {
           created_at: string | null
@@ -709,42 +736,69 @@ export type Database = {
       }
       profiles: {
         Row: {
+          ascension_title: string | null
           avatar_url: string | null
+          badges: string[] | null
           bio: string | null
           display_name: string | null
+          earned_badges: string[] | null
           energy_level: number | null
+          frequency_signature: string | null
           full_name: string | null
           id: string
           initial_mood: string | null
           interests: string[] | null
+          last_level_up: string | null
+          light_level: number | null
+          light_points: number | null
+          lightbearer_level: number | null
           onboarding_completed: boolean | null
           primary_intention: string | null
+          soul_alignment: string | null
           updated_at: string | null
         }
         Insert: {
+          ascension_title?: string | null
           avatar_url?: string | null
+          badges?: string[] | null
           bio?: string | null
           display_name?: string | null
+          earned_badges?: string[] | null
           energy_level?: number | null
+          frequency_signature?: string | null
           full_name?: string | null
           id: string
           initial_mood?: string | null
           interests?: string[] | null
+          last_level_up?: string | null
+          light_level?: number | null
+          light_points?: number | null
+          lightbearer_level?: number | null
           onboarding_completed?: boolean | null
           primary_intention?: string | null
+          soul_alignment?: string | null
           updated_at?: string | null
         }
         Update: {
+          ascension_title?: string | null
           avatar_url?: string | null
+          badges?: string[] | null
           bio?: string | null
           display_name?: string | null
+          earned_badges?: string[] | null
           energy_level?: number | null
+          frequency_signature?: string | null
           full_name?: string | null
           id?: string
           initial_mood?: string | null
           interests?: string[] | null
+          last_level_up?: string | null
+          light_level?: number | null
+          light_points?: number | null
+          lightbearer_level?: number | null
           onboarding_completed?: boolean | null
           primary_intention?: string | null
+          soul_alignment?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -1230,9 +1284,26 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      lightbearer_levels: {
+        Row: {
+          level_num: number | null
+          next_threshold: number | null
+          threshold: number | null
+          title: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      add_lightbearer_points: {
+        Args: {
+          user_id: string
+          activity_type: string
+          points: number
+          description?: string
+        }
+        Returns: Json
+      }
       create_user_intentions_table: {
         Args: Record<PropertyKey, never>
         Returns: boolean

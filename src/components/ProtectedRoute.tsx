@@ -1,8 +1,7 @@
 
-import React, { useEffect, useState } from "react";
-import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
-import { checkOnboardingStatus } from "@/utils/profiles";
+import React, { useEffect } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -10,48 +9,35 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, loading } = useAuth();
-  const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
-  const [checkingOnboarding, setCheckingOnboarding] = useState(false);
   const location = useLocation();
 
-  console.log("ProtectedRoute: User authenticated?", !!user, "Loading?", loading);
-
   useEffect(() => {
-    const checkOnboarding = async () => {
-      if (!user) return;
-      
-      // Always set onboarding as completed for now to prevent redirect loops
-      setOnboardingCompleted(true);
-      return;
-    };
+    console.log("ProtectedRoute rendering for path:", location.pathname);
+    console.log("Auth state:", { authenticated: !!user, loading });
     
-    if (user) {
-      checkOnboarding();
+    // Store the current path for redirection after login
+    if (!loading && !user) {
+      console.log("User not authenticated, storing redirect path:", location.pathname);
+      sessionStorage.setItem('redirectAfterLogin', location.pathname);
     }
-  }, [user, location.pathname]);
+  }, [user, loading, location.pathname]);
 
+  // Show a loading indicator when checking auth
   if (loading) {
-    console.log("ProtectedRoute: Still loading authentication state");
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent"></div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin h-10 w-10 border-b-2 border-purple-500 rounded-full mr-3"></div>
+        <div className="text-lg text-purple-700">Verifying authentication...</div>
       </div>
     );
   }
 
+  // Only redirect when we're sure user is not authenticated
   if (!user) {
-    console.log("ProtectedRoute: No user, redirecting to auth page");
-    // Explicitly store the intended path before redirecting
-    const currentPath = location.pathname;
-    if (currentPath !== "/auth") {
-      console.log("ProtectedRoute: Storing redirect path:", currentPath);
-      sessionStorage.setItem("redirectAfterLogin", currentPath);
-    }
-    return <Navigate to="/auth" replace state={{ from: location }} />;
+    console.log("Redirecting to auth page from:", location.pathname);
+    return <Navigate to="/auth" replace />;
   }
-  
-  console.log("ProtectedRoute: User authenticated, rendering protected content");
-  // Always return children for now since onboarding is disabled
+
   return <>{children}</>;
 };
 

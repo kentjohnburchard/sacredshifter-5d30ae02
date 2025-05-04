@@ -22,7 +22,7 @@
     --secondary-foreground: 0 0% 98%;
     
     --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
+    --muted-foreground: 0 0% 80%; /* Improved from 63.9% to 80% for better contrast */
     
     --accent: 270 50% 60%;
     --accent-foreground: 0 0% 98%;
@@ -49,15 +49,58 @@
   .font-playfair {
     font-family: 'Playfair Display', serif;
   }
+
+  /* Improved text readability */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium tracking-tight;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+
+  p {
+    @apply leading-relaxed;
+  }
 }
 
 @layer utilities {
+  /* Accessibility focused utilities */
+  .text-enhanced {
+    @apply text-white font-medium;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+  
+  .text-contrast-high {
+    @apply text-white;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  }
+  
+  /* New: Improved text contrast for dark backgrounds */
+  .text-glow-light {
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+  }
+  
+  .text-glow-purple {
+    color: rgba(216, 180, 254, 0.95); /* Purple-200 with high opacity */
+    text-shadow: 0 0 8px rgba(168, 85, 247, 0.5); /* Purple-600 glow */
+  }
+  
+  .text-glow-pink {
+    color: rgba(249, 168, 212, 0.95); /* Pink-200 with high opacity */
+    text-shadow: 0 0 8px rgba(236, 72, 153, 0.5); /* Pink-500 glow */
+  }
+  
+  .card-accessible {
+    @apply backdrop-blur-sm bg-black/80 border border-white/20;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  }
+
   .animate-pulse-subtle {
     animation: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
   
   .sacred-glass {
-    @apply backdrop-blur-sm bg-white/5 border border-white/10;
+    @apply backdrop-blur-sm bg-black/60 border border-white/20;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   }
   
   .animate-glow {
@@ -75,8 +118,116 @@
   .animate-cosmic-pulse {
     animation: cosmic-pulse 5s ease-in-out infinite alternate;
   }
+  
+  /* Standard mode styles - Improved contrast */
+  .standard-mode {
+    --primary-accent: #9b87f5; /* Brighter purple */
+    --secondary-accent: #7a76ff; /* Brighter indigo */
+    --text-accent: #b5a0ff; /* Brighter lavender */
+    --theme-gradient: linear-gradient(to right, #5d7cfe, #00f2fe);
+    --theme-primary: #5d7cfe;
+    --theme-secondary: #00f2fe;
+    --glow-intensity: 0.5;
+    --energy-color: rgba(155, 135, 245, 0.8);
+    --portal-glow: rgba(122, 118, 255, 0.9);
+    --pattern-opacity: 0.4;
+  }
+  
+  /* Veil lifted mode styles - Improved contrast */
+  .veil-mode {
+    --primary-accent: #FF45B6; /* Brighter pink */
+    --secondary-accent: #C676FF; /* Brighter purple */
+    --text-accent: #FF85ED; /* Brighter pink */
+    --theme-gradient: linear-gradient(to right, #FF45B6, #C676FF);
+    --theme-primary: #FF45B6;
+    --theme-secondary: #C676FF;
+    --glow-intensity: 0.8;
+    --energy-color: rgba(255, 69, 182, 0.8);
+    --portal-glow: rgba(198, 118, 255, 0.9);
+    --pattern-opacity: 0.5;
+  }
+
+  /* New cosmic button effects */
+  .cosmic-btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    z-index: 1;
+  }
+
+  .cosmic-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+    z-index: -1;
+  }
+
+  .cosmic-btn:hover::before {
+    transform: translateX(100%);
+  }
+
+  /* Mystical text glow effects */
+  .mystical-text {
+    text-shadow: 0 0 10px var(--energy-color, rgba(139, 92, 246, 0.7));
+  }
+
+  /* Element glow effects */
+  .glow-element {
+    box-shadow: 0 0 15px var(--energy-color, rgba(139, 92, 246, 0.6));
+  }
+  
+  /* Ethereal card effect */
+  .ethereal-card {
+    @apply backdrop-blur-md bg-black/60 border border-white/15 transition-all duration-300;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 0 30px rgba(255, 255, 255, 0.03);
+  }
+  
+  .ethereal-card:hover {
+    @apply border-white/25;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.5), inset 0 0 30px rgba(255, 255, 255, 0.05);
+  }
+  
+  /* Add text shadow utilities for better readability against transparent backgrounds */
+  .text-shadow-sm {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  }
+  
+  .text-shadow-md {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  }
+  
+  .text-shadow-lg {
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.9);
+  }
+  
+  .text-shadow-xs {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  }
+  
+  /* Enhanced glass effects with increased transparency */
+  .glass-panel {
+    @apply backdrop-blur-sm bg-black/30 border border-white/10;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+  
+  .glass-panel-dark {
+    @apply backdrop-blur-sm bg-black/50 border border-white/5;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+  
+  .glass-panel-light {
+    @apply backdrop-blur-sm bg-white/10 border border-white/20;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  }
 }
 
+/* Rest of the existing CSS with the improved utilities */
 @keyframes pulse-subtle {
   0%, 100% {
     opacity: 1;
@@ -139,92 +290,86 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.4); /* Darker for better contrast */
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(139, 92, 246, 0.5);
+  background: rgba(155, 135, 245, 0.7); /* Brighter for better visibility */
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(139, 92, 246, 0.8);
+  background: rgba(155, 135, 245, 0.9);
 }
 
 /* Apply veil-lifted purple to pink gradient when veil-lifted mode is active */
 html.veil-lifted .bg-purple-600,
-.veil-lifted .bg-purple-600 {
-  @apply bg-pink-600;
+.veil-lifted .bg-purple-600,
+.veil-mode .bg-purple-600 {
+  @apply bg-pink-500; /* Brighter pink */
 }
 
 html.veil-lifted .text-purple-600,
-.veil-lifted .text-purple-600 {
-  @apply text-pink-600;
+.veil-lifted .text-purple-600,
+.veil-mode .text-purple-600 {
+  @apply text-pink-500; /* Brighter pink */
 }
 
 html.veil-lifted .from-purple-600,
-.veil-lifted .from-purple-600 {
-  @apply from-pink-600;
+.veil-lifted .from-purple-600,
+.veil-mode .from-purple-600 {
+  @apply from-pink-500; /* Brighter pink */
 }
 
 html.veil-lifted .to-indigo-600,
-.veil-lifted .to-indigo-600 {
-  @apply to-fuchsia-600;
+.veil-lifted .to-indigo-600,
+.veil-mode .to-indigo-600 {
+  @apply to-fuchsia-500; /* Brighter fuchsia */
 }
 
 html.veil-lifted .hover\:from-purple-700:hover,
-.veil-lifted .hover\:from-purple-700:hover {
+.veil-lifted .hover\:from-purple-700:hover,
+.veil-mode .hover\:from-purple-700:hover {
   @apply hover:from-pink-700;
 }
 
 html.veil-lifted .hover\:to-indigo-700:hover,
-.veil-lifted .hover\:to-indigo-700:hover {
+.veil-lifted .hover\:to-indigo-700:hover,
+.veil-mode .hover\:to-indigo-700:hover {
   @apply hover:to-fuchsia-700;
 }
 
 html.veil-lifted ::-webkit-scrollbar-thumb,
-.veil-lifted ::-webkit-scrollbar-thumb {
+.veil-lifted ::-webkit-scrollbar-thumb,
+.veil-mode ::-webkit-scrollbar-thumb {
   background: rgba(236, 72, 153, 0.7);
 }
 
 html.veil-lifted ::-webkit-scrollbar-thumb:hover,
-.veil-lifted ::-webkit-scrollbar-thumb:hover {
+.veil-lifted ::-webkit-scrollbar-thumb:hover,
+.veil-mode ::-webkit-scrollbar-thumb:hover {
   background: rgba(236, 72, 153, 0.9);
 }
 
-/* Enhanced Veil-Lifted Text Colors */
+/* Enhanced Veil-Lifted Text Colors with improved contrast */
 html.veil-lifted h1, 
 html.veil-lifted h2, 
 html.veil-lifted h3,
 .veil-lifted h1, 
 .veil-lifted h2, 
-.veil-lifted h3 {
+.veil-lifted h3,
+.veil-mode h1,
+.veil-mode h2,
+.veil-mode h3 {
   @apply text-pink-300;
-}
-
-html.veil-lifted .text-purple-300,
-.veil-lifted .text-purple-300 {
-  @apply text-pink-300;
-}
-
-html.veil-lifted .text-purple-400,
-.veil-lifted .text-purple-400 {
-  @apply text-pink-400;
-}
-
-html.veil-lifted .text-purple-500,
-.veil-lifted .text-purple-500 {
-  @apply text-pink-500;
-}
-
-html.veil-lifted .text-purple-600,
-.veil-lifted .text-purple-600 {
-  @apply text-pink-600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6), 0 0 10px rgba(236, 72, 153, 0.4); /* Enhanced shadow for better contrast */
 }
 
 /* Enhanced Transition Effects */
 html.veil-lifted,
-.veil-lifted {
+.veil-lifted,
+.veil-mode,
+.standard-mode {
   transition: all 0.5s ease-in-out;
 }
 
@@ -234,33 +379,40 @@ body {
 
 /* Sidebar navigation styles */
 html.veil-lifted .sidebar-nav a,
-.veil-lifted .sidebar-nav a {
+.veil-lifted .sidebar-nav a,
+.veil-mode .sidebar-nav a {
   @apply text-pink-200 hover:text-pink-100 !important;
 }
 
 html.veil-lifted .sidebar-nav a.active,
-.veil-lifted .sidebar-nav a.active {
+.veil-lifted .sidebar-nav a.active,
+.veil-mode .sidebar-nav a.active {
   @apply bg-pink-600/20 text-pink-100 !important;
 }
 
 html.veil-lifted .veil-lifted-nav,
-.veil-lifted .veil-lifted-nav {
+.veil-lifted .veil-lifted-nav,
+.veil-mode .veil-lifted-nav {
   @apply text-pink-400 !important;
 }
 
 /* Cosmic Background for Lifted Veil */
 html.veil-lifted .cosmic-background,
-.veil-lifted .cosmic-background {
+.veil-lifted .cosmic-background,
+.veil-mode .cosmic-background {
   @apply bg-gradient-to-br from-pink-900/20 to-fuchsia-900/20;
   background-image: radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.2) 0%, transparent 60%);
 }
 
 /* Sidebar background gradients for both themes */
 .sidebar-gradient,
-.veil-default-gradient {
+.veil-default-gradient,
+.standard-mode .sidebar-gradient {
   background: linear-gradient(to bottom, #5f52d9 0%, #3a2f84 65%, #221f26 100%) !important;
 }
-.veil-lifted-gradient {
+
+.veil-lifted-gradient,
+.veil-mode .sidebar-gradient {
   background: linear-gradient(to bottom, #FF36AB 0%, #B967FF 65%, #6418ad 100%) !important;
 }
 
@@ -337,4 +489,247 @@ html.veil-lifted .veil-lifted-nav,
 .veil-lifted .veil-lifted-nav {
   color: inherit !important;
   background: none !important;
+}
+
+/* Add mode-specific button and UI styling */
+.standard-mode .btn-accent {
+  @apply bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white shadow-lg;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.veil-mode .btn-accent {
+  @apply bg-gradient-to-r from-pink-600 to-fuchsia-500 hover:from-pink-700 hover:to-fuchsia-600 text-white shadow-lg;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.standard-mode .glow-accent {
+  filter: drop-shadow(0 0 8px var(--energy-color));
+}
+
+.veil-mode .glow-accent {
+  filter: drop-shadow(0 0 12px var(--energy-color));
+}
+
+/* Card styling based on mode */
+.standard-mode .card-cosmic {
+  @apply bg-gradient-to-br from-gray-900 to-indigo-900/60 border border-indigo-500/20;
+  box-shadow: 0 4px 20px -2px rgba(99, 102, 241, 0.25);
+}
+
+.veil-mode .card-cosmic {
+  @apply bg-gradient-to-br from-gray-900 to-fuchsia-900/60 border border-pink-500/20;
+  box-shadow: 0 4px 20px -2px rgba(236, 72, 153, 0.3);
+}
+
+/* New: Improved Button Styling */
+.btn-primary {
+  @apply py-2 px-4 rounded-md font-medium text-white shadow-lg;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.standard-mode .btn-primary {
+  @apply bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700;
+  box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.4);
+}
+
+.veil-mode .btn-primary {
+  @apply bg-gradient-to-r from-pink-600 to-fuchsia-600 hover:from-pink-700 hover:to-fuchsia-700;
+  box-shadow: 0 4px 6px -1px rgba(236, 72, 153, 0.4);
+}
+
+/* New: Improved Form Controls */
+.form-control {
+  @apply bg-gray-900 border-gray-700 text-white rounded-md px-4 py-2 w-full;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+.form-control::placeholder {
+  @apply text-gray-400;
+}
+
+.form-control:focus {
+  @apply border-purple-500 ring-2 ring-purple-500/50 outline-none;
+}
+
+.veil-mode .form-control:focus {
+  @apply border-pink-500 ring-2 ring-pink-500/50;
+}
+
+/* New: Improved Card Content */
+.card-content {
+  @apply p-5 backdrop-blur-sm rounded-lg;
+}
+
+.standard-mode .card-content {
+  @apply bg-gray-900/80 border border-purple-500/20;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.veil-mode .card-content {
+  @apply bg-gray-900/80 border border-pink-500/20;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* New: Improved Labels */
+.form-label {
+  @apply block text-sm font-medium mb-1 text-white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+/* New: Responsive Container */
+.responsive-container {
+  @apply w-full px-4 mx-auto;
+  max-width: 100%;
+}
+
+@media (min-width: 640px) {
+  .responsive-container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .responsive-container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .responsive-container {
+    max-width: 1280px;
+  }
+}
+
+/* Mobile-first responsive adjustments */
+@media (max-width: 640px) {
+  h1 {
+    @apply text-3xl;
+  }
+  
+  h2 {
+    @apply text-2xl;
+  }
+  
+  .container {
+    @apply px-4;
+  }
+}
+
+/* Global text readability enhancements */
+h1 {
+  @apply font-bold;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+h2, h3, h4, h5, h6 {
+  @apply font-semibold;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+p, span, a, label, button {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+/* Enhanced text contrast for content on dark backgrounds */
+.text-enhanced {
+  @apply text-white font-medium;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.text-contrast-high {
+  @apply text-white;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+/* Enhanced glow effects */
+.text-glow-light {
+  color: rgba(255, 255, 255, 0.98);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+}
+
+.text-glow-purple {
+  color: rgba(226, 195, 255, 0.98); /* Brighter purple */
+  text-shadow: 0 0 10px rgba(168, 85, 247, 0.8); /* Stronger glow */
+}
+
+.text-glow-pink {
+  color: rgba(255, 195, 225, 0.98); /* Brighter pink */
+  text-shadow: 0 0 10px rgba(236, 72, 153, 0.8); /* Stronger glow */
+}
+
+/* Enhanced card styling for better visibility */
+.card-accessible {
+  @apply backdrop-blur-sm bg-black/80 border border-white/30;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+}
+
+.ethereal-card {
+  @apply backdrop-blur-md bg-black/80 border border-white/20 transition-all duration-300;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(255, 255, 255, 0.05);
+}
+
+.ethereal-card:hover {
+  @apply border-white/30;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), inset 0 0 40px rgba(255, 255, 255, 0.08);
+}
+
+/* Enhanced button styling with better shadows */
+.btn-primary {
+  @apply py-2 px-4 rounded-md font-medium text-white shadow-lg;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.standard-mode .btn-primary {
+  @apply bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700;
+  box-shadow: 0 4px 12px -1px rgba(99, 102, 241, 0.6);
+}
+
+.veil-mode .btn-primary {
+  @apply bg-gradient-to-r from-pink-600 to-fuchsia-600 hover:from-pink-700 hover:to-fuchsia-700;
+  box-shadow: 0 4px 12px -1px rgba(236, 72, 153, 0.6);
+}
+
+/* Additional readability improvements */
+.form-control {
+  @apply bg-gray-900 border-gray-700 text-white rounded-md px-4 py-2 w-full;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+.form-control::placeholder {
+  @apply text-gray-400;
+}
+
+.form-control:focus {
+  @apply border-purple-500 ring-2 ring-purple-500/50 outline-none;
+}
+
+.veil-mode .form-control:focus {
+  @apply border-pink-500 ring-2 ring-pink-500/50;
+}
+
+/* Card content improvements */
+.card-content {
+  @apply p-5 backdrop-blur-sm rounded-lg;
+}
+
+.standard-mode .card-content {
+  @apply bg-gray-900/80 border border-purple-500/20;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.veil-mode .card-content {
+  @apply bg-gray-900/80 border border-pink-500/20;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Label improvements */
+.form-label {
+  @apply block text-sm font-medium mb-1 text-white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }

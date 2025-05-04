@@ -1,29 +1,56 @@
 
 import React from 'react';
 import Layout from '@/components/Layout';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { hermeticPrinciples } from '@/data/hermeticPrinciples';
+import { Sparkles } from 'lucide-react';
+
+interface HermeticPrinciple {
+  id: string;
+  name: string;
+  description: string;
+  application: string;
+}
 
 const HermeticPrinciples: React.FC = () => {
+  // Convert the record to an array for mapping
+  const principlesArray: HermeticPrinciple[] = 
+    Array.isArray(hermeticPrinciples) 
+      ? hermeticPrinciples 
+      : Object.entries(hermeticPrinciples).map(([id, data]: [string, any]) => ({
+          id,
+          ...data
+        }));
+
   return (
-    <Layout pageTitle="Hermetic Principles">
-      <div className="container mx-auto py-8">
-        <h1 className="text-3xl font-bold mb-6">Hermetic Principles</h1>
-        <p className="mb-6">
-          The seven Hermetic principles from the Kybalion that form the foundation of Hermetic philosophy.
+    <Layout pageTitle="Hermetic Principles | Sacred Shifter">
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-6 text-center text-white bg-clip-text text-transparent bg-gradient-to-r from-amber-300 to-yellow-300"
+            style={{textShadow: '0 2px 10px rgba(251, 191, 36, 0.7)'}}>
+          Hermetic Principles
+        </h1>
+        <p className="text-lg text-center text-white mb-12 max-w-3xl mx-auto"
+           style={{textShadow: '0 1px 4px rgba(0, 0, 0, 0.8)'}}>
+          Ancient wisdom of Hermes Trismegistus - "As above, so below"
         </p>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {[
-            { name: "Mentalism", description: "The All is Mind; The Universe is Mental." },
-            { name: "Correspondence", description: "As above, so below; as below, so above." },
-            { name: "Vibration", description: "Nothing rests; everything moves; everything vibrates." },
-            { name: "Polarity", description: "Everything is dual; everything has poles; everything has its pair of opposites." },
-            { name: "Rhythm", description: "Everything flows, out and in; everything has its tides; all things rise and fall." },
-            { name: "Cause & Effect", description: "Every cause has its effect; every effect has its cause." },
-            { name: "Gender", description: "Gender is in everything; everything has its masculine and feminine principles." },
-          ].map((principle, index) => (
-            <div key={index} className="bg-white p-6 rounded-lg shadow border border-purple-100">
-              <h3 className="text-xl font-bold text-purple-800 mb-2">{principle.name}</h3>
-              <p>{principle.description}</p>
-            </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {principlesArray.map((principle) => (
+            <Card key={principle.id} className="bg-black/80 border-amber-500/40 backdrop-blur-md shadow-xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-amber-950/50 to-yellow-950/50 p-4">
+                <CardTitle className="text-xl font-bold flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-amber-400" />
+                  <span className="text-amber-200">{principle.name}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-5">
+                <p className="text-gray-200 mb-4">{principle.description}</p>
+                <div className="border-t border-amber-700/30 pt-3 mt-3">
+                  <h4 className="text-amber-300 text-sm font-medium mb-2">Application:</h4>
+                  <p className="text-gray-300 text-sm">{principle.application}</p>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>

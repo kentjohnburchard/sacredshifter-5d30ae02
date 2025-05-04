@@ -7,15 +7,16 @@ export const activePages = {
   frequencyLibrary: true,
   trinityGateway: true,
   heartCenter: true,
-  emotionEngine: false,
-  timeline: false,
-  musicGenerator: false,
-  mirrorPortal: false,
-  frequencyShift: false,
+  emotionEngine: true,
+  timeline: true,
+  musicGenerator: true,
+  mirrorPortal: true,
+  frequencyShift: true,
   shiftPerception: true,
-  soulScribe: false,
-  deityOracle: false,
-  astralAttunement: false,
+  hermeticPrinciples: true,
+  soulScribe: true,
+  deityOracle: true,
+  astralAttunement: true,
   subscription: true,
   aboutFounder: true,
   contact: true,
@@ -104,6 +105,12 @@ export const navItems = [
     label: "Shift Perception",
   },
   {
+    path: "/hermetic-principles",
+    key: "hermeticPrinciples" as PageKey,
+    icon: "BookText",
+    label: "Hermetic Principles",
+  },
+  {
     path: "/soul-scribe",
     key: "soulScribe" as PageKey,
     icon: "BookOpen",
@@ -188,6 +195,12 @@ export const navItems = [
     label: "Journey Templates",
   },
   {
+    path: "/journeys",
+    key: "journeys" as PageKey,
+    icon: "Map",
+    label: "Journeys",
+  },
+  {
     path: "/astrology",
     key: "astrology" as PageKey,
     icon: "Star",
@@ -220,8 +233,6 @@ export const getActiveNavItems = () => {
     if (isUnique) {
       uniqueKeys.add(item.path);
     }
-    
-    console.log(`Navigation item: ${item.label}, Active: ${isActive}, Path: ${item.path}`);
     
     return isActive && isUnique;
   });

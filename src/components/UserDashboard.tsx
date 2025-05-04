@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +11,8 @@ import {
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LoveDashboard from "@/components/heart-center/LoveDashboard";
+import SacredIdentityCard from "@/components/dashboard/SacredIdentityCard";
+import SoulProgressCard from "@/components/dashboard/SoulProgressCard";
 
 interface Intention {
   id: string;
@@ -31,6 +34,8 @@ const UserDashboard: React.FC = () => {
       if (!user) return;
       
       try {
+        console.log("Fetching user stats for dashboard...");
+        
         const { data: timelineEntries, error: timelineError } = await supabase
           .from('timeline_snapshots')
           .select('id')
@@ -133,6 +138,7 @@ const UserDashboard: React.FC = () => {
           setDayStreak(activityDays.size);
         }
         
+        console.log("User dashboard stats loaded successfully");
       } catch (error) {
         console.error("Error fetching user stats:", error);
         toast.error("Failed to load user statistics");
@@ -142,6 +148,8 @@ const UserDashboard: React.FC = () => {
     fetchUserStats();
   }, [user]);
 
+  console.log("UserDashboard rendering with activeTab:", activeTab);
+  
   return (
     <div className="space-y-8">
       <div className="space-y-2">
@@ -158,7 +166,14 @@ const UserDashboard: React.FC = () => {
         </TabsList>
         
         <TabsContent value="main" className="mt-0 space-y-8">
-          <div className="grid grid-cols-4 gap-4">
+          {/* Sacred Identity and Lightbearer Stats Cards - Prominently displayed at the top */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <SacredIdentityCard />
+            <SoulProgressCard />
+          </div>
+          
+          {/* Original dashboard stats */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card className="border rounded-lg overflow-hidden">
               <CardContent className="p-6">
                 <div className="flex justify-between items-center mb-2">
@@ -239,7 +254,8 @@ const UserDashboard: React.FC = () => {
             </CardContent>
           </Card>
 
-          <div className="grid grid-cols-3 gap-4">
+          {/* Quick access cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Link to="/energy-check">
               <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
                 <CardContent className="p-6">
@@ -257,7 +273,7 @@ const UserDashboard: React.FC = () => {
               </Card>
             </Link>
             
-            <Link to="/music-library">
+            <Link to="/music-generation">
               <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
                 <CardContent className="p-6">
                   <div className="flex items-center mb-4">

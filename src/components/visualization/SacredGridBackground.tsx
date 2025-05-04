@@ -9,7 +9,7 @@ interface SacredGridBackgroundProps {
 }
 
 const SacredGridBackground: React.FC<SacredGridBackgroundProps> = ({
-  intensity = 0.5,
+  intensity = 0.7, // Increased default intensity
   color = '#9b87f5',
   pulseSpeed = 1.0,
   responsive = true
@@ -77,15 +77,15 @@ const SacredGridBackground: React.FC<SacredGridBackgroundProps> = ({
         const rows = Math.ceil(height / gridSize) + 1;
         
         // Base opacity fluctuates with time - INCREASED significantly
-        const baseOpacity = (Math.sin(time * 0.5) * 0.3 + 0.9) * intensity;
+        const baseOpacity = (Math.sin(time * 0.5) * 0.3 + 1.0) * intensity;
         
         for (let i = -1; i <= cols; i++) {
           for (let j = -1; j <= rows; j++) {
             const x = i * gridSize;
             const y = j * gridSize;
             
-            // Skip some circles randomly to create a more organic pattern
-            if (Math.random() > 0.85) continue;
+            // Skip some circles randomly to create a more organic pattern - reduced skip chance
+            if (Math.random() > 0.95) continue;
             
             // Calculate distance from center for radial effect
             const centerX = width / 2;
@@ -96,7 +96,7 @@ const SacredGridBackground: React.FC<SacredGridBackgroundProps> = ({
             const maxDist = Math.sqrt(centerX * centerX + centerY * centerY);
             
             // Opacity decreases with distance from center, but with a higher base
-            const distanceOpacity = Math.max(0.5, 1 - (distFromCenter / maxDist));
+            const distanceOpacity = Math.max(0.6, 1 - (distFromCenter / maxDist));
             
             // Size fluctuates slightly based on time
             const sizeFluctuation = Math.sin(i * 0.5 + j * 0.5 + time) * 0.3 + 1.1; // Increased size
@@ -115,9 +115,9 @@ const SacredGridBackground: React.FC<SacredGridBackgroundProps> = ({
             const opacity = baseOpacity * distanceOpacity;
             
             // Inner glow color - increased opacity
-            gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${opacity * 0.9})`);
+            gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${opacity})`);
             // Outer edge color - more visible but still transparent
-            gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, ${opacity * 0.3})`);
+            gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, ${opacity * 0.4})`);
             
             ctx.beginPath();
             ctx.arc(x + shiftX, y + shiftY, circleRadius, 0, Math.PI * 2);
@@ -127,12 +127,12 @@ const SacredGridBackground: React.FC<SacredGridBackgroundProps> = ({
             // Draw sacred geometry lines connecting nearby circles - increased opacity
             if (i > 0 && j > 0) {
               // Connect to adjacent circles with fading lines - more visible
-              const lineOpacity = opacity * 0.7; // Increased from 0.5
+              const lineOpacity = opacity * 0.8; // Increased from 0.7
               ctx.beginPath();
               ctx.moveTo(x + shiftX, y + shiftY);
               ctx.lineTo(x - gridSize + shiftX, y + shiftY);
               ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${lineOpacity})`;
-              ctx.lineWidth = 1; // Increased from 0.75
+              ctx.lineWidth = 1.2; // Increased from 1
               ctx.stroke();
               
               ctx.beginPath();
@@ -169,7 +169,7 @@ const SacredGridBackground: React.FC<SacredGridBackgroundProps> = ({
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 w-full h-full z-0 opacity-90" // Increased from 0.8
+      className="absolute inset-0 w-full h-full z-0 opacity-95" // Increased from 0.9
       style={{ mixBlendMode: 'screen' }}
     />
   );

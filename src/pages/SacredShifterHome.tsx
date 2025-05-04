@@ -55,6 +55,9 @@ const SacredShifterHome = () => {
     };
   }, []);
 
+  // Determine the consciousness mode class
+  const consciousnessClass = liftTheVeil ? 'veil-mode' : 'standard-mode';
+
   return (
     <MathematicalBackground intensity="high">
       <Layout 
@@ -68,11 +71,13 @@ const SacredShifterHome = () => {
         <ConsciousnessToggle />
         <Watermark />
         
-        <HeroSection />
-        <FeaturesSection />
-        <HermeticSection />
-        <ExploreSection />
-        {!user && <JoinSection />}
+        <div className={`${consciousnessClass}`}>
+          <HeroSection />
+          <FeaturesSection />
+          <HermeticSection />
+          <ExploreSection />
+          {!user && <JoinSection />}
+        </div>
       </Layout>
     </MathematicalBackground>
   );

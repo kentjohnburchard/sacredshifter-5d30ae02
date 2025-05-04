@@ -101,15 +101,38 @@ const Home: React.FC = () => {
   const handleSessionComplete = () => {
     setShowJournal(true);
   };
+
+  // Map mode to scene string
+  const getSceneFromMode = (mode: VisualizationMode): string => {
+    const modeToScene: Record<VisualizationMode, string> = {
+      'sacred': 'nebula',
+      'nebula': 'nebula',
+      'fractal': 'fractal',
+      'chakra': 'cymatics',
+      'cymatic': 'cymatics',
+      'galaxy': 'galaxy',
+      'mandala': 'mandala',
+      'metatron': 'metatron',
+      'yinyang': 'yinyang',
+      'mirrorverse': 'mirrorverse',
+      'hologram': 'hologram',
+      'leyline': 'leylines',
+      'collision': 'cosmic-collision',
+      'cymatictile': 'cymatic-tiles',
+      'prime': 'prime-symphony',
+      'phibreath': 'fractal-audio'
+    };
+    
+    return modeToScene[mode] || 'nebula';
+  };
   
   return (
     <div className="min-h-screen bg-black text-white font-sans">
       <div className="scene-container">
         <VisualizerScene 
-          mode={mode} 
-          analyzer={analyzer} 
-          activePrimes={activePrimes} 
-          mandalaSettings={mandalaSettings}
+          scene={getSceneFromMode(mode)} 
+          audioAnalyzer={analyzer} 
+          isPlaying={audioRef.current?.paused === false}
         />
       </div>
       

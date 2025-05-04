@@ -8,7 +8,7 @@ interface AnimatedBackgroundProps {
   children: React.ReactNode;
   colorScheme?: string;
   isActive?: boolean;
-  staticBackground?: boolean;  // This prop name is fine, no need to change
+  staticBackground?: boolean;
 }
 
 const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ 
@@ -17,8 +17,13 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
   children,
   colorScheme,
   isActive = true,
-  staticBackground = false  // This is fine, keep as is
+  staticBackground = false
 }) => {
+  // Developer note: Animation has been intentionally slowed down and softened
+  // to ensure it's accessible for users with sensory sensitivities or those
+  // who may be sensitive to motion or rapid visual changes. All animations use
+  // gentle transitions with long durations and mild opacity shifts.
+  
   // Create array of objects for the wave elements
   const getWaves = () => {
     // Reduced number of waves to decrease visual noise
@@ -27,7 +32,7 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
     return Array.from({ length: count }).map((_, i) => ({
       id: `wave-${i}`,
       delay: i * 0.7,
-      duration: staticBackground ? 0 : 15 + i * 3, // No animation if static
+      duration: staticBackground ? 0 : 15 + i * 3, // No animation if static, otherwise slow animation
       opacity: 0.08 + (i * 0.03), // Increased base opacity for better visibility
     }));
   };
@@ -67,13 +72,13 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
         {waves.map((wave) => (
           <motion.div
             key={wave.id}
-            className="absolute inset-0 flex items-center justify-center"
+            className="absolute inset-0 flex items-center justify-center motion-reduce"
             initial={{ opacity: 0 }}
             animate={{ opacity: wave.opacity }}
             transition={{ duration: 2 }}
           >
             <motion.div
-              className={`w-[1500px] h-[1500px] rounded-full bg-gradient-to-br ${colors.from} ${colors.to} filter blur-3xl`} // Increased size significantly
+              className={`w-[1500px] h-[1500px] rounded-full bg-gradient-to-br ${colors.from} ${colors.to} filter blur-3xl motion-reduce`} // Increased size significantly
               animate={staticBackground ? {} : {
                 scale: [1, 1.05, 1], // Reduced scale animation
                 opacity: [wave.opacity, wave.opacity + 0.02, wave.opacity], // Reduced opacity change
@@ -99,7 +104,7 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
           return (
             <motion.div
               key={`particle-${i}`}
-              className={`absolute rounded-full ${colors.particle}`}
+              className={`absolute rounded-full ${colors.particle} motion-reduce`}
               style={{
                 width: size,
                 height: size,
@@ -122,6 +127,17 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
           );
         })}
       </div>
+      
+      {/* Add accessibility support */}
+      <style>{`
+        @media (prefers-reduced-motion: reduce) {
+          .motion-reduce {
+            animation: none !important;
+            transition: none !important;
+          }
+        }
+      `}</style>
+      
       {children}
     </div>
   );

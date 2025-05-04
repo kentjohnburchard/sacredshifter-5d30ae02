@@ -4,32 +4,16 @@ project_id = "mikltjgbvxrxndtszorb"
 [api]
 enabled = true
 port = 54321
-schemas = ["public", "storage"]
+schemas = ["public", "storage", "graphql_public"]
 
 [db]
 port = 54322
-shadow_port = 54320
-major_version = 15
-
-[realtime]
-enabled = true
 
 [studio]
 enabled = true
 port = 54323
 api_url = "http://localhost"
 
-[inbucket]
-enabled = true
-port = 54324
-
-[storage]
-enabled = true
-
-[auth]
-enabled = true
-site_url = "http://localhost:3000"
-
 [functions]
-[functions.astro-chart]
-verify_jwt = false
+[functions.ensure-profile]
+verify_jwt = true

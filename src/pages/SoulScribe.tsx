@@ -1,38 +1,38 @@
 
-import React from "react";
-import Layout from "@/components/Layout";
-import { CosmicContainer } from "@/components/sacred-geometry";
-import MetatronsCube from "@/components/sacred-geometry/shapes/MetatronsCube";
+import React from 'react';
+import Layout from '@/components/Layout';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import ComingSoon from '@/components/ComingSoon';
 
-const SoulScribe = () => {
+const SoulScribe: React.FC = () => {
   return (
-    <Layout pageTitle="Soul Scribe™" theme="cosmic">
-      <div className="container max-w-6xl mx-auto px-4 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-playfair mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-600">
-            Soul Scribe™
-          </h1>
-          <p className="text-lg text-gray-200 max-w-2xl mx-auto">
-            Channel your inner wisdom and record the whispers of your soul
-          </p>
-        </div>
+    <Layout pageTitle="Soul Scribe™ | Sacred Shifter">
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-6 text-center text-white bg-clip-text text-transparent bg-gradient-to-r from-teal-300 to-blue-300"
+            style={{textShadow: '0 2px 10px rgba(20, 184, 166, 0.7)'}}>
+          Soul Scribe™
+        </h1>
+        <p className="text-lg text-center text-white mb-12 max-w-3xl mx-auto"
+           style={{textShadow: '0 1px 4px rgba(0, 0, 0, 0.8)'}}>
+          Record the journey of your soul through guided self-reflection and conscious writing.
+        </p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          <div className="flex flex-col justify-center">
-            <h2 className="text-2xl font-playfair mb-4 text-purple-300">The Sacred Journey of Words</h2>
-            <p className="text-gray-300 mb-4">
-              Soul Scribe™ is a sacred practice that helps you connect with your higher self and
-              channel wisdom through the written word.
-            </p>
-            <p className="text-gray-300">
-              By entering a state of flow and receptivity, you can transcribe the insights, guidance,
-              and revelations waiting to emerge from your soul's depths.
-            </p>
-          </div>
-          
-          <div className="h-96">
-            <MetatronsCube />
-          </div>
+        <div className="space-y-10">
+          <Card className="bg-black/80 border-teal-500/40 backdrop-blur-md p-6 shadow-xl">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold mb-4 text-center text-teal-200"
+                  style={{textShadow: '0 0 10px rgba(20, 184, 166, 0.7)'}}>
+                Soul Journal
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ComingSoon 
+                title="Soul Scribe™ Coming Soon"
+                description="Your sacred journal awaits as we complete the cosmic encoding process."
+                expectedDate="Summer 2025"
+              />
+            </CardContent>
+          </Card>
         </div>
       </div>
     </Layout>
