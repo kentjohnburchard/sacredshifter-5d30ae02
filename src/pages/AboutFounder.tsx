@@ -34,23 +34,23 @@ const AboutFounder: React.FC = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent z-10"></div>
                 <div className="w-full h-full bg-gradient-to-br from-purple-900/30 to-blue-900/30 flex items-center justify-center">
                   <div className="w-48 h-48 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
-                    <span className="text-5xl font-bold text-white">JS</span>
+                    <span className="text-5xl font-bold text-white">KB</span>
                   </div>
                 </div>
               </div>
               <CardContent className="p-6">
-                <h2 className="text-2xl font-bold mb-2 text-purple-200">Dr. Jonathan Sage</h2>
-                <p className="text-gray-300 mb-4 italic">Quantum Physicist & Spiritual Explorer</p>
+                <h2 className="text-2xl font-bold mb-2 text-purple-200">Kent Burchard</h2>
+                <p className="text-gray-300 mb-4 italic">Consciousness Explorer & Sound Healer</p>
                 <div className="space-y-4 text-gray-200">
                   <p>
-                    With over 20 years of experience bridging the gap between quantum physics and 
-                    ancient spiritual traditions, Dr. Sage founded Sacred Shifter with a profound vision: 
-                    to bring the healing power of sacred frequencies to everyone seeking deeper connection.
+                    With over 15 years of experience in sound healing and consciousness exploration,
+                    Kent founded Sacred Shifter to make transformative frequency technologies accessible
+                    to everyone seeking deeper spiritual connection and healing.
                   </p>
                   <p>
-                    After earning his doctorate in Quantum Physics from MIT, Jonathan's research into 
-                    vibrational patterns led him to discover remarkable parallels between quantum field 
-                    theories and ancient sacred geometry practices.
+                    After experiencing profound healing through sound frequencies during a personal
+                    health crisis, Kent devoted his life to studying the intersection of ancient
+                    sound healing traditions and modern vibrational science.
                   </p>
                 </div>
               </CardContent>
@@ -67,14 +67,15 @@ const AboutFounder: React.FC = () => {
               <h3 className="text-xl font-semibold mb-4 text-purple-200">The Journey</h3>
               <div className="space-y-3 text-gray-200">
                 <p>
-                  Dr. Sage's journey began during a near-death experience that opened his consciousness 
-                  to the underlying vibrational nature of reality. This profound experience led him to 
-                  spend years studying with indigenous healers, sound therapists, and meditation masters across the globe.
+                  Kent's journey began through his own healing experience with frequency therapy,
+                  which dramatically improved his wellbeing after conventional approaches had failed.
+                  This transformative experience inspired him to study with sound healers and frequency
+                  experts across multiple continents.
                 </p>
                 <p>
-                  After integrating these diverse wisdom traditions with his scientific background, 
-                  he developed the Sacred Shifter methodology—a unique system that uses precise frequency 
-                  combinations to facilitate profound energetic shifts.
+                  After years of intensive research and practice, Kent developed the Sacred Shifter
+                  methodology—a unique system that combines precise frequency combinations with
+                  sacred geometry principles to create powerful energetic shifts in consciousness.
                 </p>
               </div>
             </Card>
@@ -83,25 +84,25 @@ const AboutFounder: React.FC = () => {
               <h3 className="text-xl font-semibold mb-4 text-purple-200">Vision & Mission</h3>
               <div className="space-y-3 text-gray-200">
                 <p>
-                  "My vision is to create a global community where ancient wisdom and modern science 
-                  converge to elevate human consciousness. Sacred Shifter is more than an app—it's a 
-                  portal to higher dimensions of being."
+                  "My vision is to democratize access to transformative frequency technologies that 
+                  have been gatekept for too long. Sacred Shifter is designed to help people take 
+                  control of their energetic and emotional wellbeing through sacred sound."
                 </p>
                 <p>
-                  Through Sacred Shifter, Dr. Sage aims to democratize access to powerful vibrational 
-                  healing technologies that were previously available only to dedicated practitioners 
-                  after years of training.
+                  Through Sacred Shifter, Kent aims to create a new paradigm of personal healing
+                  and spiritual growth that combines ancient wisdom with cutting-edge vibrational science.
                 </p>
               </div>
             </Card>
 
             <Card className="bg-black/60 border-purple-500/30 backdrop-blur-md p-6">
-              <h3 className="text-xl font-semibold mb-4 text-purple-200">Publications & Recognition</h3>
+              <h3 className="text-xl font-semibold mb-4 text-purple-200">Work & Recognition</h3>
               <ul className="list-disc list-inside space-y-2 text-gray-200">
-                <li>"Quantum Resonance in Human Consciousness" (Journal of Consciousness Studies)</li>
-                <li>"Sacred Geometry: The Mathematical Language of Creation" (Oxford Press)</li>
-                <li>Featured speaker at Consciousness and Healing Initiative</li>
-                <li>Pioneer Award in Sound Healing Technologies (2024)</li>
+                <li>Creator of the Chakra Resonance Therapy™ system</li>
+                <li>Featured presenter at the Global Sound Healing Conference (2023)</li>
+                <li>Author of "Sacred Frequencies: Accessing Higher States of Consciousness"</li>
+                <li>Certified in advanced sound therapy techniques</li>
+                <li>Developer of proprietary frequency combinations for emotional healing</li>
               </ul>
             </Card>
           </motion.div>
