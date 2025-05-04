@@ -7,8 +7,8 @@ import { useAuth } from './context/AuthContext';
 import ComingSoon from './components/ComingSoon';
 
 // Lazy load page components
-const Home = lazy(() => import('./pages/index'));
-const AuthPage = lazy(() => import('./pages/Auth'));
+const Home = lazy(() => import('./pages/Home'));
+const AuthPage = lazy(() => import('./pages/auth/index'));
 const Timeline = lazy(() => import('./pages/Timeline'));
 const Frequencies = lazy(() => import('./pages/Frequencies'));
 const SacredCircle = lazy(() => import('./pages/SacredCircle'));
@@ -19,6 +19,7 @@ const FrequencyDetailPage = lazy(() => import('./pages/FrequencyDetailPage'));
 const HermeticWisdom = lazy(() => import('./pages/HermeticWisdom'));
 const JourneyEditor = lazy(() => import('./pages/JourneyEditor'));
 const JourneyAudioMapper = lazy(() => import('./pages/JourneyAudioMapper'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
 
 const AppRoutes: React.FC = () => {
   const { user, loading } = useAuth();
@@ -33,13 +34,18 @@ const AppRoutes: React.FC = () => {
         {/* Public routes */}
         <Route path="/auth" element={user ? <Navigate to="/" replace /> : <AuthPage />} />
         
-        {/* Protected routes */}
+        {/* Home route first (dashboard or landing page based on auth) */}
         <Route path="/" element={
-          <ProtectedRoute>
+          user ? (
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          ) : (
             <Home />
-          </ProtectedRoute>
+          )
         } />
         
+        {/* Protected routes */}
         <Route path="/timeline" element={
           <ProtectedRoute>
             <Timeline />
