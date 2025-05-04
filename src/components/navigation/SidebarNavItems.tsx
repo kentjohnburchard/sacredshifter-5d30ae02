@@ -57,7 +57,8 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
   return (
     <div className="space-y-1 py-2">
       {activeNavLinks.map((item) => {
-        const isActive = locationPath === item.path;
+        // Fix the path comparison to handle exact matches and also match when on a subpage
+        const isActive = locationPath === item.path || locationPath.startsWith(`${item.path}/`);
         return (
           <NavLinkItem
             key={item.path}
@@ -84,6 +85,7 @@ const NavLinkItem: React.FC<NavLinkItemProps> = ({
   isCollapsed,
   isActive,
   onClick,
+  liftTheVeil
 }) => {
   const IconComponent = useMemo(() => {
     if (!icon || typeof icon !== 'string') return Icons.Layers;
