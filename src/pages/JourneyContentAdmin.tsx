@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -7,10 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import useSpiralParams, { SpiralParams, addJourneyParams, getAllJourneyParams } from '@/hooks/useSpiralParams';
+import useSpiralParams, { addJourneyParams, getAllJourneyParams, type SpiralParams } from '@/hooks/useSpiralParams';
 import SpiralVisualizer from '@/components/visualizer/SpiralVisualizer';
 import { useNavigate } from 'react-router-dom';
 import { createJourney, updateJourney, fetchJourneys } from '@/services/journeyService';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription } from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
 
 const JourneyContentAdmin: React.FC = () => {
   const navigate = useNavigate();
@@ -22,7 +23,12 @@ const JourneyContentAdmin: React.FC = () => {
     tags: '',
     veilLocked: false,
     content: '',
-    filename: ''
+    filename: '',
+    intent: '',
+    soundFrequencies: '',
+    script: '',
+    duration: '',
+    notes: ''
   });
   const [params, setParams] = useState<SpiralParams>({
     coeffA: 4,
@@ -95,15 +101,65 @@ const JourneyContentAdmin: React.FC = () => {
         });
       }
       
+      // Parse content to extract structured data
+      const content = selectedJourney.content || '';
+      
+      // Extract components from markdown if available
+      const intent = extractContentSection(content, "Intent");
+      const soundFrequencies = extractContentSection(content, "Recommended Sound Frequencies");
+      const script = extractContentSection(content, "Script");
+      const duration = extractContentSection(content, "Duration");
+      const notes = extractContentSection(content, "Notes");
+      
       // Load content form data
       setContentForm({
         title: selectedJourney.title || '',
         tags: selectedJourney.tags || '',
         veilLocked: selectedJourney.veil_locked || false,
         content: selectedJourney.content || '',
-        filename: selectedJourney.filename || ''
+        filename: selectedJourney.filename || '',
+        intent,
+        soundFrequencies,
+        script,
+        duration,
+        notes
       });
     }
+  };
+
+  const extractContentSection = (content: string, sectionName: string): string => {
+    const regex = new RegExp(`## ${sectionName}:[\\s\\S]*?(?=##|$)`, 'i');
+    const match = content.match(regex);
+    if (match && match[0]) {
+      return match[0].replace(`## ${sectionName}:`, '').trim();
+    }
+    return '';
+  };
+
+  const generateMarkdownContent = (): string => {
+    let markdown = `# ${contentForm.title}\n\n`;
+    
+    if (contentForm.intent) {
+      markdown += `## Intent:\n${contentForm.intent}\n\n`;
+    }
+    
+    if (contentForm.soundFrequencies) {
+      markdown += `## Recommended Sound Frequencies:\n${contentForm.soundFrequencies}\n\n`;
+    }
+    
+    if (contentForm.script) {
+      markdown += `## Script:\n${contentForm.script}\n\n`;
+    }
+    
+    if (contentForm.duration) {
+      markdown += `## Duration:\n${contentForm.duration}\n\n`;
+    }
+    
+    if (contentForm.notes) {
+      markdown += `## Notes:\n${contentForm.notes}\n\n`;
+    }
+    
+    return markdown;
   };
 
   const handleSaveParams = () => {
@@ -124,12 +180,15 @@ const JourneyContentAdmin: React.FC = () => {
     }
 
     try {
+      // Generate markdown content from structured form fields
+      const generatedContent = generateMarkdownContent();
+      
       const journeyData = {
         id: parseInt(selectedJourney),
         title: contentForm.title,
         tags: contentForm.tags,
         veil_locked: contentForm.veilLocked,
-        content: contentForm.content,
+        content: generatedContent,
         filename: contentForm.filename
       };
       
@@ -156,8 +215,13 @@ const JourneyContentAdmin: React.FC = () => {
       title: 'New Journey',
       tags: '',
       veilLocked: false,
-      content: '# New Journey\n\nAdd your journey content here.',
-      filename: 'new-journey'
+      content: '',
+      filename: 'new-journey',
+      intent: '',
+      soundFrequencies: '',
+      script: '',
+      duration: '',
+      notes: ''
     });
     setParams({
       coeffA: 4,
@@ -178,10 +242,14 @@ const JourneyContentAdmin: React.FC = () => {
 
   const handleSaveNewJourney = async () => {
     try {
+      // Generate markdown content from structured form fields
+      const generatedContent = generateMarkdownContent();
+      
       const journeyData = {
         title: contentForm.title,
         tags: contentForm.tags,
         veil_locked: contentForm.veilLocked,
+        content: generatedContent,
         filename: contentForm.filename || contentForm.title.toLowerCase().replace(/\s+/g, '-')
       };
       
@@ -310,15 +378,51 @@ const JourneyContentAdmin: React.FC = () => {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Content (Markdown Supported)
-                      </label>
+                      <label className="block text-sm font-medium mb-1">Intent</label>
                       <Textarea 
-                        value={contentForm.content} 
-                        onChange={(e) => handleContentChange('content', e.target.value)}
-                        rows={12}
-                        className="font-mono"
-                        placeholder="# Journey Title&#10;&#10;## Intent&#10;- Add your intent here&#10;&#10;## Script&#10;> Your guided journey script here"
+                        value={contentForm.intent} 
+                        onChange={(e) => handleContentChange('intent', e.target.value)}
+                        rows={3}
+                        placeholder="Journey's main purpose and intention"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Recommended Sound Frequencies</label>
+                      <Textarea 
+                        value={contentForm.soundFrequencies} 
+                        onChange={(e) => handleContentChange('soundFrequencies', e.target.value)}
+                        rows={2}
+                        placeholder="e.g. 963Hz (cosmic consciousness), 741Hz (self-empowerment)"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Script</label>
+                      <Textarea 
+                        value={contentForm.script} 
+                        onChange={(e) => handleContentChange('script', e.target.value)}
+                        rows={6}
+                        placeholder="Guided journey script"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Duration</label>
+                      <Input
+                        value={contentForm.duration}
+                        onChange={(e) => handleContentChange('duration', e.target.value)}
+                        placeholder="e.g. 25 minutes"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Notes</label>
+                      <Textarea 
+                        value={contentForm.notes} 
+                        onChange={(e) => handleContentChange('notes', e.target.value)}
+                        rows={3}
+                        placeholder="Additional guidance or information"
                       />
                     </div>
                   </CardContent>

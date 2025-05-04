@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { SpiralParams } from '@/components/visualizer/SpiralVisualizer';
+import type { SpiralParams } from '@/components/visualizer/SpiralVisualizer';
 
 // Default parameters if none are specified
 const DEFAULT_PARAMS: SpiralParams = {
@@ -84,4 +84,5 @@ export function getAllJourneyParams(): Record<string, SpiralParams> {
   return { ...journeyParamsMap };
 }
 
+export type { SpiralParams };
 export default useSpiralParams;
