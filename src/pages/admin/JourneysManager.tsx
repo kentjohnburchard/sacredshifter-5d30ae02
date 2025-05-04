@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { fetchJourneys, updateJourney, Journey, createJourney } from '@/services/journeyService';
@@ -11,9 +10,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { PlusCircle, Loader2, Save, X, AlertCircle } from 'lucide-react';
+import { PlusCircle, Loader2, Save, X, AlertCircle, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { getAllJourneys } from '@/utils/coreJourneyLoader';
+import { Badge } from '@/components/ui/badge';
 
 const JourneysManager: React.FC = () => {
   const [journeys, setJourneys] = useState<Journey[]>([]);
@@ -38,8 +39,14 @@ const JourneysManager: React.FC = () => {
   useEffect(() => {
     const loadJourneys = async () => {
       try {
-        const data = await fetchJourneys();
-        setJourneys(data);
+        // First load journeys from the database
+        const dbJourneys = await fetchJourneys();
+        
+        // Then combine with journeys from core_content
+        const allJourneys = await getAllJourneys(dbJourneys);
+        
+        console.log(`Loaded ${allJourneys.length} total journeys (${dbJourneys.length} from DB, ${allJourneys.length - dbJourneys.length} from core_content)`);
+        setJourneys(allJourneys);
       } catch (error) {
         console.error('Failed to load journeys:', error);
         toast.error('Failed to load journeys');
@@ -52,8 +59,21 @@ const JourneysManager: React.FC = () => {
   }, []);
 
   const handleEditJourney = (journey: Journey) => {
-    setEditingJourney({ ...journey });
+    // Capture whether this is a core content journey (has no real DB id)
+    const isCoreJourney = journey.id >= 1000; // We assigned high IDs to core content journeys
+    
+    setEditingJourney({ 
+      ...journey,
+      // Set a flag to indicate this is from core_content if it has a high ID
+      isCoreContent: isCoreJourney
+    } as Journey);
+    
     setIsDialogOpen(true);
+    
+    // Show a toast for core content journeys
+    if (isCoreJourney) {
+      toast.info('This is a core content journey. You can import it to the database to make it editable.');
+    }
   };
 
   const handleCreateNew = () => {
@@ -145,6 +165,35 @@ const JourneysManager: React.FC = () => {
     }
   };
 
+  // Add this function for importing a core content journey to the database
+  const handleImportToDatabase = async () => {
+    if (!editingJourney) return;
+    
+    setIsSaving(true);
+    
+    try {
+      // Create a copy of the journey without the id (will be assigned by the DB)
+      const { id, ...journeyData } = editingJourney;
+      
+      // Create as a new journey in the database
+      const newJourney = await createJourney(journeyData);
+      toast.success('Journey imported to database successfully');
+      
+      // Replace the core journey with the DB version in the list
+      setJourneys(prev => prev.map(j => 
+        j.filename === newJourney.filename ? newJourney : j
+      ));
+      
+      setIsDialogOpen(false);
+      setEditingJourney(null);
+    } catch (error) {
+      console.error('Error importing journey:', error);
+      toast.error('Failed to import journey to database');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <Layout pageTitle="Journey Manager">
       <div className="container mx-auto px-4 py-8">
@@ -167,6 +216,7 @@ const JourneysManager: React.FC = () => {
                 <TableRow>
                   <TableHead>Title</TableHead>
                   <TableHead>Filename</TableHead>
+                  <TableHead>Source</TableHead>
                   <TableHead>Tags</TableHead>
                   <TableHead>Veil Locked</TableHead>
                   <TableHead className="w-[100px]">Actions</TableHead>
@@ -175,24 +225,38 @@ const JourneysManager: React.FC = () => {
               <TableBody>
                 {journeys.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                    <TableCell colSpan={6} className="text-center py-8 text-gray-500">
                       No journeys found. Create your first journey to get started.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  journeys.map((journey) => (
-                    <TableRow key={journey.id}>
-                      <TableCell className="font-medium">{journey.title}</TableCell>
-                      <TableCell>{journey.filename}</TableCell>
-                      <TableCell>{journey.tags || '-'}</TableCell>
-                      <TableCell>{journey.veil_locked ? 'Yes' : 'No'}</TableCell>
-                      <TableCell>
-                        <Button size="sm" variant="outline" onClick={() => handleEditJourney(journey)}>
-                          Edit
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                  journeys.map((journey) => {
+                    // Determine if this is a core content journey (has high ID)
+                    const isCoreJourney = journey.id >= 1000;
+                    
+                    return (
+                      <TableRow key={journey.id}>
+                        <TableCell className="font-medium">{journey.title}</TableCell>
+                        <TableCell>{journey.filename}</TableCell>
+                        <TableCell>
+                          {isCoreJourney ? (
+                            <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                              <FileText className="h-3 w-3 mr-1" /> Core Content
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="bg-green-50 text-green-700">Database</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>{journey.tags || '-'}</TableCell>
+                        <TableCell>{journey.veil_locked ? 'Yes' : 'No'}</TableCell>
+                        <TableCell>
+                          <Button size="sm" variant="outline" onClick={() => handleEditJourney(journey)}>
+                            Edit
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
                 )}
               </TableBody>
             </Table>
@@ -203,8 +267,25 @@ const JourneysManager: React.FC = () => {
           <DialogContent className="sm:max-w-[80%] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
-                {editingJourney?.id === 0 ? 'Create New Journey' : 'Edit Journey'}
+                {editingJourney?.id === 0 
+                  ? 'Create New Journey' 
+                  : editingJourney?.id && editingJourney.id >= 1000 
+                    ? `View Core Content Journey: ${editingJourney.title}` 
+                    : `Edit Journey: ${editingJourney?.title}`
+                }
               </DialogTitle>
+              
+              {editingJourney?.id && editingJourney.id >= 1000 && (
+                <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-200 text-sm">
+                  <div className="flex items-center gap-2 mb-2">
+                    <AlertCircle className="h-4 w-4 text-blue-500" />
+                    <span className="font-medium text-blue-700">This is a core content journey</span>
+                  </div>
+                  <p className="text-blue-600 pl-6">
+                    Core content journeys are read-only. You can import this journey to the database to make it editable.
+                  </p>
+                </div>
+              )}
             </DialogHeader>
             
             {editingJourney && (
@@ -456,19 +537,36 @@ const JourneysManager: React.FC = () => {
                 <X className="mr-2 h-4 w-4" />
                 Cancel
               </Button>
-              <Button onClick={handleSaveJourney} disabled={isSaving}>
-                {isSaving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Save
-                  </>
-                )}
-              </Button>
+              
+              {editingJourney?.id && editingJourney.id >= 1000 ? (
+                <Button onClick={handleImportToDatabase} disabled={isSaving}>
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Importing...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      Import to Database
+                    </>
+                  )}
+                </Button>
+              ) : (
+                <Button onClick={handleSaveJourney} disabled={isSaving}>
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      Save
+                    </>
+                  )}
+                </Button>
+              )}
             </DialogFooter>
           </DialogContent>
         </Dialog>

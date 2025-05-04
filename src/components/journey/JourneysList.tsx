@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchJourneys, Journey } from '@/services/journeyService';
@@ -6,6 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { Tag, Clock, Music, Star } from 'lucide-react';
 import { extractFrequencyValue, fileNameToSlug } from '@/utils/journeyLoader';
+import { getAllJourneys } from '@/utils/coreJourneyLoader';
 
 interface JourneysListProps {
   filter?: string;
@@ -30,14 +30,19 @@ const JourneysList: React.FC<JourneysListProps> = ({
     const loadJourneys = async () => {
       try {
         setLoading(true);
-        const data = await fetchJourneys();
+        // Fetch journeys from the database
+        const dbData = await fetchJourneys();
         
-        if (data) {
-          setJourneys(data);
+        // Combine with journeys from core_content
+        const allJourneys = await getAllJourneys(dbData || []);
+        
+        if (allJourneys) {
+          console.log(`Loaded ${allJourneys.length} total journeys (DB + core_content)`);
+          setJourneys(allJourneys);
           
           // Group journeys by first tag
           const grouped: GroupedJourneys = {};
-          data.forEach(journey => {
+          allJourneys.forEach(journey => {
             if (!journey.tags) {
               const group = 'Other';
               if (!grouped[group]) grouped[group] = [];

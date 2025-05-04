@@ -26,6 +26,8 @@ export interface Journey {
   env_posture?: string;
   env_tools?: string;
   recommended_users?: string;
+  // Flag for core content journeys (not stored in DB)
+  isCoreContent?: boolean;
 }
 
 export const fetchJourneys = async (): Promise<Journey[]> => {
