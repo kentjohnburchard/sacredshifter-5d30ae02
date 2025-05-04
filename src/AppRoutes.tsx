@@ -59,6 +59,7 @@ import JourneysManager from '@/pages/admin/JourneysManager';
 import SacredSpectrumAdmin from '@/pages/admin/SacredSpectrumAdmin';
 import SacredSpectrum from '@/pages/SacredSpectrum';
 import JourneyTemplatesAdmin from './pages/JourneyTemplatesAdmin';
+import JourneysDirectory from './pages/JourneysDirectory';
 
 const AppRoutes: React.FC = () => {
   console.log("AppRoutes rendering - checking route configuration");
@@ -204,7 +205,8 @@ const AppRoutes: React.FC = () => {
         } />
         
         {/* New Journey Routes */}
-        <Route path="/journey/:journeySlug" element={<JourneyPage />} />
+        <Route path="/journey/:slug" element={<JourneyPage />} />
+        <Route path="/journeys-directory" element={<JourneysDirectory />} />
         
         <Route path="/admin/journeys" element={
           <ProtectedRoute>

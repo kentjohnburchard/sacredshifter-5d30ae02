@@ -11,6 +11,7 @@ import { useSpiralParams } from '@/hooks/useSpiralParams';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2 } from 'lucide-react';
+import { removeFrontmatter, chakraToBackgroundClass } from '@/utils/journeyLoader';
 
 const JourneyPage: React.FC = () => {
   const { slug = '' } = useParams();
@@ -19,6 +20,7 @@ const JourneyPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [content, setContent] = useState<string>('');
   const spiralParams = useSpiralParams(slug);
+  const [bgClass, setBgClass] = useState<string>('bg-gradient-to-br from-purple-900/20 to-black');
 
   useEffect(() => {
     const loadJourney = async () => {
@@ -41,12 +43,24 @@ const JourneyPage: React.FC = () => {
         
         setJourney(journeyData);
         
+        // Determine background class based on chakra if available
+        if (journeyData.tags) {
+          const tags = journeyData.tags.split(',').map(tag => tag.trim().toLowerCase());
+          const chakraTags = tags.filter(tag => 
+            ['root', 'sacral', 'solar plexus', 'heart', 'throat', 'third eye', 'crown'].includes(tag)
+          );
+          
+          if (chakraTags.length > 0) {
+            setBgClass(chakraToBackgroundClass(chakraTags[0]));
+          }
+        }
+        
         // Also try to fetch markdown content if available
         try {
           const response = await fetch(`/src/core_content/journeys/journey_${slug}.md`);
           if (response.ok) {
             const markdownContent = await response.text();
-            setContent(markdownContent);
+            setContent(removeFrontmatter(markdownContent));
           }
         } catch (mdErr) {
           console.log('No markdown file found, using database content');
@@ -86,7 +100,7 @@ const JourneyPage: React.FC = () => {
   }
 
   return (
-    <Layout pageTitle={journey.title}>
+    <Layout pageTitle={journey.title} className={bgClass}>
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4">{journey.title}</h1>
@@ -240,7 +254,10 @@ const JourneyPage: React.FC = () => {
                       coeffC: spiralParams?.coeffC ?? 1.3,
                       freqA: spiralParams?.freqA ?? 44,
                       freqB: spiralParams?.freqB ?? -17,
-                      freqC: spiralParams?.freqC ?? -54
+                      freqC: spiralParams?.freqC ?? -54,
+                      color: spiralParams?.color,
+                      opacity: spiralParams?.opacity,
+                      speed: spiralParams?.speed,
                     }}
                     containerId="journeySpiral"
                   />
@@ -249,7 +266,7 @@ const JourneyPage: React.FC = () => {
               
               <Card>
                 <CardContent className="p-4">
-                  <JourneySoundscapePlayer journeySlug={slug} />
+                  <JourneySoundscapePlayer journeySlug={slug} autoPlay={false} />
                 </CardContent>
               </Card>
             </div>

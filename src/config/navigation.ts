@@ -31,6 +31,7 @@ export const activePages = {
   astrology: true,
   siteMap: true,
   sacredSpectrum: true, // Add Sacred Spectrum to active pages
+  journeysDirectory: true, // Add this new page
 };
 
 // Type definition for page configuration
@@ -223,6 +224,12 @@ export const navItems = [
     key: "sacredSpectrum" as PageKey,
     icon: "BookOpen",
     label: "Sacred Spectrum",
+  },
+  {
+    path: "/journeys-directory",
+    key: "journeysDirectory" as PageKey,
+    icon: "Map",
+    label: "Sacred Journeys",
   },
 ];
 
