@@ -8,7 +8,7 @@ import ComingSoon from './components/ComingSoon';
 
 // Lazy load page components
 const Home = lazy(() => import('./pages/Home'));
-const HomePage = lazy(() => import('./pages/HomePage')); // Add the correct HomePage import
+const HomePage = lazy(() => import('./pages/HomePage'));
 const AuthPage = lazy(() => import('./pages/auth/index'));
 const Timeline = lazy(() => import('./pages/Timeline'));
 const Frequencies = lazy(() => import('./pages/Frequencies'));
@@ -39,10 +39,10 @@ const AppRoutes: React.FC = () => {
         <Route path="/" element={
           user ? (
             <ProtectedRoute>
-              <HomePage /> {/* Use HomePage for authenticated users */}
+              <HomePage />
             </ProtectedRoute>
           ) : (
-            <HomePage /> {/* Use HomePage for non-authenticated users too */}
+            <HomePage />
           )
         } />
         
