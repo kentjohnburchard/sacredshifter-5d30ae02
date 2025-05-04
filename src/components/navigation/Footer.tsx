@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { TrademarkedName } from "@/components/ip-protection";
-import { Map, Heart, Music, BookOpen, User, Settings, Mail, Home, Sparkles, Brain } from "lucide-react";
+import { Map, Heart, Music, BookOpen, User, Settings, Mail, Home, Sparkles, Brain, BookOpen as BookOpenIcon } from "lucide-react";
 
 const Footer: React.FC = () => {
   return (
@@ -48,6 +48,12 @@ const Footer: React.FC = () => {
                 <Link to="/heart-center" className="text-xs text-[#800080]/90 hover:text-[#800080] flex items-center gap-1">
                   <Heart className="h-3 w-3" />
                   <span>Heart Center</span>
+                </Link>
+              </li>
+              <li>
+                <Link to="/sacred-spectrum" className="text-xs text-[#800080]/90 hover:text-[#800080] flex items-center gap-1">
+                  <BookOpenIcon className="h-3 w-3" />
+                  <span>Sacred Spectrum</span>
                 </Link>
               </li>
             </ul>

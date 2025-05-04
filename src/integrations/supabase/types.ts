@@ -923,6 +923,54 @@ export type Database = {
         }
         Relationships: []
       }
+      sacred_spectrum_resources: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          external_link: string | null
+          file_url: string | null
+          id: number
+          is_approved: boolean | null
+          journey_slug: string | null
+          needs_moderation: boolean | null
+          tags: string | null
+          title: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          external_link?: string | null
+          file_url?: string | null
+          id?: number
+          is_approved?: boolean | null
+          journey_slug?: string | null
+          needs_moderation?: boolean | null
+          tags?: string | null
+          title: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          external_link?: string | null
+          file_url?: string | null
+          id?: number
+          is_approved?: boolean | null
+          journey_slug?: string | null
+          needs_moderation?: boolean | null
+          tags?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       session_reflections: {
         Row: {
           content: string

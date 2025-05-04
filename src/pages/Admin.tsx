@@ -40,7 +40,6 @@ const Admin: React.FC = () => {
             </p>
           </Link>
           
-          {/* New Link for Journey Manager */}
           <Link
             to="/admin/journeys"
             className="block p-6 bg-white rounded-lg border border-purple-200 shadow-sm hover:bg-purple-50"
@@ -48,6 +47,16 @@ const Admin: React.FC = () => {
             <h3 className="text-lg font-semibold mb-2">Sacred Journey Manager</h3>
             <p className="text-gray-600">
               Manage sacred journeys, their visual effects, audio mappings, and veil access settings.
+            </p>
+          </Link>
+          
+          <Link
+            to="/admin/sacred-spectrum"
+            className="block p-6 bg-white rounded-lg border border-emerald-200 shadow-sm hover:bg-emerald-50"
+          >
+            <h3 className="text-lg font-semibold mb-2">Sacred Spectrum Knowledge</h3>
+            <p className="text-gray-600">
+              Manage vibrational research resources, documents, and educational content.
             </p>
           </Link>
         </div>

@@ -8,6 +8,7 @@ import FeaturesSection from '@/components/landing/FeaturesSection';
 import HermeticSection from '@/components/landing/HermeticSection';
 import JoinSection from '@/components/landing/JoinSection';
 import SacredJourneyScroll from '@/components/sacred-journey/SacredJourneyScroll';
+import SacredResourcesSection from '@/components/landing/SacredResourcesSection';
 
 const HomePage: React.FC = () => {
   return (
@@ -40,6 +41,9 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </section>
+      
+      {/* Add Sacred Resources Section */}
+      <SacredResourcesSection />
       
       <HermeticSection />
       <JoinSection />
