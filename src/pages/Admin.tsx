@@ -59,6 +59,16 @@ const Admin: React.FC = () => {
               Manage vibrational research resources, documents, and educational content.
             </p>
           </Link>
+          
+          <Link
+            to="/admin/journey-bulk-import"
+            className="block p-6 bg-white rounded-lg border border-amber-200 shadow-sm hover:bg-amber-50"
+          >
+            <h3 className="text-lg font-semibold mb-2">Journey Bulk Import</h3>
+            <p className="text-gray-600">
+              Import multiple journeys at once from markdown format, including spiral parameters.
+            </p>
+          </Link>
         </div>
       </div>
     </Layout>
