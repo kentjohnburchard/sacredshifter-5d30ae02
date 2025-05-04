@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { JourneySoundscape } from '@/services/soundscapeService';
 import { Card, CardContent } from '@/components/ui/card';
+import YouTubeEmbed from './YouTubeEmbed';
 
 interface JourneySoundscapePlayerProps {
   soundscape: JourneySoundscape;
@@ -38,7 +39,7 @@ const JourneySoundscapePlayer: React.FC<JourneySoundscapePlayerProps> = ({
   };
 
   const togglePlay = () => {
-    if (!audioRef.current) return;
+    if (soundscape.source_type !== 'file' || !audioRef.current) return;
     
     if (isPlaying) {
       audioRef.current.pause();
@@ -54,7 +55,7 @@ const JourneySoundscapePlayer: React.FC<JourneySoundscapePlayerProps> = ({
   };
 
   const toggleMute = () => {
-    if (!audioRef.current) return;
+    if (soundscape.source_type !== 'file' || !audioRef.current) return;
     
     if (isMuted) {
       audioRef.current.volume = previousVolumeRef.current;
@@ -69,6 +70,8 @@ const JourneySoundscapePlayer: React.FC<JourneySoundscapePlayerProps> = ({
   };
 
   const handleVolumeChange = (value: number[]) => {
+    if (soundscape.source_type !== 'file') return;
+    
     const newVolume = value[0];
     setVolume(newVolume);
     
@@ -84,8 +87,10 @@ const JourneySoundscapePlayer: React.FC<JourneySoundscapePlayerProps> = ({
     }
   };
 
-  // Set up audio event listeners
+  // Set up audio event listeners for file type
   useEffect(() => {
+    if (soundscape.source_type !== 'file') return;
+
     const audioElement = audioRef.current;
     if (!audioElement) return;
     
@@ -116,7 +121,79 @@ const JourneySoundscapePlayer: React.FC<JourneySoundscapePlayerProps> = ({
       audioElement.removeEventListener('ended', handleEnded);
       audioElement.removeEventListener('error', handleError);
     };
-  }, []);
+  }, [soundscape.source_type]);
+
+  // Render different player based on source type
+  const renderPlayer = () => {
+    switch (soundscape.source_type) {
+      case 'youtube':
+        return (
+          <div className="mt-2">
+            <YouTubeEmbed youtubeUrl={soundscape.file_url} title={soundscape.title} />
+          </div>
+        );
+      
+      case 'external':
+        return (
+          <div className="flex justify-center mt-3">
+            <Button 
+              onClick={() => window.open(soundscape.file_url, '_blank')}
+              className="bg-purple-900/20 text-purple-200 border border-purple-500/30 hover:bg-purple-800/30"
+            >
+              <ExternalLink className="h-4 w-4 mr-2" /> 
+              Open External Audio
+            </Button>
+          </div>
+        );
+      
+      case 'file':
+      default:
+        return (
+          <div className="flex items-center space-x-3 mt-3">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={togglePlay}
+              className="h-8 w-8 rounded-full p-0 border-purple-500/30 bg-purple-900/20 text-purple-200"
+            >
+              {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+            </Button>
+            
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={toggleMute}
+              className="h-8 w-8 rounded-full p-0 text-purple-300 hover:text-purple-200 hover:bg-purple-900/20"
+            >
+              {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+            </Button>
+            
+            <div className="relative flex-grow">
+              <Slider 
+                value={[volume]} 
+                max={1} 
+                min={0}
+                step={0.01}
+                onValueChange={handleVolumeChange}
+                className="w-full"
+              />
+            </div>
+            
+            {error && (
+              <p className="text-xs text-red-400">{error}</p>
+            )}
+            
+            <audio
+              ref={audioRef}
+              src={getAudioUrl(soundscape.file_url)}
+              loop
+              preload="metadata"
+              className="hidden"
+            />
+          </div>
+        );
+    }
+  };
 
   return (
     <Card className={`bg-black/20 backdrop-blur-sm border-purple-500/30 ${className}`}>
@@ -147,48 +224,7 @@ const JourneySoundscapePlayer: React.FC<JourneySoundscapePlayerProps> = ({
             )}
           </div>
           
-          <div className="flex items-center space-x-3">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={togglePlay}
-              className="h-8 w-8 rounded-full p-0 border-purple-500/30 bg-purple-900/20 text-purple-200"
-            >
-              {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-            </Button>
-            
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={toggleMute}
-              className="h-8 w-8 rounded-full p-0 text-purple-300 hover:text-purple-200 hover:bg-purple-900/20"
-            >
-              {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-            </Button>
-            
-            <div className="relative flex-grow">
-              <Slider 
-                value={[volume]} 
-                max={1} 
-                min={0}
-                step={0.01}
-                onValueChange={handleVolumeChange}
-                className="w-full"
-              />
-            </div>
-          </div>
-          
-          {error && (
-            <p className="text-xs text-red-400">{error}</p>
-          )}
-          
-          <audio
-            ref={audioRef}
-            src={getAudioUrl(soundscape.file_url)}
-            loop
-            preload="metadata"
-            className="hidden"
-          />
+          {renderPlayer()}
         </div>
       </CardContent>
     </Card>

@@ -321,6 +321,7 @@ export type Database = {
           id: string
           journey_id: number | null
           source_link: string | null
+          source_type: string
           title: string
           updated_at: string | null
         }
@@ -331,6 +332,7 @@ export type Database = {
           id?: string
           journey_id?: number | null
           source_link?: string | null
+          source_type?: string
           title: string
           updated_at?: string | null
         }
@@ -341,6 +343,7 @@ export type Database = {
           id?: string
           journey_id?: number | null
           source_link?: string | null
+          source_type?: string
           title?: string
           updated_at?: string | null
         }

@@ -9,6 +9,7 @@ export interface JourneySoundscape {
   description: string | null;
   file_url: string;
   source_link: string | null;
+  source_type: 'file' | 'youtube' | 'external';
   created_at: string;
 }
 
@@ -125,4 +126,25 @@ export const uploadSoundscapeFile = async (file: File): Promise<string> => {
     console.error('Failed to upload soundscape file:', error);
     throw error;
   }
+};
+
+// YouTube URL utilities
+export const extractYoutubeVideoId = (url: string): string | null => {
+  // Handle various YouTube URL formats
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return match && match[2].length === 11 ? match[2] : null;
+};
+
+export const validateYoutubeUrl = (url: string): boolean => {
+  const videoId = extractYoutubeVideoId(url);
+  return videoId !== null;
+};
+
+export const getEmbedUrlFromYoutubeUrl = (url: string): string => {
+  const videoId = extractYoutubeVideoId(url);
+  if (!videoId) {
+    return '';
+  }
+  return `https://www.youtube.com/embed/${videoId}`;
 };

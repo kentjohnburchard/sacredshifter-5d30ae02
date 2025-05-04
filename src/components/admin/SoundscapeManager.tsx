@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { FileAudio, Play, Pause, Edit, Trash, Upload, ExternalLink } from 'lucide-react';
+import { FileAudio, Play, Pause, Edit, Trash, Upload, ExternalLink, Youtube } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -44,9 +44,12 @@ import {
   updateJourneySoundscape, 
   deleteJourneySoundscape,
   uploadSoundscapeFile,
+  validateYoutubeUrl,
   JourneySoundscape
 } from '@/services/soundscapeService';
 import { fetchJourneys, Journey } from '@/services/journeyService';
+import YouTubeEmbed from '@/components/journey/YouTubeEmbed';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const SoundscapeManager: React.FC = () => {
   const [soundscapes, setSoundscapes] = useState<JourneySoundscape[]>([]);
@@ -59,6 +62,9 @@ const SoundscapeManager: React.FC = () => {
   const [selectedSoundscape, setSelectedSoundscape] = useState<JourneySoundscape | null>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [fileUploading, setFileUploading] = useState(false);
+  const [youtubePreviewUrl, setYoutubePreviewUrl] = useState('');
+  const [showYoutubePreview, setShowYoutubePreview] = useState(false);
+  const [sourceType, setSourceType] = useState<'file' | 'youtube' | 'external'>('file');
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -105,6 +111,9 @@ const SoundscapeManager: React.FC = () => {
       file_url: ''
     });
     setUploadedFile(null);
+    setYoutubePreviewUrl('');
+    setShowYoutubePreview(false);
+    setSourceType('file');
     setIsDialogOpen(true);
   };
   
@@ -118,6 +127,9 @@ const SoundscapeManager: React.FC = () => {
       file_url: soundscape.file_url
     });
     setUploadedFile(null);
+    setSourceType(soundscape.source_type || 'file');
+    setYoutubePreviewUrl(soundscape.source_type === 'youtube' ? soundscape.file_url : '');
+    setShowYoutubePreview(soundscape.source_type === 'youtube');
     setIsDialogOpen(true);
   };
   
@@ -145,8 +157,26 @@ const SoundscapeManager: React.FC = () => {
       setUploadedFile(e.target.files[0]);
     }
   };
+
+  const handleYoutubeUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const youtubeUrl = e.target.value;
+    setFormData(prev => ({ ...prev, file_url: youtubeUrl }));
+    
+    if (validateYoutubeUrl(youtubeUrl)) {
+      setYoutubePreviewUrl(youtubeUrl);
+      setShowYoutubePreview(true);
+    } else {
+      setShowYoutubePreview(false);
+    }
+  };
   
   const togglePlayAudio = (soundscape: JourneySoundscape) => {
+    if (soundscape.source_type !== 'file') {
+      // For non-file types, just open the URL
+      window.open(soundscape.file_url, '_blank');
+      return;
+    }
+
     const audioUrl = getAudioUrl(soundscape.file_url);
     
     // Stop current audio if playing
@@ -188,6 +218,20 @@ const SoundscapeManager: React.FC = () => {
   const handleSelectChange = (name: string, value: string) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+
+  const handleSourceTypeChange = (type: 'file' | 'youtube' | 'external') => {
+    setSourceType(type);
+    // Reset form fields related to other types
+    if (type === 'file') {
+      setFormData(prev => ({ ...prev, file_url: '' }));
+      setShowYoutubePreview(false);
+    } else if (type === 'youtube') {
+      setUploadedFile(null);
+    } else if (type === 'external') {
+      setUploadedFile(null);
+      setShowYoutubePreview(false);
+    }
+  };
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -196,10 +240,16 @@ const SoundscapeManager: React.FC = () => {
       let fileUrl = formData.file_url;
       
       // Handle file upload if new file is selected
-      if (uploadedFile) {
+      if (sourceType === 'file' && uploadedFile) {
         setFileUploading(true);
         fileUrl = await uploadSoundscapeFile(uploadedFile);
         setFileUploading(false);
+      } else if (sourceType === 'youtube') {
+        // Validate YouTube URL
+        if (!validateYoutubeUrl(fileUrl)) {
+          toast.error('Please enter a valid YouTube URL');
+          return;
+        }
       }
       
       const soundscapeData = {
@@ -207,7 +257,8 @@ const SoundscapeManager: React.FC = () => {
         description: formData.description,
         journey_id: parseInt(formData.journey_id),
         source_link: formData.source_link,
-        file_url: fileUrl
+        file_url: fileUrl,
+        source_type: sourceType
       };
       
       if (selectedSoundscape) {
@@ -238,6 +289,18 @@ const SoundscapeManager: React.FC = () => {
     }
     return `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${url}`;
   };
+
+  const getSourceTypeIcon = (soundscape: JourneySoundscape) => {
+    switch (soundscape.source_type) {
+      case 'youtube':
+        return <Youtube className="h-4 w-4 text-red-500" />;
+      case 'external':
+        return <ExternalLink className="h-4 w-4 text-green-500" />;
+      case 'file':
+      default:
+        return <FileAudio className="h-4 w-4 text-blue-500" />;
+    }
+  };
   
   return (
     <div className="mt-8 bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-6">
@@ -263,7 +326,7 @@ const SoundscapeManager: React.FC = () => {
                 <TableHead>Title</TableHead>
                 <TableHead>Journey</TableHead>
                 <TableHead>Description</TableHead>
-                <TableHead>Audio</TableHead>
+                <TableHead>Type</TableHead>
                 <TableHead>Source</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -290,18 +353,11 @@ const SoundscapeManager: React.FC = () => {
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center space-x-2">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="h-8 w-8 p-0 text-purple-600"
-                          onClick={() => togglePlayAudio(soundscape)}
-                        >
-                          {isPlaying[soundscape.id] ? 
-                            <Pause className="h-4 w-4" /> : 
-                            <Play className="h-4 w-4" />}
-                        </Button>
-                        <FileAudio className="h-4 w-4 text-blue-500" />
+                      <div className="flex items-center gap-2">
+                        {getSourceTypeIcon(soundscape)}
+                        <span className="text-sm capitalize">
+                          {soundscape.source_type || 'File'}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -320,6 +376,18 @@ const SoundscapeManager: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
+                        {soundscape.source_type === 'file' && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-8 w-8 p-0 text-purple-600"
+                            onClick={() => togglePlayAudio(soundscape)}
+                          >
+                            {isPlaying[soundscape.id] ? 
+                              <Pause className="h-4 w-4" /> : 
+                              <Play className="h-4 w-4" />}
+                          </Button>
+                        )}
                         <Button
                           variant="outline"
                           size="sm"
@@ -423,46 +491,100 @@ const SoundscapeManager: React.FC = () => {
                   Optional link to credit the source of this audio
                 </p>
               </div>
-              
+
               <div>
-                <label htmlFor="file" className="block text-sm font-medium mb-1">
-                  Audio File *
+                <label className="block text-sm font-medium mb-2">
+                  Source Type *
                 </label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="file"
-                    type="file"
-                    accept="audio/mp3,audio/wav,audio/mpeg,audio/ogg"
-                    onChange={handleFileChange}
-                    className="flex-1"
-                  />
-                  {fileUploading && (
-                    <div className="animate-spin h-5 w-5 border-b-2 border-purple-600 rounded-full"></div>
-                  )}
-                </div>
-                
-                {formData.file_url && !uploadedFile && (
-                  <div className="flex items-center text-sm text-blue-600 mt-2">
-                    <FileAudio className="h-4 w-4 mr-2" />
-                    <span>Current audio file</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="ml-2 h-6 w-6 p-0"
-                      onClick={() => {
-                        const audio = new Audio(getAudioUrl(formData.file_url));
-                        audio.play().catch(console.error);
-                      }}
-                    >
-                      <Play className="h-3 w-3" />
-                    </Button>
-                  </div>
-                )}
-                
-                <p className="text-xs text-gray-500 mt-1">
-                  Supported formats: MP3, WAV, OGG (max 10MB)
-                </p>
+                <Tabs value={sourceType} onValueChange={(v) => handleSourceTypeChange(v as any)}>
+                  <TabsList className="grid grid-cols-3 mb-2">
+                    <TabsTrigger value="file" className="text-xs">Audio File</TabsTrigger>
+                    <TabsTrigger value="youtube" className="text-xs">YouTube Video</TabsTrigger>
+                    <TabsTrigger value="external" className="text-xs">External URL</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="file">
+                    <div>
+                      <Input
+                        id="file"
+                        type="file"
+                        accept="audio/mp3,audio/wav,audio/mpeg,audio/ogg"
+                        onChange={handleFileChange}
+                        className="flex-1"
+                      />
+                      {fileUploading && (
+                        <div className="animate-spin h-5 w-5 border-b-2 border-purple-600 rounded-full mt-2"></div>
+                      )}
+
+                      {formData.file_url && sourceType === 'file' && !uploadedFile && (
+                        <div className="flex items-center text-sm text-blue-600 mt-2">
+                          <FileAudio className="h-4 w-4 mr-2" />
+                          <span>Current audio file</span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="ml-2 h-6 w-6 p-0"
+                            onClick={() => {
+                              const audio = new Audio(getAudioUrl(formData.file_url));
+                              audio.play().catch(console.error);
+                            }}
+                          >
+                            <Play className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      )}
+                      
+                      <p className="text-xs text-gray-500 mt-1">
+                        Supported formats: MP3, WAV, OGG (max 10MB)
+                      </p>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="youtube">
+                    <div>
+                      <Input
+                        id="youtube_url"
+                        name="file_url"
+                        value={formData.file_url}
+                        onChange={handleYoutubeUrlChange}
+                        placeholder="https://www.youtube.com/watch?v=..."
+                        className="flex-1"
+                      />
+                      
+                      {showYoutubePreview && (
+                        <div className="mt-3">
+                          <p className="text-sm font-medium mb-1">Preview:</p>
+                          <YouTubeEmbed 
+                            youtubeUrl={youtubePreviewUrl} 
+                            className="max-h-40"
+                          />
+                        </div>
+                      )}
+                      
+                      <p className="text-xs text-gray-500 mt-1">
+                        Enter a valid YouTube video URL
+                      </p>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="external">
+                    <div>
+                      <Input
+                        id="external_url"
+                        name="file_url"
+                        value={formData.file_url}
+                        onChange={handleFormChange}
+                        placeholder="https://example.com/audio-file.mp3"
+                        className="flex-1"
+                      />
+                      
+                      <p className="text-xs text-gray-500 mt-1">
+                        Enter a direct URL to an audio file
+                      </p>
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </div>
             </div>
             
@@ -473,7 +595,14 @@ const SoundscapeManager: React.FC = () => {
               <Button
                 type="submit"
                 className="bg-gradient-to-r from-purple-600 to-indigo-600"
-                disabled={fileUploading || (!formData.file_url && !uploadedFile) || !formData.title || !formData.journey_id}
+                disabled={
+                  fileUploading || 
+                  !formData.title || 
+                  !formData.journey_id || 
+                  (sourceType === 'file' && !formData.file_url && !uploadedFile) ||
+                  (sourceType === 'youtube' && (!formData.file_url || !validateYoutubeUrl(formData.file_url))) ||
+                  (sourceType === 'external' && !formData.file_url)
+                }
               >
                 {fileUploading ? 'Uploading...' : selectedSoundscape ? 'Update' : 'Create'}
               </Button>

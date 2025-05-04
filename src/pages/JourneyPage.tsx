@@ -77,6 +77,9 @@ const JourneyPage: React.FC = () => {
     );
   }
 
+  // Determine if soundscape is YouTube
+  const isYoutubeEmbedded = soundscape?.source_type === 'youtube';
+  
   return (
     <Layout pageTitle={journey?.title || 'Journey'}>
       <div className="container mx-auto px-4 py-8">
@@ -129,17 +132,17 @@ const JourneyPage: React.FC = () => {
                     className="mr-2"
                   />
                   <label htmlFor="audio-toggle" className="text-sm text-gray-600 flex items-center">
-                    <Music className="h-3 w-3 mr-1" /> Soundscape
+                    <Music className="h-3 w-3 mr-1" /> {isYoutubeEmbedded ? 'Video' : 'Soundscape'}
                   </label>
                 </div>
               )}
             </div>
             
             {soundscape && audioEnabled && (
-              <div className="mt-4 mb-6">
+              <div className={`mt-4 mb-6 ${isYoutubeEmbedded ? 'max-w-xl' : 'max-w-md'} mx-auto`}>
                 <JourneySoundscapePlayer 
                   soundscape={soundscape} 
-                  className="max-w-md mx-auto"
+                  className={isYoutubeEmbedded ? 'w-full' : 'max-w-md mx-auto'}
                 />
               </div>
             )}
