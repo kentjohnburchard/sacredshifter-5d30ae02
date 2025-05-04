@@ -14,6 +14,18 @@ export interface Journey {
   description?: string;
   created_at?: string;
   updated_at?: string;
+  // New fields
+  intent?: string;
+  sound_frequencies?: string;
+  script?: string;
+  duration?: string;
+  notes?: string;
+  env_lighting?: string;
+  env_temperature?: string;
+  env_incense?: string;
+  env_posture?: string;
+  env_tools?: string;
+  recommended_users?: string;
 }
 
 export const fetchJourneys = async (): Promise<Journey[]> => {
@@ -46,6 +58,8 @@ export const fetchJourneyBySlug = async (slug: string): Promise<Journey | null> 
 };
 
 export const updateJourney = async (journey: Partial<Journey> & { id: number }): Promise<Journey> => {
+  console.log("Updating journey with data:", journey);
+  
   const { data, error } = await supabase
     .from('journeys')
     .update({
@@ -65,6 +79,8 @@ export const updateJourney = async (journey: Partial<Journey> & { id: number }):
 };
 
 export const createJourney = async (journey: Omit<Journey, 'id' | 'created_at' | 'updated_at'>): Promise<Journey> => {
+  console.log("Creating new journey with data:", journey);
+  
   const { data, error } = await supabase
     .from('journeys')
     .insert({ ...journey })
@@ -76,5 +92,6 @@ export const createJourney = async (journey: Omit<Journey, 'id' | 'created_at' |
     throw error;
   }
 
+  console.log("Journey created successfully:", data);
   return data;
 };

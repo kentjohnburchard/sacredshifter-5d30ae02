@@ -20,12 +20,26 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
 
   // Set star count based on density
   const getStarCount = () => {
-    const base = Math.min(window.innerWidth, window.innerHeight) / 4;
+    // Prevent huge array sizes that could cause errors
+    const maxStars = 5000;
+    const minStars = 100;
+    
+    const width = window.innerWidth || 1000;
+    const height = window.innerHeight || 1000;
+    
+    // Use a base value proportional to the screen size, but capped
+    const screenArea = width * height;
+    const baseValue = Math.min(Math.sqrt(screenArea) / 4, 500); 
+    
+    let count;
     switch (density) {
-      case 'low': return base * 0.5;
-      case 'high': return base * 2;
-      default: return base;
+      case 'low': count = baseValue * 0.5; break;
+      case 'high': count = baseValue * 2; break;
+      default: count = baseValue; break;
     }
+    
+    // Ensure the count is within safe limits
+    return Math.min(Math.max(Math.floor(count), minStars), maxStars);
   };
 
   useEffect(() => {
@@ -46,13 +60,28 @@ const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({
     const initializeStars = () => {
       if (!isInitializedRef.current) {
         const count = getStarCount();
-        starsRef.current = Array(count).fill(0).map(() => ({
-          x: Math.random() * window.innerWidth,
-          y: Math.random() * window.innerHeight,
-          radius: Math.random() * 1.5 + 0.5,
-          opacity: Math.random() * 0.8 + 0.2
-        }));
-        isInitializedRef.current = true;
+        console.log(`Initializing ${count} stars for density: ${density}`);
+        
+        try {
+          starsRef.current = Array(count).fill(0).map(() => ({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            radius: Math.random() * 1.5 + 0.5,
+            opacity: Math.random() * 0.8 + 0.2
+          }));
+          isInitializedRef.current = true;
+        } catch (error) {
+          console.error("Error initializing stars:", error);
+          // Fallback to a safer number of stars
+          const safeCount = 200;
+          starsRef.current = Array(safeCount).fill(0).map(() => ({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            radius: Math.random() * 1.5 + 0.5,
+            opacity: Math.random() * 0.8 + 0.2
+          }));
+          isInitializedRef.current = true;
+        }
       }
     };
 

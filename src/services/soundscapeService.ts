@@ -20,11 +20,11 @@ export const fetchJourneySoundscape = async (
   const { data: journeySoundscape, error: soundscapeError } = await supabase
     .from('journey_soundscapes')
     .select('*')
-    .eq('journey_id', journeySlug)
+    .eq('journey_id', parseInt(journeySlug))
     .maybeSingle();
 
   if (journeySoundscape && !soundscapeError) {
-    return journeySoundscape;
+    return journeySoundscape as JourneySoundscape;
   }
 
   // If no direct mapping, try to find by frequency in journey data
@@ -87,5 +87,73 @@ export const fetchAllJourneySoundscapes = async (): Promise<JourneySoundscape[]>
     throw error;
   }
 
-  return data || [];
+  return data as JourneySoundscape[];
+};
+
+// Added function to create a soundscape
+export const createJourneySoundscape = async (soundscape: Omit<JourneySoundscape, 'id' | 'created_at' | 'updated_at'>): Promise<JourneySoundscape> => {
+  const { data, error } = await supabase
+    .from('journey_soundscapes')
+    .insert([soundscape])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating soundscape:', error);
+    throw error;
+  }
+
+  return data as JourneySoundscape;
+};
+
+// Added function to update a soundscape
+export const updateJourneySoundscape = async (soundscape: Partial<JourneySoundscape> & { id: string }): Promise<JourneySoundscape> => {
+  const { data, error } = await supabase
+    .from('journey_soundscapes')
+    .update(soundscape)
+    .eq('id', soundscape.id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating soundscape:', error);
+    throw error;
+  }
+
+  return data as JourneySoundscape;
+};
+
+// Added function to delete a soundscape
+export const deleteJourneySoundscape = async (id: string): Promise<void> => {
+  const { error } = await supabase
+    .from('journey_soundscapes')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting soundscape:', error);
+    throw error;
+  }
+};
+
+// Added function to validate YouTube URLs
+export const extractYoutubeVideoId = (url: string): string | null => {
+  if (!url) return null;
+  
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+
+  return (match && match[2].length === 11) ? match[2] : null;
+};
+
+// Added function to validate YouTube URLs
+export const validateYoutubeUrl = (url: string): boolean => {
+  return !!extractYoutubeVideoId(url);
+};
+
+// Mock function for file upload (would typically connect to storage)
+export const uploadSoundscapeFile = async (file: File): Promise<string> => {
+  // In a real implementation, this would upload to Supabase storage
+  console.log('File would be uploaded:', file.name);
+  return `/audio/${file.name}`;
 };

@@ -75,7 +75,6 @@ const Layout: React.FC<LayoutProps> = ({
           size="xl"
           showControls={false}
           isAudioReactive={false}
-          isStatic={true}
         />
       </div>
       

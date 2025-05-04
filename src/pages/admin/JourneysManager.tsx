@@ -11,8 +11,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { PlusCircle, Loader2, Save, X } from 'lucide-react';
+import { PlusCircle, Loader2, Save, X, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const JourneysManager: React.FC = () => {
   const [journeys, setJourneys] = useState<Journey[]>([]);
@@ -20,6 +21,7 @@ const JourneysManager: React.FC = () => {
   const [editingJourney, setEditingJourney] = useState<Journey | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState('basic');
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -56,14 +58,25 @@ const JourneysManager: React.FC = () => {
 
   const handleCreateNew = () => {
     setEditingJourney({
-      id: 0,
+      id: 0, // Use 0 to indicate a new journey
       filename: '',
       title: '',
       tags: '',
       veil_locked: false,
       visual_effects: '',
       strobe_patterns: '',
-      assigned_songs: ''
+      assigned_songs: '',
+      intent: '',
+      sound_frequencies: '',
+      script: '',
+      duration: '',
+      notes: '',
+      env_lighting: '',
+      env_temperature: '',
+      env_incense: '',
+      env_posture: '',
+      env_tools: '',
+      recommended_users: ''
     });
     setIsDialogOpen(true);
   };
@@ -91,7 +104,7 @@ const JourneysManager: React.FC = () => {
     if (!editingJourney) return;
     
     // Validate inputs
-    if (!editingJourney.filename.trim() || !editingJourney.title.trim()) {
+    if (!editingJourney.filename?.trim() || !editingJourney.title?.trim()) {
       toast.error('Filename and title are required');
       return;
     }
@@ -103,6 +116,7 @@ const JourneysManager: React.FC = () => {
       
       if (editingJourney.id === 0) {
         // Create new journey
+        console.log("Creating new journey:", editingJourney);
         const { id, ...newJourney } = editingJourney;
         updatedJourney = await createJourney(newJourney);
         toast.success('Journey created successfully');
@@ -111,6 +125,7 @@ const JourneysManager: React.FC = () => {
         setJourneys(prev => [...prev, updatedJourney]);
       } else {
         // Update existing journey
+        console.log("Updating journey:", editingJourney);
         updatedJourney = await updateJourney(editingJourney);
         toast.success('Journey updated successfully');
         
@@ -146,7 +161,7 @@ const JourneysManager: React.FC = () => {
             <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="bg-white/80 dark:bg-black/60 backdrop-blur-sm rounded-lg shadow overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -185,7 +200,7 @@ const JourneysManager: React.FC = () => {
         )}
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="sm:max-w-[600px]">
+          <DialogContent className="sm:max-w-[80%] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingJourney?.id === 0 ? 'Create New Journey' : 'Edit Journey'}
@@ -193,94 +208,247 @@ const JourneysManager: React.FC = () => {
             </DialogHeader>
             
             {editingJourney && (
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="title" className="text-right">Title</Label>
-                  <Input
-                    id="title"
-                    name="title"
-                    value={editingJourney.title}
-                    onChange={handleInputChange}
-                    className="col-span-3"
-                  />
-                </div>
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="grid grid-cols-3 mb-4">
+                  <TabsTrigger value="basic">Basic Info</TabsTrigger>
+                  <TabsTrigger value="content">Content</TabsTrigger>
+                  <TabsTrigger value="environment">Environment</TabsTrigger>
+                </TabsList>
                 
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="filename" className="text-right">Filename</Label>
-                  <Input
-                    id="filename"
-                    name="filename"
-                    value={editingJourney.filename}
-                    onChange={handleInputChange}
-                    className="col-span-3"
-                    placeholder="journey_filename_slug"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="tags" className="text-right">Tags</Label>
-                  <Input
-                    id="tags"
-                    name="tags"
-                    value={editingJourney.tags || ''}
-                    onChange={handleInputChange}
-                    className="col-span-3"
-                    placeholder="tag1, tag2, tag3"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="veil_locked" className="text-right">Veil Locked</Label>
-                  <div className="flex items-center col-span-3">
-                    <Switch 
-                      id="veil_locked"
-                      checked={editingJourney.veil_locked}
-                      onCheckedChange={handleSwitchChange}
+                <TabsContent value="basic" className="space-y-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="title" className="text-right">Title</Label>
+                    <Input
+                      id="title"
+                      name="title"
+                      value={editingJourney.title || ''}
+                      onChange={handleInputChange}
+                      className="col-span-3"
                     />
-                    <span className="ml-2 text-sm text-gray-500">
-                      {editingJourney.veil_locked ? 'Requires authentication' : 'Publicly accessible'}
-                    </span>
                   </div>
-                </div>
+                  
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="filename" className="text-right">Filename</Label>
+                    <Input
+                      id="filename"
+                      name="filename"
+                      value={editingJourney.filename || ''}
+                      onChange={handleInputChange}
+                      className="col-span-3"
+                      placeholder="journey_filename_slug"
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="tags" className="text-right">Tags</Label>
+                    <Input
+                      id="tags"
+                      name="tags"
+                      value={editingJourney.tags || ''}
+                      onChange={handleInputChange}
+                      className="col-span-3"
+                      placeholder="tag1, tag2, tag3"
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="veil_locked" className="text-right">Veil Locked</Label>
+                    <div className="flex items-center col-span-3">
+                      <Switch 
+                        id="veil_locked"
+                        checked={editingJourney.veil_locked || false}
+                        onCheckedChange={handleSwitchChange}
+                      />
+                      <span className="ml-2 text-sm text-gray-500">
+                        {editingJourney.veil_locked ? 'Requires authentication' : 'Publicly accessible'}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="assigned_songs" className="text-right">Audio URL</Label>
+                    <Input
+                      id="assigned_songs"
+                      name="assigned_songs"
+                      value={editingJourney.assigned_songs || ''}
+                      onChange={handleInputChange}
+                      className="col-span-3"
+                      placeholder="https://example.com/audio.mp3"
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="duration" className="text-right">Duration</Label>
+                    <Input
+                      id="duration"
+                      name="duration"
+                      value={editingJourney.duration || ''}
+                      onChange={handleInputChange}
+                      className="col-span-3"
+                      placeholder="e.g. 20 minutes"
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="recommended_users" className="text-right">Recommended Users</Label>
+                    <Input
+                      id="recommended_users"
+                      name="recommended_users"
+                      value={editingJourney.recommended_users || ''}
+                      onChange={handleInputChange}
+                      className="col-span-3"
+                      placeholder="e.g. Beginners, Advanced practitioners"
+                    />
+                  </div>
+                </TabsContent>
                 
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="assigned_songs" className="text-right">Audio URL</Label>
-                  <Input
-                    id="assigned_songs"
-                    name="assigned_songs"
-                    value={editingJourney.assigned_songs || ''}
-                    onChange={handleInputChange}
-                    className="col-span-3"
-                    placeholder="https://example.com/audio.mp3"
-                  />
-                </div>
+                <TabsContent value="content" className="space-y-4">
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="intent" className="text-right pt-2">Intent</Label>
+                    <Textarea
+                      id="intent"
+                      name="intent"
+                      value={editingJourney.intent || ''}
+                      onChange={handleInputChange}
+                      className="col-span-3"
+                      placeholder="Purpose and intention of this journey"
+                      rows={3}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="sound_frequencies" className="text-right pt-2">Recommended Sound Frequencies</Label>
+                    <Textarea
+                      id="sound_frequencies"
+                      name="sound_frequencies"
+                      value={editingJourney.sound_frequencies || ''}
+                      onChange={handleInputChange}
+                      className="col-span-3"
+                      placeholder="e.g. 528Hz (Love), 432Hz (Natural)"
+                      rows={2}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="script" className="text-right pt-2">Script</Label>
+                    <Textarea
+                      id="script"
+                      name="script"
+                      value={editingJourney.script || ''}
+                      onChange={handleInputChange}
+                      className="col-span-3"
+                      placeholder="The guided journey script"
+                      rows={6}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="notes" className="text-right pt-2">Notes</Label>
+                    <Textarea
+                      id="notes"
+                      name="notes"
+                      value={editingJourney.notes || ''}
+                      onChange={handleInputChange}
+                      className="col-span-3"
+                      placeholder="Additional notes or guidance"
+                      rows={3}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="visual_effects" className="text-right pt-2">Visual Effects</Label>
+                    <Textarea
+                      id="visual_effects"
+                      name="visual_effects"
+                      value={editingJourney.visual_effects || ''}
+                      onChange={handleInputChange}
+                      className="col-span-3"
+                      placeholder='{"type": "waves", "color": "#8A2BE2"}'
+                      rows={3}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="strobe_patterns" className="text-right pt-2">Strobe Patterns</Label>
+                    <Textarea
+                      id="strobe_patterns"
+                      name="strobe_patterns"
+                      value={editingJourney.strobe_patterns || ''}
+                      onChange={handleInputChange}
+                      className="col-span-3"
+                      placeholder='{"frequency": 2, "colors": ["#ff0000", "#0000ff"]}'
+                      rows={3}
+                    />
+                  </div>
+                </TabsContent>
                 
-                <div className="grid grid-cols-4 items-start gap-4">
-                  <Label htmlFor="visual_effects" className="text-right pt-2">Visual Effects</Label>
-                  <Textarea
-                    id="visual_effects"
-                    name="visual_effects"
-                    value={editingJourney.visual_effects || ''}
-                    onChange={handleInputChange}
-                    className="col-span-3"
-                    placeholder='{"type": "waves", "color": "#8A2BE2"}'
-                    rows={3}
-                  />
-                </div>
-                
-                <div className="grid grid-cols-4 items-start gap-4">
-                  <Label htmlFor="strobe_patterns" className="text-right pt-2">Strobe Patterns</Label>
-                  <Textarea
-                    id="strobe_patterns"
-                    name="strobe_patterns"
-                    value={editingJourney.strobe_patterns || ''}
-                    onChange={handleInputChange}
-                    className="col-span-3"
-                    placeholder='{"frequency": 2, "colors": ["#ff0000", "#0000ff"]}'
-                    rows={3}
-                  />
-                </div>
-              </div>
+                <TabsContent value="environment" className="space-y-4">
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="env_lighting" className="text-right pt-2">Lighting</Label>
+                    <Textarea
+                      id="env_lighting"
+                      name="env_lighting"
+                      value={editingJourney.env_lighting || ''}
+                      onChange={handleInputChange}
+                      className="col-span-3"
+                      placeholder="Recommended lighting conditions"
+                      rows={2}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="env_temperature" className="text-right pt-2">Temperature</Label>
+                    <Textarea
+                      id="env_temperature"
+                      name="env_temperature"
+                      value={editingJourney.env_temperature || ''}
+                      onChange={handleInputChange}
+                      className="col-span-3"
+                      placeholder="Recommended temperature setting"
+                      rows={2}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="env_incense" className="text-right pt-2">Incense</Label>
+                    <Textarea
+                      id="env_incense"
+                      name="env_incense"
+                      value={editingJourney.env_incense || ''}
+                      onChange={handleInputChange}
+                      className="col-span-3"
+                      placeholder="Recommended incense or aromatics"
+                      rows={2}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="env_posture" className="text-right pt-2">Posture</Label>
+                    <Textarea
+                      id="env_posture"
+                      name="env_posture"
+                      value={editingJourney.env_posture || ''}
+                      onChange={handleInputChange}
+                      className="col-span-3"
+                      placeholder="Recommended physical posture"
+                      rows={2}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="env_tools" className="text-right pt-2">Optional Tools</Label>
+                    <Textarea
+                      id="env_tools"
+                      name="env_tools"
+                      value={editingJourney.env_tools || ''}
+                      onChange={handleInputChange}
+                      className="col-span-3"
+                      placeholder="Optional items that enhance the journey"
+                      rows={2}
+                    />
+                  </div>
+                </TabsContent>
+              </Tabs>
             )}
             
             <DialogFooter>
