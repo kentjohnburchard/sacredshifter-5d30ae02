@@ -23,14 +23,24 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     }
     
     // Set a timeout to prevent infinite loading state
+    // This ensures users don't get stuck in authentication verification
     const authCheckTimeout = setTimeout(() => {
+      if (isCheckingAuth) {
+        console.log("Auth check timed out after 2 seconds - forcing to proceed with available state");
+        setIsCheckingAuth(false);
+      }
+    }, 2000); // Reduced from 3 to 2 seconds for better UX
+    
+    // If auth has completed loading, we can immediately update our local state
+    if (!loading) {
       setIsCheckingAuth(false);
-    }, 3000); // 3 seconds max wait time
+    }
     
     return () => clearTimeout(authCheckTimeout);
-  }, [user, loading, location.pathname]);
+  }, [user, loading, location.pathname, isCheckingAuth]);
   
   // Only show loading indicator for a reasonable amount of time
+  // AND only if auth context is still loading
   if (loading && isCheckingAuth) {
     return (
       <div className="flex items-center justify-center min-h-screen">

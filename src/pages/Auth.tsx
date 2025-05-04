@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -40,14 +39,32 @@ const Auth = () => {
   // If user is already logged in, redirect to dashboard
   useEffect(() => {
     console.log("Auth page: User authenticated?", !!user, "Auth loading?", authLoading);
+    
+    // Only redirect if auth is not loading and we have a user
     if (user && !authLoading) {
       // Get redirect path or default to dashboard
       const redirectPath = sessionStorage.getItem("redirectAfterLogin") || "/dashboard";
       console.log(`Auth page: User authenticated, redirecting to ${redirectPath}`);
       sessionStorage.removeItem("redirectAfterLogin"); // Clear the stored path
-      navigate(redirectPath, { replace: true });
+      
+      // Use a small timeout to prevent potential race conditions
+      setTimeout(() => {
+        navigate(redirectPath, { replace: true });
+      }, 100);
     }
   }, [user, authLoading, navigate]);
+
+  // If authentication is taking too long, reset the submission state
+  useEffect(() => {
+    if (isSubmitting) {
+      const resetTimer = setTimeout(() => {
+        console.log("Auth request taking too long, resetting submission state");
+        setIsSubmitting(false);
+      }, 8000); // Reset after 8 seconds max
+      
+      return () => clearTimeout(resetTimer);
+    }
+  }, [isSubmitting]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,6 +81,11 @@ const Auth = () => {
         setIsSubmitting(false);
       }
       // Don't set isSubmitting to false on success - we'll be redirected
+      // But we do set a backup timeout in case redirection doesn't happen
+      else {
+        // Safety timeout to reset button if redirect doesn't happen
+        setTimeout(() => setIsSubmitting(false), 5000);
+      }
     } catch (error: any) {
       console.error("Login exception:", error);
       toast.error(error.message || "Failed to sign in");
@@ -117,7 +139,10 @@ const Auth = () => {
         toast.error(`Test login failed: ${error.message}`);
         setIsSubmitting(false);
       }
-      // Don't set isSubmitting to false on success - we'll be redirected
+      // Safety timeout to reset button if redirect doesn't happen
+      else {
+        setTimeout(() => setIsSubmitting(false), 5000);
+      }
     } catch (error: any) {
       console.error("Test login exception:", error);
       toast.error(error.message || "Failed to sign in with test account");
@@ -126,7 +151,7 @@ const Auth = () => {
   };
 
   // Show loading state when authentication is in progress
-  if ((authLoading && user) || (isSubmitting && !authLoading)) {
+  if (authLoading && user) {
     return (
       <div className="flex min-h-screen items-center justify-center p-4 bg-gradient-to-br from-purple-50 to-indigo-50">
         <div className="text-center">

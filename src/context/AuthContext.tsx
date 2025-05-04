@@ -31,60 +31,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     console.log("AuthProvider: Initializing auth state");
-    let authSubscription: { data: { subscription: { unsubscribe: () => void } } };
+    
+    // Set a maximum time for initial auth loading state
+    const maxLoadingTimer = setTimeout(() => {
+      setLoading(false);
+      console.log("Auth loading timed out after 4 seconds - forcing loading state to false");
+    }, 4000);
 
-    // Initialize auth
-    const initializeAuth = async () => {
-      try {
-        console.log("Fetching current session...");
-        
-        // First, get the current session
-        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          console.error('Error fetching session:', sessionError.message);
-        } else {
-          console.log("Initial session check:", sessionData?.session ? "Found session" : "No active session");
-          setSession(sessionData?.session);
-          setUser(sessionData?.session?.user ?? null);
-        }
-        
-        // Then set up the auth state listener after initial session check
-        authSubscription = supabase.auth.onAuthStateChange((event, newSession) => {
-          console.log(`Auth state changed: ${event}`, newSession?.user?.email);
-          
-          if (event === 'SIGNED_OUT') {
-            setUser(null);
-            setSession(null);
-          } else if (newSession) {
-            setUser(newSession.user);
-            setSession(newSession);
-          }
-          
-          // Update loading state for relevant auth events
-          if (['SIGNED_IN', 'SIGNED_OUT', 'TOKEN_REFRESHED', 'USER_UPDATED'].includes(event)) {
-            setLoading(false);
-          }
-        });
-        
-        // Set loading to false after a max time to prevent hanging UI
-        setTimeout(() => {
-          setLoading(false);
-        }, 5000);
-      } catch (err) {
-        console.error("Failed to initialize auth:", err);
-        setLoading(false);
+    // First set up the auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+      console.log(`Auth state changed: ${event}`, newSession?.user?.email);
+      
+      if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setSession(null);
+      } else if (newSession) {
+        setUser(newSession.user);
+        setSession(newSession);
       }
-    };
-
-    initializeAuth();
+      
+      // Update loading state for relevant auth events
+      if (['SIGNED_IN', 'SIGNED_OUT', 'TOKEN_REFRESHED', 'USER_UPDATED'].includes(event)) {
+        setLoading(false);
+        clearTimeout(maxLoadingTimer); // Clear the timeout if we got a definitive state
+      }
+    });
+    
+    // Then check for existing session
+    supabase.auth.getSession().then(({ data, error }) => {
+      if (error) {
+        console.error('Error fetching session:', error.message);
+        setLoading(false);
+        return;
+      }
+      
+      console.log("Initial session check:", data?.session ? "Found session" : "No active session");
+      setSession(data?.session);
+      setUser(data?.session?.user ?? null);
+      
+      // Only set loading to false after we've checked for an existing session
+      // and if no definitive auth events have occurred
+      setTimeout(() => {
+        setLoading(false);
+      }, 500); // Small delay to prevent UI flashing if auth event fires right after
+    });
 
     // Cleanup function
     return () => {
       console.log("AuthProvider: Cleaning up subscription");
-      if (authSubscription) {
-        authSubscription.data.subscription.unsubscribe();
-      }
+      clearTimeout(maxLoadingTimer);
+      subscription.unsubscribe();
     };
   }, []);
 
@@ -108,7 +104,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log("Sign in successful:", data?.user?.email);
       toast.success("Successfully signed in!");
       
-      // Auth state listener will update the state
+      // Auth state listener will update the state and loading
+      // But we'll also set a backup timeout in case the listener doesn't fire
+      const backupTimer = setTimeout(() => setLoading(false), 3000);
+      
       return { error: null };
     } catch (error: any) {
       console.error("Unexpected error during sign in:", error);
