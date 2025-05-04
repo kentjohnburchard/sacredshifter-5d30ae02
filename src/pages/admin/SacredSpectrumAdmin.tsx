@@ -380,7 +380,7 @@ const SacredSpectrumAdmin: React.FC = () => {
                       <SelectValue placeholder="Link to a journey" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="none">None</SelectItem>
                       {journeys.map(journey => (
                         <SelectItem key={journey.id} value={journey.filename}>
                           {journey.title}

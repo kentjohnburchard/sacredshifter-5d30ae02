@@ -291,7 +291,7 @@ const SacredSpectrum: React.FC = () => {
                 <SelectValue placeholder="Filter by category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
+                <SelectItem value="all">All Categories</SelectItem>
                 {resourceCategories.map(category => (
                   <SelectItem key={category} value={category}>{category}</SelectItem>
                 ))}
