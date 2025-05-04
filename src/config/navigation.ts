@@ -28,7 +28,7 @@ export const activePages = {
   focus: true,
   hermeticWisdom: true,
   journeyTemplates: true,
-  journeyScroll: true,
+  journeys: true,
   astrology: true,
   siteMap: true,
 };
@@ -45,7 +45,7 @@ export const navItems = [
     label: "Dashboard",
   },
   {
-    path: "/",
+    path: "/home",
     key: "home" as PageKey,
     icon: "HomeIcon",
     label: "Home",
@@ -57,7 +57,7 @@ export const navItems = [
     label: "Sacred Blueprint™",
   },
   {
-    path: "/frequencies",
+    path: "/frequency-library",
     key: "frequencyLibrary" as PageKey,
     icon: "Music",
     label: "Frequency Library",
@@ -81,7 +81,7 @@ export const navItems = [
     label: "Timeline",
   },
   {
-    path: "/music-generation",
+    path: "/music-generator",
     key: "musicGenerator" as PageKey,
     icon: "Music4",
     label: "Music Generator",
@@ -195,10 +195,10 @@ export const navItems = [
     label: "Journey Templates",
   },
   {
-    path: "/journey-scroll",
-    key: "journeyScroll" as PageKey,
-    icon: "ScrollText",
-    label: "Sacred Journeys",
+    path: "/journeys",
+    key: "journeys" as PageKey,
+    icon: "Map",
+    label: "Journeys",
   },
   {
     path: "/astrology",

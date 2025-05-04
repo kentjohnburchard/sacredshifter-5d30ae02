@@ -4,32 +4,28 @@ import { Button } from '@/components/ui/button';
 import { AlignVerticalJustifyCenter, CircleDot } from 'lucide-react';
 
 interface ToggleViewProps {
-  view: 'timeline' | 'grid';
-  onViewChange: (view: 'timeline' | 'grid') => void;
+  viewMode: 'vertical' | 'spiral';
+  onViewChange: (mode: 'vertical' | 'spiral') => void;
 }
 
-const ToggleView: React.FC<ToggleViewProps> = ({ view, onViewChange }) => {
+const ToggleView: React.FC<ToggleViewProps> = ({ viewMode, onViewChange }) => {
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex space-x-2">
       <Button
-        variant={view === 'timeline' ? 'secondary' : 'outline'}
         size="sm"
-        className="h-8 px-2"
-        onClick={() => onViewChange('timeline')}
-        aria-label="Timeline view"
+        variant={viewMode === 'vertical' ? 'default' : 'outline'}
+        onClick={() => onViewChange('vertical')}
       >
         <AlignVerticalJustifyCenter className="h-4 w-4 mr-1" />
-        Timeline
+        Linear
       </Button>
       <Button
-        variant={view === 'grid' ? 'secondary' : 'outline'}
         size="sm"
-        className="h-8 px-2"
-        onClick={() => onViewChange('grid')}
-        aria-label="Grid view"
+        variant={viewMode === 'spiral' ? 'default' : 'outline'}
+        onClick={() => onViewChange('spiral')}
       >
         <CircleDot className="h-4 w-4 mr-1" />
-        Grid
+        Spiral
       </Button>
     </div>
   );

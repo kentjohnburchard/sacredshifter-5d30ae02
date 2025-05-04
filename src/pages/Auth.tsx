@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -38,38 +37,12 @@ const Auth = () => {
     }
   }, [searchParams]);
 
-  // Ensure user profile exists after login
-  const ensureUserProfile = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-
-      console.log("Ensuring user profile exists...");
-      const { error } = await supabase.functions.invoke('ensure-profile', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`
-        }
-      });
-
-      if (error) {
-        console.error("Error ensuring profile:", error);
-      } else {
-        console.log("Profile check completed");
-      }
-    } catch (error) {
-      console.error("Error calling ensure-profile function:", error);
-    }
-  };
-
   // If user is already logged in, redirect to dashboard
   useEffect(() => {
     console.log("Auth page: User authenticated?", !!user, "Auth loading?", authLoading);
     if (user && !authLoading) {
-      // Ensure user profile exists
-      ensureUserProfile();
-      
       // Get redirect path or default to dashboard
-      const redirectPath = sessionStorage.getItem("redirectAfterLogin") || "/";
+      const redirectPath = sessionStorage.getItem("redirectAfterLogin") || "/dashboard";
       console.log(`Auth page: User authenticated, redirecting to ${redirectPath}`);
       sessionStorage.removeItem("redirectAfterLogin"); // Clear the stored path
       navigate(redirectPath, { replace: true });

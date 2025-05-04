@@ -6,7 +6,7 @@ import { ArrowLeft, Check, ChevronDown, ChevronRight, LucideIcon } from "lucide-
 import * as Icons from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 // Use react-router-dom's hooks and Link
-import { useLocation, Link, NavLink } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 
 interface SidebarNavItemsProps {
   isCollapsed?: boolean;
@@ -57,8 +57,7 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
   return (
     <div className="space-y-1 py-2">
       {activeNavLinks.map((item) => {
-        // Fix the path comparison to handle exact matches and also match when on a subpage
-        const isActive = locationPath === item.path || locationPath.startsWith(`${item.path}/`);
+        const isActive = locationPath === item.path;
         return (
           <NavLinkItem
             key={item.path}
@@ -85,7 +84,6 @@ const NavLinkItem: React.FC<NavLinkItemProps> = ({
   isCollapsed,
   isActive,
   onClick,
-  liftTheVeil
 }) => {
   const IconComponent = useMemo(() => {
     if (!icon || typeof icon !== 'string') return Icons.Layers;
@@ -100,16 +98,10 @@ const NavLinkItem: React.FC<NavLinkItemProps> = ({
   );
 
   return (
-    <NavLink
+    <Link
       to={path}
-      className={({ isActive }) => 
-        cn(
-          linkClasses,
-          isActive ? "bg-white/10 font-bold" : ""
-        )
-      }
+      className={linkClasses}
       onClick={onClick}
-      end
     >
       <div className="relative flex min-h-[32px] w-full items-center gap-2">
         <IconComponent
@@ -130,7 +122,7 @@ const NavLinkItem: React.FC<NavLinkItemProps> = ({
           />
         )}
       </div>
-    </NavLink>
+    </Link>
   );
 };
 

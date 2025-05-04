@@ -1,18 +1,18 @@
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
-  CheckCircle, Music, Clock, Heart, Calendar, ArrowRight, Lightbulb, Activity, ScrollText  
+  CheckCircle, Music, Clock, Heart, Calendar, ArrowRight, Lightbulb, Activity 
 } from "lucide-react";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LoveDashboard from "@/components/heart-center/LoveDashboard";
 import SacredIdentityCard from "@/components/dashboard/SacredIdentityCard";
 import SoulProgressCard from "@/components/dashboard/SoulProgressCard";
-import JourneyScrollDashboard from "@/components/journey-scroll/JourneyScrollDashboard";
 
 interface Intention {
   id: string;
@@ -163,7 +163,6 @@ const UserDashboard: React.FC = () => {
         <TabsList className="mb-4">
           <TabsTrigger value="main">Main Dashboard</TabsTrigger>
           <TabsTrigger value="heart">Heart Dashboard</TabsTrigger>
-          <TabsTrigger value="journeys">Sacred Journeys</TabsTrigger>
         </TabsList>
         
         <TabsContent value="main" className="mt-0 space-y-8">
@@ -255,25 +254,8 @@ const UserDashboard: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Quick access cards - with added Journey Scroll link */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Link to="/journey-scroll">
-              <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
-                <CardContent className="p-6">
-                  <div className="flex items-center mb-4">
-                    <ScrollText className="text-purple-600 mr-2" size={20} />
-                    <h3 className="text-lg font-medium">Sacred Journeys</h3>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Explore transformative journeys and sacred wisdom paths.
-                  </p>
-                  <Button variant="ghost" size="sm" className="text-purple-600">
-                    Browse Journeys <ArrowRight className="ml-1 h-4 w-4" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
-            
+          {/* Quick access cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Link to="/energy-check">
               <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
                 <CardContent className="p-6">
@@ -349,15 +331,6 @@ const UserDashboard: React.FC = () => {
               Heart Center Dashboard
             </h2>
             <LoveDashboard />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="journeys" className="mt-0">
-          <div className="bg-black/40 backdrop-blur-md rounded-xl shadow-md p-6 border border-purple-900/30">
-            <h2 className="text-2xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-500">
-              Sacred Journey Library
-            </h2>
-            <JourneyScrollDashboard />
           </div>
         </TabsContent>
       </Tabs>
