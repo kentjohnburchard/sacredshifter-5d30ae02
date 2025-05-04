@@ -9,16 +9,23 @@ export interface SpiralParams {
   freqA: number;
   freqB: number;
   freqC: number;
+  color?: string;
+  opacity?: number;
+  strokeWeight?: number;
+  maxCycles?: number;
+  speed?: number;
 }
 
 interface SpiralVisualizerProps {
   params: SpiralParams;
   containerId?: string;
+  className?: string;
 }
 
 const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({ 
   params, 
-  containerId = "spiralContainer" 
+  containerId = "spiralContainer",
+  className = ""
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const p5InstanceRef = useRef<p5 | null>(null);
@@ -38,13 +45,18 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
       const freqA = params.freqA;
       const freqB = params.freqB;
       const freqC = params.freqC;
+      const color = params.color || '255,255,0';
+      const opacity = params.opacity || 100;
+      const strokeW = params.strokeWeight || 0.5;
+      const maxCycles = params.maxCycles || 5;
+      const speed = params.speed || 0.001;
       let t = 0;
 
       p.setup = () => {
         const canvas = p.createCanvas(window.innerWidth, window.innerHeight);
         p.background(0);
-        p.stroke(255, 255, 0, 100); // Yellow with 100 opacity
-        p.strokeWeight(0.5);
+        p.stroke(p.color(`rgba(${color},${opacity/100})`));
+        p.strokeWeight(strokeW);
         p.noFill();
       };
 
@@ -57,10 +69,10 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
           const re = coeffA * p.cos(freqA * t) + coeffB * p.cos(freqB * t) + coeffC * p.cos(freqC * t);
           const im = coeffA * p.sin(freqA * t) + coeffB * p.sin(freqB * t) + coeffC * p.sin(freqC * t);
           p.point(re, im);
-          t += 0.001; // Smaller step for smoother lines
+          t += speed; // Smaller step for smoother lines
           
-          // Stop after 5 complete cycles
-          if (t > p.TWO_PI * 5) {
+          // Stop after specified number of complete cycles
+          if (t > p.TWO_PI * maxCycles) {
             p.noLoop();
             break;
           }
@@ -88,7 +100,7 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
     <div 
       id={containerId}
       ref={containerRef} 
-      className="fixed inset-0 w-full h-full z-[-2] bg-black"
+      className={`fixed inset-0 w-full h-full z-[-2] bg-black ${className}`}
       aria-hidden="true"
     />
   );

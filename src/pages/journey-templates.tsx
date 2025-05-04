@@ -26,8 +26,14 @@ const JourneyTemplatesPage = () => {
             <Link to="/dashboard">
               <Button variant="outline">Back to Dashboard</Button>
             </Link>
+            <Link to="/admin/journey-content">
+              <Button variant="secondary">Manage Journey Content</Button>
+            </Link>
+            <Link to="/admin/journey-spirals">
+              <Button variant="secondary">Manage Journey Spirals</Button>
+            </Link>
             <Link to="/sitemap">
-              <Button variant="secondary">Site Map (Access All Pages)</Button>
+              <Button variant="ghost">Site Map</Button>
             </Link>
           </div>
         </div>

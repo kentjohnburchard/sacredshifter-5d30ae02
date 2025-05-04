@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { PageLayout } from '@/components/layout/PageLayout';
@@ -141,6 +142,9 @@ const SiteMap: React.FC = () => {
             </Link>
             <Link to="/admin/journey-spirals">
               <Button className="w-full justify-start">Journey Spirals Admin</Button>
+            </Link>
+            <Link to="/admin/journey-content">
+              <Button className="w-full justify-start">Journey Content Admin</Button>
             </Link>
           </div>
         </div>

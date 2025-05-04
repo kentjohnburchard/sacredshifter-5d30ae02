@@ -20,6 +20,7 @@ import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import SpiralVisualizer from '@/components/visualizer/SpiralVisualizer';
 import useSpiralParams from '@/hooks/useSpiralParams';
+import ReactMarkdown from 'react-markdown';
 
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
@@ -269,6 +270,12 @@ const JourneyPlayer = () => {
                     <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
                       {journey.description}
                     </p>
+                  </div>
+                )}
+                
+                {journey?.content && (
+                  <div className="mb-6 prose prose-sm prose-purple dark:prose-invert max-w-none">
+                    <ReactMarkdown>{journey.content}</ReactMarkdown>
                   </div>
                 )}
                 

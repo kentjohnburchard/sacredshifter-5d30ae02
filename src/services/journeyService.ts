@@ -6,10 +6,12 @@ export interface Journey {
   filename: string;
   title: string;
   tags?: string;
+  content?: string;
   veil_locked: boolean;
   visual_effects?: string;
   strobe_patterns?: string;
   assigned_songs?: string;
+  description?: string;
   created_at?: string;
   updated_at?: string;
 }

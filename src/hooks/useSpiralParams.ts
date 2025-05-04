@@ -47,6 +47,18 @@ const journeyParamsMap: Record<string, SpiralParams> = {
     freqC: -40
   },
   
+  // Akashic Reconnection
+  'akashic-reconnection': {
+    coeffA: 6,
+    coeffB: 3,
+    coeffC: 1.5,
+    freqA: 50,
+    freqB: -30,
+    freqC: -45,
+    color: '180,220,255',
+    opacity: 90
+  },
+  
   // Add more journeys as needed
 };
 
@@ -66,6 +78,10 @@ export function useSpiralParams(journeyId?: string): SpiralParams {
 
 export function addJourneyParams(journeyId: string, params: SpiralParams): void {
   journeyParamsMap[journeyId] = params;
+}
+
+export function getAllJourneyParams(): Record<string, SpiralParams> {
+  return { ...journeyParamsMap };
 }
 
 export default useSpiralParams;

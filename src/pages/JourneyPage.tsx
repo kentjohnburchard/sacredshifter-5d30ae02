@@ -13,6 +13,7 @@ import NotFound from './NotFound';
 import JourneySoundscapePlayer from '@/components/journey/JourneySoundscapePlayer';
 import SpiralVisualizer from '@/components/visualizer/SpiralVisualizer';
 import useSpiralParams from '@/hooks/useSpiralParams';
+import ReactMarkdown from 'react-markdown';
 
 const JourneyPage: React.FC = () => {
   const { journeySlug } = useParams<{ journeySlug: string }>();
@@ -169,11 +170,14 @@ const JourneyPage: React.FC = () => {
             )}
           </header>
 
-          <div className="prose prose-purple max-w-none">
-            {/* Journey content would be loaded here */}
-            <p className="text-center text-gray-500 py-8">
-              Journey content for {journey?.filename} would be displayed here.
-            </p>
+          <div className="prose prose-purple max-w-none dark:prose-invert bg-white/50 dark:bg-black/50 p-6 rounded-lg backdrop-blur-sm">
+            {journey?.content ? (
+              <ReactMarkdown>{journey.content}</ReactMarkdown>
+            ) : (
+              <p className="text-center text-gray-500 py-8">
+                Journey content for {journey?.filename} would be displayed here.
+              </p>
+            )}
           </div>
         </div>
       </div>
