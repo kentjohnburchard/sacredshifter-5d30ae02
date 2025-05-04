@@ -1,4 +1,3 @@
-
 // Navigation config to manage which pages are active and should be displayed in navigation
 export const activePages = {
   home: true,
@@ -31,6 +30,7 @@ export const activePages = {
   journeys: true,
   astrology: true,
   siteMap: true,
+  sacredSpectrum: true, // Add Sacred Spectrum to active pages
 };
 
 // Type definition for page configuration
@@ -217,6 +217,12 @@ export const navItems = [
     key: "siteMap" as PageKey,
     icon: "Map",
     label: "Site Map",
+  },
+  {
+    path: "/sacred-spectrum",
+    key: "sacredSpectrum" as PageKey,
+    icon: "BookOpen",
+    label: "Sacred Spectrum",
   },
 ];
 

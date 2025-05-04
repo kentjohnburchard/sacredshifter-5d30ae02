@@ -42,7 +42,7 @@ const HomePage: React.FC = () => {
         </div>
       </section>
       
-      {/* Add Sacred Resources Section */}
+      {/* Sacred Resources Section - Enhanced visibility */}
       <SacredResourcesSection />
       
       <HermeticSection />
