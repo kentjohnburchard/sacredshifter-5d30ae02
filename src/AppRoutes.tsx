@@ -1,4 +1,3 @@
-
 import React, { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -21,6 +20,7 @@ const HermeticWisdom = lazy(() => import('./pages/HermeticWisdom'));
 const JourneyEditor = lazy(() => import('./pages/JourneyEditor'));
 const JourneyAudioMapper = lazy(() => import('./pages/JourneyAudioMapper'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
+const JourneyScroll = lazy(() => import('./pages/JourneyScroll'));
 
 const AppRoutes: React.FC = () => {
   const { user, loading } = useAuth();
@@ -50,6 +50,13 @@ const AppRoutes: React.FC = () => {
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        } />
+        
+        {/* Journey Scroll Dashboard */}
+        <Route path="/journey-scroll" element={
+          <ProtectedRoute>
+            <JourneyScroll />
           </ProtectedRoute>
         } />
         
