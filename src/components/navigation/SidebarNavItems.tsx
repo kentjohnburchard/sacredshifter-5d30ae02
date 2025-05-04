@@ -6,7 +6,7 @@ import { ArrowLeft, Check, ChevronDown, ChevronRight, LucideIcon } from "lucide-
 import * as Icons from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 // Use react-router-dom's hooks and Link
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, NavLink } from "react-router-dom";
 
 interface SidebarNavItemsProps {
   isCollapsed?: boolean;
@@ -100,10 +100,16 @@ const NavLinkItem: React.FC<NavLinkItemProps> = ({
   );
 
   return (
-    <Link
+    <NavLink
       to={path}
-      className={linkClasses}
+      className={({ isActive }) => 
+        cn(
+          linkClasses,
+          isActive ? "bg-white/10 font-bold" : ""
+        )
+      }
       onClick={onClick}
+      end
     >
       <div className="relative flex min-h-[32px] w-full items-center gap-2">
         <IconComponent
@@ -124,7 +130,7 @@ const NavLinkItem: React.FC<NavLinkItemProps> = ({
           />
         )}
       </div>
-    </Link>
+    </NavLink>
   );
 };
 
