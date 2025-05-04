@@ -160,12 +160,11 @@ const JourneyRenderer: React.FC<JourneyRendererProps> = ({ content, metadata }) 
             </div>
             
             <div className="p-8 min-h-[300px] blur-md">
-              <ReactMarkdown 
-                remarkPlugins={[remarkGfm]} 
-                className="prose prose-invert max-w-none prose-headings:text-purple-300 prose-a:text-pink-400"
-              >
-                {content}
-              </ReactMarkdown>
+              <div className="prose prose-invert max-w-none prose-headings:text-purple-300 prose-a:text-pink-400">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {content}
+                </ReactMarkdown>
+              </div>
             </div>
           </div>
         ) : (
@@ -185,12 +184,11 @@ const JourneyRenderer: React.FC<JourneyRendererProps> = ({ content, metadata }) 
               </div>
             )}
             
-            <ReactMarkdown 
-              remarkPlugins={[remarkGfm]} 
-              className="prose prose-invert max-w-none prose-headings:text-purple-300 prose-a:text-pink-400"
-            >
-              {content}
-            </ReactMarkdown>
+            <div className="prose prose-invert max-w-none prose-headings:text-purple-300 prose-a:text-pink-400">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {content}
+              </ReactMarkdown>
+            </div>
           </div>
         )}
       </Card>
