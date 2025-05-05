@@ -77,7 +77,7 @@ const AppRoutes = () => {
       <ScrollToTop />
       <Routes>
         {/* 🔓 Public Routes */}
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<Home />} />
         <Route path="/journey/:slug" element={<JourneyPage />} />
         <Route path="/frequency-library" element={<FrequencyLibraryPage />} />
         <Route path="/sacred-geometry" element={<SacredGeometryPage />} />
