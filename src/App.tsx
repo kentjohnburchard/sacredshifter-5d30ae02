@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import HomePage from '@/pages/HomePage';
@@ -12,7 +11,6 @@ import AccountPage from '@/pages/AccountPage';
 import JourneyTemplatesAdmin from '@/pages/JourneyTemplatesAdmin';
 import JourneyContentAdmin from '@/pages/JourneyContentAdmin';
 import AdminPagesCanvas from '@/pages/admin/AdminPagesCanvas';
-import AdminEditPageModal from '@/pages/admin/AdminEditPageModal';
 import JourneyAudioAdmin from '@/pages/admin/JourneyAudioAdmin';
 import JourneyAudioMappingsViewer from '@/pages/admin/JourneyAudioMappingsViewer';
 import SacredGeometryPage from '@/pages/SacredGeometryPage';
@@ -44,24 +42,7 @@ function App() {
           <Route path="/account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
           <Route path="/journey-templates-admin" element={<ProtectedRoute><JourneyTemplatesAdmin /></ProtectedRoute>} />
           <Route path="/journey-content-admin" element={<ProtectedRoute><JourneyContentAdmin /></ProtectedRoute>} />
-          
-          {/* Fix the AdminEditPageModal props */}
           <Route path="/admin/pages-canvas" element={<ProtectedRoute><AdminPagesCanvas /></ProtectedRoute>} />
-          <Route 
-            path="/admin/edit-page/:pageId" 
-            element={
-              <ProtectedRoute>
-                <AdminEditPageModal 
-                  open={true}
-                  field={null}
-                  page={null}
-                  onClose={() => {}}
-                  onSave={() => {}}
-                />
-              </ProtectedRoute>
-            } 
-          />
-          
           <Route path="/admin/journey-audio" element={<ProtectedRoute><JourneyAudioAdmin /></ProtectedRoute>} />
           <Route path="/admin/journey-audio-mappings" element={<ProtectedRoute><JourneyAudioMappingsViewer /></ProtectedRoute>} />
           <Route path="/sacred-geometry" element={<SacredGeometryPage />} />
