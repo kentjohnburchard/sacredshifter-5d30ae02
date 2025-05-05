@@ -14,7 +14,7 @@ import NotFound from '@/pages/NotFound';
 import ScrollToTop from '@/components/ScrollToTop';
 
 // Core Pages
-import HomePage from '@/pages/HomePage';
+import HomePage from '@/pages/Home';
 import JourneyPage from '@/pages/JourneyPage';
 import FrequencyLibraryPage from '@/pages/FrequencyLibraryPage';
 import SacredGeometryPage from '@/pages/SacredGeometryPage';
