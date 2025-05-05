@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { fetchJourneys, updateJourney, Journey, createJourney } from '@/services/journeyService';
@@ -10,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { PlusCircle, Loader2, Save, X, AlertCircle, FileText } from 'lucide-react';
+import { PlusCircle, Loader2, Save, X, AlertCircle, FileText, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getAllJourneys } from '@/utils/coreJourneyLoader';
@@ -59,7 +60,7 @@ const JourneysManager: React.FC = () => {
   }, []);
 
   const handleEditJourney = (journey: Journey) => {
-    // Capture whether this is a core content journey (has no real DB id)
+    // Capture whether this is a core content journey (has high ID)
     const isCoreJourney = journey.id >= 1000; // We assigned high IDs to core content journeys
     
     setEditingJourney({ 
@@ -74,6 +75,11 @@ const JourneysManager: React.FC = () => {
     if (isCoreJourney) {
       toast.info('This is a core content journey. You can import it to the database to make it editable.');
     }
+  };
+
+  const handleViewJourney = (slug: string) => {
+    // Navigate to the journey view page
+    navigate(`/journey/${slug}`);
   };
 
   const handleCreateNew = () => {
@@ -219,7 +225,7 @@ const JourneysManager: React.FC = () => {
                   <TableHead>Source</TableHead>
                   <TableHead>Tags</TableHead>
                   <TableHead>Veil Locked</TableHead>
-                  <TableHead className="w-[100px]">Actions</TableHead>
+                  <TableHead className="w-[140px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -250,9 +256,14 @@ const JourneysManager: React.FC = () => {
                         <TableCell>{journey.tags || '-'}</TableCell>
                         <TableCell>{journey.veil_locked ? 'Yes' : 'No'}</TableCell>
                         <TableCell>
-                          <Button size="sm" variant="outline" onClick={() => handleEditJourney(journey)}>
-                            Edit
-                          </Button>
+                          <div className="flex space-x-2">
+                            <Button size="sm" variant="outline" onClick={() => handleEditJourney(journey)}>
+                              Edit
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => handleViewJourney(journey.filename)}>
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     );
