@@ -30,7 +30,8 @@ const loadCoreJourneyContent = async (slug: string): Promise<CoreJourneyLoaderRe
     
     if (matchingFile) {
       // Load the file content as raw text
-      const content = await journeyFiles[matchingFile]();
+      const contentLoader = journeyFiles[matchingFile];
+      const content = await contentLoader() as string;
       
       // Extract the filename from the path
       const filename = matchingFile.split('/').pop()?.replace('.md', '') || '';

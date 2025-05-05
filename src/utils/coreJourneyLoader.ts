@@ -13,7 +13,8 @@ export async function loadCoreJourneys(): Promise<Journey[]> {
     for (const path in journeyFiles) {
       try {
         // Load the file content as raw text
-        const content = await journeyFiles[path]();
+        const contentLoader = journeyFiles[path];
+        const content = await contentLoader() as string;
         
         // Extract the filename from the path
         const filename = path.split('/').pop()?.replace('.md', '') || '';
