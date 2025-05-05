@@ -1,3 +1,4 @@
+
 // src/AppRoutes.tsx
 
 /**
@@ -80,7 +81,7 @@ const AppRoutes = () => {
       <ScrollToTop />
       <Routes>
         {/* 🔓 Public Routes */}
-        <Route path="/" element={<SacredShifterHome />} />
+        <Route path="/" element={<VisualizerHome />} />
         <Route path="/visualizer" element={<VisualizerHome />} />
         <Route path="/journey/:slug" element={<JourneyPage />} />
         <Route path="/frequency-library" element={<FrequencyLibraryPage />} />
