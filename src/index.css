@@ -22,7 +22,7 @@
     --secondary-foreground: 0 0% 98%;
     
     --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 80%; /* Improved from 63.9% to 80% for better contrast */
+    --muted-foreground: 0 0% 90%; /* Improved from 80% to 90% for better contrast */
     
     --accent: 270 50% 60%;
     --accent-foreground: 0 0% 98%;
@@ -52,12 +52,19 @@
 
   /* Improved text readability */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-medium tracking-tight;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    @apply font-medium tracking-tight text-white;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.7);
   }
 
   p {
-    @apply leading-relaxed;
+    @apply leading-relaxed text-white;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  }
+  
+  /* Base link styles with improved visibility */
+  a {
+    @apply text-white hover:text-purple-300;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
   }
 }
 
@@ -206,8 +213,8 @@
     text-shadow: 0 4px 8px rgba(0, 0, 0, 0.9);
   }
   
-  .text-shadow-xs {
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  .text-shadow-xl {
+    text-shadow: 0 5px 10px rgba(0, 0, 0, 1.0);
   }
   
   /* Enhanced glass effects with increased transparency */

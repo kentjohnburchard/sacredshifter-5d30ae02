@@ -56,22 +56,22 @@ const Layout: React.FC<LayoutProps> = ({
       {/* Fixed position background elements with higher z-index than before */}
       <div className="fixed inset-0 w-full h-full z-0">
         <SacredGridBackground 
-          intensity={liftTheVeil ? 0.85 : 0.75}
+          intensity={liftTheVeil ? 0.5 : 0.4} /* Reduced intensity for better text contrast */
           color={liftTheVeil ? '#FF70E9' : '#9b87f5'}
           pulseSpeed={liftTheVeil ? 0.7 : 0.5}
         />
       </div>
       
-      {/* Gradient overlay with reduced opacity for more transparency */}
-      <div className="fixed inset-0 z-0 bg-gradient-to-b from-black/30 via-transparent to-black/30 pointer-events-none" />
+      {/* Gradient overlay with increased opacity for better text readability */}
+      <div className="fixed inset-0 z-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60 pointer-events-none" />
       
-      {/* Starfield with full viewport coverage - static to prevent rerendering */}
-      <div className="fixed inset-0 z-0 opacity-40">
-        <StarfieldBackground density="medium" opacity={0.5} isStatic={true} />
+      {/* Starfield with reduced opacity for better text contrast */}
+      <div className="fixed inset-0 z-0 opacity-30">
+        <StarfieldBackground density="medium" opacity={0.4} isStatic={true} />
       </div>
       
-      {/* Sacred Geometry with adjusted opacity and positioned as fixed - static to prevent rerendering */}
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-50">
+      {/* Sacred Geometry with adjusted opacity */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
         <SacredGeometryVisualizer
           defaultShape="flower-of-life"
           size="xl"
@@ -89,7 +89,10 @@ const Layout: React.FC<LayoutProps> = ({
           {!hideHeader && <Header />}
           
           <div className={`flex-grow min-h-[calc(100vh-80px)] pb-32 relative ${showNavbar ? 'sm:pl-20 pt-4' : 'pt-0'} overflow-x-hidden`}>
-            <div className="max-w-full mx-auto">
+            {/* Darker semi-transparent overlay for better text contrast */}
+            <div className="absolute inset-0 bg-black/40 z-0"></div>
+            
+            <div className="max-w-full mx-auto relative z-10">
               {children}
             </div>
           </div>
