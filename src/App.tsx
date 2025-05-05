@@ -1,21 +1,60 @@
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import HomePage from '@/pages/HomePage';
+import JourneyPage from '@/pages/JourneyPage';
+import FrequencyLibraryPage from '@/pages/FrequencyLibraryPage';
+import HermeticWisdomLibrary from '@/pages/HermeticWisdomLibrary';
+import AuthPage from '@/pages/AuthPage';
+import { AuthProvider } from '@/context/AuthContext';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import AccountPage from '@/pages/AccountPage';
+import JourneyTemplatesAdmin from '@/pages/JourneyTemplatesAdmin';
+import JourneyContentAdmin from '@/pages/JourneyContentAdmin';
+import AdminPagesCanvas from '@/pages/admin/AdminPagesCanvas';
+import AdminEditPageModal from '@/pages/admin/AdminEditPageModal';
+import JourneyAudioAdmin from '@/pages/admin/JourneyAudioAdmin';
+import JourneyAudioMappingsViewer from '@/pages/admin/JourneyAudioMappingsViewer';
+import SacredGeometryPage from '@/pages/SacredGeometryPage';
+import VisualizerTestPage from '@/pages/VisualizerTestPage';
+import VisualizerAdmin from '@/pages/admin/VisualizerAdmin';
+import AdminRoutes from './routes/adminRoutes';
 
-import React from 'react';
-import { ThemeProvider } from './context/ThemeContext';
-import AppRoutes from './AppRoutes';
-import { Toaster } from './components/ui/toaster';
-import './styles/community.css'; // Import Sacred Circle styles
-import './styles/premium.css'; // Import Ascended Path styles
+function ScrollToTop() {
+  const { pathname } = useLocation();
 
-// App does not need children, it renders AppRoutes
-const App: React.FC = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
+
+function App() {
   return (
-    <ThemeProvider>
-      <div id="sacred-shifter-app" className="min-h-screen w-full relative overflow-x-hidden">
-        <AppRoutes />
-        <Toaster />
-      </div>
-    </ThemeProvider>
+    <Router>
+      <AuthProvider>
+        <ScrollToTop />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/journey/:slug" element={<JourneyPage />} />
+          <Route path="/frequency-library" element={<FrequencyLibraryPage />} />
+          <Route path="/hermetic-wisdom" element={<HermeticWisdomLibrary />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
+          <Route path="/journey-templates-admin" element={<ProtectedRoute><JourneyTemplatesAdmin /></ProtectedRoute>} />
+          <Route path="/journey-content-admin" element={<ProtectedRoute><JourneyContentAdmin /></ProtectedRoute>} />
+          <Route path="/admin/pages-canvas" element={<ProtectedRoute><AdminPagesCanvas /></ProtectedRoute>} />
+          <Route path="/admin/edit-page/:pageId" element={<ProtectedRoute><AdminEditPageModal /></ProtectedRoute>} />
+          <Route path="/admin/journey-audio" element={<ProtectedRoute><JourneyAudioAdmin /></ProtectedRoute>} />
+          <Route path="/admin/journey-audio-mappings" element={<ProtectedRoute><JourneyAudioMappingsViewer /></ProtectedRoute>} />
+          <Route path="/sacred-geometry" element={<SacredGeometryPage />} />
+          <Route path="/visualizer-test" element={<VisualizerTestPage />} />
+          <Route path="/admin/visualizer-scenes" element={<ProtectedRoute><VisualizerAdmin /></ProtectedRoute>} />
+          <Route path="/admin/*" element={<ProtectedRoute><AdminRoutes /></ProtectedRoute>} />
+        </Routes>
+      </AuthProvider>
+    </Router>
   );
-};
+}
 
 export default App;
