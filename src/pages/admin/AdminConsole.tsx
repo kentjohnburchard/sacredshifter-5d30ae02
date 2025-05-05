@@ -346,11 +346,4 @@ const AdminConsole: React.FC = () => {
   );
 };
 
-// Wrap the AdminConsole component with ProtectedRoute
-const ProtectedAdminConsole: React.FC = () => (
-  <ProtectedRoute>
-    <AdminConsole />
-  </ProtectedRoute>
-);
-
-export default ProtectedAdminConsole;
+export default AdminConsole;
