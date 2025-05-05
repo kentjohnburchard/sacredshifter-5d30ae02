@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import SidebarLogo from "@/components/navigation/SidebarLogo";
@@ -61,10 +62,6 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
 
   const effectivelyCollapsed = isMobileMenuOpen ? false : isCollapsed;
 
-  // Always keep sidebar-gradient class for bg, .veil-lifted will override if needed via CSS
-  // Only apply Tailwind accent classes to nav/user items that don't conflict with veil-lifted CSS override
-  const themeClasses = "sidebar-gradient";
-
   if (!isMounted) return null;
 
   return (
@@ -78,19 +75,22 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
       >
         <Menu className="h-5 w-5 text-white" />
       </Button>
+      
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 sm:hidden"
+          className="fixed inset-0 bg-black/70 z-40 sm:hidden backdrop-blur-sm"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
+      
       <aside
         key={liftTheVeil ? "veil-lifted" : "veil-default"}
         className={cn(
           "fixed left-0 top-0 z-40 flex h-full flex-col border-r shadow-lg transition-all duration-300 sm:translate-x-0",
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full sm:translate-x-0",
           isMobileMenuOpen ? "w-64" : (isCollapsed ? "w-20" : "w-64"),
-          themeClasses,
+          "sidebar-gradient",
+          liftTheVeil ? "veil-lifted" : "",
           className
         )}
         onMouseEnter={() => {
@@ -122,6 +122,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
             <ChevronLeft className={cn("h-4 w-4", liftTheVeil ? "text-pink-500" : "text-purple-500")} />
           )}
         </Button>
+        
         <Button
           variant="ghost"
           size="sm"
@@ -134,11 +135,12 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
-        <div className={`flex items-center justify-center py-3 sm:py-5 ${effectivelyCollapsed ? "px-2" : "px-4"}`}>
+        
+        <div className={`flex items-center justify-center py-5 ${effectivelyCollapsed ? "px-2" : "px-4"}`}>
           <SidebarLogo className={effectivelyCollapsed ? "scale-75" : ""} />
         </div>
-        <ScrollArea className="flex-1 px-2 sm:px-3 py-2">
-          {/* SidebarNavItems will pickup nav link color from .veil-lifted global CSS */}
+        
+        <ScrollArea className="flex-1 px-3 py-2">
           <SidebarNavItems
             isCollapsed={effectivelyCollapsed}
             onLinkClick={() => {
@@ -150,9 +152,10 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
             }}
           />
         </ScrollArea>
+        
         <div className={cn(
           "border-t px-3 py-4",
-          liftTheVeil ? "border-pink-700" : "border-purple-700"
+          liftTheVeil ? "border-pink-700/50" : "border-purple-700/50"
         )}>
           <SidebarUserDropdown isCollapsed={effectivelyCollapsed} />
         </div>

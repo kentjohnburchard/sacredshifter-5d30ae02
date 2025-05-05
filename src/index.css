@@ -20,6 +20,8 @@
   --input: 216 34% 17%;
   --ring: 263 70% 50%;
   --radius: 0.5rem;
+  --sidebar-bg: 268 59% 18%;
+  --sidebar-bg-hover: 268 59% 22%;
 }
 
 .dark {
@@ -78,6 +80,8 @@
 .readable-text-light {
   @apply text-shadow-sm;
   font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.6;
 }
 
 .readable-text-bold {
@@ -101,4 +105,89 @@
 /* Card background with enhanced text readability */
 .card-cosmic {
   @apply bg-black/70 backdrop-blur-md border border-white/10 shadow-xl;
+}
+
+/* Custom scrollbar styling */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(138, 75, 175, 0.5) rgba(0, 0, 0, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(138, 75, 175, 0.5);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(138, 75, 175, 0.8);
+}
+
+/* Sidebar styling */
+.sidebar-gradient {
+  background: hsl(var(--sidebar-bg));
+  border-color: hsl(var(--sidebar-bg-hover));
+}
+
+.nav-link {
+  @apply text-shadow-sm transition-all duration-200;
+}
+
+.nav-link:hover {
+  @apply bg-purple-800/50;
+}
+
+/* Style overrides for when veil is lifted */
+.veil-lifted .sidebar-gradient {
+  background: #2B1A37;
+  border-color: #382647;
+}
+
+.veil-lifted .nav-link:hover {
+  @apply bg-pink-800/50;
+}
+
+/* Improved markdown content styling */
+.prose {
+  @apply text-base;
+}
+
+.prose h1 {
+  @apply text-2xl font-bold mb-4 text-white;
+}
+
+.prose h2 {
+  @apply text-xl font-semibold mb-3 text-white/90;
+}
+
+.prose p {
+  @apply mb-4 text-white/80 leading-relaxed;
+}
+
+.prose ul, .prose ol {
+  @apply mb-4 pl-5;
+}
+
+.prose li {
+  @apply mb-2;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-purple-500/50 pl-4 italic;
+}
+
+.prose hr {
+  @apply my-6 border-white/20;
+}
+
+.prose a {
+  @apply text-purple-300 hover:text-purple-200 underline;
 }

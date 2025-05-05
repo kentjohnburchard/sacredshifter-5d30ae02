@@ -6,7 +6,6 @@ import ReactMarkdown from 'react-markdown';
 import { fetchJourneyBySlug, Journey } from '@/services/journeyService';
 import { parseJourneyContent, removeFrontmatter, parseJourneyFrontmatter } from '@/utils/journeyLoader';
 import JourneySoundscapePlayer from '@/components/journey/JourneySoundscapePlayer';
-import SacredGeometryVisualizer from '@/components/sacred-geometry/SacredGeometryVisualizer';
 import SpiralVisualizer from '@/components/visualizer/SpiralVisualizer';
 import { useSpiralParams } from '@/hooks/useSpiralParams';
 import { Card, CardContent } from '@/components/ui/card';
@@ -69,6 +68,7 @@ const JourneyPage: React.FC = () => {
   const [journey, setJourney] = useState<Journey | null>(null);
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
+  const [hasAudioContent, setHasAudioContent] = useState(false);
   const spiralParams = useSpiralParams(slug || '');
   
   useEffect(() => {
@@ -97,6 +97,8 @@ const JourneyPage: React.FC = () => {
           setContent(journeyData.content || '');
         }
         
+        // Determine if there's audio content based on metadata
+        setHasAudioContent(!!journeyData.sound_frequencies);
         setJourney(journeyData);
       } catch (error) {
         console.error('Error loading journey:', error);
@@ -107,6 +109,17 @@ const JourneyPage: React.FC = () => {
 
     loadJourney();
   }, [slug]);
+
+  // Function to render markdown content with proper styling
+  const renderMarkdownContent = () => {
+    if (!content) return null;
+    
+    return (
+      <div className="prose prose-invert max-w-none text-white readable-text-light leading-relaxed">
+        <ReactMarkdown>{removeFrontmatter(content)}</ReactMarkdown>
+      </div>
+    );
+  };
 
   return (
     <Layout 
@@ -119,8 +132,39 @@ const JourneyPage: React.FC = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-2">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left column: Spiral visualizer and audio player */}
+            <div className="lg:col-span-1 space-y-4">
+              <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl overflow-hidden">
+                <div className="h-64 relative">
+                  <SpiralVisualizer 
+                    params={spiralParams} 
+                    containerId={`journeySpiral-${slug}`} 
+                    className="absolute inset-0 w-full h-full"
+                  />
+                </div>
+                <CardContent className="p-4">
+                  <h3 className="text-lg font-semibold mb-2 text-white readable-text">Sacred Frequencies</h3>
+                  <div className="text-sm text-white/80 readable-text-light">
+                    {journey?.sound_frequencies || 'No frequency information available'}
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Only render audio player if journey has sound frequencies */}
+              {hasAudioContent && (
+                <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl">
+                  <CardContent className="p-4">
+                    {slug && (
+                      <JourneySoundscapePlayer journeySlug={slug} autoplay={false} />
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+            
+            {/* Right column: Journey content */}
+            <div className="lg:col-span-2">
               <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl">
                 <CardContent className="p-6">
                   <h1 className="text-3xl font-bold mb-4 text-white readable-text-bold">{journey?.title}</h1>
@@ -135,37 +179,8 @@ const JourneyPage: React.FC = () => {
                     </div>
                   )}
                   
-                  <div className="prose prose-invert max-w-none text-white readable-text-light">
-                    <ReactMarkdown>{removeFrontmatter(content)}</ReactMarkdown>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-            
-            <div className="md:col-span-1 space-y-4">
-              <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl overflow-hidden">
-                <div className="h-64 relative">
-                  <SpiralVisualizer params={spiralParams} containerId="journeySpiral" />
-                </div>
-              </Card>
-              
-              <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl">
-                <CardContent className="p-4">
-                  {slug && (
-                    <JourneySoundscapePlayer journeySlug={slug} autoplay={false} />
-                  )}
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl">
-                <CardContent className="p-4">
-                  <h3 className="text-lg font-medium mb-2 text-white readable-text">Sacred Geometry</h3>
-                  <div className="h-40 relative">
-                    <SacredGeometryVisualizer 
-                      defaultShape="flower-of-life"
-                      size="md"
-                      showControls={false}
-                    />
+                  <div className="mt-6 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                    {renderMarkdownContent()}
                   </div>
                 </CardContent>
               </Card>

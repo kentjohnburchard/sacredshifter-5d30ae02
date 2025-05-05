@@ -84,6 +84,7 @@ const NavLinkItem: React.FC<NavLinkItemProps> = ({
   isCollapsed,
   isActive,
   onClick,
+  liftTheVeil
 }) => {
   const IconComponent = useMemo(() => {
     if (!icon || typeof icon !== 'string') return Icons.Layers;
@@ -92,9 +93,12 @@ const NavLinkItem: React.FC<NavLinkItemProps> = ({
   }, [icon]);
 
   const linkClasses = cn(
-    "group flex w-full items-center rounded-md border border-transparent px-2 py-1 hover:bg-white/10 nav-link text-white",
-    isActive ? "bg-white/10 font-bold" : "",
-    isCollapsed ? "justify-center" : "justify-start"
+    "group flex w-full items-center rounded-md border border-transparent px-2 py-1.5 hover:bg-white/10 nav-link text-white",
+    isActive ? 
+      liftTheVeil ? "bg-pink-900/40 font-bold" : "bg-purple-900/40 font-bold" 
+      : "",
+    isCollapsed ? "justify-center" : "justify-start",
+    "transition-all duration-200"
   );
 
   return (
@@ -103,10 +107,11 @@ const NavLinkItem: React.FC<NavLinkItemProps> = ({
       className={linkClasses}
       onClick={onClick}
     >
-      <div className="relative flex min-h-[32px] w-full items-center gap-2">
+      <div className="relative flex min-h-[32px] w-full items-center gap-3">
         <IconComponent
           className={cn(
-            "h-[18px] w-[18px] shrink-0 text-white"
+            "h-[18px] w-[18px] shrink-0 text-white",
+            isActive ? "text-shadow-md" : ""
           )}
         />
 
@@ -117,7 +122,8 @@ const NavLinkItem: React.FC<NavLinkItemProps> = ({
         {isActive && !isCollapsed && (
           <span
             className={cn(
-              "ml-auto h-1.5 w-1.5 rounded-full bg-white"
+              "ml-auto h-2 w-2 rounded-full",
+              liftTheVeil ? "bg-pink-400" : "bg-purple-400"
             )}
           />
         )}

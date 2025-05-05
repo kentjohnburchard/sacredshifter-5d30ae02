@@ -30,7 +30,8 @@ const JourneySoundscapePlayer: React.FC<JourneySoundscapePlayerProps> = ({
         const data = await fetchJourneySoundscape(journeySlug);
         
         if (!data) {
-          setError('No soundscape found for this journey');
+          // Only set an error if we got null - return silently otherwise
+          setError('No soundscape available');
         } else {
           setSoundscape(data);
           console.log('Loaded soundscape:', data);
@@ -90,24 +91,26 @@ const JourneySoundscapePlayer: React.FC<JourneySoundscapePlayerProps> = ({
   };
 
   if (loading) {
-    return <div className="h-20 flex items-center justify-center">Loading soundscape...</div>;
-  }
-
-  if (error || !soundscape) {
     return (
-      <div className="h-20 flex flex-col items-center justify-center text-sm text-gray-400">
-        <p>{error || 'No soundscape available'}</p>
+      <div className="h-16 flex items-center justify-center">
+        <div className="animate-spin h-5 w-5 border-b-2 border-purple-500 rounded-full"></div>
+        <span className="ml-2 text-sm text-white/80">Loading soundscape...</span>
       </div>
     );
   }
 
+  if (error || !soundscape) {
+    // Return null instead of an error message - the parent component will handle this case
+    return null;
+  }
+
   return (
     <div className="space-y-2">
-      <h3 className="text-lg font-medium">Journey Soundscape</h3>
+      <h3 className="text-lg font-medium text-white readable-text">Journey Soundscape</h3>
       
-      <div className="bg-black/30 p-3 rounded-md">
+      <div className="bg-black/40 backdrop-blur-sm p-3 rounded-md border border-purple-500/20">
         <div className="flex items-center justify-between">
-          <div className="text-sm truncate max-w-[70%]">
+          <div className="text-sm truncate max-w-[70%] text-white">
             {soundscape.title || 'Journey Soundscape'}
           </div>
           
@@ -116,7 +119,7 @@ const JourneySoundscapePlayer: React.FC<JourneySoundscapePlayerProps> = ({
               variant="ghost" 
               size="icon"
               onClick={toggleMute}
-              className="h-8 w-8"
+              className="h-8 w-8 hover:bg-purple-900/30"
             >
               {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
             </Button>
@@ -126,7 +129,7 @@ const JourneySoundscapePlayer: React.FC<JourneySoundscapePlayerProps> = ({
                 variant="ghost" 
                 size="icon"
                 onClick={togglePlayback}
-                className="h-8 w-8"
+                className="h-8 w-8 hover:bg-purple-900/30"
               >
                 {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
               </Button>
