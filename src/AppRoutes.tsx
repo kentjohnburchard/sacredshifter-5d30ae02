@@ -76,8 +76,12 @@ const AppRoutes: React.FC = () => {
         // Do not delete or auto-modify any route imports.
         // If a page is missing, generate a placeholder in /pages/ with a stub component. */}
         
-        {/* Redirect root path to our new Home Page */}
-        <Route path="/" element={<HomePage />} />
+        {/* Root path should point to SacredShifterHome component */}
+        <Route path="/" element={<SacredShifterHome />} />
+        
+        {/* Ensure /home route also exists for backward compatibility */}
+        <Route path="/home" element={<SacredShifterHome />} />
+        
         <Route path="/coming-soon" element={
           <ComingSoon 
             title="Coming Soon" 
