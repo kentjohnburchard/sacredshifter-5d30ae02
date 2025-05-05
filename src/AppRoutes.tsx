@@ -27,7 +27,7 @@ import JourneyPlayer from '@/pages/JourneyPlayer';
 import JourneysDirectory from '@/pages/JourneysDirectory';
 
 // Admin Console
-import AdminRoutes from '@/routes/AdminRoutes';
+import AdminRoutes from '@/routes/adminRoutes';
 import AdminPagesCanvas from '@/pages/admin/AdminPagesCanvas';
 import SacredSpectrumAdmin from '@/pages/admin/SacredSpectrumAdmin';
 
