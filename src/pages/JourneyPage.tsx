@@ -111,7 +111,7 @@ const JourneyPage: React.FC = () => {
   return (
     <Layout 
       pageTitle={journey?.title || 'Journey'} 
-      className="bg-gradient-to-b from-purple-900/20 to-black"
+      className="bg-gradient-to-b from-purple-900/40 to-black"
     >
       <div className="container mx-auto px-4 py-8">
         {loading ? (
@@ -121,21 +121,21 @@ const JourneyPage: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-2">
-              <Card className="bg-black/70 backdrop-blur-lg border-purple-500/30 shadow-xl">
+              <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl">
                 <CardContent className="p-6">
-                  <h1 className="text-3xl font-bold mb-4 text-white text-shadow-lg">{journey?.title}</h1>
+                  <h1 className="text-3xl font-bold mb-4 text-white readable-text-bold">{journey?.title}</h1>
                   
                   {journey?.tags && (
                     <div className="flex flex-wrap gap-2 mb-4">
                       {journey.tags.split(',').map((tag, i) => (
-                        <span key={i} className="px-2 py-1 bg-purple-900/50 rounded-full text-xs text-white font-medium">
+                        <span key={i} className="px-2 py-1 bg-purple-900/60 rounded-full text-xs text-white font-medium readable-text-light">
                           {tag.trim()}
                         </span>
                       ))}
                     </div>
                   )}
                   
-                  <div className="prose prose-invert max-w-none text-white text-shadow-sm">
+                  <div className="prose prose-invert max-w-none text-white readable-text-light">
                     <ReactMarkdown>{removeFrontmatter(content)}</ReactMarkdown>
                   </div>
                 </CardContent>
@@ -143,13 +143,13 @@ const JourneyPage: React.FC = () => {
             </div>
             
             <div className="md:col-span-1 space-y-4">
-              <Card className="bg-black/70 backdrop-blur-lg border-purple-500/30 shadow-xl overflow-hidden">
+              <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl overflow-hidden">
                 <div className="h-64 relative">
                   <SpiralVisualizer params={spiralParams} containerId="journeySpiral" />
                 </div>
               </Card>
               
-              <Card className="bg-black/70 backdrop-blur-lg border-purple-500/30 shadow-xl">
+              <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl">
                 <CardContent className="p-4">
                   {slug && (
                     <JourneySoundscapePlayer journeySlug={slug} autoplay={false} />
@@ -157,9 +157,9 @@ const JourneyPage: React.FC = () => {
                 </CardContent>
               </Card>
               
-              <Card className="bg-black/70 backdrop-blur-lg border-purple-500/30 shadow-xl">
+              <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl">
                 <CardContent className="p-4">
-                  <h3 className="text-lg font-medium mb-2 text-white text-shadow-md">Sacred Geometry</h3>
+                  <h3 className="text-lg font-medium mb-2 text-white readable-text">Sacred Geometry</h3>
                   <div className="h-40 relative">
                     <SacredGeometryVisualizer 
                       defaultShape="flower-of-life"

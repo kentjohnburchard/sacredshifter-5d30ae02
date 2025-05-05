@@ -1,742 +1,104 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+ 
+:root {
+  --foreground: 210 40% 98%;
+  --background: 224 71% 4%;
+  --primary: 263 70% 50%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 215 27% 11%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 215 27% 11%;
+  --muted-foreground: 217.9 10.6% 64.9%;
+  --accent: 215 27% 11%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 216 34% 17%;
+  --input: 216 34% 17%;
+  --ring: 263 70% 50%;
+  --radius: 0.5rem;
+}
 
-@layer base {
-  :root {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    
-    --primary: 252 59% 48%;
-    --primary-foreground: 0 0% 98%;
-    
-    --secondary: 270 50% 60%;
-    --secondary-foreground: 0 0% 98%;
-    
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 90%; /* Improved from 80% to 90% for better contrast */
-    
-    --accent: 270 50% 60%;
-    --accent-foreground: 0 0% 98%;
-    
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 264 59% 70%;
-    
-    --radius: 0.5rem;
-  }
+.dark {
+  --background: 224 71% 4%;
+  --foreground: 210 40% 98%;
+  --muted: 223 47% 11%;
+  --muted-foreground: 215.4 16.3% 56.9%;
+  --accent: 216 34% 17%;
+  --accent-foreground: 210 40% 98%;
+  --popover: 224 71% 4%;
+  --popover-foreground: 210 40% 98%;
+  --border: 216 34% 17%;
+  --input: 216 34% 17%;
+  --card: 224 71% 4%;
+  --card-foreground: 210 40% 98%;
 }
 
 @layer base {
+  * {
+    @apply border-border;
+  }
   body {
-    @apply bg-black text-white;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-  
-  .font-playfair {
-    font-family: 'Playfair Display', serif;
-  }
-
-  /* Improved text readability */
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-medium tracking-tight text-white;
-    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.7);
-  }
-
-  p {
-    @apply leading-relaxed text-white;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
-  }
-  
-  /* Base link styles with improved visibility */
-  a {
-    @apply text-white hover:text-purple-300;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-@layer utilities {
-  /* Accessibility focused utilities */
-  .text-enhanced {
-    @apply text-white font-medium;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-  }
-  
-  .text-contrast-high {
-    @apply text-white;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
-  }
-  
-  /* New: Improved text contrast for dark backgrounds */
-  .text-glow-light {
-    color: rgba(255, 255, 255, 0.95);
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
-  }
-  
-  .text-glow-purple {
-    color: rgba(216, 180, 254, 0.95); /* Purple-200 with high opacity */
-    text-shadow: 0 0 8px rgba(168, 85, 247, 0.5); /* Purple-600 glow */
-  }
-  
-  .text-glow-pink {
-    color: rgba(249, 168, 212, 0.95); /* Pink-200 with high opacity */
-    text-shadow: 0 0 8px rgba(236, 72, 153, 0.5); /* Pink-500 glow */
-  }
-  
-  .card-accessible {
-    @apply backdrop-blur-sm bg-black/80 border border-white/20;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  }
-
-  .animate-pulse-subtle {
-    animation: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-  
-  .sacred-glass {
-    @apply backdrop-blur-sm bg-black/60 border border-white/20;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  }
-  
-  .animate-glow {
-    animation: glow 4s ease-in-out infinite alternate;
-  }
-  
-  .animate-pulse-slow {
-    animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-  
-  .animate-spin-slow {
-    animation: spin-slow 20s linear infinite;
-  }
-
-  .animate-cosmic-pulse {
-    animation: cosmic-pulse 5s ease-in-out infinite alternate;
-  }
-  
-  /* Standard mode styles - Improved contrast */
-  .standard-mode {
-    --primary-accent: #9b87f5; /* Brighter purple */
-    --secondary-accent: #7a76ff; /* Brighter indigo */
-    --text-accent: #b5a0ff; /* Brighter lavender */
-    --theme-gradient: linear-gradient(to right, #5d7cfe, #00f2fe);
-    --theme-primary: #5d7cfe;
-    --theme-secondary: #00f2fe;
-    --glow-intensity: 0.5;
-    --energy-color: rgba(155, 135, 245, 0.8);
-    --portal-glow: rgba(122, 118, 255, 0.9);
-    --pattern-opacity: 0.4;
-  }
-  
-  /* Veil lifted mode styles - Improved contrast */
-  .veil-mode {
-    --primary-accent: #FF45B6; /* Brighter pink */
-    --secondary-accent: #C676FF; /* Brighter purple */
-    --text-accent: #FF85ED; /* Brighter pink */
-    --theme-gradient: linear-gradient(to right, #FF45B6, #C676FF);
-    --theme-primary: #FF45B6;
-    --theme-secondary: #C676FF;
-    --glow-intensity: 0.8;
-    --energy-color: rgba(255, 69, 182, 0.8);
-    --portal-glow: rgba(198, 118, 255, 0.9);
-    --pattern-opacity: 0.5;
-  }
-
-  /* New cosmic button effects */
-  .cosmic-btn {
-    position: relative;
-    overflow: hidden;
-    transition: all 0.4s ease;
-    z-index: 1;
-  }
-
-  .cosmic-btn::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(120deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
-    transform: translateX(-100%);
-    transition: transform 0.6s ease;
-    z-index: -1;
-  }
-
-  .cosmic-btn:hover::before {
-    transform: translateX(100%);
-  }
-
-  /* Mystical text glow effects */
-  .mystical-text {
-    text-shadow: 0 0 10px var(--energy-color, rgba(139, 92, 246, 0.7));
-  }
-
-  /* Element glow effects */
-  .glow-element {
-    box-shadow: 0 0 15px var(--energy-color, rgba(139, 92, 246, 0.6));
-  }
-  
-  /* Ethereal card effect */
-  .ethereal-card {
-    @apply backdrop-blur-md bg-black/60 border border-white/15 transition-all duration-300;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 0 30px rgba(255, 255, 255, 0.03);
-  }
-  
-  .ethereal-card:hover {
-    @apply border-white/25;
-    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.5), inset 0 0 30px rgba(255, 255, 255, 0.05);
-  }
-  
-  /* Add text shadow utilities for better readability against transparent backgrounds */
-  .text-shadow-sm {
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
-  }
-  
-  .text-shadow-md {
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-  }
-  
-  .text-shadow-lg {
-    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.9);
-  }
-  
-  .text-shadow-xl {
-    text-shadow: 0 5px 10px rgba(0, 0, 0, 1.0);
-  }
-  
-  /* Enhanced glass effects with increased transparency */
-  .glass-panel {
-    @apply backdrop-blur-sm bg-black/30 border border-white/10;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  }
-  
-  .glass-panel-dark {
-    @apply backdrop-blur-sm bg-black/50 border border-white/5;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  }
-  
-  .glass-panel-light {
-    @apply backdrop-blur-sm bg-white/10 border border-white/20;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  }
-}
-
-/* Rest of the existing CSS with the improved utilities */
-@keyframes pulse-subtle {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
-
-@keyframes glow {
-  0% {
-    opacity: 0.5;
-    filter: blur(10px);
-  }
-  100% {
-    opacity: 0.8;
-    filter: blur(15px);
-  }
-}
-
-@keyframes pulse-slow {
-  0%, 100% {
-    opacity: 0.9;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(0.98);
-  }
-}
-
-@keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes cosmic-pulse {
-  0% {
-    opacity: 0.7;
-    transform: scale(0.95);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.05);
-  }
-  100% {
-    opacity: 0.7;
-    transform: scale(0.95);
-  }
-}
-
-/* ScrollBar Styling */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.4); /* Darker for better contrast */
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(155, 135, 245, 0.7); /* Brighter for better visibility */
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(155, 135, 245, 0.9);
-}
-
-/* Apply veil-lifted purple to pink gradient when veil-lifted mode is active */
-html.veil-lifted .bg-purple-600,
-.veil-lifted .bg-purple-600,
-.veil-mode .bg-purple-600 {
-  @apply bg-pink-500; /* Brighter pink */
-}
-
-html.veil-lifted .text-purple-600,
-.veil-lifted .text-purple-600,
-.veil-mode .text-purple-600 {
-  @apply text-pink-500; /* Brighter pink */
-}
-
-html.veil-lifted .from-purple-600,
-.veil-lifted .from-purple-600,
-.veil-mode .from-purple-600 {
-  @apply from-pink-500; /* Brighter pink */
-}
-
-html.veil-lifted .to-indigo-600,
-.veil-lifted .to-indigo-600,
-.veil-mode .to-indigo-600 {
-  @apply to-fuchsia-500; /* Brighter fuchsia */
-}
-
-html.veil-lifted .hover\:from-purple-700:hover,
-.veil-lifted .hover\:from-purple-700:hover,
-.veil-mode .hover\:from-purple-700:hover {
-  @apply hover:from-pink-700;
-}
-
-html.veil-lifted .hover\:to-indigo-700:hover,
-.veil-lifted .hover\:to-indigo-700:hover,
-.veil-mode .hover\:to-indigo-700:hover {
-  @apply hover:to-fuchsia-700;
-}
-
-html.veil-lifted ::-webkit-scrollbar-thumb,
-.veil-lifted ::-webkit-scrollbar-thumb,
-.veil-mode ::-webkit-scrollbar-thumb {
-  background: rgba(236, 72, 153, 0.7);
-}
-
-html.veil-lifted ::-webkit-scrollbar-thumb:hover,
-.veil-lifted ::-webkit-scrollbar-thumb:hover,
-.veil-mode ::-webkit-scrollbar-thumb:hover {
-  background: rgba(236, 72, 153, 0.9);
-}
-
-/* Enhanced Veil-Lifted Text Colors with improved contrast */
-html.veil-lifted h1, 
-html.veil-lifted h2, 
-html.veil-lifted h3,
-.veil-lifted h1, 
-.veil-lifted h2, 
-.veil-lifted h3,
-.veil-mode h1,
-.veil-mode h2,
-.veil-mode h3 {
-  @apply text-pink-300;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6), 0 0 10px rgba(236, 72, 153, 0.4); /* Enhanced shadow for better contrast */
-}
-
-/* Enhanced Transition Effects */
-html.veil-lifted,
-.veil-lifted,
-.veil-mode,
-.standard-mode {
-  transition: all 0.5s ease-in-out;
-}
-
-body {
-  transition: background-color 0.5s ease-in-out;
-}
-
-/* Sidebar navigation styles */
-html.veil-lifted .sidebar-nav a,
-.veil-lifted .sidebar-nav a,
-.veil-mode .sidebar-nav a {
-  @apply text-pink-200 hover:text-pink-100 !important;
-}
-
-html.veil-lifted .sidebar-nav a.active,
-.veil-lifted .sidebar-nav a.active,
-.veil-mode .sidebar-nav a.active {
-  @apply bg-pink-600/20 text-pink-100 !important;
-}
-
-html.veil-lifted .veil-lifted-nav,
-.veil-lifted .veil-lifted-nav,
-.veil-mode .veil-lifted-nav {
-  @apply text-pink-400 !important;
-}
-
-/* Cosmic Background for Lifted Veil */
-html.veil-lifted .cosmic-background,
-.veil-lifted .cosmic-background,
-.veil-mode .cosmic-background {
-  @apply bg-gradient-to-br from-pink-900/20 to-fuchsia-900/20;
-  background-image: radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.2) 0%, transparent 60%);
-}
-
-/* Sidebar background gradients for both themes */
-.sidebar-gradient,
-.veil-default-gradient,
-.standard-mode .sidebar-gradient {
-  background: linear-gradient(to bottom, #5f52d9 0%, #3a2f84 65%, #221f26 100%) !important;
-}
-
-.veil-lifted-gradient,
-.veil-mode .sidebar-gradient {
-  background: linear-gradient(to bottom, #FF36AB 0%, #B967FF 65%, #6418ad 100%) !important;
-}
-
-/* Prevent global styles from overriding these! */
-aside.sidebar-gradient,
-aside.veil-default-gradient,
-aside.veil-lifted-gradient {
-  background-blend-mode: normal !important;
-  background-size: cover !important;
-}
-
- /* Remove the .sidebar-nav global color overrides for nav links, so only SidebarNavItems handles text color. */
-html.veil-lifted .sidebar-nav a,
-.veil-lifted .sidebar-nav a,
-html.veil-lifted .sidebar-nav a.active,
-.veil-lifted .sidebar-nav a.active,
-html.veil-lifted .veil-lifted-nav,
-.veil-lifted .veil-lifted-nav {
-  color: inherit !important;
-  background: none !important;
-}
-
-/* NEW: Strong .veil-lifted global color rules for sidebar, nav, and heading text */
-html.veil-lifted .sidebar-gradient, .veil-lifted .sidebar-gradient, .veil-lifted-gradient {
-  background: linear-gradient(to bottom, #FF36AB 0%, #B967FF 65%, #6418ad 100%) !important;
-}
-html.veil-lifted .sidebar-nav a,
-.veil-lifted .sidebar-nav a,
-html.veil-lifted .sidebar-nav a.active,
-.veil-lifted .sidebar-nav a.active {
-  color: #FFB6E6 !important; /* Pink pastel nav text default */
-  background: none !important;
-  transition: color 0.3s;
-}
-html.veil-lifted .sidebar-nav a.active,
-.veil-lifted .sidebar-nav a.active {
-  color: #FFF1FA !important;
-  background: rgba(255,54,171,0.145) !important;
-}
-html.veil-lifted .sidebar-nav .icon,
-.veil-lifted .sidebar-nav svg {
-  color: #FF70E9 !important;
-  fill: #FF70E9 !important;
-}
-html.veil-lifted h1, html.veil-lifted h2, html.veil-lifted h3,
-.veil-lifted h1, .veil-lifted h2, .veil-lifted h3 {
-  color: #FF70E9 !important; /* Brighter, saturated pink headers */
-  background: none !important;
-}
-
-html.veil-lifted .text-purple-300,
-.veil-lifted .text-purple-300 {
-  @apply text-pink-300;
-}
-html.veil-lifted .text-purple-400,
-.veil-lifted .text-purple-400 {
-  @apply text-pink-400;
-}
-html.veil-lifted .text-purple-500,
-.veil-lifted .text-purple-500 {
-  @apply text-pink-500;
-}
-html.veil-lifted .text-purple-600,
-.veil-lifted .text-purple-600 {
-  @apply text-pink-600;
-}
-
-/* Remove all duplicate or unused .veil-lifted .sidebar-nav global overrides */
-html.veil-lifted .sidebar-nav a,
-.veil-lifted .sidebar-nav a,
-html.veil-lifted .sidebar-nav a.active,
-.veil-lifted .sidebar-nav a.active,
-html.veil-lifted .veil-lifted-nav,
-.veil-lifted .veil-lifted-nav {
-  color: inherit !important;
-  background: none !important;
-}
-
-/* Add mode-specific button and UI styling */
-.standard-mode .btn-accent {
-  @apply bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white shadow-lg;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
-}
-
-.veil-mode .btn-accent {
-  @apply bg-gradient-to-r from-pink-600 to-fuchsia-500 hover:from-pink-700 hover:to-fuchsia-600 text-white shadow-lg;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
-}
-
-.standard-mode .glow-accent {
-  filter: drop-shadow(0 0 8px var(--energy-color));
-}
-
-.veil-mode .glow-accent {
-  filter: drop-shadow(0 0 12px var(--energy-color));
-}
-
-/* Card styling based on mode */
-.standard-mode .card-cosmic {
-  @apply bg-gradient-to-br from-gray-900 to-indigo-900/60 border border-indigo-500/20;
-  box-shadow: 0 4px 20px -2px rgba(99, 102, 241, 0.25);
-}
-
-.veil-mode .card-cosmic {
-  @apply bg-gradient-to-br from-gray-900 to-fuchsia-900/60 border border-pink-500/20;
-  box-shadow: 0 4px 20px -2px rgba(236, 72, 153, 0.3);
-}
-
-/* New: Improved Button Styling */
-.btn-primary {
-  @apply py-2 px-4 rounded-md font-medium text-white shadow-lg;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
-}
-
-.standard-mode .btn-primary {
-  @apply bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700;
-  box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.4);
-}
-
-.veil-mode .btn-primary {
-  @apply bg-gradient-to-r from-pink-600 to-fuchsia-600 hover:from-pink-700 hover:to-fuchsia-700;
-  box-shadow: 0 4px 6px -1px rgba(236, 72, 153, 0.4);
-}
-
-/* New: Improved Form Controls */
-.form-control {
-  @apply bg-gray-900 border-gray-700 text-white rounded-md px-4 py-2 w-full;
-  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
-}
-
-.form-control::placeholder {
-  @apply text-gray-400;
-}
-
-.form-control:focus {
-  @apply border-purple-500 ring-2 ring-purple-500/50 outline-none;
-}
-
-.veil-mode .form-control:focus {
-  @apply border-pink-500 ring-2 ring-pink-500/50;
-}
-
-/* New: Improved Card Content */
-.card-content {
-  @apply p-5 backdrop-blur-sm rounded-lg;
-}
-
-.standard-mode .card-content {
-  @apply bg-gray-900/80 border border-purple-500/20;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.veil-mode .card-content {
-  @apply bg-gray-900/80 border border-pink-500/20;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-/* New: Improved Labels */
-.form-label {
-  @apply block text-sm font-medium mb-1 text-white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-}
-
-/* New: Responsive Container */
-.responsive-container {
-  @apply w-full px-4 mx-auto;
-  max-width: 100%;
-}
-
-@media (min-width: 640px) {
-  .responsive-container {
-    max-width: 640px;
-  }
-}
-
-@media (min-width: 768px) {
-  .responsive-container {
-    max-width: 768px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .responsive-container {
-    max-width: 1024px;
-  }
-}
-
-@media (min-width: 1280px) {
-  .responsive-container {
-    max-width: 1280px;
-  }
-}
-
-/* Mobile-first responsive adjustments */
-@media (max-width: 640px) {
-  h1 {
-    @apply text-3xl;
-  }
-  
-  h2 {
-    @apply text-2xl;
-  }
-  
-  .container {
-    @apply px-4;
-  }
-}
-
-/* Global text readability enhancements */
-h1 {
-  @apply font-bold;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
-}
-
-h2, h3, h4, h5, h6 {
-  @apply font-semibold;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
-}
-
-p, span, a, label, button {
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
-}
-
-/* Enhanced text contrast for content on dark backgrounds */
-.text-enhanced {
-  @apply text-white font-medium;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
-}
-
-.text-contrast-high {
-  @apply text-white;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
-}
-
-/* Enhanced glow effects */
-.text-glow-light {
-  color: rgba(255, 255, 255, 0.98);
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
-}
-
-.text-glow-purple {
-  color: rgba(226, 195, 255, 0.98); /* Brighter purple */
-  text-shadow: 0 0 10px rgba(168, 85, 247, 0.8); /* Stronger glow */
-}
-
-.text-glow-pink {
-  color: rgba(255, 195, 225, 0.98); /* Brighter pink */
-  text-shadow: 0 0 10px rgba(236, 72, 153, 0.8); /* Stronger glow */
-}
-
-/* Enhanced card styling for better visibility */
-.card-accessible {
-  @apply backdrop-blur-sm bg-black/80 border border-white/30;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
-}
-
-.ethereal-card {
-  @apply backdrop-blur-md bg-black/80 border border-white/20 transition-all duration-300;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(255, 255, 255, 0.05);
-}
-
-.ethereal-card:hover {
-  @apply border-white/30;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), inset 0 0 40px rgba(255, 255, 255, 0.08);
+/* Text shadow utilities for better readability */
+.text-shadow-xs {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* Enhanced button styling with better shadows */
-.btn-primary {
-  @apply py-2 px-4 rounded-md font-medium text-white shadow-lg;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+.text-shadow-sm {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
-.standard-mode .btn-primary {
-  @apply bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700;
-  box-shadow: 0 4px 12px -1px rgba(99, 102, 241, 0.6);
+.text-shadow-md {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-.veil-mode .btn-primary {
-  @apply bg-gradient-to-r from-pink-600 to-fuchsia-600 hover:from-pink-700 hover:to-fuchsia-700;
-  box-shadow: 0 4px 12px -1px rgba(236, 72, 153, 0.6);
+.text-shadow-lg {
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
 }
 
-/* Additional readability improvements */
-.form-control {
-  @apply bg-gray-900 border-gray-700 text-white rounded-md px-4 py-2 w-full;
-  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+.text-shadow-xl {
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
 }
 
-.form-control::placeholder {
-  @apply text-gray-400;
+/* Enhanced text readability for dark/transparent backgrounds */
+.readable-text {
+  @apply text-shadow-md;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 
-.form-control:focus {
-  @apply border-purple-500 ring-2 ring-purple-500/50 outline-none;
+.readable-text-light {
+  @apply text-shadow-sm;
+  font-weight: 400;
 }
 
-.veil-mode .form-control:focus {
-  @apply border-pink-500 ring-2 ring-pink-500/50;
+.readable-text-bold {
+  @apply text-shadow-lg;
+  font-weight: 700;
 }
 
-/* Card content improvements */
-.card-content {
-  @apply p-5 backdrop-blur-sm rounded-lg;
+/* Standard gradient backgrounds with better text contrast */
+.bg-cosmic-dark {
+  @apply bg-gradient-to-br from-gray-900 to-black;
 }
 
-.standard-mode .card-content {
-  @apply bg-gray-900/80 border border-purple-500/20;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+.bg-cosmic-purple {
+  @apply bg-gradient-to-br from-purple-900/80 to-black;
 }
 
-.veil-mode .card-content {
-  @apply bg-gray-900/80 border border-pink-500/20;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+.bg-cosmic-blue {
+  @apply bg-gradient-to-br from-blue-900/80 to-black;
 }
 
-/* Label improvements */
-.form-label {
-  @apply block text-sm font-medium mb-1 text-white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+/* Card background with enhanced text readability */
+.card-cosmic {
+  @apply bg-black/70 backdrop-blur-md border border-white/10 shadow-xl;
 }

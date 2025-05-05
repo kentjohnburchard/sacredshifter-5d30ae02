@@ -22,7 +22,7 @@ interface LayoutProps {
   hideHeader?: boolean;
   theme?: string;
   useBlueWaveBackground?: boolean;
-  className?: string; // Added className prop
+  className?: string;
 }
 
 const Layout: React.FC<LayoutProps> = ({ 
@@ -32,10 +32,10 @@ const Layout: React.FC<LayoutProps> = ({
   showContextActions = true,
   showGlobalWatermark = true,
   showPlayer = true,
-  hideHeader = true, // Set to true by default to hide headers
+  hideHeader = true,
   theme,
   useBlueWaveBackground,
-  className = '', // Default to empty string
+  className = '',
 }) => {
   const { pathname } = useLocation();
   const isHomePage = pathname === "/";
@@ -56,14 +56,14 @@ const Layout: React.FC<LayoutProps> = ({
       {/* Fixed position background elements with higher z-index than before */}
       <div className="fixed inset-0 w-full h-full z-0">
         <SacredGridBackground 
-          intensity={liftTheVeil ? 0.5 : 0.4} /* Reduced intensity for better text contrast */
+          intensity={liftTheVeil ? 0.5 : 0.4}
           color={liftTheVeil ? '#FF70E9' : '#9b87f5'}
           pulseSpeed={liftTheVeil ? 0.7 : 0.5}
         />
       </div>
       
-      {/* Gradient overlay with increased opacity for better text readability */}
-      <div className="fixed inset-0 z-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60 pointer-events-none" />
+      {/* Overlay with increased opacity for better text readability */}
+      <div className="fixed inset-0 z-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70 pointer-events-none" />
       
       {/* Starfield with reduced opacity for better text contrast */}
       <div className="fixed inset-0 z-0 opacity-30">
@@ -90,7 +90,7 @@ const Layout: React.FC<LayoutProps> = ({
           
           <div className={`flex-grow min-h-[calc(100vh-80px)] pb-32 relative ${showNavbar ? 'sm:pl-20 pt-4' : 'pt-0'} overflow-x-hidden`}>
             {/* Darker semi-transparent overlay for better text contrast */}
-            <div className="absolute inset-0 bg-black/40 z-0"></div>
+            <div className="absolute inset-0 bg-black/50 z-0"></div>
             
             <div className="max-w-full mx-auto relative z-10">
               {children}
