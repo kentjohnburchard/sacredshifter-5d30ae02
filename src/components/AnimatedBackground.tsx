@@ -101,8 +101,8 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
               key={`particle-${i}`}
               className={`absolute rounded-full ${colors.particle} motion-reduce`}
               style={{
-                width: size,
-                height: size,
+                width: `${size}px`,
+                height: `${size}px`,
                 left: `${x}%`,
                 top: `${y}%`,
               }}

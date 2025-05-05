@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react";
 import { LogOut, CreditCard, User, LayoutDashboard } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -45,18 +46,18 @@ const Header: React.FC = () => {
       <div className="flex items-center">
         {user ? (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                <Avatar className="h-10 w-10">
+                <Avatar>
                   <AvatarImage src={user.user_metadata?.avatar_url || ""} alt={user.email || "User"} />
-                  <AvatarFallback className="bg-gradient-to-br from-indigo-400 to-purple-600 text-white">
+                  <AvatarFallback>
                     {user.email?.charAt(0).toUpperCase() || "U"}
                   </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56 bg-white dark:bg-gray-900" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">
+              <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">
                     {user.user_metadata?.full_name || "My Account"}

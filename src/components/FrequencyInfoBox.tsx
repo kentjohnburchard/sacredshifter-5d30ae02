@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { HealingFrequency } from "@/data/frequencies";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -76,12 +77,12 @@ const FrequencyInfoBox: React.FC<FrequencyInfoBoxProps> = ({
               Select a Sacred Frequency:
             </label>
             <Select value={selectedFrequency.id} onValueChange={handleFrequencyChange}>
-              <SelectTrigger className="w-full bg-black/50 border-white/20 text-white">
+              <SelectTrigger>
                 <SelectValue placeholder="Select a frequency" />
               </SelectTrigger>
-              <SelectContent className="bg-black/90 border-white/20 text-white">
+              <SelectContent>
                 {frequencies.map((freq) => (
-                  <SelectItem key={freq.id} value={freq.id} className="hover:bg-white/10">
+                  <SelectItem key={freq.id} value={freq.id}>
                     {freq.name} - {freq.frequency} Hz
                   </SelectItem>
                 ))}
@@ -129,43 +130,45 @@ const FrequencyInfoBox: React.FC<FrequencyInfoBoxProps> = ({
               </TabsTrigger>
             </TabsList>
             
-            <ScrollArea className="h-48 p-4 text-white">
-              <TabsContent value="about" className="mt-0 text-slate-200">
-                <p className="text-shadow-sm">{selectedFrequency.description}</p>
-              </TabsContent>
-              
-              <TabsContent value="benefits" className="mt-0">
-                {selectedFrequency.benefits && selectedFrequency.benefits.length > 0 ? (
-                  <ul className="space-y-2">
-                    {selectedFrequency.benefits.map((benefit, index) => (
-                      <li key={index} className="flex items-start">
-                        {getBenefitIcon(benefit, index)}
-                        <span className="text-slate-200 text-shadow-sm">{benefit}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-slate-200 text-shadow-sm">No specific benefits have been listed for this frequency.</p>
-                )}
-              </TabsContent>
-              
-              <TabsContent value="meditation" className="mt-0">
-                {selectedFrequency.meditations && selectedFrequency.meditations.length > 0 ? (
-                  <ul className="space-y-2">
-                    {selectedFrequency.meditations.map((meditation, index) => (
-                      <li key={index} className="flex items-start">
-                        <Flower className="h-5 w-5 mr-2 text-purple-300 shrink-0 mt-0.5" />
-                        <span className="text-slate-200 text-shadow-sm">{meditation}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-slate-200 text-shadow-sm">
-                    Sit comfortably with your spine straight. Close your eyes and take deep breaths while focusing on the sound. Allow the frequency to flow through your entire being, releasing any tension or blockages.
-                  </p>
-                )}
-              </TabsContent>
-            </ScrollArea>
+            <div className="p-4">
+              <ScrollArea className="h-48">
+                <TabsContent value="about" className="mt-0 text-slate-200">
+                  <p className="text-shadow-sm">{selectedFrequency.description}</p>
+                </TabsContent>
+                
+                <TabsContent value="benefits" className="mt-0">
+                  {selectedFrequency.benefits && selectedFrequency.benefits.length > 0 ? (
+                    <ul className="space-y-2">
+                      {selectedFrequency.benefits.map((benefit, index) => (
+                        <li key={index} className="flex items-start">
+                          {getBenefitIcon(benefit, index)}
+                          <span className="text-slate-200 text-shadow-sm">{benefit}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-slate-200 text-shadow-sm">No specific benefits have been listed for this frequency.</p>
+                  )}
+                </TabsContent>
+                
+                <TabsContent value="meditation" className="mt-0">
+                  {selectedFrequency.meditations && selectedFrequency.meditations.length > 0 ? (
+                    <ul className="space-y-2">
+                      {selectedFrequency.meditations.map((meditation, index) => (
+                        <li key={index} className="flex items-start">
+                          <Flower className="h-5 w-5 mr-2 text-purple-300 shrink-0 mt-0.5" />
+                          <span className="text-slate-200 text-shadow-sm">{meditation}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-slate-200 text-shadow-sm">
+                      Sit comfortably with your spine straight. Close your eyes and take deep breaths while focusing on the sound. Allow the frequency to flow through your entire being, releasing any tension or blockages.
+                    </p>
+                  )}
+                </TabsContent>
+              </ScrollArea>
+            </div>
           </Tabs>
         </div>
       </div>
@@ -173,10 +176,10 @@ const FrequencyInfoBox: React.FC<FrequencyInfoBoxProps> = ({
       <Dialog open={showMusicDialog} onOpenChange={setShowMusicDialog}>
         <DialogContent className="bg-black/90 border-purple-500/30 text-white max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-xl text-center bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-purple-400">
+            <DialogTitle>
               Create Music with {selectedFrequency.name}
             </DialogTitle>
-            <DialogDescription className="text-slate-300 text-center">
+            <DialogDescription>
               Would you like to generate a healing track using the {selectedFrequency.frequency}Hz frequency?
             </DialogDescription>
           </DialogHeader>
@@ -192,7 +195,7 @@ const FrequencyInfoBox: React.FC<FrequencyInfoBoxProps> = ({
           </div>
           
           <DialogFooter className="flex flex-col gap-2 sm:flex-row mt-4">
-            <DialogClose asChild>
+            <DialogClose>
               <Button variant="outline" className="border-white/20 text-white">
                 Cancel
               </Button>
