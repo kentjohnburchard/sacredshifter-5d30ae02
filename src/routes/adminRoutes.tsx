@@ -29,7 +29,18 @@ const AdminRoutes = () => {
       
       {/* Page editor routes */}
       <Route path="pages-canvas" element={<AdminPagesCanvas />} />
-      <Route path="edit-page/:pageId" element={<AdminEditPageModal />} />
+      <Route 
+        path="edit-page/:pageId" 
+        element={
+          <AdminEditPageModal 
+            open={true}
+            field={null}
+            page={null}
+            onClose={() => {}}
+            onSave={() => {}}
+          />
+        } 
+      />
       
       {/* Frequency management */}
       <Route path="sacred-spectrum" element={<SacredSpectrumAdmin />} />
