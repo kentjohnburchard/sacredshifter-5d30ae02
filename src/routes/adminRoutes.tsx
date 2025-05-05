@@ -8,7 +8,6 @@ import JourneyAudioMappingsViewer from '@/pages/admin/JourneyAudioMappingsViewer
 import JourneyTemplatesAdmin from '@/pages/JourneyTemplatesAdmin';
 import JourneyContentAdmin from '@/pages/JourneyContentAdmin';
 import AdminPagesCanvas from '@/pages/admin/AdminPagesCanvas';
-import AdminEditPageModal from '@/pages/admin/AdminEditPageModal';
 import SacredSpectrumAdmin from '@/pages/admin/SacredSpectrumAdmin';
 
 const AdminRoutes = () => {
@@ -29,18 +28,6 @@ const AdminRoutes = () => {
       
       {/* Page editor routes */}
       <Route path="pages-canvas" element={<AdminPagesCanvas />} />
-      <Route 
-        path="edit-page/:pageId" 
-        element={
-          <AdminEditPageModal 
-            open={true}
-            field={null}
-            page={null}
-            onClose={() => {}}
-            onSave={() => {}}
-          />
-        } 
-      />
       
       {/* Frequency management */}
       <Route path="sacred-spectrum" element={<SacredSpectrumAdmin />} />
