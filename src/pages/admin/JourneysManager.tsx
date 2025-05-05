@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { fetchJourneys, updateJourney, Journey, createJourney } from '@/services/journeyService';
@@ -7,15 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { PlusCircle, Loader2, Save, X, AlertCircle, FileText, Eye, Edit, Trash2 } from 'lucide-react';
+import { PlusCircle, Loader2, Save, X, AlertCircle, FileText, Eye, Edit } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getAllJourneys } from '@/utils/coreJourneyLoader';
 import { Badge } from '@/components/ui/badge';
+import JourneyCard from '@/components/admin/JourneyCard';
 
 const JourneysManager: React.FC = () => {
   const [journeys, setJourneys] = useState<Journey[]>([]);
@@ -24,6 +23,7 @@ const JourneysManager: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('basic');
+  const [viewMode, setViewMode] = useState<'table' | 'card'>('card');
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -59,20 +59,30 @@ const JourneysManager: React.FC = () => {
     loadJourneys();
   }, []);
 
-  const handleEditJourney = (journey: Journey) => {
-    // Capture whether this is a core content journey (has high ID)
-    const isCoreJourney = journey.id >= 1000; // We assigned high IDs to core content journeys
+  // Group journeys by slug
+  const groupedJourneys = React.useMemo(() => {
+    const groups: { [key: string]: Journey[] } = {};
     
+    journeys.forEach(journey => {
+      const slug = journey.filename || '';
+      if (!groups[slug]) {
+        groups[slug] = [];
+      }
+      groups[slug].push(journey);
+    });
+    
+    return groups;
+  }, [journeys]);
+
+  const handleEditJourney = (journey: Journey) => {
     setEditingJourney({ 
-      ...journey,
-      // Set a flag to indicate this is from core_content if it has a high ID
-      isCoreContent: isCoreJourney
-    } as Journey);
+      ...journey
+    });
     
     setIsDialogOpen(true);
     
     // Show a toast for core content journeys
-    if (isCoreJourney) {
+    if (journey.source === 'core') {
       toast.info('This is a core content journey. You can import it to the database to make it editable.');
     }
   };
@@ -102,7 +112,9 @@ const JourneysManager: React.FC = () => {
       env_incense: '',
       env_posture: '',
       env_tools: '',
-      recommended_users: ''
+      recommended_users: '',
+      source: 'database',
+      isEditable: true
     });
     setIsDialogOpen(true);
   };
@@ -179,16 +191,14 @@ const JourneysManager: React.FC = () => {
     
     try {
       // Create a copy of the journey without the id (will be assigned by the DB)
-      const { id, ...journeyData } = editingJourney;
+      const { id, source, isEditable, isCoreContent, ...journeyData } = editingJourney;
       
       // Create as a new journey in the database
       const newJourney = await createJourney(journeyData);
       toast.success('Journey imported to database successfully');
       
-      // Replace the core journey with the DB version in the list
-      setJourneys(prev => prev.map(j => 
-        j.filename === newJourney.filename ? newJourney : j
-      ));
+      // Add the new database version to the journeys list
+      setJourneys(prev => [...prev, newJourney]);
       
       setIsDialogOpen(false);
       setEditingJourney(null);
@@ -200,20 +210,33 @@ const JourneysManager: React.FC = () => {
     }
   };
 
+  const toggleViewMode = () => {
+    setViewMode(prevMode => prevMode === 'table' ? 'card' : 'table');
+  };
+
   return (
     <Layout pageTitle="Journey Manager">
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Sacred Journey Manager</h1>
-          <Button 
-            onClick={handleCreateNew} 
-            variant="gradient" 
-            size="lg" 
-            className="shadow-lg hover:scale-105 transition-transform"
-          >
-            <PlusCircle className="mr-2 h-5 w-5" />
-            Add New Journey
-          </Button>
+          <div className="flex items-center space-x-4">
+            <Button 
+              onClick={toggleViewMode} 
+              variant="outline"
+              className="shadow-md"
+            >
+              {viewMode === 'table' ? 'Card View' : 'Table View'}
+            </Button>
+            <Button 
+              onClick={handleCreateNew} 
+              variant="gradient" 
+              size="lg" 
+              className="shadow-lg hover:scale-105 transition-transform"
+            >
+              <PlusCircle className="mr-2 h-5 w-5" />
+              Add New Journey
+            </Button>
+          </div>
         </div>
         
         {loading ? (
@@ -221,81 +244,106 @@ const JourneysManager: React.FC = () => {
             <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
           </div>
         ) : (
-          <div className="bg-white/80 dark:bg-black/60 backdrop-blur-sm rounded-lg shadow overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Filename</TableHead>
-                  <TableHead>Source</TableHead>
-                  <TableHead>Tags</TableHead>
-                  <TableHead>Veil Locked</TableHead>
-                  <TableHead className="w-[250px] text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {journeys.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-gray-500">
-                      No journeys found. Create your first journey to get started.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  journeys.map((journey) => {
-                    // Determine if this is a core content journey (has high ID)
-                    const isCoreJourney = journey.id >= 1000;
-                    
-                    return (
-                      <TableRow 
-                        key={journey.id} 
-                        className="hover:bg-gray-50/30 dark:hover:bg-gray-900/30 cursor-pointer"
-                        onClick={() => handleEditJourney(journey)}
-                      >
-                        <TableCell className="font-medium">{journey.title}</TableCell>
-                        <TableCell>{journey.filename}</TableCell>
-                        <TableCell>
-                          {isCoreJourney ? (
-                            <Badge variant="outline" className="bg-blue-50 text-blue-700">
-                              <FileText className="h-3 w-3 mr-1" /> Core Content
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="bg-green-50 text-green-700">Database</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell>{journey.tags || '-'}</TableCell>
-                        <TableCell>{journey.veil_locked ? 'Yes' : 'No'}</TableCell>
-                        <TableCell onClick={(e) => e.stopPropagation()}>
-                          <div className="flex items-center justify-end space-x-3">
-                            <Button 
-                              size="sm" 
-                              variant="default" 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditJourney(journey);
-                              }}
-                              className="bg-purple-600 hover:bg-purple-700 shadow-md"
-                            >
-                              <Edit className="h-4 w-4 mr-1" /> Edit
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleViewJourney(journey.filename);
-                              }}
-                              className="border-purple-300 hover:bg-purple-100"
-                            >
-                              <Eye className="h-4 w-4 mr-1" /> View
-                            </Button>
-                          </div>
+          <div>
+            {viewMode === 'card' ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {Object.entries(groupedJourneys).map(([slug, versions]) => (
+                  <div key={slug} className="journey-group bg-white/5 backdrop-blur-sm p-4 rounded-lg">
+                    <h3 className="text-lg font-medium mb-3 pb-2 border-b border-gray-200/20">
+                      Journey Slug: {slug}
+                      <span className="ml-2 text-sm text-gray-500">({versions.length} versions)</span>
+                    </h3>
+                    <div className="space-y-4">
+                      {versions.map(journey => (
+                        <JourneyCard
+                          key={`${journey.id}-${journey.source}`}
+                          journey={journey}
+                          onEdit={handleEditJourney}
+                          onView={handleViewJourney}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white/80 dark:bg-black/60 backdrop-blur-sm rounded-lg shadow overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Title</TableHead>
+                      <TableHead>Filename</TableHead>
+                      <TableHead>Source</TableHead>
+                      <TableHead>Tags</TableHead>
+                      <TableHead>Veil Locked</TableHead>
+                      <TableHead className="w-[250px] text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {journeys.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                          No journeys found. Create your first journey to get started.
                         </TableCell>
                       </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
+                    ) : (
+                      journeys.map((journey) => {
+                        // Determine if this is a core content journey (has high ID)
+                        const isCoreJourney = journey.id >= 1000;
+                        
+                        return (
+                          <TableRow 
+                            key={journey.id} 
+                            className="hover:bg-gray-50/30 dark:hover:bg-gray-900/30 cursor-pointer"
+                            onClick={() => handleEditJourney(journey)}
+                          >
+                            <TableCell className="font-medium">{journey.title}</TableCell>
+                            <TableCell>{journey.filename}</TableCell>
+                            <TableCell>
+                              {isCoreJourney ? (
+                                <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                                  <FileText className="h-3 w-3 mr-1" /> Core Content
+                                </Badge>
+                              ) : (
+                                <Badge variant="outline" className="bg-green-50 text-green-700">Database</Badge>
+                              )}
+                            </TableCell>
+                            <TableCell>{journey.tags || '-'}</TableCell>
+                            <TableCell>{journey.veil_locked ? 'Yes' : 'No'}</TableCell>
+                            <TableCell onClick={(e) => e.stopPropagation()}>
+                              <div className="flex items-center justify-end space-x-3">
+                                <Button 
+                                  size="sm" 
+                                  variant="default" 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEditJourney(journey);
+                                  }}
+                                  className="bg-purple-600 hover:bg-purple-700 shadow-md"
+                                >
+                                  <Edit className="h-4 w-4 mr-1" /> Edit
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline" 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleViewJourney(journey.filename);
+                                  }}
+                                  className="border-purple-300 hover:bg-purple-100"
+                                >
+                                  <Eye className="h-4 w-4 mr-1" /> View
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
           </div>
         )}
         
@@ -305,13 +353,13 @@ const JourneysManager: React.FC = () => {
               <DialogTitle>
                 {editingJourney?.id === 0 
                   ? 'Create New Journey' 
-                  : editingJourney?.id && editingJourney.id >= 1000 
+                  : editingJourney?.source === 'core' 
                     ? `View Core Content Journey: ${editingJourney.title}` 
                     : `Edit Journey: ${editingJourney?.title}`
                 }
               </DialogTitle>
               
-              {editingJourney?.id && editingJourney.id >= 1000 && (
+              {editingJourney?.source === 'core' && (
                 <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-200 text-sm">
                   <div className="flex items-center gap-2 mb-2">
                     <AlertCircle className="h-4 w-4 text-blue-500" />
@@ -341,6 +389,7 @@ const JourneysManager: React.FC = () => {
                       value={editingJourney.title || ''}
                       onChange={handleInputChange}
                       className="col-span-3"
+                      disabled={editingJourney.source === 'core'}
                     />
                   </div>
                   
@@ -353,6 +402,7 @@ const JourneysManager: React.FC = () => {
                       onChange={handleInputChange}
                       className="col-span-3"
                       placeholder="e.g. heart-opening-journey"
+                      disabled={editingJourney.source === 'core'}
                     />
                   </div>
                   
@@ -365,6 +415,7 @@ const JourneysManager: React.FC = () => {
                       onChange={handleInputChange}
                       className="col-span-3"
                       placeholder="tag1, tag2, tag3"
+                      disabled={editingJourney.source === 'core'}
                     />
                   </div>
                   
@@ -375,6 +426,7 @@ const JourneysManager: React.FC = () => {
                         id="veil_locked"
                         checked={editingJourney.veil_locked || false}
                         onCheckedChange={handleSwitchChange}
+                        disabled={editingJourney.source === 'core'}
                       />
                       <span className="ml-2 text-sm text-gray-500">
                         {editingJourney.veil_locked ? 'Requires authentication' : 'Publicly accessible'}
@@ -391,6 +443,7 @@ const JourneysManager: React.FC = () => {
                       onChange={handleInputChange}
                       className="col-span-3"
                       placeholder="https://example.com/audio.mp3"
+                      disabled={editingJourney.source === 'core'}
                     />
                   </div>
                   
@@ -403,6 +456,7 @@ const JourneysManager: React.FC = () => {
                       onChange={handleInputChange}
                       className="col-span-3"
                       placeholder="e.g. 20 minutes"
+                      disabled={editingJourney.source === 'core'}
                     />
                   </div>
                   
@@ -415,6 +469,7 @@ const JourneysManager: React.FC = () => {
                       onChange={handleInputChange}
                       className="col-span-3"
                       placeholder="e.g. Beginners, Advanced practitioners"
+                      disabled={editingJourney.source === 'core'}
                     />
                   </div>
                 </TabsContent>
@@ -574,7 +629,7 @@ const JourneysManager: React.FC = () => {
                 Cancel
               </Button>
               
-              {editingJourney?.id && editingJourney.id >= 1000 ? (
+              {editingJourney?.source === 'core' ? (
                 <Button 
                   onClick={handleImportToDatabase} 
                   disabled={isSaving} 

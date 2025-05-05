@@ -28,6 +28,9 @@ export interface Journey {
   recommended_users?: string;
   // Flag for core content journeys (not stored in DB)
   isCoreContent?: boolean;
+  // New properties for source identification
+  source?: 'core' | 'database';
+  isEditable?: boolean;
 }
 
 export const fetchJourneys = async (): Promise<Journey[]> => {
@@ -41,7 +44,14 @@ export const fetchJourneys = async (): Promise<Journey[]> => {
     throw error;
   }
 
-  return data || [];
+  // Mark all database journeys as editable and set source
+  const dbJourneys = (data || []).map(journey => ({
+    ...journey,
+    source: 'database' as const,
+    isEditable: true
+  }));
+
+  return dbJourneys;
 };
 
 export const fetchJourneyBySlug = async (slug: string): Promise<Journey | null> => {
@@ -56,6 +66,14 @@ export const fetchJourneyBySlug = async (slug: string): Promise<Journey | null> 
     throw error;
   }
 
+  if (data) {
+    return {
+      ...data,
+      source: 'database',
+      isEditable: true
+    };
+  }
+  
   return data;
 };
 
@@ -77,7 +95,11 @@ export const updateJourney = async (journey: Partial<Journey> & { id: number }):
     throw error;
   }
 
-  return data;
+  return {
+    ...data,
+    source: 'database',
+    isEditable: true
+  };
 };
 
 export const createJourney = async (journey: Omit<Journey, 'id' | 'created_at' | 'updated_at'>): Promise<Journey> => {
@@ -95,5 +117,9 @@ export const createJourney = async (journey: Omit<Journey, 'id' | 'created_at' |
   }
 
   console.log("Journey created successfully:", data);
-  return data;
+  return {
+    ...data,
+    source: 'database',
+    isEditable: true
+  };
 };

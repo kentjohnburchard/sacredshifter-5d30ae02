@@ -35,7 +35,11 @@ export async function loadCoreJourneys(): Promise<Journey[]> {
           veil_locked: frontmatter.veil || false,
           description: parsedContent.intent || '',
           intent: parsedContent.intent || '',
-          sound_frequencies: frontmatter.frequency?.toString() || parsedContent.frequencies || ''
+          sound_frequencies: frontmatter.frequency?.toString() || parsedContent.frequencies || '',
+          // Set source and editability flags
+          source: 'core',
+          isEditable: false,
+          isCoreContent: true
         };
         
         journeys.push(journey);
@@ -56,13 +60,9 @@ export async function getAllJourneys(dbJourneys: Journey[]): Promise<Journey[]> 
   try {
     const coreJourneys = await loadCoreJourneys();
     
-    // Create a set of existing filenames to avoid duplicates
-    const existingFilenames = new Set(dbJourneys.map(j => j.filename));
-    
-    // Only add core journeys that don't exist in the database
-    const uniqueCoreJourneys = coreJourneys.filter(j => !existingFilenames.has(j.filename));
-    
-    return [...dbJourneys, ...uniqueCoreJourneys];
+    // Return all journeys - both from database and core content
+    // We want to show both versions side by side, even with the same slugs
+    return [...dbJourneys, ...coreJourneys];
   } catch (err) {
     console.error("Failed to combine journeys:", err);
     return dbJourneys;
