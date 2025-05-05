@@ -2,7 +2,6 @@ import React from "react";
 import { QueryClientProvider } from '@tanstack/react-query';
 import { createQueryClient } from './lib/queryClient';
 import App from "./App";
-import { AuthProvider } from "./context/AuthContext";
 
 // Create a client instance outside component for persistence
 const queryClient = createQueryClient();
@@ -10,9 +9,7 @@ const queryClient = createQueryClient();
 function Root() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <App />
     </QueryClientProvider>
   );
 }
