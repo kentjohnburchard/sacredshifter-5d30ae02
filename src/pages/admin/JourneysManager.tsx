@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { PlusCircle, Loader2, Save, X, AlertCircle, FileText, Eye, Edit } from 'lucide-react';
+import { PlusCircle, Loader2, Save, X, AlertCircle, FileText, Eye, Edit, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getAllJourneys } from '@/utils/coreJourneyLoader';
@@ -205,8 +205,8 @@ const JourneysManager: React.FC = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Sacred Journey Manager</h1>
-          <Button onClick={handleCreateNew} className="bg-purple-600 hover:bg-purple-700">
-            <PlusCircle className="mr-2 h-4 w-4" />
+          <Button onClick={handleCreateNew} variant="gradient" size="lg" className="shadow-lg">
+            <PlusCircle className="mr-2 h-5 w-5" />
             Add New Journey
           </Button>
         </div>
@@ -225,7 +225,7 @@ const JourneysManager: React.FC = () => {
                   <TableHead>Source</TableHead>
                   <TableHead>Tags</TableHead>
                   <TableHead>Veil Locked</TableHead>
-                  <TableHead className="w-[180px]">Actions</TableHead>
+                  <TableHead className="w-[220px] text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -241,7 +241,7 @@ const JourneysManager: React.FC = () => {
                     const isCoreJourney = journey.id >= 1000;
                     
                     return (
-                      <TableRow key={journey.id}>
+                      <TableRow key={journey.id} className="hover:bg-gray-50/30 dark:hover:bg-gray-900/30">
                         <TableCell className="font-medium">{journey.title}</TableCell>
                         <TableCell>{journey.filename}</TableCell>
                         <TableCell>
@@ -256,11 +256,21 @@ const JourneysManager: React.FC = () => {
                         <TableCell>{journey.tags || '-'}</TableCell>
                         <TableCell>{journey.veil_locked ? 'Yes' : 'No'}</TableCell>
                         <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <Button size="sm" variant="default" onClick={() => handleEditJourney(journey)}>
+                          <div className="flex items-center justify-end space-x-2">
+                            <Button 
+                              size="sm" 
+                              variant="default" 
+                              onClick={() => handleEditJourney(journey)}
+                              className="bg-purple-600 hover:bg-purple-700 shadow-md"
+                            >
                               <Edit className="h-4 w-4 mr-1" /> Edit
                             </Button>
-                            <Button size="sm" variant="outline" onClick={() => handleViewJourney(journey.filename)}>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              onClick={() => handleViewJourney(journey.filename)}
+                              className="border-purple-300 hover:bg-purple-100"
+                            >
                               <Eye className="h-4 w-4 mr-1" /> View
                             </Button>
                           </div>
@@ -544,13 +554,17 @@ const JourneysManager: React.FC = () => {
             )}
             
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="border-gray-300">
                 <X className="mr-2 h-4 w-4" />
                 Cancel
               </Button>
               
               {editingJourney?.id && editingJourney.id >= 1000 ? (
-                <Button onClick={handleImportToDatabase} disabled={isSaving} className="bg-blue-600 hover:bg-blue-700">
+                <Button 
+                  onClick={handleImportToDatabase} 
+                  disabled={isSaving} 
+                  className="bg-blue-600 hover:bg-blue-700 shadow-lg"
+                >
                   {isSaving ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -564,7 +578,11 @@ const JourneysManager: React.FC = () => {
                   )}
                 </Button>
               ) : (
-                <Button onClick={handleSaveJourney} disabled={isSaving} className="bg-purple-600 hover:bg-purple-700">
+                <Button 
+                  onClick={handleSaveJourney} 
+                  disabled={isSaving} 
+                  className="bg-purple-600 hover:bg-purple-700 shadow-lg"
+                >
                   {isSaving ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
