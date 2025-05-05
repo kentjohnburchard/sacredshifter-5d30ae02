@@ -1,3 +1,4 @@
+
 // src/utils/RouterHelpers.tsx (or rename as needed)
 
 import { useParams, useNavigate, useLocation, NavLink } from 'react-router-dom';
@@ -45,7 +46,6 @@ export const Link: React.FC<{
       className={({ isActive }) =>
         `${className} ${isActive && activeClassName ? activeClassName : ''}`
       }
-      aria-current={({ isActive }) => (isActive ? 'page' : undefined)}
     >
       {children}
     </NavLink>
