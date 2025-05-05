@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { fetchJourneys, updateJourney, Journey, createJourney } from '@/services/journeyService';
@@ -205,7 +204,12 @@ const JourneysManager: React.FC = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Sacred Journey Manager</h1>
-          <Button onClick={handleCreateNew} variant="gradient" size="lg" className="shadow-lg">
+          <Button 
+            onClick={handleCreateNew} 
+            variant="gradient" 
+            size="lg" 
+            className="shadow-lg hover:scale-105 transition-transform"
+          >
             <PlusCircle className="mr-2 h-5 w-5" />
             Add New Journey
           </Button>
@@ -225,7 +229,7 @@ const JourneysManager: React.FC = () => {
                   <TableHead>Source</TableHead>
                   <TableHead>Tags</TableHead>
                   <TableHead>Veil Locked</TableHead>
-                  <TableHead className="w-[220px] text-right">Actions</TableHead>
+                  <TableHead className="w-[250px] text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -256,7 +260,7 @@ const JourneysManager: React.FC = () => {
                         <TableCell>{journey.tags || '-'}</TableCell>
                         <TableCell>{journey.veil_locked ? 'Yes' : 'No'}</TableCell>
                         <TableCell>
-                          <div className="flex items-center justify-end space-x-2">
+                          <div className="flex items-center justify-end space-x-3">
                             <Button 
                               size="sm" 
                               variant="default" 
@@ -553,7 +557,7 @@ const JourneysManager: React.FC = () => {
               </Tabs>
             )}
             
-            <DialogFooter>
+            <DialogFooter className="mt-6">
               <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="border-gray-300">
                 <X className="mr-2 h-4 w-4" />
                 Cancel
