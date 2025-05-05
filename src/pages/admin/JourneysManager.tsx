@@ -15,6 +15,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getAllJourneys } from '@/utils/coreJourneyLoader';
 import { Badge } from '@/components/ui/badge';
 import JourneyCard from '@/components/admin/JourneyCard';
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableFooter,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableCaption,
+} from '@/components/ui/table';
 
 const JourneysManager: React.FC = () => {
   const [journeys, setJourneys] = useState<Journey[]>([]);
