@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -28,7 +27,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchProfile } from '@/utils/profiles';
 
-// Define the User type
+// Define the User type with strict role and status types
 interface User {
   id: string;
   name: string;
@@ -43,8 +42,8 @@ interface User {
   };
 }
 
-// Mock user data - in a real implementation, this would be fetched from the database
-const mockUsers = [
+// Mock user data with correct types
+const mockUsers: User[] = [
   { id: '1', name: 'Jane Cooper', email: 'jane@example.com', role: 'admin', lastActive: '2 hours ago', status: 'active' },
   { id: '2', name: 'Wade Warren', email: 'wade@example.com', role: 'moderator', lastActive: '1 day ago', status: 'active' },
   { id: '3', name: 'Esther Howard', email: 'esther@example.com', role: 'user', lastActive: '3 days ago', status: 'inactive' },
@@ -84,8 +83,8 @@ const UserManager: React.FC = () => {
           console.log('Using mock user data due to error or missing auth access:', error);
           setUsers(mockUsers);
         } else {
-          // Transform auth users to our format
-          const transformedUsers = await Promise.all(authUsers.users.map(async (authUser) => {
+          // Transform auth users to our format with correct typing
+          const transformedUsers: User[] = await Promise.all(authUsers.users.map(async (authUser) => {
             // Try to fetch profile data for each user
             let profile = null;
             try {
@@ -98,11 +97,11 @@ const UserManager: React.FC = () => {
               id: authUser.id,
               name: profile?.display_name || authUser.email?.split('@')[0] || 'Unknown',
               email: authUser.email || 'No email',
-              role: 'user' as 'admin' | 'moderator' | 'user', // Default to user
+              role: 'user' as 'admin' | 'moderator' | 'user', // Default to user with correct type
               lastActive: authUser.last_sign_in_at 
                 ? new Date(authUser.last_sign_in_at).toLocaleString() 
                 : 'Never',
-              status: authUser.banned ? 'inactive' : 'active',
+              status: authUser.banned ? 'inactive' : 'active' as 'active' | 'inactive',
               profile: profile || undefined
             };
           }));
@@ -157,30 +156,32 @@ const UserManager: React.FC = () => {
     try {
       if (selectedUser) {
         // Edit existing user
-        // In a real implementation, we would update the user in Supabase
-        console.log('Updating user:', selectedUser.id, data);
+        // Ensure correct typing for role and status
+        const updatedUser: User = {
+          ...selectedUser,
+          name: data.name,
+          role: data.role as 'admin' | 'moderator' | 'user',
+          status: data.status as 'active' | 'inactive',
+          profile: {
+            ...selectedUser.profile,
+            bio: data.bio
+          }
+        };
         
-        // Mock update for demonstration
         setUsers(users.map(user => 
-          user.id === selectedUser.id 
-            ? { ...user, ...data } 
-            : user
+          user.id === selectedUser.id ? updatedUser : user
         ));
         
         toast.success('User updated successfully');
         setIsEditDialogOpen(false);
       } else {
-        // Add new user
-        // In a real implementation, we would create a new user in Supabase
-        console.log('Creating new user:', data);
-        
-        // Mock add for demonstration
+        // Add new user with correct typing
         const newUser: User = {
           id: Date.now().toString(),
           name: data.name,
           email: data.email,
-          role: data.role,
-          status: data.status,
+          role: data.role as 'admin' | 'moderator' | 'user',
+          status: data.status as 'active' | 'inactive',
           lastActive: 'Never',
         };
         
