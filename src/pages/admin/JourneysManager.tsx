@@ -200,8 +200,17 @@ const JourneysManager: React.FC = () => {
     setIsSaving(true);
     
     try {
-      // Create a copy of the journey without the id (will be assigned by the DB)
-      const { id, source, isEditable, isCoreContent, ...journeyData } = editingJourney;
+      // Create a copy of the journey without the id, source, isEditable, isCoreContent properties
+      const { 
+        id, 
+        source, 
+        isEditable, 
+        isCoreContent, 
+        content, // Exclude content field as it doesn't exist in the database
+        ...journeyData 
+      } = editingJourney;
+      
+      console.log("Creating new journey with data:", journeyData);
       
       // Create as a new journey in the database
       const newJourney = await createJourney(journeyData);

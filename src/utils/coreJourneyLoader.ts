@@ -31,11 +31,15 @@ export async function loadCoreJourneys(): Promise<Journey[]> {
           filename: filename,
           title: frontmatter.title || filename,
           tags: frontmatter.tags?.join(', '),
-          content: content,
+          // Don't include the raw content field that doesn't exist in the database schema
+          // content: content,
           veil_locked: frontmatter.veil || false,
           description: parsedContent.intent || '',
           intent: parsedContent.intent || '',
           sound_frequencies: frontmatter.frequency?.toString() || parsedContent.frequencies || '',
+          script: parsedContent.script || '',
+          duration: parsedContent.duration || '',
+          notes: parsedContent.notes || '',
           // Set source and editability flags
           source: 'core',
           isEditable: false,
