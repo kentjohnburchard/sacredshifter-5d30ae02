@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { fetchJourneys, updateJourney, Journey, createJourney } from '@/services/journeyService';
@@ -245,7 +246,11 @@ const JourneysManager: React.FC = () => {
                     const isCoreJourney = journey.id >= 1000;
                     
                     return (
-                      <TableRow key={journey.id} className="hover:bg-gray-50/30 dark:hover:bg-gray-900/30">
+                      <TableRow 
+                        key={journey.id} 
+                        className="hover:bg-gray-50/30 dark:hover:bg-gray-900/30 cursor-pointer"
+                        onClick={() => handleEditJourney(journey)}
+                      >
                         <TableCell className="font-medium">{journey.title}</TableCell>
                         <TableCell>{journey.filename}</TableCell>
                         <TableCell>
@@ -259,12 +264,15 @@ const JourneysManager: React.FC = () => {
                         </TableCell>
                         <TableCell>{journey.tags || '-'}</TableCell>
                         <TableCell>{journey.veil_locked ? 'Yes' : 'No'}</TableCell>
-                        <TableCell>
+                        <TableCell onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end space-x-3">
                             <Button 
                               size="sm" 
                               variant="default" 
-                              onClick={() => handleEditJourney(journey)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditJourney(journey);
+                              }}
                               className="bg-purple-600 hover:bg-purple-700 shadow-md"
                             >
                               <Edit className="h-4 w-4 mr-1" /> Edit
@@ -272,7 +280,10 @@ const JourneysManager: React.FC = () => {
                             <Button 
                               size="sm" 
                               variant="outline" 
-                              onClick={() => handleViewJourney(journey.filename)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewJourney(journey.filename);
+                              }}
                               className="border-purple-300 hover:bg-purple-100"
                             >
                               <Eye className="h-4 w-4 mr-1" /> View
