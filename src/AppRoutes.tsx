@@ -13,8 +13,10 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import NotFound from '@/pages/NotFound';
 import ScrollToTop from '@/components/ScrollToTop';
 
+// ✅ Correct homepage import
+import Home from '@/pages/Home';
+
 // Core Pages
-import HomePage from '@/pages/Home';
 import JourneyPage from '@/pages/JourneyPage';
 import FrequencyLibraryPage from '@/pages/FrequencyLibraryPage';
 import SacredGeometryPage from '@/pages/SacredGeometryPage';
