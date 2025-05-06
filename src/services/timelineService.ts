@@ -1,101 +1,97 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { JourneyTimelineItem } from '@/types/journey';
 import { ChakraTag } from '@/types/chakras';
 
-export const fetchUserTimeline = async (userId: string, tag?: string): Promise<JourneyTimelineItem[]> => {
+export const fetchUserTimeline = async (
+  userId: string,
+  tag?: string
+): Promise<JourneyTimelineItem[]> => {
   try {
     let query = supabase
       .from('timeline_snapshots')
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
-    
+
     if (tag) {
       query = query.ilike('tag', `%${tag}%`);
     }
-    
+
     const { data, error } = await query;
-    
+
     if (error) {
       console.error('Error fetching timeline:', error);
       return [];
     }
-    
-    return data as JourneyTimelineItem[];
+
+    return data as unknown as JourneyTimelineItem[];
   } catch (err) {
     console.error('Error in fetchUserTimeline:', err);
     return [];
   }
 };
 
-export const fetchJourneyTimeline = async (userId: string, journeyId: string): Promise<JourneyTimelineItem[]> => {
+export const fetchJourneyTimeline = async (
+  userId: string,
+  journeyId: string
+): Promise<JourneyTimelineItem[]> => {
   try {
-    // First try to find entries that directly match the journeyId
     const { data: directMatches, error: directError } = await supabase
       .from('timeline_snapshots')
       .select('*')
       .eq('user_id', userId)
       .eq('journey_id', journeyId)
       .order('created_at', { ascending: false });
-    
+
     if (directError) {
       console.error('Error fetching journey timeline:', directError);
       return [];
     }
-    
-    // Get all entries to check for journeyId in notes
+
     const { data: allEntries, error: allError } = await supabase
       .from('timeline_snapshots')
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
-    
+
     if (allError) {
       console.error('Error fetching all timeline entries:', allError);
-      return directMatches as JourneyTimelineItem[] || [];
+      return directMatches as unknown as JourneyTimelineItem[] || [];
     }
-    
-    // Create an array to store matches from notes field
-    const notesMatches: any[] = [];
-    
-    // Manually process each entry to avoid deep type recursion
+
+    const notesMatches: JourneyTimelineItem[] = [];
+
     if (allEntries) {
       for (const entry of allEntries) {
         if (!entry.notes || typeof entry.notes !== 'string') {
           continue;
         }
-        
-        try {
-          const notesText = entry.notes;
-          // Simple string check first to avoid parsing if possible
-          if (notesText.includes(journeyId)) {
-            try {
-              const notesObj = JSON.parse(notesText);
-              if (notesObj && typeof notesObj === 'object' && notesObj.journeyId === journeyId) {
-                notesMatches.push(entry);
-              }
-            } catch (e) {
-              // Skip entries with invalid JSON
+
+        if (entry.notes.includes(journeyId)) {
+          try {
+            const notesObj = JSON.parse(entry.notes);
+            if (
+              notesObj &&
+              typeof notesObj === 'object' &&
+              notesObj.journeyId === journeyId
+            ) {
+              notesMatches.push(entry as JourneyTimelineItem);
             }
+          } catch {
+            // Skip malformed JSON
           }
-        } catch (e) {
-          // Skip any problematic entries
         }
       }
     }
-    
-    // Combine results and deduplicate
-    const directMatchesArray = directMatches || [];
-    const uniqueEntries = [...directMatchesArray];
-    
-    // Add notes matches that aren't already in direct matches
+
+    const uniqueEntries = [...(directMatches || [])];
+
     for (const match of notesMatches) {
       if (!uniqueEntries.some(entry => entry.id === match.id)) {
         uniqueEntries.push(match);
       }
     }
-    
+
     return uniqueEntries as JourneyTimelineItem[];
   } catch (err) {
     console.error('Error in fetchJourneyTimeline:', err);
@@ -122,12 +118,12 @@ export const createTimelineEntry = async (
       })
       .select()
       .single();
-    
+
     if (error) {
       console.error('Error creating timeline entry:', error);
       return null;
     }
-    
+
     return data as JourneyTimelineItem;
   } catch (err) {
     console.error('Error in createTimelineEntry:', err);
@@ -145,24 +141,24 @@ export const updateTimelineEntry = async (
   }
 ): Promise<boolean> => {
   try {
-    // Format notes if it's an object
     const formattedUpdates = {
       ...updates,
-      notes: updates.notes && typeof updates.notes !== 'string' 
-        ? JSON.stringify(updates.notes) 
-        : updates.notes
+      notes:
+        updates.notes && typeof updates.notes !== 'string'
+          ? JSON.stringify(updates.notes)
+          : updates.notes
     };
-    
+
     const { error } = await supabase
       .from('timeline_snapshots')
       .update(formattedUpdates)
       .eq('id', entryId);
-    
+
     if (error) {
       console.error('Error updating timeline entry:', error);
       return false;
     }
-    
+
     return true;
   } catch (err) {
     console.error('Error in updateTimelineEntry:', err);
@@ -176,12 +172,12 @@ export const deleteTimelineEntry = async (entryId: string): Promise<boolean> => 
       .from('timeline_snapshots')
       .delete()
       .eq('id', entryId);
-    
+
     if (error) {
       console.error('Error deleting timeline entry:', error);
       return false;
     }
-    
+
     return true;
   } catch (err) {
     console.error('Error in deleteTimelineEntry:', err);
@@ -197,24 +193,25 @@ export const logTimelineEvent = async (
   details?: any
 ): Promise<boolean> => {
   try {
-    const { error } = await supabase
-      .from('timeline_snapshots')
-      .insert({
-        user_id: userId,
-        title: `${category}: ${action}`,
-        tag: category,
-        notes: typeof details === 'string' ? details : JSON.stringify({
-          action,
-          journeyId,
-          ...details
-        })
-      });
-    
+    const { error } = await supabase.from('timeline_snapshots').insert({
+      user_id: userId,
+      title: `${category}: ${action}`,
+      tag: category,
+      notes:
+        typeof details === 'string'
+          ? details
+          : JSON.stringify({
+              action,
+              journeyId,
+              ...details
+            })
+    });
+
     if (error) {
       console.error('Error logging timeline event:', error);
       return false;
     }
-    
+
     return true;
   } catch (err) {
     console.error('Error in logTimelineEvent:', err);
