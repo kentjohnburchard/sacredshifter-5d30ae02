@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -11,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Progress } from '@/components/ui/progress';
 import { ChakraTag } from '@/types/chakras';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 
 const AdminInsightsDashboard: React.FC = () => {
   const { user } = useAuth();

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/context/AuthContext';
@@ -93,7 +94,7 @@ const ChakraCard = ({ chakra, count, percentage }: { chakra: ChakraTag, count: n
   return (
     <div className="bg-black/60 border-purple-500/30 border rounded-lg p-6 hover:scale-105 transition-transform duration-300">
       <div className="flex items-center mb-4">
-        <ChakraIcon chakraTag={chakra} size={40} className="mr-4" />
+        <ChakraIcon chakra={chakra} size={40} className="mr-4" />
         <h2 className="text-xl font-semibold text-white">{chakra} Chakra</h2>
       </div>
       <p className="text-gray-300 mb-2">

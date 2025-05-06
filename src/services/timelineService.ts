@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { JourneyTimelineItem } from '@/types/journey';
 import { ChakraTag } from '@/types/chakras';
@@ -54,12 +55,15 @@ export const fetchJourneyTimeline = async (userId: string, journeyId: string): P
       return directMatches as JourneyTimelineItem[] || [];
     }
     
-    // Filter entries that have the journeyId in notes
+    // Filter entries that have the journeyId in notes - fixing the deep type instantiation
     const notesMatches = (allEntries || []).filter(entry => {
+      if (!entry.notes) return false;
+      
       try {
-        if (entry.notes) {
+        // Check if it's a JSON string and contains journeyId
+        if (typeof entry.notes === 'string') {
           const parsedNotes = JSON.parse(entry.notes);
-          return parsedNotes.journeyId === journeyId;
+          return parsedNotes && typeof parsedNotes === 'object' && parsedNotes.journeyId === journeyId;
         }
         return false;
       } catch (e) {

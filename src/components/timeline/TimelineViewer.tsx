@@ -104,7 +104,7 @@ const TimelineViewer: React.FC<TimelineViewerProps> = ({ activeTagFilter, chakra
             
             {entry.chakra && (
               <Badge variant="outline" className="flex items-center gap-1 bg-purple-900/30 border-purple-500/30">
-                <ChakraIcon chakraTag={entry.chakra as ChakraTag} size={14} />
+                <ChakraIcon chakra={entry.chakra as ChakraTag} size={14} />
                 {entry.chakra}
               </Badge>
             )}
