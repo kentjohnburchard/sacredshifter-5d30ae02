@@ -25,7 +25,7 @@ export interface JourneyPrompt {
   trigger: string;
   content: string;
   priority_level: number;
-  display_type: 'dialog' | 'tooltip' | 'modal';
+  display_type: "dialog" | "tooltip" | "modal";
   active: boolean;
 }
 
@@ -290,7 +290,14 @@ export function JourneyProvider({ children }: { children: ReactNode }) {
       
       if (prompts && prompts.length > 0) {
         console.log(`Found ${prompts.length} prompts for location ${location}`);
-        setActivePrompts(prompts);
+        
+        // Convert display_type to our union type
+        const typedPrompts = prompts.map(prompt => ({
+          ...prompt,
+          display_type: validateDisplayType(prompt.display_type)
+        }));
+        
+        setActivePrompts(typedPrompts);
         
         // Record prompt view if user is logged in
         if (user) {
@@ -305,6 +312,15 @@ export function JourneyProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error("Error in fetchPromptsForLocation:", error);
     }
+  };
+  
+  // Helper function to validate display_type
+  const validateDisplayType = (type: string): "dialog" | "tooltip" | "modal" => {
+    if (type === "dialog" || type === "tooltip" || type === "modal") {
+      return type;
+    }
+    // Default to dialog if the type is not recognized
+    return "dialog";
   };
   
   const handlePromptAction = async (promptId: string, action: string) => {

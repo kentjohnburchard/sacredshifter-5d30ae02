@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { JourneyPrompt } from '@/context/JourneyContext';
-import { X, Check } from 'lucide-react';
+import { X, Check, Bookmark } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
 interface TooltipPromptProps {
@@ -14,7 +14,8 @@ interface TooltipPromptProps {
 const TooltipPrompt: React.FC<TooltipPromptProps> = ({ 
   prompt, 
   onDismiss, 
-  onComplete 
+  onComplete,
+  onSave
 }) => {
   return (
     <div className="absolute z-50 animate-in fade-in zoom-in-95 duration-200">
@@ -35,7 +36,14 @@ const TooltipPrompt: React.FC<TooltipPromptProps> = ({
           <ReactMarkdown>{prompt.content}</ReactMarkdown>
         </div>
         
-        <div className="flex justify-end mt-2">
+        <div className="flex justify-end mt-2 gap-2">
+          <button 
+            onClick={onSave}
+            className="flex items-center gap-1 text-xs text-purple-200 hover:text-white bg-purple-800/40 hover:bg-purple-700/40 rounded px-1.5 py-0.5"
+          >
+            <Bookmark className="h-3 w-3" />
+            Save
+          </button>
           <button 
             onClick={onComplete}
             className="flex items-center gap-1 text-xs text-emerald-200 hover:text-white bg-emerald-800/40 hover:bg-emerald-700/40 rounded px-1.5 py-0.5"
@@ -45,7 +53,7 @@ const TooltipPrompt: React.FC<TooltipPromptProps> = ({
           </button>
         </div>
       </div>
-      <div className="w-3 h-3 bg-black/90 rotate-45 absolute -bottom-1.5 left-1/2 -translate-x-1/2 border-r border-b border-purple-500/30"></div>
+      <div className="w-3 h-3 bg-black/90 rotate-45 absolute -bottom-1.5 left-1/2 -translate-x-1.5 border-r border-b border-purple-500/30"></div>
     </div>
   );
 };
