@@ -49,11 +49,6 @@ import Placeholder from './pages/Placeholder';
 const SettingsPage = lazy(() => import('./pages/AccountPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFound'));
 
-// Fix ProtectedRoute by creating a proper interface
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-}
-
 const AppRoutes: React.FC = () => {
   const { user, loading } = useAuth();
 
@@ -70,42 +65,40 @@ const AppRoutes: React.FC = () => {
         <Route path="/about-founder" element={activePages.aboutFounder ? <AboutFounderPage /> : <Navigate to="/" />} />
         <Route path="/contact" element={activePages.contact ? <ContactPage /> : <Navigate to="/" />} />
         
-        {/* Protected Routes */}
-        <Route element={<ProtectedRoute><Dashboard /></ProtectedRoute>}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/dashboard" element={activePages.dashboard ? <Dashboard /> : <Navigate to="/" />} />
-          <Route path="/sacred-blueprint" element={activePages.sacredBlueprint ? <SacredBlueprintPage /> : <Navigate to="/" />} />
-          <Route path="/frequency-library" element={activePages.frequencyLibrary ? <FrequencyLibraryPage /> : <Navigate to="/" />} />
-          <Route path="/heart-center" element={activePages.heartCenter ? <HeartCenterPage /> : <Navigate to="/" />} />
-          <Route path="/emotion-engine" element={activePages.emotionEngine ? <EmotionEnginePage /> : <Navigate to="/" />} />
-          <Route path="/timeline" element={activePages.timeline ? <TimelinePage /> : <Navigate to="/" />} />
-          <Route path="/music-generator" element={activePages.musicGenerator ? <MusicGeneratorPage /> : <Navigate to="/" />} />
-          <Route path="/mirror-portal" element={activePages.mirrorPortal ? <MirrorPortalPage /> : <Navigate to="/" />} />
-          <Route path="/frequency-shift" element={activePages.frequencyShift ? <FrequencyShiftPage /> : <Navigate to="/" />} />
-          <Route path="/shift-perception" element={activePages.shiftPerception ? <ShiftPerceptionPage /> : <Navigate to="/" />} />
-          <Route path="/hermetic-principles" element={activePages.hermeticPrinciples ? <HermeticPrinciplesPage /> : <Navigate to="/" />} />
-          <Route path="/soul-scribe" element={activePages.soulScribe ? <SoulScribePage /> : <Navigate to="/" />} />
-          <Route path="/deity-oracle" element={activePages.deityOracle ? <DeityOraclePage /> : <Navigate to="/" />} />
-          <Route path="/astral-attunement" element={activePages.astralAttunement ? <AstralAttunementPage /> : <Navigate to="/" />} />
-          <Route path="/subscription" element={activePages.subscription ? <SubscriptionPage /> : <Navigate to="/" />} />
-          <Route path="/trinity-gateway" element={activePages.trinityGateway ? <TrinityGatewayPage /> : <Navigate to="/" />} />
-          <Route path="/profile" element={activePages.profile ? <ProfilePage /> : <Navigate to="/" />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/harmonic-map" element={activePages.harmonicMap ? <HarmonicMapPage /> : <Navigate to="/" />} />
-          <Route path="/heart-dashboard" element={activePages.heartDashboard ? <HeartDashboardPage /> : <Navigate to="/" />} />
-          <Route path="/alignment" element={activePages.alignment ? <AlignmentPage /> : <Navigate to="/" />} />
-          <Route path="/energy-check" element={activePages.energyCheck ? <EnergyCheckPage /> : <Navigate to="/" />} />
-          <Route path="/focus" element={activePages.focus ? <FocusPage /> : <Navigate to="/" />} />
-          <Route path="/hermetic-wisdom" element={activePages.hermeticWisdom ? <HermeticWisdomPage /> : <Navigate to="/" />} />
-          <Route path="/journey-templates" element={activePages.journeyTemplates ? <JourneyTemplatesPage /> : <Navigate to="/" />} />
-          <Route path="/journeys" element={activePages.journeys ? <JourneysPage /> : <Navigate to="/" />} />
-          <Route path="/astrology" element={activePages.astrology ? <AstrologyPage /> : <Navigate to="/" />} />
-          <Route path="/site-map" element={activePages.siteMap ? <SiteMapPage /> : <Navigate to="/" />} />
-          <Route path="/sacred-spectrum" element={activePages.sacredSpectrum ? <SacredSpectrumPage /> : <Navigate to="/" />} />
-          <Route path="/journeys-directory" element={activePages.journeysDirectory ? <JourneysDirectoryPage /> : <Navigate to="/" />} />
-          <Route path="/sacred-circle" element={<SacredCircle />} />
-          <Route path="/circle" element={<CircleHomePage />} />
-        </Route>
+        {/* Protected Routes - Fixed by removing the nested Dashboard wrapping */}
+        <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute>{activePages.dashboard ? <Dashboard /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/sacred-blueprint" element={<ProtectedRoute>{activePages.sacredBlueprint ? <SacredBlueprintPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/frequency-library" element={<ProtectedRoute>{activePages.frequencyLibrary ? <FrequencyLibraryPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/heart-center" element={<ProtectedRoute>{activePages.heartCenter ? <HeartCenterPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/emotion-engine" element={<ProtectedRoute>{activePages.emotionEngine ? <EmotionEnginePage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/timeline" element={<ProtectedRoute>{activePages.timeline ? <TimelinePage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/music-generator" element={<ProtectedRoute>{activePages.musicGenerator ? <MusicGeneratorPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/mirror-portal" element={<ProtectedRoute>{activePages.mirrorPortal ? <MirrorPortalPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/frequency-shift" element={<ProtectedRoute>{activePages.frequencyShift ? <FrequencyShiftPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/shift-perception" element={<ProtectedRoute>{activePages.shiftPerception ? <ShiftPerceptionPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/hermetic-principles" element={<ProtectedRoute>{activePages.hermeticPrinciples ? <HermeticPrinciplesPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/soul-scribe" element={<ProtectedRoute>{activePages.soulScribe ? <SoulScribePage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/deity-oracle" element={<ProtectedRoute>{activePages.deityOracle ? <DeityOraclePage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/astral-attunement" element={<ProtectedRoute>{activePages.astralAttunement ? <AstralAttunementPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/subscription" element={<ProtectedRoute>{activePages.subscription ? <SubscriptionPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/trinity-gateway" element={<ProtectedRoute>{activePages.trinityGateway ? <TrinityGatewayPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute>{activePages.profile ? <ProfilePage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+        <Route path="/harmonic-map" element={<ProtectedRoute>{activePages.harmonicMap ? <HarmonicMapPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/heart-dashboard" element={<ProtectedRoute>{activePages.heartDashboard ? <HeartDashboardPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/alignment" element={<ProtectedRoute>{activePages.alignment ? <AlignmentPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/energy-check" element={<ProtectedRoute>{activePages.energyCheck ? <EnergyCheckPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/focus" element={<ProtectedRoute>{activePages.focus ? <FocusPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/hermetic-wisdom" element={<ProtectedRoute>{activePages.hermeticWisdom ? <HermeticWisdomPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/journey-templates" element={<ProtectedRoute>{activePages.journeyTemplates ? <JourneyTemplatesPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/journeys" element={<ProtectedRoute>{activePages.journeys ? <JourneysPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/astrology" element={<ProtectedRoute>{activePages.astrology ? <AstrologyPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/site-map" element={<ProtectedRoute>{activePages.siteMap ? <SiteMapPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/sacred-spectrum" element={<ProtectedRoute>{activePages.sacredSpectrum ? <SacredSpectrumPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/journeys-directory" element={<ProtectedRoute>{activePages.journeysDirectory ? <JourneysDirectoryPage /> : <Navigate to="/" />}</ProtectedRoute>} />
+        <Route path="/sacred-circle" element={<ProtectedRoute><SacredCircle /></ProtectedRoute>} />
+        <Route path="/circle" element={<ProtectedRoute><CircleHomePage /></ProtectedRoute>} />
         
         {/* 404 Route */}
         <Route path="*" element={<NotFoundPage />} />
