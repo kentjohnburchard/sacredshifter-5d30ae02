@@ -11,20 +11,24 @@ import { useCommunity } from "./contexts/CommunityContext";
 function App() {
   const location = useLocation();
   const { user, loading } = useAuth();
-  const { setCurrentPath } = useJourney();
-  const { updateUserState } = useGuidance();
+  const { currentPath, setCurrentPath } = useJourney();
+  const { userState, updateUserState } = useGuidance();
   const { posts } = useCommunity();
 
   // Update current path in JourneyContext when location changes
   useEffect(() => {
-    setCurrentPath(location.pathname);
+    if (setCurrentPath) {
+      setCurrentPath(location.pathname);
+    }
     
     // Update user state for guidance system
-    updateUserState({
-      currentPath: location.pathname,
-      lastActive: new Date(),
-      communityActivity: posts.length > 0
-    });
+    if (updateUserState) {
+      updateUserState({
+        currentPath: location.pathname,
+        lastActive: new Date(),
+        communityActivity: posts.length > 0
+      });
+    }
   }, [location, setCurrentPath, updateUserState, posts]);
 
   return (
