@@ -204,7 +204,7 @@ export const getResonantSignature = (
   const alignmentLevel = 
     alignmentScore >= 80 ? 'Harmonized' :
     alignmentScore >= 60 ? 'Aligned' :
-    alignmentScore >= 40 ? 'Awakening' : 'Seekeing';
+    alignmentScore >= 40 ? 'Awakening' : 'Seeking';
   
   const chakraElement = dominantChakra ? 
     dominantChakra === 'Root' ? 'Earth' :
