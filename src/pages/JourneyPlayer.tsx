@@ -26,10 +26,20 @@ import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import SacredGridVisualizer from '@/components/SacredGridVisualizer';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { useJourney } from '@/context/JourneyContext';
 
 const JourneyPlayer = () => {
   const { journeyId } = useParams<{ journeyId: string }>();
   const navigate = useNavigate();
+  
+  // Use the journey context
+  const { 
+    activeJourney, 
+    startJourney, 
+    completeJourney, 
+    recordActivity 
+  } = useJourney();
+  
   const { 
     playAudio, 
     isPlaying, 
@@ -87,6 +97,11 @@ const JourneyPlayer = () => {
     setLocalVolume(volumeValue);
     if (setVolume) {
       setVolume(volumeValue);
+    }
+    
+    // Record activity
+    if (journey) {
+      recordActivity('adjust_volume', { volume: volumeValue });
     }
   };
 
@@ -154,7 +169,7 @@ const JourneyPlayer = () => {
     return () => {
       setOnEndedCallback(null);
     };
-  }, [journey, playAudio, setOnEndedCallback]);
+  }, [journey, playAudio, setOnEndedCallback, recordActivity]);
 
   useEffect(() => {
     if (!journeyId) {
@@ -174,6 +189,16 @@ const JourneyPlayer = () => {
       console.log(`JourneyPlayer: Found journey:`, foundJourney);
       setJourney(foundJourney);
       
+      // Initialize the journey in context if not already active
+      if (!activeJourney || activeJourney.id !== journeyId) {
+        startJourney({
+          id: foundJourney.id,
+          title: foundJourney.title,
+          description: foundJourney.description,
+          chakra: foundJourney.chakras?.[0]
+        });
+      }
+      
       if (!loadingSongs) {
         setIsLoading(false);
       }
@@ -182,7 +207,7 @@ const JourneyPlayer = () => {
       toast.error("Journey not found");
       setIsLoading(false);
     }
-  }, [journeyId, navigate, templates, loadingSongs, loadingTemplates]);
+  }, [journeyId, navigate, templates, loadingSongs, loadingTemplates, activeJourney, startJourney]);
 
   useEffect(() => {
     if (audioPlayAttemptedRef.current || isLoading || loadingSongs || !journey) {
@@ -329,8 +354,23 @@ const JourneyPlayer = () => {
     if (isPlaying && currentAudio?.source) {
       setPlayerVisible(true);
       console.log("JourneyPlayer: Current audio source:", currentAudio.source);
+      
+      // Record playback activity
+      if (journey && !audioPlayAttemptedRef.current) {
+        recordActivity('audio_playback_started', {
+          trackTitle: currentAudio.title,
+          frequency: currentAudio.frequency
+        });
+        audioPlayAttemptedRef.current = true;
+      }
     }
-  }, [isPlaying, currentAudio]);
+  }, [isPlaying, currentAudio, journey, recordActivity]);
+
+  const handleJourneyComplete = () => {
+    completeJourney();
+    toast.success("Journey completed! Your progress has been saved.");
+    navigate('/dashboard');
+  };
 
   if (isLoading || loadingSongs || loadingTemplates) {
     return (
@@ -379,7 +419,10 @@ const JourneyPlayer = () => {
               <div className="flex space-x-2">
                 <Button
                   variant="outline"
-                  onClick={() => setInfoExpanded(!infoExpanded)}
+                  onClick={() => {
+                    setInfoExpanded(!infoExpanded);
+                    recordActivity('toggle_info', { expanded: !infoExpanded });
+                  }}
                   className="flex items-center gap-2"
                 >
                   <Info className="h-4 w-4" />
@@ -387,7 +430,7 @@ const JourneyPlayer = () => {
                 </Button>
                 
                 <Button 
-                  onClick={() => navigate('/journey-templates')}
+                  onClick={() => navigate('/journeys-directory')}
                   className="bg-gradient-to-r from-purple-600 to-indigo-600"
                 >
                   Back to Journeys
@@ -399,7 +442,10 @@ const JourneyPlayer = () => {
             <Tabs 
               defaultValue="player" 
               value={activeTab}
-              onValueChange={setActiveTab}
+              onValueChange={(tab) => {
+                setActiveTab(tab);
+                recordActivity('change_tab', { tab });
+              }}
               className="mt-4"
             >
               <TabsList className="grid w-full grid-cols-2 mb-6">
@@ -626,6 +672,16 @@ const JourneyPlayer = () => {
                 </div>
               </TabsContent>
             </Tabs>
+            
+            <div className="mt-6 flex justify-center">
+              <Button
+                variant="default"
+                className="bg-purple-600 hover:bg-purple-700"
+                onClick={handleJourneyComplete}
+              >
+                Complete Journey
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
