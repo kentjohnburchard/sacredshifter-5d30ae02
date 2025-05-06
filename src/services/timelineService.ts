@@ -44,7 +44,7 @@ export const fetchJourneyTimeline = async (userId: string, journeyId: string): P
       return [];
     }
     
-    // Then look for entries that have the journeyId in the notes JSON
+    // Then get all entries to check for journeyId in notes
     const { data: allEntries, error: allError } = await supabase
       .from('timeline_snapshots')
       .select('*')
@@ -56,43 +56,38 @@ export const fetchJourneyTimeline = async (userId: string, journeyId: string): P
       return directMatches as JourneyTimelineItem[] || [];
     }
     
-    // Safe handling of notes to prevent deep type instantiation
-    const notesMatches = (allEntries || []).filter(entry => {
-      if (!entry.notes) return false;
-      
-      try {
-        // Only parse if it's a string and handle the result safely
-        if (typeof entry.notes === 'string') {
-          let parsedNotes: Record<string, unknown>;
-          
-          try {
-            parsedNotes = JSON.parse(entry.notes);
-          } catch {
-            return false;
+    // Find entries with journeyId in notes field - avoiding excessive type recursion
+    const notesMatches: JourneyTimelineItem[] = [];
+    
+    if (allEntries && allEntries.length > 0) {
+      for (const entry of allEntries) {
+        if (!entry.notes || typeof entry.notes !== 'string') continue;
+        
+        try {
+          // Safely parse notes
+          const notesObj = JSON.parse(entry.notes);
+          if (notesObj && typeof notesObj === 'object' && notesObj.journeyId === journeyId) {
+            notesMatches.push(entry as JourneyTimelineItem);
           }
-          
-          // Simple property check without deep nesting
-          return typeof parsedNotes === 'object' && 
-                 parsedNotes !== null && 
-                 'journeyId' in parsedNotes && 
-                 parsedNotes.journeyId === journeyId;
+        } catch {
+          // Skip entries with invalid JSON
+          continue;
         }
-        return false;
-      } catch {
-        return false;
       }
-    });
+    }
     
-    // Combine both sets of results and remove duplicates
+    // Combine results and deduplicate
     const directMatchesArray = directMatches || [];
-    const uniqueMatches = [
-      ...directMatchesArray,
-      ...notesMatches.filter(match => 
-        !directMatchesArray.some(direct => direct.id === match.id)
-      )
-    ];
+    const uniqueEntries = [...directMatchesArray];
     
-    return uniqueMatches as JourneyTimelineItem[];
+    // Add notes matches that aren't already in direct matches
+    for (const match of notesMatches) {
+      if (!uniqueEntries.some(entry => entry.id === match.id)) {
+        uniqueEntries.push(match);
+      }
+    }
+    
+    return uniqueEntries;
   } catch (err) {
     console.error('Error in fetchJourneyTimeline:', err);
     return [];
