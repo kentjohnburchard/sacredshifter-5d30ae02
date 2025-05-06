@@ -21,7 +21,7 @@ export const fetchSpiralParams = async (journeyId: string): Promise<SpiralParams
       return allParams[journeyId];
     }
     
-    // If not, fetch from the database using any() to bypass TypeScript errors while database types update
+    // If not, fetch from the database
     const { data, error } = await supabase
       .from('journey_visual_params')
       .select('params')
@@ -34,9 +34,10 @@ export const fetchSpiralParams = async (journeyId: string): Promise<SpiralParams
     }
     
     if (data?.params) {
-      // Save to memory cache
-      addJourneyParams(journeyId, data.params as SpiralParams);
-      return data.params as SpiralParams;
+      // Save to memory cache and properly cast the JSON
+      const parsedParams = data.params as unknown as SpiralParams;
+      addJourneyParams(journeyId, parsedParams);
+      return parsedParams;
     }
     
     return null;
@@ -49,12 +50,11 @@ export const fetchSpiralParams = async (journeyId: string): Promise<SpiralParams
 // Save spiral parameters for a journey
 export const saveSpiralParams = async (journeyId: string, params: SpiralParams): Promise<boolean> => {
   try {
-    // Use any() to bypass TypeScript errors while database types update
     const { error } = await supabase
       .from('journey_visual_params')
       .upsert({
         journey_id: journeyId,
-        params,
+        params: params as unknown as Record<string, any>,
         updated_at: new Date().toISOString()
       }, {
         onConflict: 'journey_id'
@@ -80,7 +80,6 @@ export const fetchMultipleJourneySpiralParams = async (journeyIds: string[]): Pr
   try {
     if (!journeyIds.length) return {};
     
-    // Use any() to bypass TypeScript errors while database types update
     const { data, error } = await supabase
       .from('journey_visual_params')
       .select('journey_id, params')
@@ -96,9 +95,10 @@ export const fetchMultipleJourneySpiralParams = async (journeyIds: string[]): Pr
     if (data) {
       data.forEach((item: any) => {
         if (item.journey_id && item.params) {
-          result[item.journey_id] = item.params as SpiralParams;
+          const parsedParams = item.params as unknown as SpiralParams;
+          result[item.journey_id] = parsedParams;
           // Also update memory cache
-          addJourneyParams(item.journey_id, item.params as SpiralParams);
+          addJourneyParams(item.journey_id, parsedParams);
         }
       });
     }

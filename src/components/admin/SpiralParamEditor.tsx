@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { SpiralParams } from '@/components/visualizer/SpiralVisualizer';
@@ -54,17 +53,16 @@ const SpiralParamEditor: React.FC<SpiralParamEditorProps> = ({
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Update the params in the database using any() to bypass TypeScript errors 
-      // while database types update
+      // Update the params in the database
       const { error } = await supabase
         .from('journey_visual_params')
         .upsert({
           journey_id: journeyId,
-          params: params,
+          params: params as unknown as Record<string, any>,
           updated_at: new Date().toISOString()
         }, {
           onConflict: 'journey_id'
-        }) as any;
+        });
         
       if (error) {
         throw error;
