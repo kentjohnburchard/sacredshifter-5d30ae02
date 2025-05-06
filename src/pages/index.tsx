@@ -1,3 +1,3 @@
 
 // Clean redirect to real homepage
-export { default } from './Home';
+export { default } from './SacredShifterHome';

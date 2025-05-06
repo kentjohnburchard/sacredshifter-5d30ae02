@@ -1,4 +1,3 @@
-
 // src/AppRoutes.tsx
 
 /**
@@ -16,7 +15,7 @@ import ScrollToTop from '@/components/ScrollToTop';
 
 // ✅ Homepage & Visualizer
 import SacredShifterHome from '@/pages/SacredShifterHome';
-import VisualizerHome from '@/pages/Home';
+import Home from '@/pages/Home';
 
 // Core Pages
 import JourneyPage from '@/pages/JourneyPage';
@@ -81,8 +80,8 @@ const AppRoutes = () => {
       <ScrollToTop />
       <Routes>
         {/* 🔓 Public Routes */}
-        <Route path="/" element={<VisualizerHome />} />
-        <Route path="/visualizer" element={<VisualizerHome />} />
+        <Route path="/" element={<SacredShifterHome />} />
+        <Route path="/visualizer" element={<Home />} />
         <Route path="/journey/:slug" element={<JourneyPage />} />
         <Route path="/frequency-library" element={<FrequencyLibraryPage />} />
         <Route path="/sacred-geometry" element={<SacredGeometryPage />} />
