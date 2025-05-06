@@ -137,19 +137,24 @@ export const createTimelineEntry = async (
   userId: string,
   title: string,
   tag: string,
-  notes: any,
-  chakraTag?: ChakraTag
+  notes: string,
+  chakraTag?: ChakraTag,
+  journeyId?: string
 ): Promise<JourneyTimelineItem | null> => {
   try {
+    // Create a simple plain object for the database insert
+    const entryData = {
+      user_id: userId,
+      title,
+      tag,
+      notes: notes,
+      chakra_tag: chakraTag,
+      journey_id: journeyId
+    };
+
     const { data, error } = await supabase
       .from('timeline_snapshots')
-      .insert({
-        user_id: userId,
-        title,
-        tag,
-        notes: typeof notes === 'string' ? notes : JSON.stringify(notes),
-        chakra_tag: chakraTag
-      })
+      .insert(entryData)
       .select()
       .single();
 

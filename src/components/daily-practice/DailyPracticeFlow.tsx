@@ -12,6 +12,7 @@ import { X } from 'lucide-react';
 import GroundingPhase from './GroundingPhase';
 import AligningPhase from './AligningPhase';
 import ActivatingPhase from './ActivatingPhase';
+import DailyPracticeDebriefPanel from './DailyPracticeDebriefPanel';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
@@ -21,7 +22,7 @@ interface DailyPracticeFlowProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const PHASES = ['grounding', 'aligning', 'activating', 'complete'] as const;
+const PHASES = ['grounding', 'aligning', 'activating', 'debrief', 'complete'] as const;
 type PhaseType = typeof PHASES[number];
 
 const DailyPracticeFlow: React.FC<DailyPracticeFlowProps> = ({ 
@@ -81,8 +82,7 @@ const DailyPracticeFlow: React.FC<DailyPracticeFlowProps> = ({
   // Handle skip functionality for accessibility
   const handleSkip = () => {
     setSkipAnimations(true);
-    setCurrentPhase('complete');
-    handleComplete();
+    setCurrentPhase('debrief');
   };
 
   // Complete the daily practice
@@ -160,6 +160,15 @@ const DailyPracticeFlow: React.FC<DailyPracticeFlowProps> = ({
           skipAnimations={skipAnimations}
         />;
         
+      case 'debrief':
+        return <DailyPracticeDebriefPanel
+          chakraTag={dominantChakra}
+          journeyId={activeJourney?.id?.toString()}
+          userId={user?.id}
+          onComplete={goToNextPhase}
+          onSkip={goToNextPhase}
+        />;
+
       case 'complete':
         return (
           <div className="flex flex-col items-center justify-center p-8 text-center">
@@ -185,10 +194,9 @@ const DailyPracticeFlow: React.FC<DailyPracticeFlowProps> = ({
     <Dialog open={isOpen} onOpenChange={handleDialogClose}>
       <DialogContent 
         className={`bg-black/80 border-purple-500/30 backdrop-blur-md ${getDialogWidth()}`}
-        showClose={false}
       >
         {/* Skip button for accessibility */}
-        {currentPhase !== 'complete' && (
+        {currentPhase !== 'complete' && currentPhase !== 'debrief' && (
           <div className="absolute right-4 top-4 flex gap-2">
             <Button 
               variant="outline" 
