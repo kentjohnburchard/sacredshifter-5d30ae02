@@ -43,9 +43,19 @@ const JourneyActivitySection: React.FC = () => {
     fetchTimeline();
   }, [user?.id, activeFilter]);
   
-  // Group entries by journey
+  // Group entries by journey - with error handling for JSON parsing
   const entriesByJourney = timelineEntries.reduce((acc, entry) => {
-    const notes = entry.notes ? JSON.parse(entry.notes) : {};
+    let notes = {};
+    // Add proper error handling for JSON parsing
+    if (entry.notes) {
+      try {
+        notes = JSON.parse(entry.notes);
+      } catch (error) {
+        console.error(`Failed to parse notes for entry ${entry.id}:`, error);
+        notes = { journeyId: 'unknown', error: 'Invalid JSON' };
+      }
+    }
+    
     const journeyId = notes.journeyId || 'unknown';
     
     if (!acc[journeyId]) {
@@ -119,8 +129,16 @@ const JourneyActivitySection: React.FC = () => {
             
             <div className="space-y-4">
               {Object.entries(entriesByJourney).map(([journeyId, entries]) => {
-                const journeyInfo = entries[0]?.notes ? JSON.parse(entries[0].notes) : {};
-                const journeyTitle = journeyInfo.journeyTitle || 'Unknown Journey';
+                // Safe extraction of journey info with error handling
+                let journeyTitle = 'Unknown Journey';
+                try {
+                  if (entries[0]?.notes) {
+                    const journeyInfo = JSON.parse(entries[0].notes);
+                    journeyTitle = journeyInfo.journeyTitle || 'Unknown Journey';
+                  }
+                } catch (error) {
+                  console.error(`Failed to parse journey info for ${journeyId}:`, error);
+                }
                 
                 return (
                   <div key={journeyId} className="bg-black/60 rounded-lg p-3 border border-purple-900/30">
@@ -179,7 +197,15 @@ const ActivityTimeline: React.FC<{ entries: JourneyTimelineItem[] }> = ({ entrie
           </h3>
           <div className="space-y-2">
             {dateEntries.map(entry => {
-              const parsedNotes = entry.notes ? JSON.parse(entry.notes) : {};
+              // Safe parsing of notes with error handling
+              let parsedNotes = {};
+              if (entry.notes) {
+                try {
+                  parsedNotes = JSON.parse(entry.notes);
+                } catch (error) {
+                  console.error(`Failed to parse notes for timeline entry ${entry.id}:`, error);
+                }
+              }
               
               return (
                 <div key={entry.id} className="flex items-center gap-3 p-2 bg-gray-900/40 rounded-md">
