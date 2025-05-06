@@ -3,8 +3,9 @@ import React from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart, Users, Package, File, Activity, Settings, Shield } from 'lucide-react';
+import { BarChart, Users, Package, File, Activity, Settings, Shield, Sparkles } from 'lucide-react';
 import AdminNavigation from '@/components/admin/AdminNavigation';
+import GuidanceRulesAdmin from '@/components/admin/GuidanceRulesAdmin';
 
 const AdminDashboard: React.FC = () => {
   return (
@@ -85,6 +86,7 @@ const AdminDashboard: React.FC = () => {
             <TabsTrigger value="activity">Recent Activity</TabsTrigger>
             <TabsTrigger value="system">System Status</TabsTrigger>
             <TabsTrigger value="tasks">Pending Tasks</TabsTrigger>
+            <TabsTrigger value="guidance">Guidance Rules</TabsTrigger>
           </TabsList>
           
           <TabsContent value="activity" className="mt-4">
@@ -171,6 +173,11 @@ const AdminDashboard: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+          
+          {/* New tab for guidance rules */}
+          <TabsContent value="guidance" className="mt-4">
+            <GuidanceRulesAdmin />
           </TabsContent>
         </Tabs>
       </div>

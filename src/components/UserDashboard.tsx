@@ -2,6 +2,7 @@
 import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 import JourneyActivitySection from '@/components/dashboard/JourneyActivitySection';
+import RecommendationsPanel from '@/components/guidance/RecommendationsPanel';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { User, Calendar, BookOpen, Activity, LineChart } from 'lucide-react';
@@ -52,7 +53,10 @@ const UserDashboard: React.FC = () => {
           <JourneyActivitySection />
         </div>
         
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1 space-y-6">
+          {/* New Recommendations Panel */}
+          <RecommendationsPanel />
+          
           <Card className="border-purple-500/30 bg-black/40 backdrop-blur-sm h-full">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
