@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useJourney } from '@/context/JourneyContext';
 import { ChakraTag, getChakraColor } from '@/types/chakras';
@@ -95,9 +96,11 @@ export const VisualThemeProvider: React.FC<{ children: ReactNode }> = ({ childre
 
         if (data?.params) {
           // If journey has custom visual settings, use those
+          // Fix the type issue by explicitly casting the params
+          const typedParams = data.params as unknown as VisualThemeParams;
           setJourneyTheme({
             ...defaultTheme,
-            ...data.params
+            ...typedParams
           });
         } else {
           // Otherwise, use chakra-based theme

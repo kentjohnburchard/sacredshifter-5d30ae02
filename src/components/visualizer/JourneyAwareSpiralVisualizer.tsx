@@ -4,12 +4,12 @@ import { useAuth } from '@/context/AuthContext';
 import { useJourney } from '@/context/JourneyContext';
 import SpiralVisualizer, { SpiralParams } from '@/components/visualizer/SpiralVisualizer';
 import useSpiralParams from '@/hooks/useSpiralParams';
-import { logTimelineEvent } from '@/services/timelineService';
-import { JourneyAwareComponentProps } from '@/types/journey';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from 'lucide-react';
 
-interface JourneyAwareSpiralVisualizerProps extends JourneyAwareComponentProps {
+interface JourneyAwareSpiralVisualizerProps {
+  journeyId?: string | number;
+  autoSync?: boolean;
   className?: string;
   showControls?: boolean;
   containerId?: string;
@@ -32,24 +32,16 @@ const JourneyAwareSpiralVisualizer: React.FC<JourneyAwareSpiralVisualizerProps> 
   // Get spiral parameters for current journey
   const spiralParams = useSpiralParams(effectiveJourneyId?.toString());
 
-  // Log visibility changes to timeline
+  // Log visibility changes - remove dependency on logTimelineEvent
   useEffect(() => {
     if (user?.id && effectiveJourneyId && isVisible !== undefined) {
-      logTimelineEvent(
-        user.id,
-        'SpiralVisualizer',
-        'spiral_toggle',
-        effectiveJourneyId.toString(),
-        { enabled: isVisible }
-      );
-      
-      // Also record in journey activity log
+      // Replace logTimelineEvent with recordActivity
       recordActivity('spiral_toggle', { 
         enabled: isVisible,
         journeyId: effectiveJourneyId.toString()
       });
     }
-  }, [isVisible, user?.id, effectiveJourneyId]);
+  }, [isVisible, user?.id, effectiveJourneyId, recordActivity]);
   
   const toggleVisibility = () => {
     setIsVisible(prev => !prev);

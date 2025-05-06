@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { JourneyTimelineItem } from '@/types/journey';
 import { ChakraTag } from '@/types/chakras';
@@ -163,6 +162,40 @@ export const deleteTimelineEntry = async (entryId: string): Promise<boolean> => 
     return true;
   } catch (err) {
     console.error('Error in deleteTimelineEntry:', err);
+    return false;
+  }
+};
+
+// Add the missing logTimelineEvent function
+export const logTimelineEvent = async (
+  userId: string,
+  category: string,
+  action: string,
+  journeyId?: string,
+  details?: any
+): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('timeline_snapshots')
+      .insert({
+        user_id: userId,
+        title: `${category}: ${action}`,
+        tag: category,
+        notes: typeof details === 'string' ? details : JSON.stringify({
+          action,
+          journeyId,
+          ...details
+        })
+      });
+    
+    if (error) {
+      console.error('Error logging timeline event:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (err) {
+    console.error('Error in logTimelineEvent:', err);
     return false;
   }
 };

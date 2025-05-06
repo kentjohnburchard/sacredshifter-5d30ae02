@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Route, Routes, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import AdminConsole from '@/pages/admin/AdminConsole';
+import AdminInsightsDashboard from '@/pages/admin/AdminInsightsDashboard';
 import JourneysManager from '@/pages/admin/JourneysManager';
 import JourneyAudioAdmin from '@/pages/admin/JourneyAudioAdmin';
 import JourneyAudioMappingsViewer from '@/pages/admin/JourneyAudioMappingsViewer';
@@ -75,107 +76,80 @@ const AdminRouteGuard: React.FC<{ children: React.ReactNode }> = ({ children }) 
 const AdminRoutes = () => {
   return (
     <Routes>
-      {/* Default route redirects to Admin Console */}
-      <Route index element={<Navigate to="/admin/console" replace />} />
+      {/* Default route redirects to the consolidated admin dashboard */}
+      <Route index element={<Navigate to="/admin/insights" replace />} />
       
       {/* Admin Console main dashboard - no guard since it handles authentication itself */}
       <Route path="console" element={<AdminConsole />} />
       
-      {/* All other admin routes are protected */}
-      
-      {/* Journey & Content management routes */}
-      <Route path="journeys" element={
+      {/* New consolidated admin insights dashboard */}
+      <Route path="insights" element={
         <AdminRouteGuard>
-          <JourneysManager />
+          <AdminInsightsDashboard />
         </AdminRouteGuard>
+      } />
+      
+      {/* Legacy routes - all redirect to insights dashboard */}
+      <Route path="journeys" element={
+        <Navigate to="/admin/insights" replace />
       } />
       
       <Route path="content-scheduler" element={
-        <AdminRouteGuard>
-          <ContentScheduler />
-        </AdminRouteGuard>
+        <Navigate to="/admin/insights" replace />
       } />
       
       <Route path="media-library" element={
-        <AdminRouteGuard>
-          <MediaLibrary />
-        </AdminRouteGuard>
+        <Navigate to="/admin/insights" replace />
       } />
       
-      {/* Component & Page Management */}
       <Route path="components" element={
-        <AdminRouteGuard>
-          <ComponentExplorer />
-        </AdminRouteGuard>
+        <Navigate to="/admin/insights" replace />
       } />
       
       <Route path="pages-canvas" element={
-        <AdminRouteGuard>
-          <AdminPagesCanvas />
-        </AdminRouteGuard>
+        <Navigate to="/admin/insights" replace />
       } />
       
-      {/* Audio management routes */}
       <Route path="journey-audio" element={
-        <AdminRouteGuard>
-          <JourneyAudioAdmin />
-        </AdminRouteGuard>
+        <Navigate to="/admin/insights" replace />
       } />
       
       <Route path="journey-audio-mappings" element={
-        <AdminRouteGuard>
-          <JourneyAudioMappingsViewer />
-        </AdminRouteGuard>
+        <Navigate to="/admin/insights" replace />
       } />
       
-      {/* Visualization management */}
       <Route path="visualizer" element={
         <AdminRouteGuard>
-          <VisualizerAdmin />
+          <VisualizerAdmin />  {/* Keep this one for now as it's specialized */}
         </AdminRouteGuard>
       } />
       
-      {/* Database & System Tools */}
       <Route path="database" element={
-        <AdminRouteGuard>
-          <DatabaseBrowser />
-        </AdminRouteGuard>
+        <Navigate to="/admin/insights" replace />
       } />
       
       <Route path="settings" element={
-        <AdminRouteGuard>
-          <AdminSettings />
-        </AdminRouteGuard>
+        <Navigate to="/admin/insights" replace />
       } />
       
       <Route path="users" element={
-        <AdminRouteGuard>
-          <UserManager />
-        </AdminRouteGuard>
+        <Navigate to="/admin/insights" replace />
       } />
       
-      {/* Frequency management */}
       <Route path="sacred-spectrum" element={
-        <AdminRouteGuard>
-          <SacredSpectrumAdmin />
-        </AdminRouteGuard>
+        <Navigate to="/admin/insights" replace />
       } />
       
-      {/* Journey Template routes */}
       <Route path="journey-templates" element={
-        <AdminRouteGuard>
-          <JourneyTemplatesAdmin />
-        </AdminRouteGuard>
+        <Navigate to="/admin/insights" replace />
       } />
       
       <Route path="journey-content" element={
-        <AdminRouteGuard>
-          <JourneyContentAdmin />
-        </AdminRouteGuard>
+        <Navigate to="/admin/insights" replace />
       } />
       
-      {/* Catch-all redirects to main admin console */}
-      <Route path="*" element={<Navigate to="/admin/console" replace />} />
+      {/* Catch-all redirects to main admin insights dashboard */}
+      <Route path="*" element={<Navigate to="/admin/insights" replace />} />
     </Routes>
   );
 };

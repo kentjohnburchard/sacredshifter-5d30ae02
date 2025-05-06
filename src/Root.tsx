@@ -10,6 +10,7 @@ import { GuidanceProvider } from './context/GuidanceContext';
 import { VisualThemeProvider } from './context/VisualThemeContext';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "sonner";
+import { ThemeProvider } from '@/components/ThemeProvider';
 import PromptManager from "@/components/journey/PromptManager"; 
 import GuidanceEngine from "@/components/guidance/GuidanceEngine";
 import App from "./App";
@@ -21,21 +22,23 @@ function Root() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
-        <AuthProvider>
-          <JourneyProvider>
-            <CommunityProvider>
-              <GuidanceProvider>
-                <VisualThemeProvider>
-                  <App />
-                  <PromptManager />
-                  <GuidanceEngine />
-                  <SonnerToaster position="top-right" richColors />
-                  <Toaster />
-                </VisualThemeProvider>
-              </GuidanceProvider>
-            </CommunityProvider>
-          </JourneyProvider>
-        </AuthProvider>
+        <ThemeProvider defaultTheme="dark" storageKey="sacred-theme">
+          <AuthProvider>
+            <JourneyProvider>
+              <CommunityProvider>
+                <GuidanceProvider>
+                  <VisualThemeProvider>
+                    <App />
+                    <PromptManager />
+                    <GuidanceEngine />
+                    <SonnerToaster position="top-right" richColors />
+                    <Toaster />
+                  </VisualThemeProvider>
+                </GuidanceProvider>
+              </CommunityProvider>
+            </JourneyProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </Router>
     </QueryClientProvider>
   );

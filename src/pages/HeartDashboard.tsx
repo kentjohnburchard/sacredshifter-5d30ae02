@@ -1,172 +1,127 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Layout from '@/components/Layout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/context/AuthContext';
-import { useChakraActivations } from '@/hooks/useChakraActivations';
-import { ChakraTag } from '@/types/chakras';
-import ChakraTagComponent from '@/components/chakra/ChakraTag';
+import { getUserChakraProgress } from '@/services/chakraService';
+import { ChakraTag, getChakraColor } from '@/types/chakras';
+import ChakraIcon from '@/components/chakra/ChakraIcon';
 import { Progress } from '@/components/ui/progress';
-import { Heart, Crown, Radio } from 'lucide-react';
 
 const HeartDashboard: React.FC = () => {
   const { user } = useAuth();
-  const { 
-    activationCounts, 
-    loading: chakraLoading, 
-    getDominantChakra
-  } = useChakraActivations();
-  const [dominantChakra, setDominantChakra] = useState<ChakraTag | null>(null);
-
+  const [chakraProgress, setChakraProgress] = useState<{ chakra: ChakraTag; count: number; percentage: number; }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
   useEffect(() => {
-    setDominantChakra(getDominantChakra());
-  }, [activationCounts]);
-
-  const chakras: ChakraTag[] = [
-    'Crown', 'Third Eye', 'Throat', 'Heart', 
-    'Solar Plexus', 'Sacral', 'Root'
-  ];
-
-  // Calculate total activations
-  const totalActivations = Object.values(activationCounts).reduce((sum, count) => sum + count, 0);
-
-  // Helper to get percentage
-  const getChakraPercentage = (chakra: ChakraTag): number => {
-    const count = activationCounts[chakra] || 0;
-    return totalActivations > 0 ? Math.round((count / totalActivations) * 100) : 0;
-  };
-
-  // Helper to get chakra color for progress bar
-  const getChakraProgressColor = (chakra: ChakraTag): string => {
-    switch(chakra) {
-      case 'Root': return '#ea384c';
-      case 'Sacral': return '#ff7e47';
-      case 'Solar Plexus': return '#ffd034';
-      case 'Heart': return '#4ade80';
-      case 'Throat': return '#48cae7';
-      case 'Third Eye': return '#7e69ab';
-      case 'Crown': return '#9b87f5';
-      case 'Transpersonal': return '#e5deff';
-      default: return '#9ca3af';
-    }
-  };
+    const fetchChakraProgress = async () => {
+      if (!user) {
+        console.warn("No user found, cannot fetch chakra progress");
+        return;
+      }
+      
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const progress = await getUserChakraProgress(user.id);
+        setChakraProgress(progress);
+      } catch (err: any) {
+        console.error('Error fetching chakra progress:', err);
+        setError(err.message || 'Failed to load chakra progress');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchChakraProgress();
+  }, [user]);
+  
+  if (loading) {
+    return (
+      <Layout pageTitle="Heart Dashboard | Sacred Shifter">
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin h-12 w-12 border-b-2 border-purple-500 rounded-full mr-3"></div>
+          <div className="text-purple-700">Loading your chakra progress...</div>
+        </div>
+      </Layout>
+    );
+  }
+  
+  if (error) {
+    return (
+      <Layout pageTitle="Heart Dashboard | Sacred Shifter">
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold mb-4">Error</h2>
+          <p className="text-red-500">{error}</p>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
-    <Layout pageTitle="Heart Dashboard | Sacred Shifter">
+    <Layout 
+      pageTitle="Heart Dashboard | Sacred Shifter"
+      showNavbar={true}
+      showContextActions={true}
+      showGlobalWatermark={true}
+    >
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-4 text-center text-white bg-clip-text text-transparent bg-gradient-to-r from-pink-300 to-purple-300"
-            style={{textShadow: '0 2px 10px rgba(219, 39, 119, 0.7)'}}>
-          Heart Center Dashboard
-        </h1>
-        <p className="text-lg text-center text-white mb-10 max-w-3xl mx-auto opacity-80">
-          Track your heart-centered practices and chakra balance
-        </p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="border-purple-500/30 bg-black/40 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Heart className="h-5 w-5 text-pink-400" />
-                Chakra Balance
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {chakraLoading ? (
-                <div className="flex justify-center items-center py-8">
-                  <div className="animate-spin h-5 w-5 border-b-2 border-purple-500 rounded-full mr-2"></div>
-                  <span>Loading chakra data...</span>
-                </div>
-              ) : totalActivations === 0 ? (
-                <div className="text-center py-6">
-                  <p className="text-gray-400 mb-2">No chakra activity recorded yet.</p>
-                  <p className="text-sm text-gray-500">
-                    Explore journeys and practices to activate your chakras!
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {dominantChakra && (
-                    <div className="bg-black/50 border border-purple-500/20 p-4 rounded-lg mb-4">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Crown className="h-5 w-5 text-purple-400" />
-                        <h3 className="font-medium">Dominant Energy Center</h3>
-                      </div>
-                      <div className="flex items-center">
-                        <ChakraTagComponent chakra={dominantChakra} size="lg" />
-                        <span className="ml-2 text-gray-300">
-                          ({getChakraPercentage(dominantChakra)}% of your activity)
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {chakras.map(chakra => (
-                    <div key={chakra} className="flex items-center gap-3">
-                      <ChakraTagComponent chakra={chakra} showTooltip={false} />
-                      <div className="flex-1">
-                        <div className="flex justify-between text-xs mb-1">
-                          <span className="text-gray-400">{chakra}</span>
-                          <span className="text-gray-400">
-                            {activationCounts[chakra] || 0} activations
-                          </span>
-                        </div>
-                        <Progress
-                          value={getChakraPercentage(chakra)}
-                          className="h-2"
-                          style={{
-                            backgroundColor: 'rgba(30, 30, 30, 0.5)',
-                            border: '1px solid rgba(75, 75, 75, 0.2)'
-                          }}
-                          indicatorStyle={{
-                            backgroundColor: getChakraProgressColor(chakra)
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold mb-6 text-center text-white bg-clip-text text-transparent bg-gradient-to-r from-pink-300 to-red-300"
+              style={{textShadow: '0 2px 10px rgba(236, 72, 153, 0.7)'}}>
+            Chakra Activation Dashboard
+          </h1>
+          <p className="text-lg text-center text-white mb-12 max-w-3xl mx-auto"
+             style={{textShadow: '0 1px 4px rgba(0, 0, 0, 0.8)'}}>
+            Track your chakra activations and balance your energy centers.
+          </p>
           
-          <Card className="border-purple-500/30 bg-black/40 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Radio className="h-5 w-5 text-pink-400" />
-                Heart Resonance
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-center h-64">
-                <div className="text-center">
-                  <p className="text-gray-400">Heart metrics coming soon!</p>
-                  <p className="text-sm text-gray-500 mt-2">
-                    Future updates will include emotional intelligence tracking,
-                    <br />heart coherence data, and compassion practices.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <div className="mt-6">
-          <Card className="border-purple-500/30 bg-black/40 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Heart className="h-5 w-5 text-pink-400" />
-                Recommended Heart Practices
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-center text-gray-400 py-6">
-                Chakra-specific heart practice recommendations coming soon!
-              </p>
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {chakraProgress.map((item) => (
+              <ChakraCard key={item.chakra} chakra={item.chakra} count={item.count} percentage={item.percentage} />
+            ))}
+          </div>
         </div>
       </div>
     </Layout>
+  );
+};
+
+const ChakraCard = ({ chakra, count, percentage }: { chakra: ChakraTag, count: number, percentage: number }) => {
+  const color = getChakraColor(chakra);
+  
+  return (
+    <div className="bg-black/60 border-purple-500/30 border rounded-lg p-6 hover:scale-105 transition-transform duration-300">
+      <div className="flex items-center mb-4">
+        <ChakraIcon chakraTag={chakra} size={40} className="mr-4" />
+        <h2 className="text-xl font-semibold text-white">{chakra} Chakra</h2>
+      </div>
+      <p className="text-gray-300 mb-2">
+        <span className="font-bold text-gray-100">{count}</span> Activations
+      </p>
+      <ChakraProgressBar chakra={chakra} value={percentage} />
+    </div>
+  );
+};
+
+const ChakraProgressBar = ({ chakra, value }: { chakra: ChakraTag, value: number }) => {
+  const color = getChakraColor(chakra);
+  
+  return (
+    <div className="my-2">
+      <div className="flex justify-between mb-1">
+        <span className="text-sm">{chakra}</span>
+        <span className="text-sm">{value}%</span>
+      </div>
+      <Progress 
+        value={value}
+        className="h-2"
+        style={{
+          backgroundColor: "rgba(30, 30, 30, 0.5)",
+          border: `1px solid ${color}30`,
+        }}
+      />
+    </div>
   );
 };
 

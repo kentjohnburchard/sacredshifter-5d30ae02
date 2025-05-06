@@ -41,6 +41,11 @@ const VisualizerTestPage = () => {
   
   const [selectedJourneyId, setSelectedJourneyId] = useState(testJourneyIds[0].id);
   
+  // Fix for the type error - properly handling VisualTheme type
+  const handleThemeChange = (value: string) => {
+    setSelectedTheme(value as VisualTheme);
+  };
+  
   return (
     <PageLayout title="Visualizer Test">
       <div className="container mx-auto p-4 space-y-6">
@@ -66,7 +71,7 @@ const VisualizerTestPage = () => {
                       <Label htmlFor="theme-select">Visual Theme</Label>
                       <Select 
                         value={selectedTheme} 
-                        onValueChange={setSelectedTheme}
+                        onValueChange={handleThemeChange}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select theme..." />

@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { ChakraTag } from '@/types/chakras';
 
@@ -55,7 +54,7 @@ export const updateTimelineEntryChakra = async (entryId: string, chakraTag: Chak
   try {
     const { error } = await supabase
       .from('timeline_snapshots')
-      .update({ chakra_tag: chakraTag })
+      .update({ chakra: chakraTag }) // Fix: changed from chakra_tag to chakra
       .eq('id', entryId);
     
     if (error) throw error;

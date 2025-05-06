@@ -12,8 +12,17 @@ import ChakraSelect from '@/components/chakra/ChakraSelect';
 import VisualThemeEditor from '@/components/admin/VisualThemeEditor';
 import VisualRenderer from '@/components/visualizer/VisualRenderer';
 
+interface JourneyData {
+  id: string | number;
+  title: string;
+  chakra_tag?: ChakraTag;
+  description?: string;
+  filename?: string;
+  [key: string]: any;
+}
+
 const VisualizerAdmin = () => {
-  const [journeys, setJourneys] = useState<Journey[]>([]);
+  const [journeys, setJourneys] = useState<JourneyData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedJourneyId, setSelectedJourneyId] = useState<string | null>(null);
   const [chakraFilter, setChakraFilter] = useState<ChakraTag | ''>('');
@@ -36,7 +45,8 @@ const VisualizerAdmin = () => {
           return;
         }
         
-        setJourneys(data || []);
+        // Explicitly cast the data to the correct type
+        setJourneys(data as unknown as JourneyData[]);
       } catch (err) {
         console.error('Failed to fetch journeys:', err);
       } finally {

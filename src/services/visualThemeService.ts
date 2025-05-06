@@ -24,7 +24,8 @@ export const getJourneyVisualParams = async (journeyId: string): Promise<VisualT
       return null;
     }
     
-    return data?.params || null;
+    // Fix type issue by explicitly casting the params
+    return (data?.params as unknown as VisualThemeParams) || null;
   } catch (err) {
     console.error('Failed to get journey visual params:', err);
     return null;
@@ -36,11 +37,14 @@ export const getJourneyVisualParams = async (journeyId: string): Promise<VisualT
  */
 export const saveJourneyVisualParams = async (journeyId: string, params: VisualThemeParams): Promise<boolean> => {
   try {
+    // Convert the VisualThemeParams to a JSON-safe object
+    const jsonParams = { ...params } as unknown as Record<string, any>;
+    
     const { error } = await supabase
       .from('journey_visual_params')
       .upsert({ 
         journey_id: journeyId,
-        params,
+        params: jsonParams,
         updated_at: new Date().toISOString()
       }, {
         onConflict: 'journey_id'
