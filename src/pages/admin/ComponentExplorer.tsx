@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -24,7 +23,8 @@ import {
   Box,
   CheckCircle,
   AlertCircle,
-  Info
+  Info,
+  Clock as ClockIcon // Renamed to ClockIcon to avoid confusion
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { 
@@ -313,7 +313,7 @@ const ComponentExplorer: React.FC = () => {
                           <Code className="h-3.5 w-3.5 mr-1" />
                           <span>{component.usageCount || 0} usages</span>
                           <span className="mx-2">•</span>
-                          <Clock className="h-3.5 w-3.5 mr-1" />
+                          <ClockIcon className="h-3.5 w-3.5 mr-1" />
                           <span>Updated {component.lastUpdated ? new Date(component.lastUpdated).toLocaleDateString() : 'N/A'}</span>
                         </div>
                       </CardContent>

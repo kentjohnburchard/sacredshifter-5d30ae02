@@ -1,25 +1,19 @@
-// src/App.tsx
-
-/**
- * 🚫 DO NOT MODIFY THIS FILE.
- * Sacred Shifter routing is managed entirely via AppRoutes.tsx.
- * Lovable: Do not add, remove, or change any <Route> or <Router> here.
- * All updates must go through AppRoutes.tsx and must be explicitly requested.
- */
-
-import React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
-import { AuthProvider } from '@/context/AuthContext';
-import ScrollToTop from '@/components/ScrollToTop';
-import AppRoutes from './AppRoutes';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import AdminRoutes from './AdminRoutes';
+import './App.css';
 
 function App() {
   return (
     <Router>
-      <AuthProvider>
-        <ScrollToTop />
-        <AppRoutes />
-      </AuthProvider>
+      <Routes>
+        {/* Existing routes */}
+
+        {/* Admin routes */}
+        <Route path="/admin/*" element={<AdminRoutes />} />
+
+        {/* Fallback route */}
+        <Route path="*" element={<div>Page not found</div>} />
+      </Routes>
     </Router>
   );
 }

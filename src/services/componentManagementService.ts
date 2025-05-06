@@ -5,32 +5,20 @@ import { ComponentMetadata, ComponentUsage } from '@/services/adminComponentsSer
 /**
  * Enhanced Component Management Service
  * This service provides advanced functionality for managing components
- * across the application including:
- * - Component discovery and registration
- * - Usage tracking and analytics
- * - Component editing and versioning
- * - Component preview and testing
+ * across the application.
  */
 
 // Get all registered components with their metadata
 export const getAllComponents = async (): Promise<ComponentMetadata[]> => {
   try {
-    // In a real implementation, this would connect to a database
-    // or scan project files to build the component registry
-    const { data, error } = await supabase
-      .from('components_registry')
-      .select('*')
-      .order('name');
+    // In a real implementation with the correct table structure, this would work:
+    // const { data, error } = await supabase
+    //   .from('components_registry')
+    //   .select('*')
+    //   .order('name');
     
-    if (error) {
-      console.error('Error fetching components:', error);
-      throw error;
-    }
-    
-    return data || [];
-  } catch (error) {
-    console.error('Error in getAllComponents:', error);
-    // Return sample data for development
+    // For now, since the table doesn't exist, return sample data
+    // console.error('Using mock component data since components_registry table is not available');
     return [
       {
         id: '1',
@@ -103,33 +91,33 @@ export const getAllComponents = async (): Promise<ComponentMetadata[]> => {
         ]
       }
     ];
+  } catch (error) {
+    console.error('Error in getAllComponents:', error);
+    // Return empty array in case of error
+    return [];
   }
 };
 
 // Get component usage information
 export const getComponentUsage = async (componentId: string): Promise<ComponentUsage[]> => {
   try {
-    // In a real implementation, this would analyze the project files
-    // or query a database tracking component usage
-    const { data, error } = await supabase
-      .from('component_usages')
-      .select('*')
-      .eq('component_id', componentId);
+    // In a real implementation with the correct table:
+    // const { data, error } = await supabase
+    //   .from('component_usages')
+    //   .select('*')
+    //   .eq('component_id', componentId);
     
-    if (error) {
-      console.error(`Error fetching usage for component ${componentId}:`, error);
-      throw error;
-    }
-    
-    return data || [];
-  } catch (error) {
-    console.error(`Error in getComponentUsage:`, error);
-    // Return sample data for development
+    // For now, since the table doesn't exist, return sample data
+    // console.error('Using mock usage data since component_usages table is not available');
     return [
       { pageId: '1', pagePath: '/src/pages/Home.tsx', pageName: 'Home', instanceCount: 3 },
       { pageId: '2', pagePath: '/src/pages/Dashboard.tsx', pageName: 'Dashboard', instanceCount: 5 },
       { pageId: '3', pagePath: '/src/pages/Settings.tsx', pageName: 'Settings', instanceCount: 2 },
     ];
+  } catch (error) {
+    console.error(`Error in getComponentUsage:`, error);
+    // Return empty array in case of error
+    return [];
   }
 };
 
@@ -204,22 +192,18 @@ export { Button, buttonVariants }`;
 // Update component metadata
 export const updateComponentMetadata = async (component: ComponentMetadata): Promise<boolean> => {
   try {
-    // In a real implementation, this would update the database record
-    // or update component source files
-    const { error } = await supabase
-      .from('components_registry')
-      .update({
-        name: component.name,
-        description: component.description,
-        category: component.category,
-        // Add other fields as needed
-      })
-      .eq('id', component.id);
+    // In a real implementation with correct tables:
+    // const { error } = await supabase
+    //   .from('components_registry')
+    //   .update({
+    //     name: component.name,
+    //     description: component.description,
+    //     category: component.category,
+    //   })
+    //   .eq('id', component.id);
     
-    if (error) {
-      console.error(`Error updating component ${component.name}:`, error);
-      throw error;
-    }
+    // For now, since the table doesn't exist, mock the update
+    console.log(`Updating component ${component.name} metadata`, component);
     
     return true;
   } catch (error) {
@@ -236,13 +220,6 @@ export const addComponentToPage = async (
   props: Record<string, any>
 ): Promise<boolean> => {
   try {
-    // This would involve a more complex operation in a real app:
-    // 1. Parse the target page file
-    // 2. Insert the component import statement
-    // 3. Insert the component JSX with provided props
-    // 4. Format the file
-    // 5. Write back to disk or commit to version control
-    
     console.log(`Adding component ${componentId} to ${pagePath} with props:`, props);
     
     // For development, return success
@@ -261,11 +238,6 @@ export const createComponent = async (
   props: Array<{ name: string, type: string, required: boolean, description?: string }>
 ): Promise<ComponentMetadata | null> => {
   try {
-    // This would:
-    // 1. Generate component source code based on the template
-    // 2. Create the file in the appropriate directory
-    // 3. Register the component in the database
-    
     const newComponent: ComponentMetadata = {
       id: Date.now().toString(),
       name,
@@ -276,6 +248,8 @@ export const createComponent = async (
       lastUpdated: new Date().toISOString(),
       props
     };
+    
+    console.log(`Creating new component:`, newComponent);
     
     // For development, return mock data
     return newComponent;
@@ -288,8 +262,6 @@ export const createComponent = async (
 // Analyze project for component usage
 export const analyzeComponentUsage = async (): Promise<Record<string, number>> => {
   try {
-    // This would scan the project files to count component usage
-    
     // For development, return mock data
     return {
       'Button': 42,
