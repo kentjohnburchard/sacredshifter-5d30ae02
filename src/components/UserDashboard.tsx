@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { User, Calendar, BookOpen, Activity, LineChart, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import LightbearerStatsCard from './dashboard/LightbearerStatsCard';
+import DailyPracticeButton from './daily-practice/DailyPracticeButton';
 
 const UserDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -16,9 +17,12 @@ const UserDashboard: React.FC = () => {
     <div className="space-y-8">
       <Card className="bg-gradient-to-br from-purple-900/20 to-indigo-900/20 border-purple-500/30">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold">
-            Welcome, {user?.email?.split('@')[0] || 'Sacred Shifter'}
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-2xl font-bold">
+              Welcome, {user?.email?.split('@')[0] || 'Sacred Shifter'}
+            </CardTitle>
+            <DailyPracticeButton />
+          </div>
           <CardDescription>
             Track your sacred journey, visualize your frequency shifts, and explore your progress
           </CardDescription>

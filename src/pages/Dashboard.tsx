@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import UserDashboard from '@/components/UserDashboard';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import DailyPracticeAutoLauncher from '@/components/daily-practice/DailyPracticeAutoLauncher';
 
 const Dashboard: React.FC = () => {
   const { user, loading } = useAuth();
@@ -62,7 +63,10 @@ const Dashboard: React.FC = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
           {user ? (
-            <UserDashboard />
+            <>
+              <UserDashboard />
+              <DailyPracticeAutoLauncher />
+            </>
           ) : (
             <div className="text-center py-12">
               <h2 className="text-2xl font-bold mb-4">Please sign in to view your dashboard</h2>
