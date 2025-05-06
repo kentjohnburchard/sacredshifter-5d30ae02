@@ -2,46 +2,38 @@
 import { supabase } from '@/integrations/supabase/client';
 import { parseJourneyFrontmatter } from '@/utils/journeyLoader';
 
-interface JourneyAudio {
-  journey_id: number;
-  filename: string;
-  frequency: string | null;
-  audio_filename: string | null;
-  is_enabled: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
 /**
- * Extract frequency information from journey content
+ * Extract frequency information from journey description or tags
  */
-export const extractFrequencyFromContent = (content: string | null): string | null => {
-  if (!content) return null;
+export const extractFrequencyFromContent = (
+  description: string | null, 
+  tags: string | null
+): string | null => {
+  if (!description && !tags) return null;
   
-  // First try to get it from frontmatter
-  try {
-    const frontmatter = parseJourneyFrontmatter(content);
-    if (frontmatter.frequency) {
-      return frontmatter.frequency.toString();
-    }
-  } catch (err) {
-    console.error('Error parsing frontmatter:', err);
-  }
-  
-  // If not in frontmatter, try to find it in content with regex
-  const frequencyMatches = content.match(/(\d+)(?:\s*)?(?:hz|Hz|HZ)/g);
-  if (frequencyMatches && frequencyMatches.length > 0) {
-    // Extract just the number from the first match
-    const frequencyMatch = frequencyMatches[0].match(/(\d+)/);
-    if (frequencyMatch && frequencyMatch[1]) {
-      return `${frequencyMatch[1]}Hz`;
+  // Check in description first
+  if (description) {
+    // Look for frequency patterns like 432Hz in the description
+    const frequencyMatches = description.match(/(\d+)(?:\s*)?(?:hz|Hz|HZ)/g);
+    if (frequencyMatches && frequencyMatches.length > 0) {
+      // Extract just the number from the first match
+      const frequencyMatch = frequencyMatches[0].match(/(\d+)/);
+      if (frequencyMatch && frequencyMatch[1]) {
+        return `${frequencyMatch[1]}Hz`;
+      }
     }
   }
   
-  // As a last resort, look for sound_frequencies field text
-  const soundFreqMatch = content.match(/sound_frequencies\s*:\s*["']?([^"'\n]+)["']?/i);
-  if (soundFreqMatch && soundFreqMatch[1]) {
-    return soundFreqMatch[1].trim();
+  // Then check in tags
+  if (tags) {
+    const frequencyMatches = tags.match(/(\d+)(?:\s*)?(?:hz|Hz|HZ)/g);
+    if (frequencyMatches && frequencyMatches.length > 0) {
+      // Extract just the number from the first match
+      const frequencyMatch = frequencyMatches[0].match(/(\d+)/);
+      if (frequencyMatch && frequencyMatch[1]) {
+        return `${frequencyMatch[1]}Hz`;
+      }
+    }
   }
   
   return null;
@@ -97,103 +89,30 @@ export const findMatchingAudioFiles = async (frequency: string | null, journeySl
 };
 
 /**
- * Get journey audio mapping 
+ * Update journey with audio filename
  */
-export const getJourneyAudioMapping = async (journeyId: number): Promise<JourneyAudio | null> => {
+export const updateJourneyAudio = async (
+  journeyId: number, 
+  audioFilename: string | null
+): Promise<boolean> => {
   try {
-    const { data, error } = await supabase
-      .from('journey_audio_mappings')
-      .select('*')
-      .eq('journey_id', journeyId)
-      .maybeSingle();
+    const { error } = await supabase
+      .from('journeys')
+      .update({ 
+        audio_filename: audioFilename,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', journeyId);
     
     if (error) {
-      console.error('Error fetching journey audio mapping:', error);
-      return null;
+      console.error('Error updating journey audio mapping:', error);
+      return false;
     }
     
-    return data;
+    return true;
   } catch (err) {
-    console.error('Error in getJourneyAudioMapping:', err);
-    return null;
-  }
-};
-
-/**
- * Create or update journey audio mapping
- */
-export const updateJourneyAudioMapping = async (
-  journeyId: number, 
-  audioFilename: string | null,
-  isEnabled: boolean = true
-): Promise<JourneyAudio | null> => {
-  try {
-    // Get journey content to extract frequency
-    const { data: journey, error: journeyError } = await supabase
-      .from('journeys')
-      .select('content, filename')
-      .eq('id', journeyId)
-      .maybeSingle();
-    
-    if (journeyError) {
-      console.error('Error fetching journey:', journeyError);
-      return null;
-    }
-    
-    const frequency = extractFrequencyFromContent(journey?.content || null);
-    
-    // Check if mapping already exists
-    const { data: existing } = await supabase
-      .from('journey_audio_mappings')
-      .select('*')
-      .eq('journey_id', journeyId)
-      .maybeSingle();
-    
-    if (existing) {
-      // Update existing mapping
-      const { data, error } = await supabase
-        .from('journey_audio_mappings')
-        .update({
-          audio_filename: audioFilename,
-          is_enabled: isEnabled,
-          updated_at: new Date().toISOString()
-        })
-        .eq('journey_id', journeyId)
-        .select()
-        .single();
-      
-      if (error) {
-        console.error('Error updating journey audio mapping:', error);
-        return null;
-      }
-      
-      return data;
-    } else {
-      // Create new mapping
-      const { data, error } = await supabase
-        .from('journey_audio_mappings')
-        .insert({
-          journey_id: journeyId,
-          filename: journey?.filename || '',
-          frequency,
-          audio_filename: audioFilename,
-          is_enabled: isEnabled,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .select()
-        .single();
-      
-      if (error) {
-        console.error('Error creating journey audio mapping:', error);
-        return null;
-      }
-      
-      return data;
-    }
-  } catch (err) {
-    console.error('Error in updateJourneyAudioMapping:', err);
-    return null;
+    console.error('Error in updateJourneyAudio:', err);
+    return false;
   }
 };
 

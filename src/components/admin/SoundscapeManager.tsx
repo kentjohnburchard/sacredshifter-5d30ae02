@@ -21,9 +21,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { 
-  getAllSoundscapes, 
-  createJourneySoundscape, 
-  updateJourneySoundscape, 
+  getAllSoundscapes,
+  createJourneySoundscape,
+  updateJourneySoundscape,
   deleteJourneySoundscape,
   JourneySoundscape,
   validateYoutubeUrl
@@ -39,7 +39,7 @@ const SoundscapeManager: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedSoundscape, setSelectedSoundscape] = useState<JourneySoundscape | null>(null);
-  const [sourceType, setSourceType] = useState<'file' | 'youtube' | 'spotify'>('file');
+  const [sourceType, setSourceType] = useState<'file' | 'youtube'>('file');
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -79,7 +79,7 @@ const SoundscapeManager: React.FC = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSourceTypeChange = (value: 'file' | 'youtube' | 'spotify') => {
+  const handleSourceTypeChange = (value: 'file' | 'youtube') => {
     setSourceType(value);
     // Reset source-specific fields
     setFormData(prev => ({
@@ -173,13 +173,13 @@ const SoundscapeManager: React.FC = () => {
         description: formData.description,
         journey_id: parseInt(formData.journey_id),
         source_link: sourceType === 'file' ? undefined : formData.source_link,
-        file_url: sourceType === 'youtube' || sourceType === 'spotify' ? formData.source_link : formData.file_url,
+        file_url: sourceType === 'youtube' ? formData.source_link : formData.file_url,
         source_type: sourceType
       };
       
       let updatedSoundscape;
       
-      if (selectedSoundscape) {
+      if (selectedSoundscape?.id) {
         // Update existing soundscape
         updatedSoundscape = await updateJourneySoundscape(selectedSoundscape.id, soundscapeData);
         setSoundscapes(prev => 
@@ -188,9 +188,14 @@ const SoundscapeManager: React.FC = () => {
         toast.success('Soundscape updated successfully');
       } else {
         // Create new soundscape
-        updatedSoundscape = await createJourneySoundscape(soundscapeData);
-        setSoundscapes(prev => [updatedSoundscape, ...prev]);
-        toast.success('Soundscape created successfully');
+        updatedSoundscape = await createJourneySoundscape({
+          ...soundscapeData,
+          journey_id: parseInt(formData.journey_id)
+        });
+        if (updatedSoundscape) {
+          setSoundscapes(prev => [updatedSoundscape!, ...prev]);
+          toast.success('Soundscape created successfully');
+        }
       }
       
       setDialogOpen(false);
@@ -227,10 +232,6 @@ const SoundscapeManager: React.FC = () => {
                         <div className="w-12 h-12 bg-red-100 rounded-md flex items-center justify-center">
                           <Youtube className="text-red-500" />
                         </div>
-                      ) : soundscape.source_type === 'spotify' ? (
-                        <div className="w-12 h-12 bg-green-100 rounded-md flex items-center justify-center">
-                          <ExternalLink className="text-green-500" />
-                        </div>
                       ) : (
                         <div className="w-12 h-12 bg-purple-100 rounded-md flex items-center justify-center">
                           <Music className="text-purple-500" />
@@ -240,7 +241,7 @@ const SoundscapeManager: React.FC = () => {
                     <div className="flex-grow">
                       <h3 className="font-medium">{soundscape.title}</h3>
                       <p className="text-sm text-gray-500 mb-1">
-                        {journeys.find(j => j.id === soundscape.journey_id)?.title || 'No journey assigned'}
+                        {journeys.find(j => j.id.toString() === soundscape.journey_id)?.title || 'No journey assigned'}
                       </p>
                       {soundscape.description && <p className="text-sm">{soundscape.description}</p>}
                     </div>
@@ -249,7 +250,7 @@ const SoundscapeManager: React.FC = () => {
                         Edit
                       </Button>
                       <Button variant="outline" size="sm" className="text-red-500 hover:text-red-700" 
-                        onClick={() => handleDeleteRequest(soundscape.id)}>
+                        onClick={() => handleDeleteRequest(soundscape.id!)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -318,10 +319,10 @@ const SoundscapeManager: React.FC = () => {
                 <Label className="text-right">Source Type</Label>
                 <Tabs 
                   value={sourceType} 
-                  onValueChange={(value) => handleSourceTypeChange(value as 'file' | 'youtube' | 'spotify')} 
+                  onValueChange={(value) => handleSourceTypeChange(value as 'file' | 'youtube')} 
                   className="col-span-3"
                 >
-                  <TabsList className="grid w-full grid-cols-3">
+                  <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="file" className="flex items-center">
                       <FileMusic className="h-4 w-4 mr-2" />
                       Audio File
@@ -329,10 +330,6 @@ const SoundscapeManager: React.FC = () => {
                     <TabsTrigger value="youtube" className="flex items-center">
                       <Youtube className="h-4 w-4 mr-2" />
                       YouTube
-                    </TabsTrigger>
-                    <TabsTrigger value="spotify" className="flex items-center">
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Spotify
                     </TabsTrigger>
                   </TabsList>
                   
@@ -364,22 +361,6 @@ const SoundscapeManager: React.FC = () => {
                       />
                       <p className="text-xs text-gray-500">
                         Enter a valid YouTube video URL
-                      </p>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="spotify" className="mt-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="source_link">Spotify URL</Label>
-                      <Input
-                        id="source_link"
-                        name="source_link"
-                        value={formData.source_link}
-                        onChange={handleInputChange}
-                        placeholder="https://open.spotify.com/track/..."
-                      />
-                      <p className="text-xs text-gray-500">
-                        Enter a Spotify track or playlist URL
                       </p>
                     </div>
                   </TabsContent>

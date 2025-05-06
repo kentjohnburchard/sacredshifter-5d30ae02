@@ -14,12 +14,50 @@ export interface JourneySoundscape {
   chakra_tag?: string;
 }
 
+// Regex pattern to validate YouTube URLs
+const YOUTUBE_URL_PATTERN = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
+
+// Validate YouTube URL format
+export const validateYoutubeUrl = (url: string): boolean => {
+  return YOUTUBE_URL_PATTERN.test(url);
+};
+
+// Get all soundscapes
+export const getAllSoundscapes = async (): Promise<JourneySoundscape[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('journey_soundscapes')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching soundscapes:', error);
+      return [];
+    }
+    
+    return data.map(item => ({
+      id: item.id,
+      journey_id: item.journey_id?.toString(),
+      title: item.title,
+      description: item.description,
+      file_url: item.file_url,
+      source_type: item.source_link ? 'youtube' : 'file',
+      source_link: item.source_link,
+      created_at: item.created_at,
+      chakra_tag: item.chakra_tag
+    }));
+  } catch (err) {
+    console.error('Error in getAllSoundscapes:', err);
+    return [];
+  }
+};
+
 export const fetchJourneySoundscape = async (journeySlug: string): Promise<JourneySoundscape | null> => {
   try {
-    // First check if there's a mapping in journey_audio_mappings
+    // First check if there's a journey with this slug
     const { data: journey, error: journeyError } = await supabase
       .from('journeys')
-      .select('id, filename, title')
+      .select('id, filename, title, audio_filename')
       .eq('filename', journeySlug)
       .maybeSingle();
     
@@ -28,27 +66,17 @@ export const fetchJourneySoundscape = async (journeySlug: string): Promise<Journ
       return null;
     }
     
-    if (journey) {
-      // Get audio mapping if available
-      const { data: audioMapping, error: mappingError } = await supabase
-        .from('journey_audio_mappings')
-        .select('*')
-        .eq('journey_id', journey.id)
-        .eq('is_enabled', true)
-        .maybeSingle();
-      
-      if (!mappingError && audioMapping && audioMapping.audio_filename) {
-        return {
-          journey_id: journey.id.toString(),
-          title: `${journey.title} Soundscape`,
-          file_url: getAudioFileUrl(audioMapping.audio_filename),
-          source_type: 'file',
-          created_at: audioMapping.created_at
-        };
-      }
+    if (journey && journey.audio_filename) {
+      return {
+        journey_id: journey.id.toString(),
+        title: `${journey.title} Soundscape`,
+        file_url: getAudioFileUrl(journey.audio_filename),
+        source_type: 'file',
+        created_at: journey.updated_at
+      };
     }
     
-    // Try the original database method if mapping not available
+    // Try the journey_soundscapes table as fallback
     const { data: soundscape } = await supabase.rpc('get_journey_soundscape', {
       journey_slug: journeySlug
     });
@@ -74,14 +102,13 @@ export const fetchJourneySoundscape = async (journeySlug: string): Promise<Journ
 };
 
 export const createJourneySoundscape = async (
-  journeyId: number, 
-  data: Omit<JourneySoundscape, 'id' | 'journey_id' | 'created_at'>
+  data: Omit<JourneySoundscape, 'id' | 'created_at'> & { journey_id: number }
 ): Promise<JourneySoundscape | null> => {
   try {
     const { data: result, error } = await supabase
       .from('journey_soundscapes')
       .insert({
-        journey_id: journeyId,
+        journey_id: data.journey_id,
         title: data.title,
         description: data.description || null,
         file_url: data.file_url,
@@ -110,5 +137,68 @@ export const createJourneySoundscape = async (
   } catch (err) {
     console.error('Error in createJourneySoundscape:', err);
     return null;
+  }
+};
+
+export const updateJourneySoundscape = async (
+  id: string,
+  data: Partial<Omit<JourneySoundscape, 'id' | 'created_at'>> & { journey_id?: number }
+): Promise<JourneySoundscape> => {
+  try {
+    const updateData: any = {};
+    
+    if (data.title) updateData.title = data.title;
+    if (data.description !== undefined) updateData.description = data.description;
+    if (data.file_url) updateData.file_url = data.file_url;
+    if (data.journey_id) updateData.journey_id = data.journey_id;
+    if (data.chakra_tag !== undefined) updateData.chakra_tag = data.chakra_tag;
+    
+    if (data.source_type) {
+      updateData.source_link = data.source_type === 'youtube' && data.source_link ? data.source_link : null;
+    }
+    
+    const { data: result, error } = await supabase
+      .from('journey_soundscapes')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) {
+      console.error('Error updating journey soundscape:', error);
+      throw error;
+    }
+    
+    return {
+      id: result.id,
+      journey_id: result.journey_id?.toString(),
+      title: result.title,
+      description: result.description,
+      file_url: result.file_url,
+      source_type: result.source_link ? 'youtube' : 'file',
+      source_link: result.source_link,
+      created_at: result.created_at,
+      chakra_tag: result.chakra_tag
+    };
+  } catch (err) {
+    console.error('Error in updateJourneySoundscape:', err);
+    throw err;
+  }
+};
+
+export const deleteJourneySoundscape = async (id: string): Promise<void> => {
+  try {
+    const { error } = await supabase
+      .from('journey_soundscapes')
+      .delete()
+      .eq('id', id);
+    
+    if (error) {
+      console.error('Error deleting journey soundscape:', error);
+      throw error;
+    }
+  } catch (err) {
+    console.error('Error in deleteJourneySoundscape:', err);
+    throw err;
   }
 };

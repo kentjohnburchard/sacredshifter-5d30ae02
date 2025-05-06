@@ -12,18 +12,11 @@ import { supabase } from '@/integrations/supabase/client';
 import {
   extractFrequencyFromContent,
   findMatchingAudioFiles,
-  updateJourneyAudioMapping,
+  updateJourneyAudio,
   getAllAudioFiles,
   getAudioFileUrl
 } from '@/services/journeyAudioService';
-
-interface Journey {
-  id: number;
-  title: string;
-  filename: string;
-  content?: string;
-  sound_frequencies?: string;
-}
+import { Journey } from '@/services/journeyService';
 
 interface AudioMapping {
   journey_id: number;
@@ -43,14 +36,14 @@ const JourneyAudioMappingManager: React.FC = () => {
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const [playingId, setPlayingId] = useState<number | null>(null);
   
-  // Load journeys and their mappings
+  // Load journeys and their audio information
   useEffect(() => {
     const loadJourneys = async () => {
       setLoadingJourneys(true);
       try {
         const { data, error } = await supabase
           .from('journeys')
-          .select('id, title, filename, content, sound_frequencies')
+          .select('id, title, filename, audio_filename, sound_frequencies, tags, description')
           .order('title');
         
         if (error) {
@@ -59,31 +52,18 @@ const JourneyAudioMappingManager: React.FC = () => {
         
         setJourneys(data || []);
         
-        // Load existing mappings
-        const { data: mappingsData } = await supabase
-          .from('journey_audio_mappings')
-          .select('*');
-          
+        // Create mappings object for journeys
         const mappingsRecord: Record<number, AudioMapping> = {};
         
-        if (mappingsData) {
-          mappingsData.forEach(mapping => {
-            mappingsRecord[mapping.journey_id] = mapping;
-          });
-        }
-        
-        // Create mappings object for journeys that don't have one yet
         (data || []).forEach(journey => {
-          if (!mappingsRecord[journey.id]) {
-            const frequency = extractFrequencyFromContent(journey.content || null);
-            mappingsRecord[journey.id] = {
-              journey_id: journey.id,
-              filename: journey.filename,
-              frequency,
-              audio_filename: null,
-              is_enabled: false
-            };
-          }
+          const frequency = extractFrequencyFromContent(journey.description, journey.tags);
+          mappingsRecord[journey.id] = {
+            journey_id: journey.id,
+            filename: journey.filename,
+            frequency,
+            audio_filename: journey.audio_filename || null,
+            is_enabled: !!journey.audio_filename
+          };
         });
         
         setMappings(mappingsRecord);
@@ -114,7 +94,7 @@ const JourneyAudioMappingManager: React.FC = () => {
   // Update mapping and save to database
   const handleUpdateMapping = async (
     journeyId: number,
-    updates: Partial<Omit<AudioMapping, 'journey_id' | 'filename'>>
+    updates: Partial<Pick<AudioMapping, 'audio_filename' | 'is_enabled'>>
   ) => {
     try {
       // Update local state first for responsive UI
@@ -122,15 +102,15 @@ const JourneyAudioMappingManager: React.FC = () => {
         ...prev,
         [journeyId]: {
           ...prev[journeyId],
-          ...updates
+          ...updates,
+          is_enabled: updates.audio_filename ? true : prev[journeyId].is_enabled
         }
       }));
       
-      // Save to database
-      const result = await updateJourneyAudioMapping(
+      // Save to database - only update audio_filename field in journeys table
+      const result = await updateJourneyAudio(
         journeyId,
-        updates.audio_filename !== undefined ? updates.audio_filename : mappings[journeyId].audio_filename,
-        updates.is_enabled !== undefined ? updates.is_enabled : mappings[journeyId].is_enabled
+        updates.audio_filename !== undefined ? updates.audio_filename : mappings[journeyId].audio_filename
       );
       
       if (!result) {
@@ -302,7 +282,9 @@ const JourneyAudioMappingManager: React.FC = () => {
                     <TableCell>
                       <Switch
                         checked={mapping.is_enabled}
-                        onCheckedChange={(checked) => handleUpdateMapping(journey.id, { is_enabled: checked })}
+                        onCheckedChange={(checked) => handleUpdateMapping(journey.id, { 
+                          audio_filename: checked ? mapping.audio_filename : null 
+                        })}
                       />
                     </TableCell>
                     <TableCell>
