@@ -328,6 +328,17 @@ const SacredCircle: React.FC = () => {
               </Card>
             </motion.div>
           </div>
+          
+          {/* Add a prominent link to the Circle page */}
+          <div className="mt-6 text-center">
+            <Button 
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-lg py-3 px-8"
+              onClick={() => navigate("/circle")}
+            >
+              <MessageCircle className="mr-2 h-5 w-5" />
+              Join Sacred Circle Chat
+            </Button>
+          </div>
         </div>
       </div>
     </Layout>

@@ -1,144 +1,105 @@
-// src/AppRoutes.tsx
+import React, { lazy, Suspense } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
+import LoadingScreen from './components/LoadingScreen';
+import ProtectedRoute from './components/ProtectedRoute';
+import LandingPage from './pages/LandingPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import Dashboard from './pages/Dashboard';
+import SacredBlueprintPage from './pages/SacredBlueprintPage';
+import FrequencyLibraryPage from './pages/FrequencyLibraryPage';
+import HeartCenterPage from './pages/HeartCenterPage';
+import EmotionEnginePage from './pages/EmotionEnginePage';
+import TimelinePage from './pages/TimelinePage';
+import MusicGeneratorPage from './pages/MusicGeneratorPage';
+import MirrorPortalPage from './pages/MirrorPortalPage';
+import FrequencyShiftPage from './pages/FrequencyShiftPage';
+import ShiftPerceptionPage from './pages/ShiftPerceptionPage';
+import HermeticPrinciplesPage from './pages/HermeticPrinciplesPage';
+import SoulScribePage from './pages/SoulScribePage';
+import DeityOraclePage from './pages/DeityOraclePage';
+import AstralAttunementPage from './pages/AstralAttunementPage';
+import SubscriptionPage from './pages/SubscriptionPage';
+import TrinityGatewayPage from './pages/TrinityGatewayPage';
+import AboutFounderPage from './pages/AboutFounderPage';
+import ContactPage from './pages/ContactPage';
+import ProfilePage from './pages/ProfilePage';
+import HarmonicMapPage from './pages/HarmonicMapPage';
+import HeartDashboardPage from './pages/HeartDashboardPage';
+import AlignmentPage from './pages/AlignmentPage';
+import EnergyCheckPage from './pages/EnergyCheckPage';
+import FocusPage from './pages/FocusPage';
+import HermeticWisdomPage from './pages/HermeticWisdomPage';
+import JourneyTemplatesPage from './pages/JourneyTemplatesPage';
+import JourneysPage from './pages/JourneysPage';
+import AstrologyPage from './pages/AstrologyPage';
+import SiteMapPage from './pages/SiteMapPage';
+import SacredSpectrumPage from './pages/SacredSpectrumPage';
+import JourneysDirectoryPage from './pages/JourneysDirectoryPage';
+import SacredCircle from './pages/SacredCircle';
+import CircleHomePage from './pages/circle';
+import { activePages } from './config/navigation';
 
-/**
- * 🚫 DO NOT MODIFY THIS FILE UNLESS EXPLICITLY INSTRUCTED.
- * Sacred Shifter routing is managed here.
- * Lovable: DO NOT delete or alter routes. Create placeholders for missing components.
- * All routes — public, protected, admin — live here in one place.
- */
+// Lazy-loaded components
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
-import React, { Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
-import ProtectedRoute from '@/components/ProtectedRoute';
-import NotFound from '@/pages/NotFound';
-import ScrollToTop from '@/components/ScrollToTop';
+const AppRoutes: React.FC = () => {
+  const { user, loading } = useAuth();
 
-// ✅ Homepage & Visualizer
-import SacredShifterHome from '@/pages/SacredShifterHome';
-import Home from '@/pages/Home';
+  if (loading) {
+    return <LoadingScreen />;
+  }
 
-// Core Pages
-import JourneyPage from '@/pages/JourneyPage';
-import FrequencyLibraryPage from '@/pages/FrequencyLibraryPage';
-import SacredGeometryPage from '@/pages/SacredGeometryPage';
-import VisualizerTestPage from '@/pages/VisualizerTestPage';
-import AuthPage from '@/pages/AuthPage';
-import AccountPage from '@/pages/AccountPage';
-
-// Journey Player & Directory
-import JourneyPlayer from '@/pages/JourneyPlayer';
-import JourneysDirectory from '@/pages/JourneysDirectory';
-
-// Admin Console
-import AdminRoutes from '@/routes/adminRoutes';
-import AdminPagesCanvas from '@/pages/admin/AdminPagesCanvas';
-import SacredSpectrumAdmin from '@/pages/admin/SacredSpectrumAdmin';
-
-// App Pages
-import Subscription from '@/pages/Subscription';
-import AboutFounder from '@/pages/AboutFounder';
-import Meditation from '@/pages/Meditation';
-import HermeticWisdom from '@/pages/HermeticWisdom';
-import HermeticPrinciples from '@/pages/HermeticPrinciples';
-import FrequencyShift from '@/pages/FrequencyShift';
-import SiteMap from '@/pages/SiteMap';
-import SacredGridDemo from '@/pages/SacredGridDemo';
-import HarmonicMapPage from '@/pages/HarmonicMap';
-import HeartCenter from '@/pages/HeartCenter';
-import HeartDashboard from '@/pages/HeartDashboard';
-import SacredBlueprint from '@/pages/SacredBlueprint';
-import ShiftPerception from '@/pages/ShiftPerception';
-import TrinityGateway from '@/pages/TrinityGateway';
-import Alignment from '@/pages/Alignment';
-import EnergyCheck from '@/pages/EnergyCheck';
-import Focus from '@/pages/Focus';
-import Astrology from '@/pages/Astrology';
-import Contact from '@/pages/Contact';
-import PrimeFrequencyActivation from '@/pages/PrimeFrequencyActivation';
-import SacredShifterWhat from '@/pages/SacredShifterWhat';
-import SacredShifterWhy from '@/pages/SacredShifterWhy';
-import SacredShifterHow from '@/pages/SacredShifterHow';
-import Soundscapes from '@/pages/Soundscapes';
-import Timeline from '@/pages/Timeline';
-import Intentions from '@/pages/Intentions';
-import Lightbearer from '@/pages/Lightbearer';
-import SacredCircle from '@/pages/SacredCircle';
-import MirrorPortal from '@/pages/MirrorPortal';
-import EmotionEngine from '@/pages/EmotionEngine';
-import SoulScribe from '@/pages/SoulScribe';
-import DeityOracle from '@/pages/DeityOracle';
-import AstralAttunement from '@/pages/AstralAttunement';
-import MusicGeneration from '@/pages/MusicGeneration';
-
-// Landing & Group Pages
-import CircleHomePage from '@/pages/circle/index';
-import PremiumHomePage from '@/pages/premium/index';
-
-const AppRoutes = () => {
   return (
-    <Suspense fallback={<div className="p-4 text-purple-500">Loading Sacred Shifter...</div>}>
-      <ScrollToTop />
+    <Suspense fallback={<LoadingScreen />}>
       <Routes>
-        {/* 🔓 Public Routes */}
-        <Route path="/" element={<SacredShifterHome />} />
-        <Route path="/visualizer" element={<Home />} />
-        <Route path="/journey/:slug" element={<JourneyPage />} />
-        <Route path="/frequency-library" element={<FrequencyLibraryPage />} />
-        <Route path="/sacred-geometry" element={<SacredGeometryPage />} />
-        <Route path="/visualizer-test" element={<VisualizerTestPage />} />
-        <Route path="/auth" element={<AuthPage />} />
-        <Route path="/about-founder" element={<AboutFounder />} />
-        <Route path="/meditation" element={<Meditation />} />
-        <Route path="/hermetic-wisdom" element={<HermeticWisdom />} />
-        <Route path="/hermetic-principles" element={<HermeticPrinciples />} />
-        <Route path="/frequency-shift" element={<FrequencyShift />} />
-        <Route path="/site-map" element={<SiteMap />} />
-        <Route path="/sacred-grid" element={<SacredGridDemo />} />
-        <Route path="/harmonic-map" element={<HarmonicMapPage />} />
-        <Route path="/sacred-blueprint" element={<SacredBlueprint />} />
-        <Route path="/shift-perception" element={<ShiftPerception />} />
-        <Route path="/trinity-gateway" element={<TrinityGateway />} />
-        <Route path="/alignment" element={<Alignment />} />
-        <Route path="/energy-check" element={<EnergyCheck />} />
-        <Route path="/focus" element={<Focus />} />
-        <Route path="/astrology" element={<Astrology />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/prime-frequency" element={<PrimeFrequencyActivation />} />
-        <Route path="/about/what" element={<SacredShifterWhat />} />
-        <Route path="/about/why" element={<SacredShifterWhy />} />
-        <Route path="/about/how" element={<SacredShifterHow />} />
-        <Route path="/soundscapes" element={<Soundscapes />} />
-        <Route path="/timeline" element={<Timeline />} />
-        <Route path="/intentions" element={<Intentions />} />
-        <Route path="/mirror-portal" element={<MirrorPortal />} />
-        <Route path="/emotion-engine" element={<EmotionEngine />} />
-        <Route path="/soul-scribe" element={<SoulScribe />} />
-        <Route path="/deity-oracle" element={<DeityOracle />} />
-        <Route path="/astral-attunement" element={<AstralAttunement />} />
-        <Route path="/music-generator" element={<MusicGeneration />} />
-
-        {/* 💎 Special Areas */}
-        <Route path="/circle" element={<CircleHomePage />} />
-        <Route path="/premium" element={<ProtectedRoute><PremiumHomePage /></ProtectedRoute>} />
-        <Route path="/lightbearer" element={<ProtectedRoute><Lightbearer /></ProtectedRoute>} />
-        <Route path="/community" element={<ProtectedRoute><SacredCircle /></ProtectedRoute>} />
-
-        {/* 📜 Journey Navigation */}
-        <Route path="/journeys-directory" element={<JourneysDirectory />} />
-        <Route path="/journey-player/:journeyId" element={<ProtectedRoute><JourneyPlayer /></ProtectedRoute>} />
-        <Route path="/journey-player/*" element={<ProtectedRoute><JourneyPlayer /></ProtectedRoute>} />
-
-        {/* 🔐 Account + Admin */}
-        <Route path="/account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
-        <Route path="/subscription" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
-        <Route path="/heart-dashboard" element={<ProtectedRoute><HeartDashboard /></ProtectedRoute>} />
-        <Route path="/heart-center" element={<HeartCenter />} />
-        <Route path="/admin/*" element={<ProtectedRoute><AdminRoutes /></ProtectedRoute>} />
-        <Route path="/admin/pages-canvas" element={<ProtectedRoute><AdminPagesCanvas /></ProtectedRoute>} />
-        <Route path="/admin/sacred-spectrum" element={<ProtectedRoute><SacredSpectrumAdmin /></ProtectedRoute>} />
-
-        {/* 🚧 Catch-All */}
-        <Route path="*" element={<NotFound />} />
+        {/* Public Routes */}
+        <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
+        <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <RegisterPage />} />
+        <Route path="/about-founder" element={activePages.aboutFounder ? <AboutFounderPage /> : <Navigate to="/" />} />
+        <Route path="/contact" element={activePages.contact ? <ContactPage /> : <Navigate to="/" />} />
+        
+        {/* Protected Routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/dashboard" element={activePages.dashboard ? <Dashboard /> : <Navigate to="/" />} />
+          <Route path="/sacred-blueprint" element={activePages.sacredBlueprint ? <SacredBlueprintPage /> : <Navigate to="/" />} />
+          <Route path="/frequency-library" element={activePages.frequencyLibrary ? <FrequencyLibraryPage /> : <Navigate to="/" />} />
+          <Route path="/heart-center" element={activePages.heartCenter ? <HeartCenterPage /> : <Navigate to="/" />} />
+          <Route path="/emotion-engine" element={activePages.emotionEngine ? <EmotionEnginePage /> : <Navigate to="/" />} />
+          <Route path="/timeline" element={activePages.timeline ? <TimelinePage /> : <Navigate to="/" />} />
+          <Route path="/music-generator" element={activePages.musicGenerator ? <MusicGeneratorPage /> : <Navigate to="/" />} />
+          <Route path="/mirror-portal" element={activePages.mirrorPortal ? <MirrorPortalPage /> : <Navigate to="/" />} />
+          <Route path="/frequency-shift" element={activePages.frequencyShift ? <FrequencyShiftPage /> : <Navigate to="/" />} />
+          <Route path="/shift-perception" element={activePages.shiftPerception ? <ShiftPerceptionPage /> : <Navigate to="/" />} />
+          <Route path="/hermetic-principles" element={activePages.hermeticPrinciples ? <HermeticPrinciplesPage /> : <Navigate to="/" />} />
+          <Route path="/soul-scribe" element={activePages.soulScribe ? <SoulScribePage /> : <Navigate to="/" />} />
+          <Route path="/deity-oracle" element={activePages.deityOracle ? <DeityOraclePage /> : <Navigate to="/" />} />
+          <Route path="/astral-attunement" element={activePages.astralAttunement ? <AstralAttunementPage /> : <Navigate to="/" />} />
+          <Route path="/subscription" element={activePages.subscription ? <SubscriptionPage /> : <Navigate to="/" />} />
+          <Route path="/trinity-gateway" element={activePages.trinityGateway ? <TrinityGatewayPage /> : <Navigate to="/" />} />
+          <Route path="/profile" element={activePages.profile ? <ProfilePage /> : <Navigate to="/" />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/harmonic-map" element={activePages.harmonicMap ? <HarmonicMapPage /> : <Navigate to="/" />} />
+          <Route path="/heart-dashboard" element={activePages.heartDashboard ? <HeartDashboardPage /> : <Navigate to="/" />} />
+          <Route path="/alignment" element={activePages.alignment ? <AlignmentPage /> : <Navigate to="/" />} />
+          <Route path="/energy-check" element={activePages.energyCheck ? <EnergyCheckPage /> : <Navigate to="/" />} />
+          <Route path="/focus" element={activePages.focus ? <FocusPage /> : <Navigate to="/" />} />
+          <Route path="/hermetic-wisdom" element={activePages.hermeticWisdom ? <HermeticWisdomPage /> : <Navigate to="/" />} />
+          <Route path="/journey-templates" element={activePages.journeyTemplates ? <JourneyTemplatesPage /> : <Navigate to="/" />} />
+          <Route path="/journeys" element={activePages.journeys ? <JourneysPage /> : <Navigate to="/" />} />
+          <Route path="/astrology" element={activePages.astrology ? <AstrologyPage /> : <Navigate to="/" />} />
+          <Route path="/site-map" element={activePages.siteMap ? <SiteMapPage /> : <Navigate to="/" />} />
+          <Route path="/sacred-spectrum" element={activePages.sacredSpectrum ? <SacredSpectrumPage /> : <Navigate to="/" />} />
+          <Route path="/journeys-directory" element={activePages.journeysDirectory ? <JourneysDirectoryPage /> : <Navigate to="/" />} />
+          <Route path="/sacred-circle" element={<SacredCircle />} />
+          <Route path="/circle" element={<CircleHomePage />} />
+        </Route>
+        
+        {/* 404 Route */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
   );
