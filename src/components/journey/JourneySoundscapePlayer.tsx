@@ -82,6 +82,13 @@ const JourneySoundscapePlayer: React.FC<JourneySoundscapePlayerProps> = ({
     }
   }, [isMuted, audio]);
 
+  // Set autoplay when component mounts
+  useEffect(() => {
+    if (autoplay && soundscape) {
+      setIsPlaying(true);
+    }
+  }, [autoplay, soundscape]);
+
   const togglePlayback = () => {
     setIsPlaying(prev => !prev);
   };

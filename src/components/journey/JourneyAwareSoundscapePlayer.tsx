@@ -166,6 +166,13 @@ const JourneyAwareSoundscapePlayer: React.FC<JourneyAwareSoundscapePlayerProps> 
     };
   }, [journeySlug]);
 
+  // Set autoplay when component mounts
+  useEffect(() => {
+    if (autoplay && soundscape) {
+      setIsPlaying(true);
+    }
+  }, [autoplay, soundscape]);
+
   if (loading) {
     return (
       <div className="h-16 flex items-center justify-center">
