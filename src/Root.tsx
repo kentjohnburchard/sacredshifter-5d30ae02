@@ -7,6 +7,7 @@ import { AuthProvider } from './context/AuthContext';
 import { JourneyProvider } from './context/JourneyContext';
 import { CommunityProvider } from './contexts/CommunityContext';
 import { GuidanceProvider } from './context/GuidanceContext';
+import { VisualThemeProvider } from './context/VisualThemeContext';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "sonner";
 import PromptManager from "@/components/journey/PromptManager"; 
@@ -24,11 +25,13 @@ function Root() {
           <JourneyProvider>
             <CommunityProvider>
               <GuidanceProvider>
-                <App />
-                <PromptManager />
-                <GuidanceEngine />
-                <SonnerToaster position="top-right" richColors />
-                <Toaster />
+                <VisualThemeProvider>
+                  <App />
+                  <PromptManager />
+                  <GuidanceEngine />
+                  <SonnerToaster position="top-right" richColors />
+                  <Toaster />
+                </VisualThemeProvider>
               </GuidanceProvider>
             </CommunityProvider>
           </JourneyProvider>

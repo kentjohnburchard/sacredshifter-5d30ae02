@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/context/AuthContext';
 import { useChakraActivations } from '@/hooks/useChakraActivations';
 import { ChakraTag } from '@/types/chakras';
-import ChakraTag as ChakraTagComponent from '@/components/chakra/ChakraTag';
+import ChakraTagComponent from '@/components/chakra/ChakraTag';
 import { Progress } from '@/components/ui/progress';
 import { Heart, Crown, Radio } from 'lucide-react';
 
