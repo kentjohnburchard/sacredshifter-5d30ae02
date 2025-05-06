@@ -3,6 +3,23 @@ import { supabase } from '@/integrations/supabase/client';
 import { JourneyTimelineItem } from '@/types/journey';
 import { ChakraTag } from '@/types/chakras';
 
+// Helper function to sanitize timeline data
+function sanitizeTimeline(data: any[]): JourneyTimelineItem[] {
+  return data.map(item => ({
+    id: item.id,
+    user_id: item.user_id,
+    title: item.title,
+    tag: item.tag || '',
+    notes: item.notes,
+    chakra_tag: item.chakra_tag as ChakraTag | undefined,
+    created_at: item.created_at,
+    journey_id: item.journey_id,
+    component: item.component,
+    action: item.action,
+    details: item.details
+  }));
+}
+
 export const fetchUserTimeline = async (
   userId: string,
   tag?: string
@@ -25,7 +42,7 @@ export const fetchUserTimeline = async (
       return [];
     }
 
-    return data as unknown as JourneyTimelineItem[];
+    return sanitizeTimeline(data || []);
   } catch (err) {
     console.error('Error in fetchUserTimeline:', err);
     return [];
@@ -33,7 +50,6 @@ export const fetchUserTimeline = async (
 };
 
 // Helper function to process notes that might contain journey references
-// Rewritten to avoid complex type instantiation that leads to TS2589 error
 const processJourneyNotes = (entry: any, journeyId: string): boolean => {
   // First, perform basic checks before trying to parse JSON
   if (!entry.notes || typeof entry.notes !== 'string') {
@@ -76,7 +92,7 @@ export const fetchJourneyTimeline = async (
     }
 
     // Process direct matches
-    const typedDirectMatches = (directMatches || []) as unknown as JourneyTimelineItem[];
+    const typedDirectMatches = sanitizeTimeline(directMatches || []);
 
     // Second query: get all entries to check notes field
     const { data: allEntries, error: allError } = await supabase
@@ -96,7 +112,7 @@ export const fetchJourneyTimeline = async (
     if (allEntries) {
       for (const entry of allEntries) {
         if (processJourneyNotes(entry, journeyId)) {
-          notesMatches.push(entry as unknown as JourneyTimelineItem);
+          notesMatches.push(sanitizeTimeline([entry])[0]);
         }
       }
     }
@@ -142,7 +158,7 @@ export const createTimelineEntry = async (
       return null;
     }
 
-    return data as JourneyTimelineItem;
+    return sanitizeTimeline([data])[0];
   } catch (err) {
     console.error('Error in createTimelineEntry:', err);
     return null;
