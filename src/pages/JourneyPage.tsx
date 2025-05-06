@@ -1,14 +1,16 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import ReactMarkdown from 'react-markdown';
 import { fetchJourneyBySlug, Journey } from '@/services/journeyService';
 import { parseJourneyContent, removeFrontmatter, parseJourneyFrontmatter } from '@/utils/journeyLoader';
-import JourneySoundscapePlayer from '@/components/journey/JourneySoundscapePlayer';
-import SpiralVisualizer from '@/components/visualizer/SpiralVisualizer';
-import { useSpiralParams } from '@/hooks/useSpiralParams';
+import JourneyAwareSoundscapePlayer from '@/components/journey/JourneyAwareSoundscapePlayer';
+import JourneyAwareSpiralVisualizer from '@/components/visualizer/JourneyAwareSpiralVisualizer';
+import JourneyTimelineView from '@/components/timeline/JourneyTimelineView';
 import { Card, CardContent } from '@/components/ui/card';
+import { useJourney } from '@/context/JourneyContext';
+import { Button } from '@/components/ui/button';
+import { Play, CirclePause, History } from 'lucide-react';
 
 interface CoreJourneyLoaderResult {
   content: string;
@@ -69,7 +71,15 @@ const JourneyPage: React.FC = () => {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
   const [hasAudioContent, setHasAudioContent] = useState(false);
-  const spiralParams = useSpiralParams(slug || '');
+  const [showTimeline, setShowTimeline] = useState(false);
+  
+  const { 
+    activeJourney, 
+    isJourneyActive, 
+    startJourney, 
+    completeJourney, 
+    resetJourney 
+  } = useJourney();
   
   useEffect(() => {
     const loadJourney = async () => {
@@ -121,6 +131,23 @@ const JourneyPage: React.FC = () => {
     );
   };
 
+  const handleStartJourney = () => {
+    if (journey) {
+      startJourney(journey);
+    }
+  };
+  
+  const handleCompleteJourney = () => {
+    completeJourney();
+  };
+  
+  const toggleTimeline = () => {
+    setShowTimeline(prev => !prev);
+  };
+  
+  // Check if the currently loaded journey matches the active journey
+  const isCurrentJourneyActive = isJourneyActive && activeJourney?.id === journey?.id;
+
   return (
     <Layout 
       pageTitle={journey?.title || 'Journey'} 
@@ -137,9 +164,11 @@ const JourneyPage: React.FC = () => {
             <div className="lg:col-span-1 space-y-4">
               <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl overflow-hidden">
                 <div className="h-64 relative">
-                  <SpiralVisualizer 
-                    params={spiralParams} 
-                    containerId={`journeySpiral-${slug}`} 
+                  <JourneyAwareSpiralVisualizer 
+                    journeyId={journey?.id?.toString()}
+                    autoSync={false}
+                    showControls={true}
+                    containerId={`journeySpiral-${slug}`}
                     className="absolute inset-0 w-full h-full"
                   />
                 </div>
@@ -147,6 +176,36 @@ const JourneyPage: React.FC = () => {
                   <h3 className="text-lg font-semibold mb-2 text-white readable-text">Sacred Frequencies</h3>
                   <div className="text-sm text-white/80 readable-text-light">
                     {journey?.sound_frequencies || 'No frequency information available'}
+                  </div>
+                  
+                  <div className="flex justify-between items-center mt-4">
+                    {!isCurrentJourneyActive ? (
+                      <Button 
+                        onClick={handleStartJourney} 
+                        className="bg-purple-600 hover:bg-purple-700"
+                      >
+                        <Play className="h-4 w-4 mr-2" />
+                        Start Journey
+                      </Button>
+                    ) : (
+                      <Button 
+                        onClick={handleCompleteJourney} 
+                        variant="outline"
+                        className="border-purple-500/50 text-purple-200"
+                      >
+                        <CirclePause className="h-4 w-4 mr-2" />
+                        Complete Journey
+                      </Button>
+                    )}
+                    
+                    <Button 
+                      onClick={toggleTimeline} 
+                      variant="ghost"
+                      className="text-purple-200"
+                      title="View Timeline"
+                    >
+                      <History className="h-4 w-4" />
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -156,8 +215,25 @@ const JourneyPage: React.FC = () => {
                 <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl">
                   <CardContent className="p-4">
                     {slug && (
-                      <JourneySoundscapePlayer journeySlug={slug} autoplay={false} />
+                      <JourneyAwareSoundscapePlayer 
+                        journeyId={journey?.id?.toString()} 
+                        autoSync={false}
+                        autoplay={false} 
+                      />
                     )}
+                  </CardContent>
+                </Card>
+              )}
+              
+              {/* Journey Timeline (conditionally shown) */}
+              {showTimeline && (
+                <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl">
+                  <CardContent className="p-4">
+                    <JourneyTimelineView 
+                      journeyId={journey?.id?.toString()}
+                      autoSync={false}
+                      limit={5}
+                    />
                   </CardContent>
                 </Card>
               )}

@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import type { SpiralParams } from '@/components/visualizer/SpiralVisualizer';
+import { fetchSpiralParams } from '@/services/spiralParamService';
 
 // Default parameters if none are specified
 const DEFAULT_PARAMS: SpiralParams = {
@@ -254,24 +255,39 @@ export function useSpiralParams(journeyId?: string): SpiralParams {
       return;
     }
     
-    // First check for direct journey ID match
-    if (journeyParamsMap[journeyId]) {
-      setParams(journeyParamsMap[journeyId]);
-      return;
-    }
-    
-    // Check if journeyId contains a frequency number
-    const frequencyMatch = journeyId.match(/(\d+)(?:hz)?/i);
-    if (frequencyMatch) {
-      const freq = frequencyMatch[1];
-      if (frequencyParamsMap[freq]) {
-        setParams(frequencyParamsMap[freq]);
+    const loadParams = async () => {
+      // First check for direct journey ID match in memory cache
+      if (journeyParamsMap[journeyId]) {
+        setParams(journeyParamsMap[journeyId]);
         return;
       }
-    }
+      
+      // Then try to load from database
+      try {
+        const dbParams = await fetchSpiralParams(journeyId);
+        if (dbParams) {
+          setParams(dbParams);
+          return;
+        }
+      } catch (error) {
+        console.error(`Error loading spiral params for journey ${journeyId}:`, error);
+      }
+      
+      // Check if journeyId contains a frequency number
+      const frequencyMatch = journeyId.match(/(\d+)(?:hz)?/i);
+      if (frequencyMatch) {
+        const freq = frequencyMatch[1];
+        if (frequencyParamsMap[freq]) {
+          setParams(frequencyParamsMap[freq]);
+          return;
+        }
+      }
+      
+      // Fallback to default
+      setParams(DEFAULT_PARAMS);
+    };
     
-    // Fallback to default
-    setParams(DEFAULT_PARAMS);
+    loadParams();
   }, [journeyId]);
   
   return params;
