@@ -44,7 +44,7 @@ export const fetchJourneyTimeline = async (userId: string, journeyId: string): P
       return [];
     }
     
-    // Then get all entries to check for journeyId in notes
+    // Get all entries to check for journeyId in notes
     const { data: allEntries, error: allError } = await supabase
       .from('timeline_snapshots')
       .select('*')
@@ -56,22 +56,31 @@ export const fetchJourneyTimeline = async (userId: string, journeyId: string): P
       return directMatches as JourneyTimelineItem[] || [];
     }
     
-    // Find entries with journeyId in notes field - avoiding excessive type recursion
-    const notesMatches: JourneyTimelineItem[] = [];
+    // Create an array to store matches from notes field
+    const notesMatches: any[] = [];
     
-    if (allEntries && allEntries.length > 0) {
+    // Manually process each entry to avoid deep type recursion
+    if (allEntries) {
       for (const entry of allEntries) {
-        if (!entry.notes || typeof entry.notes !== 'string') continue;
+        if (!entry.notes || typeof entry.notes !== 'string') {
+          continue;
+        }
         
         try {
-          // Safely parse notes
-          const notesObj = JSON.parse(entry.notes);
-          if (notesObj && typeof notesObj === 'object' && notesObj.journeyId === journeyId) {
-            notesMatches.push(entry as JourneyTimelineItem);
+          const notesText = entry.notes;
+          // Simple string check first to avoid parsing if possible
+          if (notesText.includes(journeyId)) {
+            try {
+              const notesObj = JSON.parse(notesText);
+              if (notesObj && typeof notesObj === 'object' && notesObj.journeyId === journeyId) {
+                notesMatches.push(entry);
+              }
+            } catch (e) {
+              // Skip entries with invalid JSON
+            }
           }
-        } catch {
-          // Skip entries with invalid JSON
-          continue;
+        } catch (e) {
+          // Skip any problematic entries
         }
       }
     }
@@ -87,7 +96,7 @@ export const fetchJourneyTimeline = async (userId: string, journeyId: string): P
       }
     }
     
-    return uniqueEntries;
+    return uniqueEntries as JourneyTimelineItem[];
   } catch (err) {
     console.error('Error in fetchJourneyTimeline:', err);
     return [];
@@ -180,7 +189,6 @@ export const deleteTimelineEntry = async (entryId: string): Promise<boolean> => 
   }
 };
 
-// Add the missing logTimelineEvent function
 export const logTimelineEvent = async (
   userId: string,
   category: string,
