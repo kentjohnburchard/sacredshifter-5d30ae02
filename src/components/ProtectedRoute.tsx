@@ -13,6 +13,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   
   useEffect(() => {
     console.log("ProtectedRoute rendering for path:", location.pathname);
+    console.log("User authenticated?", !!user, "Loading?", loading);
     
     // Store the current path for redirection after login
     if (!loading && !user) {

@@ -21,6 +21,8 @@ const AuthPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
+  console.log("Auth page rendering, user:", !!user, "loading:", loading);
+  
   // Check if we're in password reset mode via URL parameter
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -31,9 +33,12 @@ const AuthPage: React.FC = () => {
   
   // If user is already authenticated, redirect to home
   useEffect(() => {
+    console.log("Auth page: User authenticated?", !!user, "Auth loading?", loading);
+    
     if (user && !loading) {
       const redirectPath = sessionStorage.getItem('redirectAfterLogin') || '/';
       sessionStorage.removeItem('redirectAfterLogin'); 
+      console.log("Redirecting authenticated user to:", redirectPath);
       navigate(redirectPath);
     }
   }, [user, navigate, loading]);
@@ -45,10 +50,13 @@ const AuthPage: React.FC = () => {
       return;
     }
     
+    console.log("Attempting login with email:", email);
     setIsSubmitting(true);
     try {
       await signIn(email, password);
       // Auth context will handle the redirect after successful login
+    } catch (error) {
+      console.error("Login error in component:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -61,6 +69,7 @@ const AuthPage: React.FC = () => {
       return;
     }
     
+    console.log("Attempting signup with email:", email);
     setIsSubmitting(true);
     try {
       await signUp(email, password, { 
@@ -68,6 +77,8 @@ const AuthPage: React.FC = () => {
         full_name: name
       });
       // Auth context will handle toast notifications and redirects
+    } catch (error) {
+      console.error("Signup error in component:", error);
     } finally {
       setIsSubmitting(false);
     }

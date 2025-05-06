@@ -18,10 +18,12 @@ export function useAuthentication() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log("Setting up auth state listeners and checking session");
+    
     // Set up auth state listener FIRST (this order is important)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log("Auth state changed:", event);
+        console.log("Auth state changed:", event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -36,6 +38,7 @@ export function useAuthentication() {
     const initializeAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
+        console.log("Initial session check:", session?.user?.email || "No session");
         setSession(session);
         setUser(session?.user ?? null);
       } catch (err) {
@@ -58,17 +61,21 @@ export function useAuthentication() {
       setLoading(true);
       setError(null);
       
+      console.log("Attempting to sign in with email:", email);
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
       
       if (error) {
+        console.error("Sign in error:", error);
         setError({ message: error.message });
         toast.error(error.message);
         return { success: false, error };
       }
       
+      console.log("Sign in successful for:", data.user?.email);
       toast.success("Signed in successfully!");
       
       // Check for redirect path from session storage
@@ -82,6 +89,7 @@ export function useAuthentication() {
       
       return { success: true, data };
     } catch (err: any) {
+      console.error("Sign in exception:", err);
       const errorMessage = err.message || "An unexpected error occurred during sign in";
       setError({ message: errorMessage });
       toast.error(errorMessage);
@@ -96,6 +104,8 @@ export function useAuthentication() {
       setLoading(true);
       setError(null);
       
+      console.log("Attempting to sign up with email:", email);
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -105,10 +115,13 @@ export function useAuthentication() {
       });
       
       if (error) {
+        console.error("Sign up error:", error);
         setError({ message: error.message });
         toast.error(error.message);
         return { success: false, error };
       }
+      
+      console.log("Sign up response:", data);
       
       // Check if email confirmation is required
       if (data.session === null) {
@@ -120,6 +133,7 @@ export function useAuthentication() {
       
       return { success: true, data };
     } catch (err: any) {
+      console.error("Sign up exception:", err);
       const errorMessage = err.message || "An unexpected error occurred during sign up";
       setError({ message: errorMessage });
       toast.error(errorMessage);
@@ -132,18 +146,23 @@ export function useAuthentication() {
   const signOut = useCallback(async () => {
     try {
       setLoading(true);
+      
+      console.log("Attempting to sign out");
       const { error } = await supabase.auth.signOut();
       
       if (error) {
+        console.error("Sign out error:", error);
         setError({ message: error.message });
         toast.error(error.message);
         return { success: false, error };
       }
       
+      console.log("Sign out successful");
       toast.success("Signed out successfully");
       navigate('/');
       return { success: true };
     } catch (err: any) {
+      console.error("Sign out exception:", err);
       const errorMessage = err.message || "An unexpected error occurred during sign out";
       setError({ message: errorMessage });
       toast.error(errorMessage);
