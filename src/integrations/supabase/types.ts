@@ -351,6 +351,7 @@ export type Database = {
       }
       journey_soundscapes: {
         Row: {
+          chakra_tag: string | null
           created_at: string | null
           description: string | null
           file_url: string
@@ -362,6 +363,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          chakra_tag?: string | null
           created_at?: string | null
           description?: string | null
           file_url: string
@@ -373,6 +375,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          chakra_tag?: string | null
           created_at?: string | null
           description?: string | null
           file_url?: string
@@ -649,6 +652,7 @@ export type Database = {
       journeys: {
         Row: {
           assigned_songs: string | null
+          chakra_tag: string | null
           created_at: string | null
           description: string | null
           duration: string | null
@@ -673,6 +677,7 @@ export type Database = {
         }
         Insert: {
           assigned_songs?: string | null
+          chakra_tag?: string | null
           created_at?: string | null
           description?: string | null
           duration?: string | null
@@ -697,6 +702,7 @@ export type Database = {
         }
         Update: {
           assigned_songs?: string | null
+          chakra_tag?: string | null
           created_at?: string | null
           description?: string | null
           duration?: string | null
@@ -750,6 +756,7 @@ export type Database = {
       }
       lightbearer_codes: {
         Row: {
+          chakra_tag: string | null
           code_name: string
           created_at: string
           description: string
@@ -761,6 +768,7 @@ export type Database = {
           unlock_count: number
         }
         Insert: {
+          chakra_tag?: string | null
           code_name: string
           created_at?: string
           description: string
@@ -772,6 +780,7 @@ export type Database = {
           unlock_count?: number
         }
         Update: {
+          chakra_tag?: string | null
           code_name?: string
           created_at?: string
           description?: string
@@ -1401,6 +1410,33 @@ export type Database = {
           rising_sign?: string | null
           sun_sign?: string | null
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_chakra_activations: {
+        Row: {
+          activation_type: string
+          chakra_tag: string
+          created_at: string | null
+          id: string
+          journey_id: string | null
+          user_id: string
+        }
+        Insert: {
+          activation_type: string
+          chakra_tag: string
+          created_at?: string | null
+          id?: string
+          journey_id?: string | null
+          user_id: string
+        }
+        Update: {
+          activation_type?: string
+          chakra_tag?: string
+          created_at?: string | null
+          id?: string
+          journey_id?: string | null
           user_id?: string
         }
         Relationships: []

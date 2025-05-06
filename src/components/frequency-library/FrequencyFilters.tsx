@@ -3,15 +3,17 @@ import React from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Search, Filter, Music } from "lucide-react";
+import ChakraFilter from "@/components/chakra/ChakraFilter";
+import { ChakraTag } from "@/types/chakras";
 
 interface FrequencyFiltersProps {
   chakras: string[];
   principles: string[];
-  chakraFilter: string | null;
+  chakraFilter: ChakraTag[];
   principleFilter: string | null;
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  onChakraFilterChange: (value: string | null) => void;
+  onChakraFilterChange: (chakras: ChakraTag[]) => void;
   onPrincipleFilterChange: (value: string | null) => void;
 }
 
@@ -37,49 +39,36 @@ const FrequencyFilters: React.FC<FrequencyFiltersProps> = ({
         />
       </div>
       
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="mb-4">
+        <h4 className="text-sm font-medium mb-2 text-gray-400">Filter by Chakras</h4>
+        <ChakraFilter 
+          selectedChakras={chakraFilter as ChakraTag[]} 
+          onChange={onChakraFilterChange}
+          size="sm"
+        />
+      </div>
+      
+      {principles.length > 0 && (
         <div className="w-full md:w-1/3 lg:w-1/4">
           <Select 
-            value={chakraFilter || "all-chakras"} 
-            onValueChange={(value) => onChakraFilterChange(value === "all-chakras" ? null : value)}
+            value={principleFilter || "all-principles"} 
+            onValueChange={(value) => onPrincipleFilterChange(value === "all-principles" ? null : value)}
           >
             <SelectTrigger className="w-full">
               <div className="flex items-center">
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Filter by Chakra" />
+                <Music className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Filter by Principle" />
               </div>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all-chakras">All Chakras</SelectItem>
-              {chakras.map(chakra => (
-                <SelectItem key={chakra} value={chakra}>{chakra}</SelectItem>
+              <SelectItem value="all-principles">All Principles</SelectItem>
+              {principles.map(principle => (
+                <SelectItem key={principle} value={principle}>{principle}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-        
-        {principles.length > 0 && (
-          <div className="w-full md:w-1/3 lg:w-1/4">
-            <Select 
-              value={principleFilter || "all-principles"} 
-              onValueChange={(value) => onPrincipleFilterChange(value === "all-principles" ? null : value)}
-            >
-              <SelectTrigger className="w-full">
-                <div className="flex items-center">
-                  <Music className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Filter by Principle" />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all-principles">All Principles</SelectItem>
-                {principles.map(principle => (
-                  <SelectItem key={principle} value={principle}>{principle}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 };

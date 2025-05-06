@@ -1,5 +1,6 @@
 
 import { Journey } from '@/context/JourneyContext';
+import { ChakraTag } from '@/types/chakras';
 
 export interface JourneyAwareComponentProps {
   journeyId?: string;
@@ -30,6 +31,7 @@ export interface JourneyTimelineItem {
   title: string;
   tag: string;
   notes?: string;
+  chakra_tag?: ChakraTag;
   created_at: string;
   journey_id?: string;
   component?: string;

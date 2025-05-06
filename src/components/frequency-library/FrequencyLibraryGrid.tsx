@@ -12,10 +12,12 @@ import { FrequencyLibraryItem } from "@/types/frequencies";
 import { formatTime } from "@/lib/utils";
 import FrequencyPlayer from "@/components/FrequencyPlayer";
 import { ChakraIcon } from "./ChakraIcon";
+import ChakraTag from "@/components/chakra/ChakraTag";
+import { ChakraTag as ChakraTagType } from "@/types/chakras";
 
 interface FrequencyLibraryGridProps {
   frequencies: FrequencyLibraryItem[];
-  chakraFilter: string | null;
+  chakraFilter: ChakraTagType[];
   principleFilter: string | null;
 }
 
@@ -28,7 +30,8 @@ const FrequencyLibraryGrid: React.FC<FrequencyLibraryGridProps> = ({
   
   const filteredFrequencies = useMemo(() => {
     return frequencies.filter(freq => {
-      const chakraMatch = !chakraFilter || freq.chakra?.toLowerCase() === chakraFilter.toLowerCase();
+      const chakraMatch = chakraFilter.length === 0 || 
+        (freq.chakra && chakraFilter.includes(freq.chakra as ChakraTagType));
       const principleMatch = !principleFilter || freq.principle?.toLowerCase() === principleFilter.toLowerCase();
       return chakraMatch && principleMatch;
     });
@@ -93,13 +96,14 @@ const FrequencyLibraryGrid: React.FC<FrequencyLibraryGridProps> = ({
                 </HoverCard>
               </div>
               
-              <div className="flex items-center text-sm text-gray-600 mb-3">
+              <div className="flex items-center gap-2 mb-3">
                 <span className="font-medium">{frequency.frequency} Hz</span>
                 {frequency.length && (
-                  <span className="ml-2 text-gray-400">
+                  <span className="text-gray-400">
                     • {formatTime(frequency.length)}
                   </span>
                 )}
+                {frequency.chakra && <ChakraTag chakra={frequency.chakra} size="sm" />}
               </div>
               
               {frequency.description && (

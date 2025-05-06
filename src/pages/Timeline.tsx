@@ -7,10 +7,12 @@ import SpiralView from '@/components/timeline/SpiralView';
 import FiltersBar from '@/components/timeline/FiltersBar';
 import ToggleView from '@/components/timeline/ToggleView';
 import EditEntryDialog from '@/components/timeline/EditEntryDialog';
+import { ChakraTag } from '@/types/chakras';
 
 const Timeline: React.FC = () => {
   const [viewMode, setViewMode] = useState<'vertical' | 'spiral'>('vertical');
   const [activeTagFilter, setActiveTagFilter] = useState<string>('all');
+  const [chakraFilter, setChakraFilter] = useState<ChakraTag[]>([]);
   const [showEditDialog, setShowEditDialog] = useState<boolean>(false);
   const [currentEntry, setCurrentEntry] = useState<any>(null);
 
@@ -20,6 +22,10 @@ const Timeline: React.FC = () => {
   
   const handleFilterChange = (filter: string) => {
     setActiveTagFilter(filter);
+  };
+  
+  const handleChakraFilterChange = (chakras: ChakraTag[]) => {
+    setChakraFilter(chakras);
   };
   
   const handleEditEntry = (entry: any) => {
@@ -47,15 +53,30 @@ const Timeline: React.FC = () => {
         </p>
         
         <Card className="p-6 bg-black/60 border-purple-500/30 mb-8">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-            <FiltersBar activeTagFilter={activeTagFilter} onFilterChange={handleFilterChange} />
-            <ToggleView viewMode={viewMode} onViewChange={handleViewChange} />
+          <div className="flex flex-col mb-6">
+            <FiltersBar 
+              activeTagFilter={activeTagFilter} 
+              chakraFilter={chakraFilter}
+              onFilterChange={handleFilterChange}
+              onChakraFilterChange={handleChakraFilterChange}
+            />
+            <div className="flex justify-end mt-4">
+              <ToggleView viewMode={viewMode} onViewChange={handleViewChange} />
+            </div>
           </div>
           
           {viewMode === 'vertical' ? (
-            <TimelineViewer activeTagFilter={activeTagFilter} onEdit={handleEditEntry} />
+            <TimelineViewer 
+              activeTagFilter={activeTagFilter}
+              chakraFilter={chakraFilter}
+              onEdit={handleEditEntry} 
+            />
           ) : (
-            <SpiralView activeTagFilter={activeTagFilter} onEdit={handleEditEntry} />
+            <SpiralView 
+              activeTagFilter={activeTagFilter}
+              chakraFilter={chakraFilter}
+              onEdit={handleEditEntry} 
+            />
           )}
         </Card>
         

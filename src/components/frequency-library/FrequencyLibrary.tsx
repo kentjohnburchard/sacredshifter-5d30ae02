@@ -6,6 +6,7 @@ import { FrequencyLibraryItem } from "@/types/frequencies";
 import { Loader2 } from "lucide-react";
 import FrequencyLibraryGrid from "./FrequencyLibraryGrid";
 import FrequencyFilters from "./FrequencyFilters";
+import { ChakraTag } from "@/types/chakras";
 
 interface FrequencyLibraryProps {
   className?: string;
@@ -13,7 +14,7 @@ interface FrequencyLibraryProps {
 
 const FrequencyLibrary: React.FC<FrequencyLibraryProps> = ({ className }) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [chakraFilter, setChakraFilter] = useState<string | null>(null);
+  const [chakraFilter, setChakraFilter] = useState<ChakraTag[]>([]);
   const [principleFilter, setPrincipleFilter] = useState<string | null>(null);
 
   // Fetch frequencies from Supabase
@@ -66,7 +67,8 @@ const FrequencyLibrary: React.FC<FrequencyLibraryProps> = ({ className }) => {
         freq.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
       
       // Chakra filter
-      const chakraMatch = !chakraFilter || freq.chakra === chakraFilter;
+      const chakraMatch = chakraFilter.length === 0 || 
+        (freq.chakra && chakraFilter.includes(freq.chakra as ChakraTag));
       
       // Principle filter
       const principleMatch = !principleFilter || freq.principle === principleFilter;

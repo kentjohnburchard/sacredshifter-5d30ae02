@@ -1,119 +1,168 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { TimelineEntry, JourneyTimelineEvent } from '@/types/journey';
+import { JourneyTimelineItem } from '@/types/journey';
+import { ChakraTag } from '@/types/chakras';
 
-export const logTimelineEvent = async (
-  userId: string | undefined, 
-  component: string, 
-  action: JourneyTimelineEvent, 
-  journeyId: string,
-  details: Record<string, any> = {}
-): Promise<void> => {
-  if (!userId) return;
-  
-  try {
-    const title = formatTimelineTitle(component, action, details);
-    
-    const { error } = await supabase
-      .from('timeline_snapshots')
-      .insert({
-        user_id: userId,
-        title,
-        tag: action,
-        notes: JSON.stringify({
-          ...details,
-          component,
-          journeyId,
-          action
-        })
-      });
-    
-    if (error) {
-      console.error('Error logging timeline event:', error);
-    }
-  } catch (err) {
-    console.error('Failed to log timeline event:', err);
-  }
-};
-
-// Helper to format human-readable timeline titles
-export const formatTimelineTitle = (
-  component: string,
-  action: JourneyTimelineEvent,
-  details: Record<string, any>
-): string => {
-  switch (action) {
-    case 'spiral_toggle':
-      return `Spiral visualization ${details.enabled ? 'enabled' : 'disabled'}`;
-    case 'spiral_param_change':
-      return `Spiral parameters updated`;
-    case 'soundscape_play':
-      return `${details.title || 'Soundscape'} started playing`;
-    case 'soundscape_pause':
-      return `${details.title || 'Soundscape'} paused`;
-    case 'soundscape_volume':
-      return `Soundscape volume ${details.muted ? 'muted' : `set to ${Math.round(details.volume * 100)}%`}`;
-    case 'journey_progress':
-      return `Journey progress: ${details.stage || 'in progress'}`;
-    default:
-      return `${component}: ${action.replace(/_/g, ' ')}`;
-  }
-};
-
-// Fetch timeline entries for a specific journey
-export const fetchJourneyTimeline = async (
-  userId: string | undefined, 
-  journeyId: string | undefined
-): Promise<any[]> => {
-  if (!userId || !journeyId) return [];
-
-  try {
-    const { data, error } = await supabase
-      .from('timeline_snapshots')
-      .select('*')
-      .eq('user_id', userId)
-      .like('notes', `%${journeyId}%`)
-      .order('created_at', { ascending: false });
-      
-    if (error) {
-      console.error('Error fetching journey timeline:', error);
-      return [];
-    }
-    
-    return data || [];
-  } catch (err) {
-    console.error('Failed to fetch journey timeline:', err);
-    return [];
-  }
-};
-
-// Fetch all timeline entries for a user, grouped by journey
-export const fetchUserTimeline = async (
-  userId: string | undefined,
-  filter?: string
-): Promise<any[]> => {
-  if (!userId) return [];
-  
+export const fetchUserTimeline = async (userId: string, tag?: string): Promise<JourneyTimelineItem[]> => {
   try {
     let query = supabase
       .from('timeline_snapshots')
       .select('*')
-      .eq('user_id', userId);
-      
-    if (filter) {
-      query = query.eq('tag', filter);
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    
+    if (tag) {
+      query = query.ilike('tag', `%${tag}%`);
     }
     
-    const { data, error } = await query.order('created_at', { ascending: false });
+    const { data, error } = await query;
     
     if (error) {
-      console.error('Error fetching user timeline:', error);
+      console.error('Error fetching timeline:', error);
       return [];
     }
     
-    return data || [];
+    return data as JourneyTimelineItem[];
   } catch (err) {
-    console.error('Failed to fetch user timeline:', err);
+    console.error('Error in fetchUserTimeline:', err);
     return [];
+  }
+};
+
+export const fetchJourneyTimeline = async (userId: string, journeyId: string): Promise<JourneyTimelineItem[]> => {
+  try {
+    // First try to find entries that directly match the journeyId
+    const { data: directMatches, error: directError } = await supabase
+      .from('timeline_snapshots')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('journey_id', journeyId)
+      .order('created_at', { ascending: false });
+    
+    if (directError) {
+      console.error('Error fetching journey timeline:', directError);
+    }
+    
+    // Then look for entries that have the journeyId in the notes JSON
+    const { data: allEntries, error: allError } = await supabase
+      .from('timeline_snapshots')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    
+    if (allError) {
+      console.error('Error fetching all timeline entries:', allError);
+      return directMatches as JourneyTimelineItem[] || [];
+    }
+    
+    // Filter entries that have the journeyId in notes
+    const notesMatches = (allEntries || []).filter(entry => {
+      try {
+        if (entry.notes) {
+          const parsedNotes = JSON.parse(entry.notes);
+          return parsedNotes.journeyId === journeyId;
+        }
+        return false;
+      } catch (e) {
+        return false;
+      }
+    });
+    
+    // Combine both sets of results and remove duplicates
+    const allMatches = [...(directMatches || []), ...notesMatches];
+    const uniqueMatches = allMatches.filter((entry, index, self) =>
+      index === self.findIndex(e => e.id === entry.id)
+    );
+    
+    return uniqueMatches as JourneyTimelineItem[];
+  } catch (err) {
+    console.error('Error in fetchJourneyTimeline:', err);
+    return [];
+  }
+};
+
+export const createTimelineEntry = async (
+  userId: string,
+  title: string,
+  tag: string,
+  notes: any,
+  chakraTag?: ChakraTag
+): Promise<JourneyTimelineItem | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('timeline_snapshots')
+      .insert({
+        user_id: userId,
+        title,
+        tag,
+        notes: typeof notes === 'string' ? notes : JSON.stringify(notes),
+        chakra_tag: chakraTag
+      })
+      .select()
+      .single();
+    
+    if (error) {
+      console.error('Error creating timeline entry:', error);
+      return null;
+    }
+    
+    return data as JourneyTimelineItem;
+  } catch (err) {
+    console.error('Error in createTimelineEntry:', err);
+    return null;
+  }
+};
+
+export const updateTimelineEntry = async (
+  entryId: string,
+  updates: {
+    title?: string;
+    tag?: string;
+    notes?: any;
+    chakra_tag?: ChakraTag | null;
+  }
+): Promise<boolean> => {
+  try {
+    // Format notes if it's an object
+    const formattedUpdates = {
+      ...updates,
+      notes: updates.notes && typeof updates.notes !== 'string' 
+        ? JSON.stringify(updates.notes) 
+        : updates.notes
+    };
+    
+    const { error } = await supabase
+      .from('timeline_snapshots')
+      .update(formattedUpdates)
+      .eq('id', entryId);
+    
+    if (error) {
+      console.error('Error updating timeline entry:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (err) {
+    console.error('Error in updateTimelineEntry:', err);
+    return false;
+  }
+};
+
+export const deleteTimelineEntry = async (entryId: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('timeline_snapshots')
+      .delete()
+      .eq('id', entryId);
+    
+    if (error) {
+      console.error('Error deleting timeline entry:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (err) {
+    console.error('Error in deleteTimelineEntry:', err);
+    return false;
   }
 };

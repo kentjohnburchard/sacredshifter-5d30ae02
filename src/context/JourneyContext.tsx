@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { ChakraTag } from '@/types/chakras';
 
 // Journey interface
 export interface Journey {
@@ -14,6 +15,7 @@ export interface Journey {
   intent?: string;
   duration?: string;
   chakra?: string;
+  chakra_tag?: ChakraTag;
 }
 
 // Lightbearer Code interface
@@ -24,6 +26,7 @@ export interface LightbearerCode {
   description: string;
   icon: string;
   unlocked_at: Date;
+  chakra_tag?: ChakraTag;
 }
 
 // Journey Prompt interface
@@ -35,6 +38,7 @@ export interface JourneyPrompt {
   display_type: 'dialog' | 'tooltip' | 'modal';
   completed: boolean;
   saved: boolean;
+  chakra_tag?: ChakraTag;
 }
 
 export interface JourneyContextType {
@@ -60,6 +64,10 @@ export interface JourneyContextType {
   
   // Lightbearer code
   currentLightbearerCode?: LightbearerCode | null;
+  
+  // Chakra related
+  getJourneyChakra: () => ChakraTag | undefined;
+  updateJourneyChakra?: (chakra: ChakraTag) => void;
 }
 
 const defaultContext: JourneyContextType = {
@@ -73,7 +81,8 @@ const defaultContext: JourneyContextType = {
   fetchPromptsForLocation: () => {},
   dismissPrompt: () => {},
   completePrompt: () => {},
-  savePrompt: () => {}
+  savePrompt: () => {},
+  getJourneyChakra: () => undefined
 };
 
 const JourneyContext = createContext<JourneyContextType>(defaultContext);
@@ -147,6 +156,39 @@ export const JourneyProvider: React.FC<JourneyProviderProps> = ({ children }) =>
       prev.map(p => p.id === promptId ? { ...p, saved: true } : p)
     );
   };
+  
+  // Get chakra tag for current journey
+  const getJourneyChakra = (): ChakraTag | undefined => {
+    if (!activeJourney) return undefined;
+    
+    // Check for explicit chakra_tag
+    if (activeJourney.chakra_tag) {
+      return activeJourney.chakra_tag;
+    }
+    
+    // Check the older chakra field
+    if (activeJourney.chakra) {
+      // Try to convert string to ChakraTag
+      const chakra = activeJourney.chakra.trim();
+      if (['Root', 'Sacral', 'Solar Plexus', 'Heart', 
+           'Throat', 'Third Eye', 'Crown', 'Transpersonal'].includes(chakra)) {
+        return chakra as ChakraTag;
+      }
+    }
+    
+    return undefined;
+  };
+  
+  // Update chakra tag for current journey
+  const updateJourneyChakra = (chakra: ChakraTag) => {
+    if (activeJourney) {
+      setActiveJourney({
+        ...activeJourney,
+        chakra_tag: chakra,
+        chakra: chakra // Update both for backward compatibility
+      });
+    }
+  };
 
   return (
     <JourneyContext.Provider value={{ 
@@ -163,7 +205,9 @@ export const JourneyProvider: React.FC<JourneyProviderProps> = ({ children }) =>
       dismissPrompt,
       completePrompt,
       savePrompt,
-      currentLightbearerCode
+      currentLightbearerCode,
+      getJourneyChakra,
+      updateJourneyChakra
     }}>
       {children}
     </JourneyContext.Provider>

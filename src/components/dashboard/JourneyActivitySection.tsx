@@ -14,13 +14,23 @@ import {
   CalendarDays 
 } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
+import ChakraTag from '@/components/chakra/ChakraTag';
+import { getUserChakraProgress } from '@/services/chakraService';
+import { ChakraTag as ChakraTagType } from '@/types/chakras';
 
 // Define interfaces for our parsed JSON structures
 interface JourneyNotes {
   journeyId?: string;
   journeyTitle?: string;
+  chakra?: ChakraTagType;
   error?: string;
   [key: string]: any; // Allow for other properties
+}
+
+interface ChakraProgress {
+  chakra: ChakraTagType;
+  count: number;
+  percentage: number;
 }
 
 const JourneyActivitySection: React.FC = () => {
@@ -28,6 +38,7 @@ const JourneyActivitySection: React.FC = () => {
   const [timelineEntries, setTimelineEntries] = useState<JourneyTimelineItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [chakraProgress, setChakraProgress] = useState<ChakraProgress[]>([]);
   
   useEffect(() => {
     const fetchTimeline = async () => {
@@ -41,6 +52,10 @@ const JourneyActivitySection: React.FC = () => {
       try {
         const data = await fetchUserTimeline(user.id, activeFilter === 'all' ? undefined : activeFilter);
         setTimelineEntries(data.slice(0, 20)); // Limit to 20 most recent entries
+        
+        // Fetch chakra progress
+        const progress = await getUserChakraProgress(user.id);
+        setChakraProgress(progress);
       } catch (error) {
         console.error('Error fetching timeline:', error);
       } finally {
@@ -79,6 +94,21 @@ const JourneyActivitySection: React.FC = () => {
     if (tag.includes('soundscape')) return <Volume2 className="h-4 w-4 text-green-400" />;
     if (tag.includes('journey')) return <Play className="h-4 w-4 text-purple-400" />;
     return <Activity className="h-4 w-4 text-gray-400" />;
+  };
+  
+  // Get chakra from entry
+  const getEntryChakra = (entry: JourneyTimelineItem): ChakraTagType | undefined => {
+    if (entry.chakra_tag) return entry.chakra_tag as ChakraTagType;
+    
+    if (entry.notes) {
+      try {
+        const parsedNotes = JSON.parse(entry.notes) as JourneyNotes;
+        return parsedNotes.chakra;
+      } catch (e) {
+        // Parse error, ignore
+      }
+    }
+    return undefined;
   };
   
   if (loading) {
@@ -139,10 +169,13 @@ const JourneyActivitySection: React.FC = () => {
               {Object.entries(entriesByJourney).map(([journeyId, entries]) => {
                 // Safe extraction of journey info with error handling
                 let journeyTitle = 'Unknown Journey';
+                let journeyChakra: ChakraTagType | undefined;
+                
                 try {
                   if (entries[0]?.notes) {
                     const journeyInfo = JSON.parse(entries[0].notes) as JourneyNotes;
                     journeyTitle = journeyInfo.journeyTitle || 'Unknown Journey';
+                    journeyChakra = journeyInfo.chakra;
                   }
                 } catch (error) {
                   console.error(`Failed to parse journey info for ${journeyId}:`, error);
@@ -150,7 +183,10 @@ const JourneyActivitySection: React.FC = () => {
                 
                 return (
                   <div key={journeyId} className="bg-black/60 rounded-lg p-3 border border-purple-900/30">
-                    <h4 className="font-medium text-white text-sm">{journeyTitle}</h4>
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium text-white text-sm">{journeyTitle}</h4>
+                      {journeyChakra && <ChakraTag chakra={journeyChakra} size="sm" />}
+                    </div>
                     <div className="flex items-center gap-2 mt-2 text-xs text-gray-400">
                       <div className="flex items-center">
                         <LineChart className="h-3 w-3 mr-1" />
@@ -170,9 +206,51 @@ const JourneyActivitySection: React.FC = () => {
             </div>
           </div>
         )}
+        
+        {chakraProgress.length > 0 && (
+          <div className="mt-8 border-t border-gray-800 pt-4">
+            <h3 className="text-sm font-medium text-purple-300 mb-3">Chakra Activity</h3>
+            <div className="space-y-3">
+              {chakraProgress
+                .filter(item => item.count > 0)
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 4)
+                .map(item => (
+                  <div key={item.chakra} className="flex items-center gap-3">
+                    <ChakraTag chakra={item.chakra} showTooltip={false} />
+                    <div className="flex-1 bg-gray-800 h-2 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full"
+                        style={{
+                          width: `${item.percentage}%`,
+                          backgroundColor: getChakraProgressColor(item.chakra)
+                        }}
+                      ></div>
+                    </div>
+                    <span className="text-xs text-gray-400">{item.percentage}%</span>
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
+};
+
+// Helper to get chakra color for progress bar
+const getChakraProgressColor = (chakra: ChakraTagType): string => {
+  switch(chakra) {
+    case 'Root': return '#ea384c';
+    case 'Sacral': return '#ff7e47';
+    case 'Solar Plexus': return '#ffd034';
+    case 'Heart': return '#4ade80';
+    case 'Throat': return '#48cae7';
+    case 'Third Eye': return '#7e69ab';
+    case 'Crown': return '#9b87f5';
+    case 'Transpersonal': return '#e5deff';
+    default: return '#9ca3af';
+  }
 };
 
 const ActivityTimeline: React.FC<{ entries: JourneyTimelineItem[] }> = ({ entries }) => {
@@ -228,9 +306,14 @@ const ActivityTimeline: React.FC<{ entries: JourneyTimelineItem[] }> = ({ entrie
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-white truncate">{entry.title}</p>
-                    {parsedNotes.journeyTitle && (
-                      <p className="text-xs text-gray-400 truncate">{parsedNotes.journeyTitle}</p>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {parsedNotes.journeyTitle && (
+                        <p className="text-xs text-gray-400 truncate">{parsedNotes.journeyTitle}</p>
+                      )}
+                      {parsedNotes.chakra && (
+                        <ChakraTag chakra={parsedNotes.chakra} size="sm" />
+                      )}
+                    </div>
                   </div>
                   <div className="flex-shrink-0 text-xs text-gray-500">
                     {formatDistanceToNow(new Date(entry.created_at), { addSuffix: true })}
