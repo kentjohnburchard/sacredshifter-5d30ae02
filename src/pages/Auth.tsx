@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -74,8 +75,8 @@ const Auth = () => {
     setIsSubmitting(true);
     
     try {
-      const { error } = await signIn({ email, password });
-      if (error) {
+      const { success, error } = await signIn(email, password);
+      if (!success && error) {
         console.error("Login error:", error.message);
         toast.error(error.message || "Login failed");
         setIsSubmitting(false);
@@ -101,8 +102,8 @@ const Auth = () => {
     setIsSubmitting(true);
     
     try {
-      const { error } = await signUp({ email, password });
-      if (error) {
+      const { success, error } = await signUp(email, password);
+      if (!success && error) {
         console.error("Signup error:", error.message);
         toast.error(error.message || "Signup failed");
         setIsSubmitting(false);
@@ -129,12 +130,9 @@ const Auth = () => {
     setIsSubmitting(true);
     
     try {
-      const { error } = await signIn({
-        email: testEmail,
-        password: testPassword,
-      });
+      const { success, error } = await signIn(testEmail, testPassword);
       
-      if (error) {
+      if (!success && error) {
         console.error("Test login error:", error);
         toast.error(`Test login failed: ${error.message}`);
         setIsSubmitting(false);

@@ -175,8 +175,16 @@ export function JourneyProvider({ children }: { children: ReactNode }) {
           
         if (pointsError) {
           console.error("Error adding lightbearer points:", pointsError);
-        } else if (pointsData?.leveled_up) {
-          toast.success("You leveled up as a Lightbearer! ✨");
+        } else if (pointsData) {
+          // Fix the type issue by safely accessing the data
+          const leveledUp = typeof pointsData === 'object' && 
+            pointsData !== null && 
+            'leveled_up' in pointsData && 
+            pointsData.leveled_up === true;
+            
+          if (leveledUp) {
+            toast.success("You leveled up as a Lightbearer! ✨");
+          }
         }
       }
       
