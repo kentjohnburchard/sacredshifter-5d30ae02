@@ -9,6 +9,7 @@ import DNAOverlayPanel from '@/components/cosmic-blueprint/DNAOverlayPanel';
 import CosmicBlueprintProfile from '@/components/cosmic-blueprint/CosmicBlueprintProfile';
 import EnergeticAlignmentScore from '@/components/cosmic-blueprint/EnergeticAlignmentScore';
 import CosmicRecommendationsPanel from '@/components/cosmic-blueprint/CosmicRecommendationsPanel';
+import EarthRealmResonancePanel from '@/components/cosmic-blueprint/EarthRealmResonancePanel';
 import { useLightbearerProgress } from '@/hooks/useLightbearerProgress';
 
 const CosmicBlueprintPage: React.FC = () => {
@@ -83,6 +84,11 @@ const CosmicBlueprintPage: React.FC = () => {
                 blueprint={blueprint} 
                 loading={loading}
                 onUpdateResonance={handleUpdateResonance}
+              />
+              
+              {/* Earth Realm Resonance */}
+              <EarthRealmResonancePanel 
+                alignmentScore={blueprint?.energetic_alignment_score || 0}
               />
             </div>
             

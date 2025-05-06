@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { 
   CosmicBlueprint, 
@@ -281,4 +280,12 @@ export const getCosmicRecommendations = async (
     console.error('Error getting cosmic recommendations:', err);
     return [];
   }
+};
+
+/**
+ * Returns the sacred Earth Realm Resonance insight text
+ * This wisdom provides a reminder of the interconnected nature of all realms
+ */
+export const getEarthRealmResonance = (): string => {
+  return "All realms — even Earth — are made of love and light. What we experience is shaped by our perspective, the quality of our intent, and our willingness to remember. Love is the answer to everything.";
 };

@@ -43,10 +43,11 @@ const processJourneyNotes = (entry: any, journeyId: string): boolean => {
   }
   
   try {
-    const notesObj = JSON.parse(entry.notes);
-    return notesObj && 
-           typeof notesObj === 'object' && 
-           notesObj.journeyId === journeyId;
+    // Fix: simplified parsing to prevent excessive type instantiation
+    const parsed = JSON.parse(entry.notes);
+    return parsed && 
+           typeof parsed === 'object' && 
+           parsed.journeyId === journeyId;
   } catch {
     // Skip malformed JSON
     return false;
