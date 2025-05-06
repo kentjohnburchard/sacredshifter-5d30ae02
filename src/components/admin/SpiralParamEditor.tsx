@@ -54,7 +54,8 @@ const SpiralParamEditor: React.FC<SpiralParamEditorProps> = ({
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Update the params in the database
+      // Update the params in the database using any() to bypass TypeScript errors 
+      // while database types update
       const { error } = await supabase
         .from('journey_visual_params')
         .upsert({
@@ -63,7 +64,7 @@ const SpiralParamEditor: React.FC<SpiralParamEditorProps> = ({
           updated_at: new Date().toISOString()
         }, {
           onConflict: 'journey_id'
-        });
+        }) as any;
         
       if (error) {
         throw error;

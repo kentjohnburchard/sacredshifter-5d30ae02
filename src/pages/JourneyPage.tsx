@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -133,7 +134,11 @@ const JourneyPage: React.FC = () => {
 
   const handleStartJourney = () => {
     if (journey) {
-      startJourney(journey);
+      // Convert the numeric ID to string if needed to match JourneyContext's expected type
+      startJourney({
+        ...journey,
+        id: journey.id.toString()
+      });
     }
   };
   
@@ -146,7 +151,7 @@ const JourneyPage: React.FC = () => {
   };
   
   // Check if the currently loaded journey matches the active journey
-  const isCurrentJourneyActive = isJourneyActive && activeJourney?.id === journey?.id;
+  const isCurrentJourneyActive = isJourneyActive && activeJourney?.id === journey?.id?.toString();
 
   return (
     <Layout 

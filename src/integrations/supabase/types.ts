@@ -622,6 +622,30 @@ export type Database = {
         }
         Relationships: []
       }
+      journey_visual_params: {
+        Row: {
+          created_at: string | null
+          id: string
+          journey_id: string
+          params: Json
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          journey_id: string
+          params: Json
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          journey_id?: string
+          params?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       journeys: {
         Row: {
           assigned_songs: string | null
