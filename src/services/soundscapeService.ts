@@ -22,36 +22,6 @@ export const validateYoutubeUrl = (url: string): boolean => {
   return YOUTUBE_URL_PATTERN.test(url);
 };
 
-// Get all soundscapes
-export const getAllSoundscapes = async (): Promise<JourneySoundscape[]> => {
-  try {
-    const { data, error } = await supabase
-      .from('journey_soundscapes')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (error) {
-      console.error('Error fetching soundscapes:', error);
-      return [];
-    }
-    
-    return data.map(item => ({
-      id: item.id,
-      journey_id: item.journey_id?.toString(),
-      title: item.title,
-      description: item.description,
-      file_url: item.file_url,
-      source_type: item.source_link ? 'youtube' : 'file',
-      source_link: item.source_link,
-      created_at: item.created_at,
-      chakra_tag: item.chakra_tag
-    }));
-  } catch (err) {
-    console.error('Error in getAllSoundscapes:', err);
-    return [];
-  }
-};
-
 export const fetchJourneySoundscape = async (journeySlug: string): Promise<JourneySoundscape | null> => {
   try {
     // First check if there's a journey with this slug
@@ -72,7 +42,6 @@ export const fetchJourneySoundscape = async (journeySlug: string): Promise<Journ
         title: `${journey.title} Soundscape`,
         file_url: getAudioFileUrl(journey.audio_filename),
         source_type: 'file',
-        created_at: journey.updated_at
       };
     }
     
@@ -102,13 +71,13 @@ export const fetchJourneySoundscape = async (journeySlug: string): Promise<Journ
 };
 
 export const createJourneySoundscape = async (
-  data: Omit<JourneySoundscape, 'id' | 'created_at'> & { journey_id: number }
+  data: Omit<JourneySoundscape, 'id' | 'created_at'> & { journey_id: string }
 ): Promise<JourneySoundscape | null> => {
   try {
     const { data: result, error } = await supabase
       .from('journey_soundscapes')
       .insert({
-        journey_id: data.journey_id,
+        journey_id: parseInt(data.journey_id),
         title: data.title,
         description: data.description || null,
         file_url: data.file_url,
@@ -142,7 +111,7 @@ export const createJourneySoundscape = async (
 
 export const updateJourneySoundscape = async (
   id: string,
-  data: Partial<Omit<JourneySoundscape, 'id' | 'created_at'>> & { journey_id?: number }
+  data: Partial<Omit<JourneySoundscape, 'id' | 'created_at'>> & { journey_id?: string }
 ): Promise<JourneySoundscape> => {
   try {
     const updateData: any = {};
@@ -150,7 +119,7 @@ export const updateJourneySoundscape = async (
     if (data.title) updateData.title = data.title;
     if (data.description !== undefined) updateData.description = data.description;
     if (data.file_url) updateData.file_url = data.file_url;
-    if (data.journey_id) updateData.journey_id = data.journey_id;
+    if (data.journey_id) updateData.journey_id = parseInt(data.journey_id);
     if (data.chakra_tag !== undefined) updateData.chakra_tag = data.chakra_tag;
     
     if (data.source_type) {

@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface Journey {
@@ -6,12 +5,10 @@ export interface Journey {
   filename: string;
   title: string;
   tags?: string;
-  content?: string;
   veil_locked: boolean;
   visual_effects?: string;
   strobe_patterns?: string;
   assigned_songs?: string;
-  description?: string;
   created_at?: string;
   updated_at?: string;
   // New fields
@@ -26,6 +23,7 @@ export interface Journey {
   env_posture?: string;
   env_tools?: string;
   recommended_users?: string;
+  audio_filename?: string;
   // Flag for core content journeys (not stored in DB)
   isCoreContent?: boolean;
   // New properties for source identification

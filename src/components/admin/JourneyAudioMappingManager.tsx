@@ -43,7 +43,7 @@ const JourneyAudioMappingManager: React.FC = () => {
       try {
         const { data, error } = await supabase
           .from('journeys')
-          .select('id, title, filename, audio_filename, sound_frequencies, tags, description')
+          .select('id, title, filename, audio_filename')
           .order('title');
         
         if (error) {
@@ -56,7 +56,7 @@ const JourneyAudioMappingManager: React.FC = () => {
         const mappingsRecord: Record<number, AudioMapping> = {};
         
         (data || []).forEach(journey => {
-          const frequency = extractFrequencyFromContent(journey.description, journey.tags);
+          const frequency = extractFrequencyFromContent(journey.title, journey.filename);
           mappingsRecord[journey.id] = {
             journey_id: journey.id,
             filename: journey.filename,

@@ -726,6 +726,7 @@ export type Database = {
       journeys: {
         Row: {
           assigned_songs: string | null
+          audio_filename: string | null
           chakra_tag: string | null
           created_at: string | null
           description: string | null
@@ -751,6 +752,7 @@ export type Database = {
         }
         Insert: {
           assigned_songs?: string | null
+          audio_filename?: string | null
           chakra_tag?: string | null
           created_at?: string | null
           description?: string | null
@@ -776,6 +778,7 @@ export type Database = {
         }
         Update: {
           assigned_songs?: string | null
+          audio_filename?: string | null
           chakra_tag?: string | null
           created_at?: string | null
           description?: string | null

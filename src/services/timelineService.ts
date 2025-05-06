@@ -42,7 +42,7 @@ export const fetchUserTimeline = async (
   try {
     let query = supabase
       .from('timeline_snapshots')
-      .select<RawTimelineRow[]>('*')
+      .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
@@ -57,7 +57,7 @@ export const fetchUserTimeline = async (
       return [];
     }
 
-    return sanitizeTimeline(data ?? []);
+    return sanitizeTimeline(data as RawTimelineRow[] ?? []);
   } catch (err) {
     console.error('Error in fetchUserTimeline:', err);
     return [];
@@ -83,7 +83,7 @@ export const fetchJourneyTimeline = async (
   try {
     const { data: directMatches, error: directError } = await supabase
       .from('timeline_snapshots')
-      .select<RawTimelineRow[]>('*')
+      .select('*')
       .eq('user_id', userId)
       .eq('journey_id', journeyId)
       .order('created_at', { ascending: false });
@@ -93,11 +93,11 @@ export const fetchJourneyTimeline = async (
       return [];
     }
 
-    const typedDirectMatches = sanitizeTimeline(directMatches ?? []);
+    const typedDirectMatches = sanitizeTimeline(directMatches as RawTimelineRow[] ?? []);
 
     const { data: allEntries, error: allError } = await supabase
       .from('timeline_snapshots')
-      .select<RawTimelineRow[]>('*')
+      .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
@@ -106,7 +106,7 @@ export const fetchJourneyTimeline = async (
       return typedDirectMatches;
     }
 
-    const notesMatches = (allEntries ?? [])
+    const notesMatches = (allEntries as RawTimelineRow[] ?? [])
       .filter((entry) => processJourneyNotes(entry, journeyId))
       .map((entry) => sanitizeTimeline([entry])[0]);
 
@@ -149,7 +149,7 @@ export const createTimelineEntry = async (
     const { data, error } = await supabase
       .from('timeline_snapshots')
       .insert(entryData)
-      .select<RawTimelineRow>()
+      .select()
       .single();
 
     if (error) {
@@ -157,7 +157,7 @@ export const createTimelineEntry = async (
       return null;
     }
 
-    return sanitizeTimeline([data])[0];
+    return sanitizeTimeline([data as RawTimelineRow])[0];
   } catch (err) {
     console.error('Error in createTimelineEntry:', err);
     return null;

@@ -1,20 +1,19 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { parseJourneyFrontmatter } from '@/utils/journeyLoader';
 
 /**
- * Extract frequency information from journey description or tags
+ * Extract frequency information from journey filename or title
  */
 export const extractFrequencyFromContent = (
-  description: string | null, 
-  tags: string | null
+  title: string | null, 
+  filename: string | null
 ): string | null => {
-  if (!description && !tags) return null;
+  if (!title && !filename) return null;
   
-  // Check in description first
-  if (description) {
-    // Look for frequency patterns like 432Hz in the description
-    const frequencyMatches = description.match(/(\d+)(?:\s*)?(?:hz|Hz|HZ)/g);
+  // Check in title first
+  if (title) {
+    // Look for frequency patterns like 432Hz in the title
+    const frequencyMatches = title.match(/(\d+)(?:\s*)?(?:hz|Hz|HZ)/g);
     if (frequencyMatches && frequencyMatches.length > 0) {
       // Extract just the number from the first match
       const frequencyMatch = frequencyMatches[0].match(/(\d+)/);
@@ -24,9 +23,9 @@ export const extractFrequencyFromContent = (
     }
   }
   
-  // Then check in tags
-  if (tags) {
-    const frequencyMatches = tags.match(/(\d+)(?:\s*)?(?:hz|Hz|HZ)/g);
+  // Then check in filename
+  if (filename) {
+    const frequencyMatches = filename.match(/(\d+)(?:\s*)?(?:hz|Hz|HZ)/g);
     if (frequencyMatches && frequencyMatches.length > 0) {
       // Extract just the number from the first match
       const frequencyMatch = frequencyMatches[0].match(/(\d+)/);
