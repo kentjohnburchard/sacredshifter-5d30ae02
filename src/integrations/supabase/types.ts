@@ -110,6 +110,36 @@ export type Database = {
         }
         Relationships: []
       }
+      earth_resonance_entries: {
+        Row: {
+          alignment_score: number | null
+          chakra_tag: string | null
+          content: string
+          created_at: string | null
+          id: string
+          journey_id: string | null
+          user_id: string
+        }
+        Insert: {
+          alignment_score?: number | null
+          chakra_tag?: string | null
+          content: string
+          created_at?: string | null
+          id?: string
+          journey_id?: string | null
+          user_id: string
+        }
+        Update: {
+          alignment_score?: number | null
+          chakra_tag?: string | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          journey_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       fractal_visuals: {
         Row: {
           chakra: string | null

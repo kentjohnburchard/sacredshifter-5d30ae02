@@ -296,11 +296,12 @@ export const getEarthRealmResonance = (): string => {
  */
 export const fetchEarthRealmReflections = async (userId: string) => {
   try {
+    // Use type casting to work around TypeScript error until types are regenerated
     const { data, error } = await supabase
       .from('earth_resonance_entries')
       .select('*')
       .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false }) as any;
     
     if (error) {
       console.error('Error fetching Earth Realm reflections:', error);
@@ -336,6 +337,7 @@ export const saveEarthRealmReflection = async (
       alignmentScore = blueprint.energetic_alignment_score;
     }
     
+    // Use type casting to work around TypeScript error until types are regenerated
     const { data, error } = await supabase
       .from('earth_resonance_entries')
       .insert({
@@ -345,7 +347,7 @@ export const saveEarthRealmReflection = async (
         alignment_score: alignmentScore
       })
       .select()
-      .single();
+      .single() as any;
       
     if (error) {
       console.error('Error saving Earth Realm reflection:', error);

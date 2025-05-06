@@ -46,12 +46,12 @@ const EarthResonanceReflectionModal: React.FC<EarthResonanceReflectionModalProps
         'Heart'
       );
       
-      // Also save to earth_resonance_entries table
+      // Also save to earth_resonance_entries table using type casting for now
       const { error } = await supabase.from('earth_resonance_entries').insert({
         user_id: user.id,
         content: reflection,
         chakra_tag: 'Heart',
-      });
+      }) as any;
       
       if (error) {
         console.error('Error saving to earth_resonance_entries:', error);

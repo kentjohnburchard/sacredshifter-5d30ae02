@@ -32,11 +32,12 @@ const EarthReflectionLog: React.FC = () => {
       if (!user) return;
       
       try {
+        // Type cast the response to work with our interface
         const { data, error } = await supabase
           .from('earth_resonance_entries')
           .select('*')
           .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
+          .order('created_at', { ascending: false }) as any;
         
         if (error) {
           throw error;
