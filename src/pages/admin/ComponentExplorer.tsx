@@ -1,189 +1,229 @@
 
 import React, { useState, useEffect } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Search, Box, Layout, FileText, BookOpen, Grid3x3, Code, Copy, ExternalLink, Info } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { 
+  Search, 
+  LayoutGrid, 
+  List, 
+  Code, 
+  Package, 
+  FileText, 
+  PlusCircle, 
+  Copy, 
+  Eye, 
+  Edit, 
+  Save, 
+  ExternalLink,
+  RefreshCw,
+  Box,
+  CheckCircle,
+  AlertCircle,
+  Info
+} from 'lucide-react';
 import { toast } from 'sonner';
+import { 
+  getAllComponents, 
+  getComponentSource, 
+  getComponentUsage,
+  updateComponentMetadata,
+  createComponent
+} from '@/services/componentManagementService';
+import { ComponentMetadata, ComponentUsage } from '@/services/adminComponentsService';
+import { Textarea } from '@/components/ui/textarea';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useForm } from 'react-hook-form';
 
-// Define component types
-interface Component {
-  id: number;
-  name: string;
-  category: string;
-  usageCount: number;
-  lastUpdated: string;
-  path: string;
-  description?: string;
-  props?: { name: string; type: string; required: boolean; description?: string }[];
-}
-
-// Real component data extraction - scans the actual imports in the project
-const scanProjectComponents = (): Component[] => {
-  // This is a more comprehensive but static representation of the actual components
-  // In a real implementation, we would scan the codebase
-  return [
-    // UI Components
-    { id: 1, name: 'Button', category: 'ui', usageCount: 42, lastUpdated: '2025-05-04', path: '@/components/ui/button.tsx', 
-      description: 'Interactive button component with various styles and states.' },
-    { id: 2, name: 'Card', category: 'ui', usageCount: 37, lastUpdated: '2025-05-03', path: '@/components/ui/card.tsx',
-      description: 'Container component for organizing related content.' },
-    { id: 3, name: 'Dialog', category: 'ui', usageCount: 23, lastUpdated: '2025-05-03', path: '@/components/ui/dialog.tsx',
-      description: 'Modal dialog for focusing user attention on specific content or actions.' },
-    { id: 4, name: 'Input', category: 'ui', usageCount: 39, lastUpdated: '2025-05-02', path: '@/components/ui/input.tsx',
-      description: 'Text input field for collecting user information.' },
-    { id: 5, name: 'Tabs', category: 'ui', usageCount: 18, lastUpdated: '2025-05-02', path: '@/components/ui/tabs.tsx',
-      description: 'Tabbed interface for organizing content into separate views.' },
-    { id: 6, name: 'Avatar', category: 'ui', usageCount: 15, lastUpdated: '2025-05-01', path: '@/components/ui/avatar.tsx',
-      description: 'User profile image component with fallback support.' },
-    { id: 7, name: 'Badge', category: 'ui', usageCount: 26, lastUpdated: '2025-05-01', path: '@/components/ui/badge.tsx',
-      description: 'Small status indicator label with various styles.' },
-    { id: 8, name: 'Select', category: 'ui', usageCount: 27, lastUpdated: '2025-04-30', path: '@/components/ui/select.tsx',
-      description: 'Dropdown selection component with various options.' },
-    { id: 9, name: 'Checkbox', category: 'ui', usageCount: 14, lastUpdated: '2025-04-29', path: '@/components/ui/checkbox.tsx',
-      description: 'Selectable checkbox input component.' },
-    { id: 10, name: 'Toast', category: 'ui', usageCount: 31, lastUpdated: '2025-04-28', path: '@/components/ui/toast.tsx',
-      description: 'Temporary notification messages that appear on the screen.' },
-    
-    // Visualizer Components
-    { id: 11, name: 'SacredGeometryCanvas', category: 'visualizer', usageCount: 8, lastUpdated: '2025-05-05', path: '@/components/visualizer/SacredGeometryCanvas.tsx',
-      description: 'Interactive canvas for displaying sacred geometry patterns.' },
-    { id: 12, name: 'MandalaScene', category: 'visualizer', usageCount: 7, lastUpdated: '2025-05-04', path: '@/components/visualizer/MandalaScene.tsx',
-      description: 'Animated mandala visualization scene.' },
-    { id: 13, name: 'FractalScene', category: 'visualizer', usageCount: 6, lastUpdated: '2025-05-03', path: '@/components/visualizer/FractalScene.tsx',
-      description: 'Dynamic fractal pattern visualization scene.' },
-    { id: 14, name: 'VisualizerScene', category: 'visualizer', usageCount: 12, lastUpdated: '2025-05-01', path: '@/components/visualizer/VisualizerScene.tsx',
-      description: 'Base scene component for all visualizers.' },
-    { id: 15, name: 'GalaxyScene', category: 'visualizer', usageCount: 5, lastUpdated: '2025-04-30', path: '@/components/visualizer/GalaxyScene.tsx',
-      description: 'Galaxy-themed visualization scene.' },
-    
-    // Audio Components
-    { id: 16, name: 'FrequencyPlayer', category: 'audio', usageCount: 15, lastUpdated: '2025-05-05', path: '@/components/FrequencyPlayer.tsx',
-      description: 'Audio player specialized for frequency-based content.' },
-    { id: 17, name: 'AudioVisualizer', category: 'audio', usageCount: 11, lastUpdated: '2025-05-04', path: '@/components/AudioVisualizer.tsx',
-      description: 'Visual representation of audio frequencies and waveforms.' },
-    { id: 18, name: 'FrequencyEqualizer', category: 'audio', usageCount: 8, lastUpdated: '2025-05-02', path: '@/components/visualizer/FrequencyEqualizer.tsx',
-      description: 'Interactive equalizer for adjusting audio frequencies.' },
-    { id: 19, name: 'SacredAudioPlayer', category: 'audio', usageCount: 13, lastUpdated: '2025-04-29', path: '@/components/audio/SacredAudioPlayer.tsx',
-      description: 'Enhanced audio player with sacred sound features.' },
-    { id: 20, name: 'JourneyAudioMapper', category: 'audio', usageCount: 9, lastUpdated: '2025-04-27', path: '@/components/frequency-journey/JourneyAudioMapper.tsx',
-      description: 'Maps audio files to journey templates.' },
-    
-    // Journey Components
-    { id: 21, name: 'JourneyTemplateCard', category: 'journey', usageCount: 23, lastUpdated: '2025-05-05', path: '@/components/frequency-journey/JourneyTemplateCard.tsx',
-      description: 'Card display for journey templates.' },
-    { id: 22, name: 'JourneyPlayer', category: 'journey', usageCount: 19, lastUpdated: '2025-05-04', path: '@/components/frequency-journey/JourneyPlayer.tsx',
-      description: 'Main player component for journey experiences.' },
-    { id: 23, name: 'JourneyDetail', category: 'journey', usageCount: 17, lastUpdated: '2025-05-02', path: '@/components/frequency-journey/JourneyDetail.tsx',
-      description: 'Detailed view of journey information and controls.' },
-    { id: 24, name: 'JourneyPreStartModal', category: 'journey', usageCount: 14, lastUpdated: '2025-04-30', path: '@/components/frequency-journey/JourneyPreStartModal.tsx',
-      description: 'Confirmation dialog before starting a journey.' },
-    { id: 25, name: 'JourneySettings', category: 'journey', usageCount: 12, lastUpdated: '2025-04-28', path: '@/components/frequency-journey/JourneySettings.tsx',
-      description: 'Configuration options for journey experiences.' },
-    
-    // Layout Components
-    { id: 26, name: 'PageLayout', category: 'layout', usageCount: 45, lastUpdated: '2025-05-05', path: '@/components/layout/PageLayout.tsx',
-      description: 'Base layout structure for all pages.' },
-    { id: 27, name: 'Header', category: 'layout', usageCount: 42, lastUpdated: '2025-05-03', path: '@/components/Header.tsx',
-      description: 'Top navigation bar for the application.' },
-    { id: 28, name: 'Sidebar', category: 'layout', usageCount: 38, lastUpdated: '2025-05-01', path: '@/components/Sidebar.tsx',
-      description: 'Side navigation panel with links and user information.' },
-    { id: 29, name: 'Footer', category: 'layout', usageCount: 36, lastUpdated: '2025-04-29', path: '@/components/navigation/Footer.tsx',
-      description: 'Bottom section with additional links and information.' },
-    { id: 30, name: 'GlobalWatermark', category: 'layout', usageCount: 22, lastUpdated: '2025-04-27', path: '@/components/GlobalWatermark.tsx',
-      description: 'Watermark overlay for branding or copyright purposes.' },
-  ];
-};
-
-interface ComponentCardProps {
-  component: Component;
-  onViewDetails: (component: Component) => void;
-}
-
-const ComponentCard: React.FC<ComponentCardProps> = ({ component, onViewDetails }) => {
-  return (
-    <Card className="h-full hover:shadow-md transition-all">
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <CardTitle className="text-lg">{component.name}</CardTitle>
-          <Badge variant="outline" className="ml-2">
-            {component.category}
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="text-sm text-muted-foreground space-y-1">
-          <p>{component.description || "No description available"}</p>
-          <p>Used in {component.usageCount} places</p>
-          <p>Last updated: {component.lastUpdated}</p>
-          <p className="text-xs text-muted-foreground truncate">{component.path}</p>
-        </div>
-        <div className="mt-4 flex justify-end">
-          <Button size="sm" variant="outline" onClick={() => onViewDetails(component)}>View Details</Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
+type ComponentViewMode = 'grid' | 'list';
+type ComponentTab = 'all' | 'ui' | 'layout' | 'data' | 'custom';
 
 const ComponentExplorer: React.FC = () => {
+  const [components, setComponents] = useState<ComponentMetadata[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [components, setComponents] = useState<Component[]>([]);
-  const [selectedComponent, setSelectedComponent] = useState<Component | null>(null);
-  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [isLoading, setIsLoading] = useState(true);
-
+  const [viewMode, setViewMode] = useState<ComponentViewMode>('grid');
+  const [selectedComponent, setSelectedComponent] = useState<ComponentMetadata | null>(null);
+  const [componentSource, setComponentSource] = useState('');
+  const [componentUsage, setComponentUsage] = useState<ComponentUsage[]>([]);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [loadingDetails, setLoadingDetails] = useState(false);
+  
+  const form = useForm({
+    defaultValues: {
+      name: '',
+      category: 'ui',
+      description: '',
+    },
+  });
+  
+  const editForm = useForm({
+    defaultValues: {
+      name: '',
+      category: '',
+      description: '',
+    },
+  });
+  
+  // Load all components
   useEffect(() => {
-    // Simulate loading components from the project
-    setIsLoading(true);
-    setTimeout(() => {
-      const scannedComponents = scanProjectComponents();
-      setComponents(scannedComponents);
-      setIsLoading(false);
-    }, 800); // Simulate loading delay
+    const loadComponents = async () => {
+      setLoading(true);
+      try {
+        const data = await getAllComponents();
+        setComponents(data);
+      } catch (error) {
+        console.error('Error loading components:', error);
+        toast.error('Failed to load components');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadComponents();
   }, []);
-
-  const filterComponents = (query: string, category: string = 'all') => {
-    let filtered = components;
-    
-    if (query) {
-      filtered = filtered.filter(c => 
-        c.name.toLowerCase().includes(query.toLowerCase()) ||
-        (c.description && c.description.toLowerCase().includes(query.toLowerCase())) ||
-        c.path.toLowerCase().includes(query.toLowerCase())
-      );
+  
+  // Filter components based on search query
+  const filteredComponents = components.filter(component => 
+    component.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    component.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    component.category?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  
+  // Group components by category
+  const groupedComponents = filteredComponents.reduce<Record<string, ComponentMetadata[]>>((acc, component) => {
+    const category = component.category || 'other';
+    if (!acc[category]) {
+      acc[category] = [];
     }
-    
-    if (category !== 'all') {
-      filtered = filtered.filter(c => c.category === category);
-    }
-    
-    return filtered;
+    acc[category].push(component);
+    return acc;
+  }, {});
+  
+  // Filter components by tab
+  const getComponentsForTab = (tab: ComponentTab) => {
+    if (tab === 'all') return filteredComponents;
+    return filteredComponents.filter(component => 
+      tab === 'ui' ? component.category === 'ui' : 
+      tab === 'layout' ? component.category === 'layout' : 
+      tab === 'data' ? component.category === 'data' :
+      tab === 'custom' ? !['ui', 'layout', 'data'].includes(component.category || '') :
+      false
+    );
   };
-
-  const handleViewDetails = (component: Component) => {
+  
+  // View component details
+  const handleViewDetails = async (component: ComponentMetadata) => {
     setSelectedComponent(component);
-    setIsDetailDialogOpen(true);
+    setIsDetailsOpen(true);
+    setLoadingDetails(true);
+    
+    try {
+      // Load component source code
+      const source = await getComponentSource(component.path);
+      setComponentSource(source);
+      
+      // Load usage information
+      const usage = await getComponentUsage(component.id);
+      setComponentUsage(usage);
+    } catch (error) {
+      console.error('Error loading component details:', error);
+      toast.error('Failed to load component details');
+    } finally {
+      setLoadingDetails(false);
+    }
   };
-
-  const handleCopyPath = (path: string) => {
-    navigator.clipboard.writeText(path);
-    toast.success('Component path copied to clipboard');
+  
+  // Handle edit component
+  const handleEditComponent = (component: ComponentMetadata) => {
+    setSelectedComponent(component);
+    editForm.reset({
+      name: component.name,
+      category: component.category || '',
+      description: component.description || '',
+    });
+    setIsEditOpen(true);
   };
-
-  const filteredComponents = filterComponents(searchQuery, activeCategory);
-
-  // Get unique categories from components
-  const categories = ['all', ...Array.from(new Set(components.map(c => c.category)))];
-
+  
+  // Save component edits
+  const handleSaveEdit = async (data: any) => {
+    if (!selectedComponent) return;
+    
+    try {
+      const updatedComponent = {
+        ...selectedComponent,
+        name: data.name,
+        category: data.category,
+        description: data.description,
+      };
+      
+      const success = await updateComponentMetadata(updatedComponent);
+      
+      if (success) {
+        // Update local state
+        setComponents(components.map(c => 
+          c.id === selectedComponent.id ? updatedComponent : c
+        ));
+        
+        toast.success('Component updated successfully');
+        setIsEditOpen(false);
+      } else {
+        toast.error('Failed to update component');
+      }
+    } catch (error) {
+      console.error('Error updating component:', error);
+      toast.error('Failed to update component');
+    }
+  };
+  
+  // Handle create component
+  const handleCreateComponent = async (data: any) => {
+    try {
+      // For demonstration, we're creating a basic component
+      const newComponent = await createComponent(
+        data.name,
+        data.category,
+        'basic', // template type
+        [] // default props
+      );
+      
+      if (newComponent) {
+        // Add to local state
+        setComponents([...components, newComponent]);
+        
+        toast.success('Component created successfully');
+        setIsCreateOpen(false);
+        form.reset();
+      } else {
+        toast.error('Failed to create component');
+      }
+    } catch (error) {
+      console.error('Error creating component:', error);
+      toast.error('Failed to create component');
+    }
+  };
+  
+  // Copy component usage code
+  const handleCopyUsage = () => {
+    if (!selectedComponent) return;
+    
+    const importStatement = `import { ${selectedComponent.name} } from "${selectedComponent.path}";`;
+    const usageExample = `<${selectedComponent.name} />`;
+    
+    navigator.clipboard.writeText(`${importStatement}\n\n${usageExample}`);
+    toast.success('Component usage copied to clipboard');
+  };
+  
   return (
     <PageLayout title="Component Explorer">
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto p-4 md:p-6">
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2 text-center md:text-left">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
@@ -191,16 +231,16 @@ const ComponentExplorer: React.FC = () => {
             </span>
           </h1>
           <p className="text-muted-foreground text-center md:text-left">
-            Browse, search, and manage all components available in Sacred Shifter
+            Browse, manage, and use components across your application
           </p>
         </div>
-
+        
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
           <div className="relative w-full md:w-1/2">
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
             <Input
               type="text"
-              placeholder="Search components by name, description or path..."
+              placeholder="Search components..."
               className="pl-8 pr-4 w-full"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -208,188 +248,427 @@ const ComponentExplorer: React.FC = () => {
           </div>
           
           <div className="flex gap-2 w-full md:w-auto">
-            <Button size="sm" className="flex-1 md:flex-none">
-              <Box className="mr-1 h-4 w-4" />
-              <span className="hidden md:inline">Add Component</span>
+            <Button onClick={() => setIsCreateOpen(true)}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Create Component
             </Button>
-            <Button size="sm" variant="outline" className="flex-1 md:flex-none">
-              <FileText className="mr-1 h-4 w-4" />
-              <span className="hidden md:inline">Documentation</span>
-            </Button>
+            
+            <div className="border rounded-md p-1 flex">
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setViewMode('grid')}
+              >
+                <LayoutGrid size={16} />
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setViewMode('list')}
+              >
+                <List size={16} />
+              </Button>
+            </div>
           </div>
         </div>
-
-        <Tabs 
-          defaultValue="all" 
-          value={activeCategory}
-          onValueChange={setActiveCategory}
-          className="space-y-6"
-        >
-          <TabsList className="w-full md:w-auto flex flex-wrap">
-            {categories.map(category => (
-              <TabsTrigger 
-                key={category} 
-                value={category}
-                className="capitalize"
-              >
-                {category}
-              </TabsTrigger>
-            ))}
+        
+        <Tabs defaultValue="all" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="all">All Components</TabsTrigger>
+            <TabsTrigger value="ui">UI</TabsTrigger>
+            <TabsTrigger value="layout">Layout</TabsTrigger>
+            <TabsTrigger value="data">Data</TabsTrigger>
+            <TabsTrigger value="custom">Custom</TabsTrigger>
           </TabsList>
           
-          <div className="space-y-4">
-            {isLoading ? (
-              <div className="py-20 flex justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700"></div>
-              </div>
-            ) : filteredComponents.length === 0 ? (
-              <div className="py-20 text-center">
-                <Box className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium">No components found</h3>
-                <p className="text-muted-foreground">
-                  Try adjusting your search or filter criteria
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredComponents.map(component => (
-                  <ComponentCard 
-                    key={component.id} 
-                    component={component} 
-                    onViewDetails={handleViewDetails}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+          {(['all', 'ui', 'layout', 'data', 'custom'] as ComponentTab[]).map(tab => (
+            <TabsContent key={tab} value={tab}>
+              {loading ? (
+                <div className="py-12 flex justify-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+                </div>
+              ) : viewMode === 'grid' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {getComponentsForTab(tab).map(component => (
+                    <Card key={component.id} className="transition-all hover:shadow-md">
+                      <CardHeader className="pb-2">
+                        <div className="flex justify-between">
+                          <div>
+                            <CardTitle className="text-lg flex items-center gap-2">
+                              <Package className="h-5 w-5 text-purple-500" />
+                              {component.name}
+                            </CardTitle>
+                            <CardDescription>{component.path}</CardDescription>
+                          </div>
+                          <Badge>{component.category || 'other'}</Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {component.description || 'No description available'}
+                        </p>
+                        <div className="mt-2 flex items-center text-xs text-muted-foreground">
+                          <Code className="h-3.5 w-3.5 mr-1" />
+                          <span>{component.usageCount || 0} usages</span>
+                          <span className="mx-2">•</span>
+                          <Clock className="h-3.5 w-3.5 mr-1" />
+                          <span>Updated {component.lastUpdated ? new Date(component.lastUpdated).toLocaleDateString() : 'N/A'}</span>
+                        </div>
+                      </CardContent>
+                      <CardFooter className="flex justify-between pt-0">
+                        <Button variant="outline" size="sm" onClick={() => handleViewDetails(component)}>
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => handleEditComponent(component)}>
+                          <Edit className="h-4 w-4 mr-1" />
+                          Edit
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle>Components</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-1">
+                      {getComponentsForTab(tab).length === 0 ? (
+                        <p className="text-center py-4 text-muted-foreground">No components found</p>
+                      ) : (
+                        getComponentsForTab(tab).map(component => (
+                          <div 
+                            key={component.id} 
+                            className="flex justify-between items-center p-2 hover:bg-accent rounded-md"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Package className="h-4 w-4 text-purple-500" />
+                              <div>
+                                <p className="font-medium">{component.name}</p>
+                                <p className="text-xs text-muted-foreground">{component.path}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline">{component.category}</Badge>
+                              <Button variant="ghost" size="icon" onClick={() => handleViewDetails(component)}>
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => handleEditComponent(component)}>
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+          ))}
         </Tabs>
         
-        <div className="mt-8 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 p-4 rounded-lg">
-          <h3 className="font-medium mb-2 flex items-center gap-2">
-            <BookOpen className="h-4 w-4" /> Explorer Guide
-          </h3>
-          <ul className="list-disc list-inside text-sm space-y-1 text-muted-foreground">
-            <li>Use the search bar to quickly find specific components</li>
-            <li>Tab navigation groups components by category</li>
-            <li>Click "View Details" to see component props, usage examples, and full documentation</li>
-            <li>Advanced component editing features will be available in future updates</li>
-          </ul>
-        </div>
-      </div>
-
-      {/* Component Detail Dialog */}
-      {selectedComponent && (
-        <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
-          <DialogContent className="sm:max-w-3xl">
+        {/* Component Details Dialog */}
+        <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+          <DialogContent className="sm:max-w-4xl">
             <DialogHeader>
-              <DialogTitle className="flex items-center space-x-2">
-                <span className="text-xl">{selectedComponent.name}</span>
-                <Badge variant="outline" className="ml-2 capitalize">
-                  {selectedComponent.category}
-                </Badge>
+              <DialogTitle className="flex items-center gap-2">
+                <Package className="h-5 w-5 text-purple-500" />
+                {selectedComponent?.name}
               </DialogTitle>
+              <DialogDescription>
+                {selectedComponent?.path}
+              </DialogDescription>
             </DialogHeader>
             
             <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-medium mb-1">Path</h3>
-                <div className="flex items-center bg-muted p-2 rounded-md">
-                  <code className="text-sm flex-1 overflow-x-auto">{selectedComponent.path}</code>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={() => handleCopyPath(selectedComponent.path)}
-                    className="ml-2 h-8 w-8"
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
+              {loadingDetails ? (
+                <div className="py-8 flex justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
                 </div>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium mb-1">Description</h3>
-                <p className="text-muted-foreground">{selectedComponent.description || "No description available"}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium mb-1">Usage Information</h3>
-                <ul className="space-y-1 text-sm text-muted-foreground">
-                  <li>Used in {selectedComponent.usageCount} places</li>
-                  <li>Last updated: {selectedComponent.lastUpdated}</li>
-                </ul>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium mb-1">Props</h3>
-                {selectedComponent.props && selectedComponent.props.length > 0 ? (
-                  <div className="border rounded-md overflow-hidden">
-                    <table className="min-w-full divide-y divide-border">
-                      <thead className="bg-muted">
-                        <tr>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">Name</th>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">Type</th>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">Required</th>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">Description</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-border">
-                        {selectedComponent.props.map((prop, index) => (
-                          <tr key={index}>
-                            <td className="px-4 py-2 text-sm font-medium">{prop.name}</td>
-                            <td className="px-4 py-2 text-sm text-muted-foreground"><code>{prop.type}</code></td>
-                            <td className="px-4 py-2 text-sm">
-                              {prop.required ? 
-                                <Badge variant="default" className="bg-red-100 text-red-800 hover:bg-red-100 border-red-200">Required</Badge> : 
-                                <Badge variant="outline">Optional</Badge>
-                              }
-                            </td>
-                            <td className="px-4 py-2 text-sm text-muted-foreground">{prop.description || "-"}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div className="p-4 border rounded-md bg-muted/20">
-                    <p className="text-sm text-muted-foreground flex items-center">
-                      <Info className="h-4 w-4 mr-2" />
-                      Props information is not available for this component
+              ) : (
+                <>
+                  <div>
+                    <h3 className="text-sm font-medium mb-2">Description</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {selectedComponent?.description || 'No description available'}
                     </p>
                   </div>
-                )}
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium mb-1">Code Example</h3>
-                <div className="bg-muted p-3 rounded-md overflow-x-auto">
-                  <pre className="text-sm">
-                    <code>
-                      {`import { ${selectedComponent.name} } from "${selectedComponent.path.replace(/\.tsx?$/, '')}";
-
-// Basic usage example
-export default function Example() {
-  return (
-    <${selectedComponent.name} />
-  );
-}`}
-                    </code>
-                  </pre>
-                </div>
-              </div>
+                  
+                  <div>
+                    <h3 className="text-sm font-medium mb-2">Props</h3>
+                    {selectedComponent?.props && selectedComponent.props.length > 0 ? (
+                      <div className="border rounded-md overflow-hidden">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-muted">
+                              <th className="text-left p-2">Name</th>
+                              <th className="text-left p-2">Type</th>
+                              <th className="text-left p-2">Required</th>
+                              <th className="text-left p-2">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {selectedComponent.props.map((prop, index) => (
+                              <tr key={index} className="border-t">
+                                <td className="p-2 font-mono text-xs">{prop.name}</td>
+                                <td className="p-2 font-mono text-xs">{prop.type}</td>
+                                <td className="p-2">
+                                  {prop.required ? (
+                                    <Badge variant="default">Required</Badge>
+                                  ) : (
+                                    <Badge variant="outline">Optional</Badge>
+                                  )}
+                                </td>
+                                <td className="p-2 text-xs text-muted-foreground">{prop.description || '-'}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">No props documented</p>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="text-sm font-medium">Source Code</h3>
+                      <Button variant="outline" size="sm" onClick={handleCopyUsage}>
+                        <Copy className="h-4 w-4 mr-1" />
+                        Copy Usage
+                      </Button>
+                    </div>
+                    <div className="bg-muted rounded-md p-4 font-mono text-xs h-64 overflow-auto">
+                      <pre className="whitespace-pre-wrap">{componentSource || 'No source code available'}</pre>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-sm font-medium mb-2">Usage</h3>
+                    {componentUsage.length > 0 ? (
+                      <div className="border rounded-md overflow-hidden">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-muted">
+                              <th className="text-left p-2">Page</th>
+                              <th className="text-left p-2">Path</th>
+                              <th className="text-left p-2">Instances</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {componentUsage.map((usage, index) => (
+                              <tr key={index} className="border-t">
+                                <td className="p-2">{usage.pageName}</td>
+                                <td className="p-2 font-mono text-xs">{usage.pagePath}</td>
+                                <td className="p-2">{usage.instanceCount}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">No usage information available</p>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
             
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDetailDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsDetailsOpen(false)}>
                 Close
               </Button>
-              <Button>
-                <Code className="mr-2 h-4 w-4" />
-                View Source
+              <Button onClick={() => {
+                setIsDetailsOpen(false);
+                handleEditComponent(selectedComponent!);
+              }}>
+                <Edit className="h-4 w-4 mr-1" />
+                Edit Component
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      )}
+        
+        {/* Edit Component Dialog */}
+        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Component</DialogTitle>
+              <DialogDescription>
+                Update component details and documentation
+              </DialogDescription>
+            </DialogHeader>
+            
+            <Form {...editForm}>
+              <form onSubmit={editForm.handleSubmit(handleSaveEdit)} className="space-y-4">
+                <FormField
+                  control={editForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Component Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={editForm.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="ui">UI</SelectItem>
+                          <SelectItem value="layout">Layout</SelectItem>
+                          <SelectItem value="data">Data</SelectItem>
+                          <SelectItem value="util">Utility</SelectItem>
+                          <SelectItem value="custom">Custom</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={editForm.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit">
+                    <Save className="h-4 w-4 mr-1" />
+                    Save Changes
+                  </Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
+        
+        {/* Create Component Dialog */}
+        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create Component</DialogTitle>
+              <DialogDescription>
+                Create a new component from a template
+              </DialogDescription>
+            </DialogHeader>
+            
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleCreateComponent)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Component Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="MyComponent" />
+                      </FormControl>
+                      <FormDescription>
+                        Use PascalCase for component names (e.g., MyComponent)
+                      </FormDescription>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="ui">UI</SelectItem>
+                          <SelectItem value="layout">Layout</SelectItem>
+                          <SelectItem value="data">Data</SelectItem>
+                          <SelectItem value="util">Utility</SelectItem>
+                          <SelectItem value="custom">Custom</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        The category determines where the component will be stored
+                      </FormDescription>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          {...field} 
+                          placeholder="A brief description of what this component does" 
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit">
+                    <PlusCircle className="h-4 w-4 mr-1" />
+                    Create Component
+                  </Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
+        
+        <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4 rounded-lg">
+          <h3 className="font-medium mb-2 flex items-center gap-2">
+            <Info className="h-4 w-4 text-blue-500" /> Component Guide
+          </h3>
+          <ul className="list-disc list-inside text-sm space-y-1 text-muted-foreground">
+            <li>Use the component explorer to browse all available components</li>
+            <li>View component details including props, source code, and usage</li>
+            <li>Edit component metadata and documentation</li>
+            <li>Create new components from templates</li>
+            <li>Copy component import and usage code with a single click</li>
+            <li>Track where components are used throughout the application</li>
+          </ul>
+        </div>
+      </div>
     </PageLayout>
   );
 };
