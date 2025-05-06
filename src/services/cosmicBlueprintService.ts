@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { 
   CosmicBlueprint, 
@@ -288,4 +289,72 @@ export const getCosmicRecommendations = async (
  */
 export const getEarthRealmResonance = (): string => {
   return "All realms — even Earth — are made of love and light. What we experience is shaped by our perspective, the quality of our intent, and our willingness to remember. Love is the answer to everything.";
+};
+
+/**
+ * Fetches all Earth realm reflections for a user
+ */
+export const fetchEarthRealmReflections = async (userId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('earth_resonance_entries')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching Earth Realm reflections:', error);
+      return [];
+    }
+    
+    return data;
+  } catch (err) {
+    console.error('Error in fetchEarthRealmReflections:', err);
+    return [];
+  }
+};
+
+/**
+ * Saves a new Earth Realm reflection entry
+ */
+export const saveEarthRealmReflection = async (
+  userId: string, 
+  content: string,
+  journeyId?: string
+) => {
+  try {
+    // Get current alignment score if available
+    let alignmentScore: number | null = null;
+    
+    const { data: blueprint } = await supabase
+      .from('cosmic_blueprints')
+      .select('energetic_alignment_score')
+      .eq('user_id', userId)
+      .single();
+      
+    if (blueprint) {
+      alignmentScore = blueprint.energetic_alignment_score;
+    }
+    
+    const { data, error } = await supabase
+      .from('earth_resonance_entries')
+      .insert({
+        user_id: userId,
+        content,
+        journey_id: journeyId,
+        alignment_score: alignmentScore
+      })
+      .select()
+      .single();
+      
+    if (error) {
+      console.error('Error saving Earth Realm reflection:', error);
+      return null;
+    }
+    
+    return data;
+  } catch (err) {
+    console.error('Error in saveEarthRealmReflection:', err);
+    return null;
+  }
 };

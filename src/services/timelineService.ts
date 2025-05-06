@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { JourneyTimelineItem } from '@/types/journey';
 import { ChakraTag } from '@/types/chakras';
@@ -32,19 +33,23 @@ export const fetchUserTimeline = async (
 };
 
 // Helper function to process notes that might contain journey references
+// Rewritten to avoid complex type instantiation that leads to TS2589 error
 const processJourneyNotes = (entry: any, journeyId: string): boolean => {
+  // First, perform basic checks before trying to parse JSON
   if (!entry.notes || typeof entry.notes !== 'string') {
     return false;
   }
   
+  // Quick check if the string contains the journey ID at all
   if (!entry.notes.includes(journeyId)) {
     return false;
   }
   
   try {
+    // Simple check without complex type instantiation
     const parsed = JSON.parse(entry.notes);
-    return typeof parsed === 'object' && 
-           parsed !== null && 
+    return parsed && 
+           typeof parsed === 'object' && 
            parsed.journeyId === journeyId;
   } catch {
     // Skip malformed JSON

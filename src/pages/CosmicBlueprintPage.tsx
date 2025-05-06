@@ -10,7 +10,10 @@ import CosmicBlueprintProfile from '@/components/cosmic-blueprint/CosmicBlueprin
 import EnergeticAlignmentScore from '@/components/cosmic-blueprint/EnergeticAlignmentScore';
 import CosmicRecommendationsPanel from '@/components/cosmic-blueprint/CosmicRecommendationsPanel';
 import EarthRealmResonancePanel from '@/components/cosmic-blueprint/EarthRealmResonancePanel';
+import EarthReflectionLog from '@/components/cosmic-blueprint/EarthReflectionLog';
 import { useLightbearerProgress } from '@/hooks/useLightbearerProgress';
+import { Button } from '@/components/ui/button';
+import { Book } from 'lucide-react';
 
 const CosmicBlueprintPage: React.FC = () => {
   const { user } = useAuth();
@@ -25,6 +28,7 @@ const CosmicBlueprintPage: React.FC = () => {
     updateDNAStrands,
     updateStarseedResonance
   } = useCosmicBlueprint();
+  const [showReflectionLog, setShowReflectionLog] = useState(false);
   
   const handleUpdateStrand = async (index: number, active: boolean) => {
     if (!blueprint) return;
@@ -87,9 +91,27 @@ const CosmicBlueprintPage: React.FC = () => {
               />
               
               {/* Earth Realm Resonance */}
-              <EarthRealmResonancePanel 
-                alignmentScore={blueprint?.energetic_alignment_score || 0}
-              />
+              <div className="space-y-2">
+                <EarthRealmResonancePanel 
+                  alignmentScore={blueprint?.energetic_alignment_score || 0}
+                />
+                
+                <div className="flex justify-end">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className="text-pink-300/70 hover:text-pink-300 hover:bg-pink-950/20"
+                    onClick={() => setShowReflectionLog(!showReflectionLog)}
+                  >
+                    <Book className="h-4 w-4 mr-1" />
+                    {showReflectionLog ? "Hide Reflections" : "View Earth Reflections"}
+                  </Button>
+                </div>
+                
+                {showReflectionLog && (
+                  <EarthReflectionLog />
+                )}
+              </div>
             </div>
             
             {/* Right column */}

@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { createTimelineEntry } from '@/services/timelineService';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface EarthResonanceReflectionModalProps {
   open: boolean;
@@ -44,6 +45,17 @@ const EarthResonanceReflectionModal: React.FC<EarthResonanceReflectionModalProps
         },
         'Heart'
       );
+      
+      // Also save to earth_resonance_entries table
+      const { error } = await supabase.from('earth_resonance_entries').insert({
+        user_id: user.id,
+        content: reflection,
+        chakra_tag: 'Heart',
+      });
+      
+      if (error) {
+        console.error('Error saving to earth_resonance_entries:', error);
+      }
       
       toast.success("Reflection saved to your timeline");
       setReflection('');

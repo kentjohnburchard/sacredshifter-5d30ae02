@@ -1,52 +1,30 @@
--- Create journey_visual_params table to store spiral parameters
-CREATE TABLE IF NOT EXISTS public.journey_visual_params (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  journey_id TEXT NOT NULL,
-  params JSONB NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  CONSTRAINT journey_visual_params_unique UNIQUE (journey_id)
-);
 
--- Add RLS policy to allow access to journey_visual_params
-ALTER TABLE public.journey_visual_params ENABLE ROW LEVEL SECURITY;
-
--- Grant anon users ability to read the param data (these are public visuals)
-CREATE POLICY "Allow public to read journey visual params" ON public.journey_visual_params
-  FOR SELECT USING (true);
-
--- Only allow authenticated users to modify their own journey params
-CREATE POLICY "Allow authenticated to insert their own journey params" ON public.journey_visual_params
-  FOR INSERT TO authenticated USING (true);
-
-CREATE POLICY "Allow authenticated to update their own journey params" ON public.journey_visual_params
-  FOR UPDATE TO authenticated USING (true);
-
--- Create cosmic_blueprints table to store user's cosmic identity information
-CREATE TABLE IF NOT EXISTS public.cosmic_blueprints (
+-- Create earth_resonance_entries table to store user's cosmic identity information
+CREATE TABLE IF NOT EXISTS public.earth_resonance_entries (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users,
-  sacred_blueprint_id UUID REFERENCES public.sacred_blueprints,
-  dna_strand_status JSONB NOT NULL DEFAULT '[false, false, false, false, false, false, false, false, false, false, false, false]',
-  starseed_resonance TEXT[],
-  energetic_alignment_score INTEGER DEFAULT 0,
-  personal_code_pattern TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  last_updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  UNIQUE(user_id)
+  content TEXT NOT NULL,
+  chakra_tag TEXT DEFAULT 'Heart',
+  journey_id UUID,
+  alignment_score INTEGER,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
--- Add RLS policy to allow users to see only their own cosmic blueprint
-ALTER TABLE public.cosmic_blueprints ENABLE ROW LEVEL SECURITY;
+-- Add RLS policy to allow users to see only their own entries
+ALTER TABLE public.earth_resonance_entries ENABLE ROW LEVEL SECURITY;
 
--- Grant authenticated users ability to read their own cosmic blueprints
-CREATE POLICY "Users can view their own cosmic blueprints" ON public.cosmic_blueprints
+-- Grant authenticated users ability to read their own entries
+CREATE POLICY "Users can view their own earth resonance entries" ON public.earth_resonance_entries
   FOR SELECT USING (auth.uid() = user_id);
 
--- Users can update their own cosmic blueprints
-CREATE POLICY "Users can update their own cosmic blueprints" ON public.cosmic_blueprints
+-- Users can insert their own entries
+CREATE POLICY "Users can create their own earth resonance entries" ON public.earth_resonance_entries
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Users can update their own entries
+CREATE POLICY "Users can update their own earth resonance entries" ON public.earth_resonance_entries
   FOR UPDATE USING (auth.uid() = user_id);
 
--- Users can insert their own cosmic blueprints
-CREATE POLICY "Users can create their own cosmic blueprints" ON public.cosmic_blueprints
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
+-- Users can delete their own entries
+CREATE POLICY "Users can delete their own earth resonance entries" ON public.earth_resonance_entries
+  FOR DELETE USING (auth.uid() = user_id);
