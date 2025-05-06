@@ -5,49 +5,49 @@ import { useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoadingScreen from './components/LoadingScreen';
 import Dashboard from './pages/Dashboard';
-import Placeholder from './pages/Placeholder';
 import SacredCircle from './pages/SacredCircle';
 import CircleHomePage from './pages/circle';
 import { activePages } from './config/navigation';
 
-// Use the Placeholder component for pages that don't exist yet
-const LandingPage = Placeholder;
-const LoginPage = Placeholder;
-const RegisterPage = Placeholder;
-const SacredBlueprintPage = Placeholder;
-const FrequencyLibraryPage = Placeholder;
-const HeartCenterPage = Placeholder;
-const EmotionEnginePage = Placeholder;
-const TimelinePage = Placeholder;
-const MusicGeneratorPage = Placeholder;
-const MirrorPortalPage = Placeholder;
-const FrequencyShiftPage = Placeholder;
-const ShiftPerceptionPage = Placeholder;
-const HermeticPrinciplesPage = Placeholder;
-const SoulScribePage = Placeholder;
-const DeityOraclePage = Placeholder;
-const AstralAttunementPage = Placeholder;
-const SubscriptionPage = Placeholder;
-const TrinityGatewayPage = Placeholder;
-const AboutFounderPage = Placeholder;
-const ContactPage = Placeholder;
-const ProfilePage = Placeholder;
-const HarmonicMapPage = Placeholder;
-const HeartDashboardPage = Placeholder;
-const AlignmentPage = Placeholder;
-const EnergyCheckPage = Placeholder;
-const FocusPage = Placeholder;
-const HermeticWisdomPage = Placeholder;
-const JourneyTemplatesPage = Placeholder;
-const JourneysPage = Placeholder;
-const AstrologyPage = Placeholder;
-const SiteMapPage = Placeholder;
-const SacredSpectrumPage = Placeholder;
-const JourneysDirectoryPage = Placeholder;
+// Import actual pages instead of using placeholders
+import HomePage from './pages/Home';
+import LoginPage from './pages/Auth';
+import RegisterPage from './pages/Auth';
+import SacredBlueprintPage from './pages/SacredBlueprint';
+import FrequencyLibraryPage from './pages/FrequencyLibrary';
+import HeartCenterPage from './pages/HeartCenter';
+import EmotionEnginePage from './pages/EmotionEngine';
+import TimelinePage from './pages/Timeline';
+import MusicGeneratorPage from './pages/MusicGenerator';
+import MirrorPortalPage from './pages/MirrorPortal';
+import FrequencyShiftPage from './pages/FrequencyShift';
+import ShiftPerceptionPage from './pages/ShiftPerception';
+import HermeticPrinciplesPage from './pages/HermeticPrinciples';
+import SoulScribePage from './pages/SoulScribe';
+import DeityOraclePage from './pages/DeityOracle';
+import AstralAttunementPage from './pages/AstralAttunement';
+import SubscriptionPage from './pages/Subscription';
+import TrinityGatewayPage from './pages/TrinityGateway';
+import AboutFounderPage from './pages/AboutFounder';
+import ContactPage from './pages/Contact';
+import ProfilePage from './pages/Profile';
+import HarmonicMapPage from './pages/HarmonicMap';
+import HeartDashboardPage from './pages/HeartDashboard';
+import AlignmentPage from './pages/Alignment';
+import EnergyCheckPage from './pages/EnergyCheck';
+import FocusPage from './pages/Focus';
+import HermeticWisdomPage from './pages/HermeticWisdom';
+import JourneyTemplatesPage from './pages/JourneyTemplates';
+import JourneysPage from './pages/Journeys';
+import AstrologyPage from './pages/Astrology';
+import SiteMapPage from './pages/SiteMap';
+import SacredSpectrumPage from './pages/SacredSpectrum';
+import JourneysDirectoryPage from './pages/JourneysDirectory';
+import Placeholder from './pages/Placeholder';
 
 // Lazy-loaded components
-const SettingsPage = lazy(() => import('./pages/Placeholder'));
-const NotFoundPage = lazy(() => import('./pages/Placeholder'));
+const SettingsPage = lazy(() => import('./pages/AccountPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFound'));
 
 // Fix ProtectedRoute by creating a proper interface
 interface ProtectedRouteProps {
@@ -71,8 +71,8 @@ const AppRoutes: React.FC = () => {
         <Route path="/contact" element={activePages.contact ? <ContactPage /> : <Navigate to="/" />} />
         
         {/* Protected Routes */}
-        <Route element={<ProtectedRoute><Placeholder /></ProtectedRoute>}>
-          <Route path="/" element={<LandingPage />} />
+        <Route element={<ProtectedRoute><Dashboard /></ProtectedRoute>}>
+          <Route path="/" element={<HomePage />} />
           <Route path="/dashboard" element={activePages.dashboard ? <Dashboard /> : <Navigate to="/" />} />
           <Route path="/sacred-blueprint" element={activePages.sacredBlueprint ? <SacredBlueprintPage /> : <Navigate to="/" />} />
           <Route path="/frequency-library" element={activePages.frequencyLibrary ? <FrequencyLibraryPage /> : <Navigate to="/" />} />
