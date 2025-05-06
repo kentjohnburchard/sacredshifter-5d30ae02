@@ -86,17 +86,19 @@ const EarthRealmResonancePanel: React.FC<EarthRealmResonancePanelProps> = ({
       />
       
       {/* Add global styles for animations */}
-      <style jsx global>{`
-        @keyframes pulse {
-          0% { opacity: 0.5; }
-          100% { opacity: 0.8; }
-        }
-        
-        @keyframes textShimmer {
-          0% { opacity: 0.8; }
-          100% { opacity: 1; }
-        }
-      `}</style>
+      <style>
+        {`
+          @keyframes pulse {
+            0% { opacity: 0.5; }
+            100% { opacity: 0.8; }
+          }
+          
+          @keyframes textShimmer {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; }
+          }
+        `}
+      </style>
     </>
   );
 };
