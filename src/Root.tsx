@@ -7,6 +7,7 @@ import { AuthProvider } from './context/AuthContext';
 import { JourneyProvider } from './context/JourneyContext';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "sonner";
+import PromptManager from "@/components/journey/PromptManager"; 
 import App from "./App";
 
 // Create a client instance outside component for persistence
@@ -19,6 +20,7 @@ function Root() {
         <AuthProvider>
           <JourneyProvider>
             <App />
+            <PromptManager />
             <SonnerToaster position="top-right" richColors />
             <Toaster />
           </JourneyProvider>

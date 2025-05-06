@@ -286,6 +286,42 @@ export type Database = {
         }
         Relationships: []
       }
+      journey_prompts: {
+        Row: {
+          active: boolean
+          content: string
+          created_at: string
+          display_type: string
+          id: string
+          journey_id: string
+          location: string
+          priority_level: number | null
+          trigger: string
+        }
+        Insert: {
+          active?: boolean
+          content: string
+          created_at?: string
+          display_type?: string
+          id?: string
+          journey_id: string
+          location: string
+          priority_level?: number | null
+          trigger: string
+        }
+        Update: {
+          active?: boolean
+          content?: string
+          created_at?: string
+          display_type?: string
+          id?: string
+          journey_id?: string
+          location?: string
+          priority_level?: number | null
+          trigger?: string
+        }
+        Relationships: []
+      }
       journey_quotes: {
         Row: {
           created_at: string | null
@@ -688,6 +724,42 @@ export type Database = {
         }
         Relationships: []
       }
+      lightbearer_codes: {
+        Row: {
+          code_name: string
+          created_at: string
+          description: string
+          icon: string | null
+          id: string
+          journey_id: string | null
+          title: string
+          unlock_activity: string
+          unlock_count: number
+        }
+        Insert: {
+          code_name: string
+          created_at?: string
+          description: string
+          icon?: string | null
+          id?: string
+          journey_id?: string | null
+          title: string
+          unlock_activity: string
+          unlock_count?: number
+        }
+        Update: {
+          code_name?: string
+          created_at?: string
+          description?: string
+          icon?: string | null
+          id?: string
+          journey_id?: string | null
+          title?: string
+          unlock_activity?: string
+          unlock_count?: number
+        }
+        Relationships: []
+      }
       love_quotes: {
         Row: {
           created_at: string | null
@@ -921,6 +993,41 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      prompt_interactions: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          journey_id: string
+          prompt_id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          journey_id: string
+          prompt_id: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          journey_id?: string
+          prompt_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prompt_interactions_prompt_id_fkey"
+            columns: ["prompt_id"]
+            isOneToOne: false
+            referencedRelation: "journey_prompts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sacred_blueprint_quiz_responses: {
         Row: {
