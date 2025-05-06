@@ -266,7 +266,7 @@ export const getCosmicRecommendations = async (
       {
         type: 'practice',
         title: 'Kundalini Breathwork',
-        description: 'Activate your spine's energy channel to awaken dormant cosmic potential.',
+        description: "Activate your spine's energy channel to awaken dormant cosmic potential.",
         resonanceMatch: 81
       }
     ];
