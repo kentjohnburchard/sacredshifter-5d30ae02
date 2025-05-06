@@ -24,7 +24,7 @@ import {
   CheckCircle,
   AlertCircle,
   Info,
-  Clock as ClockIcon // Renamed to ClockIcon to avoid confusion
+  Clock, 
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { 
@@ -313,7 +313,7 @@ const ComponentExplorer: React.FC = () => {
                           <Code className="h-3.5 w-3.5 mr-1" />
                           <span>{component.usageCount || 0} usages</span>
                           <span className="mx-2">•</span>
-                          <ClockIcon className="h-3.5 w-3.5 mr-1" />
+                          <Clock className="h-3.5 w-3.5 mr-1" />
                           <span>Updated {component.lastUpdated ? new Date(component.lastUpdated).toLocaleDateString() : 'N/A'}</span>
                         </div>
                       </CardContent>
