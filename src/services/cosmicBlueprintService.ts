@@ -13,6 +13,7 @@ import { fetchUserTimeline } from './timelineService';
 
 export const fetchUserCosmicBlueprint = async (userId: string): Promise<CosmicBlueprint | null> => {
   try {
+    // Cast type to avoid TypeScript errors with cosmic_blueprints table
     const { data, error } = await supabase
       .from('cosmic_blueprints')
       .select('*')
@@ -28,7 +29,7 @@ export const fetchUserCosmicBlueprint = async (userId: string): Promise<CosmicBl
       return null;
     }
     
-    return data as CosmicBlueprint;
+    return data as unknown as CosmicBlueprint;
   } catch (err) {
     console.error('Error in fetchUserCosmicBlueprint:', err);
     return null;
@@ -44,6 +45,7 @@ export const createCosmicBlueprint = async (
     // Activate first DNA strand by default
     initialDnaStatus[0] = true;
     
+    // Cast type to avoid TypeScript errors with cosmic_blueprints table
     const { data, error } = await supabase
       .from('cosmic_blueprints')
       .insert({
@@ -62,7 +64,7 @@ export const createCosmicBlueprint = async (
       return null;
     }
     
-    return data as CosmicBlueprint;
+    return data as unknown as CosmicBlueprint;
   } catch (err) {
     console.error('Error in createCosmicBlueprint:', err);
     return null;
@@ -74,6 +76,7 @@ export const updateDNAStrandStatus = async (
   dnaStrandStatus: DNAStrandStatus
 ): Promise<boolean> => {
   try {
+    // Cast type to avoid TypeScript errors with cosmic_blueprints table
     const { error } = await supabase
       .from('cosmic_blueprints')
       .update({
@@ -99,10 +102,11 @@ export const updateStarseedResonance = async (
   starseedResonance: StarseedResonanceType[]
 ): Promise<boolean> => {
   try {
+    // Cast type to avoid TypeScript errors with cosmic_blueprints table
     const { error } = await supabase
       .from('cosmic_blueprints')
       .update({
-        starseed_resonance,
+        starseed_resonance: starseedResonance,
         last_updated_at: new Date().toISOString()
       })
       .eq('user_id', userId);
@@ -176,6 +180,7 @@ export const calculateEnergeticAlignment = async (
     );
     
     // Update the score in the database
+    // Cast type to avoid TypeScript errors with cosmic_blueprints table
     await supabase
       .from('cosmic_blueprints')
       .update({

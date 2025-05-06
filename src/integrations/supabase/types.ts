@@ -39,6 +39,50 @@ export type Database = {
         }
         Relationships: []
       }
+      cosmic_blueprints: {
+        Row: {
+          created_at: string | null
+          dna_strand_status: Json
+          energetic_alignment_score: number | null
+          id: string
+          last_updated_at: string | null
+          personal_code_pattern: string | null
+          sacred_blueprint_id: string | null
+          starseed_resonance: string[] | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          dna_strand_status?: Json
+          energetic_alignment_score?: number | null
+          id?: string
+          last_updated_at?: string | null
+          personal_code_pattern?: string | null
+          sacred_blueprint_id?: string | null
+          starseed_resonance?: string[] | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          dna_strand_status?: Json
+          energetic_alignment_score?: number | null
+          id?: string
+          last_updated_at?: string | null
+          personal_code_pattern?: string | null
+          sacred_blueprint_id?: string | null
+          starseed_resonance?: string[] | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cosmic_blueprints_sacred_blueprint_id_fkey"
+            columns: ["sacred_blueprint_id"]
+            isOneToOne: false
+            referencedRelation: "sacred_blueprints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       credit_transactions: {
         Row: {
           amount: number

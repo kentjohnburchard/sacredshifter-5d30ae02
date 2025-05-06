@@ -8,7 +8,9 @@ import {
   createCosmicBlueprint,
   calculateEnergeticAlignment,
   getResonantSignature,
-  getCosmicRecommendations
+  getCosmicRecommendations,
+  updateDNAStrandStatus,
+  updateStarseedResonance
 } from '@/services/cosmicBlueprintService';
 import { 
   CosmicBlueprint, 
@@ -122,11 +124,20 @@ export const useCosmicBlueprint = () => {
     }
   };
 
-  const updateStarseedResonance = async (resonanceTypes: StarseedResonanceType[]) => {
+  const handleStarseedResonance = async (resonanceTypes: StarseedResonanceType[]) => {
     if (!user || !blueprint) return false;
     
     try {
-      // Implementation will be added in the next iteration
+      const result = await updateStarseedResonance(user.id, resonanceTypes);
+      
+      if (result) {
+        setBlueprint({
+          ...blueprint,
+          starseed_resonance: resonanceTypes
+        });
+        return true;
+      }
+      
       return false;
     } catch (err) {
       console.error('Error updating starseed resonance:', err);
@@ -142,6 +153,6 @@ export const useCosmicBlueprint = () => {
     calculatingAlignment,
     recalculateAlignment,
     updateDNAStrands,
-    updateStarseedResonance
+    updateStarseedResonance: handleStarseedResonance
   };
 };
