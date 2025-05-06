@@ -15,6 +15,14 @@ import {
 } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 
+// Define interfaces for our parsed JSON structures
+interface JourneyNotes {
+  journeyId?: string;
+  journeyTitle?: string;
+  error?: string;
+  [key: string]: any; // Allow for other properties
+}
+
 const JourneyActivitySection: React.FC = () => {
   const { user } = useAuth();
   const [timelineEntries, setTimelineEntries] = useState<JourneyTimelineItem[]>([]);
@@ -45,11 +53,11 @@ const JourneyActivitySection: React.FC = () => {
   
   // Group entries by journey - with error handling for JSON parsing
   const entriesByJourney = timelineEntries.reduce((acc, entry) => {
-    let notes = {};
+    let notes: JourneyNotes = {};
     // Add proper error handling for JSON parsing
     if (entry.notes) {
       try {
-        notes = JSON.parse(entry.notes);
+        notes = JSON.parse(entry.notes) as JourneyNotes;
       } catch (error) {
         console.error(`Failed to parse notes for entry ${entry.id}:`, error);
         notes = { journeyId: 'unknown', error: 'Invalid JSON' };
@@ -133,7 +141,7 @@ const JourneyActivitySection: React.FC = () => {
                 let journeyTitle = 'Unknown Journey';
                 try {
                   if (entries[0]?.notes) {
-                    const journeyInfo = JSON.parse(entries[0].notes);
+                    const journeyInfo = JSON.parse(entries[0].notes) as JourneyNotes;
                     journeyTitle = journeyInfo.journeyTitle || 'Unknown Journey';
                   }
                 } catch (error) {
@@ -198,10 +206,10 @@ const ActivityTimeline: React.FC<{ entries: JourneyTimelineItem[] }> = ({ entrie
           <div className="space-y-2">
             {dateEntries.map(entry => {
               // Safe parsing of notes with error handling
-              let parsedNotes = {};
+              let parsedNotes: JourneyNotes = {};
               if (entry.notes) {
                 try {
-                  parsedNotes = JSON.parse(entry.notes);
+                  parsedNotes = JSON.parse(entry.notes) as JourneyNotes;
                 } catch (error) {
                   console.error(`Failed to parse notes for timeline entry ${entry.id}:`, error);
                 }
