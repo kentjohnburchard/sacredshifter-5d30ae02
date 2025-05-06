@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { JourneyTimelineItem } from '@/types/journey';
 import { ChakraTag } from '@/types/chakras';
@@ -43,10 +42,9 @@ const processJourneyNotes = (entry: any, journeyId: string): boolean => {
   }
   
   try {
-    // Fix: simplified parsing to prevent excessive type instantiation
     const parsed = JSON.parse(entry.notes);
-    return parsed && 
-           typeof parsed === 'object' && 
+    return typeof parsed === 'object' && 
+           parsed !== null && 
            parsed.journeyId === journeyId;
   } catch {
     // Skip malformed JSON
