@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { JourneyTimelineItem } from '@/types/journey';
 import { ChakraTag } from '@/types/chakras';
@@ -137,17 +136,20 @@ export const createTimelineEntry = async (
   userId: string,
   title: string,
   tag: string,
-  notes: string,
+  notes: string | Record<string, any>,
   chakraTag?: ChakraTag,
   journeyId?: string
 ): Promise<JourneyTimelineItem | null> => {
   try {
+    // Format notes properly - either keep as string or stringify if object
+    const formattedNotes = typeof notes === 'string' ? notes : JSON.stringify(notes);
+    
     // Create a simple plain object for the database insert
     const entryData = {
       user_id: userId,
       title,
       tag,
-      notes: notes,
+      notes: formattedNotes,
       chakra_tag: chakraTag,
       journey_id: journeyId
     };

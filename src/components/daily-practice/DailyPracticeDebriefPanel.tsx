@@ -60,18 +60,19 @@ const DailyPracticeDebriefPanel: React.FC<DailyPracticeDebriefPanelProps> = ({
     setIsSaving(true);
     
     try {
-      // Format the notes data to avoid type instantiation issues
-      const notesData = JSON.stringify({
+      // Format the notes data
+      const notesData = {
         type: 'DailyPractice',
         content: reflection.trim()
-      });
+      };
       
       await createTimelineEntry(
         userId,
         'Daily Practice Reflection',
         'daily_reflection',
         notesData,
-        chakraTag
+        chakraTag,
+        journeyId
       );
       
       toast.success("Reflection Saved", {
