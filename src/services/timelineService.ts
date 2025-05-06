@@ -41,6 +41,7 @@ export const fetchJourneyTimeline = async (userId: string, journeyId: string): P
     
     if (directError) {
       console.error('Error fetching journey timeline:', directError);
+      return [];
     }
     
     // Then look for entries that have the journeyId in the notes JSON
@@ -55,27 +56,41 @@ export const fetchJourneyTimeline = async (userId: string, journeyId: string): P
       return directMatches as JourneyTimelineItem[] || [];
     }
     
-    // Filter entries that have the journeyId in notes - fixing the deep type instantiation
+    // Safe handling of notes to prevent deep type instantiation
     const notesMatches = (allEntries || []).filter(entry => {
       if (!entry.notes) return false;
       
       try {
-        // Check if it's a JSON string and contains journeyId
+        // Only parse if it's a string and handle the result safely
         if (typeof entry.notes === 'string') {
-          const parsedNotes = JSON.parse(entry.notes);
-          return parsedNotes && typeof parsedNotes === 'object' && parsedNotes.journeyId === journeyId;
+          let parsedNotes: Record<string, unknown>;
+          
+          try {
+            parsedNotes = JSON.parse(entry.notes);
+          } catch {
+            return false;
+          }
+          
+          // Simple property check without deep nesting
+          return typeof parsedNotes === 'object' && 
+                 parsedNotes !== null && 
+                 'journeyId' in parsedNotes && 
+                 parsedNotes.journeyId === journeyId;
         }
         return false;
-      } catch (e) {
+      } catch {
         return false;
       }
     });
     
     // Combine both sets of results and remove duplicates
-    const allMatches = [...(directMatches || []), ...notesMatches];
-    const uniqueMatches = allMatches.filter((entry, index, self) =>
-      index === self.findIndex(e => e.id === entry.id)
-    );
+    const directMatchesArray = directMatches || [];
+    const uniqueMatches = [
+      ...directMatchesArray,
+      ...notesMatches.filter(match => 
+        !directMatchesArray.some(direct => direct.id === match.id)
+      )
+    ];
     
     return uniqueMatches as JourneyTimelineItem[];
   } catch (err) {
