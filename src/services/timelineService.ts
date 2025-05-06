@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { JourneyTimelineItem } from '@/types/journey';
 import { ChakraTag } from '@/types/chakras';
@@ -31,11 +32,33 @@ export const fetchUserTimeline = async (
   }
 };
 
+// Helper function to process notes that might contain journey references
+const processJourneyNotes = (entry: any, journeyId: string): boolean => {
+  if (!entry.notes || typeof entry.notes !== 'string') {
+    return false;
+  }
+  
+  if (!entry.notes.includes(journeyId)) {
+    return false;
+  }
+  
+  try {
+    const notesObj = JSON.parse(entry.notes);
+    return notesObj && 
+           typeof notesObj === 'object' && 
+           notesObj.journeyId === journeyId;
+  } catch {
+    // Skip malformed JSON
+    return false;
+  }
+};
+
 export const fetchJourneyTimeline = async (
   userId: string,
   journeyId: string
 ): Promise<JourneyTimelineItem[]> => {
   try {
+    // First query: get direct matches by journey_id
     const { data: directMatches, error: directError } = await supabase
       .from('timeline_snapshots')
       .select('*')
@@ -48,6 +71,10 @@ export const fetchJourneyTimeline = async (
       return [];
     }
 
+    // Process direct matches
+    const typedDirectMatches = (directMatches || []) as unknown as JourneyTimelineItem[];
+
+    // Second query: get all entries to check notes field
     const { data: allEntries, error: allError } = await supabase
       .from('timeline_snapshots')
       .select('*')
@@ -56,43 +83,30 @@ export const fetchJourneyTimeline = async (
 
     if (allError) {
       console.error('Error fetching all timeline entries:', allError);
-      return directMatches as unknown as JourneyTimelineItem[] || [];
+      return typedDirectMatches;
     }
 
+    // Process entries with matching notes
     const notesMatches: JourneyTimelineItem[] = [];
-
+    
     if (allEntries) {
       for (const entry of allEntries) {
-        if (!entry.notes || typeof entry.notes !== 'string') {
-          continue;
-        }
-
-        if (entry.notes.includes(journeyId)) {
-          try {
-            const notesObj = JSON.parse(entry.notes);
-            if (
-              notesObj &&
-              typeof notesObj === 'object' &&
-              notesObj.journeyId === journeyId
-            ) {
-              notesMatches.push(entry as JourneyTimelineItem);
-            }
-          } catch {
-            // Skip malformed JSON
-          }
+        if (processJourneyNotes(entry, journeyId)) {
+          notesMatches.push(entry as unknown as JourneyTimelineItem);
         }
       }
     }
 
-    const uniqueEntries = [...(directMatches || [])];
-
+    // Merge unique entries
+    const uniqueEntries: JourneyTimelineItem[] = [...typedDirectMatches];
+    
     for (const match of notesMatches) {
       if (!uniqueEntries.some(entry => entry.id === match.id)) {
         uniqueEntries.push(match);
       }
     }
 
-    return uniqueEntries as JourneyTimelineItem[];
+    return uniqueEntries;
   } catch (err) {
     console.error('Error in fetchJourneyTimeline:', err);
     return [];

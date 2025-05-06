@@ -1,41 +1,34 @@
-
-import React, { useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import AppRoutes from "./AppRoutes";
-import { useAuth } from "./context/AuthContext";
-import { Toaster } from "sonner";
-import { useJourney } from "./context/JourneyContext";
-import { useGuidance } from "./context/GuidanceContext";
-import { useCommunity } from "./contexts/CommunityContext";
+import React from 'react';
+import { Route, Routes } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import Dashboard from './pages/Dashboard';
+import HeartDashboard from './pages/HeartDashboard';
+import SacredBlueprint from './pages/SacredBlueprint';
+import CosmicBlueprintPage from './pages/CosmicBlueprintPage';
+import AdminInsightsDashboard from './pages/admin/AdminInsightsDashboard';
+import Auth from './pages/Auth';
+import Timeline from './pages/Timeline';
+import Lightbearer from './pages/Lightbearer';
+import Community from './pages/Community';
+import JourneyPage from './pages/JourneyPage';
+import NotFound from './pages/NotFound';
 
 function App() {
-  const location = useLocation();
-  const { user, loading } = useAuth();
-  const { currentPath, setCurrentPath } = useJourney();
-  const { userState, updateUserState } = useGuidance();
-  const { posts } = useCommunity();
-
-  // Update current path in JourneyContext when location changes
-  useEffect(() => {
-    if (setCurrentPath) {
-      setCurrentPath(location.pathname);
-    }
-    
-    // Update user state for guidance system
-    if (updateUserState) {
-      updateUserState({
-        currentPath: location.pathname,
-        lastActive: new Date(),
-        communityActivity: posts.length > 0
-      });
-    }
-  }, [location, setCurrentPath, updateUserState, posts]);
-
   return (
-    <div className="app-container">
-      <AppRoutes />
-      <Toaster position="top-right" richColors />
-    </div>
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/heart-dashboard" element={<HeartDashboard />} />
+      <Route path="/sacred-blueprint" element={<SacredBlueprint />} />
+      <Route path="/cosmic-blueprint" element={<CosmicBlueprintPage />} />
+      <Route path="/admin/insights" element={<AdminInsightsDashboard />} />
+      <Route path="/auth" element={<Auth />} />
+      <Route path="/timeline" element={<Timeline />} />
+      <Route path="/lightbearer" element={<Lightbearer />} />
+      <Route path="/community" element={<Community />} />
+      <Route path="/journey/:journeyId" element={<JourneyPage />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
 

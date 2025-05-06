@@ -5,7 +5,9 @@ import JourneyActivitySection from '@/components/dashboard/JourneyActivitySectio
 import RecommendationsPanel from '@/components/guidance/RecommendationsPanel';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, Calendar, BookOpen, Activity, LineChart } from 'lucide-react';
+import { User, Calendar, BookOpen, Activity, LineChart, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import LightbearerStatsCard from './dashboard/LightbearerStatsCard';
 
 const UserDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -22,7 +24,7 @@ const UserDashboard: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="bg-black/30 rounded-lg p-4 flex items-center">
               <User className="h-10 w-10 text-purple-400 mr-3" />
               <div>
@@ -37,13 +39,20 @@ const UserDashboard: React.FC = () => {
                 <p className="text-xs text-gray-400">View your progress</p>
               </div>
             </div>
-            <div className="bg-black/30 rounded-lg p-4 flex items-center">
+            <Link to="/sacred-blueprint" className="bg-black/30 rounded-lg p-4 flex items-center hover:bg-black/40 transition-colors">
               <BookOpen className="h-10 w-10 text-purple-400 mr-3" />
               <div>
-                <h3 className="text-sm font-medium text-white">Soul Library</h3>
-                <p className="text-xs text-gray-400">Explore sacred knowledge</p>
+                <h3 className="text-sm font-medium text-white">Sacred Blueprint</h3>
+                <p className="text-xs text-gray-400">Explore your blueprint</p>
               </div>
-            </div>
+            </Link>
+            <Link to="/cosmic-blueprint" className="bg-gradient-to-br from-purple-900/30 to-indigo-900/30 rounded-lg p-4 flex items-center hover:from-purple-900/40 hover:to-indigo-900/40 transition-colors">
+              <Sparkles className="h-10 w-10 text-indigo-400 mr-3" />
+              <div>
+                <h3 className="text-sm font-medium text-white">Cosmic Blueprint</h3>
+                <p className="text-xs text-gray-400">Explore your cosmic identity</p>
+              </div>
+            </Link>
           </div>
         </CardContent>
       </Card>
@@ -54,7 +63,7 @@ const UserDashboard: React.FC = () => {
         </div>
         
         <div className="lg:col-span-1 space-y-6">
-          {/* New Recommendations Panel */}
+          <LightbearerStatsCard />
           <RecommendationsPanel />
           
           <Card className="border-purple-500/30 bg-black/40 backdrop-blur-sm h-full">
