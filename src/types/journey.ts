@@ -8,7 +8,7 @@ export interface Journey {
   filename?: string;
   audio_filename?: string;
   veil_locked?: boolean;
-  tags?: string | string[]; // Support both formats for backward compatibility
+  tags?: string[]; // Explicitly making this a string array
   intent?: string;
   sound_frequencies?: string;
   duration?: string;

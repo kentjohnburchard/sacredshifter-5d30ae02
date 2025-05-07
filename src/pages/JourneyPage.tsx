@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -44,13 +45,17 @@ const loadCoreJourneyContent = async (slug: string): Promise<CoreJourneyLoaderRe
       
       // Create a journey object from the content
       const parsedContent = parseJourneyContent(content);
+      
+      // Ensure tags is an array
+      const tags = parsedContent.tags || [];
+      
       const journey: Journey = {
         id: "temp-0", // Use string ID to match the updated Journey type
         filename,
         title: frontmatter.title || filename,
         veil_locked: frontmatter.veil || false,
         sound_frequencies: frontmatter.frequency?.toString() || parsedContent.frequencies || '',
-        tags: parsedContent.tags || [] // Ensure tags is an array
+        tags: tags // Ensure tags is properly typed as an array
       };
       
       return { content, journey };
@@ -134,15 +139,24 @@ const JourneyPage: React.FC = () => {
 
   const handleStartJourney = () => {
     if (journey) {
-      // Ensure tags is properly formatted as string[]
-      const formattedJourney = {
+      // Convert tags to string array if needed
+      let journeyTags: string[];
+      
+      // Handle various tag format possibilities
+      if (!journey.tags) {
+        journeyTags = [];
+      } else if (Array.isArray(journey.tags)) {
+        journeyTags = journey.tags;
+      } else {
+        journeyTags = journey.tags.split(',').map(t => t.trim());
+      }
+      
+      const formattedJourney: Journey = {
         ...journey,
         id: journey.id?.toString() || "",
-        // Convert tags to array if it's a string
-        tags: Array.isArray(journey.tags) 
-          ? journey.tags 
-          : (journey.tags ? journey.tags.split(',').map(t => t.trim()) : [])
+        tags: journeyTags
       };
+      
       startJourney(formattedJourney);
     }
   };

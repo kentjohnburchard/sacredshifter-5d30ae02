@@ -39,8 +39,9 @@ export async function fetchJourneySoundscape(journeySlug: string): Promise<Journ
       description: item.description,
       file_url: item.file_url,
       source_link: item.source_link,
-      source_type: item.source_link ? 'youtube' : 'file',
-      created_at: item.created_at
+      source_type: (item.source_link ? 'youtube' : 'file') as 'file' | 'youtube',
+      created_at: item.created_at,
+      chakra_tag: item.chakra_tag
     };
   } catch (error) {
     console.error('Error in fetchJourneySoundscape:', error);
@@ -99,8 +100,9 @@ export async function createJourneySoundscape(
       description: result.description,
       file_url: result.file_url,
       source_link: result.source_link,
-      source_type: result.source_type || 'file',
-      created_at: result.created_at
+      source_type: result.source_type as 'file' | 'youtube',
+      created_at: result.created_at,
+      chakra_tag: result.chakra_tag
     };
   } catch (error) {
     console.error('Error in createJourneySoundscape:', error);
@@ -138,8 +140,9 @@ export async function updateJourneySoundscape(
       description: result.description,
       file_url: result.file_url,
       source_link: result.source_link,
-      source_type: result.source_type || 'file',
-      created_at: result.created_at
+      source_type: result.source_type as 'file' | 'youtube',
+      created_at: result.created_at,
+      chakra_tag: result.chakra_tag
     };
   } catch (error) {
     console.error('Error in updateJourneySoundscape:', error);

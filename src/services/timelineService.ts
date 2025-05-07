@@ -4,6 +4,20 @@ import { JourneyTimelineItem, JourneyTimelineEvent } from '@/types/journey';
 import { normalizeId } from '@/utils/parsers';
 
 /**
+ * Helper function to safely convert JSON data to Record<string, any>
+ */
+function safelyParseDetails(details: any): Record<string, any> {
+  if (typeof details === 'string') {
+    try {
+      return JSON.parse(details);
+    } catch (e) {
+      return { raw: details };
+    }
+  }
+  return details as Record<string, any>;
+}
+
+/**
  * Record a journey event in the timeline
  */
 export const recordJourneyEvent = async (
@@ -49,7 +63,7 @@ export async function fetchJourneyTimeline(
       .order('created_at', { ascending: false });
     
     if (limit) {
-      query = query.limit(limit);
+      query = query.limit(Number(limit));
     }
     
     const { data, error } = await query;
@@ -70,7 +84,7 @@ export async function fetchJourneyTimeline(
       journey_id: item.journey_id,
       component: item.component,
       action: item.action,
-      details: item.details
+      details: safelyParseDetails(item.details)
     }));
   } catch (error) {
     console.error('Error in fetchJourneyTimeline:', error);
@@ -122,7 +136,7 @@ export async function createTimelineItem(
       journey_id: data.journey_id,
       component: data.component,
       action: data.action,
-      details: data.details
+      details: safelyParseDetails(data.details)
     };
   } catch (error) {
     console.error('Error in createTimelineItem:', error);
@@ -162,7 +176,7 @@ export async function fetchUserTimeline(
     }
     
     if (limit) {
-      query = query.limit(limit);
+      query = query.limit(Number(limit));
     }
     
     const { data, error } = await query;
@@ -183,7 +197,7 @@ export async function fetchUserTimeline(
       journey_id: item.journey_id,
       component: item.component,
       action: item.action,
-      details: item.details
+      details: safelyParseDetails(item.details)
     }));
   } catch (error) {
     console.error('Error in fetchUserTimeline:', error);
