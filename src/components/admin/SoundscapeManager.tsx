@@ -20,6 +20,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
+import { Database } from '@/integrations/supabase/types';
+
+// Define the extended type using the Supabase-generated type
+type SourceType = 'file' | 'youtube';
 
 const SoundscapeManager: React.FC = () => {
   const [soundscapes, setSoundscapes] = useState<JourneySoundscape[]>([]);
@@ -27,7 +31,7 @@ const SoundscapeManager: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedSoundscape, setSelectedSoundscape] = useState<JourneySoundscape | null>(null);
-  const [sourceType, setSourceType] = useState<'file' | 'youtube'>('file');
+  const [sourceType, setSourceType] = useState<SourceType>('file');
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -56,19 +60,7 @@ const SoundscapeManager: React.FC = () => {
         }
         
         // Transform the data to match JourneySoundscape interface
-        const transformedSoundscapes: JourneySoundscape[] = (soundscapesData || []).map((item: any) => ({
-          id: item.id,
-          journey_id: item.journey_id ? String(item.journey_id) : undefined,
-          title: item.title,
-          description: item.description,
-          file_url: item.file_url,
-          source_type: item.source_link ? 'youtube' : 'file',
-          source_link: item.source_link,
-          created_at: item.created_at,
-          chakra_tag: item.chakra_tag
-        }));
-        
-        setSoundscapes(transformedSoundscapes);
+        setSoundscapes(soundscapesData || []);
       } catch (error) {
         console.error('Error loading data:', error);
         toast.error('Failed to load data');
@@ -89,8 +81,8 @@ const SoundscapeManager: React.FC = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSourceTypeChange = (value: 'file' | 'youtube') => {
-    setSourceType(value);
+  const handleSourceTypeChange = (value: string) => {
+    setSourceType(value as SourceType);
     // Reset source-specific fields
     setFormData(prev => ({
       ...prev,
@@ -118,7 +110,7 @@ const SoundscapeManager: React.FC = () => {
 
   const handleEditSoundscape = (soundscape: JourneySoundscape) => {
     setSelectedSoundscape(soundscape);
-    setSourceType(soundscape.source_type);
+    setSourceType((soundscape.source_type || 'file') as SourceType);
     setFormData({
       title: soundscape.title || '',
       description: soundscape.description || '',
@@ -178,12 +170,16 @@ const SoundscapeManager: React.FC = () => {
     if (!validateForm()) return;
     
     try {
-      const soundscapeData = {
+      // Convert journey_id to number since that's what the database expects
+      const journeyId = parseInt(formData.journey_id, 10);
+      
+      // Prepare the data using the correct types from Supabase
+      const soundscapeData: Database['public']['Tables']['journey_soundscapes']['Insert'] = {
         title: formData.title,
         description: formData.description,
-        journey_id: formData.journey_id,
-        source_link: sourceType === 'file' ? undefined : formData.source_link,
-        file_url: sourceType === 'youtube' ? formData.source_link : formData.file_url,
+        journey_id: journeyId,
+        source_link: sourceType === 'youtube' ? formData.source_link : null,
+        file_url: sourceType === 'file' ? formData.file_url : formData.source_link,
         source_type: sourceType
       };
       
@@ -198,10 +194,7 @@ const SoundscapeManager: React.FC = () => {
         toast.success('Soundscape updated successfully');
       } else {
         // Create new soundscape
-        updatedSoundscape = await createJourneySoundscape({
-          ...soundscapeData,
-          journey_id: formData.journey_id
-        });
+        updatedSoundscape = await createJourneySoundscape(soundscapeData);
         if (updatedSoundscape) {
           setSoundscapes(prev => [updatedSoundscape!, ...prev]);
           toast.success('Soundscape created successfully');
@@ -251,7 +244,7 @@ const SoundscapeManager: React.FC = () => {
                     <div className="flex-grow">
                       <h3 className="font-medium">{soundscape.title}</h3>
                       <p className="text-sm text-gray-500 mb-1">
-                        {journeys.find(j => j.id.toString() === soundscape.journey_id)?.title || 'No journey assigned'}
+                        {journeys.find(j => j.id.toString() === soundscape.journey_id?.toString())?.title || 'No journey assigned'}
                       </p>
                       {soundscape.description && <p className="text-sm">{soundscape.description}</p>}
                     </div>
@@ -329,7 +322,7 @@ const SoundscapeManager: React.FC = () => {
                 <Label className="text-right">Source Type</Label>
                 <Tabs 
                   value={sourceType} 
-                  onValueChange={(value) => handleSourceTypeChange(value as 'file' | 'youtube')} 
+                  onValueChange={handleSourceTypeChange} 
                   className="col-span-3"
                 >
                   <TabsList className="grid w-full grid-cols-2">
