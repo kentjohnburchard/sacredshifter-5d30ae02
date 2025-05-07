@@ -1,3 +1,4 @@
+
 // Navigation config to manage which pages are active and should be displayed in navigation
 export const activePages = {
   home: true,
@@ -33,6 +34,7 @@ export const activePages = {
   sacredSpectrum: true,
   journeysDirectory: true,
   circle: true,
+  admin: true, // Added admin as a valid PageKey
 };
 
 // Type definition for page configuration
