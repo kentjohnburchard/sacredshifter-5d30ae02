@@ -2,37 +2,37 @@
 export const activePages = {
   home: true,
   dashboard: true,
-  sacredBlueprint: true,
-  frequencyLibrary: true,
-  trinityGateway: true,
-  heartCenter: true,
-  emotionEngine: true,
-  timeline: true,
-  musicGenerator: true,
-  mirrorPortal: true,
-  frequencyShift: true,
-  shiftPerception: true,
-  hermeticPrinciples: true,
-  soulScribe: true,
-  deityOracle: true,
-  astralAttunement: true,
+  sacredBlueprint: false,
+  frequencyLibrary: false,
+  trinityGateway: false,
+  heartCenter: false,
+  emotionEngine: false,
+  timeline: false,
+  musicGenerator: false,
+  mirrorPortal: false,
+  frequencyShift: false,
+  shiftPerception: false,
+  hermeticPrinciples: false,
+  soulScribe: false,
+  deityOracle: false,
+  astralAttunement: false,
   subscription: true,
   aboutFounder: true,
   contact: true,
   profile: true,
-  harmonicMap: true,
-  heartDashboard: true,
-  alignment: true,
-  energyCheck: true,
-  focus: true,
-  hermeticWisdom: true,
-  journeyTemplates: true,
+  harmonicMap: false,
+  heartDashboard: false,
+  alignment: false,
+  energyCheck: false,
+  focus: false,
+  hermeticWisdom: false,
+  journeyTemplates: false,
   journeys: true,
-  astrology: true,
+  astrology: false,
   siteMap: true,
-  sacredSpectrum: true, // Add Sacred Spectrum to active pages
-  journeysDirectory: true, // Add this new page
-  circle: true, // Make sure circle page is active
+  sacredSpectrum: true,
+  journeysDirectory: true,
+  circle: true,
 };
 
 // Type definition for page configuration
@@ -51,6 +51,48 @@ export const navItems = [
     key: "home" as PageKey,
     icon: "HomeIcon",
     label: "Home",
+  },
+  {
+    path: "/sacred-circle",
+    key: "circle" as PageKey,
+    icon: "Users",
+    label: "Sacred Circle",
+  },
+  {
+    path: "/journeys",
+    key: "journeys" as PageKey,
+    icon: "Map",
+    label: "Sacred Journeys",
+  },
+  {
+    path: "/sacred-spectrum",
+    key: "sacredSpectrum" as PageKey,
+    icon: "Sparkles",
+    label: "Sacred Spectrum",
+  },
+  {
+    path: "/about-founder",
+    key: "aboutFounder" as PageKey,
+    icon: "User2",
+    label: "About the Founder",
+  },
+  {
+    path: "/subscription",
+    key: "subscription" as PageKey,
+    icon: "CreditCard",
+    label: "Subscription",
+  },
+  {
+    path: "/contact",
+    key: "contact" as PageKey,
+    icon: "Mail",
+    label: "Contact",
+  },
+  {
+    path: "/admin",
+    key: "admin" as PageKey,
+    icon: "Settings",
+    label: "Admin",
   },
   {
     path: "/sacred-blueprint",
@@ -131,28 +173,10 @@ export const navItems = [
     label: "Astral Attunement™",
   },
   {
-    path: "/subscription",
-    key: "subscription" as PageKey,
-    icon: "User2",
-    label: "Subscription",
-  },
-  {
     path: "/trinity-gateway",
     key: "trinityGateway" as PageKey,
     icon: "Triangle",
     label: "Trinity Gateway™",
-  },
-  {
-    path: "/about-founder",
-    key: "aboutFounder" as PageKey,
-    icon: "User2",
-    label: "About the Founder",
-  },
-  {
-    path: "/contact",
-    key: "contact" as PageKey,
-    icon: "Mail",
-    label: "Contact",
   },
   {
     path: "/harmonic-map",
@@ -197,12 +221,6 @@ export const navItems = [
     label: "Journey Templates",
   },
   {
-    path: "/journeys",
-    key: "journeys" as PageKey,
-    icon: "Map",
-    label: "Journeys",
-  },
-  {
     path: "/astrology",
     key: "astrology" as PageKey,
     icon: "Star",
@@ -221,22 +239,10 @@ export const navItems = [
     label: "Site Map",
   },
   {
-    path: "/sacred-spectrum",
-    key: "sacredSpectrum" as PageKey,
-    icon: "BookOpen",
-    label: "Sacred Spectrum",
-  },
-  {
     path: "/journeys-directory",
     key: "journeysDirectory" as PageKey,
     icon: "Map",
     label: "Sacred Journeys",
-  },
-  {
-    path: "/circle",
-    key: "circle" as PageKey,
-    icon: "Users",
-    label: "Sacred Circle",
   },
 ];
 
@@ -245,6 +251,11 @@ export const getActiveNavItems = () => {
   // Ensure we don't have duplicate routes in the final navigation
   const uniqueKeys = new Set();
   return navItems.filter(item => {
+    // For admin route, only show in dev mode
+    if (item.key === "admin" && process.env.NODE_ENV !== 'development') {
+      return false;
+    }
+    
     // Check if the item is active AND has not been included yet
     const isActive = activePages[item.key];
     const isUnique = !uniqueKeys.has(item.path);

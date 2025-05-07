@@ -32,10 +32,9 @@ const JourneyAwareSpiralVisualizer: React.FC<JourneyAwareSpiralVisualizerProps> 
   // Get spiral parameters for current journey
   const spiralParams = useSpiralParams(effectiveJourneyId?.toString());
 
-  // Log visibility changes - remove dependency on logTimelineEvent
+  // Log visibility changes
   useEffect(() => {
     if (user?.id && effectiveJourneyId && isVisible !== undefined) {
-      // Replace logTimelineEvent with recordActivity
       recordActivity('spiral_toggle', { 
         enabled: isVisible,
         journeyId: effectiveJourneyId.toString()

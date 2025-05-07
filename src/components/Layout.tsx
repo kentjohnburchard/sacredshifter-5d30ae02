@@ -1,16 +1,14 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
 import Player from './Player';
 import GlobalWatermark from './GlobalWatermark';
 import { getThemeClasses } from '@/utils/pageUtils';
 import Sidebar from './Sidebar';
-import StarfieldBackground from './sacred-geometry/StarfieldBackground';
-import { SacredGeometryVisualizer } from './sacred-geometry';
 import { useTheme } from '@/context/ThemeContext';
 import ConsciousnessToggle from './ConsciousnessToggle';
-import SacredGridBackground from './visualization/SacredGridBackground';
+import JourneyAwareSpiralVisualizer from './visualizer/JourneyAwareSpiralVisualizer';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -42,7 +40,7 @@ const Layout: React.FC<LayoutProps> = ({
   const isAuthPage = pathname === "/auth";
   const { liftTheVeil } = useTheme();
   
-  useEffect(() => {
+  React.useEffect(() => {
     document.title = `${pageTitle} | Sacred Shifter`;
   }, [pageTitle]);
 
@@ -55,30 +53,16 @@ const Layout: React.FC<LayoutProps> = ({
     <div className={`relative flex min-h-screen w-full overflow-x-hidden ${consciousnessClass} ${className}`}>
       {/* Fixed position background elements with higher z-index than before */}
       <div className="fixed inset-0 w-full h-full z-0">
-        <SacredGridBackground 
-          intensity={liftTheVeil ? 0.5 : 0.4}
-          color={liftTheVeil ? '#FF70E9' : '#9b87f5'}
-          pulseSpeed={liftTheVeil ? 0.7 : 0.5}
+        {/* Use SpiralVisualizer as background */}
+        <JourneyAwareSpiralVisualizer 
+          showControls={false} 
+          containerId="backgroundSpiral"
+          className="opacity-30"
         />
       </div>
       
       {/* Overlay with increased opacity for better text readability */}
-      <div className="fixed inset-0 z-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70 pointer-events-none" />
-      
-      {/* Starfield with reduced opacity for better text contrast */}
-      <div className="fixed inset-0 z-0 opacity-30">
-        <StarfieldBackground density="medium" opacity={0.4} isStatic={true} />
-      </div>
-      
-      {/* Sacred Geometry with adjusted opacity */}
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
-        <SacredGeometryVisualizer
-          defaultShape="flower-of-life"
-          size="xl"
-          showControls={false}
-          isAudioReactive={false}
-        />
-      </div>
+      <div className="fixed inset-0 z-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80 pointer-events-none" />
       
       <ConsciousnessToggle />
 
