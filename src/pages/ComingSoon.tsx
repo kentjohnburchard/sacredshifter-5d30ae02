@@ -1,75 +1,77 @@
 
 import React from 'react';
-import Layout from '@/components/Layout';
-import { Link } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
-import { Button } from '@/components/ui/button';
-import SacredGridBackground from '@/components/visualization/SacredGridBackground';
-import { Card, CardContent } from '@/components/ui/card';
 
 const ComingSoon: React.FC = () => {
-  const { user } = useAuth();
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
-      {/* Enhanced Sacred Grid Background */}
-      <div className="absolute inset-0 z-0 opacity-80">
-        <SacredGridBackground 
-          intensity={0.8}
-          color={'#9b87f5'}
-          pulseSpeed={0.7}
-        />
+    <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-4 text-center bg-slate-900 text-white">
+      {/* Animated Cosmic Background */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Gradient Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900"></div>
+        
+        {/* Animated Stars */}
+        <div className="absolute inset-0 opacity-70">
+          <div className="absolute h-2 w-2 bg-white rounded-full top-1/4 left-1/4 animate-pulse"></div>
+          <div className="absolute h-1 w-1 bg-white rounded-full top-1/3 left-2/3 animate-pulse-subtle"></div>
+          <div className="absolute h-1.5 w-1.5 bg-white rounded-full top-2/3 left-1/3 animate-pulse"></div>
+          <div className="absolute h-1 w-1 bg-white rounded-full top-1/2 left-1/2 animate-pulse-subtle"></div>
+          <div className="absolute h-2 w-2 bg-white rounded-full top-3/4 left-3/4 animate-pulse"></div>
+        </div>
+        
+        {/* Sacred Geometry Circle */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-10">
+          <div className="w-[500px] h-[500px] border border-purple-400 rounded-full animate-pulse-subtle"></div>
+          <div className="absolute w-[400px] h-[400px] border border-indigo-400 rounded-full animate-pulse"></div>
+          <div className="absolute w-[300px] h-[300px] border border-purple-300 rounded-full animate-pulse-subtle"></div>
+          <div className="absolute w-[200px] h-[200px] border border-indigo-300 rounded-full animate-pulse"></div>
+        </div>
       </div>
-
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/60 via-transparent to-black/60 pointer-events-none" />
       
-      <div className="relative z-10 max-w-3xl w-full px-4">
-        <Card className="ethereal-card p-8 text-center">
-          <CardContent className="space-y-6">
-            <div className="text-center space-y-4">
-              <h1 className="text-4xl md:text-6xl font-bold text-glow-purple">
-                Sacred Shifter
-              </h1>
-              <p className="text-xl md:text-2xl text-glow-light">
-                Coming Soon
-              </p>
-              <p className="text-lg text-white/90 mt-4 max-w-lg mx-auto">
-                A sacred journey to elevate your consciousness through frequency, geometry and divine wisdom.
-              </p>
+      {/* Content Container with Glass Effect */}
+      <div className="relative z-10 max-w-lg mx-auto p-6 md:p-8 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 shadow-xl animate-fade-in">
+        {/* Sacred Shifter Logo/Symbol */}
+        <div className="mx-auto w-24 h-24 mb-6">
+          <div className="w-full h-full rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center animate-pulse-subtle">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-400 to-purple-300 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-white/90"></div>
             </div>
-            
-            <div className="space-y-2 pt-4">
-              <p className="text-purple-300">Be the first to experience Sacred Shifter</p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4">
-                <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-                  Join the Waiting List
-                </Button>
-                
-                <Button variant="outline" className="border-purple-500/30 hover:bg-purple-500/10">
-                  Learn More
-                </Button>
-              </div>
-            </div>
-            
-            {user && (
-              <div className="pt-6 border-t border-purple-500/20 mt-6">
-                <p className="text-sm text-purple-300 mb-3">Developer Preview Links</p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-center">
-                  <Link to="/home" className="text-sm py-2 px-3 rounded bg-purple-900/30 hover:bg-purple-900/50 transition">
-                    Home Preview
-                  </Link>
-                  <Link to="/circle" className="text-sm py-2 px-3 rounded bg-purple-900/30 hover:bg-purple-900/50 transition">
-                    Sacred Circle
-                  </Link>
-                  <Link to="/premium" className="text-sm py-2 px-3 rounded bg-purple-900/30 hover:bg-purple-900/50 transition">
-                    Ascended Path
-                  </Link>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+        
+        {/* Title */}
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-light tracking-wider mb-4 text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-100 to-indigo-200">
+          Sacred Shifter
+        </h1>
+        
+        {/* Subheading */}
+        <p className="text-base sm:text-lg md:text-xl text-purple-200/90 mb-8 max-w-md mx-auto">
+          We're tuning the frequencies behind the scenes
+        </p>
+        
+        {/* Sacred Symbol */}
+        <div className="my-8 relative flex justify-center">
+          <svg 
+            className="h-24 w-24 text-purple-300/80 animate-spin-slow"
+            viewBox="0 0 100 100"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="0.5" />
+            <circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" strokeWidth="0.5" />
+            <circle cx="50" cy="50" r="15" fill="none" stroke="currentColor" strokeWidth="0.5" />
+            <path 
+              d="M50 5 L50 95 M5 50 L95 50 M19.1 19.1 L80.9 80.9 M19.1 80.9 L80.9 19.1" 
+              stroke="currentColor" 
+              strokeWidth="0.5" 
+            />
+          </svg>
+        </div>
+      </div>
+      
+      {/* Footer */}
+      <div className="absolute bottom-4 sm:bottom-8 left-0 right-0 text-center">
+        <p className="text-xs sm:text-sm text-purple-300/60">
+          Made with love & light 🌟 — SacredShifter.com
+        </p>
       </div>
     </div>
   );

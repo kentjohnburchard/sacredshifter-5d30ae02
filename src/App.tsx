@@ -2,6 +2,7 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import NotFound from './pages/NotFound';
+import ComingSoon from './pages/ComingSoon';
 
 // =================================================
 // ROUTING LOCK - IMPORTANT!
@@ -15,18 +16,10 @@ import NotFound from './pages/NotFound';
 function App() {
   return (
     <Routes>
-      {/* Default placeholder route */}
+      {/* TEMP: ComingSoon placeholder — replace with IntroPage later */}
       <Route 
         path="/" 
-        element={
-          <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white p-4">
-            <div className="text-center">
-              <h1 className="text-3xl font-bold mb-4">Sacred Shifter</h1>
-              <p className="mb-2">Routing structure is being reset.</p>
-              <p>Routes will be added methodically after QA validation.</p>
-            </div>
-          </div>
-        } 
+        element={<ComingSoon />}
         qa-status="initial" 
       />
 
