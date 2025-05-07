@@ -5,6 +5,7 @@ import { createQueryClient } from './lib/queryClient';
 import { BrowserRouter as Router } from "react-router-dom";
 import { AuthProvider } from './context/AuthContext';
 import { JourneyProvider } from './context/JourneyContext';
+import { GlobalAudioPlayerProvider } from './context/GlobalAudioPlayerContext';
 import { CommunityProvider } from './contexts/CommunityContext';
 import { GuidanceProvider } from './context/GuidanceContext';
 import { VisualThemeProvider } from './context/VisualThemeContext';
