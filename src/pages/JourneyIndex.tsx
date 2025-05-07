@@ -6,7 +6,11 @@ import { Journey } from '@/types/journey';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Info } from 'lucide-react';
+import { getAllJourneys } from '@/utils/coreJourneyLoader';
+import { normalizeStringArray } from '@/utils/parsers';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { toast } from 'sonner';
 
 const JourneyIndex: React.FC = () => {
   const [journeys, setJourneys] = useState<Journey[]>([]);
@@ -17,8 +21,14 @@ const JourneyIndex: React.FC = () => {
     const loadJourneys = async () => {
       try {
         setLoading(true);
-        const data = await fetchJourneys();
-        setJourneys(data);
+        // First load journeys from the database
+        const dbJourneys = await fetchJourneys();
+        
+        // Then combine with journeys from core_content
+        const allJourneys = await getAllJourneys(dbJourneys);
+        
+        console.log(`Loaded ${allJourneys.length} total journeys (${dbJourneys.length} from DB, ${allJourneys.length - dbJourneys.length} from core_content)`);
+        setJourneys(allJourneys);
         setError(null);
       } catch (err) {
         console.error('Error loading journeys:', err);
@@ -45,15 +55,21 @@ const JourneyIndex: React.FC = () => {
             {error}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {journeys.length === 0 ? (
-              <div className="col-span-full text-center py-12 text-gray-400">
-                No journeys available at the moment.
-              </div>
-            ) : (
-              journeys.map(journey => (
+          <>
+            {journeys.length === 0 && (
+              <Alert className="mb-6 bg-amber-500/20 border border-amber-500/50">
+                <Info className="h-4 w-4" />
+                <AlertTitle>No journeys found</AlertTitle>
+                <AlertDescription>
+                  There are no journeys available at the moment. Check back later or contact an administrator.
+                </AlertDescription>
+              </Alert>
+            )}
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {journeys.map(journey => (
                 <Card 
-                  key={journey.id} 
+                  key={`${journey.id}-${journey.filename}`}
                   className="bg-black/50 backdrop-blur-md border-purple-500/30 hover:border-purple-500/70 transition-all"
                 >
                   <CardHeader>
@@ -66,12 +82,15 @@ const JourneyIndex: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-2 mb-2">
-                      {journey.tags.map((tag, i) => (
+                      {normalizeStringArray(journey.tags).map((tag, i) => (
                         <Badge key={i} variant="outline" className="bg-purple-900/50 text-purple-100 border-purple-500/50">
                           {tag.trim()}
                         </Badge>
                       ))}
                     </div>
+                    {journey.description && (
+                      <p className="text-sm text-gray-300 mt-2">{journey.description}</p>
+                    )}
                   </CardContent>
                   <CardFooter>
                     <Link 
@@ -82,22 +101,11 @@ const JourneyIndex: React.FC = () => {
                     </Link>
                   </CardFooter>
                 </Card>
-              ))
-            )}
-          </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
-      
-      {/* QA Checklist Data */}
-      <div 
-        data-qa-checklist="true" 
-        data-route-accessible="true" 
-        data-ui-elements-visible="true" 
-        data-console-errors="false"
-        data-responsiveness-tested="true"
-        data-mobile-compatibility="true"
-        className="hidden"
-      ></div>
     </Layout>
   );
 };

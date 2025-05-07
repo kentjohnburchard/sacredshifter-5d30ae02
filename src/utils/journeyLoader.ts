@@ -1,117 +1,99 @@
 
-import { extractFrequenciesFromText } from '@/utils/frequencyUtils';
-
-interface JourneyFrontmatter {
-  title?: string;
-  tags?: string[] | string;
-  veil?: boolean;
-  frequency?: number | number[] | string;
-  duration?: string;
-  description?: string;
-  [key: string]: any;
-}
+// Helper functions for loading and parsing journey content
 
 /**
- * Parses frontmatter from markdown content
+ * Parse frontmatter from journey content
+ * Extracts YAML frontmatter between --- markers
  */
-export function parseJourneyFrontmatter(content: string): JourneyFrontmatter {
-  const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---/;
-  const match = content.match(frontmatterRegex);
-  
-  if (!match || !match[1]) {
+export const parseJourneyFrontmatter = (content: string): Record<string, any> => {
+  try {
+    const frontmatterMatch = content.match(/^---\s*([\s\S]*?)\s*---/);
+    
+    if (frontmatterMatch && frontmatterMatch[1]) {
+      const frontmatter = frontmatterMatch[1];
+      const data: Record<string, any> = {};
+      
+      // Simple YAML-like parsing
+      frontmatter.split('\n').forEach(line => {
+        const match = line.match(/^([^:]+):\s*(.*)$/);
+        if (match) {
+          const [, key, value] = match;
+          
+          // Handle arrays (comma-separated values)
+          if (value.includes(',')) {
+            data[key.trim()] = value.split(',').map(v => v.trim());
+          } else {
+            data[key.trim()] = value.trim();
+          }
+        }
+      });
+      
+      return data;
+    }
+    
+    return {};
+  } catch (error) {
+    console.error('Error parsing frontmatter:', error);
     return {};
   }
-  
-  const frontmatter: JourneyFrontmatter = {};
-  const lines = match[1].split('\n');
-  
-  lines.forEach(line => {
-    const parts = line.split(':').map(part => part.trim());
-    if (parts.length >= 2) {
-      const key = parts[0];
-      const value = parts.slice(1).join(':').trim();
-      
-      // Handle array values (comma-separated)
-      if (value.includes(',')) {
-        frontmatter[key] = value.split(',').map(v => v.trim());
-      } 
-      // Handle boolean values
-      else if (value === 'true' || value === 'false') {
-        frontmatter[key] = value === 'true';
-      } 
-      // Handle numeric values
-      else if (!isNaN(Number(value))) {
-        frontmatter[key] = Number(value);
-      } 
-      // Handle string values
-      else {
-        frontmatter[key] = value;
-      }
-    }
-  });
-  
-  return frontmatter;
-}
+};
 
 /**
- * Removes frontmatter from markdown content
+ * Remove frontmatter from content
  */
-export function removeFrontmatter(content: string): string {
-  return content.replace(/^---\s*\n[\s\S]*?\n---\s*\n/, '');
-}
+export const removeFrontmatter = (content: string): string => {
+  return content.replace(/^---\s*[\s\S]*?\s*---/, '').trim();
+};
 
 /**
- * Parse journey content to extract metadata
+ * Extract frequency values from a string
  */
-export function parseJourneyContent(content: string): {
-  title?: string;
-  tags?: string[];
+export const extractFrequencyValue = (frequencyString?: string): string | null => {
+  if (!frequencyString) return null;
+  
+  // Look for patterns like "432Hz" or "432 Hz"
+  const match = frequencyString.match(/(\d+(?:\.\d+)?)\s*(?:hz|Hz)/i);
+  if (match) {
+    return match[1];
+  }
+  
+  return null;
+};
+
+/**
+ * Parse the full journey content to extract various components
+ */
+export const parseJourneyContent = (content: string): {
   frequencies?: string;
-} {
-  const result = {
-    title: undefined,
-    tags: undefined,
-    frequencies: undefined
-  } as {
-    title?: string;
-    tags?: string[];
-    frequencies?: string;
-  };
+  description?: string;
+  chakra?: string;
+} => {
+  const result: { frequencies?: string; description?: string; chakra?: string } = {};
   
-  // Extract title from first heading
-  const titleMatch = content.match(/# (.*)/);
-  if (titleMatch) {
-    result.title = titleMatch[1].trim();
+  // Try to extract frequencies from the content
+  const frequencyMatch = content.match(/frequencies?:?\s*([^.\n]+)/i);
+  if (frequencyMatch) {
+    result.frequencies = frequencyMatch[1].trim();
   }
   
-  // Extract frequencies from content
-  const frequencies = extractFrequenciesFromText(content);
-  if (frequencies.length > 0) {
-    result.frequencies = frequencies.join(', ');
+  // Try to extract a description from the first paragraph
+  const paragraphs = removeFrontmatter(content).split('\n\n');
+  if (paragraphs[0] && !paragraphs[0].startsWith('#')) {
+    result.description = paragraphs[0].trim();
   }
   
-  // Extract tags from content (this is a simplified implementation)
-  const tagMatches = content.match(/#([a-zA-Z0-9]+)/g);
-  if (tagMatches) {
-    result.tags = tagMatches.map(tag => tag.replace('#', ''));
+  // Try to identify chakra references
+  const chakraMatches = content.match(/\b(root|sacral|solar plexus|heart|throat|third eye|crown)\b/i);
+  if (chakraMatches) {
+    result.chakra = chakraMatches[1].trim();
   }
   
   return result;
-}
+};
 
 /**
- * Extract frequency value from a string
+ * Convert filename to URL slug
  */
-export function extractFrequencyValue(frequencies: string | undefined): string {
-  if (!frequencies) return '';
-  // Extract the first frequency if multiple are provided
-  return frequencies.toString().split(',')[0].trim();
-}
-
-/**
- * Convert a filename to a URL slug
- */
-export function fileNameToSlug(filename: string): string {
-  if (!filename) return '';
-  return filename.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-}
+export const fileNameToSlug = (fileName: string): string => {
+  return fileName.replace(/\.md$/, '');
+};
