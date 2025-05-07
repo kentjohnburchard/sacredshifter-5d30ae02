@@ -1,54 +1,33 @@
-
-import { ChakraTag } from '@/types/chakras';
-
 export interface Journey {
-  id: string;
+  id?: string;
+  created_at?: string;
   title: string;
-  filename: string;
-  audio_filename?: string;
-  veil_locked?: boolean;
-  tags?: string;
-  intent?: string;
-  sound_frequencies?: string;
-  script?: string;
-  notes?: string;
+  slug: string;
+  description?: string;
+  content?: string;
+  user_id?: string;
+  is_published?: boolean;
+  tags?: string[];
+  frequency?: string;
   duration?: string;
-  assigned_songs?: string;
-  recommended_users?: string;
-  visual_effects?: string;
-  strobe_patterns?: string;
-  env_lighting?: string;
-  env_temperature?: string;
-  env_incense?: string;
-  env_posture?: string;
-  env_tools?: string;
-  source?: 'core' | 'database';
-  isEditable?: boolean;
-  isCoreContent?: boolean;
-}
-
-export interface JourneyAwareComponentProps {
-  journeyId?: string;
-  autoSync?: boolean; // Whether to auto-sync with JourneyContext
-}
-
-export interface TimelineEntry {
-  component: string;
-  action: string;
-  journeyId: string;
-  details?: Record<string, any>;
-  timestamp?: Date;
+  difficulty?: string;
+  category?: string;
+  image_url?: string;
+  is_featured?: boolean;
+  needs_moderation?: boolean;
+  is_approved?: boolean;
+  frontmatter?: Record<string, any>;
 }
 
 export type JourneyTimelineEvent = 
+  | 'journey_start'
+  | 'journey_complete'
+  | 'journey_progress'
   | 'spiral_toggle'
   | 'spiral_param_change'
   | 'soundscape_play'
   | 'soundscape_pause'
-  | 'soundscape_volume'
-  | 'journey_start' 
-  | 'journey_progress'
-  | 'journey_complete';
+  | 'soundscape_volume';
 
 export interface JourneyTimelineItem {
   id: string;
@@ -56,7 +35,7 @@ export interface JourneyTimelineItem {
   title: string;
   tag: string;
   notes?: string;
-  chakra_tag?: ChakraTag;
+  chakra_tag?: string;
   created_at: string;
   journey_id?: string;
   component?: string;

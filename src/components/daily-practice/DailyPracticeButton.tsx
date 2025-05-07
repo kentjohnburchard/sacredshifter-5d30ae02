@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useDailyPractice } from '@/hooks/useDailyPractice';
+import { useDailyPractice } from '@/context/DailyPracticeContext';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import DailyPracticeFlow from './DailyPracticeFlow';
 import { Sun, Check } from 'lucide-react';
 import { format, isToday, parseISO } from 'date-fns';
@@ -11,19 +12,20 @@ interface DailyPracticeButtonProps {
 }
 
 const DailyPracticeButton: React.FC<DailyPracticeButtonProps> = ({ className }) => {
-  const { 
-    isCompleted, 
-    isOpen, 
-    openPractice, 
-    closePractice, 
-    handlePracticeComplete,
-    completionDate
-  } = useDailyPractice();
-
-  const formattedDate = completionDate ? 
-    format(parseISO(completionDate), 'MMM d, yyyy') : '';
+  const { dailyPractice, currentStep, completeStep } = useDailyPractice();
+  const [isOpen, setIsOpen] = useState(false);
   
+  // Mock completion tracking for now
+  const completionDate = localStorage.getItem('daily-practice-date');
   const completedToday = completionDate && isToday(parseISO(completionDate));
+  
+  const openPractice = () => setIsOpen(true);
+  const closePractice = () => setIsOpen(false);
+  
+  const handleComplete = () => {
+    localStorage.setItem('daily-practice-date', new Date().toISOString().split('T')[0]);
+    closePractice();
+  };
 
   return (
     <>
@@ -43,13 +45,11 @@ const DailyPracticeButton: React.FC<DailyPracticeButtonProps> = ({ className }) 
         </Button>
       )}
       
-      <DailyPracticeFlow 
-        isOpen={isOpen}
-        onOpenChange={open => {
-          if (!open) closePractice();
-        }}
-        onComplete={handlePracticeComplete}
-      />
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DailyPracticeFlow />
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

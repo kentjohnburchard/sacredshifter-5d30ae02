@@ -1,37 +1,38 @@
 
-import React, { useEffect } from 'react';
-import { useDailyPractice } from '@/hooks/useDailyPractice';
+import React, { useEffect, useState } from 'react';
+import { useDailyPractice } from '@/context/DailyPracticeContext';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import DailyPracticeFlow from './DailyPracticeFlow';
 
 const DailyPracticeAutoLauncher: React.FC = () => {
-  const { 
-    shouldShowPractice, 
-    isOpen, 
-    openPractice, 
-    closePractice, 
-    handlePracticeComplete
-  } = useDailyPractice();
+  const [isOpen, setIsOpen] = useState(false);
+  
+  // Check if practice has already been completed today
+  const shouldShowPractice = !localStorage.getItem('daily-practice-date')?.includes(new Date().toISOString().split('T')[0]);
   
   // Auto-launch the practice if it hasn't been completed today
   useEffect(() => {
     if (shouldShowPractice) {
       // Add a slight delay to allow the page to load fully
       const timer = setTimeout(() => {
-        openPractice();
+        setIsOpen(true);
       }, 3000);
       
       return () => clearTimeout(timer);
     }
-  }, [shouldShowPractice, openPractice]);
+  }, [shouldShowPractice]);
+
+  const handleComplete = () => {
+    localStorage.setItem('daily-practice-date', new Date().toISOString().split('T')[0]);
+    setIsOpen(false);
+  };
 
   return (
-    <DailyPracticeFlow 
-      isOpen={isOpen}
-      onOpenChange={open => {
-        if (!open) closePractice();
-      }}
-      onComplete={handlePracticeComplete}
-    />
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent className="sm:max-w-md">
+        <DailyPracticeFlow />
+      </DialogContent>
+    </Dialog>
   );
 };
 

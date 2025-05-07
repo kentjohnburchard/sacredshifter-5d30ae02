@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -44,13 +45,15 @@ const DailyPracticeFlow: React.FC = () => {
       await completeStep();
       
       // Record the completion event in the timeline
-      await recordJourneyEvent(
-        user.id,
-        'daily_practice_step_complete',
-        `Completed Step ${currentStep + 1} of Daily Practice`,
-        'daily_practice',
-        { step: currentStep + 1, totalSteps: dailyPractice.steps.length }
-      );
+      if (user.id) {
+        await recordJourneyEvent(
+          user.id,
+          'journey_progress',
+          `Completed Step ${currentStep + 1} of Daily Practice`,
+          'daily_practice',
+          { step: currentStep + 1, totalSteps: dailyPractice.steps.length }
+        );
+      }
 
       if (currentStep < dailyPractice.steps.length - 1) {
         toast({

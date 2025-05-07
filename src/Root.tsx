@@ -8,6 +8,8 @@ import { JourneyProvider } from './context/JourneyContext';
 import { CommunityProvider } from './contexts/CommunityContext';
 import { GuidanceProvider } from './context/GuidanceContext';
 import { VisualThemeProvider } from './context/VisualThemeContext';
+import { DailyPracticeProvider } from './context/DailyPracticeContext';
+import { ModalProvider } from './context/ModalContext';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "sonner";
 import { ThemeProvider } from '@/components/ThemeProvider';
@@ -28,11 +30,15 @@ function Root() {
               <CommunityProvider>
                 <GuidanceProvider>
                   <VisualThemeProvider>
-                    <App />
-                    <PromptManager />
-                    <GuidanceEngine />
-                    <SonnerToaster position="top-right" richColors />
-                    <Toaster />
+                    <DailyPracticeProvider>
+                      <ModalProvider>
+                        <App />
+                        <PromptManager />
+                        <GuidanceEngine />
+                        <SonnerToaster position="top-right" richColors />
+                        <Toaster />
+                      </ModalProvider>
+                    </DailyPracticeProvider>
                   </VisualThemeProvider>
                 </GuidanceProvider>
               </CommunityProvider>
