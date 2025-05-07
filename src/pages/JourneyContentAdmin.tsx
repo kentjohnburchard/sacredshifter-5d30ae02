@@ -184,7 +184,7 @@ const JourneyContentAdmin: React.FC = () => {
       const generatedContent = generateMarkdownContent();
       
       const journeyData = {
-        id: parseInt(selectedJourney),
+        id: selectedJourney, // Already a string from selectedJourney state
         title: contentForm.title,
         tags: contentForm.tags,
         veil_locked: contentForm.veilLocked,

@@ -1,4 +1,3 @@
-
 import { Journey } from '@/types/journey';
 
 interface JourneyFrontmatter {
