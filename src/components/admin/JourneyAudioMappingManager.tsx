@@ -19,7 +19,7 @@ import {
 import { Journey } from '@/types/journey';
 
 interface AudioMapping {
-  journey_id: number;
+  journey_id: string; // Changed from number to string
   filename: string;
   frequency: string | null;
   audio_filename: string | null;
@@ -28,13 +28,13 @@ interface AudioMapping {
 
 const JourneyAudioMappingManager: React.FC = () => {
   const [journeys, setJourneys] = useState<Journey[]>([]);
-  const [mappings, setMappings] = useState<Record<number, AudioMapping>>({});
+  const [mappings, setMappings] = useState<Record<string, AudioMapping>>({}); // Changed from number to string key
   const [availableAudioFiles, setAvailableAudioFiles] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loadingJourneys, setLoadingJourneys] = useState(true);
   const [loadingAudio, setLoadingAudio] = useState(true);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
-  const [playingId, setPlayingId] = useState<number | null>(null);
+  const [playingId, setPlayingId] = useState<string | null>(null); // Changed from number to string
   
   // Load journeys and their audio information
   useEffect(() => {
@@ -51,8 +51,9 @@ const JourneyAudioMappingManager: React.FC = () => {
         }
         
         if (data) {
+          // Convert all journey IDs to strings
           const journeysWithRequiredFields = data.map(journey => ({
-            id: journey.id,
+            id: String(journey.id), // Explicitly convert ID to string
             title: journey.title,
             filename: journey.filename,
             audio_filename: journey.audio_filename,
@@ -62,7 +63,7 @@ const JourneyAudioMappingManager: React.FC = () => {
           setJourneys(journeysWithRequiredFields as Journey[]);
           
           // Create mappings object for journeys
-          const mappingsRecord: Record<number, AudioMapping> = {};
+          const mappingsRecord: Record<string, AudioMapping> = {};
           
           journeysWithRequiredFields.forEach(journey => {
             const frequency = extractFrequencyFromContent(journey.title, journey.filename);
@@ -103,7 +104,7 @@ const JourneyAudioMappingManager: React.FC = () => {
   
   // Update mapping and save to database
   const handleUpdateMapping = async (
-    journeyId: number,
+    journeyId: string, // Changed from number to string
     updates: Partial<Pick<AudioMapping, 'audio_filename' | 'is_enabled'>>
   ) => {
     try {
@@ -118,8 +119,9 @@ const JourneyAudioMappingManager: React.FC = () => {
       }));
       
       // Save to database - only update audio_filename field in journeys table
+      // Convert journeyId to number for database operation
       const result = await updateJourneyAudio(
-        journeyId,
+        parseInt(journeyId), // Convert string ID to number for database
         updates.audio_filename !== undefined ? updates.audio_filename : mappings[journeyId].audio_filename
       );
       
@@ -133,7 +135,7 @@ const JourneyAudioMappingManager: React.FC = () => {
   };
   
   // Find suggested audio files for a journey
-  const findSuggestions = async (journeyId: number) => {
+  const findSuggestions = async (journeyId: string) => { // Changed from number to string
     const journey = journeys.find(j => j.id === journeyId);
     if (!journey) return;
     
@@ -154,7 +156,7 @@ const JourneyAudioMappingManager: React.FC = () => {
   };
   
   // Handle audio playback
-  const handlePlayPreview = (journeyId: number, audioFilename: string | null) => {
+  const handlePlayPreview = (journeyId: string, audioFilename: string | null) => { // Changed from number to string
     if (!audioFilename) {
       toast.error('No audio file selected');
       return;
