@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useCallback, ReactNode } from 'react';
 import { PlayerInfo, VisualRegistration, GlobalAudioPlayerContextType } from '@/types/audioPlayer';
 import { useAudioSetup } from '@/hooks/useAudioSetup';
@@ -144,6 +143,7 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
         isPlaying,
         currentTime,
         duration,
+        volume, // Expose the volume state
         playAudio,
         togglePlayPause,
         seekTo,

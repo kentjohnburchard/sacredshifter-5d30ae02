@@ -25,6 +25,7 @@ export interface GlobalAudioPlayerContextType {
   registerPlayerVisuals: (registration: VisualRegistration) => (() => void) | undefined;
   setVolume: (volume: number) => void;
   getVolume: () => number;
+  volume: number; // Add the missing volume property
   currentFrequency: number | null;
   activeFrequencies: number[];
   activePrimeNumbers: number[];
