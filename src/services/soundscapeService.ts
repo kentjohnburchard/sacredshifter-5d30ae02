@@ -1,18 +1,14 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { Database } from '@/integrations/supabase/types';
 
-// Type definition for JourneySoundscape
-export interface JourneySoundscape {
-  id?: string;
-  journey_id?: string;
-  title?: string;
-  description?: string;
-  file_url?: string;
-  source_link?: string;
-  source_type?: 'file' | 'youtube';
-  created_at?: string;
-  chakra_tag?: string;
-}
+// Type definitions using Supabase-generated types
+type JourneySoundscapeRow = Database['public']['Tables']['journey_soundscapes']['Row'];
+type JourneySoundscapeInsert = Database['public']['Tables']['journey_soundscapes']['Insert'];
+type JourneySoundscapeUpdate = Database['public']['Tables']['journey_soundscapes']['Update'];
+
+// Export the main type for use in components
+export type JourneySoundscape = JourneySoundscapeRow;
 
 export const fetchJourneySoundscape = async (journeySlug: string) => {
   try {
@@ -50,8 +46,12 @@ export const fetchJourneySoundscape = async (journeySlug: string) => {
         description: 'Sacred frequency audio',
         file_url: `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${journeyData.audio_filename}`,
         source_link: null,
-        created_at: new Date().toISOString()
-      };
+        source_type: 'file',
+        created_at: new Date().toISOString(),
+        chakra_tag: null,
+        journey_id: null,
+        updated_at: null
+      } as JourneySoundscapeRow;
     }
     
     // If no soundscape or audio_filename found, return null
@@ -63,8 +63,8 @@ export const fetchJourneySoundscape = async (journeySlug: string) => {
   }
 };
 
-// New functions needed by SoundscapeManager
-export const createJourneySoundscape = async (soundscape: Partial<JourneySoundscape>): Promise<JourneySoundscape | null> => {
+// Create a new journey soundscape
+export const createJourneySoundscape = async (soundscape: JourneySoundscapeInsert): Promise<JourneySoundscapeRow | null> => {
   try {
     const { data, error } = await supabase
       .from('journey_soundscapes')
@@ -84,7 +84,8 @@ export const createJourneySoundscape = async (soundscape: Partial<JourneySoundsc
   }
 };
 
-export const updateJourneySoundscape = async (id: string, updates: Partial<JourneySoundscape>): Promise<JourneySoundscape> => {
+// Update an existing journey soundscape
+export const updateJourneySoundscape = async (id: string, updates: JourneySoundscapeUpdate): Promise<JourneySoundscapeRow> => {
   try {
     const { data, error } = await supabase
       .from('journey_soundscapes')
@@ -105,6 +106,7 @@ export const updateJourneySoundscape = async (id: string, updates: Partial<Journ
   }
 };
 
+// Delete a journey soundscape
 export const deleteJourneySoundscape = async (id: string): Promise<void> => {
   try {
     const { error } = await supabase
@@ -122,6 +124,7 @@ export const deleteJourneySoundscape = async (id: string): Promise<void> => {
   }
 };
 
+// Validate YouTube URL format
 export const validateYoutubeUrl = (url: string): boolean => {
   // Simple validation for YouTube URLs
   const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
