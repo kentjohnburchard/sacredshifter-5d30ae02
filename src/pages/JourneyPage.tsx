@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -46,7 +47,7 @@ const loadCoreJourneyContent = async (slug: string): Promise<CoreJourneyLoaderRe
       const parsedContent = parseJourneyContent(content);
       
       // Ensure tags is an array
-      const tags = parsedContent.tags || [];
+      const tags = normalizeStringArray(frontmatter.tags || []);
       
       const journey: Journey = {
         id: "temp-0", // Use string ID to match the updated Journey type
@@ -54,7 +55,7 @@ const loadCoreJourneyContent = async (slug: string): Promise<CoreJourneyLoaderRe
         title: frontmatter.title || filename,
         veil_locked: frontmatter.veil || false,
         sound_frequencies: frontmatter.frequency?.toString() || parsedContent.frequencies || '',
-        tags: tags // Ensure tags is properly typed as an array
+        tags: tags
       };
       
       return { content, journey };
@@ -114,6 +115,12 @@ const JourneyPage: React.FC = () => {
         
         // Determine if there's audio content based on metadata
         setHasAudioContent(!!journeyData.sound_frequencies);
+        
+        // Ensure journeyData.id is a string
+        if (journeyData && journeyData.id) {
+          journeyData.id = String(journeyData.id);
+        }
+        
         setJourney(journeyData);
       } catch (error) {
         console.error('Error loading journey:', error);
@@ -143,7 +150,7 @@ const JourneyPage: React.FC = () => {
       
       const formattedJourney: Journey = {
         ...journey,
-        id: journey.id?.toString() || "",
+        id: journey.id || "", // Ensure it's a non-empty string
         tags: journeyTags
       };
       
@@ -160,7 +167,7 @@ const JourneyPage: React.FC = () => {
   };
   
   // Check if the currently loaded journey matches the active journey
-  const isCurrentJourneyActive = isJourneyActive && activeJourney?.id === journey?.id?.toString();
+  const isCurrentJourneyActive = isJourneyActive && activeJourney?.id === journey?.id;
 
   // Extract tags from content if available
   const extractTagsFromContent = () => {
@@ -192,7 +199,7 @@ const JourneyPage: React.FC = () => {
               <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl overflow-hidden">
                 <div className="h-64 relative">
                   <JourneyAwareSpiralVisualizer 
-                    journeyId={journey?.id?.toString()}
+                    journeyId={journey?.id}
                     autoSync={false}
                     showControls={true}
                     containerId={`journeySpiral-${slug}`}
@@ -243,7 +250,7 @@ const JourneyPage: React.FC = () => {
                   <CardContent className="p-4">
                     {slug && (
                       <JourneyAwareSoundscapePlayer 
-                        journeyId={journey?.id?.toString()} 
+                        journeyId={journey?.id} 
                         autoSync={false}
                         autoplay={false} 
                       />
@@ -257,7 +264,7 @@ const JourneyPage: React.FC = () => {
                 <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl">
                   <CardContent className="p-4">
                     <JourneyTimelineView 
-                      journeyId={journey?.id?.toString()}
+                      journeyId={journey?.id}
                       autoSync={false}
                       limit={5}
                     />

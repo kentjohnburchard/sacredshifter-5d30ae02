@@ -1,22 +1,10 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { ChakraTag } from '@/types/chakras';
+import { Journey as JourneyType } from '@/types/journey';
 
-// Journey interface
-export interface Journey {
-  id: string;
-  filename?: string;
-  title: string;
-  tags?: string[];
-  content?: string;
-  veil_locked?: boolean;
-  sound_frequencies?: string;
-  description?: string;
-  intent?: string;
-  duration?: string;
-  chakra?: string;
-  chakra_tag?: ChakraTag;
-}
+// Re-export the Journey type from types/journey
+export type { Journey } from '@/types/journey';
 
 // Lightbearer Code interface
 export interface LightbearerCode {
@@ -46,9 +34,9 @@ export interface JourneyContextType {
   setCurrentPath?: (path: string) => void;
   
   // Journey management
-  activeJourney?: Journey | null;
+  activeJourney?: JourneyType | null;
   isJourneyActive: boolean;
-  startJourney: (journey: Journey) => void;
+  startJourney: (journey: JourneyType) => void;
   completeJourney: () => void;
   resetJourney: () => void;
   
@@ -93,7 +81,7 @@ interface JourneyProviderProps {
 
 export const JourneyProvider: React.FC<JourneyProviderProps> = ({ children }) => {
   const [currentPath, setCurrentPath] = useState('/');
-  const [activeJourney, setActiveJourney] = useState<Journey | null>(null);
+  const [activeJourney, setActiveJourney] = useState<JourneyType | null>(null);
   const [activePrompts, setActivePrompts] = useState<JourneyPrompt[]>([]);
   const [currentLightbearerCode, setCurrentLightbearerCode] = useState<LightbearerCode | null>(null);
 
@@ -101,7 +89,7 @@ export const JourneyProvider: React.FC<JourneyProviderProps> = ({ children }) =>
   const isJourneyActive = !!activeJourney;
 
   // Start a new journey
-  const startJourney = (journey: Journey) => {
+  const startJourney = (journey: JourneyType) => {
     console.log('Starting journey:', journey);
     setActiveJourney(journey);
     // Additional logic for journey start can be added here

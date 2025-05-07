@@ -1,3 +1,4 @@
+
 import { Journey } from '@/types/journey';
 import { normalizeStringArray } from '@/utils/parsers';
 
