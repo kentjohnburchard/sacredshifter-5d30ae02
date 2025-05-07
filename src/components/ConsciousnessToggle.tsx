@@ -1,33 +1,32 @@
 
-import React from "react";
-import { useTheme } from "@/context/ThemeContext";
-import { ToggleLeft, ToggleRight } from "lucide-react";
+import React from 'react';
+import { useTheme } from '@/context/ThemeContext';
+import { Button } from '@/components/ui/button';
+import { Sparkles, Moon } from 'lucide-react';
 
 const ConsciousnessToggle: React.FC = () => {
-  const { liftTheVeil, toggleConsciousnessMode } = useTheme();
-
-  // Minimal, always-correct toggle button: top-right, large
+  const { liftTheVeil, toggleVeil } = useTheme();
+  
   return (
-    <>
-      <button
-        onClick={toggleConsciousnessMode}
-        className="fixed top-4 right-4 z-[1000] bg-gray-800/80 hover:bg-pink-500/80 transition-colors rounded-full shadow-lg p-3 flex items-center justify-center"
-        aria-label="Toggle Consciousness Mode"
-        data-testid="consciousness-toggle"
+    <div className="fixed top-4 left-4 z-50">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={toggleVeil}
+        className={`
+          p-2 rounded-full 
+          ${liftTheVeil 
+            ? 'bg-pink-900/30 border-pink-400/30 text-pink-200 hover:bg-pink-800/40' 
+            : 'bg-purple-900/30 border-purple-400/30 text-purple-200 hover:bg-purple-800/40'}
+        `}
       >
         {liftTheVeil ? (
-          <ToggleRight className="h-8 w-8 text-pink-400" />
+          <Moon className="h-4 w-4" />
         ) : (
-          <ToggleLeft className="h-8 w-8 text-purple-300" />
+          <Sparkles className="h-4 w-4" />
         )}
-      </button>
-      {/* Small mode indicator below */}
-      <div className="fixed top-20 right-4 z-[1000] bg-black/80 text-white text-xs px-2 py-1 rounded">
-        Mode: <span className={liftTheVeil ? 'text-pink-400' : 'text-purple-400'}>
-          {liftTheVeil ? 'Veil Lifted' : 'Standard'}
-        </span>
-      </div>
-    </>
+      </Button>
+    </div>
   );
 };
 

@@ -1,105 +1,45 @@
 
-import React, { useEffect } from "react";
-import { LogOut, CreditCard, User, LayoutDashboard } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { toast } from "sonner";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useTheme } from '@/context/ThemeContext';
+import { Button } from '@/components/ui/button';
+import { Home } from 'lucide-react';
 
-const Header: React.FC = () => {
-  const { user, signOut } = useAuth();
-  
-  useEffect(() => {
-    console.log("Header component: User authenticated?", !!user, user?.email);
-  }, [user]);
-  
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      toast.success("Signed out successfully");
-    } catch (error) {
-      toast.error("Error signing out");
-    }
-  };
+interface HeaderProps {
+  title?: string;
+  showHomeButton?: boolean;
+}
+
+const Header: React.FC<HeaderProps> = ({ 
+  title = 'Sacred Shifter',
+  showHomeButton = true 
+}) => {
+  const navigate = useNavigate();
+  const { liftTheVeil } = useTheme();
   
   return (
-    <header className="w-full py-3 px-4 sm:px-6 flex items-center justify-between animate-fade-in bg-white/80 backdrop-blur-sm shadow-sm dark:bg-gray-900/80 fixed top-0 z-50">
-      <div className="flex items-center">
-        <Link to="/" className="flex items-center">
-          <img 
-            src="/lovable-uploads/6dafef18-8a06-46e1-bc1b-2325f13a67f7.png" 
-            alt="Sacred Shifter Logo" 
-            className="h-28 sm:h-32 animate-pulse-subtle transition-all hover:scale-105"
-          />
-        </Link>
-      </div>
-      
-      <div className="flex items-center">
-        {user ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                <Avatar>
-                  <AvatarImage src={user.user_metadata?.avatar_url || ""} alt={user.email || "User"} />
-                  <AvatarFallback>
-                    {user.email?.charAt(0).toUpperCase() || "U"}
-                  </AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 bg-white dark:bg-gray-900" align="end" forceMount>
-              <DropdownMenuLabel>
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">
-                    {user.user_metadata?.full_name || "My Account"}
-                  </p>
-                  <p className="text-xs leading-none text-muted-foreground truncate">
-                    {user.email}
-                  </p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Link to="/dashboard" className="flex items-center w-full">
-                  <LayoutDashboard className="mr-2 h-4 w-4" />
-                  <span>Dashboard</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link to="/profile" className="flex items-center w-full">
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link to="/subscription" className="flex items-center w-full">
-                  <CreditCard className="mr-2 h-4 w-4" />
-                  <span>Subscription</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleSignOut}>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <Link to="/auth">
-            <Button variant="outline" size="sm" className="bg-[#9b87f5]/5 border-[#9b87f5]/10 hover:bg-[#9b87f5]/10 text-[#9b87f5]">
-              Sign In
+    <header className={`
+      border-b py-2 px-4
+      ${liftTheVeil 
+        ? 'bg-black/60 border-pink-500/20' 
+        : 'bg-black/60 border-purple-500/20'}
+      backdrop-blur-md
+    `}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          {showHomeButton && (
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => navigate('/')}
+              className="text-white hover:bg-white/10"
+            >
+              <Home className="h-4 w-4" />
             </Button>
-          </Link>
-        )}
+          )}
+          
+          <h1 className="text-lg font-semibold text-white">{title}</h1>
+        </div>
       </div>
     </header>
   );

@@ -1,78 +1,30 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useTheme } from '@/context/ThemeContext';
+import Layout from '../Layout';
 
 interface PageLayoutProps {
   children: React.ReactNode;
   title?: string;
-  subtitle?: string;
-  showBackButton?: boolean;
+  showSidebar?: boolean;
+  showPlayer?: boolean;
   className?: string;
 }
 
 export const PageLayout: React.FC<PageLayoutProps> = ({
   children,
-  title,
-  subtitle,
-  showBackButton = true,
+  title = 'Sacred Shifter',
+  showSidebar = true,
+  showPlayer = true,
   className = '',
 }) => {
-  const navigate = useNavigate();
-  const { liftTheVeil } = useTheme();
-  
-  const handleBack = () => {
-    navigate(-1);
-  };
-  
-  // Determine consciousness mode class
-  const consciousnessClass = liftTheVeil ? 'veil-mode' : 'standard-mode';
-  
   return (
-    <div className={`min-h-screen w-full relative ${consciousnessClass} ${className}`}>
-      {/* Background elements */}
-      <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900/60 to-black/60"></div>
-      </div>
-      
-      <header className="bg-black/60 backdrop-blur-sm shadow-md">
-        <div className="container mx-auto py-4 px-4">
-          <div className="flex items-center gap-4">
-            {showBackButton && (
-              <Button 
-                onClick={handleBack}
-                variant="ghost" 
-                size="sm" 
-                className="text-white hover:bg-white/10 focus:ring-2 focus:ring-white/30"
-              >
-                <ChevronLeft className="mr-1 h-4 w-4" />
-                Back
-              </Button>
-            )}
-            
-            {title && (
-              <div>
-                <h1 className="text-2xl font-bold tracking-tight text-white">{title}</h1>
-                {subtitle && (
-                  <p className="text-sm text-gray-200">{subtitle}</p>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
-      
-      <main className="pb-16 overflow-x-hidden relative z-10">
-        {children}
-      </main>
-      
-      <footer className="bg-black/60 backdrop-blur-sm py-4 mt-auto shadow-inner">
-        <div className="container mx-auto px-4 text-center text-sm text-gray-300">
-          <p>© {new Date().getFullYear()} Sacred Sound Journeys</p>
-        </div>
-      </footer>
-    </div>
+    <Layout
+      pageTitle={title}
+      showNavbar={showSidebar}
+      showPlayer={showPlayer}
+      className={className}
+    >
+      {children}
+    </Layout>
   );
 };

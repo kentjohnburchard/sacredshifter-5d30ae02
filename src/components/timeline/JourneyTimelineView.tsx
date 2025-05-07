@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
+import { fetchJourneyTimeline } from '@/services/timelineService';
 import { JourneyTimelineItem } from '@/types/journey';
-import { useAuth } from '@/context/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { CalendarDays, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Plus, ChevronDown, ChevronUp } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 
 interface JourneyTimelineViewProps {
   journeyId?: string;
@@ -11,130 +12,98 @@ interface JourneyTimelineViewProps {
   limit?: number;
 }
 
-const JourneyTimelineView: React.FC<JourneyTimelineViewProps> = ({ 
-  journeyId, 
-  autoSync = false,
-  limit = 10 
+const JourneyTimelineView: React.FC<JourneyTimelineViewProps> = ({
+  journeyId,
+  autoSync = true,
+  limit = 10
 }) => {
-  const { user } = useAuth();
   const [timelineItems, setTimelineItems] = useState<JourneyTimelineItem[]>([]);
   const [loading, setLoading] = useState(false);
-  
+  const [expanded, setExpanded] = useState(false);
+
   useEffect(() => {
-    // Only fetch timeline if we have both a user and journey ID
-    if (!user?.id || !journeyId) return;
+    if (!journeyId) return;
     
-    const fetchTimeline = async () => {
+    const loadTimeline = async () => {
       setLoading(true);
-      
       try {
-        // Fetch timeline items from the database
-        const { data, error } = await supabase
-          .from('timeline_snapshots')
-          .select('*')
-          .eq('user_id', user.id)
-          .eq('journey_id', journeyId)
-          .order('created_at', { ascending: false })
-          .limit(limit);
-        
-        if (error) {
-          console.error('Error fetching timeline:', error);
-          return;
-        }
-        
-        // Transform the data to match the JourneyTimelineItem interface
-        const transformedData: JourneyTimelineItem[] = (data || []).map(item => ({
-          id: item.id,
-          user_id: item.user_id,
-          title: item.title,
-          tag: item.tag || '',
-          notes: item.notes,
-          chakra_tag: item.chakra || null,
-          created_at: item.created_at,
-          journey_id: item.journey_id || undefined,
-          component: item.component || undefined,
-          action: item.action || undefined,
-          details: item.details // This is now compatible with our updated type
-        }));
-        
-        setTimelineItems(transformedData);
-      } catch (err) {
-        console.error('Error in fetchTimeline:', err);
+        const items = await fetchJourneyTimeline(journeyId, limit);
+        setTimelineItems(items);
+      } catch (error) {
+        console.error("Error loading timeline:", error);
       } finally {
         setLoading(false);
       }
     };
     
-    fetchTimeline();
-  }, [journeyId, user?.id, limit]);
-  
-  const formatTime = (timestamp: string) => {
-    try {
-      const date = new Date(timestamp);
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    } catch (e) {
-      return 'Invalid time';
+    loadTimeline();
+    
+    // Set up auto refresh if enabled
+    let intervalId: NodeJS.Timeout | null = null;
+    if (autoSync) {
+      intervalId = setInterval(loadTimeline, 30000); // Refresh every 30 seconds
     }
-  };
-  
-  const formatDate = (timestamp: string) => {
+    
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [journeyId, limit, autoSync]);
+
+  // Format the timestamp for better readability
+  const formatTimeAgo = (timestamp: string) => {
     try {
-      const date = new Date(timestamp);
-      return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      return formatDistanceToNow(new Date(timestamp), { addSuffix: true });
     } catch (e) {
-      return 'Invalid date';
-    }
-  };
-  
-  // Get icon based on action type
-  const getActionIcon = (action: string) => {
-    switch (action) {
-      case 'journey_start':
-        return '▶️';
-      case 'journey_complete':
-        return '✅';
-      case 'soundscape_play':
-        return '🔊';
-      case 'soundscape_pause':
-        return '⏸️';
-      case 'spiral_toggle':
-        return '🌀';
-      default:
-        return '📝';
+      return 'Unknown time';
     }
   };
 
   return (
-    <div className="timeline-view">
-      <h3 className="text-lg font-semibold mb-4 text-white">Journey Timeline</h3>
+    <div className="journey-timeline bg-black/50 rounded-lg p-4">
+      <div className="flex justify-between items-center mb-3">
+        <h3 className="text-lg font-semibold text-white">Journey Timeline</h3>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setExpanded(!expanded)}
+          className="text-white hover:bg-white/10"
+        >
+          {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        </Button>
+      </div>
       
       {loading ? (
         <div className="flex justify-center py-4">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+          <div className="animate-spin h-5 w-5 border-2 border-purple-500 rounded-full border-t-transparent"></div>
         </div>
       ) : timelineItems.length === 0 ? (
-        <p className="text-center text-gray-400 py-4">No activity recorded yet.</p>
+        <p className="text-sm text-gray-400 text-center py-3">No timeline events yet</p>
       ) : (
-        <div className="space-y-4">
-          {timelineItems.map((item) => (
-            <div key={item.id} className="bg-black/50 rounded-lg p-3 border border-purple-500/30">
-              <div className="flex justify-between items-start mb-1">
-                <div className="flex items-center">
-                  <span className="mr-2">{getActionIcon(item.action || '')}</span>
-                  <span className="font-medium text-white">{item.title}</span>
-                </div>
-                <div className="text-xs text-gray-400 flex items-center">
-                  <Clock className="h-3 w-3 mr-1" /> {formatTime(item.created_at)}
-                </div>
+        <div className={`space-y-2 ${expanded ? '' : 'max-h-40 overflow-y-auto custom-scrollbar'}`}>
+          {timelineItems.map((item, index) => (
+            <div 
+              key={item.id} 
+              className={`
+                p-2 rounded-md text-sm
+                ${index === 0 ? 'bg-purple-900/20' : 'bg-gray-800/30'}
+                border ${item.chakra_tag ? 'border-purple-500/30' : 'border-gray-700/30'}
+              `}
+            >
+              <div className="flex justify-between items-start">
+                <div className="font-medium text-white">{item.title}</div>
+                <div className="text-xs text-gray-400">{formatTimeAgo(item.created_at)}</div>
               </div>
               
-              <div className="text-xs text-gray-400 flex items-center">
-                <CalendarDays className="h-3 w-3 mr-1" />
-                {formatDate(item.created_at)}
-              </div>
+              {item.tag && (
+                <div className="text-xs text-purple-300 mt-1">{item.tag}</div>
+              )}
               
-              {item.notes && (
-                <p className="text-sm text-gray-300 mt-2">{item.notes}</p>
+              {item.chakra_tag && (
+                <div className="mt-1 flex items-center">
+                  <div className="px-2 py-0.5 bg-purple-900/30 text-xs rounded-full text-purple-200">
+                    {item.chakra_tag}
+                  </div>
+                </div>
               )}
             </div>
           ))}

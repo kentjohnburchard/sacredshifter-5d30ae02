@@ -1,194 +1,154 @@
 
-import React, { useEffect, useState } from 'react';
-import { useVisualTheme, VisualTheme } from '@/context/VisualThemeContext';
-import SacredGridVisualizer from '@/components/SacredGridVisualizer';
-import { VisualizationSettings } from '@/types/visualization';
-import VisualizerScene from '@/components/visualizer/VisualizerScene';
+import React, { useEffect, useRef, useState } from 'react';
+import { useVisualTheme } from '@/context/VisualThemeContext';
+import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
+import SpiralVisualizer from './SpiralVisualizer';
+import MandalaBuilder from '@/components/MandalaBuilder';
 import { Button } from '@/components/ui/button';
-import { Eye, EyeOff } from 'lucide-react';
+import { Settings, RotateCw, Maximize2, Minimize2 } from 'lucide-react';
 
 interface VisualRendererProps {
   className?: string;
   height?: string | number;
-  containerId?: string;
   showControls?: boolean;
+  containerId?: string;
 }
 
 const VisualRenderer: React.FC<VisualRendererProps> = ({
   className = '',
   height = '100%',
+  showControls = true,
   containerId = 'visualRenderer',
-  showControls = true
 }) => {
-  const { currentTheme, toggleVisuals, areVisualsEnabled } = useVisualTheme();
-  const [visualSettings, setVisualSettings] = useState<VisualizationSettings | null>(null);
-  const [visualizerScene, setVisualizerScene] = useState<string>('nebula');
+  const { settings, updateSettings } = useVisualTheme();
+  const { currentAudio, registerPlayerVisuals } = useGlobalAudioPlayer();
+  const [visualMode, setVisualMode] = useState<string>('spiral');
+  const [expanded, setExpanded] = useState(false);
+  const [controlsVisible, setControlsVisible] = useState(true);
 
-  // Map theme to appropriate visualizer settings
-  useEffect(() => {
-    if (!areVisualsEnabled) return;
+  // Get spiral parameters based on current audio frequency
+  const getSpiralParams = () => {
+    // Default spiral parameters
+    const params = {
+      coeffA: 4,
+      coeffB: 4,
+      coeffC: 1.3,
+      freqA: 44,
+      freqB: -17,
+      freqC: -54,
+      color: '255,255,0', // Default yellow
+      opacity: 80,
+      strokeWeight: 0.5,
+      maxCycles: 5,
+      speed: 0.001
+    };
 
-    const themeToSettings: Record<VisualTheme, Partial<VisualizationSettings>> = {
-      'cymaticGrid': {
-        activeShapes: ['flower-of-life', 'fibonacci-spiral'],
-        colorTheme: 'cosmic-violet',
-        mode: '2d',
-        showPrimeAffirmations: true,
-        visualizerType: 'sacred-geometry',
-      },
-      'starlightField': {
-        activeShapes: ['flower-of-life', 'vesica-piscis'],
-        colorTheme: 'ethereal-mist',
-        mode: '3d',
-        showPrimeAffirmations: false,
-        visualizerType: 'sacred-geometry',
-      },
-      'fractalOcean': {
-        activeShapes: ['fibonacci-spiral', 'metatron-cube'],
-        colorTheme: 'ocean-depths',
-        mode: '3d',
-        showGrid: true,
-        gridIntensity: 0.8,
-        visualizerType: 'sacred-geometry',
-      },
-      'merkabaChamber': {
-        activeShapes: ['metatron-cube', 'sri-yantra'],
-        colorTheme: 'chakra-rainbow',
-        mode: '3d',
-        showGrid: true,
-        visualizerType: 'sacred-geometry',
-      },
-      'sacredSpiral': {
-        activeShapes: ['fibonacci-spiral', 'prime-spiral'],
-        colorTheme: 'cosmic-violet',
-        mode: '2d',
-        showGrid: false,
-        visualizerType: 'sacred-geometry',
-      },
-      'chakraField': {
-        activeShapes: ['flower-of-life'],
-        colorTheme: 'chakra-rainbow',
-        mode: '2d',
-        visualizerType: 'sacred-geometry',
-      },
-      'cosmicCollision': {
-        activeShapes: ['torus', 'metatron-cube'],
-        colorTheme: 'fire-essence',
-        mode: '3d',
-        sensitivity: 1.5,
-        brightness: 1.5,
-        visualizerType: 'prime-audio',
-      },
-      'default': {
-        activeShapes: ['flower-of-life', 'fibonacci-spiral'],
-        colorTheme: 'cosmic-violet',
-        mode: '3d',
-        showGrid: true,
-        visualizerType: 'sacred-geometry',
+    // Modify based on frequency if available
+    if (currentAudio?.frequency) {
+      const freq = currentAudio.frequency;
+      
+      // Simple mapping of frequency to parameters
+      params.coeffA = Math.max(3, Math.min(8, freq / 100));
+      params.freqA = Math.max(20, Math.min(80, freq / 10));
+      
+      // Adjust color based on frequency range
+      if (freq < 300) {
+        params.color = '100,100,220'; // Blue for low frequencies
+      } else if (freq < 500) {
+        params.color = '100,220,100'; // Green for mid frequencies
+      } else if (freq < 700) {
+        params.color = '220,180,100'; // Yellow-orange for higher frequencies
+      } else {
+        params.color = '220,100,220'; // Purple for highest frequencies
       }
-    };
+    }
 
-    const baseSettings: VisualizationSettings = {
-      activeShapes: ['flower-of-life', 'fibonacci-spiral'],
-      speed: Math.min(5, Math.max(0.5, currentTheme.intensity / 5 * 3)),
-      colorTheme: 'cosmic-violet',
-      symmetry: 6,
-      mode: '3d',
-      mirrorEnabled: true,
-      chakraAlignmentMode: !!currentTheme.chakraTag,
-      sensitivity: Math.min(2.0, Math.max(0.5, currentTheme.intensity / 5 * 2)),
-      brightness: Math.min(2.0, Math.max(0.8, currentTheme.intensity / 5 * 1.8)),
-      showGrid: true,
-      gridIntensity: Math.min(1.0, Math.max(0.3, currentTheme.intensity / 5)),
-      showPrimeAffirmations: false,
-      visualizerType: 'sacred-geometry',
-      rotationSpeed: Math.min(3.0, Math.max(0.2, currentTheme.intensity / 5 * 2)),
-    };
-
-    // Apply theme-specific settings
-    const themeSettings = themeToSettings[currentTheme.theme] || themeToSettings.default;
-    setVisualSettings({
-      ...baseSettings,
-      ...themeSettings
-    });
-
-    // Map theme to scene for VisualizerScene component
-    const themeToScene: Record<VisualTheme, string> = {
-      'cymaticGrid': 'cymatics',
-      'starlightField': 'galaxy',
-      'fractalOcean': 'fractal',
-      'merkabaChamber': 'metatron',
-      'sacredSpiral': 'fractal-audio',
-      'chakraField': 'mandala',
-      'cosmicCollision': 'cosmic-collision',
-      'default': 'nebula'
-    };
-
-    setVisualizerScene(themeToScene[currentTheme.theme] || 'nebula');
-  }, [currentTheme, areVisualsEnabled]);
-
-  // If visuals are disabled, only show toggle button
-  if (!areVisualsEnabled) {
-    return showControls ? (
-      <div className={`flex justify-center items-center p-4 ${className}`}>
-        <Button 
-          onClick={toggleVisuals}
-          variant="outline" 
-          size="sm"
-          className="bg-purple-900/30 border-purple-400/30 text-purple-100 hover:bg-purple-900/50"
-        >
-          <Eye className="h-4 w-4 mr-2" />
-          Show Visuals
-        </Button>
-      </div>
-    ) : null;
-  }
-
-  // Choose visualization based on theme type
-  const renderVisualization = () => {
-    if (!visualSettings) return null;
-
-    // Use SacredGridVisualizer for most themes
-    if (currentTheme.theme !== 'default' && 
-       (visualSettings.visualizerType === 'sacred-geometry' || 
-        visualSettings.visualizerType === 'prime-audio')) {
-      return (
-        <SacredGridVisualizer 
-          width="100%"
-          height={height}
-          autoConnect={true}
-          showControls={false}
-          initialSettings={visualSettings}
-          expandable={false}
-        />
-      );
+    // Apply settings overrides if provided
+    if (settings.speed) {
+      params.speed = settings.speed * 0.001;
     }
     
-    // Use VisualizerScene for simpler themes
-    return (
-      <div style={{ width: '100%', height: height }}>
-        <VisualizerScene 
-          scene={visualizerScene} 
-          isPlaying={true}
-        />
-      </div>
-    );
+    if (settings.brightness) {
+      params.opacity = settings.brightness * 100;
+    }
+
+    return params;
+  };
+
+  useEffect(() => {
+    // Register with the global audio player
+    const unregister = registerPlayerVisuals({
+      setAudioSource: (url, info) => {
+        console.log("Visual renderer received new audio source:", url);
+        // Any visual-specific handling of audio source changes
+      }
+    });
+
+    return () => {
+      if (unregister) unregister();
+    };
+  }, [registerPlayerVisuals]);
+
+  const toggleExpanded = () => {
+    setExpanded(!expanded);
+  };
+
+  const toggleControls = () => {
+    setControlsVisible(!controlsVisible);
   };
 
   return (
-    <div id={containerId} className={`relative ${className}`}>
-      {renderVisualization()}
+    <div 
+      className={`visual-renderer relative ${expanded ? 'fixed inset-0 z-50' : ''} ${className}`}
+      style={{ height }}
+    >
+      {/* Visual content based on mode */}
+      <div className="w-full h-full">
+        {visualMode === 'spiral' && (
+          <SpiralVisualizer 
+            params={getSpiralParams()}
+            containerId={containerId}
+          />
+        )}
+        
+        {visualMode === 'mandala' && (
+          <div className="w-full h-full flex items-center justify-center">
+            <MandalaBuilder 
+              setVisualMode={setVisualMode}
+              onMandalaChange={() => {}}
+            />
+          </div>
+        )}
+      </div>
       
-      {showControls && (
-        <div className="absolute top-2 right-2 z-10">
-          <Button 
-            onClick={toggleVisuals} 
-            variant="outline" 
+      {/* Controls overlay */}
+      {showControls && controlsVisible && (
+        <div className="absolute bottom-4 right-4 flex flex-col gap-2">
+          <Button
+            variant="outline"
             size="sm"
-            className="bg-black/30 border-white/20 text-white/80 hover:bg-black/50"
+            onClick={toggleExpanded}
+            className="bg-black/50 border-purple-500/50 text-white hover:bg-purple-900/30"
           >
-            <EyeOff className="h-4 w-4 mr-2" />
-            Hide Visuals
+            {expanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setVisualMode(visualMode === 'spiral' ? 'mandala' : 'spiral')}
+            className="bg-black/50 border-purple-500/50 text-white hover:bg-purple-900/30"
+          >
+            <RotateCw size={16} />
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleControls}
+            className="bg-black/50 border-purple-500/50 text-white hover:bg-purple-900/30"
+          >
+            <Settings size={16} />
           </Button>
         </div>
       )}

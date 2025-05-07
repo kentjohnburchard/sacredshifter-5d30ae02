@@ -1,14 +1,15 @@
 
-import React from "react";
+import React from 'react';
+import { useTheme } from '@/context/ThemeContext';
 
-const GlobalWatermark: React.FC = () => {
+const GlobalWatermark = () => {
+  const { liftTheVeil } = useTheme();
+  
   return (
-    <div className="fixed bottom-0 left-0 right-0 pointer-events-none z-0 flex justify-center items-end">
-      <img 
-        src="/lovable-uploads/6dafef18-8a06-46e1-bc1b-2325f13a67f7.png" 
-        alt="Sacred Shifter Watermark" 
-        className="max-w-[70%] max-h-[35%] object-contain opacity-[0.25]" 
-      />
+    <div className="fixed bottom-20 left-0 w-full text-center pointer-events-none z-10 opacity-30">
+      <div className={`text-sm ${liftTheVeil ? 'text-pink-300' : 'text-purple-300'}`}>
+        ✧ Sacred Shifter ✧
+      </div>
     </div>
   );
 };
