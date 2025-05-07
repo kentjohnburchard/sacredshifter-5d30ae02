@@ -56,6 +56,7 @@ export type JourneyTimelineEvent =
   | 'daily_practice_complete'
   | 'daily_practice_step';
 
+// Updated to match Supabase types
 export interface JourneyTimelineItem {
   id: string;
   user_id: string;
@@ -67,7 +68,7 @@ export interface JourneyTimelineItem {
   journey_id?: string;
   component?: string;
   action?: string;
-  details?: Record<string, any>;
+  details?: any; // Changed from Record<string, any> to any to accommodate Json
 }
 
 export interface JourneyAwareComponentProps {

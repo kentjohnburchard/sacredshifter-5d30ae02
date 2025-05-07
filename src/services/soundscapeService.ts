@@ -23,7 +23,14 @@ export const fetchJourneySoundscape = async (journeySlug: string): Promise<Journ
     
     // If we found a soundscape, return it
     if (data && data.length > 0) {
-      return data[0];
+      // Ensure we have all required fields for JourneySoundscape
+      const soundscape: JourneySoundscape = {
+        ...data[0],
+        chakra_tag: data[0].chakra_tag || null,
+        source_type: data[0].source_type || 'file',
+        updated_at: data[0].updated_at || data[0].created_at || new Date().toISOString()
+      };
+      return soundscape;
     }
     
     // If no soundscape found, check if there's an audio_filename in the journey
@@ -50,8 +57,8 @@ export const fetchJourneySoundscape = async (journeySlug: string): Promise<Journ
         created_at: new Date().toISOString(),
         chakra_tag: null,
         journey_id: null,
-        updated_at: null
-      } as JourneySoundscapeRow;
+        updated_at: new Date().toISOString()
+      } as JourneySoundscape;
     }
     
     // If no soundscape or audio_filename found, return null

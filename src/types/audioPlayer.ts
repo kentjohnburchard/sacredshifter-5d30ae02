@@ -10,6 +10,7 @@ export interface PlayerInfo {
   chakra?: string;
   frequency?: number;
   id?: string;
+  sourceType?: string;  // Added sourceType property to fix the error
 }
 
 export interface GlobalAudioPlayerContextType {
@@ -25,7 +26,7 @@ export interface GlobalAudioPlayerContextType {
   registerPlayerVisuals: (registration: VisualRegistration) => (() => void) | undefined;
   setVolume: (volume: number) => void;
   getVolume: () => number;
-  volume: number; // Add the missing volume property
+  volume: number;
   currentFrequency: number | null;
   activeFrequencies: number[];
   activePrimeNumbers: number[];

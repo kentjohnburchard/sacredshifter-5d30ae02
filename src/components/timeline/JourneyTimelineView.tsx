@@ -42,7 +42,22 @@ const JourneyTimelineView: React.FC<JourneyTimelineViewProps> = ({
           return;
         }
         
-        setTimelineItems(data || []);
+        // Transform the data to match the JourneyTimelineItem interface
+        const transformedData: JourneyTimelineItem[] = (data || []).map(item => ({
+          id: item.id,
+          user_id: item.user_id,
+          title: item.title,
+          tag: item.tag || '',
+          notes: item.notes,
+          chakra_tag: item.chakra || null,
+          created_at: item.created_at,
+          journey_id: item.journey_id || undefined,
+          component: item.component || undefined,
+          action: item.action || undefined,
+          details: item.details // This is now compatible with our updated type
+        }));
+        
+        setTimelineItems(transformedData);
       } catch (err) {
         console.error('Error in fetchTimeline:', err);
       } finally {
