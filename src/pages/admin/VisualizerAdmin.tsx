@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { Journey } from '@/context/JourneyContext';
+import { Journey } from '@/types/journey';
 import { ChakraTag } from '@/types/chakras';
 import ChakraSelect from '@/components/chakra/ChakraSelect';
 import VisualThemeEditor from '@/components/admin/VisualThemeEditor';

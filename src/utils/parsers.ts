@@ -28,11 +28,16 @@ export function stringifyArrayForDb(arr: string[]): string {
  * @param value JSON string or already parsed object
  * @returns Record<string, any> object
  */
-export function safelyParseJson(value: string | Record<string, any> | null | undefined): Record<string, any> {
+export function safelyParseJson(value: string | Record<string, any> | null | undefined | number): Record<string, any> {
   if (!value) return {};
   
   if (typeof value === 'object') {
     return value;
+  }
+  
+  // Handle number values by converting to a simple object
+  if (typeof value === 'number') {
+    return { value };
   }
   
   try {

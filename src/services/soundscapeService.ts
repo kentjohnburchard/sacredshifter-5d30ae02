@@ -17,32 +17,35 @@ export async function fetchJourneySoundscape(journeySlug: string): Promise<Journ
   if (!journeySlug) return null;
   
   try {
+    // We need to make sure we're selecting all the fields we need, including chakra_tag
     const { data, error } = await supabase
-      .rpc('get_journey_soundscape', { journey_slug: journeySlug })
-      .select('id, journey_id, title, description, file_url, source_link, created_at, chakra_tag');
+      .from('journey_soundscapes')
+      .select('id, journey_id, title, description, file_url, source_link, source_type, created_at, chakra_tag')
+      .join('journeys', 'journey_soundscapes.journey_id', 'journeys.id')
+      .eq('journeys.filename', journeySlug)
+      .order('journey_soundscapes.created_at', { ascending: false })
+      .limit(1)
+      .single();
     
     if (error) {
       console.error('Error fetching journey soundscape:', error);
       return null;
     }
     
-    if (!data || data.length === 0) {
+    if (!data) {
       return null;
     }
     
-    // Extract the first item from the array
-    const item = data[0];
-    
     return {
-      id: item.id,
-      journey_id: item.journey_id,
-      title: item.title,
-      description: item.description,
-      file_url: item.file_url,
-      source_link: item.source_link,
-      source_type: (item.source_link ? 'youtube' : 'file') as 'file' | 'youtube',
-      created_at: item.created_at,
-      chakra_tag: item.chakra_tag || null
+      id: data.id,
+      journey_id: data.journey_id,
+      title: data.title,
+      description: data.description,
+      file_url: data.file_url,
+      source_link: data.source_link,
+      source_type: (data.source_type || (data.source_link ? 'youtube' : 'file')) as 'file' | 'youtube',
+      created_at: data.created_at,
+      chakra_tag: data.chakra_tag || null
     };
   } catch (error) {
     console.error('Error in fetchJourneySoundscape:', error);
