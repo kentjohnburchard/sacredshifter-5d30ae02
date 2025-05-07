@@ -52,8 +52,8 @@ const JourneysList: React.FC<JourneysListProps> = ({
               return;
             }
             
-            const tags = journey.tags.split(',').map(t => t.trim());
-            const primaryTag = tags[0] || 'Other';
+            const tagsArray = getTagsArray(journey.tags);
+            const primaryTag = tagsArray[0] || 'Other';
             
             if (!grouped[primaryTag]) {
               grouped[primaryTag] = [];
@@ -73,10 +73,29 @@ const JourneysList: React.FC<JourneysListProps> = ({
     loadJourneys();
   }, []);
 
+  // Helper function to safely get tags as array
+  const getTagsArray = (tags: string | string[] | undefined): string[] => {
+    if (!tags) return [];
+    if (Array.isArray(tags)) return tags;
+    return tags.split(',').map(t => t.trim());
+  };
+
+  // Helper function to safely filter on tags
+  const matchesTags = (journey: Journey, searchTerm: string): boolean => {
+    if (!journey.tags) return false;
+    
+    const tagsArray = getTagsArray(journey.tags);
+    const lowerSearchTerm = searchTerm.toLowerCase();
+    
+    return tagsArray.some(tag => 
+      tag.toLowerCase().includes(lowerSearchTerm)
+    );
+  };
+
   const filteredJourneys = filter
     ? journeys.filter(journey => 
         journey.title?.toLowerCase().includes(filter.toLowerCase()) ||
-        journey.tags?.toLowerCase().includes(filter.toLowerCase()))
+        matchesTags(journey, filter))
     : journeys;
 
   const displayedJourneys = maxItems > 0
@@ -118,7 +137,7 @@ const JourneysList: React.FC<JourneysListProps> = ({
         <CardContent className="pb-2 flex-grow">
           {showTags && journey.tags && (
             <div className="flex flex-wrap gap-1 mb-2">
-              {journey.tags.split(',').map((tag, i) => (
+              {getTagsArray(journey.tags).map((tag, i) => (
                 <Badge variant="outline" key={i} className="text-xs">
                   {tag.trim()}
                 </Badge>

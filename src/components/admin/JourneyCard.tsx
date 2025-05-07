@@ -23,6 +23,13 @@ const JourneyCard: React.FC<JourneyCardProps> = ({ journey, onEdit, onView }) =>
     ? 'border-blue-300 hover:border-blue-400' 
     : 'border-green-300 hover:border-green-400';
   
+  // Function to safely handle tags that could be string or string[]
+  const getTagsArray = (): string[] => {
+    if (!tags) return [];
+    if (Array.isArray(tags)) return tags;
+    return tags.split(',').map(tag => tag.trim());
+  };
+  
   return (
     <Card className={`mb-4 border-2 ${borderStyle} transition-all duration-200`}>
       <CardContent className="pt-6">
@@ -45,7 +52,7 @@ const JourneyCard: React.FC<JourneyCardProps> = ({ journey, onEdit, onView }) =>
             <div className="text-sm text-gray-600 mb-2">Filename: {filename}</div>
             {tags && (
               <div className="flex flex-wrap gap-1 mb-2">
-                {tags.split(',').map((tag, idx) => (
+                {getTagsArray().map((tag, idx) => (
                   <Badge key={idx} variant="secondary" className="text-xs">
                     {tag.trim()}
                   </Badge>

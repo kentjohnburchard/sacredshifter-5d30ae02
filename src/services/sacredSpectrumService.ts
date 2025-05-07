@@ -2,6 +2,23 @@
 import { supabase } from '@/integrations/supabase/client';
 import { SacredSpectrumResource } from '@/types/sacred-spectrum';
 
+// Helper function to normalize resource data
+const normalizeResourceData = (data: any): SacredSpectrumResource => {
+  return {
+    ...data,
+    id: String(data.id),
+    tags: typeof data.tags === 'string' ? data.tags : data.tags || '',
+  };
+};
+
+// Helper function to prepare resource data for database
+const prepareResourceForDb = (resource: Partial<SacredSpectrumResource>): Record<string, any> => {
+  return {
+    ...resource,
+    id: resource.id ? parseInt(resource.id) : undefined,
+  };
+};
+
 export async function fetchSacredSpectrumResources(): Promise<SacredSpectrumResource[]> {
   try {
     const { data, error } = await supabase
@@ -14,7 +31,7 @@ export async function fetchSacredSpectrumResources(): Promise<SacredSpectrumReso
       return [];
     }
     
-    return data as SacredSpectrumResource[];
+    return (data as any[]).map(item => normalizeResourceData(item));
   } catch (error) {
     console.error('Error in fetchSacredSpectrumResources:', error);
     return [];
@@ -36,7 +53,7 @@ export async function createSacredSpectrumResource(
       throw error;
     }
     
-    return data as SacredSpectrumResource;
+    return normalizeResourceData(data);
   } catch (error) {
     console.error('Error in createSacredSpectrumResource:', error);
     throw error;
@@ -47,10 +64,12 @@ export async function updateSacredSpectrumResource(
   resource: SacredSpectrumResource
 ): Promise<SacredSpectrumResource> {
   try {
+    const dbResource = prepareResourceForDb(resource);
+    
     const { data, error } = await supabase
       .from('sacred_spectrum_resources')
-      .update(resource)
-      .eq('id', resource.id)
+      .update(dbResource)
+      .eq('id', dbResource.id)
       .select()
       .single();
       
@@ -59,7 +78,7 @@ export async function updateSacredSpectrumResource(
       throw error;
     }
     
-    return data as SacredSpectrumResource;
+    return normalizeResourceData(data);
   } catch (error) {
     console.error('Error in updateSacredSpectrumResource:', error);
     throw error;
@@ -68,10 +87,11 @@ export async function updateSacredSpectrumResource(
 
 export async function deleteSacredSpectrumResource(id: string): Promise<void> {
   try {
+    const numberId = parseInt(id);
     const { error } = await supabase
       .from('sacred_spectrum_resources')
       .delete()
-      .eq('id', id);
+      .eq('id', numberId);
       
     if (error) {
       console.error('Error deleting sacred spectrum resource:', error);

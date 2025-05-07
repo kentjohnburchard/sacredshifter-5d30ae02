@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -50,6 +49,8 @@ const loadCoreJourneyContent = async (slug: string): Promise<CoreJourneyLoaderRe
         title: frontmatter.title || filename,
         veil_locked: frontmatter.veil || false,
         sound_frequencies: frontmatter.frequency?.toString() || parsedContent.frequencies || '',
+        // Convert any array tags to string for compatibility
+        tags: parsedContent.tags || []
       };
       
       return { content, journey };
@@ -60,6 +61,13 @@ const loadCoreJourneyContent = async (slug: string): Promise<CoreJourneyLoaderRe
     console.error('Error loading core journey content:', error);
     return { content: '', journey: null };
   }
+};
+
+// Helper for safe tag extraction
+const getTagsArray = (tags: string | string[] | undefined): string[] => {
+  if (!tags) return [];
+  if (Array.isArray(tags)) return tags;
+  return tags.split(',').map(tag => tag.trim());
 };
 
 const JourneyPage: React.FC = () => {
@@ -136,7 +144,7 @@ const JourneyPage: React.FC = () => {
       // Convert the numeric ID to string if needed to match JourneyContext's expected type
       startJourney({
         ...journey,
-        id: journey.id.toString()
+        id: journey.id?.toString() || ""
       });
     }
   };

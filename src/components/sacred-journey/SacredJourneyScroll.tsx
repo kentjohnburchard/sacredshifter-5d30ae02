@@ -1,9 +1,16 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Journey } from '@/types/journey';
+
+// Helper function to safely get tags as array
+const getTagsArray = (tags: string | string[] | undefined): string[] => {
+  if (!tags) return [];
+  if (Array.isArray(tags)) return tags;
+  return tags.split(',').map(tag => tag.trim());
+};
+
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { fetchJourneys, fetchJourneyBySlug } from '@/services/journeyService';
-import { Journey } from '@/types/journey';
 import { useAuth } from '@/context/AuthContext';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -88,7 +95,7 @@ const SacredJourneyScroll: React.FC = () => {
                   
                   {journey.tags && (
                     <div className="mt-2 flex gap-2 flex-wrap">
-                      {journey.tags.split(',').map((tag) => (
+                      {getTagsArray(journey.tags).map((tag) => (
                         <span 
                           key={tag} 
                           className="px-2 py-1 text-xs rounded-full bg-indigo-50 text-indigo-700"
