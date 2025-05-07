@@ -1,5 +1,4 @@
-
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { Toaster as SonnerToaster } from 'sonner';
 import { JourneyProvider } from '@/context/JourneyContext';
@@ -14,24 +13,18 @@ import JourneyIndex from './pages/JourneyIndex';
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <JourneyProvider>
-          <GlobalAudioPlayerProvider>
-            <Routes>
-              <Route path="/journey/:slug" element={<JourneyPage />} />
-              <Route path="/journeys" element={<JourneyIndex />} />
-              <Route path="/" element={<JourneyIndex />} />
-              
-              {/* Add more routes as needed */}
-            </Routes>
-            
-            <Toaster />
-            <SonnerToaster position="top-center" />
-          </GlobalAudioPlayerProvider>
-        </JourneyProvider>
-      </AuthProvider>
-    </Router>
+    <>
+      <Routes>
+        <Route path="/journey/:slug" element={<JourneyPage />} />
+        <Route path="/journeys" element={<JourneyIndex />} />
+        <Route path="/" element={<JourneyIndex />} />
+        
+        {/* Add more routes as needed */}
+      </Routes>
+      
+      <Toaster />
+      <SonnerToaster position="top-center" />
+    </>
   );
 }
 

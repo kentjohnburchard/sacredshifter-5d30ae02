@@ -16,6 +16,7 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import PromptManager from "@/components/journey/PromptManager"; 
 import GuidanceEngine from "@/components/guidance/GuidanceEngine";
 import App from "./App";
+import ScrollToTop from "./components/ScrollToTop";
 
 // Create a client instance outside component for persistence
 const queryClient = createQueryClient();
@@ -24,24 +25,27 @@ function Root() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
+        <ScrollToTop />
         <ThemeProvider defaultTheme="dark" storageKey="sacred-theme">
           <AuthProvider>
             <JourneyProvider>
-              <CommunityProvider>
-                <GuidanceProvider>
-                  <VisualThemeProvider>
-                    <DailyPracticeProvider>
-                      <ModalProvider>
-                        <App />
-                        <PromptManager />
-                        <GuidanceEngine />
-                        <SonnerToaster position="top-right" richColors />
-                        <Toaster />
-                      </ModalProvider>
-                    </DailyPracticeProvider>
-                  </VisualThemeProvider>
-                </GuidanceProvider>
-              </CommunityProvider>
+              <GlobalAudioPlayerProvider>
+                <CommunityProvider>
+                  <GuidanceProvider>
+                    <VisualThemeProvider>
+                      <DailyPracticeProvider>
+                        <ModalProvider>
+                          <App />
+                          <PromptManager />
+                          <GuidanceEngine />
+                          <SonnerToaster position="top-right" richColors />
+                          <Toaster />
+                        </ModalProvider>
+                      </DailyPracticeProvider>
+                    </VisualThemeProvider>
+                  </GuidanceProvider>
+                </CommunityProvider>
+              </GlobalAudioPlayerProvider>
             </JourneyProvider>
           </AuthProvider>
         </ThemeProvider>
