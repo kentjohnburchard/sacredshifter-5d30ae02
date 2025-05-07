@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { fetchJourneySoundscape, JourneySoundscape } from '@/services/soundscapeService';
 import { Button } from '@/components/ui/button';
@@ -61,7 +60,7 @@ const JourneySoundscapePlayer: React.FC<JourneySoundscapePlayerProps> = ({
         audioElement.src = '';
       };
     }
-  }, [soundscape]);
+  }, [soundscape, isMuted]);
 
   useEffect(() => {
     if (audio) {

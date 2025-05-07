@@ -8,7 +8,9 @@ export interface JourneySoundscape {
   description: string | null;
   file_url: string;
   source_link: string | null;
+  source_type: 'file' | 'youtube';
   created_at: string;
+  chakra_tag?: string | null;
 }
 
 export async function fetchJourneySoundscape(journeySlug: string): Promise<JourneySoundscape | null> {
@@ -37,6 +39,7 @@ export async function fetchJourneySoundscape(journeySlug: string): Promise<Journ
       description: item.description,
       file_url: item.file_url,
       source_link: item.source_link,
+      source_type: item.source_link ? 'youtube' : 'file',
       created_at: item.created_at
     };
   } catch (error) {
@@ -45,23 +48,40 @@ export async function fetchJourneySoundscape(journeySlug: string): Promise<Journ
   }
 }
 
+/**
+ * Validates if a URL is a valid YouTube URL
+ */
+export function validateYoutubeUrl(url: string): boolean {
+  // Simple regex to match common YouTube URL formats
+  const regex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
+  return regex.test(url);
+}
+
+interface SoundscapeData {
+  title: string;
+  description?: string;
+  journey_id: string | number;
+  file_url: string;
+  source_link?: string;
+  source_type: 'file' | 'youtube';
+  chakra_tag?: string;
+}
+
 export async function createJourneySoundscape(
-  journeyId: number | string,
-  title: string,
-  fileUrl: string,
-  description?: string,
-  sourceLink?: string
+  data: SoundscapeData
 ): Promise<JourneySoundscape | null> {
   try {
-    const { data, error } = await supabase
+    const { data: result, error } = await supabase
       .from('journey_soundscapes')
       .insert([
         {
-          journey_id: Number(journeyId),
-          title,
-          file_url: fileUrl,
-          description,
-          source_link: sourceLink
+          journey_id: Number(data.journey_id),
+          title: data.title,
+          file_url: data.file_url,
+          description: data.description,
+          source_link: data.source_link,
+          source_type: data.source_type,
+          chakra_tag: data.chakra_tag
         }
       ])
       .select()
@@ -73,16 +93,75 @@ export async function createJourneySoundscape(
     }
     
     return {
-      id: data.id,
-      journey_id: data.journey_id,
-      title: data.title,
-      description: data.description,
-      file_url: data.file_url,
-      source_link: data.source_link,
-      created_at: data.created_at
+      id: result.id,
+      journey_id: result.journey_id,
+      title: result.title,
+      description: result.description,
+      file_url: result.file_url,
+      source_link: result.source_link,
+      source_type: result.source_type || 'file',
+      created_at: result.created_at
     };
   } catch (error) {
     console.error('Error in createJourneySoundscape:', error);
     return null;
+  }
+}
+
+export async function updateJourneySoundscape(
+  id: string,
+  data: Partial<SoundscapeData>
+): Promise<JourneySoundscape | null> {
+  try {
+    // Convert journey_id to number if present
+    const updateData = {
+      ...data,
+      journey_id: data.journey_id ? Number(data.journey_id) : undefined
+    };
+
+    const { data: result, error } = await supabase
+      .from('journey_soundscapes')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) {
+      console.error('Error updating journey soundscape:', error);
+      return null;
+    }
+    
+    return {
+      id: result.id,
+      journey_id: result.journey_id,
+      title: result.title,
+      description: result.description,
+      file_url: result.file_url,
+      source_link: result.source_link,
+      source_type: result.source_type || 'file',
+      created_at: result.created_at
+    };
+  } catch (error) {
+    console.error('Error in updateJourneySoundscape:', error);
+    return null;
+  }
+}
+
+export async function deleteJourneySoundscape(id: string): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('journey_soundscapes')
+      .delete()
+      .eq('id', id);
+    
+    if (error) {
+      console.error('Error deleting journey soundscape:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error in deleteJourneySoundscape:', error);
+    return false;
   }
 }

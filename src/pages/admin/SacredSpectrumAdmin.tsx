@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -54,7 +54,11 @@ const SacredSpectrumAdmin: React.FC = () => {
       setResources(data);
     } catch (error) {
       console.error('Failed to load resources:', error);
-      toast.error('Failed to load sacred knowledge resources');
+      toast({
+        title: 'Error',
+        description: 'Failed to load sacred knowledge resources',
+        variant: 'destructive'
+      });
     } finally {
       setLoading(false);
     }

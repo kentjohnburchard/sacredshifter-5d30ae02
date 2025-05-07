@@ -1409,11 +1409,15 @@ export type Database = {
       }
       timeline_snapshots: {
         Row: {
+          action: string | null
           chakra: string | null
+          component: string | null
           created_at: string | null
+          details: Json | null
           frequency: number | null
           id: string
           intention: string | null
+          journey_id: string | null
           notes: string | null
           tag: string | null
           title: string
@@ -1422,11 +1426,15 @@ export type Database = {
           visual_type: string | null
         }
         Insert: {
+          action?: string | null
           chakra?: string | null
+          component?: string | null
           created_at?: string | null
+          details?: Json | null
           frequency?: number | null
           id?: string
           intention?: string | null
+          journey_id?: string | null
           notes?: string | null
           tag?: string | null
           title: string
@@ -1435,11 +1443,15 @@ export type Database = {
           visual_type?: string | null
         }
         Update: {
+          action?: string | null
           chakra?: string | null
+          component?: string | null
           created_at?: string | null
+          details?: Json | null
           frequency?: number | null
           id?: string
           intention?: string | null
+          journey_id?: string | null
           notes?: string | null
           tag?: string | null
           title?: string

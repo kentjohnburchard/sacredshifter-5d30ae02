@@ -139,7 +139,9 @@ const JourneyPage: React.FC = () => {
         ...journey,
         id: journey.id?.toString() || "",
         // Convert tags to array if it's a string
-        tags: normalizeStringArray(journey.tags)
+        tags: Array.isArray(journey.tags) 
+          ? journey.tags 
+          : (journey.tags ? journey.tags.split(',').map(t => t.trim()) : [])
       };
       startJourney(formattedJourney);
     }
