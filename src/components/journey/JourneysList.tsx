@@ -1,6 +1,8 @@
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchJourneys, Journey } from '@/services/journeyService';
+import { fetchJourneys } from '@/services/journeyService';
+import { Journey } from '@/types/journey';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tag, Clock, Music, Star } from 'lucide-react';

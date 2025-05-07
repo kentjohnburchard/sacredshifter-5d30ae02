@@ -7,8 +7,6 @@ export interface Journey {
   filename: string;
   audio_filename?: string;
   veil_locked?: boolean;
-
-  // Patch for markdown/meta-based fields
   tags?: string;
   intent?: string;
   sound_frequencies?: string;

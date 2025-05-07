@@ -1,7 +1,7 @@
-
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { fetchJourneys, Journey } from '@/services/journeyService';
+import { useParams } from 'react-router-dom';
+import { fetchJourneys, fetchJourneyBySlug } from '@/services/journeyService';
+import { Journey } from '@/types/journey';
 import { useAuth } from '@/context/AuthContext';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -12,12 +12,18 @@ const SacredJourneyScroll: React.FC = () => {
   const [journeys, setJourneys] = useState<Journey[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const { slug } = useParams();
 
   useEffect(() => {
     const loadJourneys = async () => {
       try {
-        const data = await fetchJourneys();
-        setJourneys(data);
+        if (slug) {
+          const journey = await fetchJourneyBySlug(slug);
+          setJourneys([journey]);
+        } else {
+          const data = await fetchJourneys();
+          setJourneys(data);
+        }
       } catch (error) {
         console.error('Failed to load journeys:', error);
         toast.error('Failed to load sacred journeys');
@@ -27,7 +33,7 @@ const SacredJourneyScroll: React.FC = () => {
     };
 
     loadJourneys();
-  }, []);
+  }, [slug]);
 
   const handleLockedJourney = (e: React.MouseEvent, journey: Journey) => {
     if (journey.veil_locked && !user) {

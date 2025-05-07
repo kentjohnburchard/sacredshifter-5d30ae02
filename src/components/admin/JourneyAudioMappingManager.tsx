@@ -16,7 +16,7 @@ import {
   getAllAudioFiles,
   getAudioFileUrl
 } from '@/services/journeyAudioService';
-import { Journey } from '@/services/journeyService';
+import { Journey } from '@/types/journey';
 
 interface AudioMapping {
   journey_id: number;

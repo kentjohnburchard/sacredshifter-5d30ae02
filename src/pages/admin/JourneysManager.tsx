@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { fetchJourneys, updateJourney, Journey, createJourney } from '@/services/journeyService';
+import { PageTitle } from '@/components/ui/PageTitle';
+import { fetchJourneys, updateJourney, createJourney } from '@/services/journeyService';
+import { Journey } from '@/types/journey';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Journey } from '@/services/journeyService';
+import { Journey } from '@/types/journey';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
