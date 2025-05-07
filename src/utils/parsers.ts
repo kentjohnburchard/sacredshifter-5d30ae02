@@ -1,55 +1,75 @@
 
 /**
- * Normalizes an input that could be a string, array of strings, or undefined
- * into a consistent array of strings
+ * Normalizes a string array that might be stored in different formats
+ * Handles arrays, comma-separated strings, and null/undefined values
  */
-export const normalizeStringArray = (input: string | string[] | undefined): string[] => {
-  if (!input) {
+export function normalizeStringArray(value: string | string[] | null | undefined): string[] {
+  if (!value) {
     return [];
   }
   
-  if (Array.isArray(input)) {
-    return input.filter(Boolean).map(item => item.trim());
+  if (typeof value === 'string') {
+    // Handle comma-separated string
+    return value.split(',').map(s => s.trim()).filter(Boolean);
   }
   
-  // If it's a comma-separated string, split it
-  if (typeof input === 'string' && input.includes(',')) {
-    return input.split(',').map(item => item.trim()).filter(Boolean);
+  if (Array.isArray(value)) {
+    // Already an array, just ensure all items are strings and trim them
+    return value.map(item => String(item).trim()).filter(Boolean);
   }
   
-  // If it's a single string, wrap in array
-  return input ? [input.trim()] : [];
-};
+  return [];
+}
 
 /**
- * Normalize ID values to ensure they're strings
+ * Normalizes a numeric ID to a string
  */
-export const normalizeId = (id: string | number | undefined): string => {
-  if (id === undefined || id === null) {
+export function normalizeId(id: string | number | null | undefined): string {
+  if (id === null || id === undefined) {
     return '';
   }
   return String(id);
-};
+}
 
 /**
- * Convert array to comma-separated string for database storage
+ * Converts an array to a comma-separated string for database storage
  */
-export const stringifyArrayForDb = (arr: string[] | undefined): string | null => {
-  if (!arr || arr.length === 0) {
+export function stringifyArrayForDb(arr: string[] | null | undefined): string | null {
+  if (!arr || !Array.isArray(arr) || arr.length === 0) {
     return null;
   }
-  return arr.join(', ');
-};
+  
+  return arr.join(',');
+}
 
 /**
- * Safely parse a JSON string without throwing an error
- * Returns null if parsing fails
+ * Parses a boolean value from various formats
  */
-export const safelyParseJson = (jsonString: string): Record<string, any> | null => {
-  try {
-    return JSON.parse(jsonString);
-  } catch (error) {
-    console.error('Error parsing JSON:', error);
-    return null;
+export function parseBoolean(value: string | boolean | null | undefined): boolean {
+  if (typeof value === 'boolean') {
+    return value;
   }
-};
+  
+  if (typeof value === 'string') {
+    const lowercaseValue = value.toLowerCase().trim();
+    return lowercaseValue === 'true' || lowercaseValue === '1' || lowercaseValue === 'yes';
+  }
+  
+  return false;
+}
+
+/**
+ * Safely converts a value to a number, with fallback
+ */
+export function parseNumber(value: string | number | null | undefined, fallback: number = 0): number {
+  if (value === null || value === undefined) {
+    return fallback;
+  }
+  
+  if (typeof value === 'number') {
+    return value;
+  }
+  
+  const parsed = parseFloat(value);
+  return isNaN(parsed) ? fallback : parsed;
+}
