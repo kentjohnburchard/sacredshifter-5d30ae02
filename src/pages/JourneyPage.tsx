@@ -45,7 +45,7 @@ const loadCoreJourneyContent = async (slug: string): Promise<CoreJourneyLoaderRe
       // Create a journey object from the content
       const parsedContent = parseJourneyContent(content);
       const journey: Journey = {
-        id: 0, // Temporary ID
+        id: "temp-0", // Use string ID to match the updated Journey type
         filename,
         title: frontmatter.title || filename,
         veil_locked: frontmatter.veil || false,

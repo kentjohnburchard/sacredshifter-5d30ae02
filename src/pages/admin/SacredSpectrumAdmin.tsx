@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PageTitle } from '@/components/ui/PageTitle';
+import PageTitle from '@/components/ui/PageTitle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -8,13 +8,20 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { SpiralParams, useSpiralParams } from '@/hooks/useSpiralParams';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import SoundscapeManager from '@/components/admin/SoundscapeManager';
-import { Loader, Vibrate, Music, Package, BookOpen } from 'lucide-react';
+import { PlusIcon, TrashIcon, FileIcon, ExternalLinkIcon, PencilIcon, CheckIcon, AlertCircleIcon, FileTextIcon } from 'lucide-react';
 import { fetchJourneys } from '@/services/journeyService';
 import { Journey } from '@/types/journey';
+import { SacredSpectrumResource, resourceCategories } from '@/types/sacred-spectrum';
+import { fetchSacredSpectrumResources, createSacredSpectrumResource, updateSacredSpectrumResource, deleteSacredSpectrumResource, uploadSacredSpectrumFile } from '@/services/sacredSpectrumService';
+import { useAuth } from '@/context/AuthContext';
+import { useForm } from 'react-hook-form';
+import Layout from '@/components/Layout';
 
 const SacredSpectrumAdmin: React.FC = () => {
   const [resources, setResources] = useState<SacredSpectrumResource[]>([]);

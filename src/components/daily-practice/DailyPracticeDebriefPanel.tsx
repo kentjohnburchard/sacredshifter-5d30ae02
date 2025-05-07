@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { createTimelineEntry } from '@/services/timelineService';
+import { createTimelineItem } from '@/services/timelineService';
 import { ChakraTag } from '@/types/chakras';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { Heart } from 'lucide-react';
@@ -66,7 +65,7 @@ const DailyPracticeDebriefPanel: React.FC<DailyPracticeDebriefPanelProps> = ({
         content: reflection.trim()
       };
       
-      await createTimelineEntry(
+      await createTimelineItem(
         userId,
         'Daily Practice Reflection',
         'daily_reflection',

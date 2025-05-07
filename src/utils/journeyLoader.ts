@@ -1,63 +1,100 @@
 
-import { findFrequencyData } from '@/utils/frequencyUtils';
-import { Journey } from '@/types/journey';
+import { extractFrequenciesFromText } from '@/utils/frequencyUtils';
 
-// Extract frequency value from string like "123 Hz" or "Some text 123hz"
-export function extractFrequencyValue(text?: string): number | null {
-  if (!text) return null;
+interface JourneyFrontmatter {
+  title?: string;
+  tags?: string[] | string;
+  veil?: boolean;
+  frequency?: number | number[] | string;
+  duration?: string;
+  description?: string;
+  [key: string]: any;
+}
+
+/**
+ * Parses frontmatter from markdown content
+ */
+export function parseJourneyFrontmatter(content: string): JourneyFrontmatter {
+  const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---/;
+  const match = content.match(frontmatterRegex);
   
-  const regex = /\b(\d+(?:\.\d+)?)\s*hz\b/i;
-  const match = text.match(regex);
-  
-  if (match && match[1]) {
-    return parseFloat(match[1]);
+  if (!match || !match[1]) {
+    return {};
   }
   
-  return null;
+  const frontmatter: JourneyFrontmatter = {};
+  const lines = match[1].split('\n');
+  
+  lines.forEach(line => {
+    const parts = line.split(':').map(part => part.trim());
+    if (parts.length >= 2) {
+      const key = parts[0];
+      const value = parts.slice(1).join(':').trim();
+      
+      // Handle array values (comma-separated)
+      if (value.includes(',')) {
+        frontmatter[key] = value.split(',').map(v => v.trim());
+      } 
+      // Handle boolean values
+      else if (value === 'true' || value === 'false') {
+        frontmatter[key] = value === 'true';
+      } 
+      // Handle numeric values
+      else if (!isNaN(Number(value))) {
+        frontmatter[key] = Number(value);
+      } 
+      // Handle string values
+      else {
+        frontmatter[key] = value;
+      }
+    }
+  });
+  
+  return frontmatter;
 }
 
-// Fix slugs for URLs
-export function fileNameToSlug(filename: string): string {
-  return filename
-    .replace(/\s+/g, '-')
-    .replace(/[^a-zA-Z0-9-]/g, '')
-    .toLowerCase();
+/**
+ * Removes frontmatter from markdown content
+ */
+export function removeFrontmatter(content: string): string {
+  return content.replace(/^---\s*\n[\s\S]*?\n---\s*\n/, '');
 }
 
-// Convert slug to more readable title
-export function slugToTitle(slug: string): string {
-  return slug
-    .replace(/-/g, ' ')
-    .replace(/\b\w/g, char => char.toUpperCase());
-}
-
-// Get frequency from journey content
-export function getJourneyFrequency(journey: Journey): number | null {
-  if (journey.sound_frequencies) {
-    return extractFrequencyValue(journey.sound_frequencies.toString());
+/**
+ * Parse journey content to extract metadata
+ */
+export function parseJourneyContent(content: string): {
+  title?: string;
+  tags?: string[];
+  frequencies?: string;
+} {
+  const result = {
+    title: undefined,
+    tags: undefined,
+    frequencies: undefined
+  } as {
+    title?: string;
+    tags?: string[];
+    frequencies?: string;
+  };
+  
+  // Extract title from first heading
+  const titleMatch = content.match(/# (.*)/);
+  if (titleMatch) {
+    result.title = titleMatch[1].trim();
   }
   
-  return null;
-}
-
-// Find recommended visualization for a journey
-export function getJourneyVisualization(journey: Journey): string {
-  const frequency = getJourneyFrequency(journey);
-  
-  if (!frequency) return 'default';
-  
-  const frequencyData = findFrequencyData(frequency);
-  
-  if (frequencyData?.visualTheme) {
-    return frequencyData.visualTheme;
+  // Extract frequencies from content
+  const frequencies = extractFrequenciesFromText(content);
+  if (frequencies.length > 0) {
+    result.frequencies = frequencies.join(', ');
   }
   
-  // Default visualization mapping based on frequency ranges
-  if (frequency <= 40) return 'earth-tones';
-  if (frequency <= 174) return 'fire-essence';
-  if (frequency <= 417) return 'solar-radiance';
-  if (frequency <= 639) return 'ethereal-mist';
-  if (frequency <= 852) return 'ocean-depths';
+  // Extract tags from content (this is a simplified implementation)
+  const tagMatches = content.match(/#([a-zA-Z0-9]+)/g);
+  if (tagMatches) {
+    result.tags = tagMatches.map(tag => tag.replace('#', ''));
+  }
   
-  return 'cosmic-violet';
+  return result;
 }

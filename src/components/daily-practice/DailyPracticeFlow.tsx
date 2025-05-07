@@ -1,245 +1,175 @@
-
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { useJourney } from '@/context/JourneyContext';
-import { useChakraActivations } from '@/hooks/useChakraActivations';
-import { logTimelineEvent } from '@/services/timelineService';
-import { ChakraTag } from '@/types/chakras';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { useDailyPractice } from '@/context/DailyPracticeContext';
+import { useModal } from '@/context/ModalContext';
+import { useToast } from '@/components/ui/use-toast';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
-import GroundingPhase from './GroundingPhase';
-import AligningPhase from './AligningPhase';
-import ActivatingPhase from './ActivatingPhase';
-import DailyPracticeDebriefPanel from './DailyPracticeDebriefPanel';
-import { format } from 'date-fns';
-import { toast } from 'sonner';
+import { Progress } from '@/components/ui/progress';
+import { CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
+import { DailyPractice } from '@/types/daily-practice';
+import { recordJourneyEvent } from '@/services/timelineService';
 
-interface DailyPracticeFlowProps {
-  onComplete?: () => void;
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-const PHASES = ['grounding', 'aligning', 'activating', 'debrief', 'complete'] as const;
-type PhaseType = typeof PHASES[number];
-
-const DailyPracticeFlow: React.FC<DailyPracticeFlowProps> = ({ 
-  onComplete, 
-  isOpen, 
-  onOpenChange 
-}) => {
+const DailyPracticeFlow: React.FC = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
-  const { activeJourney, getJourneyChakra } = useJourney();
-  const { getDominantChakra, recordActivation } = useChakraActivations();
-  
-  const [currentPhase, setCurrentPhase] = useState<PhaseType>('grounding');
-  const [dominantChakra, setDominantChakra] = useState<ChakraTag>('Heart');
-  const [dailyPracticeDate, setDailyPracticeDate] = useLocalStorage<string>('daily-practice-date', '');
-  const [skipAnimations, setSkipAnimations] = useState(false);
+  const { 
+    dailyPractice, 
+    currentStep, 
+    completeStep, 
+    resetDailyPractice, 
+    isLoading, 
+    error 
+  } = useDailyPractice();
+  const { openModal } = useModal();
+  const { toast } = useToast();
+  const [isCompleting, setIsCompleting] = useState(false);
 
-  // Check if today's practice is completed
-  const isTodayCompleted = () => {
-    const today = format(new Date(), 'yyyy-MM-dd');
-    return dailyPracticeDate === today;
-  };
-
-  // Set dominant chakra based on user data or journey
   useEffect(() => {
-    const setUserChakra = async () => {
-      // First, try to get chakra from active journey
-      const journeyChakra = getJourneyChakra();
-      if (journeyChakra) {
-        setDominantChakra(journeyChakra);
-        return;
-      }
-      
-      // Second, get user's dominant chakra from activity
-      const userDominantChakra = getDominantChakra();
-      if (userDominantChakra) {
-        setDominantChakra(userDominantChakra);
-        return;
-      }
-      
-      // Default to Heart if nothing else available
-      setDominantChakra('Heart');
-    };
-    
-    setUserChakra();
-  }, [getJourneyChakra, getDominantChakra]);
-
-  // Advance to next phase
-  const goToNextPhase = () => {
-    const currentIndex = PHASES.indexOf(currentPhase);
-    if (currentIndex < PHASES.length - 1) {
-      setCurrentPhase(PHASES[currentIndex + 1]);
-    } else {
-      handleComplete();
+    if (error) {
+      toast({
+        title: "Error Loading Daily Practice",
+        description: error,
+        variant: "destructive",
+      });
     }
-  };
+  }, [error, toast]);
 
-  // Handle skip functionality for accessibility
-  const handleSkip = () => {
-    setSkipAnimations(true);
-    setCurrentPhase('debrief');
-  };
-
-  // Complete the daily practice
   const handleComplete = async () => {
-    if (!user) return;
-    
-    // Record completion date
-    const today = format(new Date(), 'yyyy-MM-dd');
-    setDailyPracticeDate(today);
-    
-    // Log to timeline
-    await logTimelineEvent(
-      user.id,
-      'daily_practice',
-      'completed',
-      activeJourney?.id?.toString(),
-      { 
-        chakra: dominantChakra,
-        date: today
-      }
-    );
-    
-    // Record chakra activation
-    await recordActivation(dominantChakra, 'daily_practice', activeJourney?.id?.toString());
-    
-    // Show completion message
-    toast.success("Daily Resonance Unlocked", {
-      description: "Your practice has been recorded in your timeline.",
-    });
-    
-    // Call onComplete callback if provided
-    if (onComplete) {
-      onComplete();
-    }
-    
-    // Close dialog if needed
-    setTimeout(() => {
-      onOpenChange(false);
-    }, 1000);
-  };
+    if (!dailyPractice || !user) return;
 
-  // Handle dialog close
-  const handleDialogClose = (open: boolean) => {
-    if (!open && currentPhase !== 'complete') {
-      // Prompt before closing if not completed
-      if (confirm('Are you sure you want to exit your daily practice?')) {
-        onOpenChange(false);
-      } else {
-        onOpenChange(true);
-      }
-    } else {
-      onOpenChange(open);
-    }
-  };
-
-  // Render the current phase
-  const renderPhase = () => {
-    switch(currentPhase) {
-      case 'grounding':
-        return <GroundingPhase 
-          onComplete={goToNextPhase} 
-          skipAnimations={skipAnimations}
-        />;
+    setIsCompleting(true);
+    try {
+      await completeStep();
       
-      case 'aligning':
-        return <AligningPhase 
-          chakraTag={dominantChakra} 
-          onComplete={goToNextPhase}
-          skipAnimations={skipAnimations}
-        />;
-        
-      case 'activating':
-        return <ActivatingPhase 
-          onComplete={goToNextPhase}
-          skipAnimations={skipAnimations}
-        />;
-        
-      case 'debrief':
-        return <DailyPracticeDebriefPanel
-          chakraTag={dominantChakra}
-          journeyId={activeJourney?.id?.toString()}
-          userId={user?.id}
-          onComplete={goToNextPhase}
-          onSkip={goToNextPhase}
-        />;
+      // Record the completion event in the timeline
+      await recordJourneyEvent(
+        user.id,
+        'daily_practice_step_complete',
+        `Completed Step ${currentStep + 1} of Daily Practice`,
+        'daily_practice',
+        { step: currentStep + 1, totalSteps: dailyPractice.steps.length }
+      );
 
-      case 'complete':
-        return (
-          <div className="flex flex-col items-center justify-center p-8 text-center">
-            <h2 className="text-2xl font-bold mb-4">Practice Complete</h2>
-            <p className="text-lg mb-6">
-              Carry this resonance into your journey.
-            </p>
-            <Button onClick={() => onOpenChange(false)}>
-              Continue Your Journey
-            </Button>
-          </div>
-        );
+      if (currentStep < dailyPractice.steps.length - 1) {
+        toast({
+          title: "Step Completed",
+          description: `Moving to step ${currentStep + 2}`,
+        });
+      } else {
+        toast({
+          title: "Daily Practice Complete!",
+          description: "You've completed all steps for today.",
+        });
+      }
+    } catch (err) {
+      console.error("Error completing step:", err);
+      toast({
+        title: "Error Completing Step",
+        description: "Failed to save progress. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCompleting(false);
     }
   };
 
-  // Determine dialog width based on phase
-  const getDialogWidth = () => {
-    if (currentPhase === 'complete') return 'sm:max-w-md';
-    return 'sm:max-w-2xl';
+  const handleReset = () => {
+    openModal({
+      title: "Reset Daily Practice?",
+      description: "Are you sure you want to reset your progress? This cannot be undone.",
+      confirmText: "Yes, Reset",
+      cancelText: "Cancel",
+      onConfirm: () => {
+        resetDailyPractice();
+        toast({
+          title: "Practice Reset",
+          description: "Your daily practice has been reset.",
+        });
+      },
+    });
   };
+
+  const handleGoBack = () => {
+    navigate('/dashboard');
+  };
+
+  if (isLoading || !dailyPractice) {
+    return (
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader>
+          <CardTitle>Loading Daily Practice...</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center py-8">
+          <Loader2 className="animate-spin h-6 w-6" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader>
+          <CardTitle>Error</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center py-8">
+          <AlertTriangle className="h-6 w-6 text-red-500 mr-2" />
+          Failed to load daily practice.
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const step = dailyPractice.steps[currentStep];
+  const progress = ((currentStep + 1) / dailyPractice.steps.length) * 100;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleDialogClose}>
-      <DialogContent 
-        className={`bg-black/80 border-purple-500/30 backdrop-blur-md ${getDialogWidth()}`}
-      >
-        {/* Skip button for accessibility */}
-        {currentPhase !== 'complete' && currentPhase !== 'debrief' && (
-          <div className="absolute right-4 top-4 flex gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="text-xs opacity-50 hover:opacity-100 border-white/20" 
-              onClick={handleSkip}
-            >
-              Skip
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="text-xs opacity-50 hover:opacity-100" 
-              onClick={() => onOpenChange(false)}
-            >
-              <X size={16} />
-              <span className="sr-only">Close</span>
-            </Button>
-          </div>
-        )}
-        
-        {/* Progress indicator */}
-        {currentPhase !== 'complete' && (
-          <div className="absolute top-0 left-0 right-0 flex justify-center gap-2 p-2">
-            {PHASES.slice(0, -1).map((phase, i) => (
-              <div 
-                key={phase}
-                className={`h-1 w-16 rounded-full transition-colors ${
-                  PHASES.indexOf(currentPhase) >= i 
-                    ? 'bg-purple-500' 
-                    : 'bg-white/20'
-                }`}
-              />
-            ))}
-          </div>
-        )}
-        
-        {/* Phase content */}
-        <div className="mt-4">
-          {renderPhase()}
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader>
+        <CardTitle>{dailyPractice.title}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="mb-2">
+          <Progress value={progress} />
+          <p className="text-sm text-muted-foreground mt-1">
+            Step {currentStep + 1} of {dailyPractice.steps.length}
+          </p>
         </div>
-      </DialogContent>
-    </Dialog>
+        <div className="text-lg font-semibold">{step.title}</div>
+        <div className="text-muted-foreground">{step.description}</div>
+        <div className="flex justify-between">
+          <Button variant="secondary" onClick={handleGoBack}>
+            Back to Dashboard
+          </Button>
+          <Button 
+            onClick={handleComplete} 
+            disabled={isCompleting}
+          >
+            {isCompleting ? (
+              <>
+                Completing...
+                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+              </>
+            ) : currentStep === dailyPractice.steps.length - 1 ? (
+              <>
+                Complete Practice <CheckCircle className="ml-2 h-4 w-4" />
+              </>
+            ) : (
+              "Complete Step"
+            )}
+          </Button>
+        </div>
+        {currentStep > 0 && (
+          <div className="flex justify-center mt-4">
+            <Button variant="ghost" onClick={handleReset}>
+              Reset Practice
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

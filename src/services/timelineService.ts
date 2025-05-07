@@ -65,6 +65,9 @@ export const createTimelineItem = async (params: CreateTimelineParams): Promise<
   }
 };
 
+// Alias for createTimelineItem to maintain backward compatibility
+export const createTimelineEntry = createTimelineItem;
+
 export const fetchTimelineItems = async (
   userId: string, 
   limit = 20, 
@@ -112,6 +115,61 @@ export const fetchTimelineItems = async (
     return timelineItems;
   } catch (err) {
     console.error('Error in fetchTimelineItems:', err);
+    return [];
+  }
+};
+
+// New function to fetch timeline items for a specific journey
+export const fetchJourneyTimeline = async (
+  userId: string,
+  journeyId: string,
+  limit = 20
+): Promise<JourneyTimelineItem[]> => {
+  return fetchTimelineItems(userId, limit, undefined, journeyId);
+};
+
+// New function to fetch timeline for a user
+export const fetchUserTimeline = async (
+  userId: string,
+  filterTag?: string,
+  limit = 20
+): Promise<JourneyTimelineItem[]> => {
+  try {
+    let query = supabase
+      .from('timeline_snapshots')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    
+    if (filterTag && filterTag !== 'all') {
+      query = query.ilike('tag', `%${filterTag}%`);
+    }
+    
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Error fetching user timeline:', error);
+      return [];
+    }
+
+    const timelineItems: JourneyTimelineItem[] = data.map(item => ({
+      id: item.id,
+      user_id: item.user_id,
+      title: item.title,
+      tag: item.tag || '',
+      notes: item.notes,
+      chakra_tag: item.chakra,
+      created_at: item.created_at,
+      journey_id: item.journey_id,
+      component: item.component,
+      action: item.action,
+      details: item.details
+    }));
+
+    return timelineItems;
+  } catch (err) {
+    console.error('Error fetching user timeline:', err);
     return [];
   }
 };
@@ -165,3 +223,6 @@ export const recordJourneyEvent = async (
     return null;
   }
 };
+
+// Alias for recordJourneyEvent to maintain backward compatibility
+export const logTimelineEvent = recordJourneyEvent;

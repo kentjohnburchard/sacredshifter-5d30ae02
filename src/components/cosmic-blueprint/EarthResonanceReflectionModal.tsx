@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { 
@@ -11,7 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { createTimelineEntry } from '@/services/timelineService';
+import { createTimelineItem } from '@/services/timelineService';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -35,7 +34,7 @@ const EarthResonanceReflectionModal: React.FC<EarthResonanceReflectionModalProps
     
     try {
       // Create timeline entry with the user's reflection
-      await createTimelineEntry(
+      await createTimelineItem(
         user.id,
         "Earth Realm Reflection",
         "reflection",
