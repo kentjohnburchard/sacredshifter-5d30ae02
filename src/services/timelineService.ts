@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { JourneyTimelineItem, JourneyTimelineEvent } from '@/types/journey';
 
@@ -14,9 +13,9 @@ interface CreateTimelineParams {
   details?: Record<string, any>;
 }
 
+// ✅ Create a new timeline item
 export const createTimelineItem = async (params: CreateTimelineParams): Promise<JourneyTimelineItem | null> => {
   try {
-    // Validate required fields
     if (!params.title || !params.tag || !params.user_id) {
       console.error('Missing required fields for timeline item');
       return null;
@@ -43,8 +42,7 @@ export const createTimelineItem = async (params: CreateTimelineParams): Promise<
       return null;
     }
 
-    // Cast the returned data to match the JourneyTimelineItem interface
-    const timelineItem: JourneyTimelineItem = {
+    return {
       id: data.id,
       user_id: data.user_id,
       title: data.title,
@@ -57,20 +55,19 @@ export const createTimelineItem = async (params: CreateTimelineParams): Promise<
       action: data.action,
       details: data.details
     };
-
-    return timelineItem;
   } catch (err) {
     console.error('Error in createTimelineItem:', err);
     return null;
   }
 };
 
-// Alias for createTimelineItem to maintain backward compatibility
+// ✅ Alias for compatibility
 export const createTimelineEntry = createTimelineItem;
 
+// ✅ Fetch all timeline items (generic)
 export const fetchTimelineItems = async (
-  userId: string, 
-  limit = 20, 
+  userId: string,
+  limit = 20,
   chakraTag?: string,
   journeyId?: string
 ): Promise<JourneyTimelineItem[]> => {
@@ -81,15 +78,10 @@ export const fetchTimelineItems = async (
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(limit);
-    
-    if (chakraTag) {
-      query = query.eq('chakra', chakraTag);
-    }
 
-    if (journeyId) {
-      query = query.eq('journey_id', journeyId);
-    }
-    
+    if (chakraTag) query = query.eq('chakra', chakraTag);
+    if (journeyId) query = query.eq('journey_id', journeyId);
+
     const { data, error } = await query;
 
     if (error) {
@@ -97,8 +89,7 @@ export const fetchTimelineItems = async (
       return [];
     }
 
-    // Cast the database results to match the JourneyTimelineItem interface
-    const timelineItems: JourneyTimelineItem[] = data.map(item => ({
+    return data.map(item => ({
       id: item.id,
       user_id: item.user_id,
       title: item.title,
@@ -111,15 +102,13 @@ export const fetchTimelineItems = async (
       action: item.action,
       details: item.details
     }));
-
-    return timelineItems;
   } catch (err) {
     console.error('Error in fetchTimelineItems:', err);
     return [];
   }
 };
 
-// New function to fetch timeline items for a specific journey
+// ✅ Fetch timeline items for a specific journey
 export const fetchJourneyTimeline = async (
   userId: string,
   journeyId: string,
@@ -128,7 +117,7 @@ export const fetchJourneyTimeline = async (
   return fetchTimelineItems(userId, limit, undefined, journeyId);
 };
 
-// New function to fetch timeline for a user
+// ✅ Fetch timeline items for a user
 export const fetchUserTimeline = async (
   userId: string,
   filterTag?: string,
@@ -141,11 +130,11 @@ export const fetchUserTimeline = async (
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(limit);
-    
+
     if (filterTag && filterTag !== 'all') {
       query = query.ilike('tag', `%${filterTag}%`);
     }
-    
+
     const { data, error } = await query;
 
     if (error) {
@@ -153,7 +142,7 @@ export const fetchUserTimeline = async (
       return [];
     }
 
-    const timelineItems: JourneyTimelineItem[] = data.map(item => ({
+    return data.map(item => ({
       id: item.id,
       user_id: item.user_id,
       title: item.title,
@@ -166,14 +155,13 @@ export const fetchUserTimeline = async (
       action: item.action,
       details: item.details
     }));
-
-    return timelineItems;
   } catch (err) {
     console.error('Error fetching user timeline:', err);
     return [];
   }
 };
 
+// ✅ Log journey-specific timeline events
 export const recordJourneyEvent = async (
   userId: string,
   eventType: JourneyTimelineEvent,
@@ -182,32 +170,21 @@ export const recordJourneyEvent = async (
   details?: Record<string, any>
 ): Promise<JourneyTimelineItem | null> => {
   try {
-    // Map event type to a more readable tag
     let tag: string;
+
     switch (eventType) {
-      case 'journey_start':
-        tag = 'Journey Started';
-        break;
-      case 'journey_complete':
-        tag = 'Journey Completed';
-        break;
-      case 'journey_progress':
-        tag = 'Journey Progress';
-        break;
+      case 'journey_start': tag = 'Journey Started'; break;
+      case 'journey_complete': tag = 'Journey Completed'; break;
+      case 'journey_progress': tag = 'Journey Progress'; break;
       case 'spiral_toggle':
-      case 'spiral_param_change':
-        tag = 'Spiral Visualization';
-        break;
+      case 'spiral_param_change': tag = 'Spiral Visualization'; break;
       case 'soundscape_play':
       case 'soundscape_pause':
-      case 'soundscape_volume':
-        tag = 'Soundscape';
-        break;
-      default:
-        tag = 'Journey Event';
+      case 'soundscape_volume': tag = 'Soundscape'; break;
+      default: tag = 'Journey Event';
     }
 
-    const timelineItem = await createTimelineItem({
+    return await createTimelineItem({
       title,
       tag,
       user_id: userId,
@@ -216,13 +193,11 @@ export const recordJourneyEvent = async (
       action: eventType,
       details
     });
-
-    return timelineItem;
   } catch (err) {
     console.error('Error recording journey event:', err);
     return null;
   }
 };
 
-// Alias for recordJourneyEvent to maintain backward compatibility
+// ✅ Alias
 export const logTimelineEvent = recordJourneyEvent;
