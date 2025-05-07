@@ -22,3 +22,23 @@ export function stringifyArrayForDb(arr: string[]): string {
   if (!arr || arr.length === 0) return '';
   return arr.join(', ');
 }
+
+/**
+ * Safely parses a JSON string to a Record or returns a default object
+ * @param value JSON string or already parsed object
+ * @returns Record<string, any> object
+ */
+export function safelyParseJson(value: string | Record<string, any> | null | undefined): Record<string, any> {
+  if (!value) return {};
+  
+  if (typeof value === 'object') {
+    return value;
+  }
+  
+  try {
+    return JSON.parse(value) as Record<string, any>;
+  } catch (e) {
+    console.error('Error parsing JSON:', e);
+    return { rawValue: value };
+  }
+}

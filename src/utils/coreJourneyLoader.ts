@@ -93,6 +93,9 @@ export function loadJourneyFromMarkdown(filename: string, content: string): Jour
   const frontmatter = parseJourneyFrontmatter(content);
   const parsed = parseJourneyContent(content);
   
+  // Use normalizeStringArray to ensure tags is always a string array
+  const tags = normalizeStringArray(frontmatter.tags);
+  
   return {
     id: "0", // Will be assigned by the database
     filename,
@@ -102,7 +105,7 @@ export function loadJourneyFromMarkdown(filename: string, content: string): Jour
     sound_frequencies: frontmatter.frequency?.toString() || parsed.frequencies || '',
     intent: parsed.intent,
     duration: parsed.duration,
-    tags: normalizeStringArray(frontmatter.tags),
+    tags: tags,
   };
 }
 

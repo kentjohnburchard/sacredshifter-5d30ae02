@@ -46,7 +46,11 @@ const JourneyTimelineView: React.FC<JourneyTimelineViewProps> = ({
     
     try {
       setLoading(true);
-      const data = await fetchJourneyTimeline(normalizeId(effectiveJourneyId), Number(limit));
+      // Pass limit as a number
+      const data = await fetchJourneyTimeline(
+        normalizeId(effectiveJourneyId),
+        typeof limit === 'number' ? limit : Number(limit)
+      );
       setTimelineItems(data);
     } catch (error) {
       console.error("Error loading timeline data:", error);

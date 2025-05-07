@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 export interface JourneySoundscape {
@@ -17,7 +18,8 @@ export async function fetchJourneySoundscape(journeySlug: string): Promise<Journ
   
   try {
     const { data, error } = await supabase
-      .rpc('get_journey_soundscape', { journey_slug: journeySlug });
+      .rpc('get_journey_soundscape', { journey_slug: journeySlug })
+      .select('id, journey_id, title, description, file_url, source_link, created_at, chakra_tag');
     
     if (error) {
       console.error('Error fetching journey soundscape:', error);
@@ -84,7 +86,7 @@ export async function createJourneySoundscape(
           chakra_tag: data.chakra_tag
         }
       ])
-      .select()
+      .select('id, journey_id, title, description, file_url, source_link, source_type, created_at, chakra_tag')
       .single();
     
     if (error) {
@@ -124,7 +126,7 @@ export async function updateJourneySoundscape(
       .from('journey_soundscapes')
       .update(updateData)
       .eq('id', id)
-      .select()
+      .select('id, journey_id, title, description, file_url, source_link, source_type, created_at, chakra_tag')
       .single();
     
     if (error) {

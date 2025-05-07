@@ -1,21 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { JourneyTimelineItem, JourneyTimelineEvent } from '@/types/journey';
-import { normalizeId } from '@/utils/parsers';
-
-/**
- * Helper function to safely convert JSON data to Record<string, any>
- */
-function safelyParseDetails(details: any): Record<string, any> {
-  if (typeof details === 'string') {
-    try {
-      return JSON.parse(details);
-    } catch (e) {
-      return { raw: details };
-    }
-  }
-  return details as Record<string, any>;
-}
+import { normalizeId, safelyParseJson } from '@/utils/parsers';
 
 /**
  * Record a journey event in the timeline
@@ -84,7 +70,7 @@ export async function fetchJourneyTimeline(
       journey_id: item.journey_id,
       component: item.component,
       action: item.action,
-      details: safelyParseDetails(item.details)
+      details: safelyParseJson(item.details)
     }));
   } catch (error) {
     console.error('Error in fetchJourneyTimeline:', error);
@@ -136,7 +122,7 @@ export async function createTimelineItem(
       journey_id: data.journey_id,
       component: data.component,
       action: data.action,
-      details: safelyParseDetails(data.details)
+      details: safelyParseJson(data.details)
     };
   } catch (error) {
     console.error('Error in createTimelineItem:', error);
@@ -197,7 +183,7 @@ export async function fetchUserTimeline(
       journey_id: item.journey_id,
       component: item.component,
       action: item.action,
-      details: safelyParseDetails(item.details)
+      details: safelyParseJson(item.details)
     }));
   } catch (error) {
     console.error('Error in fetchUserTimeline:', error);

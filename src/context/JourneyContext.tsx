@@ -1,10 +1,8 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { ChakraTag } from '@/types/chakras';
-import { Journey } from '@/types/journey';
-
-// Re-export the Journey type from types/journey
-export type { Journey } from '@/types/journey';
+import { Journey, JourneyTimelineItem } from '@/types/journey';
+import { normalizeStringArray, normalizeId } from '@/utils/parsers';
 
 // Lightbearer Code interface
 export interface LightbearerCode {
@@ -91,7 +89,15 @@ export const JourneyProvider: React.FC<JourneyProviderProps> = ({ children }) =>
   // Start a new journey
   const startJourney = (journey: Journey) => {
     console.log('Starting journey:', journey);
-    setActiveJourney(journey);
+    
+    // Ensure tags is properly processed as a string array
+    const processedJourney: Journey = {
+      ...journey,
+      id: normalizeId(journey.id),
+      tags: normalizeStringArray(journey.tags)
+    };
+    
+    setActiveJourney(processedJourney);
     // Additional logic for journey start can be added here
   };
 
