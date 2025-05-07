@@ -298,6 +298,17 @@ const JourneyPage: React.FC = () => {
           </div>
         )}
       </div>
+      {/* QA Checklist Data for testing */}
+      <div 
+        data-qa-checklist="true" 
+        data-route-accessible="true" 
+        data-ui-elements-visible="true" 
+        data-console-errors="false"
+        data-responsiveness-tested="false"
+        data-mobile-compatibility="false"
+        data-approved="false"
+        className="hidden"
+      ></div>
     </Layout>
   );
 };

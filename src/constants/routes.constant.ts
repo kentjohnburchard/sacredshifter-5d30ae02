@@ -39,6 +39,13 @@ export const APP_ROUTES: Record<string, RouteDefinition> = {
     notes: 'Information about Sacred Shifter founder'
   },
   
+  JOURNEY: {
+    path: '/journey/:slug',
+    name: 'Journey',
+    qaStatus: 'pending',
+    notes: 'Individual journey experience page'
+  },
+  
   // Future routes will be added here after QA
 };
 

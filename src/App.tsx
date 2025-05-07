@@ -4,6 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 import NotFound from './pages/NotFound';
 import ComingSoon from './pages/ComingSoon';
 import AboutFounder from './pages/AboutFounder';
+import JourneyPage from './pages/JourneyPage';
 
 // =================================================
 // ROUTING LOCK - IMPORTANT!
@@ -28,6 +29,13 @@ function App() {
       <Route 
         path="/about" 
         element={<AboutFounder />} 
+        qa-status="pending" 
+      />
+      
+      {/* Journey page route */}
+      <Route 
+        path="/journey/:slug" 
+        element={<JourneyPage />} 
         qa-status="pending" 
       />
 
