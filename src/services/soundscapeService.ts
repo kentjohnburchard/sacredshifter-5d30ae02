@@ -10,6 +10,43 @@ type JourneySoundscapeUpdate = Database['public']['Tables']['journey_soundscapes
 // Export the main type for use in components
 export type JourneySoundscape = JourneySoundscapeRow;
 
+/**
+ * Type guard to check if an object has all required JourneySoundscape properties
+ * @param obj Any object to check
+ * @returns Boolean indicating if the object matches the JourneySoundscape shape
+ */
+function isCompleteSoundscape(obj: any): obj is JourneySoundscape {
+  return obj && 
+    typeof obj.id === 'string' && 
+    typeof obj.file_url === 'string' && 
+    typeof obj.title === 'string' &&
+    typeof obj.source_type === 'string';
+}
+
+/**
+ * Create a complete JourneySoundscape object from partial data
+ * This ensures all required fields exist even if the database doesn't return them
+ */
+function createCompleteSoundscape(data: Partial<JourneySoundscape>): JourneySoundscape {
+  return {
+    id: data.id || null,
+    journey_id: data.journey_id || null,
+    title: data.title || 'Journey Soundscape',
+    description: data.description || null,
+    file_url: data.file_url || '',
+    source_link: data.source_link || null,
+    created_at: data.created_at || new Date().toISOString(),
+    updated_at: data.updated_at || new Date().toISOString(),
+    chakra_tag: data.chakra_tag || null,
+    source_type: data.source_type || 'file'
+  } as JourneySoundscape; // Type assertion needed because of null values
+}
+
+/**
+ * Fetches a soundscape for a specific journey
+ * IMPORTANT: The database function get_journey_soundscape doesn't return all fields
+ * required by the JourneySoundscape type. We explicitly add missing fields.
+ */
 export const fetchJourneySoundscape = async (journeySlug: string): Promise<JourneySoundscape | null> => {
   try {
     // Try to fetch from the journey_soundscapes table using the built-in function
@@ -21,11 +58,10 @@ export const fetchJourneySoundscape = async (journeySlug: string): Promise<Journ
       throw error;
     }
     
-    // If we found a soundscape, return it
+    // If we found a soundscape, return it with all required fields
     if (data && data.length > 0) {
-      // The database function returns objects lacking some of the fields we need.
-      // We need to explicitly add them to match our JourneySoundscape type.
-      const soundscape: JourneySoundscape = {
+      // Map DB result to a complete JourneySoundscape object
+      return createCompleteSoundscape({
         id: data[0].id,
         journey_id: data[0].journey_id,
         title: data[0].title, 
@@ -33,11 +69,11 @@ export const fetchJourneySoundscape = async (journeySlug: string): Promise<Journ
         file_url: data[0].file_url,
         source_link: data[0].source_link,
         created_at: data[0].created_at,
-        chakra_tag: null, // Adding missing fields required by JourneySoundscape type
+        // Add fields missing from the database function
+        chakra_tag: null,
         source_type: 'file',
         updated_at: new Date().toISOString()
-      };
-      return soundscape;
+      });
     }
     
     // If no soundscape found, check if there's an audio_filename in the journey
@@ -52,9 +88,9 @@ export const fetchJourneySoundscape = async (journeySlug: string): Promise<Journ
       return null;
     }
     
-    // If we have an audio_filename, construct a file URL
+    // If we have an audio_filename, construct a file URL and complete soundscape object
     if (journeyData?.audio_filename) {
-      return {
+      return createCompleteSoundscape({
         id: null,
         title: 'Journey Soundscape',
         description: 'Sacred frequency audio',
@@ -65,7 +101,7 @@ export const fetchJourneySoundscape = async (journeySlug: string): Promise<Journ
         chakra_tag: null,
         journey_id: null,
         updated_at: new Date().toISOString()
-      } as JourneySoundscape;
+      });
     }
     
     // If no soundscape or audio_filename found, return null
@@ -80,9 +116,20 @@ export const fetchJourneySoundscape = async (journeySlug: string): Promise<Journ
 // Create a new journey soundscape
 export const createJourneySoundscape = async (soundscape: JourneySoundscapeInsert): Promise<JourneySoundscapeRow | null> => {
   try {
+    // Ensure required fields are set
+    if (!soundscape.title || !soundscape.file_url) {
+      throw new Error('Missing required fields for soundscape');
+    }
+    
+    // Ensure source_type is set
+    const completeInsert: JourneySoundscapeInsert = {
+      ...soundscape,
+      source_type: soundscape.source_type || 'file'
+    };
+    
     const { data, error } = await supabase
       .from('journey_soundscapes')
-      .insert(soundscape)
+      .insert(completeInsert)
       .select()
       .single();
     
@@ -91,7 +138,8 @@ export const createJourneySoundscape = async (soundscape: JourneySoundscapeInser
       throw error;
     }
     
-    return data;
+    // Verify we have a complete soundscape object before returning
+    return isCompleteSoundscape(data) ? data : createCompleteSoundscape(data);
   } catch (err) {
     console.error('Error in createJourneySoundscape:', err);
     return null;
@@ -101,9 +149,15 @@ export const createJourneySoundscape = async (soundscape: JourneySoundscapeInser
 // Update an existing journey soundscape
 export const updateJourneySoundscape = async (id: string, updates: JourneySoundscapeUpdate): Promise<JourneySoundscapeRow> => {
   try {
+    // Ensure updated_at is always set
+    const completeUpdates: JourneySoundscapeUpdate = {
+      ...updates,
+      updated_at: new Date().toISOString()
+    };
+    
     const { data, error } = await supabase
       .from('journey_soundscapes')
-      .update(updates)
+      .update(completeUpdates)
       .eq('id', id)
       .select()
       .single();
@@ -111,6 +165,11 @@ export const updateJourneySoundscape = async (id: string, updates: JourneySounds
     if (error) {
       console.error('Error updating journey soundscape:', error);
       throw error;
+    }
+    
+    // Verify we have a complete soundscape object before returning
+    if (!isCompleteSoundscape(data)) {
+      throw new Error('Updated soundscape is missing required fields');
     }
     
     return data;
