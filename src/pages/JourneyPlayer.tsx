@@ -195,7 +195,8 @@ const JourneyPlayer = () => {
           id: foundJourney.id,
           title: foundJourney.title,
           description: foundJourney.description,
-          chakra: foundJourney.chakras?.[0]
+          tags: [],
+          chakra_tag: foundJourney.chakras?.[0]
         });
       }
       

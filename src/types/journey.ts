@@ -1,6 +1,5 @@
-
 export interface Journey {
-  id?: string;
+  id: string;
   title: string;
   slug?: string;
   description?: string;
@@ -8,7 +7,7 @@ export interface Journey {
   filename?: string;
   audio_filename?: string;
   veil_locked?: boolean;
-  tags?: string[]; // Explicitly making this a string array
+  tags: string[]; // Explicitly making this a string array
   intent?: string;
   sound_frequencies?: string;
   duration?: string;
@@ -36,6 +35,8 @@ export interface Journey {
   is_featured?: boolean;
   needs_moderation?: boolean;
   is_approved?: boolean;
+  chakra?: string;
+  chakra_tag?: string;
 
   // optional legacy support
   frontmatter?: Record<string, any>;

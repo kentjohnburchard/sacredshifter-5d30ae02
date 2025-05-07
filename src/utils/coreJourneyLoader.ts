@@ -117,7 +117,8 @@ export async function getAllJourneys(dbJourneys: Journey[]): Promise<Journey[]> 
     ...journey,
     id: typeof journey.id === 'number' ? String(journey.id) : journey.id,
     source: 'database' as const,
-    isEditable: true
+    isEditable: true,
+    tags: normalizeStringArray(journey.tags)
   }));
   
   // For now just return the database journeys

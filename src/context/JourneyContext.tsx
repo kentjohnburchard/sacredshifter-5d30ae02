@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { ChakraTag } from '@/types/chakras';
-import { Journey as JourneyType } from '@/types/journey';
+import { Journey } from '@/types/journey';
 
 // Re-export the Journey type from types/journey
 export type { Journey } from '@/types/journey';
@@ -34,9 +34,9 @@ export interface JourneyContextType {
   setCurrentPath?: (path: string) => void;
   
   // Journey management
-  activeJourney?: JourneyType | null;
+  activeJourney?: Journey | null;
   isJourneyActive: boolean;
-  startJourney: (journey: JourneyType) => void;
+  startJourney: (journey: Journey) => void;
   completeJourney: () => void;
   resetJourney: () => void;
   
@@ -81,7 +81,7 @@ interface JourneyProviderProps {
 
 export const JourneyProvider: React.FC<JourneyProviderProps> = ({ children }) => {
   const [currentPath, setCurrentPath] = useState('/');
-  const [activeJourney, setActiveJourney] = useState<JourneyType | null>(null);
+  const [activeJourney, setActiveJourney] = useState<Journey | null>(null);
   const [activePrompts, setActivePrompts] = useState<JourneyPrompt[]>([]);
   const [currentLightbearerCode, setCurrentLightbearerCode] = useState<LightbearerCode | null>(null);
 
@@ -89,7 +89,7 @@ export const JourneyProvider: React.FC<JourneyProviderProps> = ({ children }) =>
   const isJourneyActive = !!activeJourney;
 
   // Start a new journey
-  const startJourney = (journey: JourneyType) => {
+  const startJourney = (journey: Journey) => {
     console.log('Starting journey:', journey);
     setActiveJourney(journey);
     // Additional logic for journey start can be added here
@@ -151,7 +151,7 @@ export const JourneyProvider: React.FC<JourneyProviderProps> = ({ children }) =>
     
     // Check for explicit chakra_tag
     if (activeJourney.chakra_tag) {
-      return activeJourney.chakra_tag;
+      return activeJourney.chakra_tag as ChakraTag;
     }
     
     // Check the older chakra field
