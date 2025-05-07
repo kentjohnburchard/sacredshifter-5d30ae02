@@ -1,7 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { JourneyTimelineItem, JourneyTimelineEvent } from '@/types/journey';
-import { normalizeId, safelyParseJson } from '@/utils/parsers';
+import { normalizeId } from '@/utils/parsers';
 
 /**
  * Record a journey event in the timeline
@@ -70,7 +70,7 @@ export async function fetchJourneyTimeline(
       journey_id: item.journey_id,
       component: item.component,
       action: item.action,
-      details: item.details ? safelyParseJson(item.details) : {}
+      details: parseDetails(item.details)
     }));
   } catch (error) {
     console.error('Error in fetchJourneyTimeline:', error);
@@ -122,7 +122,7 @@ export async function createTimelineItem(
       journey_id: data.journey_id,
       component: data.component,
       action: data.action,
-      details: data.details ? safelyParseJson(data.details) : {}
+      details: parseDetails(data.details)
     };
   } catch (error) {
     console.error('Error in createTimelineItem:', error);
@@ -183,7 +183,7 @@ export async function fetchUserTimeline(
       journey_id: item.journey_id,
       component: item.component,
       action: item.action,
-      details: item.details ? safelyParseJson(item.details) : {}
+      details: parseDetails(item.details)
     }));
   } catch (error) {
     console.error('Error in fetchUserTimeline:', error);
@@ -211,4 +211,30 @@ export async function deleteTimelineItem(id: string): Promise<boolean> {
     console.error('Error in deleteTimelineItem:', error);
     return false;
   }
+}
+
+/**
+ * Helper function to safely parse details field which could be JSON or other types
+ */
+function parseDetails(details: any): Record<string, any> {
+  if (!details) {
+    return {};
+  }
+  
+  if (typeof details === 'string') {
+    try {
+      return JSON.parse(details);
+    } catch (error) {
+      console.error('Error parsing details JSON:', error);
+      return {};
+    }
+  }
+  
+  // If it's already an object, return it
+  if (typeof details === 'object') {
+    return details;
+  }
+  
+  // For any other type, return an empty object
+  return {};
 }
