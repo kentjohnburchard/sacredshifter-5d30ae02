@@ -13,7 +13,7 @@ const EasterEggContext = createContext<EasterEggContextType>({
 });
 
 export const EasterEggProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { liftTheVeil, toggleConsciousnessMode } = useTheme();
+  const { liftTheVeil, toggleVeil } = useTheme();
 
   // Simply map to ThemeContext values
   const isEasterEggMode = liftTheVeil;
@@ -21,7 +21,7 @@ export const EasterEggProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // Use the central toggle function
   const toggleEasterEggMode = () => {
     console.log("EasterEggContext: Toggle requested, delegating to ThemeContext");
-    toggleConsciousnessMode();
+    toggleVeil();
   };
 
   return (

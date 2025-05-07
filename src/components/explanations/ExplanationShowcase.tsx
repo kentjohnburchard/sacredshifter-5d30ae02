@@ -7,7 +7,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { Sparkles } from 'lucide-react';
 
 export const ExplanationShowcase = () => {
-  const { liftTheVeil, setLiftTheVeil } = useTheme();
+  const { liftTheVeil, toggleVeil } = useTheme();
   
   // Get all section keys
   const sections = Object.keys(sectionExplanations) as SectionKey[];
@@ -20,7 +20,7 @@ export const ExplanationShowcase = () => {
         </h2>
         
         <Button 
-          onClick={() => setLiftTheVeil(!liftTheVeil)}
+          onClick={() => toggleVeil()}
           variant="outline" 
           size="sm"
           className={`flex items-center gap-2 ${liftTheVeil ? 'border-pink-200 text-pink-700' : 'border-purple-200 text-purple-700'}`}

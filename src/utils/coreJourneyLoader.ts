@@ -1,4 +1,3 @@
-
 import { Journey } from '@/types/journey';
 
 // This function will load all core journey content from the /core_content/journeys directory
@@ -92,7 +91,7 @@ export const getAllJourneys = async (dbJourneys: Journey[] = []): Promise<Journe
   }
 };
 
-// Helper function to extract frontmatter from markdown content
+// Fix the extractFrontmatter function to convert booleans and numbers to strings
 function extractFrontmatter(content: string): Record<string, any> {
   try {
     const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
@@ -118,12 +117,12 @@ function extractFrontmatter(content: string): Record<string, any> {
           value = value.slice(1, -1);
         }
         
-        // Convert booleans
-        if (value === 'true') value = true;
-        if (value === 'false') value = false;
+        // Convert booleans to strings
+        if (value === 'true') value = 'true';
+        if (value === 'false') value = 'false';
         
-        // Convert numbers
-        if (!isNaN(Number(value))) value = Number(value);
+        // Convert numbers to strings
+        if (!isNaN(Number(value))) value = value.toString();
         
         frontmatter[key] = value;
       }

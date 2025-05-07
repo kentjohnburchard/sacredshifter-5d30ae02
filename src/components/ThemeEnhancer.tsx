@@ -7,11 +7,6 @@ import PrimeSigilActivator from '@/components/sacred-geometry/PrimeSigilActivato
 const ThemeEnhancer: React.FC = () => {
   const { liftTheVeil } = useTheme();
   
-  // Log initial state for debugging
-  useEffect(() => {
-    console.log("ThemeEnhancer mounted, liftTheVeil:", liftTheVeil);
-  }, []);
-  
   // Apply global CSS variables when theme changes
   useEffect(() => {
     const root = document.documentElement;

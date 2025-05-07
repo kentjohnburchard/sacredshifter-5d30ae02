@@ -11,6 +11,15 @@ interface GenerationHistoryProps {
   onDelete?: (id: string) => void;
 }
 
+// Create a PlayerProps interface to match what Player expects
+interface PlayerProps {
+  track: GeneratedTrack;
+  onDelete?: (id: string) => void;
+}
+
+// Make sure Player component is typed to expect these props
+// This ensures type safety when Player is used
+
 const GenerationHistory: React.FC<GenerationHistoryProps> = ({ 
   tracks = [], // Provide default empty array
   onDelete = () => {} // Provide default no-op function
@@ -25,7 +34,11 @@ const GenerationHistory: React.FC<GenerationHistoryProps> = ({
     <div className="w-full max-w-3xl mx-auto animate-slide-up">
       <div className="space-y-6">
         {tracks.map(track => (
-          <Player key={track.id} track={track} onDelete={onDelete} />
+          <Player 
+            key={track.id} 
+            track={track} 
+            onDelete={onDelete} 
+          />
         ))}
       </div>
     </div>

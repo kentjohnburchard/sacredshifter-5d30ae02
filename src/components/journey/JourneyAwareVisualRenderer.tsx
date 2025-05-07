@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { useJourney } from '@/context/JourneyContext';
-import { VisualThemeProvider } from '@/context/VisualThemeContext';
 import VisualRenderer from '@/components/visualizer/VisualRenderer';
 import { JourneyAwareComponentProps } from '@/types/journey';
 
@@ -30,14 +29,12 @@ const JourneyAwareVisualRenderer: React.FC<JourneyAwareVisualRendererProps> = ({
   }
   
   return (
-    <VisualThemeProvider>
-      <VisualRenderer
-        className={className}
-        height={height}
-        showControls={showControls}
-        containerId={containerId}
-      />
-    </VisualThemeProvider>
+    <VisualRenderer
+      className={className}
+      height={height}
+      showControls={showControls}
+      containerId={containerId}
+    />
   );
 };
 

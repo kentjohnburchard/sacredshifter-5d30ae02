@@ -12,13 +12,13 @@ interface PrimeSigilActivatorProps {
   withTooltip?: boolean;
 }
 
-const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({ 
+const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
   className = '', 
   size = 'md',
   withLabel = false,
   withTooltip = true
 }) => {
-  const { liftTheVeil, toggleConsciousnessMode } = useTheme();
+  const { liftTheVeil, toggleVeil } = useTheme();
   const [isHovered, setIsHovered] = useState(false);
   const [showRipple, setShowRipple] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -38,17 +38,9 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
     lg: 80
   }[size];
 
-  const handleActivate = () => {
-    console.log("Sigil clicked, current state before toggle:", liftTheVeil);
-    setShowRipple(true);
-    setTimeout(() => setShowRipple(false), 700);
-    
-    toggleConsciousnessMode();
-    
-    console.log("PrimeSigilActivator: Toggle function called");
-    
-    document.body.classList.toggle('force-update');
-    setTimeout(() => document.body.classList.toggle('force-update'), 10);
+  const handleClick = () => {
+    toggleVeil();
+    // Additional handler code if present
   };
 
   const createGoldenSpiralPath = (centerX: number, centerY: number, maxRadius: number): string => {
@@ -121,7 +113,7 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
           >
             <motion.div 
               className="relative cursor-pointer"
-              onClick={handleActivate}
+              onClick={handleClick}
               whileTap={{ scale: 0.95 }}
             >
               <svg 
