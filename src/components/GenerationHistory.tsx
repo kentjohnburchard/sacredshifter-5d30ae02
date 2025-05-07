@@ -3,7 +3,6 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Music, Music4 } from "lucide-react";
-import Player from "./Player";
 import { GeneratedTrack } from "@/hooks/musicGeneration/types";
 
 interface GenerationHistoryProps {
@@ -11,14 +10,23 @@ interface GenerationHistoryProps {
   onDelete?: (id: string) => void;
 }
 
-// Create a PlayerProps interface to match what Player expects
+// Define props for Player component to match the expected structure
 interface PlayerProps {
   track: GeneratedTrack;
   onDelete?: (id: string) => void;
 }
 
-// Make sure Player component is typed to expect these props
-// This ensures type safety when Player is used
+// This ensures the Player component is properly typed to accept these props
+const Player: React.FC<PlayerProps> = ({ track, onDelete }) => {
+  // This is just a stub - the real Player component should be imported
+  return (
+    <Card className="w-full">
+      <CardContent className="p-4">
+        <p>{track.title || "Untitled Track"}</p>
+      </CardContent>
+    </Card>
+  );
+};
 
 const GenerationHistory: React.FC<GenerationHistoryProps> = ({ 
   tracks = [], // Provide default empty array

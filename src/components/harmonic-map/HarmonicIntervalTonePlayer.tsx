@@ -5,23 +5,34 @@ import { Play, Square } from 'lucide-react';
 import { createTone } from '@/utils/audioUtils';
 
 interface HarmonicIntervalTonePlayerProps {
-  baseFrequency: number;
-  ratio: number;
+  baseFrequency?: number;
+  ratio?: number;
+  frequency?: number;
   name?: string;
   className?: string;
+  interval?: any; // Allow interval prop to be passed
 }
 
 const HarmonicIntervalTonePlayer: React.FC<HarmonicIntervalTonePlayerProps> = ({
-  baseFrequency,
-  ratio,
+  baseFrequency = 432,
+  ratio = 1,
+  frequency: directFrequency,
   name,
-  className = ''
+  className = '',
+  interval
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [tone, setTone] = useState<any>(null);
   
-  // Calculate the actual frequency based on base frequency and ratio
-  const frequency = Math.round(baseFrequency * ratio * 100) / 100;
+  // Calculate the actual frequency - support both direct frequency and ratio-based calculation
+  // Also handle the interval prop if provided
+  const frequency = directFrequency || 
+                    (interval && interval.hertz) || 
+                    Math.round(baseFrequency * ratio * 100) / 100;
+  
+  // Display name can come from multiple sources
+  const displayName = name || 
+                     (interval && interval.name ? `${interval.ratio}:1` : `${ratio}:1`);
   
   useEffect(() => {
     // Cleanup on unmount
@@ -56,7 +67,7 @@ const HarmonicIntervalTonePlayer: React.FC<HarmonicIntervalTonePlayerProps> = ({
       ) : (
         <Play className="h-3 w-3" />
       )}
-      {name || `${ratio}:1`} ({frequency}Hz)
+      {displayName} ({frequency}Hz)
     </Button>
   );
 };

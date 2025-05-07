@@ -1,4 +1,3 @@
-
 // Stub for audio utilities
 
 /**
@@ -12,6 +11,8 @@ export const createTone = (frequency: number, duration: number = 0.5) => {
     stop: () => console.warn('Tone stop not implemented'),
   };
 };
+
+// Other utility functions can be added here as needed
 
 // Stub implementations to satisfy imports
 export const createGlobalAudioElement = (volume: number = 1.0): HTMLAudioElement => {
