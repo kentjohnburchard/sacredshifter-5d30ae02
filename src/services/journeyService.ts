@@ -1,28 +1,11 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 export interface Journey {
   id: number;
   filename: string;
   title: string;
-  tags?: string;
   veil_locked: boolean;
-  visual_effects?: string;
-  strobe_patterns?: string;
-  assigned_songs?: string;
-  created_at?: string;
-  updated_at?: string;
-  // New fields
-  intent?: string;
-  sound_frequencies?: string;
-  script?: string;
-  duration?: string;
-  notes?: string;
-  env_lighting?: string;
-  env_temperature?: string;
-  env_incense?: string;
-  env_posture?: string;
-  env_tools?: string;
-  recommended_users?: string;
   audio_filename?: string;
   // Flag for core content journeys (not stored in DB)
   isCoreContent?: boolean;
@@ -34,7 +17,7 @@ export interface Journey {
 export const fetchJourneys = async (): Promise<Journey[]> => {
   const { data, error } = await supabase
     .from('journeys')
-    .select('*')
+    .select('id, title, filename, veil_locked, audio_filename')
     .order('id');
 
   if (error) {
@@ -55,7 +38,7 @@ export const fetchJourneys = async (): Promise<Journey[]> => {
 export const fetchJourneyBySlug = async (slug: string): Promise<Journey | null> => {
   const { data, error } = await supabase
     .from('journeys')
-    .select('*')
+    .select('id, title, filename, veil_locked, audio_filename')
     .eq('filename', slug)
     .maybeSingle();
 
@@ -85,7 +68,7 @@ export const updateJourney = async (journey: Partial<Journey> & { id: number }):
       updated_at: new Date().toISOString(),
     })
     .eq('id', journey.id)
-    .select()
+    .select('id, title, filename, veil_locked, audio_filename')
     .single();
 
   if (error) {
@@ -106,7 +89,7 @@ export const createJourney = async (journey: Omit<Journey, 'id' | 'created_at' |
   const { data, error } = await supabase
     .from('journeys')
     .insert({ ...journey })
-    .select()
+    .select('id, title, filename, veil_locked, audio_filename')
     .single();
 
   if (error) {

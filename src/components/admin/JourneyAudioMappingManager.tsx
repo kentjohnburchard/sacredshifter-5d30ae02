@@ -50,23 +50,33 @@ const JourneyAudioMappingManager: React.FC = () => {
           throw error;
         }
         
-        setJourneys(data || []);
-        
-        // Create mappings object for journeys
-        const mappingsRecord: Record<number, AudioMapping> = {};
-        
-        (data || []).forEach(journey => {
-          const frequency = extractFrequencyFromContent(journey.title, journey.filename);
-          mappingsRecord[journey.id] = {
-            journey_id: journey.id,
+        if (data) {
+          const journeysWithRequiredFields = data.map(journey => ({
+            id: journey.id,
+            title: journey.title,
             filename: journey.filename,
-            frequency,
-            audio_filename: journey.audio_filename || null,
-            is_enabled: !!journey.audio_filename
-          };
-        });
-        
-        setMappings(mappingsRecord);
+            audio_filename: journey.audio_filename,
+            veil_locked: false // Default value as it's required by Journey type
+          }));
+          
+          setJourneys(journeysWithRequiredFields as Journey[]);
+          
+          // Create mappings object for journeys
+          const mappingsRecord: Record<number, AudioMapping> = {};
+          
+          journeysWithRequiredFields.forEach(journey => {
+            const frequency = extractFrequencyFromContent(journey.title, journey.filename);
+            mappingsRecord[journey.id] = {
+              journey_id: journey.id,
+              filename: journey.filename,
+              frequency,
+              audio_filename: journey.audio_filename || null,
+              is_enabled: !!journey.audio_filename
+            };
+          });
+          
+          setMappings(mappingsRecord);
+        }
       } catch (err) {
         console.error('Error loading journeys:', err);
         toast.error('Failed to load journeys');

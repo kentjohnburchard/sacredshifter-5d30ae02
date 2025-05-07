@@ -21,7 +21,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { 
-  getAllSoundscapes,
   createJourneySoundscape,
   updateJourneySoundscape,
   deleteJourneySoundscape,
@@ -32,6 +31,7 @@ import { fetchJourneys, Journey } from '@/services/journeyService';
 import { toast } from 'sonner';
 import { Music, Trash2, Youtube, FileMusic, PlusCircle, ExternalLink } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { supabase } from '@/integrations/supabase/client';
 
 const SoundscapeManager: React.FC = () => {
   const [soundscapes, setSoundscapes] = useState<JourneySoundscape[]>([]);
@@ -53,12 +53,34 @@ const SoundscapeManager: React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [soundscapesData, journeysData] = await Promise.all([
-          getAllSoundscapes(),
-          fetchJourneys()
-        ]);
-        setSoundscapes(soundscapesData);
+        // Fetch journeys
+        const journeysData = await fetchJourneys();
         setJourneys(journeysData);
+        
+        // Fetch soundscapes directly from the database
+        const { data: soundscapesData, error } = await supabase
+          .from('journey_soundscapes')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) {
+          throw error;
+        }
+        
+        // Transform the data to match JourneySoundscape interface
+        const transformedSoundscapes: JourneySoundscape[] = (soundscapesData || []).map((item: any) => ({
+          id: item.id,
+          journey_id: item.journey_id ? String(item.journey_id) : undefined,
+          title: item.title,
+          description: item.description,
+          file_url: item.file_url,
+          source_type: item.source_link ? 'youtube' : 'file',
+          source_link: item.source_link,
+          created_at: item.created_at,
+          chakra_tag: item.chakra_tag
+        }));
+        
+        setSoundscapes(transformedSoundscapes);
       } catch (error) {
         console.error('Error loading data:', error);
         toast.error('Failed to load data');
@@ -171,7 +193,7 @@ const SoundscapeManager: React.FC = () => {
       const soundscapeData = {
         title: formData.title,
         description: formData.description,
-        journey_id: parseInt(formData.journey_id),
+        journey_id: formData.journey_id,
         source_link: sourceType === 'file' ? undefined : formData.source_link,
         file_url: sourceType === 'youtube' ? formData.source_link : formData.file_url,
         source_type: sourceType
@@ -190,7 +212,7 @@ const SoundscapeManager: React.FC = () => {
         // Create new soundscape
         updatedSoundscape = await createJourneySoundscape({
           ...soundscapeData,
-          journey_id: parseInt(formData.journey_id)
+          journey_id: formData.journey_id
         });
         if (updatedSoundscape) {
           setSoundscapes(prev => [updatedSoundscape!, ...prev]);

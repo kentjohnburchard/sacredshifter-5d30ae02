@@ -38,7 +38,7 @@ export const fetchJourneySoundscape = async (journeySlug: string): Promise<Journ
     
     if (journey && journey.audio_filename) {
       return {
-        journey_id: journey.id.toString(),
+        journey_id: String(journey.id),
         title: `${journey.title} Soundscape`,
         file_url: getAudioFileUrl(journey.audio_filename),
         source_type: 'file',
@@ -53,7 +53,7 @@ export const fetchJourneySoundscape = async (journeySlug: string): Promise<Journ
     if (soundscape) {
       return {
         id: soundscape.id,
-        journey_id: soundscape.journey_id?.toString(),
+        journey_id: soundscape.journey_id ? String(soundscape.journey_id) : undefined,
         title: soundscape.title,
         description: soundscape.description,
         file_url: soundscape.file_url,
@@ -94,7 +94,7 @@ export const createJourneySoundscape = async (
     
     return {
       id: result.id,
-      journey_id: result.journey_id?.toString(),
+      journey_id: String(result.journey_id),
       title: result.title,
       description: result.description,
       file_url: result.file_url,
@@ -140,7 +140,7 @@ export const updateJourneySoundscape = async (
     
     return {
       id: result.id,
-      journey_id: result.journey_id?.toString(),
+      journey_id: String(result.journey_id),
       title: result.title,
       description: result.description,
       file_url: result.file_url,

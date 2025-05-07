@@ -47,13 +47,8 @@ const loadCoreJourneyContent = async (slug: string): Promise<CoreJourneyLoaderRe
         id: 0, // Temporary ID
         filename,
         title: frontmatter.title || filename,
-        tags: Array.isArray(frontmatter.tags) ? frontmatter.tags.join(', ') : '',
-        content,
         veil_locked: frontmatter.veil || false,
         sound_frequencies: frontmatter.frequency?.toString() || parsedContent.frequencies || '',
-        description: parsedContent.intent || '',
-        intent: parsedContent.intent || '',
-        duration: parsedContent.duration || ''
       };
       
       return { content, journey };
@@ -104,8 +99,11 @@ const JourneyPage: React.FC = () => {
             return;
           }
         } else {
-          // Journey found in DB, use its content
-          setContent(journeyData.content || '');
+          // Journey found in DB, load its markdown content from core_content folder
+          const coreJourneyResult = await loadCoreJourneyContent(slug);
+          if (coreJourneyResult.content) {
+            setContent(coreJourneyResult.content);
+          }
         }
         
         // Determine if there's audio content based on metadata
@@ -152,6 +150,19 @@ const JourneyPage: React.FC = () => {
   
   // Check if the currently loaded journey matches the active journey
   const isCurrentJourneyActive = isJourneyActive && activeJourney?.id === journey?.id?.toString();
+
+  // Extract tags from content if available
+  const extractTagsFromContent = () => {
+    if (!content) return [];
+    
+    const frontmatter = parseJourneyFrontmatter(content);
+    if (frontmatter.tags) {
+      return Array.isArray(frontmatter.tags) ? frontmatter.tags : [frontmatter.tags];
+    }
+    return [];
+  };
+
+  const journeyTags = extractTagsFromContent();
 
   return (
     <Layout 
@@ -250,9 +261,9 @@ const JourneyPage: React.FC = () => {
                 <CardContent className="p-6">
                   <h1 className="text-3xl font-bold mb-4 text-white readable-text-bold">{journey?.title}</h1>
                   
-                  {journey?.tags && (
+                  {journeyTags.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {journey.tags.split(',').map((tag, i) => (
+                      {journeyTags.map((tag, i) => (
                         <span key={i} className="px-2 py-1 bg-purple-900/60 rounded-full text-xs text-white font-medium readable-text-light">
                           {tag.trim()}
                         </span>

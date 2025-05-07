@@ -69,7 +69,8 @@ const processJourneyNotes = (entry: RawTimelineRow, journeyId: string): boolean 
   if (!entry.notes.includes(journeyId)) return false;
 
   try {
-    const parsed = JSON.parse(entry.notes);
+    // Use type assertion to avoid infinite type recursion
+    const parsed = JSON.parse(entry.notes) as Record<string, any>;
     return parsed && typeof parsed === 'object' && parsed.journeyId === journeyId;
   } catch {
     return false;

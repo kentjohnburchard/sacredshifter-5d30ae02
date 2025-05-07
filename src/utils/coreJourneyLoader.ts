@@ -1,74 +1,103 @@
 
 import { Journey } from '@/services/journeyService';
-import { parseJourneyFrontmatter, fileNameToSlug, parseJourneyContent } from '@/utils/journeyLoader';
 
-// This function scans the core_content/journeys directory and loads journey data
-export async function loadCoreJourneys(): Promise<Journey[]> {
-  try {
-    // In a browser environment, we'll need to fetch the file list first
-    const journeyFiles = import.meta.glob('/src/core_content/journeys/*.md', { query: '?raw', import: 'default' });
-    const journeys: Journey[] = [];
-    
-    // Process each journey file
-    for (const path in journeyFiles) {
-      try {
-        // Load the file content as raw text
-        const contentLoader = journeyFiles[path];
-        const content = await contentLoader() as string;
-        
-        // Extract the filename from the path
-        const filename = path.split('/').pop()?.replace('.md', '') || '';
-        
-        // Parse frontmatter to get journey metadata
-        const frontmatter = parseJourneyFrontmatter(content);
-        
-        // Parse journey sections
-        const parsedContent = parseJourneyContent(content);
-        
-        // Create a journey object
-        const journey: Journey = {
-          id: journeys.length + 1000, // Use a high number to avoid conflicts with DB IDs
-          filename: filename,
-          title: frontmatter.title || filename,
-          tags: frontmatter.tags?.join(', '),
-          // Don't include the raw content field that doesn't exist in the database schema
-          // content: content,
-          veil_locked: frontmatter.veil || false,
-          description: parsedContent.intent || '',
-          intent: parsedContent.intent || '',
-          sound_frequencies: frontmatter.frequency?.toString() || parsedContent.frequencies || '',
-          script: parsedContent.script || '',
-          duration: parsedContent.duration || '',
-          notes: parsedContent.notes || '',
-          // Set source and editability flags
-          source: 'core',
-          isEditable: false,
-          isCoreContent: true
-        };
-        
-        journeys.push(journey);
-      } catch (err) {
-        console.error(`Error loading journey file: ${path}`, err);
-      }
-    }
-    
-    return journeys;
-  } catch (err) {
-    console.error("Failed to load core journeys:", err);
-    return [];
-  }
+interface JourneyFrontmatter {
+  title?: string;
+  frequency?: string | number;
+  tags?: string | string[];
+  veil?: boolean;
+  [key: string]: any;
 }
 
-// Utility function to combine journeys from core content and database
-export async function getAllJourneys(dbJourneys: Journey[]): Promise<Journey[]> {
-  try {
-    const coreJourneys = await loadCoreJourneys();
-    
-    // Return all journeys - both from database and core content
-    // We want to show both versions side by side, even with the same slugs
-    return [...dbJourneys, ...coreJourneys];
-  } catch (err) {
-    console.error("Failed to combine journeys:", err);
-    return dbJourneys;
+export function parseJourneyFrontmatter(content: string): JourneyFrontmatter {
+  const frontmatterRegex = /---\n([\s\S]*?)\n---/;
+  const match = content.match(frontmatterRegex);
+  
+  if (!match || !match[1]) {
+    return {};
   }
+  
+  const frontmatter: JourneyFrontmatter = {};
+  const lines = match[1].split('\n');
+  
+  lines.forEach(line => {
+    const colonIndex = line.indexOf(':');
+    if (colonIndex !== -1) {
+      const key = line.slice(0, colonIndex).trim();
+      let value = line.slice(colonIndex + 1).trim();
+      
+      // Handle arrays (comma-separated values)
+      if (value.includes(',')) {
+        frontmatter[key] = value.split(',').map(item => item.trim());
+      } 
+      // Handle booleans
+      else if (value === 'true' || value === 'false') {
+        frontmatter[key] = value === 'true';
+      }
+      // Handle numbers
+      else if (!isNaN(Number(value))) {
+        frontmatter[key] = Number(value);
+      }
+      // Handle strings
+      else {
+        // Remove quotes if present
+        if ((value.startsWith('"') && value.endsWith('"')) || 
+            (value.startsWith("'") && value.endsWith("'"))) {
+          value = value.slice(1, -1);
+        }
+        frontmatter[key] = value;
+      }
+    }
+  });
+  
+  return frontmatter;
+}
+
+export function removeFrontmatter(content: string): string {
+  return content.replace(/---\n[\s\S]*?\n---/, '').trim();
+}
+
+interface ParsedJourneyContent {
+  intent?: string;
+  frequencies?: string;
+  duration?: string;
+  [key: string]: string | undefined;
+}
+
+export function parseJourneyContent(content: string): ParsedJourneyContent {
+  const result: ParsedJourneyContent = {};
+  const contentWithoutFrontmatter = removeFrontmatter(content);
+  
+  // Extract sections like "## Intent" or "## Frequencies"
+  const sections = contentWithoutFrontmatter.split(/\n#{2}\s+/);
+  
+  sections.forEach(section => {
+    const lines = section.trim().split('\n');
+    const sectionTitle = lines[0].toLowerCase();
+    const sectionContent = lines.slice(1).join('\n').trim();
+    
+    if (sectionTitle === 'intent' || sectionTitle === 'intention') {
+      result.intent = sectionContent;
+    } else if (sectionTitle === 'frequencies' || sectionTitle === 'frequency') {
+      result.frequencies = sectionContent;
+    } else if (sectionTitle === 'duration') {
+      result.duration = sectionContent;
+    }
+  });
+  
+  return result;
+}
+
+export function loadJourneyFromMarkdown(filename: string, content: string): Journey {
+  const frontmatter = parseJourneyFrontmatter(content);
+  const parsed = parseJourneyContent(content);
+  
+  return {
+    id: 0, // Will be assigned by the database
+    filename,
+    title: frontmatter.title || filename,
+    veil_locked: frontmatter.veil || false,
+    // Only include fields that exist in the Journey interface
+    sound_frequencies: frontmatter.frequency?.toString() || parsed.frequencies || '',
+  };
 }
