@@ -29,13 +29,13 @@ const ComingSoon: React.FC = () => {
       
       {/* Content Container with Glass Effect */}
       <div className="relative z-10 max-w-lg mx-auto p-6 md:p-8 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 shadow-xl animate-fade-in">
-        {/* Sacred Shifter Logo/Symbol */}
-        <div className="mx-auto w-24 h-24 mb-6">
-          <div className="w-full h-full rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center animate-pulse-subtle">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-400 to-purple-300 flex items-center justify-center">
-              <div className="w-8 h-8 rounded-full bg-white/90"></div>
-            </div>
-          </div>
+        {/* Sacred Shifter Logo */}
+        <div className="mb-6">
+          <img
+            src="/lovable-uploads/6dafef18-8a06-46e1-bc1b-2325f13a67f7.png"
+            alt="Sacred Shifter Logo"
+            className="h-24 mx-auto animate-pulse-subtle"
+          />
         </div>
         
         {/* Title */}
