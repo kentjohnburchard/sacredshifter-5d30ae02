@@ -1,155 +1,46 @@
 
-import React, { useState, useEffect } from 'react';
-import { Route, Routes, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import AdminConsole from '@/pages/admin/AdminConsole';
-import AdminInsightsDashboard from '@/pages/admin/AdminInsightsDashboard';
-import JourneysManager from '@/pages/admin/JourneysManager';
-import JourneyAudioAdmin from '@/pages/admin/JourneyAudioAdmin';
-import JourneyAudioMappingsViewer from '@/pages/admin/JourneyAudioMappingsViewer';
-import JourneyTemplatesAdmin from '@/pages/JourneyTemplatesAdmin';
-import JourneyContentAdmin from '@/pages/JourneyContentAdmin';
-import AdminPagesCanvas from '@/pages/admin/AdminPagesCanvas';
-import SacredSpectrumAdmin from '@/pages/admin/SacredSpectrumAdmin';
-import VisualizerAdmin from '@/pages/admin/VisualizerAdmin';
-import ComponentExplorer from '@/pages/admin/ComponentExplorer';
-import DatabaseBrowser from '@/pages/admin/DatabaseBrowser';
-import AdminSettings from '@/pages/admin/AdminSettings';
-import UserManager from '@/pages/admin/UserManager';
-import ContentScheduler from '@/pages/admin/ContentScheduler';
-import MediaLibrary from '@/pages/admin/MediaLibrary';
-import { Shield, Key } from 'lucide-react';
-import { toast } from 'sonner';
-import ProtectedRoute from '@/components/ProtectedRoute';
+// =================================================
+// ROUTING LOCK - IMPORTANT!
+// =================================================
+// This file is under strict change control.
+// Do not add, remove, or modify routes unless explicitly instructed.
+// No AI inference or route regeneration is permitted.
+// Routes must pass QA checklist before being uncommented.
+// =================================================
 
-// Define your admin route guard
-const AdminRouteGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  
-  useEffect(() => {
-    // Check if user has admin access
-    const checkAdminStatus = () => {
-      // In a real implementation, this would check against Supabase or a cookie/localStorage
-      const adminStatus = localStorage.getItem('sacredShifterAdminStatus');
-      const isAdminUser = adminStatus === 'true';
-      
-      setIsAdmin(isAdminUser);
-      setIsLoading(false);
-      
-      if (!isAdminUser) {
-        // Redirect to admin login page
-        navigate('/admin/console', { 
-          state: { 
-            from: location.pathname,
-            requiresAuth: true 
-          } 
-        });
-        
-        // Show error message
-        if (location.pathname !== '/admin/console') {
-          toast.error("Admin access required", {
-            description: "You must be logged in as an admin to access this page",
-            icon: <Shield className="h-5 w-5 text-red-500" />
-          });
-        }
-      }
-    };
-    
-    checkAdminStatus();
-  }, [navigate, location.pathname]);
-  
-  if (isLoading) {
-    // Return loading state
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+import React from 'react';
+import { Route, Routes, Navigate } from 'react-router-dom';
+import { PageLayout } from '@/components/layout/PageLayout';
+
+// QA Checklist for routes:
+// 1. Component exists
+// 2. Types are imported and compatible
+// 3. Props validated
+// 4. No console errors
+// 5. Passes at least basic visual/manual test
+
+const AdminPlaceholder = () => {
+  return (
+    <PageLayout title="Admin Area">
+      <div className="container mx-auto py-8 px-4">
+        <div className="p-8 bg-slate-800 rounded-lg text-center">
+          <h1 className="text-2xl font-bold mb-4">Admin Routes Deactivated</h1>
+          <p className="mb-4">Admin routes are being rebuilt methodically after QA validation.</p>
+          <p>Please check back later or contact the development team.</p>
+        </div>
       </div>
-    );
-  }
-  
-  // Only render children if user is admin, otherwise the useEffect will have redirected
-  return isAdmin ? <>{children}</> : null;
+    </PageLayout>
+  );
 };
 
 const AdminRoutes = () => {
   return (
     <Routes>
-      {/* Default route redirects to the consolidated admin dashboard */}
-      <Route index element={<Navigate to="/admin/insights" replace />} />
+      {/* Default admin placeholder route */}
+      <Route index element={<AdminPlaceholder />} qa-status="initial" />
       
-      {/* Admin Console main dashboard - no guard since it handles authentication itself */}
-      <Route path="console" element={<AdminConsole />} />
-      
-      {/* New consolidated admin insights dashboard */}
-      <Route path="insights" element={
-        <AdminRouteGuard>
-          <AdminInsightsDashboard />
-        </AdminRouteGuard>
-      } />
-      
-      {/* Legacy routes - all redirect to insights dashboard */}
-      <Route path="journeys" element={
-        <Navigate to="/admin/insights" replace />
-      } />
-      
-      <Route path="content-scheduler" element={
-        <Navigate to="/admin/insights" replace />
-      } />
-      
-      <Route path="media-library" element={
-        <Navigate to="/admin/insights" replace />
-      } />
-      
-      <Route path="components" element={
-        <Navigate to="/admin/insights" replace />
-      } />
-      
-      <Route path="pages-canvas" element={
-        <Navigate to="/admin/insights" replace />
-      } />
-      
-      <Route path="journey-audio" element={
-        <Navigate to="/admin/insights" replace />
-      } />
-      
-      <Route path="journey-audio-mappings" element={
-        <Navigate to="/admin/insights" replace />
-      } />
-      
-      <Route path="visualizer" element={
-        <AdminRouteGuard>
-          <VisualizerAdmin />  {/* Keep this one for now as it's specialized */}
-        </AdminRouteGuard>
-      } />
-      
-      <Route path="database" element={
-        <Navigate to="/admin/insights" replace />
-      } />
-      
-      <Route path="settings" element={
-        <Navigate to="/admin/insights" replace />
-      } />
-      
-      <Route path="users" element={
-        <Navigate to="/admin/insights" replace />
-      } />
-      
-      <Route path="sacred-spectrum" element={
-        <Navigate to="/admin/insights" replace />
-      } />
-      
-      <Route path="journey-templates" element={
-        <Navigate to="/admin/insights" replace />
-      } />
-      
-      <Route path="journey-content" element={
-        <Navigate to="/admin/insights" replace />
-      } />
-      
-      {/* Catch-all redirects to main admin insights dashboard */}
-      <Route path="*" element={<Navigate to="/admin/insights" replace />} />
+      {/* Redirect all other admin routes to the placeholder */}
+      <Route path="*" element={<Navigate to="/admin" replace />} qa-status="initial" />
     </Routes>
   );
 };
