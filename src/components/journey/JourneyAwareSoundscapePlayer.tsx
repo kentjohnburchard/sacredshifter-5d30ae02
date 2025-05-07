@@ -23,15 +23,17 @@ const JourneyAwareSoundscapePlayer: React.FC<JourneyAwareSoundscapePlayerProps> 
     if (autoSync && activeJourney?.filename) {
       setJourneySlug(activeJourney.filename);
     } else if (journeyId) {
-      // If journeyId is provided directly, try to use that
+      // If journeyId is provided directly, use that
       setJourneySlug(journeyId);
     }
   }, [autoSync, activeJourney, journeyId]);
   
   if (!journeySlug) {
+    console.log("No journey slug available for soundscape player");
     return null;
   }
   
+  console.log(`JourneyAwareSoundscapePlayer: Loading soundscape for journey ${journeySlug}`);
   return <JourneySoundscapePlayer journeySlug={journeySlug} autoplay={autoplay} />;
 };
 

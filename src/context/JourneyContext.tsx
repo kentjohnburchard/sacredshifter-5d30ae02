@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { ChakraTag } from '@/types/chakras';
 import { Journey, JourneyTimelineItem } from '@/types/journey';
@@ -117,10 +116,21 @@ export const JourneyProvider: React.FC<JourneyProviderProps> = ({ children }) =>
 
   // Record user activity within a journey
   const recordActivity = (action: string, details?: Record<string, any>) => {
-    if (activeJourney) {
-      console.log(`Recording activity: ${action}`, details);
-      // Implementation for recording activity
+    if (!activeJourney && !details?.journeyId) {
+      console.log("Cannot record activity - no active journey");
+      return;
     }
+    
+    console.log(`Recording activity: ${action}`, details);
+    
+    // Record to console for debugging purposes
+    console.log(`Journey activity: ${action}`, {
+      journeyId: activeJourney?.id || details?.journeyId,
+      details
+    });
+    
+    // Here you could integrate with timelineService.logTimelineEvent or other tracking
+    // This part may need additional implementation based on your specific needs
   };
 
   // Fetch prompts for the current location

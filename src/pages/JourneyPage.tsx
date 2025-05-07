@@ -14,6 +14,7 @@ import { useJourney } from '@/context/JourneyContext';
 import { Button } from '@/components/ui/button';
 import { Play, CirclePause, History } from 'lucide-react';
 import { normalizeStringArray } from '@/utils/parsers';
+import { toast } from 'sonner';
 
 interface CoreJourneyLoaderResult {
   content: string;
@@ -74,20 +75,26 @@ const JourneyPage: React.FC = () => {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
   const [hasAudioContent, setHasAudioContent] = useState(false);
-  const [showTimeline, setShowTimeline] = useState(false);
+  const [showTimeline, setShowTimeline] = useState(true); // Changed to default true
   
   const { 
     activeJourney, 
     isJourneyActive, 
     startJourney, 
     completeJourney, 
-    resetJourney 
+    resetJourney,
+    recordActivity
   } = useJourney();
   
+  // Load journey data on component mount
   useEffect(() => {
     const loadJourney = async () => {
-      if (!slug) return;
+      if (!slug) {
+        setLoading(false);
+        return;
+      }
       
+      console.log(`Loading journey: ${slug}`);
       setLoading(true);
       try {
         // First try to get the journey from the database
@@ -101,20 +108,25 @@ const JourneyPage: React.FC = () => {
           if (coreJourneyResult.journey) {
             journeyData = coreJourneyResult.journey;
             setContent(coreJourneyResult.content);
+            console.log("Loaded journey from core_content:", journeyData.title);
           } else {
             console.error(`Journey ${slug} not found in database or core_content`);
+            toast.error("Journey not found");
             return;
           }
         } else {
-          // Journey found in DB, load its markdown content from core_content folder
+          console.log("Loaded journey from database:", journeyData.title);
+          
+          // Journey found in DB, try to load its markdown content from core_content folder
           const coreJourneyResult = await loadCoreJourneyContent(slug);
           if (coreJourneyResult.content) {
             setContent(coreJourneyResult.content);
+            console.log("Additional content loaded from core_content");
           }
         }
         
         // Determine if there's audio content based on metadata
-        setHasAudioContent(!!journeyData.sound_frequencies);
+        setHasAudioContent(!!journeyData.sound_frequencies || !!journeyData.audio_filename);
         
         // Ensure journeyData.id is a string
         if (journeyData && journeyData.id) {
@@ -124,6 +136,7 @@ const JourneyPage: React.FC = () => {
         setJourney(journeyData);
       } catch (error) {
         console.error('Error loading journey:', error);
+        toast.error("Error loading journey");
       } finally {
         setLoading(false);
       }
@@ -137,14 +150,17 @@ const JourneyPage: React.FC = () => {
     if (!content) return null;
     
     return (
-      <div className="prose prose-invert max-w-none text-white readable-text-light leading-relaxed">
+      <div className="prose prose-invert max-w-none text-white leading-relaxed">
         <ReactMarkdown>{removeFrontmatter(content)}</ReactMarkdown>
       </div>
     );
   };
 
+  // Start journey function - creates timeline event and activates journey context
   const handleStartJourney = () => {
     if (journey) {
+      console.log("Starting journey:", journey.title);
+      
       // Convert tags to string array if needed
       const journeyTags = normalizeStringArray(journey.tags);
       
@@ -154,14 +170,34 @@ const JourneyPage: React.FC = () => {
         tags: journeyTags
       };
       
+      // Record the start of the journey in the timeline
+      recordActivity('journey_start', { 
+        journeyId: formattedJourney.id,
+        title: formattedJourney.title
+      });
+      
+      // Start the journey in the context
       startJourney(formattedJourney);
+      toast.success("Journey started");
     }
   };
   
+  // Complete journey function - finishes the journey and logs it
   const handleCompleteJourney = () => {
+    console.log("Completing journey:", journey?.title);
+    
+    // Record journey completion in timeline
+    recordActivity('journey_complete', {
+      journeyId: journey?.id,
+      title: journey?.title
+    });
+    
+    // Complete the journey in the context
     completeJourney();
+    toast.success("Journey completed");
   };
   
+  // Toggle timeline visibility
   const toggleTimeline = () => {
     setShowTimeline(prev => !prev);
   };
@@ -180,7 +216,7 @@ const JourneyPage: React.FC = () => {
     return [];
   };
 
-  const journeyTags = extractTagsFromContent();
+  const journeyTags = journey?.tags?.length ? journey.tags : extractTagsFromContent();
 
   return (
     <Layout 
@@ -207,8 +243,8 @@ const JourneyPage: React.FC = () => {
                   />
                 </div>
                 <CardContent className="p-4">
-                  <h3 className="text-lg font-semibold mb-2 text-white readable-text">Sacred Frequencies</h3>
-                  <div className="text-sm text-white/80 readable-text-light">
+                  <h3 className="text-lg font-semibold mb-2 text-white">Sacred Frequencies</h3>
+                  <div className="text-sm text-white/80">
                     {journey?.sound_frequencies || 'No frequency information available'}
                   </div>
                   
@@ -236,7 +272,7 @@ const JourneyPage: React.FC = () => {
                       onClick={toggleTimeline} 
                       variant="ghost"
                       className="text-purple-200"
-                      title="View Timeline"
+                      title="Toggle Timeline"
                     >
                       <History className="h-4 w-4" />
                     </Button>
@@ -244,13 +280,13 @@ const JourneyPage: React.FC = () => {
                 </CardContent>
               </Card>
               
-              {/* Only render audio player if journey has sound frequencies */}
+              {/* Render audio player if journey has sound frequencies */}
               {hasAudioContent && (
                 <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl">
                   <CardContent className="p-4">
                     {slug && (
                       <JourneyAwareSoundscapePlayer 
-                        journeyId={journey?.id} 
+                        journeyId={slug} 
                         autoSync={false}
                         autoplay={false} 
                       />
@@ -277,12 +313,12 @@ const JourneyPage: React.FC = () => {
             <div className="lg:col-span-2">
               <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl">
                 <CardContent className="p-6">
-                  <h1 className="text-3xl font-bold mb-4 text-white readable-text-bold">{journey?.title}</h1>
+                  <h1 className="text-3xl font-bold mb-4 text-white">{journey?.title}</h1>
                   
                   {journeyTags.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-4">
                       {journeyTags.map((tag, i) => (
-                        <span key={i} className="px-2 py-1 bg-purple-900/60 rounded-full text-xs text-white font-medium readable-text-light">
+                        <span key={i} className="px-2 py-1 bg-purple-900/60 rounded-full text-xs text-white font-medium">
                           {tag.trim()}
                         </span>
                       ))}
@@ -298,17 +334,6 @@ const JourneyPage: React.FC = () => {
           </div>
         )}
       </div>
-      {/* QA Checklist Data for testing */}
-      <div 
-        data-qa-checklist="true" 
-        data-route-accessible="true" 
-        data-ui-elements-visible="true" 
-        data-console-errors="false"
-        data-responsiveness-tested="false"
-        data-mobile-compatibility="false"
-        data-approved="false"
-        className="hidden"
-      ></div>
     </Layout>
   );
 };
