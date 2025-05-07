@@ -23,12 +23,19 @@ export const fetchJourneySoundscape = async (journeySlug: string): Promise<Journ
     
     // If we found a soundscape, return it
     if (data && data.length > 0) {
-      // Ensure we have all required fields for JourneySoundscape
+      // The database function returns objects lacking some of the fields we need.
+      // We need to explicitly add them to match our JourneySoundscape type.
       const soundscape: JourneySoundscape = {
-        ...data[0],
-        chakra_tag: data[0].chakra_tag || null,
-        source_type: data[0].source_type || 'file',
-        updated_at: data[0].updated_at || data[0].created_at || new Date().toISOString()
+        id: data[0].id,
+        journey_id: data[0].journey_id,
+        title: data[0].title, 
+        description: data[0].description,
+        file_url: data[0].file_url,
+        source_link: data[0].source_link,
+        created_at: data[0].created_at,
+        chakra_tag: null, // Adding missing fields required by JourneySoundscape type
+        source_type: 'file',
+        updated_at: new Date().toISOString()
       };
       return soundscape;
     }
