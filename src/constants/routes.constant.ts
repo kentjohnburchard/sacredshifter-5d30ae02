@@ -32,6 +32,13 @@ export const APP_ROUTES: Record<string, RouteDefinition> = {
     notes: 'Initial placeholder route'
   },
   
+  ABOUT: {
+    path: '/about',
+    name: 'About',
+    qaStatus: 'pending',
+    notes: 'Information about Sacred Shifter'
+  },
+  
   // Future routes will be added here after QA
 };
 

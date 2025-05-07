@@ -3,6 +3,7 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import NotFound from './pages/NotFound';
 import ComingSoon from './pages/ComingSoon';
+import AboutPage from './pages/AboutPage';
 
 // =================================================
 // ROUTING LOCK - IMPORTANT!
@@ -21,6 +22,13 @@ function App() {
         path="/" 
         element={<ComingSoon />}
         qa-status="initial" 
+      />
+      
+      {/* About page route */}
+      <Route 
+        path="/about" 
+        element={<AboutPage />} 
+        qa-status="pending" 
       />
 
       {/* Catch-all route for 404 */}
