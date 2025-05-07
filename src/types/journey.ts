@@ -1,21 +1,41 @@
+
 export interface Journey {
   id?: string;
-  created_at?: string;
   title: string;
-  slug: string;
+  slug?: string;
   description?: string;
   content?: string;
+  filename?: string;
+  audio_filename?: string;
+  veil_locked?: boolean;
+  tags?: string | string[]; // Support both formats for backward compatibility
+  intent?: string;
+  sound_frequencies?: string;
+  duration?: string;
+  source?: string;
+  isEditable?: boolean;
+  isCoreContent?: boolean;
+  assigned_songs?: string[];
+  recommended_users?: string[];
+  visual_effects?: string[];
+  strobe_patterns?: string[];
+  env_lighting?: string;
+  env_temperature?: string;
+  env_incense?: string;
+  env_posture?: string;
+  env_tools?: string;
+  created_at?: string;
+  updated_at?: string;
   user_id?: string;
   is_published?: boolean;
-  tags?: string[];
   frequency?: string;
-  duration?: string;
-  difficulty?: string;
   category?: string;
   image_url?: string;
   is_featured?: boolean;
   needs_moderation?: boolean;
   is_approved?: boolean;
+
+  // optional legacy support
   frontmatter?: Record<string, any>;
 }
 
@@ -27,7 +47,10 @@ export type JourneyTimelineEvent =
   | 'spiral_param_change'
   | 'soundscape_play'
   | 'soundscape_pause'
-  | 'soundscape_volume';
+  | 'soundscape_volume'
+  | 'daily_practice_start'
+  | 'daily_practice_complete'
+  | 'daily_practice_step';
 
 export interface JourneyTimelineItem {
   id: string;
@@ -41,4 +64,9 @@ export interface JourneyTimelineItem {
   component?: string;
   action?: string;
   details?: Record<string, any>;
+}
+
+export interface JourneyAwareComponentProps {
+  journeyId?: string;
+  autoSync?: boolean;
 }

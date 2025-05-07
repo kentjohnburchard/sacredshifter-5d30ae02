@@ -98,3 +98,20 @@ export function parseJourneyContent(content: string): {
   
   return result;
 }
+
+/**
+ * Extract frequency value from a string
+ */
+export function extractFrequencyValue(frequencies: string | undefined): string {
+  if (!frequencies) return '';
+  // Extract the first frequency if multiple are provided
+  return frequencies.toString().split(',')[0].trim();
+}
+
+/**
+ * Convert a filename to a URL slug
+ */
+export function fileNameToSlug(filename: string): string {
+  if (!filename) return '';
+  return filename.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+}
