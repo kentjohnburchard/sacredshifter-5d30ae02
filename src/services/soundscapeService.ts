@@ -17,13 +17,24 @@ export async function fetchJourneySoundscape(journeySlug: string): Promise<Journ
   if (!journeySlug) return null;
   
   try {
-    // We need to make sure we're selecting all the fields we need, including chakra_tag
+    // First get the journey ID from the filename
+    const { data: journeyData, error: journeyError } = await supabase
+      .from('journeys')
+      .select('id')
+      .eq('filename', journeySlug)
+      .single();
+    
+    if (journeyError || !journeyData) {
+      console.error('Error fetching journey by slug:', journeyError);
+      return null;
+    }
+    
+    // Then get the soundscape using the journey ID
     const { data, error } = await supabase
       .from('journey_soundscapes')
       .select('id, journey_id, title, description, file_url, source_link, source_type, created_at, chakra_tag')
-      .join('journeys', 'journey_soundscapes.journey_id', 'journeys.id')
-      .eq('journeys.filename', journeySlug)
-      .order('journey_soundscapes.created_at', { ascending: false })
+      .eq('journey_id', journeyData.id)
+      .order('created_at', { ascending: false })
       .limit(1)
       .single();
     

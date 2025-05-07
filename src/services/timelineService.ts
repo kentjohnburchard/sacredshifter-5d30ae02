@@ -70,7 +70,7 @@ export async function fetchJourneyTimeline(
       journey_id: item.journey_id,
       component: item.component,
       action: item.action,
-      details: safelyParseJson(item.details)
+      details: item.details ? safelyParseJson(item.details) : {}
     }));
   } catch (error) {
     console.error('Error in fetchJourneyTimeline:', error);
@@ -122,7 +122,7 @@ export async function createTimelineItem(
       journey_id: data.journey_id,
       component: data.component,
       action: data.action,
-      details: safelyParseJson(data.details)
+      details: data.details ? safelyParseJson(data.details) : {}
     };
   } catch (error) {
     console.error('Error in createTimelineItem:', error);
@@ -183,7 +183,7 @@ export async function fetchUserTimeline(
       journey_id: item.journey_id,
       component: item.component,
       action: item.action,
-      details: safelyParseJson(item.details)
+      details: item.details ? safelyParseJson(item.details) : {}
     }));
   } catch (error) {
     console.error('Error in fetchUserTimeline:', error);

@@ -28,22 +28,37 @@ export function stringifyArrayForDb(arr: string[]): string {
  * @param value JSON string or already parsed object
  * @returns Record<string, any> object
  */
-export function safelyParseJson(value: string | Record<string, any> | null | undefined | number): Record<string, any> {
-  if (!value) return {};
+export function safelyParseJson(value: string | Record<string, any> | null | undefined | number | boolean | any[]): Record<string, any> {
+  if (value === null || value === undefined) return {};
   
-  if (typeof value === 'object') {
-    return value;
+  if (typeof value === 'object' && !Array.isArray(value)) {
+    return value as Record<string, any>;
   }
   
-  // Handle number values by converting to a simple object
+  // Handle primitive types
   if (typeof value === 'number') {
     return { value };
   }
   
-  try {
-    return JSON.parse(value) as Record<string, any>;
-  } catch (e) {
-    console.error('Error parsing JSON:', e);
-    return { rawValue: value };
+  if (typeof value === 'boolean') {
+    return { value };
   }
+  
+  // Handle arrays by converting to {items: []}
+  if (Array.isArray(value)) {
+    return { items: value };
+  }
+  
+  // Handle string (potentially JSON)
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      return typeof parsed === 'object' && parsed !== null ? parsed : { value: parsed };
+    } catch (e) {
+      return { rawValue: value };
+    }
+  }
+  
+  // Fallback for any other type
+  return { value };
 }
