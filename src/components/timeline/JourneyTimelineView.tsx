@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useJourney } from '@/context/JourneyContext';
@@ -41,7 +40,7 @@ const JourneyTimelineView: React.FC<JourneyTimelineViewProps> = ({
       
       setLoading(true);
       try {
-        const data = await fetchJourneyTimeline(user.id, effectiveJourneyId.toString());
+        const data = await fetchJourneyTimeline(effectiveJourneyId.toString());
         setTimelineEntries(data.slice(0, limit));
       } catch (error) {
         console.error('Error fetching journey timeline:', error);

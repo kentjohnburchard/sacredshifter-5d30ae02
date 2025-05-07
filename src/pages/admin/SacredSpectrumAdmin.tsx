@@ -24,6 +24,7 @@ import { useForm } from 'react-hook-form';
 import Layout from '@/components/Layout';
 
 const SacredSpectrumAdmin: React.FC = () => {
+  const { toast } = useToast();
   const [resources, setResources] = useState<SacredSpectrumResource[]>([]);
   const [journeys, setJourneys] = useState<Journey[]>([]);
   const [loading, setLoading] = useState(true);

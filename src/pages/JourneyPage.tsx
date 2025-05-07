@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -135,10 +134,14 @@ const JourneyPage: React.FC = () => {
 
   const handleStartJourney = () => {
     if (journey) {
-      startJourney({
+      // Ensure tags is properly formatted as string[]
+      const formattedJourney = {
         ...journey,
-        id: journey.id?.toString() || ""
-      });
+        id: journey.id?.toString() || "",
+        // Convert tags to array if it's a string
+        tags: normalizeStringArray(journey.tags)
+      };
+      startJourney(formattedJourney);
     }
   };
   

@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { recordJourneyEvent } from '@/services/timelineService';
+// Remove the incorrect import
+// import { recordJourneyEvent } from '@/services/timelineService';
 
 interface JourneyAwareSoundscapePlayerProps {
   journeyId?: string;

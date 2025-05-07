@@ -1,7 +1,36 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { JourneyTimelineItem } from '@/types/journey';
+import { JourneyTimelineItem, JourneyTimelineEvent } from '@/types/journey';
 import { normalizeId } from '@/utils/parsers';
+
+/**
+ * Record a journey event in the timeline
+ */
+export const recordJourneyEvent = async (
+  userId: string,
+  eventType: JourneyTimelineEvent,
+  title: string,
+  tag: string,
+  details?: Record<string, any>,
+  journeyId?: string
+): Promise<JourneyTimelineItem | null> => {
+  try {
+    return await createTimelineItem(
+      userId,
+      title,
+      tag,
+      JSON.stringify({ details }),
+      undefined,
+      journeyId
+    );
+  } catch (error) {
+    console.error('Error recording journey event:', error);
+    return null;
+  }
+};
+
+// Alias for backward compatibility
+export const logTimelineEvent = recordJourneyEvent;
 
 /**
  * Fetch timeline items for a specific journey
@@ -15,7 +44,7 @@ export async function fetchJourneyTimeline(
   try {
     let query = supabase
       .from('timeline_snapshots')
-      .select('*')
+      .select('id, user_id, title, tag, notes, chakra, created_at, journey_id, component, action, details')
       .eq('journey_id', journeyId)
       .order('created_at', { ascending: false });
     
@@ -74,7 +103,7 @@ export async function createTimelineItem(
         chakra: chakra,
         journey_id: journeyId
       })
-      .select()
+      .select('id, user_id, title, tag, notes, chakra, created_at, journey_id, component, action, details')
       .single();
     
     if (error) {
@@ -116,7 +145,7 @@ export async function fetchUserTimeline(
   try {
     let query = supabase
       .from('timeline_snapshots')
-      .select('*')
+      .select('id, user_id, title, tag, notes, chakra, created_at, journey_id, component, action, details')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
     
