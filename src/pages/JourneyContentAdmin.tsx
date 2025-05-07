@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { createJourney, updateJourney, fetchJourneys } from '@/services/journeyService';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
+import { normalizeStringArray, stringifyArrayForDb } from '@/utils/parsers';
 
 const JourneyContentAdmin: React.FC = () => {
   const navigate = useNavigate();
@@ -114,7 +115,9 @@ const JourneyContentAdmin: React.FC = () => {
       // Load content form data
       setContentForm({
         title: selectedJourney.title || '',
-        tags: selectedJourney.tags || '',
+        tags: Array.isArray(selectedJourney.tags) 
+          ? selectedJourney.tags.join(', ')
+          : selectedJourney.tags || '',
         veilLocked: selectedJourney.veil_locked || false,
         content: selectedJourney.content || '',
         filename: selectedJourney.filename || '',
@@ -186,7 +189,7 @@ const JourneyContentAdmin: React.FC = () => {
       const journeyData = {
         id: selectedJourney, // Already a string from selectedJourney state
         title: contentForm.title,
-        tags: contentForm.tags,
+        tags: normalizeStringArray(contentForm.tags),
         veil_locked: contentForm.veilLocked,
         content: generatedContent,
         filename: contentForm.filename
@@ -247,7 +250,7 @@ const JourneyContentAdmin: React.FC = () => {
       
       const journeyData = {
         title: contentForm.title,
-        tags: contentForm.tags,
+        tags: normalizeStringArray(contentForm.tags),
         veil_locked: contentForm.veilLocked,
         content: generatedContent,
         filename: contentForm.filename || contentForm.title.toLowerCase().replace(/\s+/g, '-')

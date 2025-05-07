@@ -4,10 +4,10 @@ import { ChakraTag } from '@/types/chakras';
 
 // Journey interface
 export interface Journey {
-  id: string | number;
+  id: string;
   filename?: string;
   title: string;
-  tags?: string;
+  tags?: string[];
   content?: string;
   veil_locked?: boolean;
   sound_frequencies?: string;

@@ -41,7 +41,7 @@ export async function fetchJourneySoundscape(journeySlug: string): Promise<Journ
       source_link: item.source_link,
       source_type: (item.source_link ? 'youtube' : 'file') as 'file' | 'youtube',
       created_at: item.created_at,
-      chakra_tag: item.chakra_tag
+      chakra_tag: item.chakra_tag || null
     };
   } catch (error) {
     console.error('Error in fetchJourneySoundscape:', error);

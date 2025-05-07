@@ -1,5 +1,5 @@
-
 import { Journey } from '@/types/journey';
+import { normalizeStringArray } from '@/utils/parsers';
 
 interface JourneyFrontmatter {
   title?: string;
@@ -101,7 +101,7 @@ export function loadJourneyFromMarkdown(filename: string, content: string): Jour
     sound_frequencies: frontmatter.frequency?.toString() || parsed.frequencies || '',
     intent: parsed.intent,
     duration: parsed.duration,
-    tags: Array.isArray(frontmatter.tags) ? frontmatter.tags.join(', ') : frontmatter.tags?.toString(),
+    tags: normalizeStringArray(frontmatter.tags),
   };
 }
 

@@ -7,6 +7,7 @@ import { useJourney } from '@/context/JourneyContext';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
+import { normalizeId } from '@/utils/parsers';
 
 interface JourneyTimelineViewProps {
   journeyId?: string;
@@ -45,7 +46,7 @@ const JourneyTimelineView: React.FC<JourneyTimelineViewProps> = ({
     
     try {
       setLoading(true);
-      const data = await fetchJourneyTimeline(effectiveJourneyId, Number(limit));
+      const data = await fetchJourneyTimeline(normalizeId(effectiveJourneyId), Number(limit));
       setTimelineItems(data);
     } catch (error) {
       console.error("Error loading timeline data:", error);

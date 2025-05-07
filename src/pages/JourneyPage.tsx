@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -140,16 +139,7 @@ const JourneyPage: React.FC = () => {
   const handleStartJourney = () => {
     if (journey) {
       // Convert tags to string array if needed
-      let journeyTags: string[];
-      
-      // Handle various tag format possibilities
-      if (!journey.tags) {
-        journeyTags = [];
-      } else if (Array.isArray(journey.tags)) {
-        journeyTags = journey.tags;
-      } else {
-        journeyTags = journey.tags.split(',').map(t => t.trim());
-      }
+      const journeyTags = normalizeStringArray(journey.tags);
       
       const formattedJourney: Journey = {
         ...journey,
@@ -178,7 +168,7 @@ const JourneyPage: React.FC = () => {
     
     const frontmatter = parseJourneyFrontmatter(content);
     if (frontmatter.tags) {
-      return Array.isArray(frontmatter.tags) ? frontmatter.tags : [frontmatter.tags];
+      return normalizeStringArray(frontmatter.tags);
     }
     return [];
   };
