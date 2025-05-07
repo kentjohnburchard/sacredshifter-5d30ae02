@@ -112,7 +112,7 @@ export const createJourneySoundscape = async (
 export const updateJourneySoundscape = async (
   id: string,
   data: Partial<Omit<JourneySoundscape, 'id' | 'created_at'>> & { journey_id?: string }
-): Promise<JourneySoundscape> => {
+): Promise<JourneySoundscape | null> => {
   try {
     const updateData: any = {};
     
@@ -135,7 +135,7 @@ export const updateJourneySoundscape = async (
     
     if (error) {
       console.error('Error updating journey soundscape:', error);
-      throw error;
+      return null;
     }
     
     return {
@@ -151,11 +151,11 @@ export const updateJourneySoundscape = async (
     };
   } catch (err) {
     console.error('Error in updateJourneySoundscape:', err);
-    throw err;
+    return null;
   }
 };
 
-export const deleteJourneySoundscape = async (id: string): Promise<void> => {
+export const deleteJourneySoundscape = async (id: string): Promise<boolean> => {
   try {
     const { error } = await supabase
       .from('journey_soundscapes')
@@ -164,10 +164,11 @@ export const deleteJourneySoundscape = async (id: string): Promise<void> => {
     
     if (error) {
       console.error('Error deleting journey soundscape:', error);
-      throw error;
+      return false;
     }
+    return true;
   } catch (err) {
     console.error('Error in deleteJourneySoundscape:', err);
-    throw err;
+    return false;
   }
 };

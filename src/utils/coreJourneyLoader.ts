@@ -1,5 +1,5 @@
 
-import { Journey } from '@/services/journeyService';
+import { Journey } from '@/types/journey';
 
 interface JourneyFrontmatter {
   title?: string;
@@ -93,11 +93,32 @@ export function loadJourneyFromMarkdown(filename: string, content: string): Jour
   const parsed = parseJourneyContent(content);
   
   return {
-    id: 0, // Will be assigned by the database
+    id: "0", // Will be assigned by the database
     filename,
-    title: frontmatter.title || filename,
+    title: frontmatter.title?.toString() || filename,
     veil_locked: frontmatter.veil || false,
     // Only include fields that exist in the Journey interface
     sound_frequencies: frontmatter.frequency?.toString() || parsed.frequencies || '',
+    intent: parsed.intent,
+    duration: parsed.duration,
+    tags: Array.isArray(frontmatter.tags) ? frontmatter.tags.join(', ') : frontmatter.tags?.toString(),
   };
+}
+
+// Add the missing getAllJourneys export
+export async function getAllJourneys(dbJourneys: Journey[]): Promise<Journey[]> {
+  // This is a placeholder implementation to fix the build error
+  // The actual implementation would load journeys from the core_content directory
+  // and combine them with the database journeys
+  
+  // Convert dbJourneys ids to string if needed
+  const processedDbJourneys = dbJourneys.map(journey => ({
+    ...journey,
+    id: typeof journey.id === 'number' ? String(journey.id) : journey.id,
+    source: 'database' as const,
+    isEditable: true
+  }));
+  
+  // For now just return the database journeys
+  return processedDbJourneys;
 }

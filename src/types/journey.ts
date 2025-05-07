@@ -1,6 +1,33 @@
 
-import { Journey } from '@/context/JourneyContext';
 import { ChakraTag } from '@/types/chakras';
+
+export interface Journey {
+  id: string;
+  title: string;
+  filename: string;
+  audio_filename?: string;
+  veil_locked?: boolean;
+
+  // Patch for markdown/meta-based fields
+  tags?: string;
+  intent?: string;
+  sound_frequencies?: string;
+  script?: string;
+  notes?: string;
+  duration?: string;
+  assigned_songs?: string;
+  recommended_users?: string;
+  visual_effects?: string;
+  strobe_patterns?: string;
+  env_lighting?: string;
+  env_temperature?: string;
+  env_incense?: string;
+  env_posture?: string;
+  env_tools?: string;
+  source?: 'core' | 'database';
+  isEditable?: boolean;
+  isCoreContent?: boolean;
+}
 
 export interface JourneyAwareComponentProps {
   journeyId?: string;

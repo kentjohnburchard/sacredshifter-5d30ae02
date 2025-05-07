@@ -1,18 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-
-export interface Journey {
-  id: number;
-  filename: string;
-  title: string;
-  veil_locked: boolean;
-  audio_filename?: string;
-  // Flag for core content journeys (not stored in DB)
-  isCoreContent?: boolean;
-  // New properties for source identification
-  source?: 'core' | 'database';
-  isEditable?: boolean;
-}
+import { Journey } from '@/types/journey';
 
 export const fetchJourneys = async (): Promise<Journey[]> => {
   const { data, error } = await supabase
@@ -28,6 +16,7 @@ export const fetchJourneys = async (): Promise<Journey[]> => {
   // Mark all database journeys as editable and set source
   const dbJourneys = (data || []).map(journey => ({
     ...journey,
+    id: String(journey.id),
     source: 'database' as const,
     isEditable: true
   }));
@@ -50,6 +39,7 @@ export const fetchJourneyBySlug = async (slug: string): Promise<Journey | null> 
   if (data) {
     return {
       ...data,
+      id: String(data.id),
       source: 'database',
       isEditable: true
     };
@@ -58,7 +48,7 @@ export const fetchJourneyBySlug = async (slug: string): Promise<Journey | null> 
   return data;
 };
 
-export const updateJourney = async (journey: Partial<Journey> & { id: number }): Promise<Journey> => {
+export const updateJourney = async (journey: Partial<Journey> & { id: string }): Promise<Journey> => {
   console.log("Updating journey with data:", journey);
   
   const { data, error } = await supabase
@@ -66,8 +56,9 @@ export const updateJourney = async (journey: Partial<Journey> & { id: number }):
     .update({
       ...journey,
       updated_at: new Date().toISOString(),
+      id: parseInt(journey.id) // Convert string id to number for database
     })
-    .eq('id', journey.id)
+    .eq('id', parseInt(journey.id))
     .select('id, title, filename, veil_locked, audio_filename')
     .single();
 
@@ -78,6 +69,7 @@ export const updateJourney = async (journey: Partial<Journey> & { id: number }):
 
   return {
     ...data,
+    id: String(data.id),
     source: 'database',
     isEditable: true
   };
@@ -100,6 +92,7 @@ export const createJourney = async (journey: Omit<Journey, 'id' | 'created_at' |
   console.log("Journey created successfully:", data);
   return {
     ...data,
+    id: String(data.id),
     source: 'database',
     isEditable: true
   };
