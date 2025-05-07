@@ -1,9 +1,9 @@
 
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
 import { JourneyTimelineItem } from '@/types/journey';
-import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { CalendarDays, Clock } from 'lucide-react';
 
 interface JourneyTimelineViewProps {
   journeyId?: string;
@@ -11,127 +11,116 @@ interface JourneyTimelineViewProps {
   limit?: number;
 }
 
-const JourneyTimelineView: React.FC<JourneyTimelineViewProps> = ({
-  journeyId,
-  autoSync = true,
-  limit = 10
+const JourneyTimelineView: React.FC<JourneyTimelineViewProps> = ({ 
+  journeyId, 
+  autoSync = false,
+  limit = 10 
 }) => {
+  const { user } = useAuth();
   const [timelineItems, setTimelineItems] = useState<JourneyTimelineItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const fetchTimelineItems = async () => {
-    if (!journeyId) return;
+  const [loading, setLoading] = useState(false);
+  
+  useEffect(() => {
+    // Only fetch timeline if we have both a user and journey ID
+    if (!user?.id || !journeyId) return;
     
-    setIsLoading(true);
-    try {
-      // This would typically fetch from your API or Supabase
-      // For now, we'll create mock timeline items
-      const mockTimelineItems: JourneyTimelineItem[] = [
-        {
-          id: '1',
-          user_id: 'current-user',
-          title: 'Journey Started',
-          tag: 'journey_start',
-          created_at: new Date().toISOString(),
-          journey_id: journeyId,
-          action: 'start'
-        },
-        {
-          id: '2',
-          user_id: 'current-user',
-          title: 'Spiral Activated',
-          tag: 'spiral_toggle',
-          created_at: new Date(Date.now() - 60000).toISOString(),
-          journey_id: journeyId,
-          action: 'enable',
-          details: { enabled: true }
-        },
-        {
-          id: '3',
-          user_id: 'current-user',
-          title: 'Audio Started',
-          tag: 'soundscape_play',
-          created_at: new Date(Date.now() - 120000).toISOString(),
-          journey_id: journeyId,
-          action: 'play'
-        }
-      ];
+    const fetchTimeline = async () => {
+      setLoading(true);
       
-      setTimelineItems(mockTimelineItems.slice(0, limit));
-    } catch (error) {
-      console.error('Error fetching timeline items:', error);
-    } finally {
-      setIsLoading(false);
+      try {
+        // Fetch timeline items from the database
+        const { data, error } = await supabase
+          .from('timeline_snapshots')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('journey_id', journeyId)
+          .order('created_at', { ascending: false })
+          .limit(limit);
+        
+        if (error) {
+          console.error('Error fetching timeline:', error);
+          return;
+        }
+        
+        setTimelineItems(data || []);
+      } catch (err) {
+        console.error('Error in fetchTimeline:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchTimeline();
+  }, [journeyId, user?.id, limit]);
+  
+  const formatTime = (timestamp: string) => {
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch (e) {
+      return 'Invalid time';
     }
   };
-
-  useEffect(() => {
-    fetchTimelineItems();
-    
-    // Set up polling if autoSync is enabled
-    let interval: NodeJS.Timeout | null = null;
-    if (autoSync) {
-      interval = setInterval(fetchTimelineItems, 30000); // Refresh every 30 seconds
-    }
-    
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [journeyId, autoSync, limit]);
-
-  const formatTimeAgo = (dateString: string) => {
+  
+  const formatDate = (timestamp: string) => {
     try {
-      const date = new Date(dateString);
-      const now = new Date();
-      const diffMs = now.getTime() - date.getTime();
-      
-      const diffSeconds = Math.floor(diffMs / 1000);
-      if (diffSeconds < 60) return `${diffSeconds} seconds ago`;
-      
-      const diffMinutes = Math.floor(diffMs / (1000 * 60));
-      if (diffMinutes < 60) return `${diffMinutes} min ago`;
-      
-      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-      if (diffHours < 24) return `${diffHours} hours ago`;
-      
-      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-      return `${diffDays} days ago`;
+      const date = new Date(timestamp);
+      return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
     } catch (e) {
-      return 'unknown time';
+      return 'Invalid date';
+    }
+  };
+  
+  // Get icon based on action type
+  const getActionIcon = (action: string) => {
+    switch (action) {
+      case 'journey_start':
+        return '▶️';
+      case 'journey_complete':
+        return '✅';
+      case 'soundscape_play':
+        return '🔊';
+      case 'soundscape_pause':
+        return '⏸️';
+      case 'spiral_toggle':
+        return '🌀';
+      default:
+        return '📝';
     }
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-white readable-text">Journey Timeline</h3>
-        <Button 
-          onClick={fetchTimelineItems} 
-          size="sm" 
-          variant="ghost" 
-          className="text-purple-200"
-          disabled={isLoading}
-        >
-          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-        </Button>
-      </div>
+    <div className="timeline-view">
+      <h3 className="text-lg font-semibold mb-4 text-white">Journey Timeline</h3>
       
-      {timelineItems.length === 0 ? (
-        <p className="text-sm text-white/60 readable-text-light">No timeline events yet.</p>
+      {loading ? (
+        <div className="flex justify-center py-4">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+        </div>
+      ) : timelineItems.length === 0 ? (
+        <p className="text-center text-gray-400 py-4">No activity recorded yet.</p>
       ) : (
-        <div className="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-          {timelineItems.map(item => (
-            <div 
-              key={item.id} 
-              className="bg-black/50 backdrop-blur-sm border border-purple-500/20 rounded-md p-2"
-            >
-              <div className="flex justify-between items-start">
-                <h4 className="text-sm font-medium text-white">{item.title}</h4>
-                <span className="text-xs text-white/60">{formatTimeAgo(item.created_at)}</span>
+        <div className="space-y-4">
+          {timelineItems.map((item) => (
+            <div key={item.id} className="bg-black/50 rounded-lg p-3 border border-purple-500/30">
+              <div className="flex justify-between items-start mb-1">
+                <div className="flex items-center">
+                  <span className="mr-2">{getActionIcon(item.action || '')}</span>
+                  <span className="font-medium text-white">{item.title}</span>
+                </div>
+                <div className="text-xs text-gray-400 flex items-center">
+                  <Clock className="h-3 w-3 mr-1" /> {formatTime(item.created_at)}
+                </div>
               </div>
-              <div className="text-xs text-white/70 mt-1">
-                {item.tag} {item.action && `- ${item.action}`}
+              
+              <div className="text-xs text-gray-400 flex items-center">
+                <CalendarDays className="h-3 w-3 mr-1" />
+                {formatDate(item.created_at)}
               </div>
+              
+              {item.notes && (
+                <p className="text-sm text-gray-300 mt-2">{item.notes}</p>
+              )}
             </div>
           ))}
         </div>

@@ -1,59 +1,60 @@
 
 import React, { useState, useEffect } from 'react';
+import { fetchJourneySoundscape, JourneySoundscape } from '@/services/soundscapeService';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
-import { fetchJourneySoundscape } from '@/services/soundscapeService';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
 import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
 
 interface JourneySoundscapePlayerProps {
   journeySlug: string;
   autoplay?: boolean;
 }
 
-const JourneySoundscapePlayer: React.FC<JourneySoundscapePlayerProps> = ({ 
-  journeySlug,
-  autoplay = false
-}) => {
-  const [soundscape, setSoundscape] = useState<any>(null);
+const JourneySoundscapePlayer: React.FC<JourneySoundscapePlayerProps> = ({ journeySlug, autoplay = false }) => {
+  const [soundscape, setSoundscape] = useState<JourneySoundscape | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(0.7);
+  const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   
-  // Use global audio player to ensure only one audio plays at a time
   const { 
-    playAudio, 
-    togglePlayPause, 
     isPlaying, 
-    currentTime, 
-    duration, 
-    setVolume,
-    volume,
-    currentAudio
+    currentAudio,
+    playAudio,
+    togglePlayPause,
+    setVolume: setPlayerVolume,
   } = useGlobalAudioPlayer();
   
-  // Progress percentage calculation
-  const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
+  // Check if this soundscape is currently playing
+  const isThisSoundscapePlaying = isPlaying && 
+    currentAudio?.source === soundscape?.file_url;
   
-  // Check if this player is the active player
-  const isActivePlayer = currentAudio?.source === soundscape?.file_url;
-  
-  // Load soundscape data for the journey
+  // Load soundscape data
   useEffect(() => {
     const loadSoundscape = async () => {
-      setLoading(true);
-      setError(null);
+      if (!journeySlug) return;
+      
       try {
+        setLoading(true);
         const data = await fetchJourneySoundscape(journeySlug);
-        setSoundscape(data);
-        
-        // Autoplay if specified and soundscape is found
-        if (data?.file_url && autoplay) {
-          playAudio({
-            title: data.title || 'Journey Soundscape',
-            source: data.file_url,
-            artist: 'Sacred Shifter'
-          });
+        if (data) {
+          setSoundscape(data);
+          setError(null);
+          
+          // If autoplay is enabled, start playing
+          if (autoplay) {
+            setTimeout(() => {
+              playAudio({
+                title: data.title || 'Journey Soundscape',
+                artist: 'Sacred Shifter',
+                source: data.file_url,
+                sourceType: data.source_type || 'file'
+              });
+            }, 500);
+          }
+        } else {
+          setError('No soundscape found for this journey');
         }
       } catch (err) {
         console.error('Error loading soundscape:', err);
@@ -63,110 +64,125 @@ const JourneySoundscapePlayer: React.FC<JourneySoundscapePlayerProps> = ({
       }
     };
     
-    if (journeySlug) {
-      loadSoundscape();
-    }
-    
-    return () => {
-      // No cleanup needed since global audio player persists
-    };
+    loadSoundscape();
   }, [journeySlug, autoplay, playAudio]);
   
-  // Handle play button click
   const handlePlay = () => {
-    if (soundscape?.file_url) {
-      if (!isActivePlayer) {
-        playAudio({
-          title: soundscape.title || 'Journey Soundscape',
-          source: soundscape.file_url,
-          artist: 'Sacred Shifter'
-        });
-      } else {
-        togglePlayPause();
-      }
-    }
-  };
-  
-  // Toggle mute
-  const handleToggleMute = () => {
-    if (volume > 0 && !isMuted) {
-      setVolume(0);
-      setIsMuted(true);
+    if (!soundscape) return;
+    
+    if (!isThisSoundscapePlaying) {
+      // If another track is playing or no track is playing, play this one
+      playAudio({
+        title: soundscape.title || 'Journey Soundscape',
+        artist: 'Sacred Shifter',
+        source: soundscape.file_url,
+        sourceType: soundscape.source_type || 'file'
+      });
     } else {
-      setVolume(0.7); // Default volume
-      setIsMuted(false);
+      // If this track is already playing, toggle play/pause
+      togglePlayPause();
     }
   };
   
-  // Format time display (mm:ss)
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  const handleVolumeChange = (value: number[]) => {
+    const newVolume = value[0];
+    setVolume(newVolume);
+    setPlayerVolume(newVolume);
   };
   
-  // If no soundscape or error, show fallback UI
-  if (!soundscape && !loading) {
+  const toggleVolumeSlider = () => {
+    setShowVolumeSlider(prev => !prev);
+  };
+  
+  if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center p-4 bg-black/60 rounded-lg">
-        <p className="text-white/70 text-sm">
-          {error || "No soundscape available for this journey."}
-        </p>
+      <div className="flex justify-center items-center p-4 h-16">
+        <div className="animate-spin h-5 w-5 border-2 border-purple-500 rounded-full border-t-transparent"></div>
       </div>
     );
   }
   
-  return (
-    <div className="flex flex-col space-y-4">
-      {loading ? (
-        <div className="flex justify-center items-center py-4">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white/60"></div>
+  if (error || !soundscape) {
+    return (
+      <div className="text-center p-4 text-gray-400">
+        {error || 'No soundscape available for this journey'}
+      </div>
+    );
+  }
+  
+  // If we have a YouTube source
+  if (soundscape.source_type === 'youtube') {
+    return (
+      <div className="space-y-2">
+        <div className="text-sm text-white mb-2">
+          {soundscape.title || 'Journey Soundscape'}
         </div>
-      ) : (
-        <>
-          <div className="flex justify-between items-center">
-            <div className="flex-1 truncate pr-4">
-              <h3 className="text-white text-sm font-medium truncate">{soundscape?.title || 'Journey Soundscape'}</h3>
-              <p className="text-white/60 text-xs truncate">
-                {soundscape?.description || 'Sacred sound frequency'}
-              </p>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Button
-                size="sm"
-                variant="ghost"
-                className="text-white/80 hover:text-white"
-                onClick={handleToggleMute}
-              >
-                {isMuted || volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />}
-              </Button>
-              
-              <Button
-                size="sm"
-                className="bg-purple-600 hover:bg-purple-700 text-white rounded-full h-10 w-10 p-0 flex items-center justify-center"
-                onClick={handlePlay}
-              >
-                {isPlaying && isActivePlayer ? <Pause size={18} /> : <Play size={18} />}
-              </Button>
-            </div>
-          </div>
+        <div className="aspect-video w-full rounded overflow-hidden">
+          <iframe
+            src={soundscape.source_link}
+            title={soundscape.title || 'Journey Soundscape'}
+            className="w-full h-full"
+            allowFullScreen
+          ></iframe>
+        </div>
+      </div>
+    );
+  }
+  
+  // For file sources
+  return (
+    <div className="space-y-2">
+      <div className="text-sm text-white mb-1">
+        {soundscape.title || 'Journey Soundscape'}
+      </div>
+      
+      {soundscape.description && (
+        <p className="text-xs text-gray-400 mb-2">{soundscape.description}</p>
+      )}
+      
+      <div className="flex justify-between items-center">
+        <Button 
+          onClick={handlePlay} 
+          variant="outline" 
+          size="sm"
+          className="bg-purple-900/20 border-purple-500/30 text-purple-200 hover:bg-purple-900/40"
+        >
+          {isThisSoundscapePlaying && isPlaying ? (
+            <Pause className="h-4 w-4 mr-1" />
+          ) : (
+            <Play className="h-4 w-4 mr-1" />
+          )}
+          {isThisSoundscapePlaying && isPlaying ? 'Pause' : 'Play'}
+        </Button>
+        
+        <div className="relative">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="text-purple-200" 
+            onClick={toggleVolumeSlider}
+          >
+            {volume > 0 ? (
+              <Volume2 className="h-4 w-4" />
+            ) : (
+              <VolumeX className="h-4 w-4" />
+            )}
+          </Button>
           
-          {/* Progress bar */}
-          <div className="space-y-1">
-            <div className="h-1.5 bg-gray-700/40 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-purple-500 rounded-full"
-                style={{ width: `${progressPercentage}%` }}
+          {showVolumeSlider && (
+            <div className="absolute right-0 bottom-full mb-2 p-2 bg-black/90 rounded shadow-lg w-32">
+              <Slider 
+                value={[volume]} 
+                min={0} 
+                max={1} 
+                step={0.01}
+                onValueChange={handleVolumeChange} 
+                className="w-full" 
               />
             </div>
-            <div className="flex justify-between text-xs text-white/60">
-              <span>{formatTime(currentTime)}</span>
-              <span>{formatTime(duration)}</span>
-            </div>
-          </div>
-        </>
-      )}
+          )}
+        </div>
+      </div>
     </div>
   );
 };

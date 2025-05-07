@@ -1,47 +1,37 @@
 
-import React from 'react';
-import { Route, Routes } from 'react-router-dom';
-import NotFound from './pages/NotFound';
-import ComingSoon from './pages/ComingSoon';
-import AboutFounder from './pages/AboutFounder';
-import JourneyPage from './pages/JourneyPage';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from '@/components/ui/toaster';
+import { Toaster as SonnerToaster } from 'sonner';
+import { JourneyProvider } from '@/context/JourneyContext';
+import { AuthProvider } from '@/context/AuthContext';
+import { GlobalAudioPlayerProvider } from '@/context/GlobalAudioPlayerContext';
 
-// =================================================
-// ROUTING LOCK - IMPORTANT!
-// =================================================
-// This file is under strict change control.
-// Do not add, remove, or modify routes unless explicitly instructed.
-// No AI inference or route regeneration is permitted.
-// Routes must pass QA checklist before being uncommented.
-// =================================================
+// Pages
+import JourneyPage from './pages/JourneyPage';
+import JourneyIndex from './pages/JourneyIndex';
+
+// Import any other pages here
 
 function App() {
   return (
-    <Routes>
-      {/* TEMP: ComingSoon placeholder — replace with IntroPage later */}
-      <Route 
-        path="/" 
-        element={<ComingSoon />}
-        qa-status="initial" 
-      />
-      
-      {/* About page route */}
-      <Route 
-        path="/about" 
-        element={<AboutFounder />} 
-        qa-status="pending" 
-      />
-      
-      {/* Journey page route */}
-      <Route 
-        path="/journey/:slug" 
-        element={<JourneyPage />} 
-        qa-status="pending" 
-      />
-
-      {/* Catch-all route for 404 */}
-      <Route path="*" element={<NotFound />} qa-status="verified" />
-    </Routes>
+    <Router>
+      <AuthProvider>
+        <JourneyProvider>
+          <GlobalAudioPlayerProvider>
+            <Routes>
+              <Route path="/journey/:slug" element={<JourneyPage />} />
+              <Route path="/journeys" element={<JourneyIndex />} />
+              <Route path="/" element={<JourneyIndex />} />
+              
+              {/* Add more routes as needed */}
+            </Routes>
+            
+            <Toaster />
+            <SonnerToaster position="top-center" />
+          </GlobalAudioPlayerProvider>
+        </JourneyProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 

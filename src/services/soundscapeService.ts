@@ -10,7 +10,7 @@ type JourneySoundscapeUpdate = Database['public']['Tables']['journey_soundscapes
 // Export the main type for use in components
 export type JourneySoundscape = JourneySoundscapeRow;
 
-export const fetchJourneySoundscape = async (journeySlug: string) => {
+export const fetchJourneySoundscape = async (journeySlug: string): Promise<JourneySoundscape | null> => {
   try {
     // Try to fetch from the journey_soundscapes table using the built-in function
     const { data, error } = await supabase
