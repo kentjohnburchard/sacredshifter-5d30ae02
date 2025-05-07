@@ -40,3 +40,16 @@ export const stringifyArrayForDb = (arr: string[] | undefined): string | null =>
   }
   return arr.join(', ');
 };
+
+/**
+ * Safely parse a JSON string without throwing an error
+ * Returns null if parsing fails
+ */
+export const safelyParseJson = (jsonString: string): Record<string, any> | null => {
+  try {
+    return JSON.parse(jsonString);
+  } catch (error) {
+    console.error('Error parsing JSON:', error);
+    return null;
+  }
+};
