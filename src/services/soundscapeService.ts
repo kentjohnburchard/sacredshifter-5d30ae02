@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { getAudioFileUrl } from './journeyAudioService';
+import { normalizeId } from '@/utils/parsers';
 
 export interface JourneySoundscape {
   id?: string;
@@ -38,7 +39,7 @@ export const fetchJourneySoundscape = async (journeySlug: string): Promise<Journ
     
     if (journey && journey.audio_filename) {
       return {
-        journey_id: String(journey.id),
+        journey_id: normalizeId(journey.id),
         title: `${journey.title} Soundscape`,
         file_url: getAudioFileUrl(journey.audio_filename),
         source_type: 'file',
@@ -52,8 +53,8 @@ export const fetchJourneySoundscape = async (journeySlug: string): Promise<Journ
     
     if (soundscape) {
       return {
-        id: soundscape.id,
-        journey_id: soundscape.journey_id ? String(soundscape.journey_id) : undefined,
+        id: normalizeId(soundscape.id),
+        journey_id: soundscape.journey_id ? normalizeId(soundscape.journey_id) : undefined,
         title: soundscape.title,
         description: soundscape.description,
         file_url: soundscape.file_url,
@@ -93,8 +94,8 @@ export const createJourneySoundscape = async (
     }
     
     return {
-      id: result.id,
-      journey_id: String(result.journey_id),
+      id: normalizeId(result.id),
+      journey_id: normalizeId(result.journey_id),
       title: result.title,
       description: result.description,
       file_url: result.file_url,
@@ -139,8 +140,8 @@ export const updateJourneySoundscape = async (
     }
     
     return {
-      id: result.id,
-      journey_id: String(result.journey_id),
+      id: normalizeId(result.id),
+      journey_id: normalizeId(result.journey_id),
       title: result.title,
       description: result.description,
       file_url: result.file_url,
@@ -170,5 +171,28 @@ export const deleteJourneySoundscape = async (id: string): Promise<boolean> => {
   } catch (err) {
     console.error('Error in deleteJourneySoundscape:', err);
     return false;
+  }
+};
+
+export const uploadSacredSpectrumFile = async (file: File): Promise<string> => {
+  try {
+    const fileName = `${Date.now()}-${file.name}`;
+    const { data, error } = await supabase.storage
+      .from('sacred_spectrum')
+      .upload(`resources/${fileName}`, file);
+      
+    if (error) {
+      console.error('Error uploading sacred spectrum file:', error);
+      throw error;
+    }
+    
+    const { data: urlData } = supabase.storage
+      .from('sacred_spectrum')
+      .getPublicUrl(`resources/${fileName}`);
+      
+    return urlData.publicUrl;
+  } catch (error) {
+    console.error('Error in uploadSacredSpectrumFile:', error);
+    throw error;
   }
 };

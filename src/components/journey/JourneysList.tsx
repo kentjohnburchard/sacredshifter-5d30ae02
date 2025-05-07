@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tag, Clock, Music, Star } from 'lucide-react';
 import { extractFrequencyValue, fileNameToSlug } from '@/utils/journeyLoader';
 import { getAllJourneys } from '@/utils/coreJourneyLoader';
+import { normalizeStringArray } from '@/utils/parsers';
 
 interface JourneysListProps {
   filter?: string;
@@ -52,7 +53,7 @@ const JourneysList: React.FC<JourneysListProps> = ({
               return;
             }
             
-            const tagsArray = getTagsArray(journey.tags);
+            const tagsArray = normalizeStringArray(journey.tags);
             const primaryTag = tagsArray[0] || 'Other';
             
             if (!grouped[primaryTag]) {
@@ -73,18 +74,11 @@ const JourneysList: React.FC<JourneysListProps> = ({
     loadJourneys();
   }, []);
 
-  // Helper function to safely get tags as array
-  const getTagsArray = (tags: string | string[] | undefined): string[] => {
-    if (!tags) return [];
-    if (Array.isArray(tags)) return tags;
-    return tags.split(',').map(t => t.trim());
-  };
-
   // Helper function to safely filter on tags
   const matchesTags = (journey: Journey, searchTerm: string): boolean => {
     if (!journey.tags) return false;
     
-    const tagsArray = getTagsArray(journey.tags);
+    const tagsArray = normalizeStringArray(journey.tags);
     const lowerSearchTerm = searchTerm.toLowerCase();
     
     return tagsArray.some(tag => 
@@ -137,7 +131,7 @@ const JourneysList: React.FC<JourneysListProps> = ({
         <CardContent className="pb-2 flex-grow">
           {showTags && journey.tags && (
             <div className="flex flex-wrap gap-1 mb-2">
-              {getTagsArray(journey.tags).map((tag, i) => (
+              {normalizeStringArray(journey.tags).map((tag, i) => (
                 <Badge variant="outline" key={i} className="text-xs">
                   {tag.trim()}
                 </Badge>

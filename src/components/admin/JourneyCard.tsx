@@ -5,6 +5,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Edit, Eye, FileText } from 'lucide-react';
+import { normalizeStringArray } from '@/utils/parsers';
 
 interface JourneyCardProps {
   journey: Journey;
@@ -25,9 +26,7 @@ const JourneyCard: React.FC<JourneyCardProps> = ({ journey, onEdit, onView }) =>
   
   // Function to safely handle tags that could be string or string[]
   const getTagsArray = (): string[] => {
-    if (!tags) return [];
-    if (Array.isArray(tags)) return tags;
-    return tags.split(',').map(tag => tag.trim());
+    return normalizeStringArray(tags);
   };
   
   return (
@@ -80,7 +79,7 @@ const JourneyCard: React.FC<JourneyCardProps> = ({ journey, onEdit, onView }) =>
         <Button 
           size="sm" 
           variant="outline" 
-          onClick={() => onView(filename)}
+          onClick={() => onView(filename || '')}
           className="border-purple-300 hover:bg-purple-100"
         >
           <Eye className="h-4 w-4 mr-1" /> View

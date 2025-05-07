@@ -1,18 +1,19 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { Journey } from '@/types/journey';
+import { normalizeStringArray, normalizeId, stringifyArrayForDb } from '@/utils/parsers';
 
 // Helper function to normalize journey data from database
 const normalizeJourneyData = (data: any): Journey => {
   return {
     ...data,
-    id: String(data.id),
-    tags: typeof data.tags === 'string' ? data.tags.split(',').map(tag => tag.trim()) : data.tags || [],
+    id: normalizeId(data.id),
+    tags: typeof data.tags === 'string' ? normalizeStringArray(data.tags) : data.tags || [],
     sound_frequencies: data.sound_frequencies || '',
-    assigned_songs: typeof data.assigned_songs === 'string' ? data.assigned_songs.split(',') : data.assigned_songs || [],
-    visual_effects: typeof data.visual_effects === 'string' ? data.visual_effects.split(',') : data.visual_effects || [],
-    strobe_patterns: typeof data.strobe_patterns === 'string' ? data.strobe_patterns.split(',') : data.strobe_patterns || [],
-    recommended_users: typeof data.recommended_users === 'string' ? data.recommended_users.split(',') : data.recommended_users || [],
+    assigned_songs: normalizeStringArray(data.assigned_songs),
+    visual_effects: normalizeStringArray(data.visual_effects),
+    strobe_patterns: normalizeStringArray(data.strobe_patterns),
+    recommended_users: normalizeStringArray(data.recommended_users),
     source: 'database' as const,
     isEditable: true
   };
@@ -22,19 +23,19 @@ const normalizeJourneyData = (data: any): Journey => {
 const prepareJourneyForDb = (journey: Partial<Journey>): Record<string, any> => {
   return {
     ...journey,
-    id: journey.id ? parseInt(journey.id) : undefined,
-    tags: Array.isArray(journey.tags) ? journey.tags.join(',') : journey.tags,
-    assigned_songs: Array.isArray(journey.assigned_songs) ? journey.assigned_songs.join(',') : journey.assigned_songs,
-    visual_effects: Array.isArray(journey.visual_effects) ? journey.visual_effects.join(',') : journey.visual_effects,
-    strobe_patterns: Array.isArray(journey.strobe_patterns) ? journey.strobe_patterns.join(',') : journey.strobe_patterns,
-    recommended_users: Array.isArray(journey.recommended_users) ? journey.recommended_users.join(',') : journey.recommended_users,
+    id: journey.id && !isNaN(Number(journey.id)) ? parseInt(journey.id) : undefined,
+    tags: stringifyArrayForDb(journey.tags),
+    assigned_songs: stringifyArrayForDb(journey.assigned_songs),
+    visual_effects: stringifyArrayForDb(journey.visual_effects),
+    strobe_patterns: stringifyArrayForDb(journey.strobe_patterns),
+    recommended_users: stringifyArrayForDb(journey.recommended_users),
   };
 };
 
 export const fetchJourneys = async (): Promise<Journey[]> => {
   const { data, error } = await supabase
     .from('journeys')
-    .select('id, title, filename, veil_locked, audio_filename')
+    .select('id, title, filename, veil_locked, audio_filename, tags, sound_frequencies')
     .order('id');
 
   if (error) {
@@ -51,7 +52,7 @@ export const fetchJourneys = async (): Promise<Journey[]> => {
 export const fetchJourneyBySlug = async (slug: string): Promise<Journey | null> => {
   const { data, error } = await supabase
     .from('journeys')
-    .select('id, title, filename, veil_locked, audio_filename')
+    .select('*')
     .eq('filename', slug)
     .maybeSingle();
 
@@ -64,7 +65,7 @@ export const fetchJourneyBySlug = async (slug: string): Promise<Journey | null> 
     return normalizeJourneyData(data);
   }
   
-  return data;
+  return null;
 };
 
 export const updateJourney = async (journey: Partial<Journey> & { id: string }): Promise<Journey> => {
@@ -72,11 +73,14 @@ export const updateJourney = async (journey: Partial<Journey> & { id: string }):
   
   const dbJourney = prepareJourneyForDb(journey);
   
+  // Ensure we're dealing with numeric ID for database operations
+  const journeyId = parseInt(journey.id);
+  
   const { data, error } = await supabase
     .from('journeys')
     .update(dbJourney)
-    .eq('id', parseInt(journey.id))
-    .select('id, title, filename, veil_locked, audio_filename')
+    .eq('id', journeyId)
+    .select('*')
     .single();
 
   if (error) {
@@ -92,10 +96,31 @@ export const createJourney = async (journey: Omit<Journey, 'id' | 'created_at' |
   
   const dbJourney = prepareJourneyForDb(journey);
   
+  // Create new journey record with properly formatted data
   const { data, error } = await supabase
     .from('journeys')
-    .insert(dbJourney)
-    .select('id, title, filename, veil_locked, audio_filename')
+    .insert({
+      title: journey.title,
+      filename: journey.filename,
+      tags: stringifyArrayForDb(journey.tags),
+      veil_locked: journey.veil_locked,
+      audio_filename: journey.audio_filename,
+      sound_frequencies: journey.sound_frequencies,
+      intent: journey.intent,
+      duration: journey.duration,
+      assigned_songs: stringifyArrayForDb(journey.assigned_songs),
+      visual_effects: stringifyArrayForDb(journey.visual_effects),
+      strobe_patterns: stringifyArrayForDb(journey.strobe_patterns),
+      recommended_users: stringifyArrayForDb(journey.recommended_users),
+      env_lighting: journey.env_lighting,
+      env_temperature: journey.env_temperature,
+      env_incense: journey.env_incense,
+      env_posture: journey.env_posture,
+      env_tools: journey.env_tools,
+      script: journey.script,
+      notes: journey.notes,
+    })
+    .select('*')
     .single();
 
   if (error) {

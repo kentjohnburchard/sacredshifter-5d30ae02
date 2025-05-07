@@ -1,12 +1,13 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { SacredSpectrumResource } from '@/types/sacred-spectrum';
+import { normalizeId } from '@/utils/parsers';
 
 // Helper function to normalize resource data
 const normalizeResourceData = (data: any): SacredSpectrumResource => {
   return {
     ...data,
-    id: String(data.id),
+    id: normalizeId(data.id),
     tags: typeof data.tags === 'string' ? data.tags : data.tags || '',
   };
 };

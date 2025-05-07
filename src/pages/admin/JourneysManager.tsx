@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { PageTitle } from '@/components/ui/PageTitle';
 import { fetchJourneys, updateJourney, createJourney } from '@/services/journeyService';
@@ -26,6 +27,8 @@ import {
   TableCell,
   TableCaption,
 } from '@/components/ui/table';
+import { useAuth } from '@/context/AuthContext';
+import { normalizeId, normalizeStringArray, stringifyArrayForDb } from '@/utils/parsers';
 
 const JourneysManager: React.FC = () => {
   const [journeys, setJourneys] = useState<Journey[]>([]);
@@ -105,14 +108,14 @@ const JourneysManager: React.FC = () => {
 
   const handleCreateNew = () => {
     setEditingJourney({
-      id: 0, // Use 0 to indicate a new journey
+      id: "0", // Use string ID to indicate a new journey
       filename: '',
       title: '',
-      tags: '',
+      tags: [], // Initialize as empty array
       veil_locked: false,
-      visual_effects: '',
-      strobe_patterns: '',
-      assigned_songs: '',
+      visual_effects: [],
+      strobe_patterns: [],
+      assigned_songs: [],
       intent: '',
       sound_frequencies: '',
       script: '',
@@ -123,7 +126,7 @@ const JourneysManager: React.FC = () => {
       env_incense: '',
       env_posture: '',
       env_tools: '',
-      recommended_users: '',
+      recommended_users: [],
       source: 'database',
       isEditable: true
     });
@@ -163,7 +166,7 @@ const JourneysManager: React.FC = () => {
     try {
       let updatedJourney;
       
-      if (editingJourney.id === 0) {
+      if (editingJourney.id === "0") {
         // Create new journey
         console.log("Creating new journey:", editingJourney);
         const { id, ...newJourney } = editingJourney;
@@ -175,7 +178,10 @@ const JourneysManager: React.FC = () => {
       } else {
         // Update existing journey
         console.log("Updating journey:", editingJourney);
-        updatedJourney = await updateJourney(editingJourney);
+        if (!editingJourney.id) {
+          throw new Error('Journey ID is required for updates');
+        }
+        updatedJourney = await updateJourney(editingJourney as Journey & { id: string });
         toast.success('Journey updated successfully');
         
         // Update in list
@@ -249,7 +255,7 @@ const JourneysManager: React.FC = () => {
             </Button>
             <Button 
               onClick={handleCreateNew} 
-              variant="gradient" 
+              variant="default" 
               size="lg" 
               className="shadow-lg hover:scale-105 transition-transform"
             >
@@ -308,8 +314,8 @@ const JourneysManager: React.FC = () => {
                       </TableRow>
                     ) : (
                       journeys.map((journey) => {
-                        // Determine if this is a core content journey (has high ID)
-                        const isCoreJourney = journey.id >= 1000;
+                        // Determine if this is a core content journey
+                        const isCoreJourney = journey.source === 'core';
                         
                         return (
                           <TableRow 
@@ -328,7 +334,9 @@ const JourneysManager: React.FC = () => {
                                 <Badge variant="outline" className="bg-green-50 text-green-700">Database</Badge>
                               )}
                             </TableCell>
-                            <TableCell>{journey.tags || '-'}</TableCell>
+                            <TableCell>
+                              {journey.tags && normalizeStringArray(journey.tags).join(', ')}
+                            </TableCell>
                             <TableCell>{journey.veil_locked ? 'Yes' : 'No'}</TableCell>
                             <TableCell onClick={(e) => e.stopPropagation()}>
                               <div className="flex items-center justify-end space-x-3">
@@ -348,7 +356,7 @@ const JourneysManager: React.FC = () => {
                                   variant="outline" 
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleViewJourney(journey.filename);
+                                    handleViewJourney(journey.filename || '');
                                   }}
                                   className="border-purple-300 hover:bg-purple-100"
                                 >
@@ -371,7 +379,7 @@ const JourneysManager: React.FC = () => {
           <DialogContent className="sm:max-w-[80%] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
-                {editingJourney?.id === 0 
+                {editingJourney?.id === "0" 
                   ? 'Create New Journey' 
                   : editingJourney?.source === 'core' 
                     ? `View Core Content Journey: ${editingJourney.title}` 
@@ -431,7 +439,11 @@ const JourneysManager: React.FC = () => {
                     <Input
                       id="tags"
                       name="tags"
-                      value={editingJourney.tags || ''}
+                      value={typeof editingJourney.tags === 'string' 
+                        ? editingJourney.tags 
+                        : (Array.isArray(editingJourney.tags) 
+                          ? editingJourney.tags.join(', ') 
+                          : '')}
                       onChange={handleInputChange}
                       className="col-span-3"
                       placeholder="tag1, tag2, tag3"
@@ -459,7 +471,9 @@ const JourneysManager: React.FC = () => {
                     <Input
                       id="assigned_songs"
                       name="assigned_songs"
-                      value={editingJourney.assigned_songs || ''}
+                      value={Array.isArray(editingJourney.assigned_songs) 
+                        ? editingJourney.assigned_songs.join(', ') 
+                        : editingJourney.assigned_songs || ''}
                       onChange={handleInputChange}
                       className="col-span-3"
                       placeholder="https://example.com/audio.mp3"
@@ -485,7 +499,9 @@ const JourneysManager: React.FC = () => {
                     <Input
                       id="recommended_users"
                       name="recommended_users"
-                      value={editingJourney.recommended_users || ''}
+                      value={Array.isArray(editingJourney.recommended_users) 
+                        ? editingJourney.recommended_users.join(', ') 
+                        : editingJourney.recommended_users || ''}
                       onChange={handleInputChange}
                       className="col-span-3"
                       placeholder="e.g. Beginners, Advanced practitioners"
@@ -552,7 +568,9 @@ const JourneysManager: React.FC = () => {
                     <Textarea
                       id="visual_effects"
                       name="visual_effects"
-                      value={editingJourney.visual_effects || ''}
+                      value={Array.isArray(editingJourney.visual_effects) 
+                        ? editingJourney.visual_effects.join(', ') 
+                        : editingJourney.visual_effects || ''}
                       onChange={handleInputChange}
                       className="col-span-3"
                       placeholder='{"type": "waves", "color": "#8A2BE2"}'
@@ -565,7 +583,9 @@ const JourneysManager: React.FC = () => {
                     <Textarea
                       id="strobe_patterns"
                       name="strobe_patterns"
-                      value={editingJourney.strobe_patterns || ''}
+                      value={Array.isArray(editingJourney.strobe_patterns) 
+                        ? editingJourney.strobe_patterns.join(', ') 
+                        : editingJourney.strobe_patterns || ''}
                       onChange={handleInputChange}
                       className="col-span-3"
                       placeholder='{"frequency": 2, "colors": ["#ff0000", "#0000ff"]}'

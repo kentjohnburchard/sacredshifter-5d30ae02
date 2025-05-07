@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -12,6 +13,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useJourney } from '@/context/JourneyContext';
 import { Button } from '@/components/ui/button';
 import { Play, CirclePause, History } from 'lucide-react';
+import { normalizeStringArray } from '@/utils/parsers';
 
 interface CoreJourneyLoaderResult {
   content: string;
@@ -49,8 +51,7 @@ const loadCoreJourneyContent = async (slug: string): Promise<CoreJourneyLoaderRe
         title: frontmatter.title || filename,
         veil_locked: frontmatter.veil || false,
         sound_frequencies: frontmatter.frequency?.toString() || parsedContent.frequencies || '',
-        // Convert any array tags to string for compatibility
-        tags: parsedContent.tags || []
+        tags: parsedContent.tags || [] // Ensure tags is an array
       };
       
       return { content, journey };
@@ -61,13 +62,6 @@ const loadCoreJourneyContent = async (slug: string): Promise<CoreJourneyLoaderRe
     console.error('Error loading core journey content:', error);
     return { content: '', journey: null };
   }
-};
-
-// Helper for safe tag extraction
-const getTagsArray = (tags: string | string[] | undefined): string[] => {
-  if (!tags) return [];
-  if (Array.isArray(tags)) return tags;
-  return tags.split(',').map(tag => tag.trim());
 };
 
 const JourneyPage: React.FC = () => {
@@ -141,7 +135,6 @@ const JourneyPage: React.FC = () => {
 
   const handleStartJourney = () => {
     if (journey) {
-      // Convert the numeric ID to string if needed to match JourneyContext's expected type
       startJourney({
         ...journey,
         id: journey.id?.toString() || ""

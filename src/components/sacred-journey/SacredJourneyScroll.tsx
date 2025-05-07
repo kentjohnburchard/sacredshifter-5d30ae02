@@ -1,11 +1,12 @@
+
 import React from 'react';
 import { Journey } from '@/types/journey';
+import { Link } from 'react-router-dom';
+import { normalizeStringArray } from '@/utils/parsers';
 
 // Helper function to safely get tags as array
 const getTagsArray = (tags: string | string[] | undefined): string[] => {
-  if (!tags) return [];
-  if (Array.isArray(tags)) return tags;
-  return tags.split(',').map(tag => tag.trim());
+  return normalizeStringArray(tags);
 };
 
 import { useEffect, useState } from 'react';
@@ -28,7 +29,9 @@ const SacredJourneyScroll: React.FC = () => {
       try {
         if (slug) {
           const journey = await fetchJourneyBySlug(slug);
-          setJourneys([journey]);
+          if (journey) {
+            setJourneys([journey]);
+          }
         } else {
           const data = await fetchJourneys();
           setJourneys(data);
