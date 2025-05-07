@@ -34,9 +34,9 @@ export const APP_ROUTES: Record<string, RouteDefinition> = {
   
   ABOUT: {
     path: '/about',
-    name: 'About',
+    name: 'About the Founder',
     qaStatus: 'pending',
-    notes: 'Information about Sacred Shifter'
+    notes: 'Information about Sacred Shifter founder'
   },
   
   // Future routes will be added here after QA

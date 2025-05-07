@@ -3,7 +3,7 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import NotFound from './pages/NotFound';
 import ComingSoon from './pages/ComingSoon';
-import AboutPage from './pages/AboutPage';
+import AboutFounder from './pages/AboutFounder';
 
 // =================================================
 // ROUTING LOCK - IMPORTANT!
@@ -27,7 +27,7 @@ function App() {
       {/* About page route */}
       <Route 
         path="/about" 
-        element={<AboutPage />} 
+        element={<AboutFounder />} 
         qa-status="pending" 
       />
 
