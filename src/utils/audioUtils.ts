@@ -12,3 +12,16 @@ export const createTone = (frequency: number, duration: number = 0.5) => {
     stop: () => console.warn('Tone stop not implemented'),
   };
 };
+
+// Stub implementations to satisfy imports
+export const createGlobalAudioElement = (volume: number = 1.0): HTMLAudioElement => {
+  console.warn('createGlobalAudioElement is a stub implementation');
+  const audio = new Audio();
+  audio.volume = volume;
+  return audio;
+};
+
+export const getExistingAudioElement = (): HTMLAudioElement | null => {
+  console.warn('getExistingAudioElement is a stub implementation');
+  return document.querySelector('audio#global-audio-player');
+};

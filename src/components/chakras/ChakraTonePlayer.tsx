@@ -1,83 +1,106 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Play, Square } from 'lucide-react';
 import { createTone } from '@/utils/audioUtils';
-import { PlayIcon, PauseIcon } from 'lucide-react';
-import { useTheme } from '@/context/ThemeContext';
 
 interface ChakraTonePlayerProps {
   frequency: number;
-  chakra: string;
-  label?: string;
-  description?: string;
+  chakra?: string;
+  autoplay?: boolean;
+  loopDuration?: number;
+  onPlayStateChange?: (isPlaying: boolean) => void;
   className?: string;
 }
 
+// Simple interface for audio state
 interface AudioData {
-  oscillator: OscillatorNode;
-  gainNode: GainNode;
-  audioContext: AudioContext;
+  play: () => void;
+  stop: () => void;
 }
 
 const ChakraTonePlayer: React.FC<ChakraTonePlayerProps> = ({
   frequency,
   chakra,
-  label,
-  description,
-  className,
+  autoplay = false,
+  loopDuration = 0,
+  onPlayStateChange,
+  className = ''
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audio, setAudio] = useState<AudioData | null>(null);
-  const { liftTheVeil } = useTheme();
-
-  const getBackgroundColor = () => {
-    if (liftTheVeil) {
-      return 'bg-pink-600 hover:bg-pink-700';
-    }
-    
-    switch (chakra.toLowerCase()) {
-      case 'root':
-        return 'bg-red-600 hover:bg-red-700';
-      case 'sacral':
-        return 'bg-orange-600 hover:bg-orange-700';
-      case 'solar plexus':
-        return 'bg-yellow-600 hover:bg-yellow-700';
-      case 'heart':
-        return 'bg-green-600 hover:bg-green-700';
-      case 'throat':
-        return 'bg-blue-600 hover:bg-blue-700';
-      case 'third eye':
-        return 'bg-indigo-600 hover:bg-indigo-700';
-      case 'crown':
-        return 'bg-purple-600 hover:bg-purple-700';
-      default:
-        return 'bg-purple-600 hover:bg-purple-700';
-    }
-  };
-
-  const playTone = () => {
-    setIsPlaying(true);
-    
-    // Create new audio element
-    const audioData = createTone(frequency);
-    setAudio(audioData);
-    
-    // Stop after 3 seconds
-    setTimeout(() => {
-      setIsPlaying(false);
-    }, 3000);
-  };
-
-  const stopTone = () => {
-    setIsPlaying(false);
+  
+  // Create tone when frequency changes
+  useEffect(() => {
     if (audio) {
-      audio.oscillator.stop();
-      audio.oscillator.disconnect();
-      audio.gainNode.disconnect();
-      setAudio(null);
+      audio.stop();
     }
+    
+    // Create a new tone with the current frequency
+    const newAudio = createTone(frequency);
+    setAudio(newAudio);
+    
+    return () => {
+      if (newAudio) {
+        newAudio.stop();
+      }
+    };
+  }, [frequency]);
+  
+  // Handle autoplay
+  useEffect(() => {
+    if (autoplay && audio) {
+      playTone();
+    }
+    
+    return () => {
+      if (audio) {
+        audio.stop();
+        setIsPlaying(false);
+      }
+    };
+  }, [autoplay, audio]);
+  
+  // Handle loop duration
+  useEffect(() => {
+    if (loopDuration > 0 && isPlaying) {
+      const timeout = setTimeout(() => {
+        if (audio) {
+          audio.stop();
+          setIsPlaying(false);
+          if (onPlayStateChange) onPlayStateChange(false);
+          
+          // Restart after a short pause
+          setTimeout(() => {
+            if (audio) {
+              audio.play();
+              setIsPlaying(true);
+              if (onPlayStateChange) onPlayStateChange(true);
+            }
+          }, 500);
+        }
+      }, loopDuration * 1000);
+      
+      return () => clearTimeout(timeout);
+    }
+  }, [loopDuration, isPlaying, audio, onPlayStateChange]);
+  
+  const playTone = () => {
+    if (!audio) return;
+    
+    audio.play();
+    setIsPlaying(true);
+    if (onPlayStateChange) onPlayStateChange(true);
   };
-
+  
+  const stopTone = () => {
+    if (!audio) return;
+    
+    audio.stop();
+    setIsPlaying(false);
+    if (onPlayStateChange) onPlayStateChange(false);
+  };
+  
   const togglePlay = () => {
     if (isPlaying) {
       stopTone();
@@ -85,42 +108,25 @@ const ChakraTonePlayer: React.FC<ChakraTonePlayerProps> = ({
       playTone();
     }
   };
-
-  useEffect(() => {
-    return () => {
-      if (audio) {
-        audio.oscillator.stop();
-        audio.oscillator.disconnect();
-        audio.gainNode.disconnect();
-      }
-    };
-  }, [audio]);
-
+  
   return (
-    <div className={`flex items-center justify-between p-3 rounded-lg bg-white/10 backdrop-blur-sm ${className || ''}`}>
-      <div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">{label || `${chakra} Chakra`}</span>
-          <span className="text-xs bg-white/20 px-2 py-0.5 rounded">{frequency} Hz</span>
-        </div>
-        {description && <p className="text-xs opacity-75 mt-1">{description}</p>}
-      </div>
+    <div className={`chakra-tone-player ${className}`}>
       <Button
-        size="sm"
         onClick={togglePlay}
-        className={`${getBackgroundColor()} flex items-center gap-2 min-w-[80px]`}
+        variant="outline"
+        size="sm"
+        className={`
+          flex items-center gap-2
+          ${chakra ? `chakra-${chakra.toLowerCase()}` : ''}
+          ${isPlaying ? 'bg-purple-900/20' : ''}
+        `}
       >
         {isPlaying ? (
-          <>
-            <PauseIcon className="h-4 w-4" />
-            <span>Stop</span>
-          </>
+          <Square className="h-4 w-4" />
         ) : (
-          <>
-            <PlayIcon className="h-4 w-4" />
-            <span>Play</span>
-          </>
+          <Play className="h-4 w-4" />
         )}
+        {frequency} Hz
       </Button>
     </div>
   );

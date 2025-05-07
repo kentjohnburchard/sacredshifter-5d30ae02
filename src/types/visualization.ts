@@ -32,8 +32,18 @@ export interface VisualizationSettings {
   rotationSpeed: number;
 }
 
+// Add missing types to fix imports
+export type AudioAnalysisResult = {
+  amplitude: number;
+  frequency: number;
+  primeResonance?: number;
+  activeFrequencies?: number[];
+};
+
 export type VisualizerType = 'sacred-geometry' | 'prime-audio' | 'fractal';
 export type ColorTheme = 'cosmic-violet' | 'chakra-rainbow' | 'fire-essence' | 'ocean-depths' | 'earth-tones' | 'ethereal-mist';
+export type SacredGeometryShape = string;
+export type VisualizationMode = '2d' | '3d';
 
 // Empty type aliases to satisfy imports
 export type VisualTheme = string;
