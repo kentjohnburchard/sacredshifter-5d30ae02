@@ -1,3 +1,4 @@
+
 export type ChakraName = 'Root' | 'Sacral' | 'Solar Plexus' | 'Heart' | 'Throat' | 'Third Eye' | 'Crown';
 
 // Modify ChakraTag to extend ChakraName correctly and include 'Earth Star' and 'Soul Star'

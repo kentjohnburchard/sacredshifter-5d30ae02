@@ -109,7 +109,7 @@ const LandingPage: React.FC = () => {
               <div className="text-2xl text-purple-300 mb-4">Solfeggio Frequencies</div>
               <div className="text-lg text-white/70 mb-2">f = 4.32 × 10<sup>n</sup> Hz</div>
               <div className="text-sm text-white/50">
-                Where n = {1, 2, 3, 4, 5, 6, 7, 8, 9}
+                Where n = [1, 2, 3, 4, 5, 6, 7, 8, 9]
               </div>
             </motion.div>
             

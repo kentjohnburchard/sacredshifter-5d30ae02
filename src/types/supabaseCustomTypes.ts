@@ -32,6 +32,8 @@ export interface ExtendedProfile extends Profiles {
   energy_level: number | null;
   interests: string[] | null;
   onboarding_completed: boolean;
+  is_premium: boolean | null;
+  is_lifetime_member: boolean | null;
 }
 
 // Helper function to convert OnboardingData to database format
