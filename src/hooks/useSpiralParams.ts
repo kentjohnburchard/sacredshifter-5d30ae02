@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { fetchSpiralParams } from '@/services/spiralParamService';
 
@@ -57,19 +56,11 @@ const useSpiralParams = (journeyId?: string) => {
           if (fetchedParams) {
             console.log("Received spiral params from database:", fetchedParams);
             
-            // Normalize the parameters to ensure they work well
-            const normalizedParams = {
-              ...fetchedParams,
-              coeffA: Math.min(Math.max(fetchedParams.coeffA || 1.2, 0.5), 2),
-              coeffB: Math.min(Math.max(fetchedParams.coeffB || 0.9, 0.5), 2),
-              coeffC: Math.min(Math.max(fetchedParams.coeffC || 0.6, 0.2), 2),
-              freqA: Math.min(Math.max(fetchedParams.freqA || 4.1, 1), 8),
-              freqB: Math.min(Math.max(fetchedParams.freqB || 3.6, 1), 8),
-              freqC: Math.min(Math.max(fetchedParams.freqC || 2.8, 1), 8),
-              speed: Math.min(fetchedParams.speed || 0.0003, 0.0005)
-            };
+            // Use parameters directly without normalization
+            setParams(fetchedParams);
             
-            setParams(normalizedParams);
+            // Save to cache
+            paramsCache[journeyId] = fetchedParams;
           } else {
             console.log("No spiral params found in database. Creating default params for journey:", journeyId);
             
@@ -77,17 +68,17 @@ const useSpiralParams = (journeyId?: string) => {
             if (journeyId === '20') {
               console.log('Creating specific params for Akashic Reconnection journey (ID: 20)');
               const akashicParams = {
-                coeffA: 1.2,
-                coeffB: 0.9, 
-                coeffC: 0.6,
-                freqA: 4.1,
-                freqB: 3.6,
-                freqC: 2.8,
+                coeffA: 5,
+                coeffB: 3, 
+                coeffC: 1.5,
+                freqA: 50,
+                freqB: -20,
+                freqC: -60,
                 color: '220,220,255', // Light blue for Akashic Records
                 opacity: 85,
                 strokeWeight: 0.7,
                 maxCycles: 6,
-                speed: 0.0003
+                speed: 0.0008
               };
               
               // Save the specific params to the database
@@ -99,22 +90,22 @@ const useSpiralParams = (journeyId?: string) => {
               return;
             }
             
-            // If not the specific journey, create hash-based params with sacred geometry constraints
+            // If not the specific journey, create hash-based params
             const hash = journeyId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
             
-            // Create parameters that will form proper sacred geometry
+            // Create parameters with wider ranges
             const newParams = {
-              coeffA: 1.0 + ((hash % 10) / 10), // Range: 1.0-1.9
-              coeffB: 0.7 + ((hash * 2) % 10) / 10, // Range: 0.7-1.6
-              coeffC: 0.4 + ((hash * 3) % 10) / 20, // Range: 0.4-0.9
-              freqA: 3.0 + (hash % 5),  // Range: 3-7
-              freqB: 2.5 + ((hash * 2) % 5), // Range: 2.5-6.5
-              freqC: 2.0 + ((hash * 3) % 5), // Range: 2-6
+              coeffA: 1.0 + ((hash % 10) / 5), // Range: 1.0-3.0
+              coeffB: 0.7 + ((hash * 2) % 10) / 5, // Range: 0.7-2.7
+              coeffC: 0.4 + ((hash * 3) % 10) / 10, // Range: 0.4-1.4
+              freqA: -10 + (hash % 20),  // Range: -10 to 10
+              freqB: -10 + ((hash * 2) % 20), // Range: -10 to 10
+              freqC: -10 + ((hash * 3) % 20), // Range: -10 to 10
               color: `${100 + (hash % 155)},${100 + ((hash * 2) % 155)},${100 + ((hash * 3) % 155)}`,
               opacity: 70 + (hash % 30),
               strokeWeight: 0.3 + ((hash % 10) / 10),
               maxCycles: 4 + (hash % 3),
-              speed: 0.0002 + ((hash % 10) / 20000) // Very slow speeds: 0.0002-0.0007
+              speed: 0.001 + ((hash % 10) / 1000) // Higher speeds: 0.001-0.011
             };
             
             // Save to memory cache
