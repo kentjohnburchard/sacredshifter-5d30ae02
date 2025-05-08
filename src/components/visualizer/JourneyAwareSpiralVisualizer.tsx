@@ -38,7 +38,7 @@ const JourneyAwareSpiralVisualizer: React.FC<JourneyAwareSpiralVisualizerProps> 
               "effectiveJourneyId:", effectiveJourneyId);
   
   // Get spiral parameters for current journey
-  const spiralParams = useSpiralParams(effectiveJourneyId?.toString());
+  const spiralParams = useSpiralParams(effectiveJourneyId);
   
   // Log parameters for debugging
   useEffect(() => {
@@ -61,7 +61,9 @@ const JourneyAwareSpiralVisualizer: React.FC<JourneyAwareSpiralVisualizerProps> 
   };
 
   // Only render if the journey is active or we're not auto-syncing
-  if (autoSync && !isJourneyActive) {
+  const shouldRenderSpiral = !autoSync || isJourneyActive;
+
+  if (!shouldRenderSpiral) {
     return (
       <div className={`flex justify-center items-center p-4 ${className} bg-black/70`}>
         <div className="text-purple-300/60 text-center p-6">

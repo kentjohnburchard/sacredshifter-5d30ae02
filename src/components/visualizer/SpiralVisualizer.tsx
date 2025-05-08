@@ -42,29 +42,34 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
     console.log("SpiralVisualizer - Container ID:", containerId);
 
     const sketch = (p: p5) => {
-      const coeffA = params.coeffA;
-      const coeffB = params.coeffB;
-      const coeffC = params.coeffC;
-      const freqA = params.freqA;
-      const freqB = params.freqB;
-      const freqC = params.freqC;
-      const color = params.color || '255,255,0';
-      const opacity = params.opacity || 100;
+      // Normalize and clamp parameter values for better visual stability
+      const coeffA = Math.min(Math.max(params.coeffA, 0.5), 5);
+      const coeffB = Math.min(Math.max(params.coeffB, 0.5), 5);
+      const coeffC = Math.min(Math.max(params.coeffC, 0.2), 3);
+      
+      // Clamp frequency values to prevent chaotic behavior
+      const freqA = Math.min(Math.max(params.freqA, -20), 20);
+      const freqB = Math.min(Math.max(params.freqB, -15), 15);
+      const freqC = Math.min(Math.max(params.freqC, -15), 15);
+      
+      const color = params.color || '180,180,255';
+      const opacity = params.opacity || 80;
       const strokeW = params.strokeWeight || 0.5;
       const maxCycles = params.maxCycles || 5;
-      const speed = params.speed || 0.001;
+      
+      // CRITICAL: Slow down the animation speed significantly
+      const speed = params.speed ? Math.min(params.speed, 0.0005) : 0.0003;
       
       // New variables for enhanced effects
       let t = 0;
-      let zRotation = 0;
       let trailPoints: Array<{x: number, y: number, opacity: number}> = [];
       const maxTrailPoints = 300;
       let hueOffset = 0;
       let pulseValue = 0;
       
       // Background gradient properties
-      let bgGradientInner = p.color(0, 0, 20, 255);
-      let bgGradientOuter = p.color(0, 0, 0, 255);
+      let bgGradientInner = p.color(5, 0, 20, 255);
+      let bgGradientOuter = p.color(0, 0, 10, 255);
 
       p.setup = () => {
         console.log("SpiralVisualizer - Setting up canvas with dimensions:", 
@@ -110,30 +115,32 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
         // Draw gradient background first
         drawBackground();
         
-        // Update the pulse effect values
-        pulseValue = (p.sin(p.frameCount * 0.02) + 1) * 0.5; // 0 to 1 sine wave
-        hueOffset = (hueOffset + 0.2) % 360; // Slowly rotate hue
+        // Update the pulse effect values - slower, more subtle pulsing
+        pulseValue = (p.sin(p.frameCount * 0.01) + 1) * 0.5; // 0 to 1 sine wave, slower
+        hueOffset = (hueOffset + 0.1) % 360; // Slowly rotate hue, reduced speed
         
         // Prepare for drawing the spiral
         p.push();
         p.translate(p.width / 2, p.height / 2);
         
-        // Create 3D rotation effect
-        zRotation += 0.001;
-        const scaleFactorX = 0.9 + 0.1 * p.sin(zRotation);
-        const scaleFactorY = 0.9 + 0.1 * p.cos(zRotation);
-        p.scale(scaleFactorX * 6, scaleFactorY * 6); // Increased scale to fill screen better
+        // Use gentle sine wave for 3D rotation effect - SIGNIFICANTLY REDUCED
+        const rotationAmount = p.sin(p.frameCount * 0.002) * 0.05;
+        p.rotate(rotationAmount);
+        
+        // Use subtle scaling - reduced intensity
+        const scaleFactor = 0.95 + 0.05 * p.sin(p.frameCount * 0.005);
+        p.scale(scaleFactor * 6); // Maintain reasonable overall scale
         
         // Apply blending for glow effect
         p.blendMode(p.ADD);
         
-        // Draw glow base
-        p.stroke(p.color(`rgba(${color},0.2)`));
-        p.strokeWeight(strokeW * 5);
+        // Draw glow base - reduced intensity
+        p.stroke(p.color(`rgba(${color},0.1)`));
+        p.strokeWeight(strokeW * 3);
         for (let i = 0; i < trailPoints.length - 1; i++) {
           if (trailPoints[i] && trailPoints[i+1]) {
             const point = trailPoints[i];
-            p.stroke(p.color(`rgba(${color},${point.opacity * 0.1})`));
+            p.stroke(p.color(`rgba(${color},${point.opacity * 0.08})`));
             p.point(point.x, point.y);
           }
         }
@@ -142,16 +149,15 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
         for (let i = 0; i < trailPoints.length; i++) {
           if (trailPoints[i]) {
             const point = trailPoints[i];
-            const alpha = point.opacity * (0.5 + 0.5 * pulseValue);
+            const alpha = point.opacity * (0.4 + 0.3 * pulseValue);
             p.stroke(p.color(`rgba(${color},${alpha})`));
-            p.strokeWeight(strokeW * (0.8 + 0.4 * pulseValue));
+            p.strokeWeight(strokeW * (0.8 + 0.2 * pulseValue)); // Reduced variance
             p.point(point.x, point.y);
           }
         }
         
-        // Draw the current point of the spiral with full opacity
-        // Draw multiple points per frame for faster rendering
-        for (let i = 0; i < 10; i++) {
+        // Draw fewer points per frame for smoother, more deliberate spiral growth
+        for (let i = 0; i < 3; i++) {
           const re = coeffA * p.cos(freqA * t) + 
                     coeffB * p.cos(freqB * t) + 
                     coeffC * p.cos(freqC * t);
@@ -159,11 +165,11 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
                     coeffB * p.sin(freqB * t) + 
                     coeffC * p.sin(freqC * t);
           
-          // Animate stroke weight slightly based on sine wave
-          const dynamicStrokeWeight = strokeW * (1 + 0.3 * p.sin(t * 5));
+          // Reduced stroke weight variation
+          const dynamicStrokeWeight = strokeW * (1 + 0.1 * p.sin(t * 3));
           p.strokeWeight(dynamicStrokeWeight);
           
-          // Dynamic color with subtle hue variation
+          // Use more consistent color with subtle variation
           const baseColor = p.color(`rgba(${color},${opacity/100})`);
           p.stroke(baseColor);
           p.point(re, im);
@@ -180,12 +186,13 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
             trailPoints.shift();
           }
           
-          // Reduce opacity of all trail points slightly
+          // Slower fade for trail points
           for (let j = 0; j < trailPoints.length; j++) {
-            trailPoints[j].opacity *= 0.99;
+            trailPoints[j].opacity *= 0.995; // Slower fade (was 0.99)
           }
           
-          t += speed; // Smaller step for smoother lines
+          // CRITICAL: Use much slower increment for t
+          t += speed;
           
           // Stop after specified number of complete cycles
           if (t > p.TWO_PI * maxCycles) {
