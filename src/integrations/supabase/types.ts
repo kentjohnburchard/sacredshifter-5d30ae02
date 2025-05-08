@@ -737,11 +737,14 @@ export type Database = {
           env_temperature: string | null
           env_tools: string | null
           filename: string
+          frequencies: string[] | null
           id: number
           intent: string | null
+          is_active: boolean | null
           notes: string | null
           recommended_users: string | null
           script: string | null
+          slug: string
           sound_frequencies: string | null
           strobe_patterns: string | null
           tags: string | null
@@ -763,11 +766,14 @@ export type Database = {
           env_temperature?: string | null
           env_tools?: string | null
           filename: string
+          frequencies?: string[] | null
           id?: number
           intent?: string | null
+          is_active?: boolean | null
           notes?: string | null
           recommended_users?: string | null
           script?: string | null
+          slug?: string
           sound_frequencies?: string | null
           strobe_patterns?: string | null
           tags?: string | null
@@ -789,11 +795,14 @@ export type Database = {
           env_temperature?: string | null
           env_tools?: string | null
           filename?: string
+          frequencies?: string[] | null
           id?: number
           intent?: string | null
+          is_active?: boolean | null
           notes?: string | null
           recommended_users?: string | null
           script?: string | null
+          slug?: string
           sound_frequencies?: string | null
           strobe_patterns?: string | null
           tags?: string | null

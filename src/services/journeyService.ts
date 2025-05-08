@@ -57,21 +57,31 @@ export const fetchJourneys = async (): Promise<Journey[]> => {
 
 export const fetchJourneyBySlug = async (slug: string): Promise<Journey | null> => {
   try {
+    console.log(`Attempting to fetch journey with slug: "${slug}"`);
+    
+    // Remove .md extension if present in the slug
+    const cleanSlug = slug.replace(/\.md$/, '');
+    
     const { data, error } = await supabase
       .from('journeys')
-      .select('*')
-      .eq('filename', slug)
-      .maybeSingle();
+      .select('id, title, filename, slug, veil_locked, audio_filename, tags, sound_frequencies, intent, chakra_tag, is_active, duration, assigned_songs, visual_effects, strobe_patterns, recommended_users, env_lighting, env_temperature, env_incense, env_posture, env_tools, script, notes, frequencies')
+      .or(`filename.eq.${cleanSlug},slug.eq.${cleanSlug}`)
+      .single();
 
+    // Log detailed information about the query results
+    console.log('Supabase query response:', { data, error });
+    
     if (error) {
       console.error(`Error fetching journey with slug ${slug}:`, error);
       throw error;
     }
 
     if (data) {
+      console.log(`Successfully found journey: ${data.title} (ID: ${data.id})`);
       return normalizeJourneyData(data);
     }
     
+    console.log(`No journey found with slug: ${slug}`);
     return null;
   } catch (error) {
     console.error(`Error in fetchJourneyBySlug for slug ${slug}:`, error);
