@@ -67,6 +67,10 @@ const TestJourneyContent: React.FC<{ journeySlug: string }> = ({ journeySlug }) 
         // Log the fetched journey data for debugging
         console.log("Fetched journey data:", journeyData);
         console.log("Frequencies data:", journeyData?.frequencies);
+        console.log("Frequencies data type:", journeyData?.frequencies ? typeof journeyData.frequencies : "undefined");
+        if (journeyData?.frequencies) {
+          console.log("Is frequencies an array?", Array.isArray(journeyData.frequencies));
+        }
         
         if (!journeyData) {
           console.log(`Journey ${journeySlug} not found in database, checking core_content...`);
@@ -85,6 +89,17 @@ const TestJourneyContent: React.FC<{ journeySlug: string }> = ({ journeySlug }) 
           // Ensure journeyData.id is a string
           if (journeyData && journeyData.id) {
             journeyData.id = String(journeyData.id);
+          }
+          
+          // Ensure frequencies is treated as an array
+          if (journeyData.frequencies && typeof journeyData.frequencies === 'string') {
+            try {
+              journeyData.frequencies = JSON.parse(journeyData.frequencies);
+            } catch (e) {
+              journeyData.frequencies = [journeyData.frequencies];
+            }
+          } else if (journeyData.frequencies && !Array.isArray(journeyData.frequencies)) {
+            journeyData.frequencies = [String(journeyData.frequencies)];
           }
           
           setJourney(journeyData);
@@ -144,16 +159,22 @@ const TestJourneyContent: React.FC<{ journeySlug: string }> = ({ journeySlug }) 
   const getFrequencyDisplay = () => {
     if (!journey) return 'No frequency information available';
     
+    console.log("Getting frequency display for:", journey);
+    console.log("Frequencies:", journey.frequencies, "Type:", typeof journey.frequencies);
+    
     // Check for frequencies array first - now properly handling array type
     if (journey.frequencies && Array.isArray(journey.frequencies) && journey.frequencies.length > 0) {
+      console.log("Using frequencies array:", journey.frequencies.join(', '));
       return journey.frequencies.join(', ') + ' Hz';
     }
     
     // Fall back to sound_frequencies string
     if (journey.sound_frequencies) {
+      console.log("Using sound_frequencies:", journey.sound_frequencies);
       return journey.sound_frequencies;
     }
     
+    console.log("No frequency information found");
     return 'No frequency information available';
   };
   
@@ -164,6 +185,7 @@ const TestJourneyContent: React.FC<{ journeySlug: string }> = ({ journeySlug }) 
     <Layout 
       pageTitle={journey?.title || 'Test Journey'} 
       className="bg-gradient-to-b from-purple-900/40 to-black"
+      showGlobalWatermark={false}
     >
       <div className="container mx-auto px-4 py-8">
         {loading ? (
@@ -181,7 +203,7 @@ const TestJourneyContent: React.FC<{ journeySlug: string }> = ({ journeySlug }) 
                     autoSync={false}
                     showControls={true}
                     containerId={`journeySpiral-${journeySlug}`}
-                    className="absolute inset-0 w-full h-full"
+                    className="h-full w-full"
                   />
                 </div>
                 <CardContent className="p-4">

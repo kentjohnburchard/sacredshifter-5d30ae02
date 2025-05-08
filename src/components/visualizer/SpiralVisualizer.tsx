@@ -38,6 +38,9 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
       p5InstanceRef.current.remove();
     }
 
+    console.log("SpiralVisualizer - Creating new p5 instance with params:", params);
+    console.log("SpiralVisualizer - Container ID:", containerId);
+
     const sketch = (p: p5) => {
       const coeffA = params.coeffA;
       const coeffB = params.coeffB;
@@ -53,11 +56,22 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
       let t = 0;
 
       p.setup = () => {
-        const canvas = p.createCanvas(window.innerWidth, window.innerHeight);
+        console.log("SpiralVisualizer - Setting up canvas with dimensions:", 
+          containerRef.current?.clientWidth, 
+          containerRef.current?.clientHeight
+        );
+        
+        // Get the container dimensions or use fallback values
+        const width = containerRef.current?.clientWidth || window.innerWidth;
+        const height = containerRef.current?.clientHeight || window.innerHeight;
+        
+        const canvas = p.createCanvas(width, height);
         p.background(0);
         p.stroke(p.color(`rgba(${color},${opacity/100})`));
         p.strokeWeight(strokeW);
         p.noFill();
+        
+        console.log("SpiralVisualizer - Canvas created with dimensions:", width, height);
       };
 
       p.draw = () => {
@@ -80,12 +94,19 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
       };
 
       p.windowResized = () => {
-        p.resizeCanvas(window.innerWidth, window.innerHeight);
+        // Get the new dimensions of the container
+        const width = containerRef.current?.clientWidth || window.innerWidth;
+        const height = containerRef.current?.clientHeight || window.innerHeight;
+        
+        p.resizeCanvas(width, height);
+        
         // Fix: p.background() is only accessible after setup has been called
         // Create a check to ensure p is initialized
         if (p.drawingContext) {
           p.background(0);
         }
+        
+        console.log("SpiralVisualizer - Canvas resized to:", width, height);
       };
     };
 
@@ -98,14 +119,15 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
         p5InstanceRef.current.remove();
       }
     };
-  }, [params]);
+  }, [params, containerId]);
 
   return (
     <div 
       id={containerId}
       ref={containerRef} 
-      className={`fixed inset-0 w-full h-full z-[-2] bg-black ${className}`}
+      className={`absolute inset-0 w-full h-full z-10 bg-black ${className}`}
       aria-hidden="true"
+      style={{ minHeight: '100%', minWidth: '100%' }}
     />
   );
 };
