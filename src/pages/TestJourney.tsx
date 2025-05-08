@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { JourneyProvider } from '@/context/JourneyContext';
 import Layout from '@/components/Layout';
@@ -154,17 +155,22 @@ const TestJourneyContent: React.FC<{ journeySlug: string }> = ({ journeySlug }) 
     setShowTimeline(prev => !prev);
   };
   
-  // Format frequencies for display - FIXED to handle string array
+  // Format frequencies for display - FIXED to handle string or array
   const getFrequencyDisplay = () => {
     if (!journey) return 'No frequency information available';
     
     console.log("Getting frequency display for:", journey);
     console.log("Frequencies:", journey.frequencies, "Type:", typeof journey.frequencies);
     
-    // Check for frequencies array first - now properly handling array type
-    if (journey.frequencies && Array.isArray(journey.frequencies) && journey.frequencies.length > 0) {
-      console.log("Using frequencies array:", journey.frequencies.join(', '));
-      return journey.frequencies.join(', ') + ' Hz';
+    // Check for frequencies array first - properly handle array or string type
+    if (journey.frequencies) {
+      if (Array.isArray(journey.frequencies) && journey.frequencies.length > 0) {
+        console.log("Using frequencies array:", journey.frequencies.join(', '));
+        return journey.frequencies.join(', ') + ' Hz';
+      } else if (typeof journey.frequencies === 'string') {
+        // Handle case where frequencies is a string
+        return journey.frequencies + ' Hz';
+      }
     }
     
     // Fall back to sound_frequencies string
