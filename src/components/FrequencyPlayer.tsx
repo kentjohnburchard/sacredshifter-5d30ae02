@@ -1,10 +1,8 @@
-
 import React from 'react';
 import { useTheme } from '@/context/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import { PlayIcon, PauseIcon } from 'lucide-react';
-import SacredGridVisualizer from './SacredGridVisualizer';
 
 interface FrequencyPlayerProps {
   frequency?: number;
@@ -84,13 +82,11 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
         <p className="text-sm opacity-80 mb-4">{description}</p>
       )}
 
-      <div className="relative w-full h-[200px] rounded-lg overflow-hidden">
-        <SacredGridVisualizer
-          width="100%"
-          height="100%"
-          autoConnect={true}
-          showControls={false}
-        />
+      <div className="relative w-full h-[200px] rounded-lg overflow-hidden bg-gradient-to-br from-purple-900/40 to-black/70">
+        {/* Visualization placeholder */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-24 h-24 rounded-full bg-purple-500/20 animate-pulse"></div>
+        </div>
       </div>
     </div>
   );
