@@ -25,7 +25,7 @@ import ScrollToTop from "./components/ScrollToTop";
 // Create a client instance outside component for persistence
 const queryClient = createQueryClient();
 
-// Configure router with future flags
+// Configure router with valid future flags only
 const router = createBrowserRouter([
   {
     path: "*",
@@ -40,7 +40,6 @@ const router = createBrowserRouter([
   }
 ], {
   future: {
-    v7_startTransition: true,
     v7_relativeSplatPath: true
   }
 });
