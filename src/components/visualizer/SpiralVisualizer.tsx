@@ -1,90 +1,82 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import p5 from 'p5';
 
-interface SacredShapeVisualizerProps {
-  containerId?: string;
-  className?: string;
-  arms?: number;
-  radius?: number;
-  color?: string;
-}
+type SpiralParams = {
+  A: number;
+  B: number;
+  C: number;
+  fa: number;
+  fb: number;
+  fc: number;
+};
 
-const SacredShapeVisualizer: React.FC<SacredShapeVisualizerProps> = ({
-  containerId = "sacredCanvas",
-  className = "",
-  arms = 6,
-  radius = 200,
-  color = "#8a2be2"
-}) => {
+const defaultParams: SpiralParams = {
+  A: 1.0,
+  B: 0.8,
+  C: 1.2,
+  fa: 3.2,
+  fb: 4.1,
+  fc: 2.7,
+};
+
+const SacredVisualizer: React.FC<{ params?: SpiralParams }> = ({ params = defaultParams }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const p5InstanceRef = useRef<p5 | null>(null);
+  const sketchRef = useRef<p5 | null>(null);
 
   useEffect(() => {
-    if (p5InstanceRef.current) {
-      p5InstanceRef.current.remove();
-    }
-
     const sketch = (p: p5) => {
-      let angleStep: number;
+      let t = 0;
 
       p.setup = () => {
-        const width = containerRef.current?.clientWidth || 600;
-        const height = containerRef.current?.clientHeight || 600;
-        p.createCanvas(width, height);
+        p.createCanvas(p.windowWidth, p.windowHeight);
+        p.colorMode(p.HSB, 360, 100, 100, 100);
         p.background(0);
-        p.angleMode(p.DEGREES);
+      };
+
+      p.draw = () => {
+        p.translate(p.width / 2, p.height / 2);
         p.noFill();
         p.strokeWeight(1.5);
-        p.stroke(color);
-        angleStep = 360 / arms;
+        p.background(0, 0, 0, 10); // Fading trail effect
 
-        drawMandala();
-      };
+        const { A, B, C, fa, fb, fc } = params;
 
-      const drawMandala = () => {
-        p.translate(p.width / 2, p.height / 2);
-        for (let i = 0; i < arms; i++) {
-          p.push();
-          p.rotate(i * angleStep);
-          drawPetal();
-          p.pop();
-        }
-      };
-
-      const drawPetal = () => {
         p.beginShape();
-        for (let angle = 0; angle <= 180; angle += 1) {
-          const r = radius * Math.sin(angle);
-          const x = r * Math.cos(angle);
-          const y = r * Math.sin(angle);
-          p.vertex(x, y);
+        for (let i = 0; i < 500; i++) {
+          const tt = t + i * 0.02;
+          const x =
+            A * Math.cos(fa * tt) +
+            B * Math.cos(fb * tt) +
+            C * Math.cos(fc * tt);
+          const y =
+            A * Math.sin(fa * tt) +
+            B * Math.sin(fb * tt) +
+            C * Math.sin(fc * tt);
+
+          const hue = (tt * 40) % 360;
+          p.stroke(hue, 80, 100, 80);
+          p.vertex(x * 100, y * 100);
         }
         p.endShape();
+
+        t += 0.01;
       };
 
       p.windowResized = () => {
-        const width = containerRef.current?.clientWidth || 600;
-        const height = containerRef.current?.clientHeight || 600;
-        p.resizeCanvas(width, height);
-        p.background(0);
-        drawMandala();
+        p.resizeCanvas(p.windowWidth, p.windowHeight);
       };
     };
 
-    p5InstanceRef.current = new p5(sketch, containerRef.current);
+    if (containerRef.current) {
+      sketchRef.current = new p5(sketch, containerRef.current);
+    }
 
     return () => {
-      p5InstanceRef.current?.remove();
+      sketchRef.current?.remove();
     };
-  }, [containerId, className, arms, radius, color]);
+  }, [params]);
 
-  return (
-    <div
-      id={containerId}
-      ref={containerRef}
-      className={`absolute inset-0 w-full h-full z-10 bg-black ${className}`}
-    />
-  );
+  return <div ref={containerRef} className="w-full h-full fixed top-0 left-0 z-0" />;
 };
 
-export default SacredShapeVisualizer;
+export default SacredVisualizer;
