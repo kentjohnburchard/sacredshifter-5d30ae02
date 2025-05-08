@@ -93,17 +93,17 @@ const JourneyAwareSpiralVisualizer: React.FC<JourneyAwareSpiralVisualizerProps> 
 
   // Ensure parameters have all required fields before passing to SpiralVisualizer
   const completeParams = {
-    coeffA: spiralParams.coeffA,
-    coeffB: spiralParams.coeffB,
-    coeffC: spiralParams.coeffC,
-    freqA: spiralParams.freqA,
-    freqB: spiralParams.freqB,
-    freqC: spiralParams.freqC,
-    color: spiralParams.color,
-    opacity: spiralParams.opacity,
-    strokeWeight: spiralParams.strokeWeight,
-    maxCycles: spiralParams.maxCycles,
-    speed: spiralParams.speed
+    coeffA: spiralParams?.coeffA || 1.2,
+    coeffB: spiralParams?.coeffB || 0.8,
+    coeffC: spiralParams?.coeffC || 1.0,
+    freqA: spiralParams?.freqA || 3.2,
+    freqB: spiralParams?.freqB || 4.1, 
+    freqC: spiralParams?.freqC || 2.7,
+    color: spiralParams?.color || '220,220,255',
+    opacity: spiralParams?.opacity || 80,
+    strokeWeight: spiralParams?.strokeWeight || 1.5,
+    maxCycles: spiralParams?.maxCycles || 5,
+    speed: spiralParams?.speed || 0.5
   };
 
   return (

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { JourneyProvider } from '@/context/JourneyContext';
 import Layout from '@/components/Layout';

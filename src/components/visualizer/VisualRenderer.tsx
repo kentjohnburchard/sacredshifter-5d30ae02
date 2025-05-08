@@ -30,28 +30,28 @@ const VisualRenderer: React.FC<VisualRendererProps> = ({
 
   // Get spiral parameters based on current audio frequency
   const getSpiralParams = () => {
-    // Default spiral parameters
+    // Default spiral parameters - adjusted to create proper spiral
     const params = {
-      coeffA: 4,
-      coeffB: 4,
-      coeffC: 1.3,
-      freqA: 44,
-      freqB: -17,
-      freqC: -54,
-      color: '255,255,0', // Default yellow
+      coeffA: 1.2,
+      coeffB: 0.8,
+      coeffC: 1.0,
+      freqA: 3.2,
+      freqB: 4.1,
+      freqC: 2.7,
+      color: '255,255,255', // Default white
       opacity: 80,
-      strokeWeight: 0.5,
+      strokeWeight: 1.5,
       maxCycles: 5,
-      speed: 0.001
+      speed: 0.5
     };
 
     // Modify based on frequency if available
     if (currentAudio?.frequency) {
       const freq = currentAudio.frequency;
       
-      // Simple mapping of frequency to parameters
-      params.coeffA = Math.max(3, Math.min(8, freq / 100));
-      params.freqA = Math.max(20, Math.min(80, freq / 10));
+      // Adjusted parameter mapping for better spirals
+      params.coeffA = Math.max(0.8, Math.min(1.5, freq / 500));
+      params.freqA = Math.max(2.0, Math.min(5.0, freq / 200));
       
       // Adjust color based on frequency range
       if (freq < 300) {
@@ -67,7 +67,7 @@ const VisualRenderer: React.FC<VisualRendererProps> = ({
 
     // Apply settings overrides if provided
     if (settings.speed) {
-      params.speed = settings.speed * 0.001;
+      params.speed = settings.speed * 0.5; // Adjusted for better spiral motion
     }
     
     if (settings.brightness) {
