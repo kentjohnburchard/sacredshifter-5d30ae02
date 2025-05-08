@@ -15,6 +15,8 @@ import { Button } from '@/components/ui/button';
 import { Play, CirclePause, History } from 'lucide-react';
 import { normalizeStringArray } from '@/utils/parsers';
 import { toast } from 'sonner';
+import { AuthProvider } from '@/context/AuthContext';
+import { ThemeProvider } from '@/components/ui/theme-provider';
 
 /**
  * Test harness for the JourneyPage component using a hardcoded journey slug
@@ -23,6 +25,19 @@ const TestJourney: React.FC = () => {
   // Hardcoded journey slug for testing
   const JOURNEY_SLUG = "journey_akashic_reconnection";
   
+  return (
+    <AuthProvider>
+      <ThemeProvider defaultTheme="dark" storageKey="sacred-theme">
+        <JourneyProvider>
+          <TestJourneyContent journeySlug={JOURNEY_SLUG} />
+        </JourneyProvider>
+      </ThemeProvider>
+    </AuthProvider>
+  );
+};
+
+// Internal component to use hooks inside the providers
+const TestJourneyContent: React.FC<{ journeySlug: string }> = ({ journeySlug }) => {
   // Now we're going to implement a simplified version of the JourneyPage
   // with the hardcoded journey slug
   const [journey, setJourney] = React.useState<Journey | null>(null);
@@ -42,17 +57,17 @@ const TestJourney: React.FC = () => {
   // Load journey data on component mount
   React.useEffect(() => {
     const loadJourney = async () => {
-      console.log(`Loading journey: ${JOURNEY_SLUG}`);
+      console.log(`Loading journey: ${journeySlug}`);
       setLoading(true);
       try {
         // Try to get the journey from the database
-        let journeyData = await fetchJourneyBySlug(JOURNEY_SLUG);
+        let journeyData = await fetchJourneyBySlug(journeySlug);
         
         if (!journeyData) {
-          console.log(`Journey ${JOURNEY_SLUG} not found in database, checking core_content...`);
+          console.log(`Journey ${journeySlug} not found in database, checking core_content...`);
           // Implementation of loadCoreJourneyContent would go here,
           // but we'll skip this for the test harness
-          console.error(`Journey ${JOURNEY_SLUG} not found in database or core_content`);
+          console.error(`Journey ${journeySlug} not found in database or core_content`);
           toast.error("Journey not found");
           return;
         } else {
@@ -77,7 +92,7 @@ const TestJourney: React.FC = () => {
     };
 
     loadJourney();
-  }, []);
+  }, [journeySlug]);
 
   // Start journey function
   const handleStartJourney = () => {
@@ -142,7 +157,7 @@ const TestJourney: React.FC = () => {
                     journeyId={journey?.id}
                     autoSync={false}
                     showControls={true}
-                    containerId={`journeySpiral-${JOURNEY_SLUG}`}
+                    containerId={`journeySpiral-${journeySlug}`}
                     className="absolute inset-0 w-full h-full"
                   />
                 </div>
@@ -188,9 +203,9 @@ const TestJourney: React.FC = () => {
               {hasAudioContent && (
                 <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl">
                   <CardContent className="p-4">
-                    {JOURNEY_SLUG && (
+                    {journeySlug && (
                       <JourneyAwareSoundscapePlayer 
-                        journeyId={JOURNEY_SLUG} 
+                        journeyId={journeySlug} 
                         autoSync={false}
                         autoplay={false} 
                       />
@@ -235,7 +250,7 @@ const TestJourney: React.FC = () => {
                         <ReactMarkdown>{removeFrontmatter(content)}</ReactMarkdown>
                       ) : (
                         <div className="p-4 bg-purple-900/20 rounded-md">
-                          <p>Testing the journey display with slug: <strong>{JOURNEY_SLUG}</strong></p>
+                          <p>Testing the journey display with slug: <strong>{journeySlug}</strong></p>
                           <p className="mt-2">Journey ID: <strong>{journey?.id || "Not loaded"}</strong></p>
                           <p className="mt-2">Frequencies: <strong>{journey?.sound_frequencies || "None specified"}</strong></p>
                         </div>
