@@ -1,53 +1,36 @@
 
 import React from 'react';
-import { Progress } from '@/components/ui/progress';
-import { AnimatePresence, motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 interface LightProgressProps {
-  percentage: number;
+  value: number;
+  color?: string;
   size?: 'sm' | 'md' | 'lg';
-  showAnimation?: boolean;
-  recentLevelUp?: boolean;
+  className?: string;
 }
 
-const LightProgress: React.FC<LightProgressProps> = ({ 
-  percentage, 
-  size = 'md', 
-  showAnimation = true,
-  recentLevelUp = false
+const LightProgress: React.FC<LightProgressProps> = ({
+  value,
+  color = '#9b87f5',
+  size = 'md',
+  className
 }) => {
-  // Height based on size
-  const heightClass = {
+  const heightClasses = {
     sm: 'h-1.5',
     md: 'h-2',
     lg: 'h-3'
-  }[size];
+  };
 
   return (
-    <div className="relative">
-      <Progress 
-        value={percentage} 
-        className={`${heightClass} bg-gradient-to-r from-purple-500/20 to-indigo-500/20`}
+    <div className={cn("w-full bg-gray-700/50 rounded-full overflow-hidden", heightClasses[size], className)}>
+      <div 
+        className="h-full transition-all duration-1000 ease-out rounded-full"
+        style={{ 
+          width: `${value}%`, 
+          backgroundColor: color,
+          boxShadow: `0 0 10px ${color}`
+        }}
       />
-      
-      {/* Glow effect for level up */}
-      {recentLevelUp && showAnimation && (
-        <AnimatePresence>
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-purple-400 to-indigo-400 opacity-0 rounded-full"
-            initial={{ opacity: 0, scale: 1 }}
-            animate={{ 
-              opacity: [0, 0.8, 0],
-              scale: [1, 1.2, 1]
-            }}
-            transition={{ 
-              duration: 1.5,
-              repeat: 2,
-              repeatType: "reverse",
-            }}
-          />
-        </AnimatePresence>
-      )}
     </div>
   );
 };

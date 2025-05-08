@@ -5,18 +5,22 @@ import { Link } from 'react-router-dom';
 interface LayoutProps {
   children: React.ReactNode;
   title?: string;
+  pageTitle?: string; // Add pageTitle property
+  className?: string;
 }
 
 const Layout: React.FC<LayoutProps> = ({ 
   children, 
-  title = "Sacred Shifter" 
+  title = "Sacred Shifter",
+  pageTitle,  // Use pageTitle if provided
+  className = ""
 }) => {
   React.useEffect(() => {
-    document.title = title;
-  }, [title]);
+    document.title = pageTitle || title;
+  }, [pageTitle, title]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-900">
+    <div className={`min-h-screen flex flex-col bg-gray-900 ${className}`}>
       <header className="bg-gray-800 border-b border-gray-700 py-4 px-6">
         <div className="container mx-auto flex justify-between items-center">
           <Link to="/" className="text-xl font-bold text-purple-400">

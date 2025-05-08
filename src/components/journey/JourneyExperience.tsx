@@ -5,7 +5,9 @@ import { ChakraTag, getChakraColor } from '@/types/chakras';
 import { logTimelineEvent } from '@/services/timelineService';
 import { useAuth } from '@/context/AuthContext';
 import { useChakraActivations } from '@/hooks/useChakraActivations';
+import { useLightbearerProgress } from '@/hooks/useLightbearerProgress';
 import { Journey } from '@/types/journey';
+import { toast } from 'sonner';
 
 // Phase components
 import GroundingPhase from './phases/GroundingPhase';
@@ -39,6 +41,7 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
   const { user } = useAuth();
   const { recordActivity } = useJourney();
   const { recordActivation } = useChakraActivations();
+  const { addPoints } = useLightbearerProgress();
   const [currentPhase, setCurrentPhase] = useState<JourneyPhase>('grounding');
   const [phaseCompletion, setPhaseCompletion] = useState({
     grounding: false,
@@ -76,6 +79,10 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
       // For aligning phase, record chakra activation
       if (phase === 'aligning' && journeyData.chakra) {
         recordActivation(journeyData.chakra, 'journey', journeyData.id);
+        
+        // Award points for phase completion
+        addPoints('phase_completion', 5, `Completed ${phase} phase of ${journeyData.title}`);
+        toast.success(`+5 Light Points for ${phase} phase completion`);
       }
     }
 
@@ -92,12 +99,33 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
     setReflection(text);
   };
 
-  const handleJourneyComplete = () => {
+  const handleJourneyComplete = async () => {
     if (user?.id && journeyData.id) {
       recordActivity('journey_complete', {
         journeyId: journeyData.id,
         reflection
       });
+      
+      // Award points for journey completion
+      const pointValue = 15; // Base points for completing a journey
+      const journeyCompletionEvent = await addPoints(
+        'journey_complete', 
+        pointValue, 
+        `Completed journey: ${journeyData.title}`
+      );
+      
+      // Show toast with points
+      if (journeyCompletionEvent) {
+        toast.success(`+${pointValue} Light Points for completing journey`);
+        
+        // Show level up notification if applicable
+        if (journeyCompletionEvent.leveled_up) {
+          toast.success(`Level Up! You are now level ${journeyCompletionEvent.new_level}`, {
+            duration: 5000,
+            className: "bg-purple-700 border-yellow-400 border-2"
+          });
+        }
+      }
     }
 
     if (onComplete) {
