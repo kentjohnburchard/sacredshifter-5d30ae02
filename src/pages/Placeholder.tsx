@@ -1,23 +1,18 @@
 
 import React from 'react';
-import Layout from '@/components/Layout';
 
-const Placeholder: React.FC = () => {
+interface PlaceholderProps {
+  name: string;
+}
+
+const Placeholder: React.FC<PlaceholderProps> = ({ name }) => {
   return (
-    <Layout 
-      pageTitle="Page Under Construction"
-      showNavbar={true}
-    >
-      <div className="flex flex-col items-center justify-center min-h-[60vh] p-8 text-center">
-        <h1 className="text-4xl font-bold text-white mb-6">
-          This page is under construction
-        </h1>
-        <p className="text-xl text-purple-200 max-w-md mb-8">
-          We're working on bringing this content to you soon. Please check back later.
-        </p>
-        <div className="h-24 w-24 border-t-4 border-purple-500 border-solid rounded-full animate-spin"></div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+      <div className="text-center p-8 max-w-md bg-gray-800 rounded-lg shadow-lg">
+        <h1 className="text-2xl font-bold mb-4 text-purple-400">{name} Page</h1>
+        <p className="text-gray-300">This page is under construction but still sacred ✨</p>
       </div>
-    </Layout>
+    </div>
   );
 };
 
