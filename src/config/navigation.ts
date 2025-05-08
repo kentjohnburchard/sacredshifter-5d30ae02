@@ -68,6 +68,55 @@ export const navItems: NavItem[] = [
     chakraColor: '#64748b', // slate
     isActive: true,
     key: 'settings'
+  },
+  // Additional required items for Header.tsx
+  {
+    label: 'Sacred Blueprint',
+    path: '/sacred-blueprint',
+    icon: 'Star',
+    chakraColor: '#8b5cf6',
+    isActive: true,
+    key: 'sacredBlueprint'
+  },
+  {
+    label: 'Frequency Library',
+    path: '/frequency-library',
+    icon: 'Music',
+    chakraColor: '#6366f1',
+    isActive: true,
+    key: 'frequencyLibrary'
+  },
+  {
+    label: 'Heart Center',
+    path: '/heart-center',
+    icon: 'Heart',
+    chakraColor: '#ec4899',
+    isActive: true,
+    key: 'heartCenter'
+  },
+  {
+    label: 'Trinity Gateway',
+    path: '/trinity-gateway',
+    icon: 'Triangle',
+    chakraColor: '#eab308',
+    isActive: true,
+    key: 'trinityGateway'
+  },
+  {
+    label: 'About Founder',
+    path: '/about-founder',
+    icon: 'User',
+    chakraColor: '#3b82f6',
+    isActive: true,
+    key: 'aboutFounder'
+  },
+  {
+    label: 'Contact',
+    path: '/contact',
+    icon: 'Mail',
+    chakraColor: '#64748b',
+    isActive: true,
+    key: 'contact'
   }
 ];
 
@@ -87,4 +136,9 @@ export const getNavItemByPath = (path: string): NavItem | undefined => {
 // Get a specific navigation item by label
 export const getNavItemByLabel = (label: string): NavItem | undefined => {
   return navItems.find(item => item.label === label);
+};
+
+// Helper method to get an item by key
+export const getNavItemByKey = (key: PageKey): NavItem | undefined => {
+  return navItems.find(item => item.key === key);
 };

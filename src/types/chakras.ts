@@ -1,16 +1,7 @@
-
 export type ChakraName = 'Root' | 'Sacral' | 'Solar Plexus' | 'Heart' | 'Throat' | 'Third Eye' | 'Crown';
 
-export type ChakraInfo = {
-  name: ChakraName;
-  color: string;
-  frequency: number;
-  element: string;
-  location: string;
-};
-
-// Add ChakraTag type - includes standard chakras plus any additional ones
-export type ChakraTag = ChakraName | 'Transpersonal';
+// Modify ChakraTag to extend ChakraName correctly
+export type ChakraTag = ChakraName | 'Transpersonal' | 'Cosmic';
 
 // Add CHAKRA_COLORS mapping for use in components
 export const CHAKRA_COLORS: Record<ChakraTag, string> = {
@@ -21,7 +12,8 @@ export const CHAKRA_COLORS: Record<ChakraTag, string> = {
   'Throat': '#3b82f6',     // blue-500
   'Third Eye': '#6366f1',  // indigo-500
   'Crown': '#a855f7',      // purple-500
-  'Transpersonal': '#ffffff' // white
+  'Transpersonal': '#ffffff', // white
+  'Cosmic': '#c084fc'      // purple-400
 };
 
 export const chakraData: Record<ChakraName, ChakraInfo> = {
@@ -76,8 +68,21 @@ export const chakraData: Record<ChakraName, ChakraInfo> = {
   }
 };
 
-export function getChakraColor(chakraName: ChakraName): string {
-  // Default mapping for chakra colors that works well with Tailwind's color palette
+export type ChakraInfo = {
+  name: ChakraName;
+  color: string;
+  frequency: number;
+  element: string;
+  location: string;
+};
+
+// Update the function to accept ChakraTag and handle non-standard chakras
+export function getChakraColor(chakraName: ChakraTag): string {
+  if (chakraName in CHAKRA_COLORS) {
+    return CHAKRA_COLORS[chakraName];
+  }
+  
+  // Default for backward compatibility with older code
   const chakraColorMap: Record<ChakraName, string> = {
     'Root': '#ef4444',       // red-500
     'Sacral': '#f97316',     // orange-500
@@ -88,5 +93,5 @@ export function getChakraColor(chakraName: ChakraName): string {
     'Crown': '#a855f7',      // purple-500
   };
 
-  return chakraColorMap[chakraName] || '#a855f7'; // Default to purple if not found
+  return chakraColorMap[chakraName as ChakraName] || '#a855f7'; // Default to purple if not found
 }

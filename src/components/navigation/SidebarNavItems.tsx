@@ -2,10 +2,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { getActiveNavItems, type NavItem, type PageKey } from "@/config/navigation";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, Check, ChevronDown, ChevronRight, Circle } from "lucide-react";
-import * as Icons from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
-// Use react-router-dom's hooks and Link
+// Import specific icon components instead of the entire library
+import { Circle, Layers } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 
 interface SidebarNavItemsProps {
@@ -31,7 +30,6 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
   const { liftTheVeil } = useTheme();
   const { pathname: locationPath } = useLocation();
   const [activeNavLinks, setActiveNavLinks] = useState<NavItem[]>([]);
-
   const [themeState, setThemeState] = useState(liftTheVeil);
 
   useEffect(() => {
@@ -76,6 +74,16 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
   );
 };
 
+// Function to map icon string to a component
+const getIconComponent = (iconName: string) => {
+  switch(iconName) {
+    case 'Circle': return <Circle />;
+    case 'Layers': return <Layers />;
+    // Add other icon cases as needed for your navigation
+    default: return <Circle />;  // Default icon
+  }
+};
+
 // NavLink component that renders an individual navigation item
 const NavLinkItem: React.FC<NavLinkItemProps> = ({
   icon,
@@ -86,12 +94,6 @@ const NavLinkItem: React.FC<NavLinkItemProps> = ({
   onClick,
   liftTheVeil
 }) => {
-  const IconComponent = useMemo(() => {
-    if (!icon || typeof icon !== 'string') return Icons.Layers;
-    // Fix the type checking for icon components
-    return (Icons as Record<string, React.ComponentType>)[icon] || Icons.Layers;
-  }, [icon]);
-
   const linkClasses = cn(
     "group flex w-full items-center rounded-md border border-transparent px-2 py-1.5 hover:bg-white/10 nav-link text-white",
     isActive ? 
@@ -108,12 +110,13 @@ const NavLinkItem: React.FC<NavLinkItemProps> = ({
       onClick={onClick}
     >
       <div className="relative flex min-h-[32px] w-full items-center gap-3">
-        <IconComponent
-          className={cn(
-            "h-[18px] w-[18px] shrink-0 text-white",
-            isActive ? "text-shadow-md" : ""
-          )}
-        />
+        {/* Use the function to get the appropriate icon */}
+        <div className={cn(
+          "h-[18px] w-[18px] shrink-0 text-white",
+          isActive ? "text-shadow-md" : ""
+        )}>
+          {icon ? getIconComponent(icon) : <Circle />}
+        </div>
 
         {!isCollapsed && (
           <span className="truncate text-sm text-white">{label}</span>

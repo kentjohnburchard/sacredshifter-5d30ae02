@@ -6,9 +6,17 @@ import { useTheme } from '@/context/ThemeContext';
 import { getActiveNavItems } from '@/config/navigation';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import * as Icons from 'lucide-react';
 import SidebarLogo from './SidebarLogo';
 import SidebarUserDropdown from './SidebarUserDropdown';
+
+// Import specific icons we're going to use
+import { 
+  Circle as CircleIcon, 
+  Menu as MenuIcon, 
+  X as XIcon, 
+  ChevronLeft as ChevronLeftIcon, 
+  ChevronRight as ChevronRightIcon 
+} from 'lucide-react';
 
 interface SidebarNavProps {
   className?: string;
@@ -50,6 +58,20 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ className }) => {
     }
   };
 
+  // Function to get the appropriate icon component
+  const getIconComponent = (iconName: string) => {
+    // Map icon names to imported components
+    switch(iconName) {
+      case 'Menu': return <MenuIcon />;
+      case 'X': return <XIcon />;
+      case 'ChevronLeft': return <ChevronLeftIcon />;
+      case 'ChevronRight': return <ChevronRightIcon />;
+      case 'Circle': return <CircleIcon />;
+      // Add cases for each icon from navItems that you need
+      default: return <CircleIcon />;  // Default to Circle if icon not found
+    }
+  };
+
   return (
     <>
       {/* Mobile Menu Trigger */}
@@ -60,7 +82,7 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ className }) => {
           size="icon"
           className="fixed top-4 left-4 z-50 text-white bg-black/40 backdrop-blur-md hover:bg-black/60"
         >
-          {isOpen ? <X /> : <Menu />}
+          {isOpen ? <XIcon /> : <MenuIcon />}
         </Button>
       )}
 
@@ -86,7 +108,7 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ className }) => {
               size="sm"
               onClick={toggleCollapsedState}
             >
-              {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
+              {isCollapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
             </Button>
           )}
         </div>
@@ -96,8 +118,6 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ className }) => {
           <ul className="space-y-2">
             {navItems.map((item) => {
               const isActive = pathname === item.path;
-              // Fix the icon component usage with proper type checking
-              const LucideIcon = item.icon && (Icons as Record<string, React.ComponentType>)[item.icon] || Circle;
               
               const getChakraColor = () => {
                 if (isActive) {
@@ -124,7 +144,8 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ className }) => {
                       getChakraColor(),
                       isActive && "animate-pulse-subtle"
                     )}>
-                      <LucideIcon className="h-5 w-5" />
+                      {/* Safely render icon by name */}
+                      {getIconComponent(item.icon)}
                     </div>
                     {(!isCollapsed || isMobile) && (
                       <span className={cn(
