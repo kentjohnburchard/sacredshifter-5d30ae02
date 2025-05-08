@@ -1,5 +1,4 @@
 
-// Comment out entire component as it likely depends heavily on prime calculations that we're removing
 import React from 'react';
 import { Calendar } from 'lucide-react';
 

@@ -38,12 +38,12 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
   const [visualRegistrationState, setVisualRegistrationState] = useState<'pending' | 'registered' | 'failed'>('pending');
   const [sourceConnected, setSourceConnected] = useState(false);
   
-  const cosmicPlayerRef = useRef<any>(null);
+  const cosmicPlayerRef = useRef<HTMLDivElement>(null);
   const { registerPlayerVisuals, isPlaying, currentAudio, getAudioElement, forceVisualSync } = useGlobalAudioPlayer();
   const errorCountRef = useRef(0);
   const registeredRef = useRef(false);
   const registerAttemptsRef = useRef(0);
-  const maxRegisterAttempts = 15; // Increased for reliability
+  const maxRegisterAttempts = 15;
   const registrationTimerRef = useRef<NodeJS.Timeout | null>(null);
   const heartbeatTimerRef = useRef<NodeJS.Timeout | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -58,6 +58,7 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
     };
   }, []);
   
+  // Handle new audio URL
   useEffect(() => {
     if (!audioUrl) {
       console.log("FloatingCosmicPlayer: Empty audio URL provided");
@@ -164,7 +165,7 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
     }
   };
 
-  // Visual heartbeat check - retry registration if visuals fail to load within 2 seconds
+  // Visual heartbeat check - retry registration if visuals fail to load
   const startVisualHeartbeatCheck = () => {
     // Clear any existing heartbeat timer
     if (heartbeatTimerRef.current) {
@@ -200,6 +201,7 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
     }, 2000);
   };
 
+  // Register with global player on mount
   useEffect(() => {
     // Always attempt registration when component mounts
     attemptVisualRegistration();
@@ -219,6 +221,7 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
     
   }, []);
 
+  // Attempt to register with global player
   const attemptVisualRegistration = () => {
     if (registerAttemptsRef.current >= maxRegisterAttempts) {
       console.warn("FloatingCosmicPlayer: Too many registration attempts, giving up");
@@ -277,8 +280,6 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
         setVisualRegistrationState('registered');
         
         console.log("FloatingCosmicPlayer: Successfully registered with global audio player");
-        console.log("FloatingCosmicPlayer: Visuals registered:", registeredRef.current);
-        console.log("Visual sync info:", { audioUrl: audioUrl_, chakra, frequency });
         
         // Explicitly try to connect to the audio source after successful registration
         setTimeout(() => {
@@ -308,6 +309,7 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
     }
   };
 
+  // Handle errors
   const handleError = (error: any) => {
     console.error("Cosmic player error:", error);
     errorCountRef.current += 1;
@@ -326,6 +328,7 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
     }
   };
   
+  // Handle expand state change
   const handleExpandStateChange = (expanded: boolean) => {
     setIsExpanded(expanded);
     if (onExpandStateChange) {
@@ -333,6 +336,7 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
     }
   };
   
+  // Ensure source connection on playback
   useEffect(() => {
     // If playback starts, try to ensure source is connected
     if (isPlaying && !sourceConnected) {
@@ -346,19 +350,6 @@ const FloatingCosmicPlayer: React.FC<FloatingCosmicPlayerProps> = ({
     return null;
   }
 
-  const debugInfo = {
-    registered: registeredRef.current,
-    sourceConnected,
-    visualState: visualRegistrationState,
-    isPlaying,
-    hasAudioContext: !!audioContextRef.current,
-    hasAnalyser: !!analyserRef.current,
-    audioUrl: audioUrl_.substring(0, 30) + "..."
-  };
-
-  console.log("FloatingCosmicPlayer debug:", debugInfo);
-
-  // Pass the audioContext and analyser to CosmicAudioPlayer
   return (
     <CosmicAudioPlayer
       ref={cosmicPlayerRef}

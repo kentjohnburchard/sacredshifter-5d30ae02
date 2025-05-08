@@ -1,7 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { isPrime } from '@/utils/primeCalculations';
-// Remove calculatePrimeFactors import
 
 interface PrimeExplorerProps {
   onPrimesChange: (primes: number[]) => void;
@@ -122,8 +121,7 @@ const PrimeExplorer: React.FC<PrimeExplorerProps> = ({
         <div className="mt-4 bg-gray-900 p-2 rounded text-white text-sm">
           <p>Active harmonics: {activePrimes.join(', ')}</p>
           <p className="text-xs text-gray-400 mt-1">
-            {/* Removed calculatePrimeFactors usage completely */}
-            Factors of active primes: []
+            {/* All prime factor calculation code removed */}
           </p>
         </div>
       )}

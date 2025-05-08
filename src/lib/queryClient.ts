@@ -5,12 +5,11 @@ export const createQueryClient = () => {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 60 * 1000, // 1 minute
-        retry: 1,
-        refetchOnWindowFocus: false,
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        refetchOnWindowFocus: true,
+        refetchOnMount: true,
+        retry: false,
       },
     },
   });
 };
-
-export default createQueryClient;

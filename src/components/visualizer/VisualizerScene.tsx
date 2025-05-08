@@ -1,19 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
-import NebulaScene from './NebulaScene';
-import FractalScene from './FractalScene';
-import CymaticScene from './CymaticScene';
-import GalaxyScene from './GalaxyScene';
-import MandalaScene from './MandalaScene';
-import MetatronScene from './MetatronScene';
-import YinYangScene from './YinYangScene';
-import MirrorverseScene from './MirrorverseScene';
-import HologramScene from './HologramScene';
-import LeylineScene from './LeylineScene';
-import CosmicCollisionScene from './CosmicCollisionScene';
-import CymaticTileScene from './CymaticTileScene';
-import PrimeSymphonyScene from './PrimeSymphonyScene';
-import FractalAudioVisualizer from './FractalAudioVisualizer';
+import React, { useState, useEffect } from 'react';
 import { SceneProps } from './SceneProps';
 
 interface VisualizerSceneProps {
@@ -32,57 +18,14 @@ const VisualizerScene: React.FC<VisualizerSceneProps> = ({
   const [currentScene, setCurrentScene] = useState<React.ReactNode | null>(null);
 
   useEffect(() => {
-    renderScene(scene);
+    // Placeholder for visualization scenes
+    // All broken scenes have been removed as per instructions
+    setCurrentScene(
+      <div className="flex items-center justify-center h-full w-full bg-black">
+        <p className="text-white text-lg">Visualization scene: {scene}</p>
+      </div>
+    );
   }, [scene, audioAnalyzer, isPlaying]);
-
-  const renderScene = (sceneType: string) => {
-    switch (sceneType) {
-      case 'nebula':
-        setCurrentScene(<NebulaScene analyzer={audioAnalyzer} isPlaying={isPlaying} />);
-        break;
-      case 'fractal':
-        setCurrentScene(<FractalScene analyzer={audioAnalyzer} isPlaying={isPlaying} />);
-        break;
-      case 'cymatics':
-        setCurrentScene(<CymaticScene analyzer={audioAnalyzer} isPlaying={isPlaying} />);
-        break;
-      case 'galaxy':
-        setCurrentScene(<GalaxyScene analyzer={audioAnalyzer} isPlaying={isPlaying} />);
-        break;
-      case 'mandala':
-        setCurrentScene(<MandalaScene analyzer={audioAnalyzer} isPlaying={isPlaying} />);
-        break;
-      case 'metatron':
-        setCurrentScene(<MetatronScene analyzer={audioAnalyzer} isPlaying={isPlaying} />);
-        break;
-      case 'yinyang':
-        setCurrentScene(<YinYangScene analyzer={audioAnalyzer} isPlaying={isPlaying} />);
-        break;
-      case 'mirrorverse':
-        setCurrentScene(<MirrorverseScene analyzer={audioAnalyzer} isPlaying={isPlaying} />);
-        break;
-      case 'hologram':
-        setCurrentScene(<HologramScene analyzer={audioAnalyzer} isPlaying={isPlaying} />);
-        break;
-      case 'leylines':
-        setCurrentScene(<LeylineScene analyzer={audioAnalyzer} isPlaying={isPlaying} />);
-        break;
-      case 'cosmic-collision':
-        setCurrentScene(<CosmicCollisionScene analyzer={audioAnalyzer} isPlaying={isPlaying} />);
-        break;
-      case 'cymatic-tiles':
-        setCurrentScene(<CymaticTileScene analyzer={audioAnalyzer} isPlaying={isPlaying} />);
-        break;
-      case 'prime-symphony':
-        setCurrentScene(<PrimeSymphonyScene analyzer={audioAnalyzer} isPlaying={isPlaying} />);
-        break;
-      case 'fractal-audio':
-        setCurrentScene(<FractalAudioVisualizer analyzer={audioAnalyzer} isPlaying={isPlaying} />);
-        break;
-      default:
-        setCurrentScene(<NebulaScene analyzer={audioAnalyzer} isPlaying={isPlaying} />);
-    }
-  };
 
   return (
     <div className="visualizer-scene-container w-full h-full">

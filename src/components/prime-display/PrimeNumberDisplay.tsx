@@ -55,8 +55,6 @@ const PrimeNumberDisplay: React.FC<PrimeNumberDisplayProps> = ({
         <div className={`p-4 ${expanded ? 'grid grid-cols-1 md:grid-cols-2 gap-4' : 'flex flex-wrap gap-2'}`}>
           {primes.slice(0, expanded ? undefined : 5).map((prime, index) => {
             const isActuallyPrime = isPrime(prime);
-            // Replace calculatePrimeFactors with empty array
-            const factors = isActuallyPrime ? [prime] : [];
             
             return (
               <motion.div 
@@ -78,9 +76,9 @@ const PrimeNumberDisplay: React.FC<PrimeNumberDisplayProps> = ({
                   )}
                 </div>
                 
-                {expanded && !isActuallyPrime && factors.length > 0 && (
+                {expanded && !isActuallyPrime && (
                   <div className="mt-2 text-xs text-purple-200">
-                    <span>Factors: {factors.join(' × ')}</span>
+                    <span>Not a prime number</span>
                   </div>
                 )}
               </motion.div>

@@ -1,22 +1,23 @@
 
-// Define the types for the audio player information
-
 export interface PlayerInfo {
-  title?: string;
-  artist?: string;
-  source: string;
-  albumArt?: string;
-  frequency?: number;
-  chakra?: string;
-  description?: string;
   id?: string;
-  groupId?: string;
-  sourceType?: string;
+  title?: string;
+  source?: string;
+  duration?: number;
+  chakra?: string;
+  frequency?: number;
+  artist?: string;
+  description?: string;
+  imageUrl?: string;
+  trackType?: string;
+  metadata?: Record<string, any>;
 }
 
 export interface VisualRegistration {
-  setAudioSource?: (url: string, info?: PlayerInfo) => void;
-  analyzeAudio?: (audioData: Uint8Array) => void;
+  setAudioSource?: (url: string, info?: any) => void;
+  onPlay?: () => void;
+  onPause?: () => void;
+  onStop?: () => void;
 }
 
 export interface GlobalAudioPlayerContextType {

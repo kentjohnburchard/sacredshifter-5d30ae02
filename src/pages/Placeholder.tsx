@@ -4,17 +4,18 @@ import Layout from '@/components/Layout';
 
 const Placeholder: React.FC = () => {
   return (
-    <Layout pageTitle="Page Under Construction" showNavbar={true}>
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center p-8 bg-purple-900/30 backdrop-blur-md rounded-lg border border-purple-500/30 max-w-lg">
-          <h1 className="text-2xl font-bold mb-4 text-purple-100">This page is under construction ✨</h1>
-          <p className="text-purple-200 mb-2">
-            The Sacred Shifter team is currently working on this experience.
-          </p>
-          <p className="text-purple-300 text-sm">
-            Please check back soon for updates on your spiritual journey.
-          </p>
-        </div>
+    <Layout 
+      pageTitle="Page Under Construction"
+      showNavbar={true}
+    >
+      <div className="flex flex-col items-center justify-center min-h-[60vh] p-8 text-center">
+        <h1 className="text-4xl font-bold text-white mb-6">
+          This page is under construction
+        </h1>
+        <p className="text-xl text-purple-200 max-w-md mb-8">
+          We're working on bringing this content to you soon. Please check back later.
+        </p>
+        <div className="h-24 w-24 border-t-4 border-purple-500 border-solid rounded-full animate-spin"></div>
       </div>
     </Layout>
   );

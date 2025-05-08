@@ -22,8 +22,8 @@ const queryClient = createQueryClient();
 function Root() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="dark" storageKey="sacred-theme">
-        <BrowserRouter>
+      <BrowserRouter>
+        <ThemeProvider defaultTheme="dark" storageKey="sacred-theme">
           <AuthProvider>
             <JourneyProvider>
               <GlobalAudioPlayerProvider>
@@ -42,8 +42,8 @@ function Root() {
               </GlobalAudioPlayerProvider>
             </JourneyProvider>
           </AuthProvider>
-        </BrowserRouter>
-      </ThemeProvider>
+        </ThemeProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 }
