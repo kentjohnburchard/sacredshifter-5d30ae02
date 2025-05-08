@@ -53,6 +53,8 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
 
     const sketch = (p: p5) => {
       let t = 0;
+      let frameCount = 0;
+      const frameSkip = 2; // Only render every 2 frames to improve performance
 
       p.setup = () => {
         if (!containerRef.current) return;
@@ -66,6 +68,13 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
       };
 
       p.draw = () => {
+        // Skip frames to improve performance
+        if (frameCount % frameSkip !== 0) {
+          frameCount++;
+          return;
+        }
+        frameCount++;
+        
         // Force the spiral to always have a minimum size to ensure visibility
         t += Math.max(0.01, processedParams.speed * 0.1); // Ensure time always advances
         
@@ -78,8 +87,8 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
         // Translate to center
         p.translate(p.width / 2, p.height / 2);
         
-        // Use a low-alpha background for trail effect
-        p.background(0, 0, 0, 10); // fading trail
+        // Use a low-alpha background for trail effect - reduce opacity to prevent memory issues
+        p.background(0, 0, 0, 5); // lighter trail to reduce GPU load
         
         // Draw the sacred spiral
         p.noFill();
@@ -97,9 +106,15 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
         const safeFreqB = Number.isFinite(processedParams.freqB) ? processedParams.freqB : 4.1;
         const safeFreqC = Number.isFinite(processedParams.freqC) ? processedParams.freqC : 2.7;
         
-        // Draw main spiral
-        for (let i = 0; i < 400 * growth; i++) {
-          const theta = i * 0.05 + t;
+        // Ensure strokeWeight is visible and defined
+        const visibleStrokeWeight = Math.max(0.5, processedParams.strokeWeight);
+        
+        // Draw main spiral - reduce iterations to improve performance
+        const maxPoints = Math.min(200, 400 * growth); // Cap the number of points
+        const pointStep = Math.max(0.05, 0.1 / growth); // Adaptive point density
+        
+        for (let i = 0; i < maxPoints; i++) {
+          const theta = i * pointStep + t;
           
           // Calculate radius with safe parameter values
           const r =
@@ -122,11 +137,7 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
           const visibleOpacity = Math.min(100, Math.max(30, processedParams.opacity * 100 * growth));
           
           p.stroke(hue, 80, 95, visibleOpacity);
-          
-          // Ensure strokeWeight is visible
-          const visibleStrokeWeight = Math.max(0.5, processedParams.strokeWeight);
           p.strokeWeight(visibleStrokeWeight);
-          
           p.vertex(x, y);
 
           // Break if spiral gets too large
@@ -137,8 +148,9 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
         // Secondary spiral layer - always drawn regardless of parameters
         if (growth > 0.3) {
           p.beginShape();
-          for (let i = 0; i < 300 * growth; i++) {
-            const theta = i * 0.05 + t * 1.2;
+          // Reduce number of points for better performance
+          for (let i = 0; i < Math.min(150, 300 * growth); i++) {
+            const theta = i * pointStep + t * 1.2;
             const r =
               baseRadius *
               0.15 *
@@ -159,14 +171,14 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
           p.endShape();
         }
 
-        // Flower of life patterns (appear after initial growth)
-        if (growth > 0.5) {
+        // Flower of life patterns (appear after initial growth) - simplified for performance
+        if (growth > 0.5 && t % 5 < 2) { // Only render periodically to reduce load
           const flowerScale = growth - 0.5;
           const flowerRadius = baseRadius * 0.3 * flowerScale;
           
-          // Draw central flower of life pattern
-          for (let j = 0; j < 6; j++) {
-            const angle = j * Math.PI / 3;
+          // Draw central flower of life pattern - reduced from 6 to 4 circles
+          for (let j = 0; j < 4; j++) {
+            const angle = j * Math.PI / 2;
             p.stroke(j * 60, 70, 90, 70 * flowerScale);
             p.strokeWeight(Math.max(0.5, visibleStrokeWeight * 0.8));
             p.noFill();
@@ -187,6 +199,11 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
           p.stroke(120, 70, 95, 50);
           p.strokeWeight(0.8);
           p.circle(0, 0, baseRadius * 0.2 * growth * 10); // Initial pulse
+        }
+
+        // Safety measure: reset if t gets too large to prevent memory issues
+        if (t > 1000) {
+          t = 0;
         }
       };
 
