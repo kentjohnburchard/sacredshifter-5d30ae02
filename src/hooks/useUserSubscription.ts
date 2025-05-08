@@ -1,5 +1,6 @@
 
 import { useAuth } from '@/context/AuthContext';
+import { ExtendedProfile } from '@/types/supabaseCustomTypes';
 
 export const useUserSubscription = () => {
   const { profile } = useAuth();
