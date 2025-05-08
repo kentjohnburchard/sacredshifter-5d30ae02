@@ -25,25 +25,26 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
 
   useEffect(() => {
     if (!containerRef.current) return;
-    if (p5InstanceRef.current) p5InstanceRef.current.remove();
+    if (p5InstanceRef.current) p5InstanceRef.current?.remove();
 
     const sketch = (p: p5) => {
-      const a = 1.2;
-      const b = 0.08;
+      // ✨ Sacred Spiral Geometry
+      const a = 3.0;       // Start BIGGER
+      const b = 0.15;      // More exponential growth
+
       const maxAngle = params.maxCycles ? p.TWO_PI * params.maxCycles : p.TWO_PI * 14;
-      const speed = params.speed || 0.015;
+      const speed = params.speed || 0.02;
+      const burstRate = 30; // Draw 30 points per frame for fast unfolding
 
       const color = params.color || '180,200,255';
-      const opacity = params.opacity || 70;
-      const strokeW = params.strokeWeight || 1.4;
+      const opacity = params.opacity || 80;
+      const strokeW = params.strokeWeight || 1.8;
 
+      let angle = 0;
       let canvasWidth = 0;
       let canvasHeight = 0;
       let currentScale = 1;
       let targetScale = 1;
-
-      let angle = 0;
-      const pointsPerFrame = 6; // Draw multiple points per frame
 
       p.setup = () => {
         canvasWidth = containerRef.current?.clientWidth || window.innerWidth;
@@ -54,8 +55,8 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
         p.frameRate(60);
 
         const minDim = Math.min(canvasWidth, canvasHeight);
-        targetScale = minDim / 250;
-        currentScale = targetScale * 0.9;
+        targetScale = minDim / 200; // Bigger scale
+        currentScale = targetScale;
 
         angle = 0;
       };
@@ -68,7 +69,8 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
         p.strokeWeight(strokeW);
         p.stroke(p.color(`rgba(${color},${opacity / 100})`));
 
-        for (let i = 0; i < pointsPerFrame && angle < maxAngle; i++) {
+        // Draw burstRate points per frame
+        for (let i = 0; i < burstRate && angle < maxAngle; i++) {
           const r = a * p.exp(b * angle);
           const x = r * p.cos(angle);
           const y = r * p.sin(angle);
@@ -76,9 +78,9 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
           angle += speed;
         }
 
-        // Gentle rotation after completion
+        // Optional post-completion effects
         if (angle >= maxAngle) {
-          p.rotate(p.sin(p.frameCount * 0.003) * 0.01);
+          p.rotate(p.sin(p.frameCount * 0.002) * 0.03);
         }
       };
 
@@ -88,7 +90,8 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
 
         p.resizeCanvas(canvasWidth, canvasHeight);
         const minDim = Math.min(canvasWidth, canvasHeight);
-        targetScale = minDim / 250;
+        targetScale = minDim / 200;
+        currentScale = targetScale;
       };
     };
 
