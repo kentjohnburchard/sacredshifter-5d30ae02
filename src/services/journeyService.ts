@@ -1,7 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { Journey } from '@/types/journey';
-import { normalizeStringArray, normalizeId, stringifyArrayForDb } from '@/utils/parsers';
+import { normalizeStringArray, normalizeId } from '@/utils/parsers';
 
 // Helper function to normalize journey data from database
 const normalizeJourneyData = (data: any): Journey => {
@@ -21,14 +21,15 @@ const normalizeJourneyData = (data: any): Journey => {
 
 // Helper function to prepare journey data for database
 const prepareJourneyForDb = (journey: Partial<Journey>): Record<string, any> => {
+  // Without stringifyArrayForDb, convert arrays to JSON strings
   return {
     ...journey,
     id: journey.id && !isNaN(Number(journey.id)) ? parseInt(journey.id) : undefined,
-    tags: stringifyArrayForDb(journey.tags),
-    assigned_songs: stringifyArrayForDb(journey.assigned_songs),
-    visual_effects: stringifyArrayForDb(journey.visual_effects),
-    strobe_patterns: stringifyArrayForDb(journey.strobe_patterns),
-    recommended_users: stringifyArrayForDb(journey.recommended_users),
+    tags: Array.isArray(journey.tags) ? JSON.stringify(journey.tags) : journey.tags,
+    assigned_songs: Array.isArray(journey.assigned_songs) ? JSON.stringify(journey.assigned_songs) : journey.assigned_songs,
+    visual_effects: Array.isArray(journey.visual_effects) ? JSON.stringify(journey.visual_effects) : journey.visual_effects,
+    strobe_patterns: Array.isArray(journey.strobe_patterns) ? JSON.stringify(journey.strobe_patterns) : journey.strobe_patterns,
+    recommended_users: Array.isArray(journey.recommended_users) ? JSON.stringify(journey.recommended_users) : journey.recommended_users,
   };
 };
 
@@ -102,16 +103,16 @@ export const createJourney = async (journey: Omit<Journey, 'id' | 'created_at' |
     .insert({
       title: journey.title,
       filename: journey.filename,
-      tags: stringifyArrayForDb(journey.tags),
+      tags: Array.isArray(journey.tags) ? JSON.stringify(journey.tags) : journey.tags,
       veil_locked: journey.veil_locked,
       audio_filename: journey.audio_filename,
       sound_frequencies: journey.sound_frequencies,
       intent: journey.intent,
       duration: journey.duration,
-      assigned_songs: stringifyArrayForDb(journey.assigned_songs),
-      visual_effects: stringifyArrayForDb(journey.visual_effects),
-      strobe_patterns: stringifyArrayForDb(journey.strobe_patterns),
-      recommended_users: stringifyArrayForDb(journey.recommended_users),
+      assigned_songs: Array.isArray(journey.assigned_songs) ? JSON.stringify(journey.assigned_songs) : journey.assigned_songs,
+      visual_effects: Array.isArray(journey.visual_effects) ? JSON.stringify(journey.visual_effects) : journey.visual_effects,
+      strobe_patterns: Array.isArray(journey.strobe_patterns) ? JSON.stringify(journey.strobe_patterns) : journey.strobe_patterns,
+      recommended_users: Array.isArray(journey.recommended_users) ? JSON.stringify(journey.recommended_users) : journey.recommended_users,
       env_lighting: journey.env_lighting,
       env_temperature: journey.env_temperature,
       env_incense: journey.env_incense,

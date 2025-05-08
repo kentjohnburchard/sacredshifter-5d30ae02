@@ -2,8 +2,7 @@
 import React, { useState } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import useSpiralParams, { addJourneyParams } from '@/hooks/useSpiralParams';
-import { SpiralParams } from '@/components/visualizer/SpiralVisualizer';
+import useSpiralParams, { SpiralParams, paramsCache } from '@/hooks/useSpiralParams';
 import { useJourneyTemplates } from '@/hooks/useJourneyTemplates';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,11 +33,13 @@ const JourneyTemplatesAdmin: React.FC = () => {
       return;
     }
 
-    addJourneyParams(selectedJourney, {...params});
+    // Use paramsCache directly since addJourneyParams is gone
+    paramsCache[selectedJourney] = {...params};
     toast.success(`Parameters saved for "${selectedJourney}" journey`);
   };
 
   const handleExportParams = () => {
+    // Generate output using paramsCache and useSpiralParams for each template
     const output = templates.reduce((acc, template) => {
       acc[template.id] = useSpiralParams(template.id);
       return acc;

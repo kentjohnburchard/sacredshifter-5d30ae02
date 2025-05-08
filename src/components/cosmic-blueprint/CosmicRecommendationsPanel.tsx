@@ -1,11 +1,9 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, ArrowRight, Flame, Music, Compass, Zap } from 'lucide-react';
 import { CosmicRecommendation } from '@/types/cosmic-blueprint';
-import { getChakraColor } from '@/types/chakras';
 
 interface CosmicRecommendationsPanelProps {
   recommendations: CosmicRecommendation[];
@@ -13,6 +11,17 @@ interface CosmicRecommendationsPanelProps {
   onViewAll?: () => void;
   className?: string;
 }
+
+const chakraColors: Record<string, string> = {
+  'Root': '#FF0000',
+  'Sacral': '#FF7F00',
+  'Solar Plexus': '#FFFF00',
+  'Heart': '#00FF00',
+  'Throat': '#00FFFF',
+  'Third Eye': '#0000FF',
+  'Crown': '#8B00FF',
+  'Transpersonal': '#FFFFFF'
+};
 
 const CosmicRecommendationsPanel: React.FC<CosmicRecommendationsPanelProps> = ({
   recommendations,
@@ -85,8 +94,8 @@ const CosmicRecommendationsPanel: React.FC<CosmicRecommendationsPanelProps> = ({
                             variant="outline" 
                             className="text-xs py-0"
                             style={{ 
-                              borderColor: `${getChakraColor(recommendation.chakraTag)}40`,
-                              background: `${getChakraColor(recommendation.chakraTag)}15`
+                              borderColor: `${chakraColors[recommendation.chakraTag]}40`,
+                              background: `${chakraColors[recommendation.chakraTag]}15`
                             }}
                           >
                             {recommendation.chakraTag}

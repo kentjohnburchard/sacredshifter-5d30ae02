@@ -2,8 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useJourney } from '@/context/JourneyContext';
-import SpiralVisualizer, { SpiralParams } from '@/components/visualizer/SpiralVisualizer';
-import useSpiralParams from '@/hooks/useSpiralParams';
+import SpiralVisualizer from '@/components/visualizer/SpiralVisualizer';
+import useSpiralParams, { SpiralParams } from '@/hooks/useSpiralParams';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from 'lucide-react';
 

@@ -1,4 +1,4 @@
-import { isPrime, findNearestPrime } from './primeCalculations';
+import { isPrime } from './primeCalculations';
 
 /**
  * Convert a frequency to a color on the spectrum

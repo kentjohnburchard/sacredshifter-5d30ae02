@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { getChakraColor, getChakraInfo, ChakraTag as ChakraTagType } from '@/types/chakras';
+import { ChakraTag as ChakraTagType } from '@/types/chakras';
 import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/hover-card';
 
 interface ChakraTagProps {
@@ -11,6 +11,74 @@ interface ChakraTagProps {
   className?: string;
 }
 
+// Simple chakra info since getChakraInfo/getChakraColor don't exist
+const basicChakraInfo = {
+  'Root': {
+    name: 'Root',
+    color: '#FF0000',
+    bgColor: '#FF000022',
+    element: 'Earth',
+    frequency: '396',
+    description: 'Associated with survival and security.'
+  },
+  'Sacral': {
+    name: 'Sacral',
+    color: '#FF7F00',
+    bgColor: '#FF7F0022',
+    element: 'Water',
+    frequency: '417',
+    description: 'Associated with creativity and passion.'
+  },
+  'Solar Plexus': {
+    name: 'Solar Plexus',
+    color: '#FFFF00',
+    bgColor: '#FFFF0022',
+    element: 'Fire',
+    frequency: '528',
+    description: 'Associated with willpower and self-esteem.'
+  },
+  'Heart': {
+    name: 'Heart',
+    color: '#00FF00',
+    bgColor: '#00FF0022',
+    element: 'Air',
+    frequency: '639',
+    description: 'Associated with love and compassion.'
+  },
+  'Throat': {
+    name: 'Throat',
+    color: '#00FFFF',
+    bgColor: '#00FFFF22',
+    element: 'Sound',
+    frequency: '741',
+    description: 'Associated with communication and expression.'
+  },
+  'Third Eye': {
+    name: 'Third Eye',
+    color: '#0000FF',
+    bgColor: '#0000FF22',
+    element: 'Light',
+    frequency: '852',
+    description: 'Associated with intuition and insight.'
+  },
+  'Crown': {
+    name: 'Crown',
+    color: '#8B00FF',
+    bgColor: '#8B00FF22',
+    element: 'Thought',
+    frequency: '963',
+    description: 'Associated with higher consciousness and spiritual connection.'
+  },
+  'Transpersonal': {
+    name: 'Transpersonal',
+    color: '#FFFFFF',
+    bgColor: '#FFFFFF22',
+    element: 'Unity',
+    frequency: '1074',
+    description: 'Associated with transcendence and divine connection.'
+  }
+};
+
 const ChakraTag: React.FC<ChakraTagProps> = ({
   chakra,
   size = 'md',
@@ -19,7 +87,7 @@ const ChakraTag: React.FC<ChakraTagProps> = ({
 }) => {
   if (!chakra) return null;
   
-  const chakraInfo = getChakraInfo(chakra);
+  const chakraInfo = basicChakraInfo[chakra as keyof typeof basicChakraInfo];
   if (!chakraInfo) return null;
   
   const sizeClasses = {

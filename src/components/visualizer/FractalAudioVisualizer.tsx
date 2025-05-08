@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { FractalAudioVisualizerProps } from './SceneProps';
+import { SceneProps } from './SceneProps';
 
-const FractalAudioVisualizer: React.FC<FractalAudioVisualizerProps> = ({ analyzer, isPlaying }) => {
+const FractalAudioVisualizer: React.FC<SceneProps> = ({ analyzer, isPlaying }) => {
   return <div className="fractal-audio-visualizer">Fractal Audio Visualizer</div>;
 };
 

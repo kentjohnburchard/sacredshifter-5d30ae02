@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { ChakraTag, getChakraColor } from '@/types/chakras';
 
 interface ChakraIconProps {
   chakra?: string;
@@ -19,7 +18,8 @@ export const ChakraIcon: React.FC<ChakraIconProps> = ({
     ? { sm: 16, md: 24, lg: 32 }[size] || 24 
     : size;
   
-  const color = getChakraColor(chakra);
+  // Default color since getChakraColor doesn't exist
+  const color = '#A020F0'; // Default purple
   
   return (
     <div 

@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { SpiralParams } from '@/components/visualizer/SpiralVisualizer';
-import { addJourneyParams } from '@/hooks/useSpiralParams';
+import { SpiralParams } from '@/hooks/useSpiralParams';
+import { paramsCache } from '@/hooks/useSpiralParams';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -69,7 +70,7 @@ const SpiralParamEditor: React.FC<SpiralParamEditorProps> = ({
       }
       
       // Update the local cache in useSpiralParams
-      addJourneyParams(journeyId, params);
+      paramsCache[journeyId] = params;
       
       toast.success('Spiral parameters saved successfully');
       

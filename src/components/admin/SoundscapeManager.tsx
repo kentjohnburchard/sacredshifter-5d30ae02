@@ -1,12 +1,4 @@
-
 import React, { useState, useEffect } from 'react';
-import { 
-  createJourneySoundscape, 
-  updateJourneySoundscape,
-  deleteJourneySoundscape,
-  JourneySoundscape,
-  validateYoutubeUrl
-} from '@/services/soundscapeService';
 import { fetchJourneys } from '@/services/journeyService';
 import { Journey } from '@/types/journey';
 import { toast } from 'sonner';
@@ -20,17 +12,32 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
-import { Database } from '@/integrations/supabase/types';
 
-// Define the extended type using the Supabase-generated type
+// Define the type we need since JourneySoundscape is no longer imported
 type SourceType = 'file' | 'youtube';
 
+interface BasicSoundscape {
+  id?: string;
+  title: string;
+  description?: string | null;
+  journey_id?: number | null;
+  source_type?: SourceType;
+  source_link?: string | null;
+  file_url?: string | null;
+  created_at?: string;
+}
+
+// Simplest YouTube URL validation
+function validateYoutubeUrl(url: string): boolean {
+  return url.includes('youtube.com') || url.includes('youtu.be');
+}
+
 const SoundscapeManager: React.FC = () => {
-  const [soundscapes, setSoundscapes] = useState<JourneySoundscape[]>([]);
+  const [soundscapes, setSoundscapes] = useState<BasicSoundscape[]>([]);
   const [journeys, setJourneys] = useState<Journey[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedSoundscape, setSelectedSoundscape] = useState<JourneySoundscape | null>(null);
+  const [selectedSoundscape, setSelectedSoundscape] = useState<BasicSoundscape | null>(null);
   const [sourceType, setSourceType] = useState<SourceType>('file');
   const [formData, setFormData] = useState({
     title: '',
@@ -59,7 +66,7 @@ const SoundscapeManager: React.FC = () => {
           throw error;
         }
         
-        // Transform the data to match JourneySoundscape interface
+        // Transform the data to match BasicSoundscape interface
         setSoundscapes(soundscapesData || []);
       } catch (error) {
         console.error('Error loading data:', error);
@@ -108,7 +115,7 @@ const SoundscapeManager: React.FC = () => {
     setDialogOpen(true);
   };
 
-  const handleEditSoundscape = (soundscape: JourneySoundscape) => {
+  const handleEditSoundscape = (soundscape: BasicSoundscape) => {
     setSelectedSoundscape(soundscape);
     setSourceType((soundscape.source_type || 'file') as SourceType);
     setFormData({
@@ -130,7 +137,14 @@ const SoundscapeManager: React.FC = () => {
     if (!soundscapeToDelete) return;
     
     try {
-      await deleteJourneySoundscape(soundscapeToDelete);
+      // Direct database call since deleteJourneySoundscape is removed
+      const { error } = await supabase
+        .from('journey_soundscapes')
+        .delete()
+        .eq('id', soundscapeToDelete);
+        
+      if (error) throw error;
+      
       setSoundscapes(prev => prev.filter(s => s.id !== soundscapeToDelete));
       toast.success('Soundscape deleted successfully');
     } catch (error) {
@@ -173,8 +187,8 @@ const SoundscapeManager: React.FC = () => {
       // Convert journey_id to number since that's what the database expects
       const journeyId = parseInt(formData.journey_id, 10);
       
-      // Prepare the data using the correct types from Supabase
-      const soundscapeData: Database['public']['Tables']['journey_soundscapes']['Insert'] = {
+      // Prepare the data for the database
+      const soundscapeData = {
         title: formData.title,
         description: formData.description,
         journey_id: journeyId,
@@ -186,19 +200,34 @@ const SoundscapeManager: React.FC = () => {
       let updatedSoundscape;
       
       if (selectedSoundscape?.id) {
-        // Update existing soundscape
-        updatedSoundscape = await updateJourneySoundscape(selectedSoundscape.id, soundscapeData);
+        // Update existing soundscape directly with Supabase
+        const { data, error } = await supabase
+          .from('journey_soundscapes')
+          .update(soundscapeData)
+          .eq('id', selectedSoundscape.id)
+          .select()
+          .single();
+          
+        if (error) throw error;
+        updatedSoundscape = data;
+        
         setSoundscapes(prev => 
           prev.map(s => s.id === updatedSoundscape.id ? updatedSoundscape : s)
         );
         toast.success('Soundscape updated successfully');
       } else {
-        // Create new soundscape
-        updatedSoundscape = await createJourneySoundscape(soundscapeData);
-        if (updatedSoundscape) {
-          setSoundscapes(prev => [updatedSoundscape!, ...prev]);
-          toast.success('Soundscape created successfully');
-        }
+        // Create new soundscape directly with Supabase
+        const { data, error } = await supabase
+          .from('journey_soundscapes')
+          .insert(soundscapeData)
+          .select()
+          .single();
+          
+        if (error) throw error;
+        updatedSoundscape = data;
+        
+        setSoundscapes(prev => [updatedSoundscape, ...prev]);
+        toast.success('Soundscape created successfully');
       }
       
       setDialogOpen(false);
@@ -274,6 +303,7 @@ const SoundscapeManager: React.FC = () => {
             </DialogHeader>
             
             <div className="space-y-4 py-4">
+              {/* Form content */}
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="title" className="text-right">Title</Label>
                 <Input

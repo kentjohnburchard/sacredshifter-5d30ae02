@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CHAKRAS, ChakraTag, getChakraColor } from '@/types/chakras';
+import { ChakraTag } from '@/types/chakras';
 
 interface ChakraSelectProps {
   value?: string;
@@ -16,6 +16,18 @@ interface ChakraSelectProps {
   className?: string;
   disabled?: boolean;
 }
+
+// Since CHAKRAS isn't available, use basic chakra set
+const basicChakras = [
+  { name: 'Root', color: '#FF0000' },
+  { name: 'Sacral', color: '#FF7F00' },
+  { name: 'Solar Plexus', color: '#FFFF00' },
+  { name: 'Heart', color: '#00FF00' },
+  { name: 'Throat', color: '#00FFFF' },
+  { name: 'Third Eye', color: '#0000FF' },
+  { name: 'Crown', color: '#8B00FF' },
+  { name: 'Transpersonal', color: '#FFFFFF' }
+];
 
 const ChakraSelect: React.FC<ChakraSelectProps> = ({
   value,
@@ -34,7 +46,7 @@ const ChakraSelect: React.FC<ChakraSelectProps> = ({
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>
-        {CHAKRAS.map((chakra) => (
+        {basicChakras.map((chakra) => (
           <SelectItem 
             key={chakra.name} 
             value={chakra.name}

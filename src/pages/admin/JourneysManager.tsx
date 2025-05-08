@@ -28,7 +28,7 @@ import {
   TableCaption,
 } from '@/components/ui/table';
 import { useAuth } from '@/context/AuthContext';
-import { normalizeId, normalizeStringArray, stringifyArrayForDb } from '@/utils/parsers';
+import { normalizeId, normalizeStringArray } from '@/utils/parsers';
 
 const JourneysManager: React.FC = () => {
   const [journeys, setJourneys] = useState<Journey[]>([]);
@@ -562,36 +562,6 @@ const JourneysManager: React.FC = () => {
                       rows={3}
                     />
                   </div>
-                  
-                  <div className="grid grid-cols-4 items-start gap-4">
-                    <Label htmlFor="visual_effects" className="text-right pt-2">Visual Effects</Label>
-                    <Textarea
-                      id="visual_effects"
-                      name="visual_effects"
-                      value={Array.isArray(editingJourney.visual_effects) 
-                        ? editingJourney.visual_effects.join(', ') 
-                        : editingJourney.visual_effects || ''}
-                      onChange={handleInputChange}
-                      className="col-span-3"
-                      placeholder='{"type": "waves", "color": "#8A2BE2"}'
-                      rows={3}
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-4 items-start gap-4">
-                    <Label htmlFor="strobe_patterns" className="text-right pt-2">Strobe Patterns</Label>
-                    <Textarea
-                      id="strobe_patterns"
-                      name="strobe_patterns"
-                      value={Array.isArray(editingJourney.strobe_patterns) 
-                        ? editingJourney.strobe_patterns.join(', ') 
-                        : editingJourney.strobe_patterns || ''}
-                      onChange={handleInputChange}
-                      className="col-span-3"
-                      placeholder='{"frequency": 2, "colors": ["#ff0000", "#0000ff"]}'
-                      rows={3}
-                    />
-                  </div>
                 </TabsContent>
                 
                 <TabsContent value="environment" className="space-y-4">
@@ -603,7 +573,7 @@ const JourneysManager: React.FC = () => {
                       value={editingJourney.env_lighting || ''}
                       onChange={handleInputChange}
                       className="col-span-3"
-                      placeholder="Recommended lighting conditions"
+                      placeholder="Recommended lighting setup"
                       rows={2}
                     />
                   </div>
@@ -616,20 +586,20 @@ const JourneysManager: React.FC = () => {
                       value={editingJourney.env_temperature || ''}
                       onChange={handleInputChange}
                       className="col-span-3"
-                      placeholder="Recommended temperature setting"
+                      placeholder="Ideal temperature settings"
                       rows={2}
                     />
                   </div>
                   
                   <div className="grid grid-cols-4 items-start gap-4">
-                    <Label htmlFor="env_incense" className="text-right pt-2">Incense</Label>
+                    <Label htmlFor="env_incense" className="text-right pt-2">Incense/Aroma</Label>
                     <Textarea
                       id="env_incense"
                       name="env_incense"
                       value={editingJourney.env_incense || ''}
                       onChange={handleInputChange}
                       className="col-span-3"
-                      placeholder="Recommended incense or aromatics"
+                      placeholder="Suggested incense or aromatherapy"
                       rows={2}
                     />
                   </div>
@@ -642,20 +612,20 @@ const JourneysManager: React.FC = () => {
                       value={editingJourney.env_posture || ''}
                       onChange={handleInputChange}
                       className="col-span-3"
-                      placeholder="Recommended physical posture"
+                      placeholder="Recommended sitting or lying position"
                       rows={2}
                     />
                   </div>
                   
                   <div className="grid grid-cols-4 items-start gap-4">
-                    <Label htmlFor="env_tools" className="text-right pt-2">Optional Tools</Label>
+                    <Label htmlFor="env_tools" className="text-right pt-2">Tools & Props</Label>
                     <Textarea
                       id="env_tools"
                       name="env_tools"
                       value={editingJourney.env_tools || ''}
                       onChange={handleInputChange}
                       className="col-span-3"
-                      placeholder="Optional items that enhance the journey"
+                      placeholder="Suggested crystals, instruments, or other tools"
                       rows={2}
                     />
                   </div>
@@ -663,49 +633,34 @@ const JourneysManager: React.FC = () => {
               </Tabs>
             )}
             
-            <DialogFooter className="mt-6">
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="border-gray-300">
-                <X className="mr-2 h-4 w-4" />
-                Cancel
-              </Button>
-              
-              {editingJourney?.source === 'core' ? (
-                <Button 
-                  onClick={handleImportToDatabase} 
-                  disabled={isSaving} 
-                  className="bg-blue-600 hover:bg-blue-700 shadow-lg"
-                >
-                  {isSaving ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Importing...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="mr-2 h-4 w-4" />
-                      Import to Database
-                    </>
-                  )}
+            <DialogFooter>
+              <div className="flex justify-between w-full">
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  <X className="h-4 w-4 mr-2" /> Cancel
                 </Button>
-              ) : (
-                <Button 
-                  onClick={handleSaveJourney} 
-                  disabled={isSaving} 
-                  className="bg-purple-600 hover:bg-purple-700 shadow-lg"
-                >
-                  {isSaving ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving...
-                    </>
+                
+                <div className="space-x-2">
+                  {editingJourney?.source === 'core' ? (
+                    <Button 
+                      onClick={handleImportToDatabase}
+                      disabled={isSaving}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      {isSaving ? 'Importing...' : 'Import to Database'}
+                    </Button>
                   ) : (
-                    <>
-                      <Save className="mr-2 h-4 w-4" />
-                      Save Journey
-                    </>
+                    <Button 
+                      onClick={handleSaveJourney}
+                      disabled={isSaving || editingJourney?.source === 'core'}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      {isSaving ? 'Saving...' : (editingJourney?.id === "0" ? 'Create' : 'Save')}
+                    </Button>
                   )}
-                </Button>
-              )}
+                </div>
+              </div>
             </DialogFooter>
           </DialogContent>
         </Dialog>

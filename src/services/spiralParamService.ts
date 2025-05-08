@@ -1,7 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { SpiralParams } from '@/components/visualizer/SpiralVisualizer';
-import { addJourneyParams, getAllJourneyParams } from '@/hooks/useSpiralParams';
+import { SpiralParams } from '@/hooks/useSpiralParams';
+import { paramsCache } from '@/hooks/useSpiralParams';
 
 // Define the shape of data returned from the database
 interface JourneyVisualParamsRecord {
@@ -16,9 +16,8 @@ interface JourneyVisualParamsRecord {
 export const fetchSpiralParams = async (journeyId: string): Promise<SpiralParams | null> => {
   try {
     // First, check if we already have the params in memory
-    const allParams = getAllJourneyParams();
-    if (allParams[journeyId]) {
-      return allParams[journeyId];
+    if (paramsCache[journeyId]) {
+      return paramsCache[journeyId];
     }
     
     // If not, fetch from the database
@@ -36,7 +35,7 @@ export const fetchSpiralParams = async (journeyId: string): Promise<SpiralParams
     if (data?.params) {
       // Save to memory cache and properly cast the JSON
       const parsedParams = data.params as unknown as SpiralParams;
-      addJourneyParams(journeyId, parsedParams);
+      paramsCache[journeyId] = parsedParams;
       return parsedParams;
     }
     
@@ -66,7 +65,7 @@ export const saveSpiralParams = async (journeyId: string, params: SpiralParams):
     }
     
     // Update memory cache
-    addJourneyParams(journeyId, params);
+    paramsCache[journeyId] = params;
     
     return true;
   } catch (err) {
@@ -98,7 +97,7 @@ export const fetchMultipleJourneySpiralParams = async (journeyIds: string[]): Pr
           const parsedParams = item.params as unknown as SpiralParams;
           result[item.journey_id] = parsedParams;
           // Also update memory cache
-          addJourneyParams(item.journey_id, parsedParams);
+          paramsCache[item.journey_id] = parsedParams;
         }
       });
     }

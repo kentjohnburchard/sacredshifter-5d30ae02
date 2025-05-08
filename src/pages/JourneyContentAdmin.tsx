@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -6,13 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import useSpiralParams, { addJourneyParams, getAllJourneyParams, type SpiralParams } from '@/hooks/useSpiralParams';
+import useSpiralParams, { SpiralParams, paramsCache } from '@/hooks/useSpiralParams';
 import SpiralVisualizer from '@/components/visualizer/SpiralVisualizer';
 import { useNavigate } from 'react-router-dom';
 import { createJourney, updateJourney, fetchJourneys } from '@/services/journeyService';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
-import { normalizeStringArray, stringifyArrayForDb } from '@/utils/parsers';
+import { normalizeStringArray } from '@/utils/parsers';
 
 const JourneyContentAdmin: React.FC = () => {
   const navigate = useNavigate();
@@ -80,8 +81,8 @@ const JourneyContentAdmin: React.FC = () => {
       setSelectedJourney(journeyId);
       
       // Load spiral params if they exist
-      const allParams = getAllJourneyParams();
-      const journeyParams = allParams[journeyId] || allParams[selectedJourney.filename];
+      // Using paramsCache instead of getAllJourneyParams
+      const journeyParams = paramsCache[journeyId] || paramsCache[selectedJourney.filename];
       
       if (journeyParams) {
         setParams(journeyParams);
@@ -171,8 +172,8 @@ const JourneyContentAdmin: React.FC = () => {
       return;
     }
 
-    // Save the parameters for this journey
-    addJourneyParams(selectedJourney, {...params});
+    // Save the parameters for this journey using paramsCache
+    paramsCache[selectedJourney] = {...params};
     toast.success(`Spiral parameters saved for "${selectedJourney}" journey`);
   };
 
@@ -197,9 +198,9 @@ const JourneyContentAdmin: React.FC = () => {
       
       await updateJourney(journeyData);
       
-      // Also save spiral params
-      addJourneyParams(selectedJourney, {...params});
-      addJourneyParams(contentForm.filename, {...params});
+      // Also save spiral params using paramsCache
+      paramsCache[selectedJourney] = {...params};
+      paramsCache[contentForm.filename] = {...params};
       
       toast.success(`Journey "${contentForm.title}" saved successfully`);
       
@@ -260,8 +261,8 @@ const JourneyContentAdmin: React.FC = () => {
       
       // Save spiral params for the new journey
       if (newJourney && newJourney.id) {
-        addJourneyParams(newJourney.id.toString(), {...params});
-        addJourneyParams(newJourney.filename, {...params});
+        paramsCache[newJourney.id.toString()] = {...params};
+        paramsCache[newJourney.filename] = {...params};
         
         toast.success(`New journey "${contentForm.title}" created successfully`);
         

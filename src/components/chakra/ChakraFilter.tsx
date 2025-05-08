@@ -1,8 +1,20 @@
 
-import React, { useState } from 'react';
-import { CHAKRAS, ChakraTag } from '@/types/chakras';
+import React from 'react';
+import { ChakraTag } from '@/types/chakras';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
+
+// Since CHAKRAS isn't available, use basic chakra set
+const basicChakras = [
+  { name: 'Root' as ChakraTag, color: '#FF0000', bgColor: '#FF000022' },
+  { name: 'Sacral' as ChakraTag, color: '#FF7F00', bgColor: '#FF7F0022' },
+  { name: 'Solar Plexus' as ChakraTag, color: '#FFFF00', bgColor: '#FFFF0022' },
+  { name: 'Heart' as ChakraTag, color: '#00FF00', bgColor: '#00FF0022' },
+  { name: 'Throat' as ChakraTag, color: '#00FFFF', bgColor: '#00FFFF22' },
+  { name: 'Third Eye' as ChakraTag, color: '#0000FF', bgColor: '#0000FF22' },
+  { name: 'Crown' as ChakraTag, color: '#8B00FF', bgColor: '#8B00FF22' },
+  { name: 'Transpersonal' as ChakraTag, color: '#FFFFFF', bgColor: '#FFFFFF22' }
+];
 
 interface ChakraFilterProps {
   selectedChakras: ChakraTag[];
@@ -52,7 +64,7 @@ const ChakraFilter: React.FC<ChakraFilterProps> = ({
   return (
     <div className={`space-y-2 ${className}`}>
       <div className="flex flex-wrap gap-2">
-        {CHAKRAS.map((chakra) => {
+        {basicChakras.map((chakra) => {
           const isSelected = selectedChakras.includes(chakra.name);
           return (
             <Button
