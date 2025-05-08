@@ -202,7 +202,7 @@ const TestJourneyContent: React.FC<{ journeySlug: string }> = ({ journeySlug }) 
               <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl overflow-hidden">
                 <div className="h-64 relative">
                   <JourneyAwareSpiralVisualizer 
-                    journeyId={journey?.id}
+                    journeyId={journey ? String(journey.id) : undefined}
                     autoSync={false}
                     showControls={true}
                     containerId={spiralContainerId}
@@ -267,7 +267,7 @@ const TestJourneyContent: React.FC<{ journeySlug: string }> = ({ journeySlug }) 
                 <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl">
                   <CardContent className="p-4">
                     <JourneyTimelineView 
-                      journeyId={journey?.id || ""}
+                      journeyId={journey ? String(journey.id) : ""}
                       autoSync={false}
                       limit={5}
                     />
