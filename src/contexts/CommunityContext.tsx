@@ -26,6 +26,9 @@ interface CommunityContextType {
   loading: boolean;
   createPost: (content: string) => Promise<void>;
   getUserProfile: () => CommunityProfile | null;
+  postTypes: string[];
+  likePost: (postId: string) => void;
+  addComment: (postId: string, comment: string) => void;
 }
 
 const CommunityContext = createContext<CommunityContextType | undefined>(undefined);
@@ -72,6 +75,7 @@ export const CommunityProvider: React.FC<CommunityProviderProps> = ({ children }
   });
   
   const [loading, setLoading] = useState(false);
+  const [postTypes] = useState<string[]>(['Insight', 'Question', 'Experience', 'Meditation', 'Sound Healing']);
 
   const createPost = async (content: string) => {
     setLoading(true);
@@ -97,6 +101,18 @@ export const CommunityProvider: React.FC<CommunityProviderProps> = ({ children }
   const getUserProfile = () => {
     return userProfile;
   };
+  
+  const likePost = (postId: string) => {
+    setPosts(posts.map(post => 
+      post.id === postId ? { ...post, likes: post.likes + 1 } : post
+    ));
+  };
+  
+  const addComment = (postId: string, comment: string) => {
+    setPosts(posts.map(post => 
+      post.id === postId ? { ...post, comments: post.comments + 1 } : post
+    ));
+  };
 
   const value = {
     posts,
@@ -104,6 +120,9 @@ export const CommunityProvider: React.FC<CommunityProviderProps> = ({ children }
     loading,
     createPost,
     getUserProfile,
+    postTypes,
+    likePost,
+    addComment
   };
 
   return <CommunityContext.Provider value={value}>{children}</CommunityContext.Provider>;
