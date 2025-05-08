@@ -1,22 +1,22 @@
 
-import React from "react";
-import { Link } from "react-router-dom";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useTheme } from '@/context/ThemeContext';
 
 interface SidebarLogoProps {
   className?: string;
 }
 
 const SidebarLogo: React.FC<SidebarLogoProps> = ({ className }) => {
+  const { liftTheVeil } = useTheme();
+  
   return (
-    <div className={`flex justify-center items-center w-full px-4 ${className}`}>
-      <Link to="/" className="flex items-center w-full">
-        <img
-          src="/lovable-uploads/6dafef18-8a06-46e1-bc1b-2325f13a67f7.png"
-          alt="Sacred Shifter Logo"
-          className="h-16 w-full object-contain"
-        />
-      </Link>
-    </div>
+    <Link to="/" className={`flex items-center justify-center text-white ${className}`}>
+      <div className={`text-2xl font-bold leading-none flex flex-col items-center`}>
+        <span className={`text-3xl ${liftTheVeil ? 'text-pink-400' : 'text-purple-400'}`}>✧</span>
+        <span className="text-sm tracking-wider mt-1">Sacred Shifter</span>
+      </div>
+    </Link>
   );
 };
 

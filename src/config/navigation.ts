@@ -1,281 +1,76 @@
 
-// Navigation config to manage which pages are active and should be displayed in navigation
-export const activePages = {
-  home: true,
-  dashboard: true,
-  sacredBlueprint: false,
-  frequencyLibrary: false,
-  trinityGateway: false,
-  heartCenter: false,
-  emotionEngine: false,
-  timeline: false,
-  musicGenerator: false,
-  mirrorPortal: false,
-  frequencyShift: false,
-  shiftPerception: false,
-  hermeticPrinciples: false,
-  soulScribe: false,
-  deityOracle: false,
-  astralAttunement: false,
-  subscription: true,
-  aboutFounder: true,
-  contact: true,
-  profile: true,
-  harmonicMap: false,
-  heartDashboard: false,
-  alignment: false,
-  energyCheck: false,
-  focus: false,
-  hermeticWisdom: false,
-  journeyTemplates: false,
-  journeys: true,
-  astrology: false,
-  siteMap: true,
-  sacredSpectrum: true,
-  journeysDirectory: true,
-  circle: true,
-  admin: true, // Added admin as a valid PageKey
+export type NavItem = {
+  label: string;
+  path: string;
+  icon: string;
+  chakraColor?: string;
+  isActive?: boolean;
 };
 
-// Type definition for page configuration
-export type PageKey = keyof typeof activePages;
-
-// Navigation items configuration
-export const navItems = [
+// Default navigation items
+const navItems: NavItem[] = [
   {
-    path: "/dashboard",
-    key: "dashboard" as PageKey,
-    icon: "LayoutDashboard",
-    label: "Dashboard",
+    label: 'Home',
+    path: '/',
+    icon: 'Home',
+    chakraColor: '#a855f7', // purple
+    isActive: true
   },
   {
-    path: "/",
-    key: "home" as PageKey,
-    icon: "HomeIcon",
-    label: "Home",
+    label: 'Journeys',
+    path: '/journeys',
+    icon: 'Map',
+    chakraColor: '#8b5cf6', // violet
+    isActive: true
   },
   {
-    path: "/sacred-circle",
-    key: "circle" as PageKey,
-    icon: "Users",
-    label: "Sacred Circle",
+    label: 'Frequency Engine',
+    path: '/frequency',
+    icon: 'Music',
+    chakraColor: '#6366f1', // indigo
+    isActive: true
   },
   {
-    path: "/journeys",
-    key: "journeys" as PageKey,
-    icon: "Map",
-    label: "Sacred Journeys",
+    label: 'Sacred Circle',
+    path: '/sacred-circle',
+    icon: 'Circle',
+    chakraColor: '#ec4899', // pink
+    isActive: true
   },
   {
-    path: "/sacred-spectrum",
-    key: "sacredSpectrum" as PageKey,
-    icon: "Sparkles",
-    label: "Sacred Spectrum",
+    label: 'Lightbearer',
+    path: '/lightbearer',
+    icon: 'Star',
+    chakraColor: '#eab308', // yellow
+    isActive: true
   },
   {
-    path: "/about-founder",
-    key: "aboutFounder" as PageKey,
-    icon: "User2",
-    label: "About the Founder",
+    label: 'Profile',
+    path: '/profile',
+    icon: 'User',
+    chakraColor: '#3b82f6', // blue
+    isActive: true
   },
   {
-    path: "/subscription",
-    key: "subscription" as PageKey,
-    icon: "CreditCard",
-    label: "Subscription",
-  },
-  {
-    path: "/contact",
-    key: "contact" as PageKey,
-    icon: "Mail",
-    label: "Contact",
-  },
-  {
-    path: "/admin",
-    key: "admin" as PageKey,
-    icon: "Settings",
-    label: "Admin",
-  },
-  {
-    path: "/sacred-blueprint",
-    key: "sacredBlueprint" as PageKey,
-    icon: "LayoutTemplate",
-    label: "Sacred Blueprint™",
-  },
-  {
-    path: "/frequency-library",
-    key: "frequencyLibrary" as PageKey,
-    icon: "Music",
-    label: "Frequency Library",
-  },
-  {
-    path: "/heart-center",
-    key: "heartCenter" as PageKey,
-    icon: "Heart",
-    label: "Heart Center",
-  },
-  {
-    path: "/emotion-engine",
-    key: "emotionEngine" as PageKey,
-    icon: "Heart",
-    label: "Emotion Engine™",
-  },
-  {
-    path: "/timeline",
-    key: "timeline" as PageKey,
-    icon: "Activity",
-    label: "Timeline",
-  },
-  {
-    path: "/music-generator",
-    key: "musicGenerator" as PageKey,
-    icon: "Music4",
-    label: "Music Generator",
-  },
-  {
-    path: "/mirror-portal",
-    key: "mirrorPortal" as PageKey,
-    icon: "Compass",
-    label: "Mirror Portal",
-  },
-  {
-    path: "/frequency-shift",
-    key: "frequencyShift" as PageKey,
-    icon: "Zap",
-    label: "Frequency Shift™",
-  },
-  {
-    path: "/shift-perception",
-    key: "shiftPerception" as PageKey,
-    icon: "Brain",
-    label: "Shift Perception",
-  },
-  {
-    path: "/hermetic-principles",
-    key: "hermeticPrinciples" as PageKey,
-    icon: "BookText",
-    label: "Hermetic Principles",
-  },
-  {
-    path: "/soul-scribe",
-    key: "soulScribe" as PageKey,
-    icon: "BookOpen",
-    label: "Soul Scribe™",
-  },
-  {
-    path: "/deity-oracle",
-    key: "deityOracle" as PageKey,
-    icon: "Flame",
-    label: "Deity Oracle™",
-  },
-  {
-    path: "/astral-attunement",
-    key: "astralAttunement" as PageKey,
-    icon: "Star",
-    label: "Astral Attunement™",
-  },
-  {
-    path: "/trinity-gateway",
-    key: "trinityGateway" as PageKey,
-    icon: "Triangle",
-    label: "Trinity Gateway™",
-  },
-  {
-    path: "/harmonic-map",
-    key: "harmonicMap" as PageKey,
-    icon: "Map",
-    label: "Harmonic Map",
-  },
-  {
-    path: "/heart-dashboard",
-    key: "heartDashboard" as PageKey,
-    icon: "HeartPulse",
-    label: "Heart Dashboard",
-  },
-  {
-    path: "/alignment",
-    key: "alignment" as PageKey,
-    icon: "BarChart3",
-    label: "Alignment",
-  },
-  {
-    path: "/energy-check",
-    key: "energyCheck" as PageKey,
-    icon: "Activity",
-    label: "Energy Check",
-  },
-  {
-    path: "/focus",
-    key: "focus" as PageKey,
-    icon: "Brain",
-    label: "Focus",
-  },
-  {
-    path: "/hermetic-wisdom",
-    key: "hermeticWisdom" as PageKey,
-    icon: "BookOpen",
-    label: "Hermetic Wisdom",
-  },
-  {
-    path: "/journey-templates",
-    key: "journeyTemplates" as PageKey,
-    icon: "Map",
-    label: "Journey Templates",
-  },
-  {
-    path: "/astrology",
-    key: "astrology" as PageKey,
-    icon: "Star",
-    label: "Astrology",
-  },
-  {
-    path: "/profile",
-    key: "profile" as PageKey,
-    icon: "User",
-    label: "Profile",
-  },
-  {
-    path: "/site-map",
-    key: "siteMap" as PageKey,
-    icon: "Map",
-    label: "Site Map",
-  },
-  {
-    path: "/journeys-directory",
-    key: "journeysDirectory" as PageKey,
-    icon: "Map",
-    label: "Sacred Journeys",
-  },
+    label: 'Settings',
+    path: '/settings',
+    icon: 'Settings',
+    chakraColor: '#64748b', // slate
+    isActive: true
+  }
 ];
 
-// Helper function to get active nav items
-export const getActiveNavItems = () => {
-  // Ensure we don't have duplicate routes in the final navigation
-  const uniqueKeys = new Set();
-  return navItems.filter(item => {
-    // For admin route, only show in dev mode
-    if (item.key === "admin" && process.env.NODE_ENV !== 'development') {
-      return false;
-    }
-    
-    // Check if the item is active AND has not been included yet
-    const isActive = activePages[item.key];
-    const isUnique = !uniqueKeys.has(item.path);
-    
-    // Track the paths we've seen
-    if (isUnique) {
-      uniqueKeys.add(item.path);
-    }
-    
-    return isActive && isUnique;
-  });
+// Get all active navigation items
+export const getActiveNavItems = (): NavItem[] => {
+  return navItems.filter(item => item.isActive !== false);
 };
 
-// Sidebar links configuration
-export const sidebarLinks = [
-  {
-    title: "Sacred Grid Visualizer",
-    href: "/sacred-grid",
-    icon: "grid-3x3", // Using a grid icon from Lucide
-  },
-];
+// Get a specific navigation item by path
+export const getNavItemByPath = (path: string): NavItem | undefined => {
+  return navItems.find(item => item.path === path);
+};
+
+// Get a specific navigation item by label
+export const getNavItemByLabel = (label: string): NavItem | undefined => {
+  return navItems.find(item => item.label === label);
+};

@@ -123,7 +123,7 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ className }) => {
                       getChakraColor(),
                       isActive && "animate-pulse-subtle"
                     )}>
-                      <IconComponent className="h-5 w-5" />
+                      {React.createElement(IconComponent, { className: "h-5 w-5" })}
                     </div>
                     {(!isCollapsed || isMobile) && (
                       <span className={cn(

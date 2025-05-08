@@ -5,20 +5,22 @@ interface ThemeContextType {
   liftTheVeil: boolean;
   toggleVeil: () => void;
   setVeilState: (state: boolean) => void;
-  setLiftTheVeil: (state: boolean) => void;
+  setLiftTheVeil: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const ThemeContext = createContext<ThemeContextType>({
+const defaultContextValue: ThemeContextType = {
   liftTheVeil: false,
   toggleVeil: () => {},
   setVeilState: () => {},
   setLiftTheVeil: () => {}
-});
+};
+
+const ThemeContext = createContext<ThemeContextType>(defaultContextValue);
 
 export const useTheme = () => useContext(ThemeContext);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [liftTheVeil, setLiftTheVeil] = useState(false);
+  const [liftTheVeil, setLiftTheVeil] = useState<boolean>(false);
 
   // Load saved theme preference
   useEffect(() => {

@@ -1,154 +1,64 @@
 
 import { useState, useEffect } from 'react';
-import { ChakraTag, CHAKRA_FREQUENCIES } from '@/types/chakras';
+import { useAuth } from '@/context/AuthContext';
+import { getChakraColor } from '@/types/chakras';
 
-export interface OptimizationResult {
+export type OptimizationResult = {
   nextSuggestedJourney: string;
-  underusedChakra: ChakraTag | null;
+  underusedChakra: string;
   dominantArchetype: string;
   frequencySuggestion: number;
   lightbearerLevel: number;
-}
-
-const dummyJourneyData = [
-  { slug: 'root-awakening', chakra: 'Root', archetype: 'Warrior', completed: true },
-  { slug: 'heart-opening', chakra: 'Heart', archetype: 'Lover', completed: true },
-  { slug: 'third-eye-activation', chakra: 'Third Eye', archetype: 'Sage', completed: false },
-  { slug: 'chakra-column-alignment', chakra: 'Root', archetype: 'Magician', completed: false },
-  { slug: 'solar-activation', chakra: 'Solar Plexus', archetype: 'Ruler', completed: true },
-];
-
-const dummyChakraActivations = {
-  'Root': 2,
-  'Sacral': 1,
-  'Solar Plexus': 3,
-  'Heart': 5,
-  'Throat': 2,
-  'Third Eye': 1,
-  'Crown': 0,
 };
 
-export const useRealityOptimizer = (userId?: string) => {
-  const [results, setResults] = useState<OptimizationResult>({
-    nextSuggestedJourney: '',
-    underusedChakra: null,
-    dominantArchetype: '',
-    frequencySuggestion: 0,
-    lightbearerLevel: 0
-  });
+export function useRealityOptimizer() {
+  const { user } = useAuth();
+  const [results, setResults] = useState<OptimizationResult | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // In a real implementation, this would fetch data from Supabase or context
-    // For now, we'll use dummy data
-    analyzeUserData();
-  }, [userId]);
-
-  const analyzeUserData = () => {
-    // This would normally fetch from a service or context
-    const journeyData = dummyJourneyData;
-    const chakraActivations = dummyChakraActivations;
-    
-    const completedJourneys = journeyData.filter(journey => journey.completed);
-    
-    // Find underused chakra
-    const underusedChakra = findUnderUsedChakra(chakraActivations);
-    
-    // Find dominant archetype
-    const dominantArchetype = getDominantArchetype(completedJourneys);
-    
-    // Get suggested journey
-    const nextSuggestedJourney = getSuggestedJourney(journeyData, underusedChakra);
-    
-    // Get frequency for the underused chakra
-    const frequencySuggestion = getFrequencyForChakra(underusedChakra);
-    
-    // Calculate lightbearer level (simple algorithm)
-    const lightbearerLevel = Math.max(1, Math.floor(completedJourneys.length / 2));
-    
-    setResults({
-      nextSuggestedJourney,
-      underusedChakra,
-      dominantArchetype,
-      frequencySuggestion,
-      lightbearerLevel
-    });
-  };
-
-  const findUnderUsedChakra = (chakraActivations: Record<string, number>): ChakraTag | null => {
-    // Find the chakra with the lowest activation count
-    let minActivations = Infinity;
-    let underusedChakra: ChakraTag | null = null;
-    
-    Object.entries(chakraActivations).forEach(([chakra, count]) => {
-      if (count < minActivations) {
-        minActivations = count;
-        underusedChakra = chakra as ChakraTag;
+    // This would normally fetch from an API or calculate based on user data
+    // For now, we'll just return placeholder data
+    const fetchOptimizationResults = async () => {
+      try {
+        setLoading(true);
+        
+        // Simulate API call delay
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Placeholder data - in a real implementation, this would come from a backend
+        const placeholderResults: OptimizationResult = {
+          nextSuggestedJourney: 'Root Awakening',
+          underusedChakra: 'Root',
+          dominantArchetype: 'Alchemist',
+          frequencySuggestion: 396,
+          lightbearerLevel: user ? 3 : 1
+        };
+        
+        setResults(placeholderResults);
+        setError(null);
+      } catch (err) {
+        setError('Failed to optimize reality parameters');
+        console.error('Reality optimization error:', err);
+      } finally {
+        setLoading(false);
       }
-    });
-    
-    return underusedChakra;
-  };
+    };
 
-  const getDominantArchetype = (completedJourneys: any[]) => {
-    // Count occurrences of each archetype
-    const archetypeCounts: Record<string, number> = {};
-    
-    completedJourneys.forEach(journey => {
-      if (journey.archetype) {
-        archetypeCounts[journey.archetype] = (archetypeCounts[journey.archetype] || 0) + 1;
-      }
-    });
-    
-    // Find the most frequent archetype
-    let maxCount = 0;
-    let dominantArchetype = 'Alchemist'; // Default
-    
-    Object.entries(archetypeCounts).forEach(([archetype, count]) => {
-      if (count > maxCount) {
-        maxCount = count;
-        dominantArchetype = archetype;
-      }
-    });
-    
-    return dominantArchetype;
-  };
+    fetchOptimizationResults();
+  }, [user]);
 
-  const getSuggestedJourney = (journeyData: any[], underusedChakra: ChakraTag | null): string => {
-    // Find first non-completed journey for the underused chakra
-    const suggestedJourney = journeyData.find(
-      journey => !journey.completed && journey.chakra === underusedChakra
-    );
-    
-    // Return the slug formatted as a title, or a default
-    if (suggestedJourney) {
-      return suggestedJourney.slug
-        .split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-    }
-    
-    // If no matching journey, just return the first non-completed journey
-    const anyNonCompleted = journeyData.find(journey => !journey.completed);
-    
-    if (anyNonCompleted) {
-      return anyNonCompleted.slug
-        .split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-    }
-    
-    return 'Chakra Column Alignment'; // Default fallback
-  };
-
-  const getFrequencyForChakra = (chakra: ChakraTag | null): number => {
-    if (!chakra || !CHAKRA_FREQUENCIES[chakra]) {
-      return 396; // Default to Root chakra frequency
-    }
-    return CHAKRA_FREQUENCIES[chakra];
+  // Helper function to get chakra color for the current focus
+  const getFocusChakraColor = () => {
+    if (!results) return '#a855f7'; // Default purple if no results
+    return getChakraColor(results.underusedChakra as any);
   };
 
   return {
-    ...results,
-    getOptimizationResults: () => results
+    results,
+    loading,
+    error,
+    getFocusChakraColor
   };
-};
+}
