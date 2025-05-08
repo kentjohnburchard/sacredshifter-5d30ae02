@@ -7,8 +7,7 @@ import ThemeEnhancer from '@/components/ThemeEnhancer';
 import GlobalWatermark from '@/components/GlobalWatermark';
 import JourneyAwareSpiralVisualizer from '@/components/visualizer/JourneyAwareSpiralVisualizer';
 import Player from '@/components/Player';
-import { Button } from '@/components/ui/button';
-import { MessageSquare } from 'lucide-react';
+import SacredChat from '@/components/SacredChat';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -77,22 +76,8 @@ const AppShell: React.FC<AppShellProps> = ({
           
           {showPlayer && <Player />}
           
-          {/* Sacred Chat Bubble - Fixed Position */}
-          {showChatBubble && (
-            <div className="fixed right-6 bottom-24 z-50">
-              <Button 
-                size="lg" 
-                className={`rounded-full shadow-lg p-4 ${
-                  liftTheVeil 
-                    ? 'bg-pink-600 hover:bg-pink-700' 
-                    : 'bg-purple-600 hover:bg-purple-700'
-                } transition-all duration-300 hover:scale-105`}
-              >
-                <MessageSquare className="h-5 w-5" />
-                <span className="sr-only">Sacred Chat</span>
-              </Button>
-            </div>
-          )}
+          {/* Sacred Chat Component */}
+          {showChatBubble && <SacredChat />}
           
           <GlobalWatermark />
         </main>

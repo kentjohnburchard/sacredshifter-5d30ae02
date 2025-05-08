@@ -8,6 +8,8 @@ import LightbearerPage from './pages/LightbearerPage';
 import SacredCirclePage from './pages/SacredCirclePage';
 import FrequencyEnginePage from './pages/FrequencyEnginePage';
 import SacredShifterHome from './pages/SacredShifterHome';
+import AboutFounder from './pages/AboutFounder';
+import Journeys from './pages/Journeys';
 
 function App() {
   return (
@@ -22,9 +24,10 @@ function App() {
         <Route path="/lightbearer" element={<LightbearerPage />} />
         <Route path="/circle" element={<SacredCirclePage />} />
         <Route path="/frequency" element={<FrequencyEnginePage />} />
+        <Route path="/about-founder" element={<AboutFounder />} />
         
         {/* Journey Experience Routes */}
-        <Route path="/journeys" element={<JourneysPage />} />
+        <Route path="/journeys" element={<Journeys />} />
         <Route path="/journey/:journeySlug/experience" element={<JourneyExperiencePage />} />
         
         {/* Test Route - For internal dev preview only */}
