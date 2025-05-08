@@ -42,26 +42,20 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
     console.log("SpiralVisualizer - Container ID:", containerId);
 
     const sketch = (p: p5) => {
-      // Normalize sacred geometry parameters - using golden ratio influenced values
-      // These values are carefully selected to create harmonic, balanced spirals
-      const coeffA = Math.min(Math.max(params.coeffA || 1.618, 0.5), 3); // Golden ratio influence
-      const coeffB = Math.min(Math.max(params.coeffB || 1, 0.5), 3);
-      const coeffC = Math.min(Math.max(params.coeffC || 0.618, 0.2), 2); // Inverse golden ratio
+      // Pure logarithmic spiral parameters based on sacred geometry principles
+      const a = 0.2;  // Initial size factor - small to start at center
+      const b = 0.15; // Growth rate - golden ratio influenced
       
-      // Use moderate frequency values for elegant spiral formation
-      const freqA = Math.min(Math.max(params.freqA || 3.14, 1), 6); // Pi influence
-      const freqB = Math.min(Math.max(params.freqB || 2.618, 1), 6); // Golden ratio × 1.618
-      const freqC = Math.min(Math.max(params.freqC || 1.618, 1), 5); // Golden ratio
-      
+      // Original parameters used for color and visual styling only
       const color = params.color || '180,180,255'; // Default blue
       const opacity = params.opacity || 80;
       const strokeW = params.strokeWeight || 0.8; // Slightly thicker for visibility
       
-      // Maximum cycles controls how many revolutions the spiral completes
-      const maxCycles = params.maxCycles || 8; // More cycles for fuller spiral
+      // Maximum angle controls how many revolutions the spiral completes
+      const maxAngle = params.maxCycles ? p.TWO_PI * params.maxCycles : p.TWO_PI * 8;
       
       // Extremely slow speed for meditative unfolding
-      const speed = params.speed ? Math.min(params.speed, 0.0006) : 0.0003;
+      const speed = params.speed ? Math.min(params.speed, 0.006) : 0.003;
       
       // Scale factor to ensure spiral fills appropriate screen space
       let scaleFactor = 1;
@@ -173,24 +167,14 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
           }
         }
         
-        // Draw spiral points - always start from center (0,0)
-        if (angle < p.TWO_PI * maxCycles) {
-          // Use logarithmic spiral formula for more elegant growth
-          // r = a * e^(b * theta)
-          const radius = 0.2 * p.exp(0.1 * angle);
-
-          // Calculate point using the parametric equation with natural growth
-          const re = radius * (
-            coeffA * p.cos(freqA * angle) + 
-            coeffB * p.cos(freqB * angle) + 
-            coeffC * p.cos(freqC * angle)
-          );
+        // Draw new spiral point if we haven't reached max angle
+        if (angle < maxAngle) {
+          // Pure logarithmic spiral formula: r = a * e^(b * θ)
+          const radius = a * p.exp(b * angle);
           
-          const im = radius * (
-            coeffA * p.sin(freqA * angle) + 
-            coeffB * p.sin(freqB * angle) + 
-            coeffC * p.sin(freqC * angle)
-          );
+          // Convert polar to Cartesian coordinates
+          const x = radius * p.cos(angle);
+          const y = radius * p.sin(angle);
           
           // Slightly vary stroke weight for organic feel
           const dynamicStrokeWeight = strokeW * (1 + 0.1 * p.sin(angle * 3));
@@ -199,12 +183,12 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
           // Use consistent color with subtle variation
           const baseColor = p.color(`rgba(${color},${opacity/100})`);
           p.stroke(baseColor);
-          p.point(re, im);
+          p.point(x, y);
           
           // Add point to trail with current opacity
           trailPoints.push({
-            x: re,
-            y: im,
+            x: x,
+            y: y,
             opacity: opacity/100
           });
           
