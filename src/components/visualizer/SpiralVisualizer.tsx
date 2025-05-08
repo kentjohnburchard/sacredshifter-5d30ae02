@@ -15,8 +15,8 @@ interface SpiralVisualizerProps {
   className?: string;
 }
 
-const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({ 
-  params, 
+const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
+  params,
   containerId = "spiralContainer",
   className = ""
 }) => {
@@ -28,24 +28,24 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
     if (p5InstanceRef.current) p5InstanceRef.current.remove();
 
     const sketch = (p: p5) => {
-      const a = 1.2;
-      const b = 0.07;
+      const a = 1.1;
+      const b = 0.08;
 
-      const maxAngle = params.maxCycles ? p.TWO_PI * params.maxCycles : p.TWO_PI * 12;
-      const speed = params.speed || 0.02;
+      const maxAngle = params.maxCycles ? p.TWO_PI * params.maxCycles : p.TWO_PI * 16;
+      const speed = params.speed || 0.015;
 
-      const color = params.color || '180,180,255';
-      const opacity = params.opacity || 80;
-      const strokeW = params.strokeWeight || 1.2;
+      const color = params.color || '180,200,255';
+      const opacity = params.opacity || 70;
+      const strokeW = params.strokeWeight || 1.4;
 
       let angle = 0;
       let trailPoints: { x: number; y: number; opacity: number }[] = [];
-      const maxTrailPoints = 1200;
+      const maxTrailPoints = 1000;
 
-      let currentScale = 1;
-      let targetScale = 1;
       let canvasWidth = 0;
       let canvasHeight = 0;
+      let currentScale = 1;
+      let targetScale = 1;
 
       p.setup = () => {
         canvasWidth = containerRef.current?.clientWidth || window.innerWidth;
@@ -64,34 +64,34 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
       };
 
       p.draw = () => {
-        // Fade the background slightly to give a trail effect
+        // Soft background fade for glow trails
         p.noStroke();
         p.fill(0, 0, 0, 15);
         p.rect(0, 0, p.width, p.height);
 
-        // Center and scale
         p.push();
         p.translate(p.width / 2, p.height / 2);
         p.scale(currentScale);
 
-        // Grow spiral scale toward target
-        if (currentScale < targetScale) {
-          currentScale += (targetScale - currentScale) * 0.05;
-        }
+        // Slow 3D-like wobble
+        p.rotate(p.sin(p.frameCount * 0.003) * 0.03);
 
-        // Gentle 3D float
-        p.rotate(p.sin(p.frameCount * 0.002) * 0.05);
+        // Grow scale gradually
+        if (currentScale < targetScale) {
+          currentScale += (targetScale - currentScale) * 0.03;
+        }
 
         // Draw trail
         p.blendMode(p.ADD);
         p.strokeWeight(strokeW * 4);
-        for (let i = 0; i < trailPoints.length; i += 2) {
-          const pt = trailPoints[i];
-          p.stroke(p.color(`rgba(${color},${pt.opacity * 0.15})`));
-          p.point(pt.x, pt.y);
-        }
+        trailPoints.forEach((pt, i) => {
+          if (i % 3 === 0) {
+            p.stroke(p.color(`rgba(${color},${pt.opacity * 0.1})`));
+            p.point(pt.x, pt.y);
+          }
+        });
 
-        // Spiral point
+        // Draw new point
         if (angle < maxAngle) {
           const r = a * p.exp(b * angle);
           const x = r * p.cos(angle);
@@ -103,10 +103,7 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
 
           trailPoints.push({ x, y, opacity: opacity / 100 });
           if (trailPoints.length > maxTrailPoints) trailPoints.shift();
-
-          for (let i = 0; i < trailPoints.length; i++) {
-            trailPoints[i].opacity *= 0.995;
-          }
+          trailPoints.forEach(pt => pt.opacity *= 0.995);
 
           angle += speed;
         }
@@ -134,7 +131,7 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
   }, [params, containerId]);
 
   return (
-    <div 
+    <div
       id={containerId}
       ref={containerRef}
       className={`absolute inset-0 w-full h-full z-10 bg-black ${className}`}
