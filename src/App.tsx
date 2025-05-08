@@ -2,6 +2,8 @@
 import { Routes, Route } from 'react-router-dom';
 import Placeholder from './pages/Placeholder';
 import TestJourney from './pages/TestJourney';
+import JourneysPage from './pages/JourneysPage';
+import JourneyExperiencePage from './pages/JourneyExperiencePage';
 
 function App() {
   return (
@@ -14,6 +16,10 @@ function App() {
         <Route path="/dashboard" element={<Placeholder name="Dashboard" />} />
         <Route path="/sacred-circle" element={<Placeholder name="Sacred Circle" />} />
         <Route path="/lightbearer" element={<Placeholder name="Lightbearer" />} />
+        
+        {/* Journey Experience Routes */}
+        <Route path="/journeys" element={<JourneysPage />} />
+        <Route path="/journey/:journeySlug/experience" element={<JourneyExperiencePage />} />
         
         {/* Test Route - For internal dev preview only */}
         <Route path="/test-journey" element={<TestJourney />} />
