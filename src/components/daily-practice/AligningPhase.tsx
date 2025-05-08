@@ -105,17 +105,13 @@ const AligningPhase: React.FC<AligningPhaseProps> = ({
   const [showAdvanced, setShowAdvanced] = React.useState(false);
 
   const handleBalanceChange = (chakra: string, value: number[]) => {
-    setChakraBalances(prev => ({
-      ...prev,
-      [chakra]: value[0]
-    }));
+    const newBalances = { ...chakraBalances, [chakra]: value[0] };
+    setChakraBalances(newBalances);
   };
 
   const handleNoteChange = (chakra: string, value: string) => {
-    setChakraNotes(prev => ({
-      ...prev,
-      [chakra]: value
-    }));
+    const newNotes = { ...chakraNotes, [chakra]: value };
+    setChakraNotes(newNotes);
   };
 
   // Calculate overall balance

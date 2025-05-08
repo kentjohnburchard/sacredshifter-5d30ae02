@@ -213,7 +213,19 @@ const JourneyPlayer = () => {
 
   return (
     <Layout pageTitle={journey?.title || "Sacred Journey"}>
-      {spiralEnabled && <SpiralVisualizer params={spiralParams} />}
+      {spiralEnabled && <SpiralVisualizer params={{
+        coeffA: spiralParams.coeffA,
+        coeffB: spiralParams.coeffB,
+        coeffC: spiralParams.coeffC,
+        freqA: spiralParams.freqA,
+        freqB: spiralParams.freqB,
+        freqC: spiralParams.freqC,
+        color: spiralParams.color,
+        opacity: spiralParams.opacity,
+        strokeWeight: spiralParams.strokeWeight,
+        maxCycles: spiralParams.maxCycles,
+        speed: spiralParams.speed
+      }} />}
       
       <div className="max-w-4xl mx-auto p-4 relative z-10">
         <Card className="backdrop-blur-sm border border-purple-200/30 dark:border-purple-900/30 bg-white/80 dark:bg-black/60">

@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 // Delete or modify any code that uses getChakraColor
@@ -12,3 +13,15 @@ const chakraColors: Record<string, string> = {
   'Crown': '#8B00FF',
   'Transpersonal': '#FFFFFF'
 };
+
+// Add a default export
+const DNAOverlayPanel: React.FC = () => {
+  return (
+    <div className="dna-overlay-panel">
+      DNA Overlay Panel Placeholder
+    </div>
+  );
+};
+
+export default DNAOverlayPanel;
+export { chakraColors };

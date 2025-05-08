@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useJourney } from '@/context/JourneyContext';
 import SpiralVisualizer from '@/components/visualizer/SpiralVisualizer';
-import useSpiralParams, { SpiralParams } from '@/hooks/useSpiralParams';
+import useSpiralParams from '@/hooks/useSpiralParams';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from 'lucide-react';
 
@@ -64,10 +64,25 @@ const JourneyAwareSpiralVisualizer: React.FC<JourneyAwareSpiralVisualizerProps> 
     );
   }
 
+  // Ensure parameters have all required fields before passing to SpiralVisualizer
+  const completeParams = {
+    coeffA: spiralParams.coeffA,
+    coeffB: spiralParams.coeffB,
+    coeffC: spiralParams.coeffC,
+    freqA: spiralParams.freqA,
+    freqB: spiralParams.freqB,
+    freqC: spiralParams.freqC,
+    color: spiralParams.color,
+    opacity: spiralParams.opacity,
+    strokeWeight: spiralParams.strokeWeight,
+    maxCycles: spiralParams.maxCycles,
+    speed: spiralParams.speed
+  };
+
   return (
     <div className={`relative ${className}`}>
       <SpiralVisualizer 
-        params={spiralParams} 
+        params={completeParams} 
         containerId={containerId}
       />
       

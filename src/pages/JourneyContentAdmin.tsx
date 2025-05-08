@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -572,7 +571,23 @@ const JourneyContentAdmin: React.FC = () => {
                 <CardTitle>Spiral Preview</CardTitle>
               </CardHeader>
               <CardContent className="h-[400px] relative bg-black rounded-md">
-                <SpiralVisualizer params={params} containerId="previewSpiral" className="!absolute !inset-0 !rounded-md"/>
+                <SpiralVisualizer 
+                  params={{
+                    coeffA: params.coeffA, 
+                    coeffB: params.coeffB,
+                    coeffC: params.coeffC,
+                    freqA: params.freqA,
+                    freqB: params.freqB,
+                    freqC: params.freqC,
+                    color: params.color,
+                    opacity: params.opacity,
+                    strokeWeight: params.strokeWeight,
+                    maxCycles: params.maxCycles,
+                    speed: params.speed
+                  }} 
+                  containerId="previewSpiral" 
+                  className="!absolute !inset-0 !rounded-md"
+                />
               </CardContent>
             </Card>
           </div>

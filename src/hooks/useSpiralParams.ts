@@ -2,17 +2,17 @@
 import { useState, useEffect } from 'react';
 
 export interface SpiralParams {
-  coeffA?: number;
-  coeffB?: number;
-  coeffC?: number;
-  freqA?: number;
-  freqB?: number;
-  freqC?: number;
-  color?: string;
-  opacity?: number;
-  strokeWeight?: number;
-  maxCycles?: number;
-  speed?: number;
+  coeffA: number;
+  coeffB: number;
+  coeffC: number;
+  freqA: number;
+  freqB: number;
+  freqC: number;
+  color: string;
+  opacity: number;
+  strokeWeight: number;
+  maxCycles: number;
+  speed: number;
 }
 
 // Cache to store params by journey ID
