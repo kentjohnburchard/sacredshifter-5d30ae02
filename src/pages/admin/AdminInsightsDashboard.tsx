@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -32,7 +33,20 @@ const AdminInsightsDashboard: React.FC = () => {
     averageCompletionTime: ''
   });
   
-  const [chakraData, setChakraData] = useState<Record<ChakraTag, number>>({} as Record<ChakraTag, number>);
+  const [chakraData, setChakraData] = useState<Record<ChakraTag, number>>({
+    'Root': 0,
+    'Sacral': 0,
+    'Solar Plexus': 0,
+    'Heart': 0,
+    'Throat': 0,
+    'Third Eye': 0,
+    'Crown': 0,
+    'Transpersonal': 0,
+    'Cosmic': 0,
+    'Earth Star': 0,
+    'Soul Star': 0
+  });
+  
   const [lightbearerStats, setLightbearerStats] = useState<{
     totalUsers: number;
     averageLevel: number;
@@ -99,7 +113,10 @@ const AdminInsightsDashboard: React.FC = () => {
       'Throat': 25,
       'Third Eye': 31,
       'Crown': 24,
-      'Transpersonal': 12
+      'Transpersonal': 12,
+      'Cosmic': 8,
+      'Earth Star': 15,
+      'Soul Star': 10
     });
     
     // Fetch lightbearer progression data
