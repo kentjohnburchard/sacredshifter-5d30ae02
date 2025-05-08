@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import SacredGeometryVisualizer from "@/components/sacred-geometry/SacredGeometryVisualizer";
-import { calculatePrimeFactors, generatePrimeSequence } from "@/utils/primeCalculations";
+// Removing broken imports from primeCalculations
 import { Card, CardContent } from "@/components/ui/card";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -225,7 +225,7 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
     });
   };
   
-  const formatTime = (seconds: number) => {
+  const formatTimeSimple = (seconds: number) => {
     if (!seconds || isNaN(seconds)) return "0:00";
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -567,8 +567,8 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
                         />
                         
                         <div className="flex justify-between text-xs text-gray-500">
-                          <span>{formatTime(currentTime)}</span>
-                          <span>{formatTime(duration || 0)}</span>
+                          <span>{formatTimeSimple(currentTime)}</span>
+                          <span>{formatTimeSimple(duration || 0)}</span>
                         </div>
                       </div>
                       
@@ -815,19 +815,4 @@ const CosmicAudioPlayer = forwardRef<any, CosmicAudioPlayerProps>(({
                   <Button
                     size="icon"
                     variant="outline"
-                    className="h-8 w-8 rounded-full bg-black/40 border-none text-white/70 hover:text-white hover:bg-black/60"
-                    onClick={toggleDebugMode}
-                  >
-                    <Bug className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
-});
-
-export default CosmicAudioPlayer;
+                    className="h-8 w-8 rounded-full bg-black/40 border-none text-white/70 hover:text-white

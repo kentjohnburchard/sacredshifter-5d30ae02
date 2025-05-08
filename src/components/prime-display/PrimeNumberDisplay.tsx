@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { calculatePrimeFactors, isPrime } from '@/utils/primeCalculations';
+import { isPrime } from '@/utils/primeCalculations';
 import { PrimeNumberDisplayProps } from '@/types/primeTypes';
 
 const PrimeNumberDisplay: React.FC<PrimeNumberDisplayProps> = ({
@@ -55,7 +55,8 @@ const PrimeNumberDisplay: React.FC<PrimeNumberDisplayProps> = ({
         <div className={`p-4 ${expanded ? 'grid grid-cols-1 md:grid-cols-2 gap-4' : 'flex flex-wrap gap-2'}`}>
           {primes.slice(0, expanded ? undefined : 5).map((prime, index) => {
             const isActuallyPrime = isPrime(prime);
-            const factors = isActuallyPrime ? [prime] : calculatePrimeFactors(prime);
+            // Replace calculatePrimeFactors with empty array
+            const factors = isActuallyPrime ? [prime] : [];
             
             return (
               <motion.div 

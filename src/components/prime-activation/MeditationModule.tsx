@@ -1,8 +1,6 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Play, Pause, Headphones } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { formatTime } from '@/lib/utils';
 
 const MeditationModule: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -53,6 +51,14 @@ const MeditationModule: React.FC = () => {
       audioElement.removeEventListener('ended', handleEnded);
     };
   }, []);
+
+  // Simple time formatter as replacement for formatTime utility
+  const formatTimeSimple = (seconds: number) => {
+    if (!seconds || isNaN(seconds)) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   // Handle play/pause toggle
   const togglePlayPause = () => {
@@ -124,7 +130,7 @@ const MeditationModule: React.FC = () => {
           {/* Time indicators and control button */}
           <div className="flex items-center justify-between">
             <div className="text-xs text-gray-300">
-              {formatTime(currentTime)}
+              {formatTimeSimple(currentTime)}
             </div>
             
             <Button
@@ -141,7 +147,7 @@ const MeditationModule: React.FC = () => {
             </Button>
             
             <div className="text-xs text-gray-300">
-              {formatTime(duration)}
+              {formatTimeSimple(duration)}
             </div>
           </div>
         </div>
