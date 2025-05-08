@@ -14,6 +14,8 @@ const normalizeJourneyData = (data: any): Journey => {
     visual_effects: normalizeStringArray(data.visual_effects),
     strobe_patterns: normalizeStringArray(data.strobe_patterns),
     recommended_users: normalizeStringArray(data.recommended_users),
+    frequencies: Array.isArray(data.frequencies) ? data.frequencies : 
+               (data.frequencies ? normalizeStringArray(data.frequencies) : []),
     source: 'database' as const,
     isEditable: true
   };
@@ -30,6 +32,7 @@ const prepareJourneyForDb = (journey: Partial<Journey>): Record<string, any> => 
     visual_effects: Array.isArray(journey.visual_effects) ? JSON.stringify(journey.visual_effects) : journey.visual_effects,
     strobe_patterns: Array.isArray(journey.strobe_patterns) ? JSON.stringify(journey.strobe_patterns) : journey.strobe_patterns,
     recommended_users: Array.isArray(journey.recommended_users) ? JSON.stringify(journey.recommended_users) : journey.recommended_users,
+    frequencies: Array.isArray(journey.frequencies) ? JSON.stringify(journey.frequencies) : journey.frequencies,
   };
 };
 
@@ -37,7 +40,7 @@ export const fetchJourneys = async (): Promise<Journey[]> => {
   try {
     const { data, error } = await supabase
       .from('journeys')
-      .select('id, title, filename, veil_locked, audio_filename, tags, sound_frequencies')
+      .select('id, title, filename, veil_locked, audio_filename, tags, sound_frequencies, frequencies')
       .order('id');
 
     if (error) {

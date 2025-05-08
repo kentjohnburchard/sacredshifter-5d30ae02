@@ -138,6 +138,23 @@ const TestJourneyContent: React.FC<{ journeySlug: string }> = ({ journeySlug }) 
     setShowTimeline(prev => !prev);
   };
   
+  // Format frequencies for display
+  const getFrequencyDisplay = () => {
+    if (!journey) return 'No frequency information available';
+    
+    // Check for frequencies array first
+    if (journey.frequencies && Array.isArray(journey.frequencies) && journey.frequencies.length > 0) {
+      return journey.frequencies.join(', ') + ' Hz';
+    }
+    
+    // Fall back to sound_frequencies string
+    if (journey.sound_frequencies) {
+      return journey.sound_frequencies;
+    }
+    
+    return 'No frequency information available';
+  };
+  
   // Check if the currently loaded journey matches the active journey
   const isCurrentJourneyActive = isJourneyActive && activeJourney?.id === journey?.id;
 
@@ -168,7 +185,7 @@ const TestJourneyContent: React.FC<{ journeySlug: string }> = ({ journeySlug }) 
                 <CardContent className="p-4">
                   <h3 className="text-lg font-semibold mb-2 text-white">Sacred Frequencies</h3>
                   <div className="text-sm text-white/80">
-                    {journey?.sound_frequencies || 'No frequency information available'}
+                    {getFrequencyDisplay()}
                   </div>
                   
                   <div className="flex justify-between items-center mt-4">
@@ -256,7 +273,9 @@ const TestJourneyContent: React.FC<{ journeySlug: string }> = ({ journeySlug }) 
                         <div className="p-4 bg-purple-900/20 rounded-md">
                           <p>Testing the journey display with slug: <strong>{journeySlug}</strong></p>
                           <p className="mt-2">Journey ID: <strong>{journey?.id || "Not loaded"}</strong></p>
-                          <p className="mt-2">Frequencies: <strong>{journey?.sound_frequencies || "None specified"}</strong></p>
+                          <p className="mt-2">Frequencies: <strong>{getFrequencyDisplay()}</strong></p>
+                          <p className="mt-2">Intent: <strong>{journey?.intent || "None specified"}</strong></p>
+                          <p className="mt-2">Chakra: <strong>{journey?.chakra_tag || "None specified"}</strong></p>
                         </div>
                       )}
                     </div>

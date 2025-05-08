@@ -20,6 +20,8 @@ export const fetchSpiralParams = async (journeyId: string): Promise<SpiralParams
       return paramsCache[journeyId];
     }
     
+    console.log(`Fetching spiral params for journey: ${journeyId}`);
+    
     // If not, fetch from the database
     const { data, error } = await supabase
       .from('journey_visual_params')
@@ -29,6 +31,32 @@ export const fetchSpiralParams = async (journeyId: string): Promise<SpiralParams
       
     if (error) {
       console.error('Error fetching spiral params:', error);
+      
+      // If the journey_visual_params doesn't exist for this journey, create default params for akashic reconnection
+      if (journeyId === '20') {
+        console.log('Creating default spiral params for Akashic Reconnection journey');
+        const defaultParams = {
+          coeffA: 5,
+          coeffB: 3,
+          coeffC: 1.5,
+          freqA: 50,
+          freqB: -20,
+          freqC: -60,
+          color: '220,220,255', // Light blue for Akashic Records
+          opacity: 85,
+          strokeWeight: 0.7,
+          maxCycles: 6,
+          speed: 0.0008
+        };
+        
+        // Save the default params to the database
+        await saveSpiralParams(journeyId, defaultParams);
+        
+        // Save to memory cache
+        paramsCache[journeyId] = defaultParams;
+        return defaultParams;
+      }
+      
       return null;
     }
     
