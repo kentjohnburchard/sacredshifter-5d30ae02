@@ -12,13 +12,13 @@ type SpiralParams = {
   opacity?: number;
   strokeWeight?: number;
   speed?: number;
-  color?: string; // Added for compatibility with existing code
-  maxCycles?: number; // Added for compatibility with existing code
+  color?: string;
+  maxCycles?: number;
 };
 
 const defaultParams: Required<SpiralParams> = {
   coeffA: 1.0,
-  coeffB: 0.8,
+  coeffB: 0.8, 
   coeffC: 1.2,
   freqA: 3.2,
   freqB: 4.1,
@@ -26,8 +26,8 @@ const defaultParams: Required<SpiralParams> = {
   opacity: 0.8,
   strokeWeight: 1.5,
   speed: 0.5,
-  color: '255,255,255', // Default white (compatibility)
-  maxCycles: 5 // Default max cycles (compatibility)
+  color: '255,255,255',
+  maxCycles: 5
 };
 
 interface SpiralVisualizerProps {
@@ -54,8 +54,8 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
     const sketch = (p: p5) => {
       let t = 0;
       let frameCount = 0;
-      const frameSkip = 2; // Only render every 2 frames to improve performance
-
+      const frameSkip = 2; // Only render every 2 frames for performance
+      
       p.setup = () => {
         if (!containerRef.current) return;
         console.log("Setting up p5 canvas with dimensions:", containerRef.current.offsetWidth, containerRef.current.offsetHeight);
@@ -75,159 +75,108 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
         }
         frameCount++;
         
-        // Force the spiral to always have a minimum size to ensure visibility
-        t += Math.max(0.01, processedParams.speed * 0.1); // Ensure time always advances
+        // Slowly advance time based on speed parameter
+        t += processedParams.speed * 0.02;
         
-        // Calculate growth factor for smooth appearance
-        const growth = Math.min(1, Math.pow(t * 0.2, 1.5)); // ease-in growth
+        // Apply a subtle fade to create trail effect
+        p.background(0, 0, 0, 8);
         
-        // Base calculations on the smaller dimension to ensure proper display on any screen
-        const baseRadius = Math.min(p.width, p.height) * 0.35;
-        
-        // Translate to center
+        // Translate to center of canvas
         p.translate(p.width / 2, p.height / 2);
         
-        // Use a low-alpha background for trail effect - reduce opacity to prevent memory issues
-        p.background(0, 0, 0, 5); // lighter trail to reduce GPU load
+        // Draw multiple spiral layers for depth
+        const numLayers = 3;
+        const baseRadius = Math.min(p.width, p.height) * 0.35;
         
-        // Draw the sacred spiral
+        for (let layer = 0; layer < numLayers; layer++) {
+          // Each layer gets slightly different parameters for visual interest
+          const layerOffset = layer * 0.3;
+          
+          // Draw each spiral with subtle variations
+          drawSpiral(
+            p,
+            baseRadius,
+            t + layerOffset,
+            processedParams,
+            layer
+          );
+        }
+      };
+      
+      // Helper function to draw a single spiral
+      const drawSpiral = (
+        p: p5, 
+        radius: number, 
+        time: number, 
+        params: Required<SpiralParams>,
+        layerIndex: number
+      ) => {
+        p.push();
         p.noFill();
         
-        // First spiral layer (golden spiral)
+        // Determine color based on layer
+        const hueOffset = layerIndex * 30;
+        const [r, g, b] = params.color.split(',').map(Number);
+        const hue = (p.map(r + g + b, 0, 765, 0, 360) + hueOffset) % 360;
+        
+        // Start new shape
         p.beginShape();
         
-        // Ensure minimum visibility even with extreme parameters
-        const safeCoeffA = Number.isFinite(processedParams.coeffA) ? processedParams.coeffA : 1.0;
-        const safeCoeffB = Number.isFinite(processedParams.coeffB) ? processedParams.coeffB : 0.8;
-        const safeCoeffC = Number.isFinite(processedParams.coeffC) ? processedParams.coeffC : 1.2;
+        // Calculate how many points to use based on desired density and screen size
+        const totalPoints = 120;
+        const rotations = params.maxCycles;
+        const angleStep = (Math.PI * 2 * rotations) / totalPoints;
         
-        // Allow for negative frequency values, but prevent NaN
-        const safeFreqA = Number.isFinite(processedParams.freqA) ? processedParams.freqA : 3.2;
-        const safeFreqB = Number.isFinite(processedParams.freqB) ? processedParams.freqB : 4.1;
-        const safeFreqC = Number.isFinite(processedParams.freqC) ? processedParams.freqC : 2.7;
-        
-        // Ensure strokeWeight is visible and defined
-        const visibleStrokeWeight = Math.max(0.5, processedParams.strokeWeight);
-        
-        // Draw main spiral - reduce iterations to improve performance
-        const maxPoints = Math.min(200, 400 * growth); // Cap the number of points
-        const pointStep = Math.max(0.05, 0.1 / growth); // Adaptive point density
-        
-        for (let i = 0; i < maxPoints; i++) {
-          const theta = i * pointStep + t;
+        // For each point in the spiral
+        for (let i = 0; i < totalPoints; i++) {
+          // Calculate angle - grows with each point
+          const angle = i * angleStep;
           
-          // Calculate radius with safe parameter values
-          const r =
-            baseRadius *
-            0.2 *
-            Math.exp(0.15 * theta) *
-            (1 + Math.abs(safeCoeffA) * 0.2 * Math.sin(safeFreqA * theta)) *
-            growth;
-
-          const x =
-            r * Math.cos(theta) *
-            (1 + Math.abs(safeCoeffB) * 0.2 * Math.sin(safeFreqB * theta));
-          const y =
-            r * Math.sin(theta) *
-            (1 + Math.abs(safeCoeffC) * 0.2 * Math.sin(safeFreqC * theta));
-
-          const hue = (theta * 30 + t * 10) % 360;
+          // Calculate radius that grows logarithmically
+          const spiralRadius = radius * (0.1 + 0.02 * angle) * 
+            (1 + Math.sin(angle * params.freqA * 0.1 + time) * params.coeffA * 0.05) * 
+            (1 + Math.sin(angle * params.freqB * 0.1 + time * 1.3) * params.coeffB * 0.05);
           
-          // Ensure opacity is always visible
-          const visibleOpacity = Math.min(100, Math.max(30, processedParams.opacity * 100 * growth));
+          // Apply modulation to position
+          const x = spiralRadius * Math.cos(angle);
+          const y = spiralRadius * Math.sin(angle);
           
-          p.stroke(hue, 80, 95, visibleOpacity);
-          p.strokeWeight(visibleStrokeWeight);
+          // Set stroke color and weight
+          const pointHue = (hue + i * 0.5) % 360;
+          const saturation = 70 + layerIndex * 10;
+          const brightness = 90 - layerIndex * 10;
+          
+          // Fade opacity toward the end for smooth termination
+          const pointOpacity = params.opacity * 100 * (1 - i/totalPoints * 0.3);
+          
+          p.stroke(pointHue, saturation, brightness, pointOpacity);
+          p.strokeWeight(params.strokeWeight * (1 - i/totalPoints * 0.5));
+          
+          // Add vertex to the shape
           p.vertex(x, y);
-
-          // Break if spiral gets too large
-          if (r > baseRadius * 0.9) break;
         }
+        
         p.endShape();
-
-        // Secondary spiral layer - always drawn regardless of parameters
-        if (growth > 0.3) {
-          p.beginShape();
-          // Reduce number of points for better performance
-          for (let i = 0; i < Math.min(150, 300 * growth); i++) {
-            const theta = i * pointStep + t * 1.2;
-            const r =
-              baseRadius *
-              0.15 *
-              Math.exp(0.12 * theta) *
-              (1 + 0.15 * Math.sin(4 * theta)) *
-              growth;
-
-            const x = r * Math.cos(-theta + Math.PI);
-            const y = r * Math.sin(-theta + Math.PI);
-
-            const hue = ((theta * 30) + 180) % 360;
-            p.stroke(hue, 85, 90, 70 * growth);
-            p.strokeWeight(Math.max(0.5, visibleStrokeWeight * 0.7));
-            p.vertex(x, y);
-
-            if (r > baseRadius * 0.6) break;
-          }
-          p.endShape();
-        }
-
-        // Flower of life patterns (appear after initial growth) - simplified for performance
-        if (growth > 0.5 && t % 5 < 2) { // Only render periodically to reduce load
-          const flowerScale = growth - 0.5;
-          const flowerRadius = baseRadius * 0.3 * flowerScale;
-          
-          // Draw central flower of life pattern - reduced from 6 to 4 circles
-          for (let j = 0; j < 4; j++) {
-            const angle = j * Math.PI / 2;
-            p.stroke(j * 60, 70, 90, 70 * flowerScale);
-            p.strokeWeight(Math.max(0.5, visibleStrokeWeight * 0.8));
-            p.noFill();
-            p.circle(
-              flowerRadius * Math.cos(angle), 
-              flowerRadius * Math.sin(angle), 
-              flowerRadius * 1.2
-            );
-          }
-          
-          // Central circle
-          p.stroke(0, 0, 100, 60 * flowerScale);
-          p.circle(0, 0, flowerRadius);
-        }
-
-        // Always add some basic circular elements to ensure visibility
-        if (t < 0.5) {
-          p.stroke(120, 70, 95, 50);
-          p.strokeWeight(0.8);
-          p.circle(0, 0, baseRadius * 0.2 * growth * 10); // Initial pulse
-        }
-
-        // Safety measure: reset if t gets too large to prevent memory issues
-        if (t > 1000) {
-          t = 0;
-        }
+        p.pop();
       };
 
       p.windowResized = () => {
         if (containerRef.current) {
-          console.log("Resizing canvas to:", containerRef.current.offsetWidth, containerRef.current.offsetHeight);
           p.resizeCanvas(containerRef.current.offsetWidth, containerRef.current.offsetHeight);
         }
       };
     };
 
-    // Only create the sketch if the container exists
+    // Create and clean up sketch
     if (containerRef.current) {
       console.log("Creating p5 sketch in container:", containerId);
       
-      // Clean up any existing sketch before creating a new one
       if (sketchRef.current) {
         console.log("Removing existing sketch");
         sketchRef.current.remove();
       }
       
       sketchRef.current = new p5(sketch, containerRef.current);
-    } else {
-      console.warn("Container ref is null, cannot create p5 sketch");
     }
 
     return () => {
@@ -239,12 +188,12 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
     };
   }, [params, containerId]);
 
-  // Add a background color to the container to make it visible even if p5 fails
+  // Add a background color to make it visible even if p5 fails
   return (
     <div
       ref={containerRef}
       id={containerId}
-      className={`fixed top-0 left-0 w-full h-full z-0 ${className}`}
+      className={`w-full h-full ${className}`}
       style={{ backgroundColor: 'black', minHeight: '300px' }}
     />
   );
