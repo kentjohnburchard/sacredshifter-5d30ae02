@@ -1,9 +1,9 @@
-
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Session, User, UserResponse } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { ExtendedProfile } from '@/types/supabaseCustomTypes';
 
 export interface AuthUser extends User {
   created_at: string;
@@ -15,27 +15,16 @@ export interface AuthUser extends User {
   };
 }
 
-interface Profile {
-  id: string;
-  display_name?: string;
-  full_name?: string;
-  avatar_url?: string;
-  bio?: string;
-  is_premium: boolean;
-  role: 'user' | 'admin';
-  email: string;
-}
-
 interface AuthContextType {
   user: AuthUser | null;
-  profile: Profile | null;
+  profile: ExtendedProfile | null;
   loading: boolean;
   error: { message: string; status?: number } | null;
   signIn: (email: string, password: string) => Promise<{success: boolean; error?: any}>;
   signOut: () => Promise<{success: boolean; error?: any}>;
   signUp: (email: string, password: string, metadata?: object) => Promise<{success: boolean; error?: any}>;
   resetPassword: (email: string) => Promise<{success: boolean; error?: any}>;
-  updateProfile: (data: Partial<Profile>) => Promise<void>;
+  updateProfile: (data: Partial<ExtendedProfile>) => Promise<void>;
   isAdmin: () => boolean;
   isPremium: () => boolean;
   session: Session | null;
@@ -57,7 +46,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<ExtendedProfile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<{ message: string; status?: number } | null>(null);
@@ -77,7 +66,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
       
       if (data) {
-        setProfile(data as Profile);
+        setProfile(data as ExtendedProfile);
       }
     } catch (err) {
       console.error('Exception fetching profile:', err);
@@ -266,7 +255,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Update user profile
-  const updateProfile = async (data: Partial<Profile>) => {
+  const updateProfile = async (data: Partial<ExtendedProfile>) => {
     if (!user) throw new Error('No user logged in');
     
     try {
