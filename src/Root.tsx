@@ -26,6 +26,7 @@ import ScrollToTop from "./components/ScrollToTop";
 const queryClient = createQueryClient();
 
 // Configure router with future flags
+// Use only valid future flags for this version of react-router-dom
 const router = createBrowserRouter([
   {
     path: "*",
@@ -38,12 +39,7 @@ const router = createBrowserRouter([
       </>
     ),
   }
-], {
-  future: {
-    v7_startTransition: true,
-    v7_relativeSplatPath: true
-  }
-});
+]);
 
 function Root() {
   return (

@@ -5,12 +5,14 @@ interface ThemeContextType {
   liftTheVeil: boolean;
   toggleVeil: () => void;
   setVeilState: (state: boolean) => void;
+  setLiftTheVeil: (state: boolean) => void; // Added this property
 }
 
 const ThemeContext = createContext<ThemeContextType>({
   liftTheVeil: false,
   toggleVeil: () => {},
-  setVeilState: () => {}
+  setVeilState: () => {},
+  setLiftTheVeil: () => {} // Added this property
 });
 
 export const useTheme = () => useContext(ThemeContext);
@@ -48,7 +50,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     <ThemeContext.Provider value={{ 
       liftTheVeil, 
       toggleVeil, 
-      setVeilState
+      setVeilState,
+      setLiftTheVeil // Added this property
     }}>
       {children}
     </ThemeContext.Provider>

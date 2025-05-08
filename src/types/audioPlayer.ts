@@ -11,6 +11,7 @@ export interface PlayerInfo {
   description?: string;
   id?: string;
   groupId?: string;
+  sourceType?: string;
 }
 
 export interface VisualRegistration {
