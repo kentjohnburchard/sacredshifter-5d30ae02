@@ -1,5 +1,6 @@
 
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 import LandingPage from './pages/landing/LandingPage';
 import Dashboard from './pages/Dashboard';
 import Placeholder from './pages/Placeholder';
@@ -17,6 +18,18 @@ import ProtectedRoute from './components/ProtectedRoute';
 import HeartDashboard from './pages/HeartDashboard';
 
 function App() {
+  const { user, loading } = useAuth();
+
+  // Show a loading state while checking authentication
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-black">
+        <div className="animate-spin h-10 w-10 border-b-2 border-purple-500 rounded-full mr-3"></div>
+        <div className="text-lg text-purple-700">Loading Sacred Shifter...</div>
+      </div>
+    );
+  }
+
   return (
     <>
       <Routes>

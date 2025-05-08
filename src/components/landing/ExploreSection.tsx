@@ -1,60 +1,131 @@
 
 import React from 'react';
+import { motion } from 'framer-motion';
+import { Heart, Star, Music, Activity, Users, BookOpen } from 'lucide-react';
+import { Card } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Compass, Star, Music, Brain } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import NavigationCard from './NavigationCard';
+
+interface JourneyCardProps {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  link: string;
+  delay: number;
+}
+
+const JourneyCard: React.FC<JourneyCardProps> = ({ title, description, icon, link, delay }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: delay * 0.1 }}
+      viewport={{ once: true }}
+    >
+      <Card className="bg-black/30 backdrop-blur-md border-purple-500/20 hover:border-purple-500/50 transition-all h-full">
+        <div className="p-6">
+          <div className="flex flex-col items-center text-center">
+            <div className="w-16 h-16 rounded-full bg-purple-900/50 flex items-center justify-center mb-4">
+              {icon}
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
+            <p className="text-gray-300 mb-4">{description}</p>
+            <Link 
+              to={link} 
+              className="text-purple-400 hover:text-purple-300 font-medium inline-flex items-center"
+            >
+              Explore Journey
+              <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+      </Card>
+    </motion.div>
+  );
+};
 
 const ExploreSection: React.FC = () => {
+  const journeyCards = [
+    {
+      title: "Heart Center",
+      description: "Open and align your heart chakra with healing frequencies and guided meditations.",
+      icon: <Heart className="h-8 w-8 text-pink-400" />,
+      link: "/journey/heart-center",
+      delay: 0
+    },
+    {
+      title: "Lightbearer Path",
+      description: "Activate your light body and enhance your spiritual growth journey.",
+      icon: <Star className="h-8 w-8 text-amber-400" />,
+      link: "/lightbearer",
+      delay: 1
+    },
+    {
+      title: "Sacred Circle",
+      description: "Connect with your spiritual family in our vibration-aligned community.",
+      icon: <Users className="h-8 w-8 text-blue-400" />,
+      link: "/sacred-circle",
+      delay: 2
+    },
+    {
+      title: "Frequency Healing",
+      description: "Experience powerful solfeggio frequencies for healing and transformation.",
+      icon: <Music className="h-8 w-8 text-violet-400" />,
+      link: "/frequency",
+      delay: 3
+    },
+    {
+      title: "Cosmic Blueprint",
+      description: "Discover your unique soul signature and cosmic purpose.",
+      icon: <Activity className="h-8 w-8 text-cyan-400" />,
+      link: "/cosmic-blueprint",
+      delay: 4
+    },
+    {
+      title: "Sacred Knowledge",
+      description: "Explore ancient wisdom and modern consciousness teachings.",
+      icon: <BookOpen className="h-8 w-8 text-green-400" />,
+      link: "/knowledge",
+      delay: 5
+    }
+  ];
+
   return (
-    <section className="py-24 relative overflow-hidden">
-      <div className="absolute inset-0 bg-black/50 z-0"></div>
-      <div className="container mx-auto px-4 relative z-10">
+    <section className="py-24 px-6 relative" id="journeys">
+      <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-playfair font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-purple-300 mb-4">
-            Explore Sacred Shifter
-          </h2>
-          <p className="text-lg text-purple-100/80 max-w-2xl mx-auto">
-            Navigate through our sacred spaces and tools for consciousness expansion.
-          </p>
+          <motion.h2
+            className="text-3xl md:text-5xl font-playfair font-bold text-white mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            Sacred Journeys
+          </motion.h2>
+          <motion.p
+            className="text-xl text-white/70 max-w-3xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            Choose your path of spiritual awakening through our curated frequency experiences
+          </motion.p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <NavigationCard 
-            title="Harmonic Map"
-            description="Interactive map of frequencies and their relationships."
-            icon={<Compass />}
-            to="/harmonic-map"
-          />
-          
-          <NavigationCard 
-            title="Astrology"
-            description="Discover how celestial bodies influence consciousness."
-            icon={<Star />}
-            to="/astrology"
-          />
-          
-          <NavigationCard 
-            title="Prime Frequency"
-            description="Experience the power of prime number resonance."
-            icon={<Music />}
-            to="/prime-frequency"
-          />
-          
-          <NavigationCard 
-            title="Shift Perception"
-            description="Tools for expanding your awareness and perception."
-            icon={<Brain />}
-            to="/shift-perception"
-          />
-        </div>
-        
-        <div className="mt-12 text-center">
-          <Button asChild size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
-            <Link to="/site-map">
-              Explore Full Site Map <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {journeyCards.map((card, index) => (
+            <JourneyCard
+              key={index}
+              title={card.title}
+              description={card.description}
+              icon={card.icon}
+              link={card.link}
+              delay={card.delay}
+            />
+          ))}
         </div>
       </div>
     </section>

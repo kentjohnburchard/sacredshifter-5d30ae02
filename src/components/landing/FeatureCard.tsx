@@ -1,39 +1,30 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 
 interface FeatureCardProps {
+  icon: React.ReactNode;
   title: string;
   description: string;
-  icon: React.ReactNode;
-  to: string;
-  color: string;
+  index: number;
 }
 
-const FeatureCard: React.FC<FeatureCardProps> = ({ title, description, icon, to, color }) => {
+const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, index }) => {
   return (
     <motion.div
-      whileHover={{ y: -5, transition: { duration: 0.2 } }}
+      className="bg-black/30 backdrop-blur-md border border-purple-500/20 rounded-lg p-6 hover:bg-black/40 transition-all duration-300"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.6 }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
     >
-      <Link to={to}>
-        <Card className={`h-full border-${color}-500/20 bg-black/40 backdrop-blur-sm hover:bg-black/50 transition-all duration-300`}>
-          <CardHeader>
-            <div className={`w-12 h-12 rounded-lg bg-${color}-950/50 flex items-center justify-center mb-3`}>
-              {icon}
-            </div>
-            <CardTitle className="text-xl font-semibold text-white">{title}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <CardDescription className="text-gray-300">{description}</CardDescription>
-          </CardContent>
-        </Card>
-      </Link>
+      <div className="flex flex-col items-center">
+        <div className="mb-4">
+          {icon}
+        </div>
+        <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
+        <p className="text-white/70 text-center">{description}</p>
+      </div>
     </motion.div>
   );
 };

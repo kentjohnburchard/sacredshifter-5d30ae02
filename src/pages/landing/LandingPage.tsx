@@ -1,16 +1,20 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, Star, Heart, Music, Sparkles } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
-// Import landing page sections from components
+// Import landing page sections
 import {
+  Logo,
   HeroSection,
   FeaturesSection,
-  JoinSection
+  HermeticSection,
+  ExploreSection,
+  JoinSection,
+  SoundLibraryPreview
 } from '@/components/landing';
 
 const LandingPage: React.FC = () => {
@@ -18,19 +22,11 @@ const LandingPage: React.FC = () => {
   const { user } = useAuth();
   
   // If user is logged in, redirect to dashboard
-  React.useEffect(() => {
+  useEffect(() => {
     if (user) {
       navigate('/dashboard');
     }
   }, [user, navigate]);
-  
-  const handleGetStarted = () => {
-    if (user) {
-      navigate('/dashboard');
-    } else {
-      navigate('/auth');
-    }
-  };
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-purple-950/30 to-black overflow-hidden">
@@ -54,23 +50,18 @@ const LandingPage: React.FC = () => {
       
       {/* Navigation */}
       <nav className="relative z-10 px-6 py-4 flex justify-between items-center bg-black/60 backdrop-blur-md">
-        <div className="flex items-center">
-          <img
-            src="/lovable-uploads/6dafef18-8a06-46e1-bc1b-2325f13a67f7.png"
-            alt="Sacred Shifter Logo"
-            className="h-10"
-          />
-          <span className="ml-2 text-xl font-semibold text-white">Sacred Shifter</span>
-        </div>
+        <Logo />
+        
         <div className="hidden md:flex items-center space-x-6">
           <a href="#features" className="text-white/80 hover:text-white transition-colors">Features</a>
+          <a href="#journeys" className="text-white/80 hover:text-white transition-colors">Journeys</a>
+          <a href="#hermetic" className="text-white/80 hover:text-white transition-colors">Sacred Math</a>
           <a href="#about" className="text-white/80 hover:text-white transition-colors">About</a>
-          <a href="#community" className="text-white/80 hover:text-white transition-colors">Community</a>
-          <a href="#support" className="text-white/80 hover:text-white transition-colors">Support</a>
           <Button variant="outline" className="border-purple-500 text-purple-400" onClick={() => navigate('/auth')}>
             Login / Register
           </Button>
         </div>
+        
         <Button variant="ghost" className="md:hidden text-white">
           <motion.span className="sr-only">Menu</motion.span>
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,64 +76,14 @@ const LandingPage: React.FC = () => {
       {/* Features Section */}
       <FeaturesSection />
       
-      {/* Mathematical formulas section */}
-      <section className="relative z-10 py-24 px-6">
-        <div className="max-w-7xl mx-auto text-center">
-          <motion.h2 
-            className="text-3xl md:text-4xl font-light mb-8 text-white"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            The <span className="text-purple-400 font-medium">Sacred Mathematics</span> of Frequency
-          </motion.h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-            <motion.div 
-              className="bg-black/30 backdrop-blur-sm p-6 rounded-lg border border-purple-500/20"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              viewport={{ once: true }}
-            >
-              <div className="text-2xl text-purple-300 mb-4">Solfeggio Frequencies</div>
-              <div className="text-lg text-white/70 mb-2">f = 4.32 × 10<sup>n</sup> Hz</div>
-              <div className="text-sm text-white/50">
-                Where n = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-              </div>
-            </motion.div>
-            
-            <motion.div 
-              className="bg-black/30 backdrop-blur-sm p-6 rounded-lg border border-purple-500/20"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              viewport={{ once: true }}
-            >
-              <div className="text-2xl text-blue-300 mb-4">The Golden Ratio</div>
-              <div className="text-lg text-white/70 mb-2">φ = (1 + √5) ÷ 2</div>
-              <div className="text-sm text-white/50">
-                The divine proportion found throughout nature
-              </div>
-            </motion.div>
-            
-            <motion.div 
-              className="bg-black/30 backdrop-blur-sm p-6 rounded-lg border border-purple-500/20"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              viewport={{ once: true }}
-            >
-              <div className="text-2xl text-green-300 mb-4">Fibonacci Sequence</div>
-              <div className="text-lg text-white/70 mb-2">F<sub>n</sub> = F<sub>n-1</sub> + F<sub>n-2</sub></div>
-              <div className="text-sm text-white/50">
-                The mathematical blueprint of life and growth
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+      {/* Sacred Journeys Section */}
+      <ExploreSection />
+      
+      {/* Hermetic/Mathematical Section */}
+      <HermeticSection />
+      
+      {/* Sound Library Preview */}
+      <SoundLibraryPreview />
       
       {/* Join Section */}
       <JoinSection />
