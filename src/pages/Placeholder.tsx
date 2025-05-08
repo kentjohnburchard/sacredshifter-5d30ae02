@@ -1,31 +1,22 @@
 
 import React from 'react';
-import { PageLayout } from '@/components/layout/PageLayout';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import Layout from '@/components/Layout';
 
 const Placeholder: React.FC = () => {
-  const navigate = useNavigate();
-  
   return (
-    <PageLayout title="Page Under Construction">
-      <div className="container mx-auto py-12 px-4">
-        <div className="bg-black/60 backdrop-blur-lg rounded-lg p-8 text-center max-w-2xl mx-auto">
-          <h1 className="text-2xl font-bold mb-4 text-white">This page is under construction</h1>
-          <p className="mb-6 text-gray-300">
-            This sacred journey is still being created. Please check back later or explore our other journeys.
+    <Layout pageTitle="Page Under Construction" showNavbar={true}>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center p-8 bg-purple-900/30 backdrop-blur-md rounded-lg border border-purple-500/30 max-w-lg">
+          <h1 className="text-2xl font-bold mb-4 text-purple-100">This page is under construction ✨</h1>
+          <p className="text-purple-200 mb-2">
+            The Sacred Shifter team is currently working on this experience.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button onClick={() => navigate('/journeys')} variant="default">
-              Explore Journeys
-            </Button>
-            <Button onClick={() => navigate('/')} variant="outline">
-              Return Home
-            </Button>
-          </div>
+          <p className="text-purple-300 text-sm">
+            Please check back soon for updates on your spiritual journey.
+          </p>
         </div>
       </div>
-    </PageLayout>
+    </Layout>
   );
 };
 

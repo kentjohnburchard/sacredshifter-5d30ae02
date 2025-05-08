@@ -1,9 +1,12 @@
 
-// Prime number calculation utilities
+/**
+ * Check if a number is prime
+ * @param num Number to check
+ * @returns boolean indicating if the number is prime
+ */
 export const isPrime = (num: number): boolean => {
   if (num <= 1) return false;
   if (num <= 3) return true;
-  
   if (num % 2 === 0 || num % 3 === 0) return false;
   
   let i = 5;
@@ -11,66 +14,83 @@ export const isPrime = (num: number): boolean => {
     if (num % i === 0 || num % (i + 2) === 0) return false;
     i += 6;
   }
-  
   return true;
 };
 
-export const calculatePrimeFactors = (num: number): number[] => {
-  const factors: number[] = [];
-  let n = Math.floor(num);
+/**
+ * Find the nearest prime number to a given number
+ * @param num Number to find nearest prime to
+ * @param direction 'up' to find next prime, 'down' to find previous prime, 'nearest' for closest
+ * @returns The nearest prime number
+ */
+export const findNearestPrime = (
+  num: number, 
+  direction: 'up' | 'down' | 'nearest' = 'nearest'
+): number => {
+  if (isPrime(num)) return num;
   
-  // Handle edge cases
-  if (n <= 1) return factors;
+  let upPrime = num;
+  let downPrime = num;
   
-  // Extract all 2s
-  while (n % 2 === 0) {
-    factors.push(2);
-    n /= 2;
-  }
-  
-  // Extract other prime factors
-  for (let i = 3; i <= Math.sqrt(n); i += 2) {
-    while (n % i === 0) {
-      factors.push(i);
-      n /= i;
+  // Find next prime up
+  if (direction === 'up' || direction === 'nearest') {
+    upPrime = num + 1;
+    while (!isPrime(upPrime)) {
+      upPrime++;
     }
   }
   
-  // If n is a prime number greater than 2
-  if (n > 2) {
-    factors.push(n);
+  // Find next prime down
+  if (direction === 'down' || direction === 'nearest') {
+    downPrime = num - 1;
+    while (downPrime > 1 && !isPrime(downPrime)) {
+      downPrime--;
+    }
+    if (downPrime < 2) downPrime = 2; // Smallest prime is 2
   }
   
-  return factors;
+  // Return based on direction
+  if (direction === 'up') return upPrime;
+  if (direction === 'down') return downPrime;
+  
+  // For 'nearest', return the closest prime
+  return (num - downPrime < upPrime - num) ? downPrime : upPrime;
 };
 
-export const generatePrimeSequence = (count: number, start: number = 2): number[] => {
+/**
+ * Get a list of prime numbers within a range
+ * @param min Minimum value (inclusive)
+ * @param max Maximum value (inclusive)
+ * @returns Array of prime numbers in the range
+ */
+export const getPrimesInRange = (min: number, max: number): number[] => {
   const primes: number[] = [];
-  let num = start;
-  
-  while (primes.length < count) {
-    if (isPrime(num)) {
-      primes.push(num);
+  for (let i = Math.max(2, min); i <= max; i++) {
+    if (isPrime(i)) {
+      primes.push(i);
     }
-    num++;
   }
-  
   return primes;
 };
 
-export const findNearestPrime = (num: number): number => {
-  if (isPrime(num)) return num;
+/**
+ * Get the nth prime number
+ * @param n Position in prime sequence (1-based)
+ * @returns The nth prime number
+ */
+export const getNthPrime = (n: number): number => {
+  if (n <= 0) return 0;
+  if (n === 1) return 2;
   
-  let lowerNum = num - 1;
-  let higherNum = num + 1;
+  let count = 1;
+  let num = 1;
   
-  while (true) {
-    if (isPrime(lowerNum)) return lowerNum;
-    if (isPrime(higherNum)) return higherNum;
-    
-    lowerNum--;
-    higherNum++;
+  while (count < n) {
+    num += 2; // Check only odd numbers after 2
+    if (isPrime(num)) {
+      count++;
+    }
   }
+  
+  return num;
 };
-
-export const resonantPrimes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71];

@@ -51,7 +51,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       liftTheVeil, 
       toggleVeil, 
       setVeilState,
-      setLiftTheVeil 
+      setLiftTheVeil
     }}>
       {children}
     </ThemeContext.Provider>

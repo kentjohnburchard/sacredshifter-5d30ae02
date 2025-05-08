@@ -1,60 +1,50 @@
 
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 /**
- * Combines class names with Tailwind's merge function
+ * Combines and merges tailwind classes
  */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 /**
- * Extract page theme classes based on theme name
+ * Format a currency value
  */
-export function getThemeClasses(theme?: string): string {
-  switch (theme) {
-    case 'dark':
-      return 'bg-gradient-to-b from-gray-900 via-gray-800 to-black text-white';
-    case 'light':
-      return 'bg-gradient-to-b from-white via-gray-50 to-gray-100 text-gray-900';
-    case 'purple':
-      return 'bg-gradient-to-b from-purple-900 via-purple-800 to-purple-950 text-white';
-    case 'blue':
-      return 'bg-gradient-to-b from-blue-900 via-blue-800 to-blue-950 text-white';
-    default:
-      return 'bg-black text-white'; // Default theme
-  }
+export function formatCurrency(value: number, currency = 'USD'): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency,
+  }).format(value);
 }
 
 /**
- * Format a time value in seconds to MM:SS
+ * Truncate a string to a specified length
  */
-export function formatTime(seconds: number): string {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = Math.floor(seconds % 60);
+export function truncateString(str: string, length = 50): string {
+  if (str.length <= length) return str;
+  return `${str.substring(0, length)}...`;
+}
+
+/**
+ * Debounce a function call
+ */
+export function debounce<T extends (...args: any[]) => any>(
+  fn: T,
+  delay: number
+): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout;
   
-  const formattedMinutes = String(minutes).padStart(2, '0');
-  const formattedSeconds = String(remainingSeconds).padStart(2, '0');
-  
-  return `${formattedMinutes}:${formattedSeconds}`;
+  return function(...args: Parameters<T>) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn(...args), delay);
+  };
 }
 
 /**
- * Checks if the current environment is development mode
+ * Generate a random ID for temporary elements
  */
-export function isDevelopmentMode(): boolean {
-  return process.env.NODE_ENV === 'development';
-}
-
-/**
- * Safely parses JSON with error handling
- */
-export function safeJsonParse(jsonString: string, fallback: any = null): any {
-  try {
-    return JSON.parse(jsonString);
-  } catch (error) {
-    console.error('Failed to parse JSON:', error);
-    return fallback;
-  }
+export function generateId(prefix = 'id'): string {
+  return `${prefix}-${Math.random().toString(36).substring(2, 9)}`;
 }
