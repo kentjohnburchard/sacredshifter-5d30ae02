@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface CommunityPost {
@@ -53,27 +52,27 @@ export const CommunityProvider: React.FC<CommunityProviderProps> = ({ children }
       content: 'Just completed a powerful meditation session with the 528Hz frequency. Feeling absolutely harmonized!',
       createdAt: '2023-08-01T12:34:56Z',
       likes: 12,
-      comments: 3
+      comments: 3,
     },
     {
       id: '2',
       userId: '2',
-      content: 'Has anyone tried the heart chakra activation journey? I'm experiencing some profound shifts after my session yesterday.',
+      content: "Has anyone tried the heart chakra activation journey? I'm experiencing some profound shifts after my session yesterday.",
       createdAt: '2023-08-02T10:22:33Z',
       likes: 8,
-      comments: 5
-    }
+      comments: 5,
+    },
   ]);
-  
+
   const [userProfile, setUserProfile] = useState<CommunityProfile | null>({
     id: '1',
     userId: '1',
     displayName: 'Sacred Explorer',
     bio: 'Seeking truth through sound and sacred geometry',
     badges: ['Frequency Adept', 'Journey Initiate'],
-    level: 3
+    level: 3,
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [postTypes] = useState<string[]>(['Insight', 'Question', 'Experience', 'Meditation', 'Sound Healing']);
 
@@ -82,13 +81,12 @@ export const CommunityProvider: React.FC<CommunityProviderProps> = ({ children }
     try {
       const newPost: CommunityPost = {
         id: Math.random().toString(36).substring(2, 9),
-        userId: '1', // Current user ID
+        userId: '1',
         content,
         createdAt: new Date().toISOString(),
         likes: 0,
-        comments: 0
+        comments: 0,
       };
-      
       setPosts([newPost, ...posts]);
     } catch (error) {
       console.error('Error creating post:', error);
@@ -98,23 +96,21 @@ export const CommunityProvider: React.FC<CommunityProviderProps> = ({ children }
     }
   };
 
-  const getUserProfile = () => {
-    return userProfile;
-  };
-  
+  const getUserProfile = () => userProfile;
+
   const likePost = (postId: string) => {
     setPosts(posts.map(post => 
       post.id === postId ? { ...post, likes: post.likes + 1 } : post
     ));
   };
-  
+
   const addComment = (postId: string, comment: string) => {
-    setPosts(posts.map(post => 
+    setPosts(posts.map(post =>
       post.id === postId ? { ...post, comments: post.comments + 1 } : post
     ));
   };
 
-  const value = {
+  const value: CommunityContextType = {
     posts,
     userProfile,
     loading,
@@ -122,7 +118,7 @@ export const CommunityProvider: React.FC<CommunityProviderProps> = ({ children }
     getUserProfile,
     postTypes,
     likePost,
-    addComment
+    addComment,
   };
 
   return <CommunityContext.Provider value={value}>{children}</CommunityContext.Provider>;
