@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import SpiralVisualizer from './SpiralVisualizer';
-import MandalaBuilder from '@/components/MandalaBuilder';
 import { Button } from '@/components/ui/button';
 import { Settings, RotateCw, Maximize2, Minimize2 } from 'lucide-react';
 
@@ -116,10 +115,9 @@ const VisualRenderer: React.FC<VisualRendererProps> = ({
         
         {visualMode === 'mandala' && (
           <div className="w-full h-full flex items-center justify-center">
-            <MandalaBuilder 
-              setVisualMode={setVisualMode}
-              onMandalaChange={() => {}}
-            />
+            <div className="text-white text-center">
+              <p>Mandala visualization would appear here</p>
+            </div>
           </div>
         )}
       </div>

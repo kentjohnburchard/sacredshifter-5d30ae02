@@ -192,6 +192,7 @@ export function useGlobalAudioPlayer() {
     seek,
     setVolume: setVolumeLevel,
     setOnEndedCallback,
-    resetPlayer
+    resetPlayer,
+    registerPlayerVisuals: () => () => {}  // Empty function for now, will be implemented later
   };
 }
