@@ -23,7 +23,7 @@ const JourneyAwareSpiralVisualizer: React.FC<JourneyAwareSpiralVisualizerProps> 
   containerId = 'journeySpiral'
 }) => {
   const { user } = useAuth();
-  const { activeJourney, recordActivity } = useJourney();
+  const { activeJourney, isJourneyActive, recordActivity } = useJourney();
   const [isVisible, setIsVisible] = useState(true);
 
   // Ensure journeyId is always a string when passed to useSpiralParams
@@ -59,6 +59,17 @@ const JourneyAwareSpiralVisualizer: React.FC<JourneyAwareSpiralVisualizerProps> 
   const toggleVisibility = () => {
     setIsVisible(prev => !prev);
   };
+
+  // Only render if the journey is active or we're not auto-syncing
+  if (autoSync && !isJourneyActive) {
+    return (
+      <div className={`flex justify-center items-center p-4 ${className} bg-black/70`}>
+        <div className="text-purple-300/60 text-center p-6">
+          <p className="text-sm">Spiral visualization will appear when journey begins</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isVisible) {
     return (
@@ -101,7 +112,7 @@ const JourneyAwareSpiralVisualizer: React.FC<JourneyAwareSpiralVisualizerProps> 
       />
       
       {showControls && (
-        <div className="absolute top-2 right-2">
+        <div className="absolute top-2 right-2 z-20">
           <Button 
             onClick={toggleVisibility} 
             variant="outline" 
