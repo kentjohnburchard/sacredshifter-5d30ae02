@@ -1,6 +1,13 @@
 
 import React from 'react';
 
+// Define the component props interface
+interface DNAOverlayPanelProps {
+  dnaStrandStatus?: boolean[];
+  onUpdateStrand?: (index: number, active: boolean) => Promise<void> | void;
+  lightbearerLevel?: number;
+}
+
 // Delete or modify any code that uses getChakraColor
 // Provide a simple implementation if needed
 const chakraColors: Record<string, string> = {
@@ -15,7 +22,11 @@ const chakraColors: Record<string, string> = {
 };
 
 // Add a default export
-const DNAOverlayPanel: React.FC = () => {
+const DNAOverlayPanel: React.FC<DNAOverlayPanelProps> = ({ 
+  dnaStrandStatus = Array(12).fill(false),
+  onUpdateStrand,
+  lightbearerLevel
+}) => {
   return (
     <div className="dna-overlay-panel">
       DNA Overlay Panel Placeholder

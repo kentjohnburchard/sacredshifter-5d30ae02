@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 const JourneyTemplatesAdmin: React.FC = () => {
   const { templates, loading } = useJourneyTemplates();
   const [selectedJourney, setSelectedJourney] = useState<string | null>(null);
+  // Initialize with all required properties from SpiralParams interface
   const [params, setParams] = useState<SpiralParams>({
     coeffA: 4,
     coeffB: 4,
@@ -18,6 +19,11 @@ const JourneyTemplatesAdmin: React.FC = () => {
     freqA: 44,
     freqB: -17,
     freqC: -54,
+    color: '180,180,255',
+    opacity: 80,
+    strokeWeight: 0.5,
+    maxCycles: 5,
+    speed: 0.001
   });
 
   const handleParamChange = (param: keyof SpiralParams, value: number) => {
