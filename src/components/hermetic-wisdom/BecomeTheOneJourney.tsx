@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,7 @@ const becomeTheOnePhases: JourneyPhase[] = [
     id: "phase1",
     title: "Initiation – The Spark",
     description: "A visual + audio sequence showing that the spark of light is within.",
-    frequency: 528,
+    frequency: 528, // This is fine as JourneyPhase uses frequency, not related to Journey type
     message: "You've felt it. You're not crazy. You're remembering.",
     visual_type: "spiral-light",
     affirmation: "I recognize the divinity within me.",

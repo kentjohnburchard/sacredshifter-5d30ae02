@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useTheme } from '@/context/ThemeContext';
 import { Button } from '@/components/ui/button';
@@ -44,7 +45,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       title: title || (frequency ? `${frequency}Hz Frequency` : 'Frequency'),
       artist: "Sacred Shifter",
       source: audioUrl || url || '',
-      frequency: frequency,
+      frequency: frequency, // This is fine as it's a numeric property for the player, not related to the Journey type
       chakra: description,
       id: frequencyId || id // This is now allowed in PlayerInfo interface
     });

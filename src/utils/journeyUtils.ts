@@ -42,7 +42,8 @@ export function normalizeJourney(journey: any): Journey {
     updated_at: journey.updated_at,
     user_id: journey.user_id,
     is_published: journey.is_published,
-    frequency: journey.frequency,
+    frequencies: Array.isArray(journey.frequencies) ? journey.frequencies : 
+               (journey.frequencies ? normalizeStringArray(journey.frequencies) : []),
     category: journey.category,
     image_url: journey.image_url,
     is_featured: journey.is_featured,

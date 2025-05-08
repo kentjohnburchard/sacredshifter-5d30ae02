@@ -33,7 +33,7 @@ export type TimelineEntry = {
   title: string;
   tag?: string;
   notes?: string;
-  frequency?: number;
+  frequency?: number; // This is fine as TimelineEntry uses frequency as a number
   chakra?: string;
   visualType?: string;
   timestamp: Date;
