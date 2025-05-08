@@ -30,7 +30,7 @@ export interface Journey {
   updated_at?: string;
   user_id?: string;
   is_published?: boolean;
-  frequency?: string;
+  frequencies?: string[]; // Changed from frequency to frequencies (array)
   category?: string;
   image_url?: string;
   is_featured?: boolean;
