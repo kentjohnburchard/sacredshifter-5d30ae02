@@ -94,9 +94,10 @@ const TestJourneyContent: React.FC<{ journeySlug: string }> = ({ journeySlug }) 
           // Ensure frequencies is treated as an array
           if (journeyData.frequencies && typeof journeyData.frequencies === 'string') {
             try {
-              journeyData.frequencies = JSON.parse(journeyData.frequencies);
-            } catch (e) {
+              // Fix TypeScript error by properly handling string to array conversion
               journeyData.frequencies = [journeyData.frequencies];
+            } catch (e) {
+              journeyData.frequencies = [String(journeyData.frequencies)];
             }
           } else if (journeyData.frequencies && !Array.isArray(journeyData.frequencies)) {
             journeyData.frequencies = [String(journeyData.frequencies)];
