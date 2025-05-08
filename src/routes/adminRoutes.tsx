@@ -7,11 +7,11 @@ import Placeholder from '@/pages/Placeholder';
 const AdminRoutes: React.FC = () => {
   return (
     <Routes>
-      <Route path="/" element={<Placeholder />} />
-      <Route path="/journeys" element={<Placeholder />} />
-      <Route path="/users" element={<Placeholder />} />
-      <Route path="/settings" element={<Placeholder />} />
-      <Route path="*" element={<Placeholder />} />
+      <Route path="/" element={<Placeholder name="Admin Dashboard" />} />
+      <Route path="/journeys" element={<Placeholder name="Admin Journeys" />} />
+      <Route path="/users" element={<Placeholder name="Admin Users" />} />
+      <Route path="/settings" element={<Placeholder name="Admin Settings" />} />
+      <Route path="*" element={<Placeholder name="Admin Not Found" />} />
     </Routes>
   );
 };
