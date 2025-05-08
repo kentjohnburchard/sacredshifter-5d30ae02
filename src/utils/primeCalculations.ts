@@ -94,23 +94,3 @@ export const getNthPrime = (n: number): number => {
   
   return num;
 };
-
-// Placeholder function to replace calculatePrimeFactors (returns empty array)
-export const calculatePrimeFactors = (num: number): number[] => {
-  return [];
-};
-
-// Placeholder function to replace generatePrimeSequence
-export const generatePrimeSequence = (count: number): number[] => {
-  const primes: number[] = [];
-  let num = 2;
-  
-  while (primes.length < count) {
-    if (isPrime(num)) {
-      primes.push(num);
-    }
-    num++;
-  }
-  
-  return primes;
-};

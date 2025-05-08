@@ -1,9 +1,9 @@
-
 /**
  * Maps frequency values to their corresponding audio tracks in Supabase storage
  */
 
-import { isPrime, calculatePrimeFactors } from './primeCalculations';
+import { isPrime } from './primeCalculations';
+// import { calculatePrimeFactors } from './primeCalculations'; - REMOVED
 
 interface FrequencyTrack {
   frequency: number;
@@ -115,10 +115,8 @@ export const getFrequencyDescription = (frequency: number): string => {
   if (isPrime(frequency)) {
     description += " (Prime Frequency)";
   } else {
-    const factors = calculatePrimeFactors(frequency);
-    if (factors.length > 0 && factors.length <= 3) {
-      description += ` (Factors: ${factors.join(' × ')})`;
-    }
+    // Replace calculatePrimeFactors with simple message
+    description += " (Compound Frequency)";
   }
   
   return description;

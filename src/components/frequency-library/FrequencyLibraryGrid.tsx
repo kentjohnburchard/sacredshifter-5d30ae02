@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,7 +8,6 @@ import {
   HoverCardTrigger
 } from "@/components/ui/hover-card";
 import { FrequencyLibraryItem } from "@/types/frequencies";
-import { formatTime } from "@/lib/utils";
 import FrequencyPlayer from "@/components/FrequencyPlayer";
 import { ChakraIcon } from "./ChakraIcon";
 import ChakraTag from "@/components/chakra/ChakraTag";
@@ -100,7 +98,8 @@ const FrequencyLibraryGrid: React.FC<FrequencyLibraryGridProps> = ({
                 <span className="font-medium">{frequency.frequency} Hz</span>
                 {frequency.length && (
                   <span className="text-gray-400">
-                    • {formatTime(frequency.length)}
+                    {/* Replace formatTime with direct string */}
+                    • {frequency.length}s
                   </span>
                 )}
                 {frequency.chakra && <ChakraTag chakra={frequency.chakra} size="sm" />}

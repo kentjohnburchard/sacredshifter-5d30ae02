@@ -48,13 +48,3 @@ export function debounce<T extends (...args: any[]) => any>(
 export function generateId(prefix = 'id'): string {
   return `${prefix}-${Math.random().toString(36).substring(2, 9)}`;
 }
-
-/**
- * Format time in seconds to mm:ss format
- */
-export function formatTime(seconds: number): string {
-  if (!seconds || isNaN(seconds)) return '0:00';
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
-}

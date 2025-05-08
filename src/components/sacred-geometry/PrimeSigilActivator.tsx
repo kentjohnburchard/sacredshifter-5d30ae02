@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { generatePrimeSequence } from '@/utils/primeCalculations';
 import { toast } from "sonner";
 
 interface PrimeSigilActivatorProps {
@@ -22,7 +21,7 @@ const PrimeSigilActivator: React.FC<PrimeSigilActivatorProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [showRipple, setShowRipple] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
-  const primes = useRef(generatePrimeSequence(12)).current;
+  const primes = useRef([2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37]).current;
 
   useEffect(() => {
     console.log("PrimeSigilActivator initial state:", liftTheVeil);
