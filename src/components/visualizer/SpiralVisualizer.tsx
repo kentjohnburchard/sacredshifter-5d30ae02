@@ -43,19 +43,19 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
 
     const sketch = (p: p5) => {
       // Pure logarithmic spiral parameters based on sacred geometry principles
-      const a = 0.2;  // Initial size factor - small to start at center
+      const a = 2.0;  // Initial size factor - increased for larger spiral
       const b = 0.15; // Growth rate - golden ratio influenced
       
       // Original parameters used for color and visual styling only
       const color = params.color || '180,180,255'; // Default blue
       const opacity = params.opacity || 80;
-      const strokeW = params.strokeWeight || 0.8; // Slightly thicker for visibility
+      const strokeW = params.strokeWeight || 1.2; // Increased for visibility
       
       // Maximum angle controls how many revolutions the spiral completes
-      const maxAngle = params.maxCycles ? p.TWO_PI * params.maxCycles : p.TWO_PI * 8;
+      const maxAngle = params.maxCycles ? p.TWO_PI * params.maxCycles : p.TWO_PI * 12;
       
-      // Extremely slow speed for meditative unfolding
-      const speed = params.speed ? Math.min(params.speed, 0.006) : 0.003;
+      // Increase speed slightly for better visual effect
+      const speed = params.speed ? Math.min(params.speed, 0.01) : 0.005;
       
       // Scale factor to ensure spiral fills appropriate screen space
       let scaleFactor = 1;
@@ -63,16 +63,16 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
       // Variables for rendering
       let angle = 0;
       let trailPoints: Array<{x: number, y: number, opacity: number}> = [];
-      const maxTrailPoints = 1000; // Increased for smoother trails
+      const maxTrailPoints = 1200; // Increased for smoother trails
       
       // Background gradient properties
       let bgGradientInner = p.color(5, 0, 20, 255);
       let bgGradientOuter = p.color(0, 0, 10, 255);
       
       // Variables to control spiral growth
-      let currentScale = 0.1; // Start small
-      let targetScale = 6; // Grow to this size
-      let scalingSpeed = 0.01; // Speed of growth
+      let currentScale = 0.3; // Start larger
+      let targetScale = 8; // Grow to a larger size
+      let scalingSpeed = 0.008; // Slightly faster growth
 
       p.setup = () => {
         console.log("SpiralVisualizer - Setting up canvas with dimensions:", 
@@ -90,13 +90,13 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
         p.frameCount = 0;
         angle = 0;
         trailPoints = [];
-        currentScale = 0.1;
+        currentScale = 0.3;
         
         // Calculate appropriate scale factor based on canvas size
         // This ensures spiral fills 50-80% of the screen as requested
         const minDimension = Math.min(width, height);
         scaleFactor = minDimension / 400; // Base scale on canvas size
-        targetScale = scaleFactor * 5;
+        targetScale = scaleFactor * 6;
         
         console.log("SpiralVisualizer - Canvas created with dimensions:", width, height);
         console.log("SpiralVisualizer - Scale factor:", scaleFactor, "Target scale:", targetScale);
@@ -145,24 +145,13 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
         // Apply blending for glow effect
         p.blendMode(p.ADD);
         
-        // Draw glow base with reduced intensity
-        p.stroke(p.color(`rgba(${color},0.05)`));
-        p.strokeWeight(strokeW * 3);
-        for (let i = 0; i < trailPoints.length - 1; i++) {
-          if (trailPoints[i] && trailPoints[i+1]) {
-            const point = trailPoints[i];
-            p.stroke(p.color(`rgba(${color},${point.opacity * 0.05})`));
-            p.point(point.x, point.y);
-          }
-        }
-        
         // Draw trails with decreasing opacity
         for (let i = 0; i < trailPoints.length; i++) {
           if (trailPoints[i]) {
             const point = trailPoints[i];
-            const alpha = point.opacity * (0.3 + 0.2 * pulseValue);
+            const alpha = point.opacity * (0.5 + 0.2 * pulseValue);
             p.stroke(p.color(`rgba(${color},${alpha})`));
-            p.strokeWeight(strokeW * (0.8 + 0.1 * pulseValue)); // Reduced variance
+            p.strokeWeight(strokeW * (0.8 + 0.1 * pulseValue)); // Slight variation for organic feel
             p.point(point.x, point.y);
           }
         }
@@ -202,8 +191,11 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
             trailPoints[j].opacity *= 0.998; // Slower fade
           }
           
-          // CRITICAL: Use much slower increment for angle
+          // Increment angle
           angle += speed;
+        } else {
+          // Once we've completed the spiral, slowly rotate it for meditative effect
+          p.rotate(p.frameCount * 0.0002);
         }
         
         p.pop();
@@ -220,7 +212,7 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
         // Recalculate scale factor on resize
         const minDimension = Math.min(width, height);
         scaleFactor = minDimension / 400;
-        targetScale = scaleFactor * 5;
+        targetScale = scaleFactor * 6;
         
         // Redraw background on resize
         drawBackground();
