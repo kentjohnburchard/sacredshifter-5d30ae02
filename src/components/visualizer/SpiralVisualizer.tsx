@@ -81,7 +81,11 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
 
       p.windowResized = () => {
         p.resizeCanvas(window.innerWidth, window.innerHeight);
-        p.background(0);
+        // Fix: p.background() is only accessible after setup has been called
+        // Create a check to ensure p is initialized
+        if (p.drawingContext) {
+          p.background(0);
+        }
       };
     };
 

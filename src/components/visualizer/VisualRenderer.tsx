@@ -1,6 +1,5 @@
 
-import React, { useEffect, useRef, useState } from 'react';
-import { useVisualTheme } from '@/context/VisualThemeContext';
+import React, { useEffect, useState } from 'react';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import SpiralVisualizer from './SpiralVisualizer';
 import MandalaBuilder from '@/components/MandalaBuilder';
@@ -20,7 +19,11 @@ const VisualRenderer: React.FC<VisualRendererProps> = ({
   showControls = true,
   containerId = 'visualRenderer',
 }) => {
-  const { settings, updateSettings } = useVisualTheme();
+  // Replace settings context with local state
+  const [settings] = useState({
+    speed: 1,
+    brightness: 0.8
+  });
   const { currentAudio, registerPlayerVisuals } = useGlobalAudioPlayer();
   const [visualMode, setVisualMode] = useState<string>('spiral');
   const [expanded, setExpanded] = useState(false);

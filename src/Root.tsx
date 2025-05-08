@@ -8,7 +8,6 @@ import { JourneyProvider } from './context/JourneyContext';
 import { GlobalAudioPlayerProvider } from './context/GlobalAudioPlayerContext';
 import { CommunityProvider } from './contexts/CommunityContext';
 import { GuidanceProvider } from './context/GuidanceContext';
-import { VisualThemeProvider } from './context/VisualThemeContext';
 import { DailyPracticeProvider } from './context/DailyPracticeContext';
 import { ModalProvider } from './context/ModalContext';
 import { Toaster } from "@/components/ui/toaster";
@@ -33,17 +32,15 @@ function Root() {
               <GlobalAudioPlayerProvider>
                 <CommunityProvider>
                   <GuidanceProvider>
-                    <VisualThemeProvider>
-                      <DailyPracticeProvider>
-                        <ModalProvider>
-                          <App />
-                          <PromptManager />
-                          <GuidanceEngine />
-                          <SonnerToaster position="top-right" richColors />
-                          <Toaster />
-                        </ModalProvider>
-                      </DailyPracticeProvider>
-                    </VisualThemeProvider>
+                    <DailyPracticeProvider>
+                      <ModalProvider>
+                        <App />
+                        <PromptManager />
+                        <GuidanceEngine />
+                        <SonnerToaster position="top-right" richColors />
+                        <Toaster />
+                      </ModalProvider>
+                    </DailyPracticeProvider>
                   </GuidanceProvider>
                 </CommunityProvider>
               </GlobalAudioPlayerProvider>
