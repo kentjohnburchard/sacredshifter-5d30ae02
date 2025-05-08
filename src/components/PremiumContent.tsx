@@ -1,9 +1,10 @@
 
 import React from 'react';
 import { useTheme } from '@/context/ThemeContext';
-import { useUserSubscription } from '@/hooks/useUserSubscription';
+import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Lock } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface PremiumContentProps {
   children: React.ReactNode;
@@ -25,11 +26,11 @@ const PremiumContent: React.FC<PremiumContentProps> = ({
   redirectToSubscription = true,
 }) => {
   const { liftTheVeil } = useTheme();
-  const { isPremiumUser } = useUserSubscription();
+  const { isPremium } = useAuth();
   
   const hasAccess = 
     (!requireLiftedVeil || liftTheVeil) && 
-    (!requireSubscription || isPremiumUser());
+    (!requireSubscription || isPremium());
   
   if (hasAccess) {
     return <>{children}</>;
@@ -46,14 +47,15 @@ const PremiumContent: React.FC<PremiumContentProps> = ({
         </p>
       )}
       
-      {requireSubscription && !isPremiumUser() && redirectToSubscription && (
-        <Button 
-          variant="gradient"
-          className="mt-2 shadow-lg"
-          onClick={() => window.location.href = '/subscription'}
-        >
-          Upgrade Your Experience
-        </Button>
+      {requireSubscription && !isPremium() && redirectToSubscription && (
+        <Link to="/subscription">
+          <Button 
+            variant="default"
+            className="mt-2 shadow-lg bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600"
+          >
+            Upgrade Your Experience
+          </Button>
+        </Link>
       )}
     </div>
   );

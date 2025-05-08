@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import SidebarNav from '@/components/navigation/SidebarNav';
 import { useTheme } from '@/context/ThemeContext';
 import ThemeEnhancer from '@/components/ThemeEnhancer';
@@ -9,6 +9,10 @@ import JourneyAwareSpiralVisualizer from '@/components/visualizer/JourneyAwareSp
 import Player from '@/components/Player';
 import SacredChat from '@/components/SacredChat';
 import { CommunityProvider } from '@/contexts/CommunityContext';
+import { useAuth } from '@/context/AuthContext';
+import { Button } from '@/components/ui/button';
+import { LogIn, User } from 'lucide-react';
+import SidebarUserDropdown from '@/components/navigation/SidebarUserDropdown';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -31,6 +35,7 @@ const AppShell: React.FC<AppShellProps> = ({
 }) => {
   const location = useLocation();
   const { liftTheVeil } = useTheme();
+  const { user } = useAuth();
   
   useEffect(() => {
     document.title = `${pageTitle} | Sacred Shifter`;
@@ -67,6 +72,22 @@ const AppShell: React.FC<AppShellProps> = ({
           {showSidebar && <SidebarNav />}
           
           <main className={`flex-1 flex flex-col min-h-screen relative ${showSidebar ? 'md:pl-20 lg:pl-64' : ''}`}>
+            {/* Header with Auth Button */}
+            <div className="p-4 flex justify-end">
+              {!user ? (
+                <Link to="/auth">
+                  <Button variant="outline" className="text-white border-white/20 hover:bg-white/10 hover:text-white">
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Sign In
+                  </Button>
+                </Link>
+              ) : (
+                <div className="w-64">
+                  <SidebarUserDropdown isCollapsed={false} />
+                </div>
+              )}
+            </div>
+            
             <div className="flex-grow min-h-[calc(100vh-80px)] pb-32 relative overflow-x-hidden">
               {/* Darker semi-transparent overlay for better text contrast */}
               <div className="absolute inset-0 bg-black/20 z-0"></div>
@@ -78,8 +99,8 @@ const AppShell: React.FC<AppShellProps> = ({
             
             {showPlayer && <Player />}
             
-            {/* Community Chat Component - Always show if showChatBubble is true */}
-            {showChatBubble && <SacredChat />}
+            {/* Community Chat Component - Only show if user is logged in and showChatBubble is true */}
+            {showChatBubble && user && <SacredChat />}
             
             <GlobalWatermark />
           </main>

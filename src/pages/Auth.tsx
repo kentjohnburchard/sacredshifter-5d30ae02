@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { Info, Key, AlertCircle, Loader2 } from "lucide-react";
 
-const Auth = () => {
+const Auth: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -75,10 +75,10 @@ const Auth = () => {
     setIsSubmitting(true);
     
     try {
-      const { success, error } = await signIn(email, password);
-      if (!success && error) {
-        console.error("Login error:", error.message);
-        toast.error(error.message || "Login failed");
+      const response = await signIn(email, password);
+      if (!response.success && response.error) {
+        console.error("Login error:", response.error.message);
+        toast.error(response.error.message || "Login failed");
         setIsSubmitting(false);
       }
       // Don't set isSubmitting to false on success - we'll be redirected
@@ -102,10 +102,10 @@ const Auth = () => {
     setIsSubmitting(true);
     
     try {
-      const { success, error } = await signUp(email, password);
-      if (!success && error) {
-        console.error("Signup error:", error.message);
-        toast.error(error.message || "Signup failed");
+      const response = await signUp(email, password);
+      if (!response.success && response.error) {
+        console.error("Signup error:", response.error.message);
+        toast.error(response.error.message || "Signup failed");
         setIsSubmitting(false);
       } else {
         console.log("Signup successful");
@@ -130,11 +130,11 @@ const Auth = () => {
     setIsSubmitting(true);
     
     try {
-      const { success, error } = await signIn(testEmail, testPassword);
+      const response = await signIn(testEmail, testPassword);
       
-      if (!success && error) {
-        console.error("Test login error:", error);
-        toast.error(`Test login failed: ${error.message}`);
+      if (!response.success && response.error) {
+        console.error("Test login error:", response.error);
+        toast.error(`Test login failed: ${response.error.message}`);
         setIsSubmitting(false);
       }
       // Safety timeout to reset button if redirect doesn't happen

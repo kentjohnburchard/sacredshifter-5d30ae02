@@ -10,6 +10,9 @@ import FrequencyEnginePage from './pages/FrequencyEnginePage';
 import SacredShifterHome from './pages/SacredShifterHome';
 import AboutFounder from './pages/AboutFounder';
 import Journeys from './pages/Journeys';
+import Auth from './pages/Auth';
+import ProtectedRoute from './components/ProtectedRoute';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
@@ -17,9 +20,17 @@ function App() {
       <Routes>
         {/* Core Routes */}
         <Route path="/" element={<SacredShifterHome />} />
+        <Route path="/auth" element={<Auth />} />
         <Route path="/about" element={<Placeholder name="About" />} />
         <Route path="/journey/:slug" element={<Placeholder name="Journey" />} />
-        <Route path="/dashboard" element={<Placeholder name="Dashboard" />} />
+        <Route 
+          path="/dashboard" 
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } 
+        />
         <Route path="/sacred-circle" element={<SacredCirclePage />} />
         <Route path="/lightbearer" element={<LightbearerPage />} />
         <Route path="/circle" element={<SacredCirclePage />} />

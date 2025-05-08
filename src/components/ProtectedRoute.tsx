@@ -5,10 +5,16 @@ import { useAuth } from '@/context/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  requireAdmin?: boolean;
+  requirePremium?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, loading } = useAuth();
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
+  children, 
+  requireAdmin = false,
+  requirePremium = false
+}) => {
+  const { user, loading, isAdmin, isPremium } = useAuth();
   const location = useLocation();
   
   useEffect(() => {
@@ -36,6 +42,32 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   if (!user) {
     console.log("Redirecting to auth page from:", location.pathname);
     return <Navigate to="/auth" replace />;
+  }
+
+  // Check if admin access is required but user is not admin
+  if (requireAdmin && !isAdmin()) {
+    return (
+      <div className="flex items-center justify-center min-h-screen flex-col">
+        <div className="text-lg text-red-600 mb-4">Admin access required</div>
+        <p className="text-gray-600">You don't have permission to access this page.</p>
+      </div>
+    );
+  }
+
+  // Check if premium access is required but user is not premium
+  if (requirePremium && !isPremium()) {
+    return (
+      <div className="flex items-center justify-center min-h-screen flex-col">
+        <div className="text-lg text-amber-600 mb-4">Premium access required</div>
+        <p className="text-gray-600 mb-4">This content is only available to premium users.</p>
+        <a 
+          href="/subscription" 
+          className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+        >
+          Upgrade to Premium
+        </a>
+      </div>
+    );
   }
 
   return <>{children}</>;

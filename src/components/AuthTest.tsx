@@ -41,7 +41,7 @@ const AuthTest: React.FC = () => {
               <h3 className="font-medium">User Info:</h3>
               <p>Email: {user.email}</p>
               <p>ID: {user.id}</p>
-              <p>Created: {new Date(user.created_at).toLocaleString()}</p>
+              {user.created_at && <p>Created: {new Date(user.created_at).toLocaleString()}</p>}
             </div>
           )}
           

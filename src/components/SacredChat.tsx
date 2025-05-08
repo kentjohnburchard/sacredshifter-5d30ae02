@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageSquare, X, Send, Users, UserPlus, Bookmark, UserMinus, UserCheck, Mail, PhoneCall, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { useTheme } from "@/context/ThemeContext";
 import { useCommunity } from "@/contexts/CommunityContext";
 import { toast } from "sonner";
-import { useAuth } from '@/hooks/useAuthentication';
+import { useAuth } from '@/context/AuthContext';
 
 const SacredChat: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -221,7 +220,7 @@ const SacredChat: React.FC = () => {
                           <Button 
                             variant="ghost"
                             size="icon"
-                            onClick={() => setCurrentChat({ user: null, messages: [] })}
+                            onClick={() => startConversation("")}
                             className="text-gray-400 hover:text-white"
                           >
                             <ChevronDown className="h-4 w-4" />
