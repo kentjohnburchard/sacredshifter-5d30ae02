@@ -1,5 +1,4 @@
 
-
 export interface SongMapping {
   id: string;
   title: string;
@@ -78,4 +77,3 @@ export interface AudioFunctionMapping {
   is_primary: boolean;
   created_at: string;
 }
-
