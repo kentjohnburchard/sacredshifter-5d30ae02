@@ -48,9 +48,6 @@ function App() {
         {/* Fallback for missing routes */}
         <Route path="*" element={<Placeholder />} />
       </Routes>
-
-      <Toaster />
-      <SonnerToaster position="top-center" />
     </>
   );
 }

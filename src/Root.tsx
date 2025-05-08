@@ -2,7 +2,7 @@
 import React from "react";
 import { QueryClientProvider } from '@tanstack/react-query';
 import { createQueryClient } from './lib/queryClient';
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from './context/AuthContext';
 import { JourneyProvider } from './context/JourneyContext';
 import { GlobalAudioPlayerProvider } from './context/GlobalAudioPlayerContext';
@@ -19,44 +19,30 @@ import App from "./App";
 // Create a client instance outside component for persistence
 const queryClient = createQueryClient();
 
-// Configure router with valid future flags only
-const router = createBrowserRouter([
-  {
-    path: "*",
-    element: (
-      <>
-        <ScrollToTop />
-        <App />
-      </>
-    ),
-  }
-], {
-  future: {
-    v7_relativeSplatPath: true
-  }
-});
-
 function Root() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="dark" storageKey="sacred-theme">
-        <AuthProvider>
-          <JourneyProvider>
-            <GlobalAudioPlayerProvider>
-              <CommunityProvider>
-                <GuidanceProvider>
-                  <DailyPracticeProvider>
-                    <ModalProvider>
-                      <RouterProvider router={router} />
-                      <SonnerToaster position="top-right" richColors />
-                      <Toaster />
-                    </ModalProvider>
-                  </DailyPracticeProvider>
-                </GuidanceProvider>
-              </CommunityProvider>
-            </GlobalAudioPlayerProvider>
-          </JourneyProvider>
-        </AuthProvider>
+        <BrowserRouter>
+          <AuthProvider>
+            <JourneyProvider>
+              <GlobalAudioPlayerProvider>
+                <CommunityProvider>
+                  <GuidanceProvider>
+                    <DailyPracticeProvider>
+                      <ModalProvider>
+                        <ScrollToTop />
+                        <App />
+                        <SonnerToaster position="top-right" richColors />
+                        <Toaster />
+                      </ModalProvider>
+                    </DailyPracticeProvider>
+                  </GuidanceProvider>
+                </CommunityProvider>
+              </GlobalAudioPlayerProvider>
+            </JourneyProvider>
+          </AuthProvider>
+        </BrowserRouter>
       </ThemeProvider>
     </QueryClientProvider>
   );
