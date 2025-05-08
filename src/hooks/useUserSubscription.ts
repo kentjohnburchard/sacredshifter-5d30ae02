@@ -11,7 +11,7 @@ export const useUserSubscription = () => {
   
   // Check if user has lifetime membership
   const isLifetimeMember = () => {
-    // Check if profile has is_lifetime_member property, if not fall back to checking is_premium
+    // Check if profile exists first to avoid the TypeScript error
     return !!profile?.is_lifetime_member || !!profile?.is_premium;
   };
   
