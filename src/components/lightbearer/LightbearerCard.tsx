@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -64,8 +63,8 @@ const LightbearerCard: React.FC<LightbearerCardProps> = ({ className = '' }) => 
   }
   
   // Calculate points needed for next level
-  const pointsForNextLevel = currentLevel.next_threshold 
-    ? currentLevel.next_threshold - stats.light_points 
+  const pointsForNextLevel = currentLevel?.next_threshold 
+    ? currentLevel.next_threshold - stats?.light_points 
     : 0;
 
   return (
@@ -99,33 +98,33 @@ const LightbearerCard: React.FC<LightbearerCardProps> = ({ className = '' }) => 
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">
-                  {currentLevel.title}
+                  {currentLevel?.title}
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  Level {currentLevel.level_num}
+                  Level {currentLevel?.level_num}
                 </p>
               </div>
               <Badge 
                 variant="outline" 
                 className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border-indigo-500/30"
               >
-                {stats.light_points} Points
+                {stats?.light_points} Points
               </Badge>
             </div>
             
-            {/* Progress bar */}
+            {/* Progress bar - FIX: changed 'percentage' to 'value' */}
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs">
                 <span>Progress to Next Level</span>
                 <span>{progressPercentage}%</span>
               </div>
               <LightProgress 
-                percentage={progressPercentage} 
+                value={progressPercentage} 
                 size="md"
                 recentLevelUp={recentLevelUp}
               />
               
-              {currentLevel.next_threshold && (
+              {currentLevel?.next_threshold && (
                 <p className="text-xs text-muted-foreground text-right">
                   {pointsForNextLevel} points needed
                 </p>

@@ -7,13 +7,15 @@ interface LightProgressProps {
   color?: string;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
+  recentLevelUp?: boolean;
 }
 
 const LightProgress: React.FC<LightProgressProps> = ({
   value,
   color = '#9b87f5',
   size = 'md',
-  className
+  className,
+  recentLevelUp
 }) => {
   const heightClasses = {
     sm: 'h-1.5',
@@ -24,7 +26,10 @@ const LightProgress: React.FC<LightProgressProps> = ({
   return (
     <div className={cn("w-full bg-gray-700/50 rounded-full overflow-hidden", heightClasses[size], className)}>
       <div 
-        className="h-full transition-all duration-1000 ease-out rounded-full"
+        className={cn(
+          "h-full transition-all duration-1000 ease-out rounded-full",
+          recentLevelUp && "animate-pulse"
+        )}
         style={{ 
           width: `${value}%`, 
           backgroundColor: color,

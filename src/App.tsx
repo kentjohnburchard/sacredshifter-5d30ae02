@@ -5,6 +5,7 @@ import TestJourney from './pages/TestJourney';
 import JourneysPage from './pages/JourneysPage';
 import JourneyExperiencePage from './pages/JourneyExperiencePage';
 import LightbearerPage from './pages/LightbearerPage';
+import SacredCirclePage from './pages/SacredCirclePage';
 
 function App() {
   return (
@@ -15,8 +16,9 @@ function App() {
         <Route path="/about" element={<Placeholder name="About" />} />
         <Route path="/journey/:slug" element={<Placeholder name="Journey" />} />
         <Route path="/dashboard" element={<Placeholder name="Dashboard" />} />
-        <Route path="/sacred-circle" element={<Placeholder name="Sacred Circle" />} />
+        <Route path="/sacred-circle" element={<SacredCirclePage />} />
         <Route path="/lightbearer" element={<LightbearerPage />} />
+        <Route path="/circle" element={<SacredCirclePage />} />
         
         {/* Journey Experience Routes */}
         <Route path="/journeys" element={<JourneysPage />} />
