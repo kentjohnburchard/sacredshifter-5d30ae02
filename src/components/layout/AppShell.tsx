@@ -8,6 +8,7 @@ import GlobalWatermark from '@/components/GlobalWatermark';
 import JourneyAwareSpiralVisualizer from '@/components/visualizer/JourneyAwareSpiralVisualizer';
 import Player from '@/components/Player';
 import SacredChat from '@/components/SacredChat';
+import { CommunityProvider } from '@/contexts/CommunityContext';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -36,53 +37,55 @@ const AppShell: React.FC<AppShellProps> = ({
   }, [pageTitle]);
   
   return (
-    <div className={`relative flex min-h-screen w-full overflow-hidden ${className}`}>
-      {/* Background Elements */}
-      <div className="fixed inset-0 w-full h-full z-0">
-        <JourneyAwareSpiralVisualizer 
-          showControls={false} 
-          containerId="backgroundSpiral"
-          className="opacity-30"
-        />
-      </div>
-      
-      {/* Chakra-colored overlay gradient based on chakraColor prop */}
-      {chakraColor && (
-        <div 
-          className="fixed inset-0 z-0 opacity-20 pointer-events-none" 
-          style={{
-            background: `radial-gradient(circle at center, ${chakraColor}30 0%, transparent 70%)`,
-          }}
-        />
-      )}
-      
-      {/* Theme-based overlay */}
-      <div className="fixed inset-0 z-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80 pointer-events-none" />
-      <ThemeEnhancer />
-
-      {/* Layout Structure */}
-      <div className="flex min-h-screen w-full z-10 relative">
-        {showSidebar && <SidebarNav />}
+    <CommunityProvider>
+      <div className={`relative flex min-h-screen w-full overflow-hidden ${className}`}>
+        {/* Background Elements */}
+        <div className="fixed inset-0 w-full h-full z-0">
+          <JourneyAwareSpiralVisualizer 
+            showControls={false} 
+            containerId="backgroundSpiral"
+            className="opacity-30"
+          />
+        </div>
         
-        <main className={`flex-1 flex flex-col min-h-screen relative ${showSidebar ? 'md:pl-20 lg:pl-64' : ''}`}>
-          <div className="flex-grow min-h-[calc(100vh-80px)] pb-32 relative overflow-x-hidden">
-            {/* Darker semi-transparent overlay for better text contrast */}
-            <div className="absolute inset-0 bg-black/20 z-0"></div>
-            
-            <div className="w-full mx-auto relative z-10">
-              {children}
+        {/* Chakra-colored overlay gradient based on chakraColor prop */}
+        {chakraColor && (
+          <div 
+            className="fixed inset-0 z-0 opacity-20 pointer-events-none" 
+            style={{
+              background: `radial-gradient(circle at center, ${chakraColor}30 0%, transparent 70%)`,
+            }}
+          />
+        )}
+        
+        {/* Theme-based overlay */}
+        <div className="fixed inset-0 z-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80 pointer-events-none" />
+        <ThemeEnhancer />
+
+        {/* Layout Structure */}
+        <div className="flex min-h-screen w-full z-10 relative">
+          {showSidebar && <SidebarNav />}
+          
+          <main className={`flex-1 flex flex-col min-h-screen relative ${showSidebar ? 'md:pl-20 lg:pl-64' : ''}`}>
+            <div className="flex-grow min-h-[calc(100vh-80px)] pb-32 relative overflow-x-hidden">
+              {/* Darker semi-transparent overlay for better text contrast */}
+              <div className="absolute inset-0 bg-black/20 z-0"></div>
+              
+              <div className="w-full mx-auto relative z-10">
+                {children}
+              </div>
             </div>
-          </div>
-          
-          {showPlayer && <Player />}
-          
-          {/* Sacred Chat Component */}
-          {showChatBubble && <SacredChat />}
-          
-          <GlobalWatermark />
-        </main>
+            
+            {showPlayer && <Player />}
+            
+            {/* Community Chat Component - Always show if showChatBubble is true */}
+            {showChatBubble && <SacredChat />}
+            
+            <GlobalWatermark />
+          </main>
+        </div>
       </div>
-    </div>
+    </CommunityProvider>
   );
 };
 
