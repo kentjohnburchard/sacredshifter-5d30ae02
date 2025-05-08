@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import SpiralVisualizer from './SpiralVisualizer';
 import { Button } from '@/components/ui/button';
@@ -99,10 +99,17 @@ const VisualRenderer: React.FC<VisualRendererProps> = ({
     setControlsVisible(!controlsVisible);
   };
 
+  const containerStyle = {
+    height: typeof height === 'number' ? `${height}px` : height,
+    position: expanded ? 'fixed' : 'relative',
+    inset: expanded ? 0 : 'auto',
+    zIndex: expanded ? 50 : 'auto'
+  } as React.CSSProperties;
+
   return (
     <div 
-      className={`visual-renderer relative ${expanded ? 'fixed inset-0 z-50' : ''} ${className}`}
-      style={{ height }}
+      className={`visual-renderer ${expanded ? 'fixed inset-0 z-50' : 'relative'} ${className}`}
+      style={containerStyle}
     >
       {/* Visual content based on mode */}
       <div className="w-full h-full">
@@ -110,11 +117,12 @@ const VisualRenderer: React.FC<VisualRendererProps> = ({
           <SpiralVisualizer 
             params={getSpiralParams()}
             containerId={containerId}
+            className="w-full h-full"
           />
         )}
         
         {visualMode === 'mandala' && (
-          <div className="w-full h-full flex items-center justify-center">
+          <div className="w-full h-full flex items-center justify-center bg-black">
             <div className="text-white text-center">
               <p>Mandala visualization would appear here</p>
             </div>
@@ -124,7 +132,7 @@ const VisualRenderer: React.FC<VisualRendererProps> = ({
       
       {/* Controls overlay */}
       {showControls && controlsVisible && (
-        <div className="absolute bottom-4 right-4 flex flex-col gap-2">
+        <div className="absolute bottom-4 right-4 flex flex-col gap-2 z-10">
           <Button
             variant="outline"
             size="sm"

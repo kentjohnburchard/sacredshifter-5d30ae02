@@ -107,10 +107,11 @@ const JourneyAwareSpiralVisualizer: React.FC<JourneyAwareSpiralVisualizerProps> 
   };
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative ${className}`} style={{minHeight: "200px"}}>
       <SpiralVisualizer 
         params={completeParams} 
         containerId={containerId}
+        className="absolute inset-0"
       />
       
       {showControls && (

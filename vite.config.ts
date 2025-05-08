@@ -18,6 +18,11 @@ export default defineConfig(({ mode }) => ({
   assetsInclude: ['**/*.md'], // Include markdown files as assets
   server: {
     port: 8080,
-    host: "::"
+    host: true
+  },
+  // Fix the build step if vite command not found
+  build: {
+    outDir: 'dist',
+    sourcemap: true,
   }
 }));
