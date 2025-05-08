@@ -23,7 +23,8 @@ import { ThemeProvider } from '@/components/ui/theme-provider';
  */
 const TestJourney: React.FC = () => {
   // Hardcoded journey slug for testing
-  const JOURNEY_SLUG = "journey_akashic_reconnection";
+  // Updated to use the correct format according to journeys in Supabase
+  const JOURNEY_SLUG = "akashic-reconnection";
   
   return (
     <AuthProvider>
@@ -62,6 +63,9 @@ const TestJourneyContent: React.FC<{ journeySlug: string }> = ({ journeySlug }) 
       try {
         // Try to get the journey from the database
         let journeyData = await fetchJourneyBySlug(journeySlug);
+        
+        // Log the fetched journey data for debugging
+        console.log("Fetched journey data:", journeyData);
         
         if (!journeyData) {
           console.log(`Journey ${journeySlug} not found in database, checking core_content...`);
