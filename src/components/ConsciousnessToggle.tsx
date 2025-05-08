@@ -19,6 +19,7 @@ const ConsciousnessToggle: React.FC = () => {
             ? 'bg-pink-900/30 border-pink-400/30 text-pink-200 hover:bg-pink-800/40' 
             : 'bg-purple-900/30 border-purple-400/30 text-purple-200 hover:bg-purple-800/40'}
         `}
+        aria-label={liftTheVeil ? "Return to standard consciousness mode" : "Lift the veil of consciousness"}
       >
         {liftTheVeil ? (
           <Moon className="h-4 w-4" />

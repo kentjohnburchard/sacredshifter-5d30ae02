@@ -1,16 +1,21 @@
 
-export interface VisualRegistration {
-  setAudioSource: (url: string, info?: any) => void;
-}
+// Define the types for the audio player information
 
 export interface PlayerInfo {
   title?: string;
   artist?: string;
-  source?: string;
-  chakra?: string;
+  source: string;
+  albumArt?: string;
   frequency?: number;
+  chakra?: string;
+  description?: string;
   id?: string;
-  sourceType?: string;  // Added sourceType property to fix the error
+  groupId?: string;
+}
+
+export interface VisualRegistration {
+  setAudioSource?: (url: string, info?: PlayerInfo) => void;
+  analyzeAudio?: (audioData: Uint8Array) => void;
 }
 
 export interface GlobalAudioPlayerContextType {
@@ -18,18 +23,18 @@ export interface GlobalAudioPlayerContextType {
   isPlaying: boolean;
   currentTime: number;
   duration: number;
-  playAudio: (info: PlayerInfo) => void;
-  togglePlayPause: () => void;
-  seekTo: (time: number) => void;
-  resetPlayer: () => void;
-  setOnEndedCallback: (callback: () => void | null) => void;
-  registerPlayerVisuals: (registration: VisualRegistration) => (() => void) | undefined;
-  setVolume: (volume: number) => void;
-  getVolume: () => number;
   volume: number;
   currentFrequency: number | null;
   activeFrequencies: number[];
   activePrimeNumbers: number[];
+  playAudio: (info: PlayerInfo) => void;
+  togglePlayPause: () => void;
+  seekTo: (time: number) => void;
+  resetPlayer: () => void;
+  setOnEndedCallback: (callback: (() => void) | null) => void;
+  registerPlayerVisuals: (registration: VisualRegistration) => (() => void) | undefined;
+  setVolume: (value: number) => void;
+  getVolume: () => number;
   registerPrimeCallback: (callback: (prime: number) => void) => (() => void) | undefined;
   getAudioElement: () => HTMLAudioElement | null;
   forceVisualSync: () => void;

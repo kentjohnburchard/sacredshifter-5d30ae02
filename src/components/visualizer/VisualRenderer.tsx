@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import SpiralVisualizer from './SpiralVisualizer';
 import MandalaBuilder from '@/components/MandalaBuilder';
@@ -19,7 +19,7 @@ const VisualRenderer: React.FC<VisualRendererProps> = ({
   showControls = true,
   containerId = 'visualRenderer',
 }) => {
-  // Replace settings context with local state
+  // Local state for settings that were previously in context
   const [settings] = useState({
     speed: 1,
     brightness: 0.8
@@ -78,8 +78,8 @@ const VisualRenderer: React.FC<VisualRendererProps> = ({
     return params;
   };
 
-  useEffect(() => {
-    // Register with the global audio player
+  // Register with the global audio player on mount
+  React.useEffect(() => {
     const unregister = registerPlayerVisuals({
       setAudioSource: (url, info) => {
         console.log("Visual renderer received new audio source:", url);

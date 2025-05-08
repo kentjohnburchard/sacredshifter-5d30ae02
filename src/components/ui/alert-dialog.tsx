@@ -1,8 +1,9 @@
+
 import * as React from "react"
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog"
-
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
+import { VisuallyHidden } from "./visually-hidden"
 
 const AlertDialog = AlertDialogPrimitive.Root
 
@@ -27,8 +28,11 @@ AlertDialogOverlay.displayName = AlertDialogPrimitive.Overlay.displayName
 
 const AlertDialogContent = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content>
->(({ className, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content> & {
+    hideTitle?: boolean;
+    title?: string;
+  }
+>(({ className, children, hideTitle, title, ...props }, ref) => (
   <AlertDialogPortal>
     <AlertDialogOverlay />
     <AlertDialogPrimitive.Content
@@ -38,7 +42,14 @@ const AlertDialogContent = React.forwardRef<
         className
       )}
       {...props}
-    />
+    >
+      {hideTitle && title && (
+        <VisuallyHidden>
+          <AlertDialogPrimitive.Title>{title}</AlertDialogPrimitive.Title>
+        </VisuallyHidden>
+      )}
+      {children}
+    </AlertDialogPrimitive.Content>
   </AlertDialogPortal>
 ))
 AlertDialogContent.displayName = AlertDialogPrimitive.Content.displayName

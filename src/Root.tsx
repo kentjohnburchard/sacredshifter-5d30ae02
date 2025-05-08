@@ -2,7 +2,11 @@
 import React from "react";
 import { QueryClientProvider } from '@tanstack/react-query';
 import { createQueryClient } from './lib/queryClient';
-import { BrowserRouter as Router } from "react-router-dom";
+import { 
+  BrowserRouter as Router, 
+  RouterProvider,
+  createBrowserRouter
+} from "react-router-dom";
 import { AuthProvider } from './context/AuthContext';
 import { JourneyProvider } from './context/JourneyContext';
 import { GlobalAudioPlayerProvider } from './context/GlobalAudioPlayerContext';
@@ -21,33 +25,48 @@ import ScrollToTop from "./components/ScrollToTop";
 // Create a client instance outside component for persistence
 const queryClient = createQueryClient();
 
+// Configure router with future flags
+const router = createBrowserRouter([
+  {
+    path: "*",
+    element: (
+      <>
+        <ScrollToTop />
+        <App />
+        <PromptManager />
+        <GuidanceEngine />
+      </>
+    ),
+  }
+], {
+  future: {
+    v7_startTransition: true,
+    v7_relativeSplatPath: true
+  }
+});
+
 function Root() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
-        <ScrollToTop />
-        <ThemeProvider defaultTheme="dark" storageKey="sacred-theme">
-          <AuthProvider>
-            <JourneyProvider>
-              <GlobalAudioPlayerProvider>
-                <CommunityProvider>
-                  <GuidanceProvider>
-                    <DailyPracticeProvider>
-                      <ModalProvider>
-                        <App />
-                        <PromptManager />
-                        <GuidanceEngine />
-                        <SonnerToaster position="top-right" richColors />
-                        <Toaster />
-                      </ModalProvider>
-                    </DailyPracticeProvider>
-                  </GuidanceProvider>
-                </CommunityProvider>
-              </GlobalAudioPlayerProvider>
-            </JourneyProvider>
-          </AuthProvider>
-        </ThemeProvider>
-      </Router>
+      <ThemeProvider defaultTheme="dark" storageKey="sacred-theme">
+        <AuthProvider>
+          <JourneyProvider>
+            <GlobalAudioPlayerProvider>
+              <CommunityProvider>
+                <GuidanceProvider>
+                  <DailyPracticeProvider>
+                    <ModalProvider>
+                      <RouterProvider router={router} />
+                      <SonnerToaster position="top-right" richColors />
+                      <Toaster />
+                    </ModalProvider>
+                  </DailyPracticeProvider>
+                </GuidanceProvider>
+              </CommunityProvider>
+            </GlobalAudioPlayerProvider>
+          </JourneyProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
