@@ -13,14 +13,15 @@ interface JourneyVisualParamsRecord {
 }
 
 // Fetch spiral parameters for a specific journey
-export const fetchSpiralParams = async (journeyId: string): Promise<SpiralParams | null> => {
+export const fetchSpiralParams = async (journeyId: string, defaultParams?: SpiralParams): Promise<SpiralParams | null> => {
   try {
     // First, check if we already have the params in memory
     if (paramsCache[journeyId]) {
+      console.log(`Using cached spiral params for journey: ${journeyId}`);
       return paramsCache[journeyId];
     }
     
-    console.log(`Fetching spiral params for journey: ${journeyId}`);
+    console.log(`Fetching spiral params for journey ID: ${journeyId}`);
     
     // If not, fetch from the database
     const { data, error } = await supabase
@@ -32,24 +33,9 @@ export const fetchSpiralParams = async (journeyId: string): Promise<SpiralParams
     if (error) {
       console.error('Error fetching spiral params:', error);
       
-      // If the journey_visual_params doesn't exist for this journey, create default params for akashic reconnection
-      if (journeyId === '20') {
-        console.log('Creating default spiral params for Akashic Reconnection journey');
-        const defaultParams = {
-          coeffA: 5,
-          coeffB: 3,
-          coeffC: 1.5,
-          freqA: 50,
-          freqB: -20,
-          freqC: -60,
-          color: '220,220,255', // Light blue for Akashic Records
-          opacity: 85,
-          strokeWeight: 0.7,
-          maxCycles: 6,
-          speed: 0.0008
-        };
-        
-        // Save the default params to the database
+      // If we have default params passed, save them to the database
+      if (defaultParams) {
+        console.log('Creating default spiral params for journey:', journeyId);
         await saveSpiralParams(journeyId, defaultParams);
         
         // Save to memory cache
@@ -57,14 +43,26 @@ export const fetchSpiralParams = async (journeyId: string): Promise<SpiralParams
         return defaultParams;
       }
       
+      // No default params, so return null
       return null;
     }
     
     if (data?.params) {
+      console.log('Found spiral params in database for journey:', journeyId);
       // Save to memory cache and properly cast the JSON
       const parsedParams = data.params as unknown as SpiralParams;
       paramsCache[journeyId] = parsedParams;
       return parsedParams;
+    }
+    
+    // No params found, but we have defaults
+    if (defaultParams) {
+      console.log('No existing params found, creating defaults for journey:', journeyId);
+      await saveSpiralParams(journeyId, defaultParams);
+      
+      // Save to memory cache
+      paramsCache[journeyId] = defaultParams;
+      return defaultParams;
     }
     
     return null;
@@ -77,6 +75,8 @@ export const fetchSpiralParams = async (journeyId: string): Promise<SpiralParams
 // Save spiral parameters for a journey
 export const saveSpiralParams = async (journeyId: string, params: SpiralParams): Promise<boolean> => {
   try {
+    console.log(`Saving spiral params for journey: ${journeyId}`, params);
+    
     const { error } = await supabase
       .from('journey_visual_params')
       .upsert({
@@ -94,6 +94,7 @@ export const saveSpiralParams = async (journeyId: string, params: SpiralParams):
     
     // Update memory cache
     paramsCache[journeyId] = params;
+    console.log('Successfully saved spiral params for journey:', journeyId);
     
     return true;
   } catch (err) {

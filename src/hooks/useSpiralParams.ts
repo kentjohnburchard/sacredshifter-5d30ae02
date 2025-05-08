@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { fetchSpiralParams } from '@/services/spiralParamService';
 
@@ -40,10 +41,11 @@ const useSpiralParams = (journeyId?: string) => {
     const getParams = async () => {
       try {
         if (journeyId) {
-          console.log(`Loading spiral params for journey: ${journeyId}`);
+          console.log(`Loading spiral params for journey ID: ${journeyId} (type: ${typeof journeyId})`);
           
           // Check if we already have cached params
           if (paramsCache[journeyId]) {
+            console.log("Using cached spiral params for journey:", journeyId);
             setParams(paramsCache[journeyId]);
             return;
           }
@@ -52,10 +54,38 @@ const useSpiralParams = (journeyId?: string) => {
           const fetchedParams = await fetchSpiralParams(journeyId);
           
           if (fetchedParams) {
+            console.log("Received spiral params from database:", fetchedParams);
             setParams(fetchedParams);
           } else {
-            // In a real implementation, this would fetch parameters from an API
-            // For now, returning slightly randomized defaults for different journeys
+            console.log("No spiral params found in database. Creating default params for journey:", journeyId);
+            
+            // Since we know this journey ID is specifically for the "akashic-reconnection" journey
+            if (journeyId === '20') {
+              console.log('Creating specific params for Akashic Reconnection journey (ID: 20)');
+              const akashicParams = {
+                coeffA: 0.8,
+                coeffB: 1.2,
+                coeffC: 0.6,
+                freqA: 3.2,
+                freqB: 4.1,
+                freqC: 2.7,
+                color: '220,220,255', // Light blue for Akashic Records
+                opacity: 85,
+                strokeWeight: 0.7,
+                maxCycles: 6,
+                speed: 0.0008
+              };
+              
+              // Save the specific params to the database
+              await fetchSpiralParams(journeyId, akashicParams);
+              
+              // Save to memory cache
+              paramsCache[journeyId] = akashicParams;
+              setParams(akashicParams);
+              return;
+            }
+            
+            // If not the specific journey, use hash-based random params as before
             const hash = journeyId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
             
             const newParams = {
@@ -72,7 +102,7 @@ const useSpiralParams = (journeyId?: string) => {
               speed: 0.0005 + ((hash % 10) / 10000)
             };
             
-            // Cache the parameters
+            // Save to memory cache
             paramsCache[journeyId] = newParams;
             setParams(newParams);
           }

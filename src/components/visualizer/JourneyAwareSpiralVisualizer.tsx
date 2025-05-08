@@ -26,11 +26,25 @@ const JourneyAwareSpiralVisualizer: React.FC<JourneyAwareSpiralVisualizerProps> 
   const { activeJourney, recordActivity } = useJourney();
   const [isVisible, setIsVisible] = useState(true);
 
+  // Ensure journeyId is always a string when passed to useSpiralParams
+  const stringJourneyId = journeyId ? String(journeyId) : undefined;
+  
   // Either use provided journeyId or get from context if autoSync is true
-  const effectiveJourneyId = journeyId || (autoSync && activeJourney?.id);
+  const effectiveJourneyId = stringJourneyId || (autoSync && activeJourney?.id);
+  
+  // Log for debugging
+  console.log("JourneyAwareSpiralVisualizer - journeyId:", journeyId, 
+              "type:", typeof journeyId,
+              "effectiveJourneyId:", effectiveJourneyId);
   
   // Get spiral parameters for current journey
   const spiralParams = useSpiralParams(effectiveJourneyId?.toString());
+  
+  // Log parameters for debugging
+  useEffect(() => {
+    console.log("JourneyAwareSpiralVisualizer - Got spiral params:", spiralParams, 
+                "for journeyId:", effectiveJourneyId);
+  }, [spiralParams, effectiveJourneyId]);
 
   // Log visibility changes
   useEffect(() => {

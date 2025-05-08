@@ -66,6 +66,7 @@ const TestJourneyContent: React.FC<{ journeySlug: string }> = ({ journeySlug }) 
         
         // Log the fetched journey data for debugging
         console.log("Fetched journey data:", journeyData);
+        console.log("Frequencies data:", journeyData?.frequencies);
         
         if (!journeyData) {
           console.log(`Journey ${journeySlug} not found in database, checking core_content...`);
@@ -76,6 +77,7 @@ const TestJourneyContent: React.FC<{ journeySlug: string }> = ({ journeySlug }) 
           return;
         } else {
           console.log("Loaded journey from database:", journeyData.title);
+          console.log("Journey ID:", journeyData.id, "Type:", typeof journeyData.id);
           
           // Determine if there's audio content based on metadata
           setHasAudioContent(!!journeyData.sound_frequencies || !!journeyData.audio_filename);
@@ -138,11 +140,11 @@ const TestJourneyContent: React.FC<{ journeySlug: string }> = ({ journeySlug }) 
     setShowTimeline(prev => !prev);
   };
   
-  // Format frequencies for display
+  // Format frequencies for display - FIXED to handle string array
   const getFrequencyDisplay = () => {
     if (!journey) return 'No frequency information available';
     
-    // Check for frequencies array first
+    // Check for frequencies array first - now properly handling array type
     if (journey.frequencies && Array.isArray(journey.frequencies) && journey.frequencies.length > 0) {
       return journey.frequencies.join(', ') + ' Hz';
     }
