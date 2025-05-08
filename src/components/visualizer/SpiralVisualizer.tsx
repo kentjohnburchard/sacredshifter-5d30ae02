@@ -28,14 +28,15 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
     if (p5InstanceRef.current) p5InstanceRef.current.remove();
 
     const sketch = (p: p5) => {
-      const a = 1.5;
-      const b = 0.07;
+      const a = 4.0;       // MUCH larger start
+      const b = 0.14;      // More exponential punch
       const maxAngle = params.maxCycles ? p.TWO_PI * params.maxCycles : p.TWO_PI * 12;
-      const speed = params.speed || 0.012;
+      const speed = params.speed || 0.015;
+      const burst = 20; // Draw 20 points per frame
 
       const color = params.color || '180,200,255';
-      const opacity = params.opacity || 80;
-      const strokeW = params.strokeWeight || 1.4;
+      const opacity = params.opacity || 85;
+      const strokeW = params.strokeWeight || 1.5;
 
       let angle = 0;
       let currentScale = 1;
@@ -44,13 +45,12 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
       p.setup = () => {
         const width = containerRef.current?.clientWidth || window.innerWidth;
         const height = containerRef.current?.clientHeight || window.innerHeight;
-
         p.createCanvas(width, height);
         p.background(0);
         p.frameRate(60);
 
         const minDim = Math.min(width, height);
-        targetScale = minDim / 250;
+        targetScale = minDim / 150;
         currentScale = targetScale;
         angle = 0;
       };
@@ -58,29 +58,29 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
       p.draw = () => {
         p.translate(p.width / 2, p.height / 2);
         p.scale(currentScale);
-
         p.strokeWeight(strokeW);
         p.stroke(p.color(`rgba(${color},${opacity / 100})`));
         p.blendMode(p.ADD);
 
-        if (angle < maxAngle) {
+        for (let i = 0; i < burst && angle < maxAngle; i++) {
           const r = a * p.exp(b * angle);
           const x = r * p.cos(angle);
           const y = r * p.sin(angle);
           p.point(x, y);
           angle += speed;
-        } else {
-          p.rotate(p.sin(p.frameCount * 0.002) * 0.03);
+        }
+
+        if (angle >= maxAngle) {
+          p.rotate(p.sin(p.frameCount * 0.002) * 0.02);
         }
       };
 
       p.windowResized = () => {
         const width = containerRef.current?.clientWidth || window.innerWidth;
         const height = containerRef.current?.clientHeight || window.innerHeight;
-
         p.resizeCanvas(width, height);
         const minDim = Math.min(width, height);
-        targetScale = minDim / 250;
+        targetScale = minDim / 150;
         currentScale = targetScale;
       };
     };
