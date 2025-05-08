@@ -9,6 +9,16 @@ export const useUserSubscription = () => {
     return !!profile?.is_premium;
   };
   
+  // Check if user has lifetime membership
+  const isLifetimeMember = () => {
+    return !!profile?.is_lifetime_member;
+  };
+  
+  // Check if user has an active subscription
+  const hasActiveSubscription = () => {
+    return !!profile?.is_premium;
+  };
+  
   // Get subscription status information
   const getSubscriptionStatus = () => {
     if (!profile) {
@@ -22,8 +32,22 @@ export const useUserSubscription = () => {
     return { status: 'free', label: 'Free Account' };
   };
   
+  // Loading state
+  const loading = false;
+  
+  // Subscription details
+  const subscription = profile?.is_premium ? {
+    status: 'active',
+    plan: 'premium',
+    renewalDate: null
+  } : null;
+  
   return {
     isPremiumUser,
-    getSubscriptionStatus
+    isLifetimeMember,
+    hasActiveSubscription,
+    getSubscriptionStatus,
+    loading,
+    subscription
   };
 };

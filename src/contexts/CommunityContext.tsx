@@ -1,6 +1,8 @@
-
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+
+// Export PostType for use in other components
+export type PostType = 'Insight' | 'Question' | 'Experience' | 'Meditation' | 'Sound Healing' | 'General';
 
 interface CommunityUser {
   id: string;
@@ -32,6 +34,57 @@ interface Conversation {
   isOnline: boolean;
 }
 
+// Define post and comment interfaces
+interface CommentReply {
+  id: string;
+  author: {
+    id: string;
+    name: string;
+    avatarUrl?: string;
+    contributionScore: number;
+  };
+  content: string;
+  createdAt: Date;
+}
+
+interface Comment {
+  id: string;
+  author: {
+    id: string;
+    name: string;
+    avatarUrl?: string;
+    contributionScore: number;
+  };
+  content: string;
+  createdAt: Date;
+  replies: CommentReply[];
+}
+
+interface Post {
+  id: string;
+  author: {
+    id: string;
+    name: string;
+    avatarUrl?: string;
+    contributionScore: number;
+  };
+  content: string;
+  createdAt: Date;
+  likes: number;
+  postType: PostType;
+  comments: Comment[];
+}
+
+interface UserProfile {
+  id: string;
+  name: string;
+  avatarUrl?: string;
+  bio?: string;
+  contributionScore: number;
+  badges: Array<{ id: string; name: string }>;
+  circles: Array<{ id: string; name: string; memberCount: number }>;
+}
+
 interface CommunityContextType {
   users: CommunityUser[];
   onlineUsers: CommunityUser[];
@@ -49,6 +102,12 @@ interface CommunityContextType {
   inviteUser: (email: string) => Promise<void>;
   contactSupport: (message: string) => Promise<void>;
   postTypes: string[];
+  posts: Post[];
+  likePost: (postId: string) => void;
+  addComment: (postId: string, content: string) => void;
+  addReply: (postId: string, commentId: string, content: string) => void;
+  getUserProfile: (userId?: string) => UserProfile | null;
+  createNewPost: (content: string, postType: PostType) => void;
 }
 
 const CommunityContext = createContext<CommunityContextType | undefined>(undefined);
@@ -124,6 +183,83 @@ export const CommunityProvider: React.FC<CommunityProviderProps> = ({ children }
   const [loading, setLoading] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState<CommunityUser[]>([]);
   const [postTypes] = useState<string[]>(['Insight', 'Question', 'Experience', 'Meditation', 'Sound Healing']);
+
+  // Add mock posts data
+  const [posts, setPosts] = useState<Post[]>([
+    {
+      id: '1',
+      author: {
+        id: '1',
+        name: 'Sacred Explorer',
+        contributionScore: 85
+      },
+      content: 'Just experienced the 528Hz healing frequency journey. The cellular restoration was profound!',
+      createdAt: new Date(Date.now() - 3600000),
+      likes: 12,
+      postType: 'Experience',
+      comments: [
+        {
+          id: '101',
+          author: {
+            id: '2',
+            name: 'Cosmic Guide',
+            avatarUrl: '/symbols/lotus.svg',
+            contributionScore: 245
+          },
+          content: 'The Solfeggio frequencies are amazing for healing. Have you tried 639Hz for heart chakra opening?',
+          createdAt: new Date(Date.now() - 3000000),
+          replies: []
+        }
+      ]
+    },
+    {
+      id: '2',
+      author: {
+        id: '2',
+        name: 'Cosmic Guide',
+        avatarUrl: '/symbols/lotus.svg',
+        contributionScore: 245
+      },
+      content: 'Question for the circle: What meditation techniques have helped you connect with your higher self?',
+      createdAt: new Date(Date.now() - 86400000),
+      likes: 8,
+      postType: 'Question',
+      comments: []
+    }
+  ]);
+
+  // Add profile data
+  const mockProfiles: Record<string, UserProfile> = {
+    'current': {
+      id: '1',
+      name: 'Sacred Explorer',
+      bio: 'Seeking truth through sound and sacred geometry',
+      contributionScore: 85,
+      badges: [
+        { id: '1', name: 'Frequency Adept' },
+        { id: '2', name: 'Journey Initiate' }
+      ],
+      circles: [
+        { id: '1', name: 'Sound Healers', memberCount: 24 },
+        { id: '2', name: 'Sacred Geometry Explorers', memberCount: 42 }
+      ]
+    },
+    '2': {
+      id: '2',
+      name: 'Cosmic Guide',
+      avatarUrl: '/symbols/lotus.svg',
+      bio: 'Guiding others through the cosmic journeys of consciousness',
+      contributionScore: 245,
+      badges: [
+        { id: '3', name: 'Meditation Master' },
+        { id: '4', name: 'Frequency Healer' }
+      ],
+      circles: [
+        { id: '1', name: 'Sound Healers', memberCount: 24 },
+        { id: '3', name: 'Ascension Guides', memberCount: 18 }
+      ]
+    }
+  };
 
   // Effect to handle real-time presence
   useEffect(() => {
@@ -290,6 +426,93 @@ export const CommunityProvider: React.FC<CommunityProviderProps> = ({ children }
     }
   };
 
+  const likePost = (postId: string) => {
+    setPosts(prev => 
+      prev.map(post => 
+        post.id === postId ? { ...post, likes: post.likes + 1 } : post
+      )
+    );
+  };
+
+  const addComment = (postId: string, content: string) => {
+    if (!content.trim()) return;
+    
+    const newComment: Comment = {
+      id: Math.random().toString(36).substring(2, 11),
+      author: {
+        id: '1', // Current user
+        name: 'Sacred Explorer',
+        contributionScore: 85
+      },
+      content,
+      createdAt: new Date(),
+      replies: []
+    };
+    
+    setPosts(prev => 
+      prev.map(post => 
+        post.id === postId 
+          ? { ...post, comments: [...post.comments, newComment] } 
+          : post
+      )
+    );
+  };
+
+  const addReply = (postId: string, commentId: string, content: string) => {
+    if (!content.trim()) return;
+    
+    const newReply: CommentReply = {
+      id: Math.random().toString(36).substring(2, 11),
+      author: {
+        id: '1', // Current user
+        name: 'Sacred Explorer',
+        contributionScore: 85
+      },
+      content,
+      createdAt: new Date()
+    };
+    
+    setPosts(prev => 
+      prev.map(post => 
+        post.id === postId 
+          ? {
+              ...post,
+              comments: post.comments.map(comment => 
+                comment.id === commentId 
+                  ? { ...comment, replies: [...comment.replies, newReply] } 
+                  : comment
+              )
+            } 
+          : post
+      )
+    );
+  };
+
+  const getUserProfile = (userId?: string) => {
+    if (!userId) return mockProfiles['current'];
+    return mockProfiles[userId] || null;
+  };
+
+  const createNewPost = (content: string, postType: PostType) => {
+    if (!content.trim()) return;
+    
+    const newPost: Post = {
+      id: Math.random().toString(36).substring(2, 11),
+      author: {
+        id: '1', // Current user
+        name: 'Sacred Explorer',
+        contributionScore: 85
+      },
+      content,
+      createdAt: new Date(),
+      likes: 0,
+      postType,
+      comments: []
+    };
+    
+    setPosts(prev => [newPost, ...prev]);
+  };
+
   const value: CommunityContextType = {
     users,
     onlineUsers,
@@ -304,6 +527,12 @@ export const CommunityProvider: React.FC<CommunityProviderProps> = ({ children }
     inviteUser,
     contactSupport,
     postTypes,
+    posts,
+    likePost,
+    addComment,
+    addReply,
+    getUserProfile,
+    createNewPost
   };
 
   return <CommunityContext.Provider value={value}>{children}</CommunityContext.Provider>;

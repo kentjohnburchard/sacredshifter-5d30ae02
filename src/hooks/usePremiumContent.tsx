@@ -9,7 +9,13 @@ import { useUserSubscription } from '@/hooks/useUserSubscription';
  */
 export const usePremiumContent = () => {
   const { liftTheVeil } = useTheme();
-  const { isPremiumUser, isLifetimeMember, hasActiveSubscription } = useUserSubscription();
+  const { 
+    isPremiumUser, 
+    isLifetimeMember, 
+    hasActiveSubscription,
+    loading,
+    subscription
+  } = useUserSubscription();
 
   /**
    * Check if the user has access to specific content based on requirements
@@ -85,6 +91,8 @@ export const usePremiumContent = () => {
     hasActiveSubscription,
     isPremiumUser,
     isLifetimeMember,
-    liftTheVeil
+    liftTheVeil,
+    loading,
+    subscription
   };
 };
