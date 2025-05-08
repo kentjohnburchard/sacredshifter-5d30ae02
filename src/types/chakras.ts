@@ -1,7 +1,7 @@
 export type ChakraName = 'Root' | 'Sacral' | 'Solar Plexus' | 'Heart' | 'Throat' | 'Third Eye' | 'Crown';
 
-// Modify ChakraTag to extend ChakraName correctly and include 'Earth Star'
-export type ChakraTag = ChakraName | 'Transpersonal' | 'Cosmic' | 'Earth Star';
+// Modify ChakraTag to extend ChakraName correctly and include 'Earth Star' and 'Soul Star'
+export type ChakraTag = ChakraName | 'Transpersonal' | 'Cosmic' | 'Earth Star' | 'Soul Star';
 
 // Add CHAKRA_COLORS mapping for use in components
 export const CHAKRA_COLORS: Record<ChakraTag, string> = {
@@ -14,7 +14,8 @@ export const CHAKRA_COLORS: Record<ChakraTag, string> = {
   'Crown': '#a855f7',      // purple-500
   'Transpersonal': '#ffffff', // white
   'Cosmic': '#c084fc',      // purple-400
-  'Earth Star': '#166534'  // green-800
+  'Earth Star': '#166534',  // green-800
+  'Soul Star': '#9333ea'    // purple-600
 };
 
 export const chakraData: Record<ChakraName, ChakraInfo> = {

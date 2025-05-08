@@ -1,3 +1,3 @@
 
-// Clean redirect to real homepage
-export { default } from './SacredShifterHome';
+// Redirect to the main landing page
+export { default } from './landing/LandingPage';

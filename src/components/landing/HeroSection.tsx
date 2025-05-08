@@ -1,174 +1,121 @@
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Sparkles, Heart } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { ChevronRight } from "lucide-react";
 
 const HeroSection: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
-    <div className="w-full relative min-h-screen flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/80 z-0"></div>
-      
-      {/* Sacred Geometry Background Animation - Gentle, Accessible */}
-      <div className="absolute inset-0 z-0 opacity-60 pointer-events-none">
-        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
-          <defs>
-            <radialGradient id="sacred-glow" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-              <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.8"/>
-              <stop offset="100%" stopColor="#6366F1" stopOpacity="0"/>
-            </radialGradient>
-          </defs>
-          
-          {/* Developer note: Animation is intentionally gentle with slow transitions 
-              to ensure accessibility for users with sensory sensitivities */}
-          <motion.g
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 0.7, scale: 1 }}
-            transition={{ duration: 3 }}
+    <div className="relative bg-transparent overflow-hidden py-20 sm:py-32">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            className="space-y-8"
           >
-            <motion.circle 
-              cx="50" cy="50" r="8" 
-              fill="none" 
-              stroke="url(#sacred-glow)" 
-              strokeWidth="0.2"
-              animate={{ 
-                r: [8, 8.5, 8],
-                opacity: [0.7, 0.9, 0.7],
-              }}
-              transition={{ 
-                duration: 5, // Slowed down for gentler animation
-                repeat: Infinity,
-                repeatType: "reverse",
-                ease: "easeInOut"
-              }}
-            />
-            
-            {/* Flower of Life pattern - with gentle pulsing */}
-            {Array.from({ length: 6 }).map((_, i) => {
-              const angle = (Math.PI * 2 * i) / 6;
-              const x = 50 + 16 * Math.cos(angle);
-              const y = 50 + 16 * Math.sin(angle);
-              
-              return (
-                <motion.circle 
-                  key={`circle-1-${i}`}
-                  cx={x} cy={y} r="8" 
-                  fill="none" 
-                  stroke="url(#sacred-glow)" 
-                  strokeWidth="0.2"
-                  initial={{ opacity: 0 }}
-                  animate={{ 
-                    opacity: [0.3, 0.7, 0.3],
-                  }}
-                  transition={{ 
-                    duration: 7, // Slowed significantly for gentle effect
-                    delay: i * 0.5,
-                    repeat: Infinity,
-                    repeatType: "reverse",
-                    ease: "easeInOut"
-                  }}
-                />
-              );
-            })}
-            
-            {/* Outer ring - with very slow animation */}
-            {Array.from({ length: 12 }).map((_, i) => {
-              const angle = (Math.PI * 2 * i) / 12;
-              const x = 50 + 24 * Math.cos(angle);
-              const y = 50 + 24 * Math.sin(angle);
-              
-              return (
-                <motion.circle 
-                  key={`circle-2-${i}`}
-                  cx={x} cy={y} r="8" 
-                  fill="none" 
-                  stroke="url(#sacred-glow)" 
-                  strokeWidth="0.1"
-                  initial={{ opacity: 0 }}
-                  animate={{ 
-                    opacity: [0.2, 0.4, 0.2],
-                  }}
-                  transition={{ 
-                    duration: 8, // Very slow transition
-                    delay: i * 0.3,
-                    repeat: Infinity,
-                    repeatType: "reverse",
-                    ease: "easeInOut"
-                  }}
-                />
-              );
-            })}
-          </motion.g>
-        </svg>
-      </div>
-      
-      {/* Main Content - Positioned at top of page */}
-      <div className="container mx-auto px-4 z-10 pt-24">
-        <motion.div 
-          className="text-center space-y-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.5 }}
-        >
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-3">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-300 to-indigo-400">
-              Sacred Shifter
-            </span>
-          </h1>
-          
-          <p className="text-xl md:text-2xl text-gray-200 max-w-3xl mx-auto leading-relaxed">
-            Transmute your consciousness through sacred geometry, 
-            frequency alignment, and harmonic resonance
-          </p>
-          
-          <div className="max-w-2xl mx-auto bg-black/30 backdrop-blur-sm rounded-lg p-6 mt-8 border border-purple-500/20">
-            <p className="text-gray-100 italic">
-              "We are not just observers of reality, but co-creators in the cosmic dance.
-              Through sacred vibrations and geometric harmony, we remember our divine nature
-              and awaken to the infinite possibilities within."
+            <h1 className="text-5xl sm:text-6xl font-extralight tracking-tight text-white">
+              <span className="block">Elevate Your </span>
+              <span className="block font-medium bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-blue-400 to-teal-500">
+                Consciousness
+              </span>
+            </h1>
+            <p className="text-gray-300 text-xl leading-relaxed">
+              Sacred sound frequencies for healing, alignment, and transformation. 
+              Experience the ancient wisdom of sound healing in a modern, personalized journey.
             </p>
-          </div>
-          
-          <motion.div 
-            className="pt-8 flex flex-wrap justify-center gap-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.2, duration: 0.8 }}
-          >
-            <Button 
-              asChild 
-              size="lg" 
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-full px-8 py-6 text-lg"
-            >
-              <Link to="/sacred-blueprint">
-                Begin Your Sacred Journey <Sparkles className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-            
-            <Button 
-              asChild 
-              variant="outline" 
-              size="lg" 
-              className="border-purple-400/50 hover:bg-purple-900/20 text-purple-100 rounded-full px-8 py-6 text-lg"
-            >
-              <Link to="/circle">
-                Join the Sacred Circle <Heart className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
+            <div className="space-y-4 sm:space-y-0 sm:space-x-4 flex flex-col sm:flex-row">
+              <Button 
+                size="lg"
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg group"
+                onClick={() => navigate('/auth')}
+              >
+                Begin Your Journey 
+                <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+              <Button 
+                size="lg"
+                variant="outline" 
+                className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10"
+                onClick={() => navigate('/sacred-circle')}
+              >
+                Join the Community
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-3 pt-4">
+              <motion.span 
+                whileHover={{ scale: 1.05 }}
+                className="inline-block px-3 py-1 rounded-full bg-purple-900/40 text-purple-200 text-xs font-medium"
+              >
+                432 Hz Healing
+              </motion.span>
+              <motion.span 
+                whileHover={{ scale: 1.05 }}
+                className="inline-block px-3 py-1 rounded-full bg-blue-900/40 text-blue-200 text-xs font-medium"
+              >
+                Solfeggio Frequencies
+              </motion.span>
+              <motion.span 
+                whileHover={{ scale: 1.05 }}
+                className="inline-block px-3 py-1 rounded-full bg-teal-900/40 text-teal-200 text-xs font-medium"
+              >
+                Chakra Alignment
+              </motion.span>
+              <motion.span 
+                whileHover={{ scale: 1.05 }}
+                className="inline-block px-3 py-1 rounded-full bg-amber-900/40 text-amber-200 text-xs font-medium"
+              >
+                Sacred Geometry
+              </motion.span>
+            </div>
           </motion.div>
-        </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="relative"
+          >
+            <div className="relative aspect-w-10 aspect-h-9 rounded-2xl overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/30 to-blue-500/30 mix-blend-overlay"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <img 
+                  src="/lovable-uploads/6dafef18-8a06-46e1-bc1b-2325f13a67f7.png" 
+                  alt="Sacred Shifter Logo" 
+                  className="w-5/6 max-w-xs md:max-w-sm"
+                />
+              </div>
+              
+              {/* Animated orbs */}
+              <div className="absolute top-1/4 left-1/4 w-12 h-12 rounded-full bg-purple-400/40 animate-pulse-slow"></div>
+              <div className="absolute bottom-1/3 right-1/3 w-8 h-8 rounded-full bg-blue-400/40 animate-pulse-slow" style={{ animationDelay: "1.5s" }}></div>
+              <div className="absolute top-1/2 right-1/4 w-10 h-10 rounded-full bg-pink-400/40 animate-pulse-slow" style={{ animationDelay: "0.8s" }}></div>
+            </div>
+            
+            {/* Sacred geometry overlay */}
+            <div className="absolute inset-0 pointer-events-none z-10 opacity-30">
+              <svg viewBox="0 0 500 500" className="w-full h-full">
+                <circle cx="250" cy="250" r="100" stroke="white" strokeWidth="1" fill="none" />
+                <circle cx="250" cy="250" r="150" stroke="white" strokeWidth="1" fill="none" />
+                <circle cx="250" cy="250" r="200" stroke="white" strokeWidth="1" fill="none" />
+                <path d="M250 50 L250 450" stroke="white" strokeWidth="1" />
+                <path d="M50 250 L450 250" stroke="white" strokeWidth="1" />
+                <path d="M250 50 L450 250 L250 450 L50 250 Z" stroke="white" strokeWidth="1" fill="none" />
+              </svg>
+            </div>
+          </motion.div>
+        </div>
       </div>
       
-      {/* Accessibility Support */}
-      <style>{`
-        @media (prefers-reduced-motion: reduce) {
-          .motion-reduce {
-            animation: none !important;
-            transition: none !important;
-          }
-        }
-      `}</style>
+      {/* Decorative elements - increased visibility */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-600/10 rounded-full filter blur-3xl animate-pulse-subtle"></div>
+        <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-blue-600/10 rounded-full filter blur-3xl animate-pulse-subtle" style={{ animationDelay: "1s" }}></div>
+      </div>
     </div>
   );
 };

@@ -11,7 +11,8 @@ export const useUserSubscription = () => {
   
   // Check if user has lifetime membership
   const isLifetimeMember = () => {
-    return !!profile?.is_lifetime_member;
+    // Check if profile has is_lifetime_member property, if not fall back to checking is_premium
+    return !!profile?.is_lifetime_member || !!profile?.is_premium;
   };
   
   // Check if user has an active subscription
