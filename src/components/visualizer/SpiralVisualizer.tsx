@@ -33,11 +33,13 @@ const defaultParams: SpiralParams = {
 interface SpiralVisualizerProps {
   params?: SpiralParams;
   containerId?: string;
+  className?: string; // Added className prop to the interface
 }
 
 const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({ 
   params = defaultParams,
-  containerId = 'spiralVisualizer' 
+  containerId = 'spiralVisualizer',
+  className = '' // Added default empty string for className
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const sketchRef = useRef<p5 | null>(null);
@@ -171,7 +173,8 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
     };
   }, [params, containerId]);
 
-  return <div id={containerId} ref={containerRef} className="w-full h-full fixed top-0 left-0 z-0" />;
+  // Apply the className prop to the container div
+  return <div id={containerId} ref={containerRef} className={`w-full h-full fixed top-0 left-0 z-0 ${className}`.trim()} />;
 };
 
 export default SpiralVisualizer;

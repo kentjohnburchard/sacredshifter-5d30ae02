@@ -9,6 +9,25 @@ export interface VisualizerProps {
   onExpandStateChange?: (isExpanded: boolean) => void;
 }
 
+// Add the SpiralVisualizer props interface for proper typing
+export interface SpiralVisualizerProps {
+  params?: {
+    coeffA?: number;
+    coeffB?: number;
+    coeffC?: number;
+    freqA?: number;
+    freqB?: number;
+    freqC?: number;
+    color?: string;
+    opacity?: number;
+    strokeWeight?: number;
+    maxCycles?: number;
+    speed?: number;
+  };
+  containerId?: string;
+  className?: string;
+}
+
 // Empty type aliases to satisfy imports
 export type VisualizerType = string;
 export type ColorTheme = string;
