@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { MessageCircle, X, Send, ChevronDown, ChevronUp, User, Star, Clock } from 'lucide-react';
@@ -198,7 +197,7 @@ const SacredCircleMessenger: React.FC = () => {
         id: '2',
         sender_id: user.id,
         recipient_id: activeContact.id,
-        message: 'Not yet! I've been focused on the Heart chakra alignments lately.',
+        message: "Not yet! I've been focused on the Heart chakra alignments lately.",
         created_at: new Date(Date.now() - 3500000).toISOString(),
         read: true
       }
