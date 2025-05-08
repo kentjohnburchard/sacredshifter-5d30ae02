@@ -181,6 +181,9 @@ const TestJourneyContent: React.FC<{ journeySlug: string }> = ({ journeySlug }) 
   // Check if the currently loaded journey matches the active journey
   const isCurrentJourneyActive = isJourneyActive && activeJourney?.id === journey?.id;
 
+  // Generate a unique container ID for this instance of the spiral
+  const spiralContainerId = `journeySpiral-${journeySlug}`;
+
   return (
     <Layout 
       pageTitle={journey?.title || 'Test Journey'} 
@@ -202,7 +205,7 @@ const TestJourneyContent: React.FC<{ journeySlug: string }> = ({ journeySlug }) 
                     journeyId={journey?.id}
                     autoSync={false}
                     showControls={true}
-                    containerId={`journeySpiral-${journeySlug}`}
+                    containerId={spiralContainerId}
                     className="h-full w-full"
                   />
                 </div>
@@ -264,7 +267,7 @@ const TestJourneyContent: React.FC<{ journeySlug: string }> = ({ journeySlug }) 
                 <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl">
                   <CardContent className="p-4">
                     <JourneyTimelineView 
-                      journeyId={journey?.id}
+                      journeyId={journey?.id || ""}
                       autoSync={false}
                       limit={5}
                     />
