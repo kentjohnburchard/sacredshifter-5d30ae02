@@ -249,6 +249,17 @@ const TestJourneyContent: React.FC<{ journeySlug: string }> = ({ journeySlug }) 
                       <History className="h-4 w-4" />
                     </Button>
                   </div>
+
+                  {/* New: Button to try the Journey Experience */}
+                  <div className="mt-4 pt-4 border-t border-purple-500/30">
+                    <Button 
+                      component="a"
+                      href={`/journey/${journeySlug}/experience`}
+                      className="w-full bg-purple-600 hover:bg-purple-700"
+                    >
+                      Try Immersive Journey Experience
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
               
