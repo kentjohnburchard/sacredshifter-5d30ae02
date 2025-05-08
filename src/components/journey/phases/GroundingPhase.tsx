@@ -2,9 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChakraTag, getChakraColor } from '@/types/chakras';
-import SpiralVisualizer from '@/components/visualizer/SpiralVisualizer';
-import { Button } from '@/components/ui/button';
-import { Play } from 'lucide-react';
 
 interface GroundingPhaseProps {
   onComplete: () => void;
@@ -13,96 +10,55 @@ interface GroundingPhaseProps {
   frequency?: number;
 }
 
-const BreathingCircle: React.FC<{ chakra?: ChakraTag }> = ({ chakra }) => {
-  const [phase, setPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale');
-  const [count, setCount] = useState(0);
-  
-  // Breathing timing in seconds
-  const timings = {
-    inhale: 4,
-    hold: 4,
-    exhale: 6,
-  };
-
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    
-    if (phase === 'inhale') {
-      timer = setTimeout(() => {
-        setPhase('hold');
-        setCount(0);
-      }, timings.inhale * 1000);
-    } else if (phase === 'hold') {
-      timer = setTimeout(() => {
-        setPhase('exhale');
-        setCount(0);
-      }, timings.hold * 1000);
-    } else if (phase === 'exhale') {
-      timer = setTimeout(() => {
-        setPhase('inhale');
-        setCount(0);
-      }, timings.exhale * 1000);
-    }
-    
-    return () => clearTimeout(timer);
-  }, [phase]);
-
-  // Update count every second
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCount(prevCount => prevCount + 1);
-    }, 1000);
-    
-    return () => clearInterval(interval);
-  }, []);
-
+const BreathCircle: React.FC<{ state: 'inhale' | 'hold' | 'exhale'; chakra?: ChakraTag }> = ({ 
+  state, 
+  chakra 
+}) => {
   const chakraColor = getChakraColor(chakra) || '#FFFFFF';
-  const maxSize = 300; // Maximum size of breathing circle
-  const minSize = 100; // Minimum size
-
-  const getSize = () => {
-    switch (phase) {
-      case 'inhale':
-        return minSize + (maxSize - minSize) * (count / timings.inhale);
-      case 'hold':
-        return maxSize;
-      case 'exhale':
-        return maxSize - (maxSize - minSize) * (count / timings.exhale);
-      default:
-        return minSize;
-    }
-  };
-
+  
   return (
-    <div className="relative flex flex-col items-center justify-center">
-      <motion.div 
-        className="rounded-full relative"
-        style={{
-          width: getSize(),
-          height: getSize(),
-          backgroundColor: `${chakraColor}15`,
-          border: `2px solid ${chakraColor}40`,
-          boxShadow: `0 0 30px ${chakraColor}30`,
-          transition: 'all 1s ease-in-out'
+    <div className="relative flex items-center justify-center">
+      <motion.div
+        className="absolute rounded-full"
+        animate={{
+          scale: state === 'inhale' ? [1, 1.7] : 
+                 state === 'hold' ? 1.7 : 
+                 state === 'exhale' ? [1.7, 1] : 1,
+          opacity: [0.7, 1, 0.7],
         }}
-        initial={{ scale: 0.8 }}
-        animate={{ scale: 1 }}
+        transition={{
+          duration: state === 'inhale' ? 4 : 
+                   state === 'hold' ? 2 : 
+                   state === 'exhale' ? 6 : 1,
+          ease: state === 'exhale' ? 'easeInOut' : 'easeOut',
+        }}
+        style={{
+          backgroundColor: chakraColor + '15',
+          border: `2px solid ${chakraColor}60`,
+          boxShadow: `0 0 30px ${chakraColor}40`,
+          width: '200px',
+          height: '200px',
+        }}
       />
-      
-      <div className="mt-10 text-center text-white text-2xl">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={phase}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5 }}
-            className="capitalize"
-          >
-            {phase}
-          </motion.div>
-        </AnimatePresence>
-      </div>
+      <motion.div
+        className="absolute rounded-full"
+        animate={{
+          scale: state === 'inhale' ? [1, 1.5] : 
+                 state === 'hold' ? 1.5 : 
+                 state === 'exhale' ? [1.5, 1] : 1,
+        }}
+        transition={{
+          duration: state === 'inhale' ? 4 : 
+                   state === 'hold' ? 2 : 
+                   state === 'exhale' ? 6 : 1,
+          ease: state === 'exhale' ? 'easeInOut' : 'easeOut',
+        }}
+        style={{
+          backgroundColor: chakraColor + '30',
+          width: '100px',
+          height: '100px',
+        }}
+      />
     </div>
   );
 };
@@ -113,123 +69,123 @@ const GroundingPhase: React.FC<GroundingPhaseProps> = ({
   intent,
   frequency
 }) => {
-  const [started, setStarted] = useState(false);
+  const [breathState, setBreathState] = useState<'inhale' | 'hold' | 'exhale'>('inhale');
   const [breathCount, setBreathCount] = useState(0);
-  const requiredBreaths = 3; // Number of full breath cycles required
+  const [autoProgress, setAutoProgress] = useState(true);
+  const chakraColor = getChakraColor(chakra) || '#FFFFFF';
   
+  // Handle breath cycle
   useEffect(() => {
-    // If already started, count breath cycles
-    if (started) {
-      const breathTimer = setInterval(() => {
-        setBreathCount(prev => {
-          const newCount = prev + 1;
-          
-          // Auto-complete after required number of breaths
-          if (newCount >= requiredBreaths) {
-            clearInterval(breathTimer);
-            setTimeout(() => onComplete(), 2000); // Delay completion for a smoother transition
-          }
-          
-          return newCount;
-        });
-      }, 14000); // One full breath cycle (4s inhale + 4s hold + 6s exhale)
+    if (!autoProgress) return;
+    
+    const cycle = async () => {
+      // Inhale
+      setBreathState('inhale');
+      await new Promise(resolve => setTimeout(resolve, 4000));
       
-      return () => clearInterval(breathTimer);
-    }
-  }, [started, onComplete]);
-
-  // Get spiral parameters based on chakra
-  const getSpiralParams = () => {
-    const baseParams = {
-      coeffA: 0.8,
-      coeffB: 1.2,
-      freqA: 3.2,
-      freqB: 4.1,
-      color: '255,255,255',
-      opacity: 40,
-      strokeWeight: 0.8,
-      maxCycles: 3,
-      speed: 0.1
+      // Hold
+      setBreathState('hold');
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Exhale
+      setBreathState('exhale');
+      await new Promise(resolve => setTimeout(resolve, 6000));
+      
+      // Increment count
+      setBreathCount(prev => prev + 1);
     };
     
-    if (chakra) {
-      // Adjust color based on chakra
-      switch (chakra) {
-        case 'Root':
-          baseParams.color = '255,0,0';
-          break;
-        case 'Sacral':
-          baseParams.color = '255,127,0';
-          break;
-        case 'Solar Plexus':
-          baseParams.color = '255,255,0';
-          break;
-        case 'Heart':
-          baseParams.color = '0,255,0';
-          break;
-        case 'Throat':
-          baseParams.color = '0,255,255';
-          break;
-        case 'Third Eye':
-          baseParams.color = '0,0,255';
-          break;
-        case 'Crown':
-          baseParams.color = '139,0,255';
-          break;
-        default:
-          baseParams.color = '255,255,255';
-      }
+    const timer = setTimeout(cycle, 500);
+    return () => clearTimeout(timer);
+  }, [breathCount, autoProgress]);
+  
+  // Complete after 3 breaths
+  useEffect(() => {
+    if (breathCount >= 3 && autoProgress) {
+      const timer = setTimeout(() => {
+        onComplete();
+      }, 2000);
+      return () => clearTimeout(timer);
     }
-    
-    return baseParams;
+  }, [breathCount, onComplete, autoProgress]);
+  
+  const getBreathInstructions = () => {
+    switch(breathState) {
+      case 'inhale':
+        return "Breathe in slowly...";
+      case 'hold':
+        return "Hold your breath...";
+      case 'exhale':
+        return "Exhale fully...";
+      default:
+        return "Prepare to breathe...";
+    }
   };
-
+  
+  const progressPercentage = Math.min((breathCount / 3) * 100, 100);
+  
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center min-h-[60vh]">
-      {/* Background spiral */}
-      <div className="absolute inset-0 z-0">
-        <SpiralVisualizer 
-          params={getSpiralParams()}
-          containerId="grounding-spiral"
-        />
-      </div>
-      
-      <div className="relative z-10 max-w-md mx-auto text-center p-6">
-        {!started ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <h2 className="text-2xl font-bold mb-4 text-white">Prepare to Begin</h2>
-            {intent && (
-              <p className="text-white/80 mb-6">{intent}</p>
-            )}
-            <Button 
-              onClick={() => setStarted(true)}
-              className="bg-purple-600 hover:bg-purple-700 text-white"
-            >
-              <Play className="mr-2 h-4 w-4" /> Begin Breathwork
-            </Button>
-          </motion.div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
-            className="flex flex-col items-center"
-          >
-            <h3 className="text-xl font-medium mb-8 text-white">
-              Follow the breath...
-            </h3>
-            
-            <BreathingCircle chakra={chakra} />
-            
-            <div className="mt-8 text-white/70">
-              <p>Cycle {breathCount + 1} of {requiredBreaths}</p>
-            </div>
-          </motion.div>
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+        className="text-center mb-12"
+      >
+        <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-white">Grounding Phase</h2>
+        <p className="text-white/70 max-w-md mx-auto">
+          {intent || "Take a moment to center yourself and connect with your breath."}
+        </p>
+        {frequency && (
+          <p className="text-white/50 text-sm mt-2">
+            Preparing for {frequency}Hz frequency
+          </p>
         )}
+      </motion.div>
+      
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.5, duration: 1 }}
+        className="relative mb-12"
+      >
+        <BreathCircle state={breathState} chakra={chakra} />
+        <motion.div
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xl font-medium"
+          animate={{
+            opacity: [0.7, 1, 0.7]
+          }}
+          transition={{
+            repeat: Infinity,
+            duration: 3
+          }}
+        >
+          {getBreathInstructions()}
+        </motion.div>
+      </motion.div>
+      
+      <div className="w-full max-w-md px-4">
+        <div className="h-1 w-full bg-white/20 rounded-full overflow-hidden">
+          <motion.div
+            className="h-full rounded-full"
+            style={{ backgroundColor: chakraColor }}
+            initial={{ width: '0%' }}
+            animate={{ width: `${progressPercentage}%` }}
+            transition={{ duration: 0.5 }}
+          />
+        </div>
+        <div className="mt-2 text-white/60 text-sm flex justify-between">
+          <span>Breath {Math.min(breathCount, 3)} of 3</span>
+          <button 
+            onClick={() => {
+              setAutoProgress(false);
+              onComplete();
+            }} 
+            className="text-white/80 hover:text-white underline"
+          >
+            Skip
+          </button>
+        </div>
       </div>
     </div>
   );

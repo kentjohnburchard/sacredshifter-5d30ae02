@@ -1,12 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChakraTag } from '@/types/chakras';
-import SpiralVisualizer from '@/components/visualizer/SpiralVisualizer';
-import { Button } from '@/components/ui/button';
-import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
-import { Volume, VolumeX } from 'lucide-react';
+import { ChakraTag, getChakraColor } from '@/types/chakras';
 import ReactMarkdown from 'react-markdown';
+import { archetypes, getArchetypeForChakra } from '@/utils/archetypes';
+import { Play, Pause, SkipForward } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface AligningPhaseProps {
   onComplete: () => void;
@@ -16,221 +15,252 @@ interface AligningPhaseProps {
   script?: string;
 }
 
-const AligningPhase: React.FC<AligningPhaseProps> = ({ 
+const AligningPhase: React.FC<AligningPhaseProps> = ({
   onComplete,
   chakra,
   frequency,
   audioFile,
   script
 }) => {
-  const { playAudio, isPlaying, togglePlayPause } = useGlobalAudioPlayer();
-  const [currentAffirmationIndex, setCurrentAffirmationIndex] = useState(0);
-  const [autoAdvanceEnabled, setAutoAdvanceEnabled] = useState(true);
-  const [phaseProgress, setPhaseProgress] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+  const [currentAffirmation, setCurrentAffirmation] = useState(0);
   const [affirmations, setAffirmations] = useState<string[]>([]);
+  const chakraColor = getChakraColor(chakra) || '#FFFFFF';
+  const archetype = getArchetypeForChakra(chakra);
   
-  // Extract affirmations from script
+  // Parse script for affirmations
   useEffect(() => {
-    if (script) {
-      // Simple extraction of affirmations from markdown script
-      // This regex looks for lines that might be affirmations - starts with "I", "You", "We" or quotes
-      const extractedAffirmations = script.split('\n')
-        .filter(line => line.trim().match(/^[">]*\s*["']*(I|You|We|My|Your|Our)/i))
-        .map(line => line.trim().replace(/^[">]*\s*|["']*/g, ''));
-      
-      // If no affirmations found, create default ones based on chakra
-      if (extractedAffirmations.length === 0 && chakra) {
-        switch (chakra) {
-          case 'Root':
-            setAffirmations(["I am safe and secure", "I am grounded and centered", "I trust in the process of life"]);
-            break;
-          case 'Sacral':
-            setAffirmations(["I embrace my creativity", "I honor my feelings", "I allow pleasure in my life"]);
-            break;
-          case 'Solar Plexus':
-            setAffirmations(["I am confident and powerful", "I trust my decisions", "I am worthy of respect"]);
-            break;
-          case 'Heart':
-            setAffirmations(["I am love", "I give and receive love freely", "My heart is open and healed"]);
-            break;
-          case 'Throat':
-            setAffirmations(["I speak my truth with clarity", "My voice matters", "I express myself authentically"]);
-            break;
-          case 'Third Eye':
-            setAffirmations(["I trust my intuition", "I see clearly", "My perception is expanding"]);
-            break;
-          case 'Crown':
-            setAffirmations(["I am connected to divine wisdom", "I am one with the universe", "I am a being of light"]);
-            break;
-          default:
-            setAffirmations(["I am present in this moment", "I am aligned with my highest self", "I am awakening to my full potential"]);
-        }
-      } else {
-        setAffirmations(extractedAffirmations);
-      }
-    } else {
-      setAffirmations(["I am present", "I am aligned", "I am awakening"]);
+    if (!script) {
+      setAffirmations(["I am aligned with my highest truth.", "I open myself to healing energy."]);
+      return;
     }
+    
+    const extractedAffirmations: string[] = [];
+    
+    // Extract content under "## Affirmations" or similar headers
+    const affirmationSection = script.match(/## Affirm(ation|ations)?\s+([\s\S]*?)(?=##|$)/i);
+    
+    if (affirmationSection && affirmationSection[2]) {
+      // Split by lines, filter empty ones, and clean up
+      const lines = affirmationSection[2].split('\n')
+        .map(line => line.trim())
+        .filter(line => line && !line.startsWith('#'));
+      
+      // Check if lines start with * or - bullets
+      const bulletPattern = /^[*\-]\s+(.+)$/;
+      
+      lines.forEach(line => {
+        const bulletMatch = line.match(bulletPattern);
+        if (bulletMatch) {
+          extractedAffirmations.push(bulletMatch[1]);
+        } else if (line) {
+          extractedAffirmations.push(line);
+        }
+      });
+    }
+    
+    // If no affirmations found, use generic ones based on chakra
+    if (extractedAffirmations.length === 0) {
+      if (chakra === 'Root') {
+        extractedAffirmations.push("I am safe and secure in my body.");
+        extractedAffirmations.push("I am grounded and connected to Earth.");
+      } else if (chakra === 'Sacral') {
+        extractedAffirmations.push("I embrace my creativity and passion.");
+        extractedAffirmations.push("I allow pleasure and joy to flow through me.");
+      } else if (chakra === 'Solar Plexus') {
+        extractedAffirmations.push("I claim my personal power with confidence.");
+        extractedAffirmations.push("I trust my inner wisdom and strength.");
+      } else if (chakra === 'Heart') {
+        extractedAffirmations.push("I am open to giving and receiving love fully.");
+        extractedAffirmations.push("I am compassionate with myself and others.");
+      } else if (chakra === 'Throat') {
+        extractedAffirmations.push("I express my truth with clarity and confidence.");
+        extractedAffirmations.push("My voice matters and deserves to be heard.");
+      } else if (chakra === 'Third Eye') {
+        extractedAffirmations.push("I trust my intuition and inner vision.");
+        extractedAffirmations.push("I am connected to my highest wisdom.");
+      } else if (chakra === 'Crown') {
+        extractedAffirmations.push("I am connected to divine consciousness.");
+        extractedAffirmations.push("I am one with the universe and all that is.");
+      } else {
+        extractedAffirmations.push("I am aligned with my highest truth.");
+        extractedAffirmations.push("I open myself to healing energy.");
+      }
+    }
+    
+    setAffirmations(extractedAffirmations);
   }, [script, chakra]);
-
-  // Start playing audio when component mounts
+  
+  // Initialize audio
   useEffect(() => {
     if (audioFile) {
-      playAudio({
-        source: audioFile,
-        title: `${chakra || 'Sacred'} Frequency`,
-        frequency: frequency || undefined
-      });
+      const audio = new Audio(audioFile);
+      audio.loop = true;
+      setAudioElement(audio);
+      
+      return () => {
+        audio.pause();
+        audio.src = '';
+      };
     }
-    
-    // Auto-advance through affirmations
-    const progressInterval = setInterval(() => {
-      setPhaseProgress(prev => {
-        const newProgress = prev + 0.5;
-        if (newProgress >= 100) {
-          clearInterval(progressInterval);
-          setTimeout(() => onComplete(), 1000);
-          return 100;
-        }
-        return newProgress;
-      });
-    }, 300);
-    
-    return () => {
-      clearInterval(progressInterval);
-    };
-  }, [playAudio, audioFile, chakra, frequency, onComplete]);
+    return undefined;
+  }, [audioFile]);
   
-  // Auto-advance affirmations
+  // Manage audio playback
   useEffect(() => {
-    if (!autoAdvanceEnabled || affirmations.length === 0) return;
-    
-    const affirmationInterval = setInterval(() => {
-      setCurrentAffirmationIndex(prev => (prev + 1) % affirmations.length);
-    }, 7000); // Change affirmation every 7 seconds
-    
-    return () => clearInterval(affirmationInterval);
-  }, [autoAdvanceEnabled, affirmations.length]);
-
-  // Get spiral parameters based on chakra
-  const getSpiralParams = () => {
-    const baseParams = {
-      coeffA: 1.2,
-      coeffB: 0.8,
-      freqA: 3.2,
-      freqB: 4.1,
-      color: '255,255,255',
-      opacity: 70,
-      strokeWeight: 1.0,
-      maxCycles: 5,
-      speed: 0.3
-    };
-    
-    if (chakra) {
-      // Adjust color based on chakra
-      switch (chakra) {
-        case 'Root':
-          baseParams.color = '255,0,0';
-          baseParams.freqA = 4.0;
-          break;
-        case 'Sacral':
-          baseParams.color = '255,127,0';
-          baseParams.freqA = 4.2;
-          break;
-        case 'Solar Plexus':
-          baseParams.color = '255,255,0';
-          baseParams.freqA = 5.3;
-          break;
-        case 'Heart':
-          baseParams.color = '0,255,0';
-          baseParams.freqA = 6.4;
-          break;
-        case 'Throat':
-          baseParams.color = '0,255,255';
-          baseParams.freqA = 7.4;
-          break;
-        case 'Third Eye':
-          baseParams.color = '0,0,255';
-          baseParams.freqA = 8.5;
-          break;
-        case 'Crown':
-          baseParams.color = '139,0,255';
-          baseParams.freqA = 9.6;
-          break;
-        default:
-          baseParams.color = '255,255,255';
+    if (audioElement) {
+      if (isPlaying) {
+        audioElement.play().catch(error => {
+          console.error('Audio playback error:', error);
+          setIsPlaying(false);
+        });
+      } else {
+        audioElement.pause();
       }
     }
     
-    // If we have a frequency, adjust parameters based on it
-    if (frequency) {
-      baseParams.freqB = frequency / 100;
-      baseParams.coeffA = frequency / 500;
+    return () => {
+      if (audioElement && isPlaying) {
+        audioElement.pause();
+      }
+    };
+  }, [isPlaying, audioElement]);
+  
+  // Cycle through affirmations
+  useEffect(() => {
+    if (isPlaying && affirmations.length > 0) {
+      const interval = setInterval(() => {
+        setCurrentAffirmation(prev => (prev + 1) % affirmations.length);
+      }, 8000); // Change affirmation every 8 seconds
+      
+      return () => clearInterval(interval);
     }
-    
-    return baseParams;
+    return undefined;
+  }, [isPlaying, affirmations.length]);
+  
+  const togglePlay = () => {
+    setIsPlaying(!isPlaying);
   };
-
+  
+  const skipToNext = () => {
+    if (affirmations.length > 0) {
+      setCurrentAffirmation(prev => (prev + 1) % affirmations.length);
+    }
+  };
+  
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center min-h-[60vh]">
-      {/* Background spiral */}
-      <div className="absolute inset-0 z-0">
-        <SpiralVisualizer 
-          params={getSpiralParams()}
-          containerId="aligning-spiral"
-        />
+    <div className="relative w-full h-full flex flex-col items-center justify-center min-h-[60vh] p-4">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+        className="text-center mb-8"
+      >
+        <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-white">Aligning Phase</h2>
+        
+        {archetype && (
+          <p className="text-white/70 mb-2">
+            Connecting with the {archetype.name} archetype
+          </p>
+        )}
+        
+        {frequency && (
+          <p className="text-white/60 text-sm mb-6">
+            Frequency: {frequency}Hz
+          </p>
+        )}
+      </motion.div>
+      
+      {/* Audio controls */}
+      <div className="mb-10 flex items-center justify-center gap-4">
+        <Button
+          onClick={togglePlay}
+          className="rounded-full w-12 h-12 flex items-center justify-center"
+          style={{ backgroundColor: chakraColor }}
+          variant="secondary"
+        >
+          {isPlaying ? (
+            <Pause className="h-5 w-5 text-black" />
+          ) : (
+            <Play className="h-5 w-5 ml-1 text-black" />
+          )}
+        </Button>
+        
+        {isPlaying && (
+          <motion.div 
+            className="flex flex-col items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <p className="text-white/70 text-sm">
+              {audioFile ? "Playing frequency" : "Visualization active"}
+            </p>
+            <div className="flex gap-1 mt-1">
+              {[...Array(5)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="w-1 h-3 rounded-full"
+                  style={{ backgroundColor: chakraColor }}
+                  animate={{
+                    height: [3, 12, 5, 9, 3],
+                    opacity: [0.5, 1, 0.8, 0.6, 0.5]
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                    delay: i * 0.2
+                  }}
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
+        
+        <Button
+          onClick={skipToNext}
+          variant="ghost"
+          className="rounded-full w-10 h-10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10"
+        >
+          <SkipForward className="h-4 w-4" />
+        </Button>
       </div>
       
-      <div className="relative z-10 max-w-lg mx-auto text-center p-6">
-        {/* Affirmations */}
+      {/* Affirmation display */}
+      <div className="w-full max-w-lg mx-auto mb-12">
         <AnimatePresence mode="wait">
-          {affirmations.length > 0 && (
-            <motion.div
-              key={currentAffirmationIndex}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 1 }}
-              className="min-h-[120px] flex items-center justify-center"
-            >
-              <div className="bg-black/30 backdrop-blur-sm p-8 rounded-lg">
-                <h3 className="text-2xl font-light mb-2 text-white">
-                  {affirmations[currentAffirmationIndex]}
-                </h3>
-                
-                {frequency && (
-                  <p className="text-white/60 text-sm mt-4">
-                    {frequency}Hz • {chakra || 'Sacred'} Frequency
-                  </p>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        
-        {/* Audio control */}
-        <div className="mt-8">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={togglePlayPause}
-            className="rounded-full h-10 w-10 bg-black/30 border-white/20"
+          <motion.div
+            key={currentAffirmation}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+            className="text-center p-6 rounded-lg"
+            style={{ 
+              backgroundColor: `${chakraColor}15`,
+              border: `1px solid ${chakraColor}40`,
+              boxShadow: `0 0 20px ${chakraColor}30`
+            }}
           >
-            {isPlaying ? (
-              <Volume className="h-4 w-4 text-white" />
-            ) : (
-              <VolumeX className="h-4 w-4 text-white" />
+            {affirmations.length > 0 && (
+              <p className="text-xl sm:text-2xl font-medium text-white">
+                "{affirmations[currentAffirmation]}"
+              </p>
             )}
-          </Button>
-        </div>
-        
-        {/* Progress bar */}
-        <div className="w-full mt-8 bg-white/10 rounded-full h-1">
-          <div 
-            className="h-full bg-white rounded-full transition-all duration-300"
-            style={{ width: `${phaseProgress}%` }}
-          />
-        </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+      
+      <div className="w-full max-w-md flex justify-end px-4">
+        <Button
+          onClick={onComplete}
+          variant="outline"
+          className="border-white/20 text-white hover:bg-white/10"
+        >
+          Continue to Activation
+        </Button>
       </div>
     </div>
   );
