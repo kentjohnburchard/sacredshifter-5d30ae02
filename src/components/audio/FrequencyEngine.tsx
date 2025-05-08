@@ -20,7 +20,7 @@ import {
   Info,
   Settings,
   History,
-  WaveformCircle
+  AudioWaveform
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { createTone } from '@/utils/audioUtils';
@@ -833,7 +833,7 @@ const FrequencyEngine: React.FC<FrequencyEngineProps> = ({
                   disabled={!blendFrequency}
                   aria-label="Toggle frequency blending"
                 >
-                  <WaveformCircle className="h-4 w-4 mr-1" />
+                  <AudioWaveform className="h-4 w-4 mr-1" />
                   Blend Frequencies
                 </Toggle>
                 
