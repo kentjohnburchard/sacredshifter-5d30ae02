@@ -22,6 +22,7 @@ function App() {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
+        <Route path="/home" element={<LandingPage />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/about" element={<Placeholder name="About" />} />
         <Route path="/about-founder" element={<AboutFounder />} />
@@ -82,12 +83,6 @@ function App() {
           } 
         />
         <Route path="/journey/:slug" element={<Placeholder name="Journey" />} />
-        
-        {/* Legacy Routes - redirected */}
-        <Route path="/home" element={<SacredShifterHome />} />
-        
-        {/* Test Route - For internal dev preview only */}
-        <Route path="/test-journey" element={<TestJourney />} />
         
         {/* Fallback for missing routes */}
         <Route path="*" element={<Placeholder name="Not Found" />} />

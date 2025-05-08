@@ -1,94 +1,77 @@
 
-import React from "react";
-import { motion } from "framer-motion";
-import { Star, Heart, Music, Sparkles, Users, Brain } from "lucide-react";
-
-const features = [
-  {
-    title: "Sacred Journeys",
-    description: "Embark on guided spiritual experiences designed to elevate your consciousness and align your chakras.",
-    icon: Star,
-    color: "text-purple-400",
-    bgColor: "bg-purple-500/10",
-    borderColor: "border-purple-500/30"
-  },
-  {
-    title: "Frequency Engine",
-    description: "Experience the healing power of Solfeggio frequencies and sacred sound healing through our advanced audio engine.",
-    icon: Music,
-    color: "text-blue-400",
-    bgColor: "bg-blue-500/10",
-    borderColor: "border-blue-500/30"
-  },
-  {
-    title: "Sacred Circle",
-    description: "Connect with like-minded individuals on the path of spiritual growth and share your experiences.",
-    icon: Users,
-    color: "text-green-400",
-    bgColor: "bg-green-500/10",
-    borderColor: "border-green-500/30"
-  },
-  {
-    title: "Spiral Visualizer",
-    description: "See the sacred geometry underlying reality through our interactive spiral visualizer.",
-    icon: Sparkles,
-    color: "text-pink-400",
-    bgColor: "bg-pink-500/10",
-    borderColor: "border-pink-500/30"
-  },
-  {
-    title: "Heart Center",
-    description: "Activate and balance your heart chakra through guided meditations and frequency treatments.",
-    icon: Heart,
-    color: "text-teal-400",
-    bgColor: "bg-teal-500/10",
-    borderColor: "border-teal-500/30"
-  },
-  {
-    title: "Lightbearer Levels",
-    description: "Track your spiritual growth and unlock new insights as you progress on your journey.",
-    icon: Brain,
-    color: "text-amber-400",
-    bgColor: "bg-amber-500/10",
-    borderColor: "border-amber-500/30"
-  }
-];
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Music, Sparkles, Star, Heart, Users, Activity } from 'lucide-react';
 
 const FeaturesSection: React.FC = () => {
+  const features = [
+    {
+      icon: <Music className="h-12 w-12 text-purple-400" />,
+      title: "Frequency Engine",
+      description: "Immerse yourself in healing frequencies precisely tuned to Solfeggio and sacred mathematics."
+    },
+    {
+      icon: <Sparkles className="h-12 w-12 text-blue-400" />,
+      title: "Sacred Journeys",
+      description: "Follow guided spiritual paths designed to elevate consciousness and awaken inner wisdom."
+    },
+    {
+      icon: <Star className="h-12 w-12 text-amber-400" />,
+      title: "Lightbearer System",
+      description: "Track your spiritual growth and unlock new levels of enlightenment as you progress."
+    },
+    {
+      icon: <Heart className="h-12 w-12 text-red-400" />,
+      title: "Chakra Alignment",
+      description: "Balance and energize your energy centers with personalized practices and visualizations."
+    },
+    {
+      icon: <Users className="h-12 w-12 text-green-400" />,
+      title: "Sacred Circle",
+      description: "Connect with like-minded seekers and lightworkers on the path of spiritual growth."
+    },
+    {
+      icon: <Activity className="h-12 w-12 text-indigo-400" />,
+      title: "Reality Optimizer",
+      description: "Manifest your desires with powerful visualization tools and frequency calibration."
+    }
+  ];
+
   return (
-    <section id="features" className="relative z-10 py-24 px-6">
+    <section id="features" className="py-24 px-6 relative">
       <div className="max-w-7xl mx-auto">
-        <motion.div 
+        <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
           viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
         >
-          <h2 className="text-3xl md:text-4xl font-light mb-4 text-white">
-            Explore Sacred <span className="text-purple-400 font-medium">Features</span>
+          <h2 className="text-3xl md:text-4xl font-playfair font-bold text-white mb-6">
+            What Sacred Shifter Is
           </h2>
-          <p className="max-w-2xl mx-auto text-gray-300">
-            Discover the tools and experiences designed to elevate your consciousness
-            and connect you with your highest self.
+          <p className="text-xl text-white/70 max-w-3xl mx-auto">
+            Sacred Shifter is a digital portal for frequency healing, spiritual guidance, and vibrational transformation.
           </p>
         </motion.div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
             <motion.div
-              key={feature.title}
-              className={`p-6 rounded-lg backdrop-blur-sm border ${feature.borderColor} ${feature.bgColor}`}
+              key={index}
+              className="bg-black/30 backdrop-blur-md border border-purple-500/20 rounded-lg p-6 hover:bg-black/40 transition-all duration-300"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <div className={`rounded-full w-12 h-12 flex items-center justify-center mb-4 ${feature.bgColor} ${feature.borderColor} border`}>
-                <feature.icon className={`h-6 w-6 ${feature.color}`} />
+              <div className="flex flex-col items-center">
+                <div className="mb-4">
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
+                <p className="text-white/70 text-center">{feature.description}</p>
               </div>
-              <h3 className="text-xl font-medium text-white mb-2">{feature.title}</h3>
-              <p className="text-gray-300 leading-relaxed">{feature.description}</p>
             </motion.div>
           ))}
         </div>

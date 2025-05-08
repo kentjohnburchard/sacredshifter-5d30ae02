@@ -1,6 +1,6 @@
 
 // Custom type definitions for Supabase data
-// Use these instead of modifying the auto-generated types.ts file
+// Use these instead of modifying the auto-generated types.ts file.
 
 import type { Database } from "@/integrations/supabase/types";
 
