@@ -25,39 +25,33 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
 
   useEffect(() => {
     if (!containerRef.current) return;
-    if (p5InstanceRef.current) p5InstanceRef.current?.remove();
+    if (p5InstanceRef.current) p5InstanceRef.current.remove();
 
     const sketch = (p: p5) => {
-      // ✨ Sacred Spiral Geometry
-      const a = 3.0;       // Start BIGGER
-      const b = 0.15;      // More exponential growth
-
-      const maxAngle = params.maxCycles ? p.TWO_PI * params.maxCycles : p.TWO_PI * 14;
-      const speed = params.speed || 0.02;
-      const burstRate = 30; // Draw 30 points per frame for fast unfolding
+      const a = 1.5;
+      const b = 0.07;
+      const maxAngle = params.maxCycles ? p.TWO_PI * params.maxCycles : p.TWO_PI * 12;
+      const speed = params.speed || 0.012;
 
       const color = params.color || '180,200,255';
       const opacity = params.opacity || 80;
-      const strokeW = params.strokeWeight || 1.8;
+      const strokeW = params.strokeWeight || 1.4;
 
       let angle = 0;
-      let canvasWidth = 0;
-      let canvasHeight = 0;
       let currentScale = 1;
       let targetScale = 1;
 
       p.setup = () => {
-        canvasWidth = containerRef.current?.clientWidth || window.innerWidth;
-        canvasHeight = containerRef.current?.clientHeight || window.innerHeight;
+        const width = containerRef.current?.clientWidth || window.innerWidth;
+        const height = containerRef.current?.clientHeight || window.innerHeight;
 
-        p.createCanvas(canvasWidth, canvasHeight);
+        p.createCanvas(width, height);
         p.background(0);
         p.frameRate(60);
 
-        const minDim = Math.min(canvasWidth, canvasHeight);
-        targetScale = minDim / 200; // Bigger scale
+        const minDim = Math.min(width, height);
+        targetScale = minDim / 250;
         currentScale = targetScale;
-
         angle = 0;
       };
 
@@ -65,32 +59,28 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
         p.translate(p.width / 2, p.height / 2);
         p.scale(currentScale);
 
-        p.blendMode(p.ADD);
         p.strokeWeight(strokeW);
         p.stroke(p.color(`rgba(${color},${opacity / 100})`));
+        p.blendMode(p.ADD);
 
-        // Draw burstRate points per frame
-        for (let i = 0; i < burstRate && angle < maxAngle; i++) {
+        if (angle < maxAngle) {
           const r = a * p.exp(b * angle);
           const x = r * p.cos(angle);
           const y = r * p.sin(angle);
           p.point(x, y);
           angle += speed;
-        }
-
-        // Optional post-completion effects
-        if (angle >= maxAngle) {
+        } else {
           p.rotate(p.sin(p.frameCount * 0.002) * 0.03);
         }
       };
 
       p.windowResized = () => {
-        canvasWidth = containerRef.current?.clientWidth || window.innerWidth;
-        canvasHeight = containerRef.current?.clientHeight || window.innerHeight;
+        const width = containerRef.current?.clientWidth || window.innerWidth;
+        const height = containerRef.current?.clientHeight || window.innerHeight;
 
-        p.resizeCanvas(canvasWidth, canvasHeight);
-        const minDim = Math.min(canvasWidth, canvasHeight);
-        targetScale = minDim / 200;
+        p.resizeCanvas(width, height);
+        const minDim = Math.min(width, height);
+        targetScale = minDim / 250;
         currentScale = targetScale;
       };
     };
@@ -98,9 +88,7 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
     p5InstanceRef.current = new p5(sketch, containerRef.current);
 
     return () => {
-      if (p5InstanceRef.current) {
-        p5InstanceRef.current.remove();
-      }
+      p5InstanceRef.current?.remove();
     };
   }, [params, containerId]);
 
