@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ChevronLeft, ChevronRight, Circle } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { getActiveNavItems } from '@/config/navigation';
 import { Button } from '@/components/ui/button';
@@ -86,7 +86,7 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ className }) => {
               size="sm"
               onClick={toggleCollapsedState}
             >
-              {isCollapsed ? <Icons.ChevronRight /> : <Icons.ChevronLeft />}
+              {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
             </Button>
           )}
         </div>
@@ -96,7 +96,8 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ className }) => {
           <ul className="space-y-2">
             {navItems.map((item) => {
               const isActive = pathname === item.path;
-              const IconComponent = Icons[item.icon as keyof typeof Icons] || Icons.Circle;
+              // Fix the icon component usage with proper type checking
+              const LucideIcon = item.icon && (Icons as Record<string, React.ComponentType>)[item.icon] || Circle;
               
               const getChakraColor = () => {
                 if (isActive) {
@@ -123,7 +124,7 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ className }) => {
                       getChakraColor(),
                       isActive && "animate-pulse-subtle"
                     )}>
-                      {React.createElement(IconComponent, { className: "h-5 w-5" })}
+                      <LucideIcon className="h-5 w-5" />
                     </div>
                     {(!isCollapsed || isMobile) && (
                       <span className={cn(

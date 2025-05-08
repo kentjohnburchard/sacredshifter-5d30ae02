@@ -1,8 +1,8 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { getActiveNavItems, type PageKey, navItems } from "@/config/navigation";
+import { getActiveNavItems, type NavItem, type PageKey } from "@/config/navigation";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, Check, ChevronDown, ChevronRight, LucideIcon } from "lucide-react";
+import { ArrowLeft, Check, ChevronDown, ChevronRight, Circle } from "lucide-react";
 import * as Icons from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 // Use react-router-dom's hooks and Link
@@ -30,7 +30,7 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
 }) => {
   const { liftTheVeil } = useTheme();
   const { pathname: locationPath } = useLocation();
-  const [activeNavLinks, setActiveNavLinks] = useState<typeof navItems>([]);
+  const [activeNavLinks, setActiveNavLinks] = useState<NavItem[]>([]);
 
   const [themeState, setThemeState] = useState(liftTheVeil);
 
@@ -64,7 +64,7 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
             icon={item.icon}
             label={item.label}
             path={item.path}
-            pageKey={item.key}
+            pageKey={item.key || item.path}
             isCollapsed={isCollapsed}
             isActive={isActive}
             onClick={onLinkClick}
@@ -88,8 +88,8 @@ const NavLinkItem: React.FC<NavLinkItemProps> = ({
 }) => {
   const IconComponent = useMemo(() => {
     if (!icon || typeof icon !== 'string') return Icons.Layers;
-    // @ts-ignore - we know these icon names exist in Lucide
-    return Icons[icon] || Icons.Layers;
+    // Fix the type checking for icon components
+    return (Icons as Record<string, React.ComponentType>)[icon] || Icons.Layers;
   }, [icon]);
 
   const linkClasses = cn(

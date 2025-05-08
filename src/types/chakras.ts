@@ -9,6 +9,21 @@ export type ChakraInfo = {
   location: string;
 };
 
+// Add ChakraTag type - includes standard chakras plus any additional ones
+export type ChakraTag = ChakraName | 'Transpersonal';
+
+// Add CHAKRA_COLORS mapping for use in components
+export const CHAKRA_COLORS: Record<ChakraTag, string> = {
+  'Root': '#ef4444',       // red-500
+  'Sacral': '#f97316',     // orange-500
+  'Solar Plexus': '#eab308', // yellow-500
+  'Heart': '#22c55e',      // green-500
+  'Throat': '#3b82f6',     // blue-500
+  'Third Eye': '#6366f1',  // indigo-500
+  'Crown': '#a855f7',      // purple-500
+  'Transpersonal': '#ffffff' // white
+};
+
 export const chakraData: Record<ChakraName, ChakraInfo> = {
   'Root': {
     name: 'Root',
