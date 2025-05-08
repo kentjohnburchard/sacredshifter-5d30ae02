@@ -1,5 +1,6 @@
 
 import React from 'react';
+import AppShell from '@/components/layout/AppShell';
 
 interface PlaceholderProps {
   name: string;
@@ -7,12 +8,14 @@ interface PlaceholderProps {
 
 const Placeholder: React.FC<PlaceholderProps> = ({ name }) => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
-      <div className="text-center p-8 max-w-md bg-gray-800 rounded-lg shadow-lg">
-        <h1 className="text-2xl font-bold mb-4 text-purple-400">{name} Page</h1>
-        <p className="text-gray-300">This page is under construction but still sacred ✨</p>
+    <AppShell pageTitle={name}>
+      <div className="flex items-center justify-center min-h-[70vh]">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-white mb-4">{name} Page</h1>
+          <p className="text-xl text-gray-300">This page is under construction but still sacred ✨</p>
+        </div>
       </div>
-    </div>
+    </AppShell>
   );
 };
 

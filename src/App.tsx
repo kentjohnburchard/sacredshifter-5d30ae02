@@ -7,13 +7,14 @@ import JourneyExperiencePage from './pages/JourneyExperiencePage';
 import LightbearerPage from './pages/LightbearerPage';
 import SacredCirclePage from './pages/SacredCirclePage';
 import FrequencyEnginePage from './pages/FrequencyEnginePage';
+import SacredShifterHome from './pages/SacredShifterHome';
 
 function App() {
   return (
     <>
       <Routes>
         {/* Core Routes */}
-        <Route path="/" element={<Placeholder name="Home" />} />
+        <Route path="/" element={<SacredShifterHome />} />
         <Route path="/about" element={<Placeholder name="About" />} />
         <Route path="/journey/:slug" element={<Placeholder name="Journey" />} />
         <Route path="/dashboard" element={<Placeholder name="Dashboard" />} />
