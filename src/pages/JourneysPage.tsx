@@ -1,50 +1,120 @@
 
-import React from 'react';
-import Layout from '@/components/layout/Layout';
-import JourneyGallery from '@/components/journey/JourneyGallery';
+import React, { useState, useEffect } from 'react';
+import AppShell from '@/components/layout/AppShell';
+import { fetchJourneys } from '@/services/journeyService';
+import { getAllJourneys } from '@/utils/coreJourneyLoader';
+import { Journey } from '@/types/journey';
+import JourneysGrid from '@/components/journey/JourneysGrid';
+import { Input } from '@/components/ui/input';
+import { Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const JourneysPage: React.FC = () => {
-  return (
-    <Layout 
-      pageTitle="Sacred Journeys" 
-      className="bg-gradient-to-b from-purple-900/30 to-black min-h-screen"
-    >
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-        className="container mx-auto px-4 py-12"
-      >
-        <div className="text-center mb-12">
-          <motion.h1 
-            className="text-4xl md:text-5xl font-bold mb-4 text-white"
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-          >
-            Sacred Journeys
-          </motion.h1>
-          <motion.p 
-            className="text-lg text-white/70 max-w-3xl mx-auto"
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-          >
-            Explore transformative energetic experiences aligned with your chakras and archetypal resonance.
-            Each journey combines breathwork, sound, and sacred visuals to elevate your consciousness.
-          </motion.p>
-        </div>
+  const [journeys, setJourneys] = useState<Journey[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    const loadJourneys = async () => {
+      try {
+        setLoading(true);
+        // First load journeys from the database
+        const dbJourneys = await fetchJourneys();
         
-        <motion.div
-          initial={{ y: 40, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.6, duration: 0.8 }}
+        // Then combine with journeys from core_content
+        const allJourneys = await getAllJourneys(dbJourneys);
+        
+        console.log(`Loaded ${allJourneys.length} total journeys`);
+        setJourneys(allJourneys);
+        setError(null);
+      } catch (err) {
+        console.error('Error loading journeys:', err);
+        setError('Failed to load journeys. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadJourneys();
+  }, []);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+  
+  const filteredJourneys = searchQuery 
+    ? journeys.filter(journey => 
+        journey.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        journey.tags?.some(tag => 
+          tag.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      )
+    : journeys;
+
+  return (
+    <AppShell 
+      pageTitle="Sacred Journeys"
+      chakraColor="#8B5CF6"
+    >
+      <div className="container mx-auto px-4 py-8">
+        {/* Hero Section */}
+        <motion.div 
+          className="text-center mb-12"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
         >
-          <JourneyGallery variant="grid" showFilters={true} />
+          <h1 className="text-4xl md:text-5xl font-playfair font-bold mb-4 text-white leading-tight">
+            Sacred <span className="text-purple-400">Journeys</span>
+          </h1>
+          <p className="text-lg text-white/70 max-w-2xl mx-auto">
+            Explore transformative energetic experiences aligned with your chakras and archetypal
+            resonance. Each journey combines breathwork, sound, and sacred visuals to elevate your
+            consciousness.
+          </p>
         </motion.div>
-      </motion.div>
-    </Layout>
+        
+        {/* Search Box */}
+        <motion.div 
+          className="mb-8 relative max-w-md mx-auto"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+        >
+          <Search className="absolute left-3 top-3 h-5 w-5 text-white/50" />
+          <Input
+            placeholder="Search for a journey..."
+            className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/50"
+            value={searchQuery}
+            onChange={handleSearchChange}
+          />
+        </motion.div>
+        
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin h-12 w-12 border-t-2 border-b-2 border-purple-500 rounded-full"></div>
+          </div>
+        ) : error ? (
+          <div className="p-4 bg-red-500/20 border border-red-500/50 rounded-md text-white">
+            {error}
+          </div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+          >
+            <h2 className="text-2xl font-bold mb-6 text-white inline-block relative">
+              {searchQuery ? 'Search Results' : 'All Sacred Journeys'}
+              <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-transparent"></span>
+            </h2>
+            
+            <JourneysGrid journeys={filteredJourneys} className="mb-12" />
+          </motion.div>
+        )}
+      </div>
+    </AppShell>
   );
 };
 
