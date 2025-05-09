@@ -4,16 +4,18 @@ import Layout from '@/components/Layout';
 import JourneyAwareSpiralVisualizer from '@/components/visualizer/JourneyAwareSpiralVisualizer';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { useRoute } from '@/lib/spa-router';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
+  const { push } = useRoute();
   
   const handleStartJourney = () => {
-    navigate('/journey-index');
+    push('/journey-index');
   };
   
   const handleExploreFeatures = () => {
-    navigate('/features');
+    push('/features');
   };
   
   return (

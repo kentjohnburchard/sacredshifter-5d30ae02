@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { logTimelineEvent } from '@/services/timelineService';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
+import { fetchJourneyBySlug } from '@/services/journeyService';
 
 const BackButton = () => {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ const JourneyExperienceContent: React.FC = () => {
   useEffect(() => {
     const loadJourney = async () => {
       if (!journeySlug) {
-        navigate('/journeys');
+        navigate('/journey-index');
         return;
       }
       
@@ -46,54 +47,45 @@ const JourneyExperienceContent: React.FC = () => {
         setLoading(true);
         console.log(`Loading journey experience for: ${journeySlug}`);
         
-        // Fetch journey data from Supabase
-        const { data: journeyData, error } = await supabase
-          .from('journeys')
-          .select('*')
-          .eq('slug', journeySlug)
-          .single();
-          
-        if (error) {
-          console.error("Error loading journey:", error);
-          toast.error("Could not load journey");
+        // Use the journeyService to fetch the journey by slug
+        const journey = await fetchJourneyBySlug(journeySlug);
+        
+        if (!journey) {
+          console.error("Journey not found:", journeySlug);
+          toast.error("Journey not found");
           navigate('/journey-index');
           return;
         }
         
-        if (journeyData) {
-          console.log("Journey data loaded:", journeyData.title);
-          setJourneyData(journeyData);
-          
-          // Record journey start to timeline
-          logTimelineEvent('journey_start', {
-            journeyId: journeyData.id,
-            title: journeyData.title,
-            chakra: journeyData.chakra_tag
-          });
-          
-          // Initialize journey context
-          startJourney({
-            id: journeyData.id.toString(),
-            title: journeyData.title,
-            description: journeyData.description || '',
-            tags: Array.isArray(journeyData.tags) 
-              ? journeyData.tags 
-              : journeyData.tags?.split(',').map((t: string) => t.trim()) || [],
-            chakra_tag: journeyData.chakra_tag
-          });
-          
-          // Begin entrance transition
-          setTimeout(() => {
-            setTransitionActive(false);
-          }, 1500);
-        } else {
-          console.error("Journey not found:", journeySlug);
-          toast.error("Journey not found");
-          navigate('/journey-index');
-        }
+        console.log("Journey data loaded:", journey.title);
+        setJourneyData(journey);
+        
+        // Record journey start to timeline
+        logTimelineEvent('journey_start', {
+          journeyId: journey.id,
+          title: journey.title,
+          chakra: journey.chakra_tag
+        });
+        
+        // Initialize journey context
+        startJourney({
+          id: journey.id?.toString(),
+          title: journey.title,
+          description: journey.description || '',
+          tags: Array.isArray(journey.tags) 
+            ? journey.tags 
+            : journey.tags?.split(',').map((t: string) => t.trim()) || [],
+          chakra_tag: journey.chakra_tag
+        });
+        
+        // Begin entrance transition
+        setTimeout(() => {
+          setTransitionActive(false);
+        }, 1500);
       } catch (err) {
         console.error("Error in journey experience:", err);
         toast.error("Error loading journey");
+        navigate('/journey-index');
       } finally {
         setLoading(false);
       }
@@ -139,7 +131,7 @@ const JourneyExperienceContent: React.FC = () => {
       
       <JourneyExperience 
         journeyData={{
-          id: journeyData.id.toString(),
+          id: journeyData.id?.toString(),
           title: journeyData.title,
           intent: journeyData.intent,
           script: journeyData.script,

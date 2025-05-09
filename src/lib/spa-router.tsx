@@ -18,7 +18,11 @@ export function useRoute() {
         console.log('Preventing navigation to same route:', to);
         return;
       }
-      navigate(to);
+      
+      // Prevent default navigation behavior
+      setTimeout(() => {
+        navigate(to);
+      }, 0);
     },
     replace: (to: string) => navigate(to, { replace: true }),
     isActive: (route: string) => location.pathname === route,
@@ -35,7 +39,7 @@ export const Link: React.FC<{
   activeClassName?: string;
   children: React.ReactNode;
   replace?: boolean;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent) => void;
 }> = ({
   to,
   className = '',
@@ -44,11 +48,17 @@ export const Link: React.FC<{
   replace = false,
   onClick,
 }) => {
+  const navigate = useNavigate();
+  
   const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent default anchor behavior
+    
     if (onClick) {
-      e.preventDefault(); // Prevent default anchor behavior
-      onClick();
+      onClick(e);
+      return;
     }
+    
+    navigate(to, { replace });
   };
 
   return (

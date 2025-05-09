@@ -15,9 +15,11 @@ import { motion } from 'framer-motion';
 import AppShell from '@/components/layout/AppShell';
 import JourneyCard from '@/components/journey/JourneyCard';
 import { Link, useNavigate } from 'react-router-dom';
+import { useRoute } from '@/lib/spa-router';
 
 const JourneyIndex: React.FC = () => {
   const navigate = useNavigate();
+  const { push } = useRoute();
   const [journeys, setJourneys] = useState<Journey[]>([]);
   const [loading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -72,8 +74,8 @@ const JourneyIndex: React.FC = () => {
   const handleStartFeaturedJourney = (e: React.MouseEvent) => {
     e.preventDefault();
     if (featuredJourney) {
-      const journeyId = featuredJourney.filename || featuredJourney.id;
-      navigate(`/journey/${journeyId}/experience`);
+      const journeyId = featuredJourney.filename?.replace(/\.md$/, '') || featuredJourney.id;
+      push(`/journey/${journeyId}/experience`);
     }
   };
   

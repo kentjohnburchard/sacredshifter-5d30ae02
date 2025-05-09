@@ -2,17 +2,18 @@
 import React from 'react';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/context/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import { useRoute } from '@/lib/spa-router';
 
 const SacredJourneys: React.FC = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const { push } = useRoute();
   
   const handleBeginJourney = (journey: string) => (e: React.MouseEvent) => {
     e.preventDefault();
-    navigate(`/journey/${journey}`);
+    push(`/journey/${journey}`);
   };
   
   return (

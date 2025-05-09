@@ -30,7 +30,10 @@ const EnhancedJourneyCard: React.FC<EnhancedJourneyCardProps> = ({
     e.preventDefault(); // Prevent default behavior (page refresh)
     e.stopPropagation(); // Stop event propagation
     
-    const journeyId = journey.filename || journey.slug || journey.id;
+    // Remove .md extension if present for proper routing
+    const journeyId = journey.filename?.replace(/\.md$/, '') || 
+                     journey.slug?.replace(/\.md$/, '') || 
+                     journey.id;
     
     // Navigate to journey experience page using React Router's navigate
     navigate(`/journey/${journeyId}/experience`);
