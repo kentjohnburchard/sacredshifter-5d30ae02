@@ -8,6 +8,24 @@ import LoadingScreen from '@/components/LoadingScreen';
 import { toast } from 'sonner';
 import { logTimelineEvent } from '@/services/timelineService';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
+
+const BackButton = () => {
+  const navigate = useNavigate();
+  
+  return (
+    <motion.button
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="fixed top-6 left-6 z-50 p-3 rounded-full bg-black/40 backdrop-blur-lg 
+                text-white hover:bg-purple-900/40 transition-colors"
+      onClick={() => navigate('/journey-index')}
+      title="Back to Journeys"
+    >
+      <ArrowLeft size={20} />
+    </motion.button>
+  );
+};
 
 const JourneyExperienceContent: React.FC = () => {
   const { journeySlug } = useParams<{ journeySlug: string }>();
@@ -94,6 +112,8 @@ const JourneyExperienceContent: React.FC = () => {
   
   return (
     <>
+      <BackButton />
+      
       <AnimatePresence>
         {transitionActive && (
           <motion.div

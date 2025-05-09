@@ -28,8 +28,9 @@ const JourneyCard: React.FC<JourneyCardProps> = ({ journey, variant = 'default' 
   const handleEnterJourney = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    navigate(`/journey/${journey.slug || journey.filename || journey.id}/experience`);
-    console.log("Navigating to journey:", journey.slug || journey.filename || journey.id);
+    const journeyId = journey.slug || journey.filename || journey.id;
+    navigate(`/journey/${journeyId}/experience`);
+    console.log("Navigating to journey:", journeyId);
   };
   
   return (

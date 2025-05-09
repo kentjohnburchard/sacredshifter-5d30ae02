@@ -6,8 +6,9 @@ import { getAllJourneys } from '@/utils/coreJourneyLoader';
 import { Journey } from '@/types/journey';
 import JourneysGrid from '@/components/journey/JourneysGrid';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import { Search, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const JourneysPage: React.FC = () => {
   const [journeys, setJourneys] = useState<Journey[]>([]);
@@ -58,6 +59,14 @@ const JourneysPage: React.FC = () => {
       chakraColor="#8B5CF6"
     >
       <div className="container mx-auto px-4 py-8">
+        {/* Header with back button */}
+        <div className="flex items-center mb-6">
+          <Link to="/" className="mr-4 p-2 bg-purple-900/30 hover:bg-purple-900/50 rounded-md">
+            <ArrowLeft size={18} className="text-white" />
+          </Link>
+          <h1 className="text-2xl font-bold text-white">Sacred Journeys</h1>
+        </div>
+        
         {/* Hero Section */}
         <motion.div 
           className="text-center mb-12"

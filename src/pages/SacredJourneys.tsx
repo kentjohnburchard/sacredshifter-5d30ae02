@@ -2,11 +2,18 @@
 import React from 'react';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 
 const SacredJourneys: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  
+  const handleBeginJourney = (journey: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate(`/journey/${journey}`);
+  };
   
   return (
     <Layout 
@@ -15,6 +22,13 @@ const SacredJourneys: React.FC = () => {
       showContextActions={true}
     >
       <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center mb-6">
+          <Link to="/" className="mr-4 p-2 bg-purple-900/30 hover:bg-purple-900/50 rounded-md">
+            <ArrowLeft size={18} className="text-white" />
+          </Link>
+          <h1 className="text-2xl font-bold text-white">Sacred Journeys</h1>
+        </div>
+        
         <div className="max-w-7xl mx-auto">
           <h1 className="text-3xl font-bold text-center mb-8 text-purple-100">
             Sacred Journeys
@@ -32,11 +46,12 @@ const SacredJourneys: React.FC = () => {
                 <p className="text-gray-300 mb-4">
                   Embark on a journey to elevate your consciousness and align with your true self.
                 </p>
-                <Link to={`/journey/${journey}`}>
-                  <Button className="w-full bg-purple-700 hover:bg-purple-600">
-                    Begin Journey
-                  </Button>
-                </Link>
+                <Button 
+                  className="w-full bg-purple-700 hover:bg-purple-600"
+                  onClick={handleBeginJourney(journey)}
+                >
+                  Begin Journey
+                </Button>
               </div>
             ))}
           </div>

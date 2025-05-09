@@ -25,6 +25,7 @@ const JourneyAwareSpiralVisualizer: React.FC<JourneyAwareSpiralVisualizerProps> 
   const { user } = useAuth();
   const { activeJourney, isJourneyActive, recordActivity } = useJourney();
   const [isVisible, setIsVisible] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Ensure journeyId is always a string when passed to useSpiralParams
   const stringJourneyId = journeyId ? String(journeyId) : undefined;
@@ -40,13 +41,22 @@ const JourneyAwareSpiralVisualizer: React.FC<JourneyAwareSpiralVisualizerProps> 
   // Get spiral parameters for current journey
   const spiralParams = useSpiralParams(effectiveJourneyId);
   
+  // Initialize component
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitialized(true);
+    }, 300);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
   // Log parameters for debugging
   useEffect(() => {
     console.log("JourneyAwareSpiralVisualizer - Got spiral params:", spiralParams, 
                 "for journeyId:", effectiveJourneyId);
   }, [spiralParams, effectiveJourneyId]);
 
-  // Log visibility changes
+  // Log visibility changes and record activity
   useEffect(() => {
     if (user?.id && effectiveJourneyId && isVisible !== undefined) {
       recordActivity('spiral_toggle', { 
@@ -103,7 +113,7 @@ const JourneyAwareSpiralVisualizer: React.FC<JourneyAwareSpiralVisualizerProps> 
     opacity: spiralParams?.opacity || 80,
     strokeWeight: spiralParams?.strokeWeight || 1.5,
     maxCycles: spiralParams?.maxCycles || 5,
-    speed: spiralParams?.speed || 0.5
+    speed: isInitialized ? (spiralParams?.speed || 0.5) : 0.01 // Start with slow speed until initialized
   };
 
   return (

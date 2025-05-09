@@ -30,9 +30,11 @@ const EnhancedJourneyCard: React.FC<EnhancedJourneyCardProps> = ({
     e.preventDefault(); // Prevent default behavior (page refresh)
     e.stopPropagation(); // Stop event propagation
     
+    const journeyId = journey.filename || journey.slug || journey.id;
+    
     // Navigate to journey experience page using React Router's navigate
-    navigate(`/journey/${journey.filename || journey.slug || journey.id}/experience`);
-    console.log("Navigating to journey:", journey.filename || journey.slug || journey.id);
+    navigate(`/journey/${journeyId}/experience`);
+    console.log("Navigating to journey:", journeyId);
   };
   
   return (

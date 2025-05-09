@@ -2,8 +2,20 @@
 import React from 'react';
 import Layout from '@/components/Layout';
 import JourneyAwareSpiralVisualizer from '@/components/visualizer/JourneyAwareSpiralVisualizer';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 const HomePage: React.FC = () => {
+  const navigate = useNavigate();
+  
+  const handleStartJourney = () => {
+    navigate('/journey-index');
+  };
+  
+  const handleExploreFeatures = () => {
+    navigate('/features');
+  };
+  
   return (
     <Layout 
       pageTitle="Sacred Shifter"
@@ -23,6 +35,23 @@ const HomePage: React.FC = () => {
           <p className="text-xl md:text-2xl text-purple-200 mb-8">
             Embark on a journey of spiritual transformation
           </p>
+          
+          <div className="flex flex-wrap justify-center gap-4 mt-6">
+            <Button 
+              className="bg-purple-700 hover:bg-purple-600 text-white px-8 py-6 text-lg"
+              onClick={handleStartJourney}
+            >
+              Start My Journey
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="border-purple-500/50 text-white hover:bg-purple-800/30 px-8 py-6 text-lg"
+              onClick={handleExploreFeatures}
+            >
+              Explore Features
+            </Button>
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 max-w-6xl mx-auto">
             <div className="bg-purple-900/20 backdrop-blur-sm p-6 rounded-lg border border-purple-500/30">

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { fetchJourneys } from '@/services/journeyService';
 import { Journey } from '@/types/journey';
@@ -5,16 +6,18 @@ import { PageLayout } from '@/components/layout/PageLayout';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Info, Search, BookOpen } from 'lucide-react';
+import { Info, Search, BookOpen, ArrowLeft } from 'lucide-react';
 import { getAllJourneys } from '@/utils/coreJourneyLoader';
 import { normalizeStringArray } from '@/utils/parsers';
 import { toast } from 'sonner';
 import JourneyAwareSpiralVisualizer from '@/components/visualizer/JourneyAwareSpiralVisualizer';
 import { motion } from 'framer-motion';
 import AppShell from '@/components/layout/AppShell';
-import JourneyCard from '@/components/journey/JourneyCard'; // Added the missing import
+import JourneyCard from '@/components/journey/JourneyCard';
+import { Link, useNavigate } from 'react-router-dom';
 
 const JourneyIndex: React.FC = () => {
+  const navigate = useNavigate();
   const [journeys, setJourneys] = useState<Journey[]>([]);
   const [loading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,6 +69,14 @@ const JourneyIndex: React.FC = () => {
     setSearchQuery(e.target.value);
   };
   
+  const handleStartFeaturedJourney = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (featuredJourney) {
+      const journeyId = featuredJourney.filename || featuredJourney.id;
+      navigate(`/journey/${journeyId}/experience`);
+    }
+  };
+  
   const filteredJourneys = searchQuery 
     ? journeys.filter(journey => 
         journey.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -81,6 +92,14 @@ const JourneyIndex: React.FC = () => {
       chakraColor="#8B5CF6"
     >
       <div className="container mx-auto px-4 py-8">
+        {/* Header with back button */}
+        <div className="flex items-center mb-6">
+          <Link to="/" className="mr-4 p-2 bg-purple-900/30 hover:bg-purple-900/50 rounded-md">
+            <ArrowLeft size={18} className="text-white" />
+          </Link>
+          <h1 className="text-2xl font-bold text-white">Sacred Journeys</h1>
+        </div>
+        
         {/* Hero Section */}
         <motion.div 
           className="text-center mb-12"
@@ -169,12 +188,10 @@ const JourneyIndex: React.FC = () => {
                       
                       <Button 
                         className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white mt-4 px-6 py-6 h-auto group"
-                        asChild
+                        onClick={handleStartFeaturedJourney}
                       >
-                        <a href={`/journey/${featuredJourney.filename || featuredJourney.id}/experience`}>
-                          <BookOpen className="h-5 w-5 mr-2 group-hover:animate-pulse" />
-                          <span>Begin Featured Journey</span>
-                        </a>
+                        <BookOpen className="h-5 w-5 mr-2 group-hover:animate-pulse" />
+                        <span>Begin Featured Journey</span>
                       </Button>
                     </div>
                     
@@ -226,12 +243,7 @@ const JourneyIndex: React.FC = () => {
                           transition={{ duration: 0.5, delay: Math.random() * 0.3 }}
                           className="h-full"
                         >
-                          <a href={`/journey/${journey.filename || journey.id}`} className="block h-full">
-                            <div className="journey-card-container h-full">
-                              {/* Using the improved JourneyCard component */}
-                              <JourneyCard journey={journey} />
-                            </div>
-                          </a>
+                          <JourneyCard journey={journey} />
                         </motion.div>
                       ))}
                     </div>

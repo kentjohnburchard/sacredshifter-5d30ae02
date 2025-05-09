@@ -44,17 +44,48 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const sketchRef = useRef<p5 | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const lastParamsRef = useRef<SpiralParams>(params);
+  const animationFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
     // Combine default parameters with provided ones, ensuring all params exist
     const processedParams = { ...defaultParams, ...params };
+    lastParamsRef.current = processedParams;
     
     console.log("SpiralVisualizer received params:", processedParams);
 
+    // Small delay to ensure the container is fully rendered before creating the p5 instance
+    const initTimer = setTimeout(() => {
+      if (containerRef.current && !isInitialized) {
+        initSketch(processedParams);
+      } else if (isInitialized && sketchRef.current) {
+        // Already initialized, just update parameters
+        console.log("Updating existing spiral with new params");
+      }
+    }, 100);
+
+    return () => {
+      clearTimeout(initTimer);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, []);
+
+  // Handle parameter updates separately for better performance
+  useEffect(() => {
+    if (isInitialized && JSON.stringify(lastParamsRef.current) !== JSON.stringify(params)) {
+      console.log("Parameters changed, updating spiral");
+      lastParamsRef.current = { ...defaultParams, ...params };
+    }
+  }, [params, isInitialized]);
+
+  const initSketch = (processedParams: Required<SpiralParams>) => {
     const sketch = (p: p5) => {
       let t = 0;
       let frameCount = 0;
       const frameSkip = 2; // Only render every 2 frames for performance
+      let animationSpeed = processedParams.speed;
       
       p.setup = () => {
         if (!containerRef.current) return;
@@ -75,8 +106,12 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
         }
         frameCount++;
         
+        // Get the latest parameters from ref
+        const currentParams = lastParamsRef.current;
+        animationSpeed = currentParams.speed || defaultParams.speed;
+        
         // Slowly advance time based on speed parameter
-        t += processedParams.speed * 0.02;
+        t += animationSpeed * 0.02;
         
         // Apply a subtle fade to create trail effect
         p.background(0, 0, 0, 8);
@@ -97,10 +132,13 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
             p,
             baseRadius,
             t + layerOffset,
-            processedParams,
+            currentParams,
             layer
           );
         }
+
+        // Request the next animation frame for smooth updates
+        animationFrameRef.current = requestAnimationFrame(() => p.redraw());
       };
       
       // Helper function to draw a single spiral
@@ -108,15 +146,26 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
         p: p5, 
         radius: number, 
         time: number, 
-        params: Required<SpiralParams>,
+        params: SpiralParams,
         layerIndex: number
       ) => {
+        const coeffA = params.coeffA || defaultParams.coeffA;
+        const coeffB = params.coeffB || defaultParams.coeffB;
+        const coeffC = params.coeffC || defaultParams.coeffC;
+        const freqA = params.freqA || defaultParams.freqA;
+        const freqB = params.freqB || defaultParams.freqB;
+        const freqC = params.freqC || defaultParams.freqC;
+        const maxCycles = params.maxCycles || defaultParams.maxCycles;
+        const opacity = params.opacity || defaultParams.opacity;
+        const strokeWeight = params.strokeWeight || defaultParams.strokeWeight;
+        const color = params.color || defaultParams.color;
+        
         p.push();
         p.noFill();
         
         // Determine color based on layer
         const hueOffset = layerIndex * 30;
-        const [r, g, b] = params.color.split(',').map(Number);
+        const [r, g, b] = color.split(',').map(Number);
         const hue = (p.map(r + g + b, 0, 765, 0, 360) + hueOffset) % 360;
         
         // Start new shape
@@ -124,7 +173,7 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
         
         // Calculate how many points to use based on desired density and screen size
         const totalPoints = 120;
-        const rotations = params.maxCycles;
+        const rotations = maxCycles;
         const angleStep = (Math.PI * 2 * rotations) / totalPoints;
         
         // For each point in the spiral
@@ -134,8 +183,8 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
           
           // Calculate radius that grows logarithmically
           const spiralRadius = radius * (0.1 + 0.02 * angle) * 
-            (1 + Math.sin(angle * params.freqA * 0.1 + time) * params.coeffA * 0.05) * 
-            (1 + Math.sin(angle * params.freqB * 0.1 + time * 1.3) * params.coeffB * 0.05);
+            (1 + Math.sin(angle * freqA * 0.1 + time) * coeffA * 0.05) * 
+            (1 + Math.sin(angle * freqB * 0.1 + time * 1.3) * coeffB * 0.05);
           
           // Apply modulation to position
           const x = spiralRadius * Math.cos(angle);
@@ -147,10 +196,10 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
           const brightness = 90 - layerIndex * 10;
           
           // Fade opacity toward the end for smooth termination
-          const pointOpacity = params.opacity * 100 * (1 - i/totalPoints * 0.3);
+          const pointOpacity = opacity * 100 * (1 - i/totalPoints * 0.3);
           
           p.stroke(pointHue, saturation, brightness, pointOpacity);
-          p.strokeWeight(params.strokeWeight * (1 - i/totalPoints * 0.5));
+          p.strokeWeight(strokeWeight * (1 - i/totalPoints * 0.5));
           
           // Add vertex to the shape
           p.vertex(x, y);
@@ -167,7 +216,7 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
       };
     };
 
-    // Create and clean up sketch
+    // Create sketch
     if (containerRef.current) {
       console.log("Creating p5 sketch in container:", containerId);
       
@@ -178,15 +227,20 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
       
       sketchRef.current = new p5(sketch, containerRef.current);
     }
+  };
 
+  useEffect(() => {
     return () => {
       if (sketchRef.current) {
         console.log("Cleaning up p5 sketch");
         sketchRef.current.remove();
         sketchRef.current = null;
       }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
-  }, [params, containerId]);
+  }, []);
 
   // Add a background color to make it visible even if p5 fails
   return (

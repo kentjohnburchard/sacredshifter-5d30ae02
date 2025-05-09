@@ -1,6 +1,4 @@
 
-// src/utils/RouterHelpers.tsx (or rename as needed)
-
 import { useParams, useNavigate, useLocation, NavLink } from 'react-router-dom';
 
 /**
@@ -14,7 +12,14 @@ export function useRoute() {
   return {
     path: location.pathname,
     params,
-    push: navigate,
+    push: (to: string) => {
+      // Ensure we're not just refreshing the current page
+      if (location.pathname === to) {
+        console.log('Preventing navigation to same route:', to);
+        return;
+      }
+      navigate(to);
+    },
     replace: (to: string) => navigate(to, { replace: true }),
     isActive: (route: string) => location.pathname === route,
   };
@@ -22,6 +27,7 @@ export function useRoute() {
 
 /**
  * Link - A NavLink wrapper for consistent styling and active state
+ * Prevents default anchor behavior to avoid page refreshes
  */
 export const Link: React.FC<{
   to: string;
@@ -38,11 +44,18 @@ export const Link: React.FC<{
   replace = false,
   onClick,
 }) => {
+  const handleClick = (e: React.MouseEvent) => {
+    if (onClick) {
+      e.preventDefault(); // Prevent default anchor behavior
+      onClick();
+    }
+  };
+
   return (
     <NavLink
       to={to}
       replace={replace}
-      onClick={onClick}
+      onClick={handleClick}
       className={({ isActive }) =>
         `${className} ${isActive && activeClassName ? activeClassName : ''}`
       }
