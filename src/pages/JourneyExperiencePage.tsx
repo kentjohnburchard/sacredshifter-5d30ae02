@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import JourneyExperience from '@/components/journey/JourneyExperience';
@@ -10,6 +9,7 @@ import { logTimelineEvent } from '@/services/timelineService';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { fetchJourneyBySlug } from '@/services/journeyService';
+import { normalizeStringArray } from '@/utils/parsers';
 
 const BackButton = () => {
   const navigate = useNavigate();
@@ -72,11 +72,7 @@ const JourneyExperienceContent: React.FC = () => {
           id: journey.id?.toString(),
           title: journey.title,
           description: journey.description || '',
-          tags: Array.isArray(journey.tags) 
-            ? journey.tags 
-            : typeof journey.tags === 'string' && journey.tags
-              ? journey.tags.split(',').map((t: string) => t.trim())
-              : [],
+          tags: normalizeStringArray(journey.tags),
           chakra_tag: journey.chakra_tag
         });
         

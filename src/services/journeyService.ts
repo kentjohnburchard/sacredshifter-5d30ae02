@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Journey } from '@/types/journey';
 import { normalizeStringArray, normalizeId } from '@/utils/parsers';
@@ -65,12 +64,13 @@ export const fetchJourneyBySlug = async (slug: string): Promise<Journey | null> 
     // Remove .md extension if present in the slug
     const cleanSlug = slug.replace(/\.md$/, '');
     
+    // First try direct match on filename or slug
     const { data, error } = await supabase
       .from('journeys')
       .select('*')
-      .or(`filename.eq.${cleanSlug},slug.eq.${cleanSlug},filename.eq.${cleanSlug}.md`)
+      .or(`filename.eq.${cleanSlug},slug.eq.${cleanSlug}`)
       .limit(1);
-
+    
     // Log detailed information about the query results
     console.log('Supabase query response:', { data, error });
     
@@ -78,10 +78,28 @@ export const fetchJourneyBySlug = async (slug: string): Promise<Journey | null> 
       console.error(`Error fetching journey with slug ${slug}:`, error);
       throw error;
     }
-
+    
+    // If we found a journey, return it
     if (data && data.length > 0) {
       console.log(`Successfully found journey: ${data[0].title} (ID: ${data[0].id})`);
       return normalizeJourneyData(data[0]);
+    }
+    
+    // If not found with direct match, try using ilike for partial match
+    const { data: fuzzyData, error: fuzzyError } = await supabase
+      .from('journeys')
+      .select('*')
+      .or(`filename.ilike.%${cleanSlug}%,slug.ilike.%${cleanSlug}%`)
+      .limit(1);
+      
+    if (fuzzyError) {
+      console.error(`Error in fuzzy search for journey ${slug}:`, fuzzyError);
+      return null;
+    }
+    
+    if (fuzzyData && fuzzyData.length > 0) {
+      console.log(`Found journey with fuzzy match: ${fuzzyData[0].title} (ID: ${fuzzyData[0].id})`);
+      return normalizeJourneyData(fuzzyData[0]);
     }
     
     console.log(`No journey found with slug: ${slug}`);
