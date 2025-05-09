@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import JourneyExperience from '@/components/journey/JourneyExperience';
@@ -32,6 +33,7 @@ const JourneyExperienceContent: React.FC = () => {
   const { journeySlug } = useParams<{ journeySlug: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [loadingMessage, setLoadingMessage] = useState("Preparing Your Sacred Journey...");
   const [journeyData, setJourneyData] = useState<any>(null);
   const [transitionActive, setTransitionActive] = useState(true);
   const { startJourney } = useJourney();
@@ -39,12 +41,14 @@ const JourneyExperienceContent: React.FC = () => {
   useEffect(() => {
     const loadJourney = async () => {
       if (!journeySlug) {
+        toast.error("No journey specified");
         navigate('/journey-index');
         return;
       }
       
       try {
         setLoading(true);
+        setLoadingMessage(`Loading journey experience for: ${journeySlug}`);
         console.log(`Loading journey experience for: ${journeySlug}`);
         
         // Use the journeyService to fetch the journey by slug
@@ -67,7 +71,7 @@ const JourneyExperienceContent: React.FC = () => {
           chakra: journey.chakra_tag
         });
         
-        // Initialize journey context
+        // Initialize journey context with properly normalized tags
         startJourney({
           id: journey.id?.toString(),
           title: journey.title,
@@ -93,7 +97,7 @@ const JourneyExperienceContent: React.FC = () => {
   }, [journeySlug, navigate, startJourney]);
   
   if (loading) {
-    return <LoadingScreen message="Preparing Your Sacred Journey..." />;
+    return <LoadingScreen message={loadingMessage} />;
   }
   
   if (!journeyData) {

@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { Journey } from '@/types/journey';
 import { normalizeStringArray, normalizeId } from '@/utils/parsers';
@@ -37,6 +38,7 @@ const prepareJourneyForDb = (journey: Partial<Journey>): Record<string, any> => 
 
 export const fetchJourneys = async (): Promise<Journey[]> => {
   try {
+    console.log('Fetching journeys from database...');
     const { data, error } = await supabase
       .from('journeys')
       .select('id, title, filename, veil_locked, audio_filename, tags, sound_frequencies, frequencies')
@@ -47,9 +49,10 @@ export const fetchJourneys = async (): Promise<Journey[]> => {
       throw error;
     }
 
+    console.log(`Successfully fetched ${data?.length || 0} journeys from database`);
+    
     // Mark all database journeys as editable and set source
     const dbJourneys = (data || []).map(journey => normalizeJourneyData(journey));
-
     return dbJourneys;
   } catch (error) {
     console.error('Error in fetchJourneys:', error);
@@ -61,22 +64,26 @@ export const fetchJourneyBySlug = async (slug: string): Promise<Journey | null> 
   try {
     console.log(`Attempting to fetch journey with slug: "${slug}"`);
     
+    if (!slug) {
+      console.error('No slug provided to fetchJourneyBySlug');
+      return null;
+    }
+    
     // Remove .md extension if present in the slug
     const cleanSlug = slug.replace(/\.md$/, '');
     
-    // First try direct match on filename or slug
+    // Try different approaches to find the journey
+    
+    // 1. First try direct match on filename or slug
     const { data, error } = await supabase
       .from('journeys')
       .select('*')
       .or(`filename.eq.${cleanSlug},slug.eq.${cleanSlug}`)
       .limit(1);
     
-    // Log detailed information about the query results
-    console.log('Supabase query response:', { data, error });
-    
     if (error) {
       console.error(`Error fetching journey with slug ${slug}:`, error);
-      throw error;
+      return null;
     }
     
     // If we found a journey, return it
@@ -85,19 +92,30 @@ export const fetchJourneyBySlug = async (slug: string): Promise<Journey | null> 
       return normalizeJourneyData(data[0]);
     }
     
-    // If not found with direct match, try using ilike for partial match
+    // 2. Try with .md extension
+    const { data: mdData, error: mdError } = await supabase
+      .from('journeys')
+      .select('*')
+      .eq('filename', `${cleanSlug}.md`)
+      .limit(1);
+      
+    if (mdError) {
+      console.error(`Error in md extension search for journey ${slug}:`, mdError);
+    } else if (mdData && mdData.length > 0) {
+      console.log(`Found journey with .md extension: ${mdData[0].title}`);
+      return normalizeJourneyData(mdData[0]);
+    }
+    
+    // 3. Try fuzzy search as a last resort
     const { data: fuzzyData, error: fuzzyError } = await supabase
       .from('journeys')
       .select('*')
-      .or(`filename.ilike.%${cleanSlug}%,slug.ilike.%${cleanSlug}%`)
+      .or(`filename.ilike.%${cleanSlug}%,slug.ilike.%${cleanSlug}%,title.ilike.%${cleanSlug.replace(/_/g, ' ')}%`)
       .limit(1);
       
     if (fuzzyError) {
       console.error(`Error in fuzzy search for journey ${slug}:`, fuzzyError);
-      return null;
-    }
-    
-    if (fuzzyData && fuzzyData.length > 0) {
+    } else if (fuzzyData && fuzzyData.length > 0) {
       console.log(`Found journey with fuzzy match: ${fuzzyData[0].title} (ID: ${fuzzyData[0].id})`);
       return normalizeJourneyData(fuzzyData[0]);
     }
