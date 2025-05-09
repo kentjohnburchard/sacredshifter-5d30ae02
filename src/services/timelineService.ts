@@ -88,3 +88,110 @@ export const getTimelineEventsForJourney = async (
     return [];
   }
 };
+
+/**
+ * Create a timeline item for a user
+ */
+export const createTimelineItem = async (
+  userId: string,
+  title: string,
+  tag: string,
+  details: any,
+  chakraTag?: string,
+  journeyId?: string
+): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('timeline_snapshots')
+      .insert({
+        user_id: userId,
+        title,
+        tag,
+        details,
+        chakra_tag: chakraTag,
+        journey_id: journeyId,
+        created_at: new Date().toISOString()
+      });
+    
+    if (error) {
+      console.error('Error creating timeline item:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error in createTimelineItem:', error);
+    return false;
+  }
+};
+
+/**
+ * Record a journey event in the timeline
+ */
+export const recordJourneyEvent = async (
+  userId: string,
+  tag: string,
+  title: string,
+  component?: string,
+  details?: any
+): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('timeline_snapshots')
+      .insert({
+        user_id: userId,
+        tag,
+        title,
+        component,
+        details,
+        created_at: new Date().toISOString()
+      });
+    
+    if (error) {
+      console.error('Error recording journey event:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error in recordJourneyEvent:', error);
+    return false;
+  }
+};
+
+/**
+ * Fetch timeline for a specific journey
+ */
+export const fetchJourneyTimeline = async (
+  journeyId: string,
+  limit: number = 10
+): Promise<any[]> => {
+  return getTimelineEventsForJourney(journeyId, limit);
+};
+
+/**
+ * Fetch user's timeline
+ */
+export const fetchUserTimeline = async (
+  userId: string,
+  limit: number = 20
+): Promise<any[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('timeline_snapshots')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    
+    if (error) {
+      console.error('Error fetching user timeline:', error);
+      return [];
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error('Error in fetchUserTimeline:', error);
+    return [];
+  }
+};
