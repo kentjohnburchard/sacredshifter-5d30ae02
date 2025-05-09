@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import { ChakraTag, getChakraColor } from '@/types/chakras';
 import { Journey } from '@/types/journey';
 import { Play, Lock } from 'lucide-react';
 import { normalizeStringArray } from '@/utils/parsers';
+import { useNavigate } from 'react-router-dom';
 
 interface JourneyCardProps {
   journey: Journey;
@@ -16,6 +16,7 @@ interface JourneyCardProps {
 }
 
 const JourneyCard: React.FC<JourneyCardProps> = ({ journey, variant = 'default' }) => {
+  const navigate = useNavigate();
   const chakraTag = journey.chakra_tag as ChakraTag;
   const archetype = getArchetypeForChakra(chakraTag);
   const chakraColor = getChakraColor(chakraTag) || '#8B5CF6'; // Default to purple
@@ -23,6 +24,13 @@ const JourneyCard: React.FC<JourneyCardProps> = ({ journey, variant = 'default' 
   const isPremium = journey.veil_locked;
   const frequencyText = journey.sound_frequencies || journey.frequencies?.join(', ');
   const tags = normalizeStringArray(journey.tags || []);
+  
+  const handleEnterJourney = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`/journey/${journey.slug || journey.filename || journey.id}/experience`);
+    console.log("Navigating to journey:", journey.slug || journey.filename || journey.id);
+  };
   
   return (
     <motion.div
@@ -126,18 +134,16 @@ const JourneyCard: React.FC<JourneyCardProps> = ({ journey, variant = 'default' 
         
         <CardFooter className="p-5 pt-0 z-10">
           <Button 
-            asChild
             className="w-full transition-all group-hover:shadow-lg group-hover:shadow-purple-900/30" 
             style={{ 
               backgroundImage: `linear-gradient(to right, ${chakraColor}, ${chakraColor}90)`,
               color: '#111',
               fontWeight: 'bold'
             }}
+            onClick={handleEnterJourney}
           >
-            <Link to={`/journey/${journey.slug || journey.filename}/experience`}>
-              <Play className="h-4 w-4 mr-2" />
-              Enter Journey
-            </Link>
+            <Play className="h-4 w-4 mr-2" />
+            Enter Journey
           </Button>
         </CardFooter>
       </Card>

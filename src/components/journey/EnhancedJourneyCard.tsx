@@ -26,9 +26,13 @@ const EnhancedJourneyCard: React.FC<EnhancedJourneyCardProps> = ({
   const frequencyText = journey.sound_frequencies || journey.frequencies?.join(', ');
   const tags = normalizeStringArray(journey.tags || []);
 
-  const handleStartJourney = () => {
-    // Navigate to journey experience page with the journey ID or filename
-    navigate(`/journey/${journey.filename || journey.id}/experience`);
+  const handleStartJourney = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent default behavior (page refresh)
+    e.stopPropagation(); // Stop event propagation
+    
+    // Navigate to journey experience page using React Router's navigate
+    navigate(`/journey/${journey.filename || journey.slug || journey.id}/experience`);
+    console.log("Navigating to journey:", journey.filename || journey.slug || journey.id);
   };
   
   return (
