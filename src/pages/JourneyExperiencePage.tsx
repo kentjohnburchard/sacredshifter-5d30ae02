@@ -63,10 +63,13 @@ const JourneyExperienceContent: React.FC = () => {
         console.log("Journey data loaded:", journey.title);
         setJourneyData(journey);
         
+        // Convert the journey ID to string to ensure consistency
+        const journeyId = journey.id?.toString();
+        
         // Record journey start to timeline - handle silently if it fails
         try {
           await logTimelineEvent('journey_start', {
-            journeyId: journey.id?.toString(),
+            journeyId,
             title: journey.title,
             chakra: journey.chakra_tag
           });
@@ -77,7 +80,7 @@ const JourneyExperienceContent: React.FC = () => {
         
         // Initialize journey context with properly normalized tags
         startJourney({
-          id: journey.id?.toString(),
+          id: journeyId,
           title: journey.title,
           description: journey.description || '',
           tags: normalizeStringArray(journey.tags),
@@ -137,7 +140,7 @@ const JourneyExperienceContent: React.FC = () => {
       
       <JourneyExperience 
         journeyData={{
-          id: journeyData.id?.toString(),
+          id: journeyData.id?.toString(), // Ensure ID is a string
           title: journeyData.title,
           intent: journeyData.intent,
           script: journeyData.script,

@@ -7,6 +7,7 @@ import { getArchetypeForChakra } from '@/utils/archetypes';
 import { normalizeStringArray } from '@/utils/parsers';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 interface EnhancedJourneyCardProps {
   journey: Journey;
@@ -30,14 +31,27 @@ const EnhancedJourneyCard: React.FC<EnhancedJourneyCardProps> = ({
     e.preventDefault(); // Prevent default behavior (page refresh)
     e.stopPropagation(); // Stop event propagation
     
-    // Remove .md extension if present for proper routing
-    const journeyId = journey.filename?.replace(/\.md$/, '') || 
-                     journey.slug?.replace(/\.md$/, '') || 
-                     journey.id;
+    try {
+      // Determine the correct journey ID to use
+      const journeyId = journey.slug || // First try slug
+                      journey.filename?.replace(/\.md$/, '') || // Then try filename without .md
+                      journey.id; // Fallback to ID
     
-    // Navigate to journey experience page using React Router's navigate
-    navigate(`/journey/${journeyId}/experience`);
-    console.log("Navigating to journey:", journeyId);
+      if (!journeyId) {
+        toast.error("Cannot start journey: Invalid journey ID");
+        return;
+      }
+      
+      // Normalize the journey ID to ensure it's a valid string
+      const normalizedId = String(journeyId).trim();
+      
+      // Navigate to journey experience page using React Router's navigate
+      navigate(`/journey/${normalizedId}/experience`);
+      console.log("Navigating to journey:", normalizedId);
+    } catch (error) {
+      console.error("Error navigating to journey:", error);
+      toast.error("Failed to start journey");
+    }
   };
   
   return (

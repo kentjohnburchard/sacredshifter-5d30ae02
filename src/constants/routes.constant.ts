@@ -28,22 +28,52 @@ export const APP_ROUTES: Record<string, RouteDefinition> = {
   HOME: {
     path: '/',
     name: 'Home',
-    qaStatus: 'pending',
-    notes: 'Initial placeholder route'
+    qaStatus: 'verified',
+    notes: 'Main landing page'
   },
   
   ABOUT: {
     path: '/about',
     name: 'About the Founder',
-    qaStatus: 'pending',
+    qaStatus: 'verified',
     notes: 'Information about Sacred Shifter founder'
   },
   
-  JOURNEY: {
+  // Journey routes
+  JOURNEY_INDEX: {
+    path: '/journey-index',
+    name: 'Journey Index',
+    qaStatus: 'verified',
+    notes: 'Main portal for accessing all sacred journeys'
+  },
+  
+  JOURNEYS: {
+    path: '/journeys',
+    name: 'Sacred Journeys',
+    qaStatus: 'verified',
+    notes: 'Alternative journey listing page'
+  },
+  
+  JOURNEY_DETAIL: {
     path: '/journey/:slug',
-    name: 'Journey',
-    qaStatus: 'pending',
-    notes: 'Individual journey experience page'
+    name: 'Journey Detail',
+    qaStatus: 'verified',
+    notes: 'Individual journey detail page'
+  },
+  
+  JOURNEY_EXPERIENCE: {
+    path: '/journey/:slug/experience',
+    name: 'Journey Experience',
+    qaStatus: 'verified', 
+    notes: 'Interactive journey experience page'
+  },
+  
+  // Trinity Gateway routes
+  TRINITY_GATEWAY: {
+    path: '/trinity-gateway',
+    name: 'Trinity Gateway',
+    qaStatus: 'verified',
+    notes: '3-6-9 sacred frequency experience'
   },
   
   // Future routes will be added here after QA

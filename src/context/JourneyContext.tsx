@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { ChakraTag } from '@/types/chakras';
 import { Journey, JourneyTimelineItem } from '@/types/journey';
@@ -99,21 +98,43 @@ export const JourneyProvider: React.FC<JourneyProviderProps> = ({ children }) =>
     };
     
     setActiveJourney(processedJourney);
-    // Additional logic for journey start can be added here
+    
+    // Log journey start to timeline
+    try {
+      recordActivity('journey_start', {
+        journeyId: processedJourney.id,
+        title: processedJourney.title,
+        chakra: processedJourney.chakra_tag || processedJourney.chakra
+      });
+    } catch (error) {
+      console.warn('Failed to record journey start:', error);
+    }
   };
 
   // Complete the current journey
   const completeJourney = () => {
-    console.log('Completing journey:', activeJourney?.title);
+    if (!activeJourney) return;
+    
+    console.log('Completing journey:', activeJourney.title);
+    
+    // Log journey completion to timeline
+    try {
+      recordActivity('journey_complete', {
+        journeyId: activeJourney.id,
+        title: activeJourney.title,
+        chakra: activeJourney.chakra_tag || activeJourney.chakra
+      });
+    } catch (error) {
+      console.warn('Failed to record journey completion:', error);
+    }
+    
     setActiveJourney(null);
-    // Additional logic for journey completion can be added here
   };
 
   // Reset the current journey
   const resetJourney = () => {
     console.log('Resetting journey');
     setActiveJourney(null);
-    // Additional reset logic can be added here
   };
 
   // Record user activity within a journey
@@ -123,18 +144,21 @@ export const JourneyProvider: React.FC<JourneyProviderProps> = ({ children }) =>
       return;
     }
     
-    console.log(`Recording activity: ${action}`, details);
+    // Convert the journeyId to string if provided as a number
+    let journeyId = activeJourney?.id;
+    if (details?.journeyId) {
+      journeyId = String(details.journeyId);
+    }
     
-    // Record to console for debugging purposes
-    console.log(`Journey activity: ${action}`, {
-      journeyId: activeJourney?.id || details?.journeyId,
+    console.log(`Recording activity: ${action}`, {
+      journeyId,
       details
     });
     
     // Log the timeline event using the timelineService
     try {
       logTimelineEvent(action as any, {
-        journeyId: activeJourney?.id || details?.journeyId,
+        journeyId,
         title: details?.title || activeJourney?.title,
         ...details
       }).catch(error => {
@@ -142,6 +166,7 @@ export const JourneyProvider: React.FC<JourneyProviderProps> = ({ children }) =>
       });
     } catch (error) {
       console.warn('Error in recordActivity:', error);
+      // Don't rethrow the error - allow the app to continue even if logging fails
     }
   };
 

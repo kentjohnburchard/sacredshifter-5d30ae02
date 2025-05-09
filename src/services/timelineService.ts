@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { JourneyTimelineEvent } from '@/types/journey';
 
@@ -11,6 +10,33 @@ interface TimelineEventDetails {
   chakra?: string;
   [key: string]: any;
 }
+
+/**
+ * Validates if a string is a valid UUID
+ */
+const isValidUUID = (str: string): boolean => {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(str);
+};
+
+/**
+ * Safely formats journey ID to ensure compatibility with the database
+ * If it's not a valid UUID, it returns null
+ */
+const formatJourneyId = (id?: string | number): string | null => {
+  if (!id) return null;
+  
+  const strId = String(id);
+  
+  // If it's a valid UUID, use it directly
+  if (isValidUUID(strId)) {
+    return strId;
+  }
+  
+  // For numeric IDs or other formats, we can't use them directly in the timeline_snapshots table
+  // as it expects a UUID for journey_id. Return null to indicate this ID can't be used.
+  return null;
+};
 
 /**
  * Log a timeline event for the current user
@@ -44,9 +70,14 @@ export const logTimelineEvent = async (
       }
     }
     
-    // Make sure journeyId is a string if present
+    // Format the journey_id properly for the database
+    let journey_id = null;
     if (sanitizedDetails.journeyId) {
-      sanitizedDetails.journeyId = String(sanitizedDetails.journeyId);
+      journey_id = formatJourneyId(sanitizedDetails.journeyId);
+      // If journey_id isn't a valid UUID, we'll still log the event but without the journey association
+      if (!journey_id) {
+        console.warn(`Invalid journey ID format: ${sanitizedDetails.journeyId}, timeline event will be logged without journey association`);
+      }
     }
     
     // Ensure tag is valid
@@ -57,8 +88,8 @@ export const logTimelineEvent = async (
       .insert({
         user_id: userId,
         tag: validTag,
-        title: details?.title || validTag,
-        journey_id: sanitizedDetails.journeyId,
+        title: sanitizedDetails.title || validTag,
+        journey_id: journey_id, // Only use journey_id if it's a valid UUID
         component: sanitizedDetails.component,
         notes: sanitizedDetails.notes,
         frequency: sanitizedDetails.frequency,
@@ -92,11 +123,20 @@ export const getTimelineEventsForJourney = async (
       return [];
     }
     
+    // Format the journey_id for consistency
+    const formattedJourneyId = formatJourneyId(journeyId);
+    
+    // If the journeyId isn't in UUID format, we can't query by it
+    if (!formattedJourneyId) {
+      console.warn(`Invalid journey ID format: ${journeyId}, cannot fetch timeline events`);
+      return [];
+    }
+    
     const { data, error } = await supabase
       .from('timeline_snapshots')
       .select('*')
       .eq('user_id', userData.user.id)
-      .eq('journey_id', journeyId)
+      .eq('journey_id', formattedJourneyId)
       .order('created_at', { ascending: false })
       .limit(limit);
     
@@ -124,6 +164,15 @@ export const createTimelineItem = async (
   journeyId?: string
 ): Promise<boolean> => {
   try {
+    // Format the journey_id if provided
+    let journey_id = null;
+    if (journeyId) {
+      journey_id = formatJourneyId(journeyId);
+      if (!journey_id) {
+        console.warn(`Invalid journey ID format: ${journeyId}, timeline item will be created without journey association`);
+      }
+    }
+    
     const { error } = await supabase
       .from('timeline_snapshots')
       .insert({
@@ -132,7 +181,7 @@ export const createTimelineItem = async (
         tag,
         details,
         chakra_tag: chakraTag,
-        journey_id: journeyId,
+        journey_id: journey_id,
         created_at: new Date().toISOString()
       });
     
