@@ -72,11 +72,12 @@ const Layout: React.FC<LayoutProps> = ({
         <div className={`flex-1 flex flex-col min-h-screen relative ${themeClasses} ${theme ? `theme-${theme}` : ''} ${consciousnessClass}`}>
           {!hideHeader && <Header />}
           
-          <div className={`flex-grow min-h-[calc(100vh-80px)] pb-32 relative ${showNavbar ? 'sm:pl-20 pt-4' : 'pt-0'} overflow-x-hidden`}>
+          {/* Adjust padding to prevent sidebar overlapping */}
+          <div className={`flex-grow min-h-[calc(100vh-80px)] pb-32 relative ${showNavbar ? 'md:ml-20 lg:ml-16 pt-4' : 'pt-0'} overflow-x-hidden`}>
             {/* Darker semi-transparent overlay for better text contrast */}
             <div className="absolute inset-0 bg-black/50 z-0"></div>
             
-            <div className="max-w-full mx-auto relative z-10">
+            <div className="w-full mx-auto relative z-10 px-4 md:px-6">
               {children}
             </div>
           </div>

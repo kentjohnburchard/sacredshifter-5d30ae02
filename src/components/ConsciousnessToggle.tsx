@@ -8,13 +8,13 @@ const ConsciousnessToggle: React.FC = () => {
   const { liftTheVeil, toggleVeil } = useTheme();
   
   return (
-    <div className="fixed top-4 left-4 z-50">
+    <div className="fixed top-4 right-4 sm:top-4 sm:left-4 z-50">
       <Button
         variant="outline"
         size="sm"
         onClick={toggleVeil}
         className={`
-          p-2 rounded-full 
+          p-2 rounded-full shadow-md
           ${liftTheVeil 
             ? 'bg-pink-900/30 border-pink-400/30 text-pink-200 hover:bg-pink-800/40' 
             : 'bg-purple-900/30 border-purple-400/30 text-purple-200 hover:bg-purple-800/40'}

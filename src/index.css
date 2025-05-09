@@ -47,6 +47,11 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+  
+  /* Improved responsive base styling */
+  html, body {
+    @apply h-full w-full overflow-x-hidden;
+  }
 }
 
 /* Text shadow utilities for better readability */
@@ -146,13 +151,26 @@
 }
 
 /* Style overrides for when veil is lifted */
-.veil-lifted .sidebar-gradient {
+.veil-mode .sidebar-gradient {
   background: #2B1A37;
   border-color: #382647;
 }
 
-.veil-lifted .nav-link:hover {
+.veil-mode .nav-link:hover {
   @apply bg-pink-800/50;
+}
+
+.standard-mode .nav-link:hover {
+  @apply bg-purple-800/50;
+}
+
+/* Fixed color changes for consciousness modes */
+.veil-mode .sidebar-accent {
+  @apply text-pink-400 border-pink-900/30;
+}
+
+.standard-mode .sidebar-accent {
+  @apply text-purple-400 border-purple-900/30;
 }
 
 /* Improved markdown content styling */
@@ -190,4 +208,42 @@
 
 .prose a {
   @apply text-purple-300 hover:text-purple-200 underline;
+}
+
+/* Responsive utilities */
+@media (max-width: 640px) {
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Ensure proper responsive behavior for main content */
+.content-with-sidebar {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .content-with-sidebar {
+    margin-left: 5rem;
+    width: calc(100% - 5rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  .content-with-sidebar.sidebar-expanded {
+    margin-left: 16rem;
+    width: calc(100% - 16rem);
+  }
+}
+
+/* Fix double-tap issue on mobile */
+@media (hover: none) {
+  .nav-link:hover {
+    background: transparent;
+  }
 }

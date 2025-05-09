@@ -1,22 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Menu, X, ChevronLeft, ChevronRight, Circle } from 'lucide-react';
+import { Menu, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { getActiveNavItems } from '@/config/navigation';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import SidebarLogo from './SidebarLogo';
 import SidebarUserDropdown from './SidebarUserDropdown';
-
-// Import specific icons we're going to use
-import { 
-  Circle as CircleIcon, 
-  Menu as MenuIcon, 
-  X as XIcon, 
-  ChevronLeft as ChevronLeftIcon, 
-  ChevronRight as ChevronRightIcon 
-} from 'lucide-react';
 
 interface SidebarNavProps {
   className?: string;
@@ -58,17 +49,19 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ className }) => {
     }
   };
 
-  // Function to get the appropriate icon component
+  // Function to get icon components dynamically
   const getIconComponent = (iconName: string) => {
-    // Map icon names to imported components
+    // This is a simple implementation - expand based on your available icons
     switch(iconName) {
-      case 'Menu': return <MenuIcon />;
-      case 'X': return <XIcon />;
-      case 'ChevronLeft': return <ChevronLeftIcon />;
-      case 'ChevronRight': return <ChevronRightIcon />;
-      case 'Circle': return <CircleIcon />;
-      // Add cases for each icon from navItems that you need
-      default: return <CircleIcon />;  // Default to Circle if icon not found
+      case 'Menu': return <Menu className="h-4 w-4" />;
+      case 'Home': return <Menu className="h-4 w-4" />;
+      case 'Circle': return <Menu className="h-4 w-4" />;
+      case 'Music': return <Menu className="h-4 w-4" />;
+      case 'Heart': return <Menu className="h-4 w-4" />;
+      case 'Triangle': return <Menu className="h-4 w-4" />;
+      case 'User': return <Menu className="h-4 w-4" />;
+      case 'Mail': return <Menu className="h-4 w-4" />;
+      default: return <Menu className="h-4 w-4" />;
     }
   };
 
@@ -82,7 +75,7 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ className }) => {
           size="icon"
           className="fixed top-4 left-4 z-50 text-white bg-black/40 backdrop-blur-md hover:bg-black/60"
         >
-          {isOpen ? <XIcon /> : <MenuIcon />}
+          {isOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
         </Button>
       )}
 
@@ -92,7 +85,9 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ className }) => {
           "fixed top-0 bottom-0 left-0 z-40 flex flex-col transition-all duration-300 ease-in-out",
           isMobile ? (isOpen ? "w-64 translate-x-0" : "w-64 -translate-x-full") : 
                     (isCollapsed ? "w-20" : "w-64"),
-          liftTheVeil ? "bg-black/80 border-r border-pink-900/30" : "bg-black/80 border-r border-purple-900/30",
+          liftTheVeil 
+            ? "bg-black/80 border-r border-pink-900/30" 
+            : "bg-black/80 border-r border-purple-900/30",
           "backdrop-blur-md",
           className
         )}
@@ -108,7 +103,7 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ className }) => {
               size="sm"
               onClick={toggleCollapsedState}
             >
-              {isCollapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+              {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
             </Button>
           )}
         </div>
@@ -118,13 +113,6 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ className }) => {
           <ul className="space-y-2">
             {navItems.map((item) => {
               const isActive = pathname === item.path;
-              
-              const getChakraColor = () => {
-                if (isActive) {
-                  return liftTheVeil ? 'text-pink-400' : 'text-purple-400';
-                }
-                return 'text-gray-400';
-              };
               
               return (
                 <li key={item.path}>
@@ -141,11 +129,12 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ className }) => {
                   >
                     <div className={cn(
                       "flex items-center",
-                      getChakraColor(),
+                      isActive 
+                        ? (liftTheVeil ? "text-pink-400" : "text-purple-400") 
+                        : "text-gray-400",
                       isActive && "animate-pulse-subtle"
                     )}>
-                      {/* Safely render icon by name */}
-                      {getIconComponent(item.icon)}
+                      {getIconComponent(item.icon || '')}
                     </div>
                     {(!isCollapsed || isMobile) && (
                       <span className={cn(
