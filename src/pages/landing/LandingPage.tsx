@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -20,13 +20,6 @@ import {
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  
-  // If user is logged in, redirect to dashboard
-  useEffect(() => {
-    if (user) {
-      navigate('/dashboard');
-    }
-  }, [user, navigate]);
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-purple-950/30 to-black overflow-hidden">
@@ -57,9 +50,16 @@ const LandingPage: React.FC = () => {
           <a href="#journeys" className="text-white/80 hover:text-white transition-colors">Journeys</a>
           <a href="#hermetic" className="text-white/80 hover:text-white transition-colors">Sacred Math</a>
           <a href="#about" className="text-white/80 hover:text-white transition-colors">About</a>
-          <Button variant="outline" className="border-purple-500 text-purple-400" onClick={() => navigate('/auth')}>
-            Login / Register
-          </Button>
+          
+          {user ? (
+            <Button variant="outline" className="border-purple-500 text-purple-400" onClick={() => navigate('/dashboard')}>
+              Dashboard
+            </Button>
+          ) : (
+            <Button variant="outline" className="border-purple-500 text-purple-400" onClick={() => navigate('/auth')}>
+              Login / Register
+            </Button>
+          )}
         </div>
         
         <Button variant="ghost" className="md:hidden text-white">
