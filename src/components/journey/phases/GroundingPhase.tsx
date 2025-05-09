@@ -1,7 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ChakraTag, getChakraColor } from '@/types/chakras';
+import { Button } from '@/components/ui/button';
+import { Sparkles, Pause, Play } from 'lucide-react';
+import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
+import ReactMarkdown from 'react-markdown';
+import { toast } from 'sonner';
 
 interface GroundingPhaseProps {
   onComplete: () => void;
@@ -10,183 +15,143 @@ interface GroundingPhaseProps {
   frequency?: number;
 }
 
-const BreathCircle: React.FC<{ state: 'inhale' | 'hold' | 'exhale'; chakra?: ChakraTag }> = ({ 
-  state, 
-  chakra 
-}) => {
-  const chakraColor = getChakraColor(chakra) || '#FFFFFF';
-  
-  return (
-    <div className="relative flex items-center justify-center">
-      <motion.div
-        className="absolute rounded-full"
-        animate={{
-          scale: state === 'inhale' ? [1, 1.7] : 
-                 state === 'hold' ? 1.7 : 
-                 state === 'exhale' ? [1.7, 1] : 1,
-          opacity: [0.7, 1, 0.7],
-        }}
-        transition={{
-          duration: state === 'inhale' ? 4 : 
-                   state === 'hold' ? 2 : 
-                   state === 'exhale' ? 6 : 1,
-          ease: state === 'exhale' ? 'easeInOut' : 'easeOut',
-        }}
-        style={{
-          backgroundColor: chakraColor + '15',
-          border: `2px solid ${chakraColor}60`,
-          boxShadow: `0 0 30px ${chakraColor}40`,
-          width: '200px',
-          height: '200px',
-        }}
-      />
-      <motion.div
-        className="absolute rounded-full"
-        animate={{
-          scale: state === 'inhale' ? [1, 1.5] : 
-                 state === 'hold' ? 1.5 : 
-                 state === 'exhale' ? [1.5, 1] : 1,
-        }}
-        transition={{
-          duration: state === 'inhale' ? 4 : 
-                   state === 'hold' ? 2 : 
-                   state === 'exhale' ? 6 : 1,
-          ease: state === 'exhale' ? 'easeInOut' : 'easeOut',
-        }}
-        style={{
-          backgroundColor: chakraColor + '30',
-          width: '100px',
-          height: '100px',
-        }}
-      />
-    </div>
-  );
-};
-
-const GroundingPhase: React.FC<GroundingPhaseProps> = ({ 
+const GroundingPhase: React.FC<GroundingPhaseProps> = ({
   onComplete,
   chakra,
   intent,
   frequency
 }) => {
-  const [breathState, setBreathState] = useState<'inhale' | 'hold' | 'exhale'>('inhale');
-  const [breathCount, setBreathCount] = useState(0);
-  const [autoProgress, setAutoProgress] = useState(true);
-  const chakraColor = getChakraColor(chakra) || '#FFFFFF';
+  const [secondsRemaining, setSecondsRemaining] = useState(60); // 1 minute grounding
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [showButton, setShowButton] = useState(false);
+  const { isPlaying, togglePlayPause } = useGlobalAudioPlayer();
   
-  // Handle breath cycle
+  // Start timer automatically after a short delay
   useEffect(() => {
-    if (!autoProgress) return;
+    const timer = setTimeout(() => {
+      setIsTimerRunning(true);
+    }, 2000);
     
-    const cycle = async () => {
-      // Inhale
-      setBreathState('inhale');
-      await new Promise(resolve => setTimeout(resolve, 4000));
-      
-      // Hold
-      setBreathState('hold');
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Exhale
-      setBreathState('exhale');
-      await new Promise(resolve => setTimeout(resolve, 6000));
-      
-      // Increment count
-      setBreathCount(prev => prev + 1);
-    };
-    
-    const timer = setTimeout(cycle, 500);
     return () => clearTimeout(timer);
-  }, [breathCount, autoProgress]);
+  }, []);
   
-  // Complete after 3 breaths
+  // Run countdown timer
   useEffect(() => {
-    if (breathCount >= 3 && autoProgress) {
-      const timer = setTimeout(() => {
-        onComplete();
-      }, 2000);
-      return () => clearTimeout(timer);
+    let interval: NodeJS.Timeout;
+    
+    if (isTimerRunning && secondsRemaining > 0) {
+      interval = setInterval(() => {
+        setSecondsRemaining(prev => prev - 1);
+      }, 1000);
+    } else if (secondsRemaining === 0 && !showButton) {
+      setShowButton(true);
+      toast.success("You are now grounded. Continue when ready.", {
+        duration: 5000
+      });
     }
-  }, [breathCount, onComplete, autoProgress]);
-  
-  const getBreathInstructions = () => {
-    switch(breathState) {
-      case 'inhale':
-        return "Breathe in slowly...";
-      case 'hold':
-        return "Hold your breath...";
-      case 'exhale':
-        return "Exhale fully...";
-      default:
-        return "Prepare to breathe...";
-    }
-  };
-  
-  const progressPercentage = Math.min((breathCount / 3) * 100, 100);
+    
+    return () => clearInterval(interval);
+  }, [isTimerRunning, secondsRemaining, showButton]);
   
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center min-h-[60vh]">
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-        className="text-center mb-12"
-      >
-        <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-white">Grounding Phase</h2>
-        <p className="text-white/70 max-w-md mx-auto">
-          {intent || "Take a moment to center yourself and connect with your breath."}
-        </p>
-        {frequency && (
-          <p className="text-white/50 text-sm mt-2">
-            Preparing for {frequency}Hz frequency
-          </p>
-        )}
-      </motion.div>
-      
+    <div className="max-w-2xl mx-auto p-6 bg-black/30 backdrop-blur-md rounded-xl border border-gray-800">
       <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.5, duration: 1 }}
-        className="relative mb-12"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
       >
-        <BreathCircle state={breathState} chakra={chakra} />
-        <motion.div
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xl font-medium"
-          animate={{
-            opacity: [0.7, 1, 0.7]
-          }}
-          transition={{
-            repeat: Infinity,
-            duration: 3
-          }}
-        >
-          {getBreathInstructions()}
-        </motion.div>
-      </motion.div>
-      
-      <div className="w-full max-w-md px-4">
-        <div className="h-1 w-full bg-white/20 rounded-full overflow-hidden">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold text-white mb-2">Begin Your Journey</h2>
+          <p className="text-white/75">
+            Take a deep breath and set your intention for this sacred experience
+          </p>
+        </div>
+        
+        <div className="my-8 relative">
+          <div className="flex justify-center items-center mb-6">
+            <motion.div
+              animate={{
+                scale: [1, 1.05, 1],
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                repeatType: "reverse",
+              }}
+              className="p-8 rounded-full"
+              style={{
+                background: `radial-gradient(circle, ${getChakraColor(chakra)}40 0%, rgba(0,0,0,0) 70%)`,
+                boxShadow: `0 0 40px ${getChakraColor(chakra)}30`
+              }}
+            >
+              <motion.div
+                initial={{ opacity: 0.3 }}
+                animate={{ opacity: 0.7 }}
+                transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+              >
+                <Sparkles 
+                  size={64}
+                  color={getChakraColor(chakra) || "#FFFFFF"}
+                  strokeWidth={1.5}
+                />
+              </motion.div>
+            </motion.div>
+          </div>
+          
+          <div className="text-center mb-8">
+            <p className="text-xl text-white mb-3">
+              {intent || "Centre your energy and connect with your higher self"}
+            </p>
+            {frequency && (
+              <p className="text-white/60 text-sm">
+                Frequency: {frequency}Hz
+              </p>
+            )}
+          </div>
+          
+          <div className="flex justify-center mb-4">
+            <button
+              onClick={togglePlayPause}
+              className="flex items-center px-4 py-2 bg-purple-900/50 hover:bg-purple-800/50 rounded-full text-white border border-purple-700/50 transition-colors"
+            >
+              {isPlaying ? <Pause size={18} className="mr-2" /> : <Play size={18} className="mr-2" />}
+              {isPlaying ? "Pause Audio" : "Resume Audio"}
+            </button>
+          </div>
+          
+          <div className="flex flex-col items-center">
+            <div 
+              className="w-24 h-24 rounded-full flex items-center justify-center text-2xl font-medium"
+              style={{
+                background: `conic-gradient(${getChakraColor(chakra) || '#8B5CF6'} ${(secondsRemaining / 60) * 100}%, transparent 0%)`,
+                boxShadow: `0 0 15px ${getChakraColor(chakra)}30`
+              }}
+            >
+              <div className="bg-black w-20 h-20 rounded-full flex items-center justify-center text-white">
+                {secondsRemaining}
+              </div>
+            </div>
+            <p className="mt-4 text-white/70 text-sm">
+              {isTimerRunning ? "Breathe deeply..." : "Preparing..."}
+            </p>
+          </div>
+
           <motion.div
-            className="h-full rounded-full"
-            style={{ backgroundColor: chakraColor }}
-            initial={{ width: '0%' }}
-            animate={{ width: `${progressPercentage}%` }}
+            className="mt-12 flex justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: showButton ? 1 : 0 }}
             transition={{ duration: 0.5 }}
-          />
-        </div>
-        <div className="mt-2 text-white/60 text-sm flex justify-between">
-          <span>Breath {Math.min(breathCount, 3)} of 3</span>
-          <button 
-            onClick={() => {
-              setAutoProgress(false);
-              onComplete();
-            }} 
-            className="text-white/80 hover:text-white underline"
           >
-            Skip
-          </button>
+            <Button 
+              onClick={onComplete}
+              disabled={!showButton}
+              className="px-8 py-6 text-lg bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg shadow-purple-900/30"
+            >
+              Continue Your Journey
+            </Button>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
