@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { fetchJourneys } from '@/services/journeyService';
 import { Journey } from '@/types/journey';
@@ -13,6 +12,7 @@ import { toast } from 'sonner';
 import JourneyAwareSpiralVisualizer from '@/components/visualizer/JourneyAwareSpiralVisualizer';
 import { motion } from 'framer-motion';
 import AppShell from '@/components/layout/AppShell';
+import JourneyCard from '@/components/journey/JourneyCard'; // Added the missing import
 
 const JourneyIndex: React.FC = () => {
   const [journeys, setJourneys] = useState<Journey[]>([]);
