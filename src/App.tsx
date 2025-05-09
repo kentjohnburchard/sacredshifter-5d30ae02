@@ -5,7 +5,6 @@ import LandingPage from './pages/landing/LandingPage';
 import Dashboard from './pages/Dashboard';
 import Placeholder from './pages/Placeholder';
 import TestJourney from './pages/TestJourney';
-import JourneysPage from './pages/JourneysPage';
 import JourneyExperiencePage from './pages/JourneyExperiencePage';
 import LightbearerPage from './pages/LightbearerPage';
 import SacredCirclePage from './pages/SacredCirclePage';
@@ -18,6 +17,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import HeartDashboard from './pages/HeartDashboard';
 import JourneyTemplatesPage from './pages/journey-templates';
 import JourneyIndex from './pages/JourneyIndex';
+import JourneyPage from './pages/JourneyPage';
+import JourneyPlayer from './components/frequency-journey/JourneyPlayer';
 
 function App() {
   const { user, loading } = useAuth();
@@ -46,7 +47,8 @@ function App() {
         <Route path="/journeys" element={<Journeys />} />
         <Route path="/journey-templates" element={<JourneyTemplatesPage />} />
         <Route path="/journey-index" element={<JourneyIndex />} />
-        <Route path="/journey/:slug" element={<Placeholder name="Journey" />} />
+        <Route path="/journey/:slug" element={<JourneyPage />} />
+        <Route path="/journey-player/:journeyId" element={<JourneyPlayer />} />
         
         {/* Protected Routes */}
         <Route 

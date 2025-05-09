@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import Layout from '@/components/Layout';
+import { useParams, Link } from 'react-router-dom';
+import { PageLayout } from '@/components/layout/PageLayout';
 import ReactMarkdown from 'react-markdown';
 import { fetchJourneyBySlug } from '@/services/journeyService';
 import { Journey } from '@/types/journey';
@@ -12,9 +12,10 @@ import JourneyTimelineView from '@/components/timeline/JourneyTimelineView';
 import { Card, CardContent } from '@/components/ui/card';
 import { useJourney } from '@/context/JourneyContext';
 import { Button } from '@/components/ui/button';
-import { Play, CirclePause, History } from 'lucide-react';
+import { Play, CirclePause, History, Headphones, ArrowLeft } from 'lucide-react';
 import { normalizeStringArray } from '@/utils/parsers';
 import { toast } from 'sonner';
+import { motion } from 'framer-motion';
 
 interface CoreJourneyLoaderResult {
   content: string;
@@ -51,12 +52,14 @@ const loadCoreJourneyContent = async (slug: string): Promise<CoreJourneyLoaderRe
       const tags = normalizeStringArray(frontmatter.tags || []);
       
       const journey: Journey = {
-        id: "temp-0", // Use string ID to match the updated Journey type
+        id: filename, 
         filename,
-        title: frontmatter.title || filename,
+        title: frontmatter.title || filename.replace(/_/g, ' '),
+        description: frontmatter.intent || '',
         veil_locked: frontmatter.veil || false,
         sound_frequencies: frontmatter.frequency?.toString() || parsedContent.frequencies || '',
-        tags: tags
+        tags: tags,
+        content: content
       };
       
       return { content, journey };
@@ -75,14 +78,13 @@ const JourneyPage: React.FC = () => {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
   const [hasAudioContent, setHasAudioContent] = useState(false);
-  const [showTimeline, setShowTimeline] = useState(true); // Changed to default true
+  const [showTimeline, setShowTimeline] = useState(true);
   
   const { 
     activeJourney, 
     isJourneyActive, 
     startJourney, 
     completeJourney, 
-    resetJourney,
     recordActivity
   } = useJourney();
   
@@ -127,12 +129,6 @@ const JourneyPage: React.FC = () => {
         
         // Determine if there's audio content based on metadata
         setHasAudioContent(!!journeyData.sound_frequencies || !!journeyData.audio_filename);
-        
-        // Ensure journeyData.id is a string
-        if (journeyData && journeyData.id) {
-          journeyData.id = String(journeyData.id);
-        }
-        
         setJourney(journeyData);
       } catch (error) {
         console.error('Error loading journey:', error);
@@ -166,7 +162,6 @@ const JourneyPage: React.FC = () => {
       
       const formattedJourney: Journey = {
         ...journey,
-        id: journey.id || "", // Ensure it's a non-empty string
         tags: journeyTags
       };
       
@@ -178,7 +173,7 @@ const JourneyPage: React.FC = () => {
       
       // Start the journey in the context
       startJourney(formattedJourney);
-      toast.success("Journey started");
+      toast.success("Sacred journey initiated");
     }
   };
   
@@ -194,7 +189,7 @@ const JourneyPage: React.FC = () => {
     
     // Complete the journey in the context
     completeJourney();
-    toast.success("Journey completed");
+    toast.success("Journey completed, thank you for traveling");
   };
   
   // Toggle timeline visibility
@@ -219,11 +214,32 @@ const JourneyPage: React.FC = () => {
   const journeyTags = journey?.tags?.length ? journey.tags : extractTagsFromContent();
 
   return (
-    <Layout 
-      pageTitle={journey?.title || 'Journey'} 
+    <PageLayout 
+      title={journey?.title || 'Journey'} 
       className="bg-gradient-to-b from-purple-900/40 to-black"
     >
-      <div className="container mx-auto px-4 py-8">
+      {!loading && journey && (
+        <motion.div 
+          className="absolute top-0 left-0 right-0 z-10 h-64 overflow-hidden opacity-20"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.2 }}
+          transition={{ duration: 1 }}
+        >
+          <JourneyAwareSpiralVisualizer 
+            journeyId={journey.id}
+            autoSync={false}
+            showControls={false}
+            containerId={`journeyBackgroundSpiral`}
+            className="w-full h-full"
+          />
+        </motion.div>
+      )}
+      
+      <div className="container mx-auto px-4 py-8 relative z-20">
+        <Link to="/journey-index" className="inline-flex items-center mb-6 text-purple-300 hover:text-white transition-colors">
+          <ArrowLeft className="h-4 w-4 mr-1" /> Back to Journey Index
+        </Link>
+        
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
@@ -284,6 +300,11 @@ const JourneyPage: React.FC = () => {
               {hasAudioContent && (
                 <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl">
                   <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-lg font-semibold text-white">Sacred Audio</h3>
+                      <Headphones className="h-4 w-4 text-purple-300" />
+                    </div>
+                    
                     {slug && (
                       <JourneyAwareSoundscapePlayer 
                         journeyId={slug} 
@@ -299,6 +320,7 @@ const JourneyPage: React.FC = () => {
               {showTimeline && (
                 <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl">
                   <CardContent className="p-4">
+                    <h3 className="text-lg font-semibold mb-2 text-white">Journey Timeline</h3>
                     <JourneyTimelineView 
                       journeyId={journey?.id}
                       autoSync={false}
@@ -334,7 +356,7 @@ const JourneyPage: React.FC = () => {
           </div>
         )}
       </div>
-    </Layout>
+    </PageLayout>
   );
 };
 
