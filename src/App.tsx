@@ -9,6 +9,7 @@ import JourneyExperiencePage from './pages/JourneyExperiencePage';
 import LightbearerPage from './pages/LightbearerPage';
 import SacredCirclePage from './pages/SacredCirclePage';
 import FrequencyEnginePage from './pages/FrequencyEnginePage';
+import RealityOptimizerPage from './pages/RealityOptimizerPage';
 import SacredShifterHome from './pages/SacredShifterHome';
 import AboutFounder from './pages/AboutFounder';
 import Journeys from './pages/JourneysPage';
@@ -48,7 +49,12 @@ function App() {
         <Route path="/journey-templates" element={<JourneyTemplatesPage />} />
         <Route path="/journey-index" element={<JourneyIndex />} />
         <Route path="/journey/:slug" element={<JourneyPage />} />
+        <Route path="/journey/:journeySlug/experience" element={<JourneyExperiencePage />} />
         <Route path="/journey-player/:journeyId" element={<JourneyPlayer />} />
+        
+        {/* Feature Routes */}
+        <Route path="/frequency-engine" element={<FrequencyEnginePage />} />
+        <Route path="/reality-optimizer" element={<RealityOptimizerPage />} />
         
         {/* Protected Routes */}
         <Route 
@@ -86,17 +92,6 @@ function App() {
         
         {/* Public Feature Routes */}
         <Route path="/circle" element={<SacredCirclePage />} />
-        <Route path="/frequency" element={<FrequencyEnginePage />} />
-        
-        {/* Journey Experience Routes */}
-        <Route 
-          path="/journey/:journeySlug/experience" 
-          element={
-            <ProtectedRoute>
-              <JourneyExperiencePage />
-            </ProtectedRoute>
-          } 
-        />
         
         {/* Fallback for missing routes */}
         <Route path="*" element={<Placeholder name="Not Found" />} />

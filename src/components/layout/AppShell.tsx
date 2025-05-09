@@ -71,7 +71,7 @@ const AppShell: React.FC<AppShellProps> = ({
         <div className="flex min-h-screen w-full z-10 relative">
           {showSidebar && <SidebarNav />}
           
-          <main className={`flex-1 flex flex-col min-h-screen relative ${showSidebar ? 'md:ml-20 lg:ml-64' : ''}`}>
+          <main className={`flex-1 flex flex-col min-h-screen relative ${showSidebar ? 'md:ml-16 lg:ml-64' : ''}`}>
             {/* Header with Auth Button */}
             <div className="p-4 flex justify-end">
               {!user ? (
@@ -92,8 +92,8 @@ const AppShell: React.FC<AppShellProps> = ({
               {/* Darker semi-transparent overlay for better text contrast */}
               <div className="absolute inset-0 bg-black/20 z-0"></div>
               
-              {/* Add padding to ensure content doesn't touch edges on mobile */}
-              <div className="w-full mx-auto relative z-10 px-4 md:px-6">
+              {/* Add responsive padding to ensure content doesn't touch edges on mobile */}
+              <div className="w-full mx-auto relative z-10 px-4 sm:px-6 md:px-8">
                 {children}
               </div>
             </div>
