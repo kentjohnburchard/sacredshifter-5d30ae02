@@ -1,9 +1,9 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Menu, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 // Import landing page sections
@@ -16,12 +16,31 @@ import {
   SoundLibraryPreview
 } from '@/components/landing';
 
+// Import the watermark
+import LogoWatermark from '@/components/landing/LogoWatermark';
+
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+  
+  const handleAuthClick = () => {
+    navigate('/auth');
+  };
+  
+  const handleDashboardClick = () => {
+    navigate('/dashboard');
+  };
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-purple-950/30 to-black overflow-hidden">
+      {/* Logo watermark */}
+      <LogoWatermark />
+      
       {/* Background elements */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-purple-500/10 blur-3xl animate-pulse-slow"></div>
@@ -42,7 +61,7 @@ const LandingPage: React.FC = () => {
       
       {/* Navigation */}
       <nav className="relative z-10 px-6 py-4 flex justify-between items-center bg-black/60 backdrop-blur-md">
-        <Logo />
+        <Logo width={50} height={50} />
         
         <div className="hidden md:flex items-center space-x-6">
           <a href="#features" className="text-white/80 hover:text-white transition-colors">Features</a>
@@ -50,23 +69,98 @@ const LandingPage: React.FC = () => {
           <a href="#about" className="text-white/80 hover:text-white transition-colors">About</a>
           
           {user ? (
-            <Button variant="outline" className="border-purple-500 text-purple-400" onClick={() => navigate('/dashboard')}>
+            <Button 
+              variant="outline" 
+              className="border-purple-500 text-purple-400" 
+              onClick={handleDashboardClick}
+            >
               Dashboard
             </Button>
           ) : (
-            <Button variant="outline" className="border-purple-500 text-purple-400" onClick={() => navigate('/auth')}>
+            <Button 
+              variant="outline" 
+              className="border-purple-500 text-purple-400" 
+              onClick={handleAuthClick}
+            >
               Login / Register
             </Button>
           )}
         </div>
         
-        <Button variant="ghost" className="md:hidden text-white">
+        <Button 
+          variant="ghost" 
+          className="md:hidden text-white"
+          onClick={toggleMobileMenu}
+        >
           <motion.span className="sr-only">Menu</motion.span>
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
+          {mobileMenuOpen ? (
+            <X className="w-6 h-6" />
+          ) : (
+            <Menu className="w-6 h-6" />
+          )}
         </Button>
       </nav>
+      
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <motion.div 
+          className="md:hidden fixed inset-0 z-30 bg-black/95 backdrop-blur-md"
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -50 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="flex flex-col items-center justify-center h-full">
+            <div className="flex flex-col items-center space-y-6">
+              <a 
+                href="#features" 
+                className="text-xl text-white/80 hover:text-white transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Features
+              </a>
+              <a 
+                href="#hermetic" 
+                className="text-xl text-white/80 hover:text-white transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Sacred Math
+              </a>
+              <a 
+                href="#about" 
+                className="text-xl text-white/80 hover:text-white transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                About
+              </a>
+              
+              {user ? (
+                <Button 
+                  variant="outline" 
+                  className="border-purple-500 text-purple-400 mt-4" 
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigate('/dashboard');
+                  }}
+                >
+                  Dashboard
+                </Button>
+              ) : (
+                <Button 
+                  variant="outline" 
+                  className="border-purple-500 text-purple-400 mt-4" 
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigate('/auth');
+                  }}
+                >
+                  Login / Register
+                </Button>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      )}
       
       {/* Hero Section */}
       <HeroSection />
