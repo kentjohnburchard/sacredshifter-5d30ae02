@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import JourneyTemplateCard from "./JourneyTemplateCard";
 import { useJourneyTemplates } from "@/hooks/useJourneyTemplates";
@@ -16,7 +15,8 @@ import {
   Waves, 
   Music, 
   Headphones, 
-  Clock
+  Clock,
+  AlertCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +24,8 @@ import { JourneyTemplate } from "@/data/journeyTemplates";
 import { meditationTypes } from "@/data/meditationTypes";
 import MeditationTypeCard from "@/components/meditation/MeditationTypeCard";
 import { MeditationType } from "@/types/meditation";
+import { toast } from "sonner";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export const JourneyTemplatesGrid = () => {
   const { templates, loading, error, audioMappings } = useJourneyTemplates();
@@ -91,7 +93,41 @@ export const JourneyTemplatesGrid = () => {
   if (error) {
     return (
       <div className="text-center py-10">
-        <p className="text-red-500">Failed to load journey templates: {error}</p>
+        <Alert variant="destructive" className="max-w-lg mx-auto">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error Loading Journey Templates</AlertTitle>
+          <AlertDescription>
+            We encountered an issue loading your sacred journeys. Please try refreshing the page.
+          </AlertDescription>
+        </Alert>
+        <Button 
+          onClick={() => window.location.reload()} 
+          className="mt-4"
+        >
+          Refresh Page
+        </Button>
+      </div>
+    );
+  }
+  
+  if (!templates || templates.length === 0) {
+    return (
+      <div className="text-center py-10">
+        <Alert className="max-w-lg mx-auto bg-purple-900/20 border-purple-500/30">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>No Journey Templates Available</AlertTitle>
+          <AlertDescription>
+            There are currently no journey templates available. Please check back later or explore our other sacred journeys.
+          </AlertDescription>
+        </Alert>
+        <div className="mt-6 flex flex-wrap gap-4 justify-center">
+          <Button onClick={() => window.location.reload()}>
+            Refresh Page
+          </Button>
+          <Button variant="outline" asChild>
+            <a href="/journeys">Browse All Journeys</a>
+          </Button>
+        </div>
       </div>
     );
   }

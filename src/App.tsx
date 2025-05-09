@@ -16,6 +16,8 @@ import Journeys from './pages/Journeys';
 import Auth from './pages/Auth';
 import ProtectedRoute from './components/ProtectedRoute';
 import HeartDashboard from './pages/HeartDashboard';
+import JourneyTemplatesPage from './pages/journey-templates';
+import JourneyIndex from './pages/JourneyIndex';
 
 function App() {
   const { user, loading } = useAuth();
@@ -39,6 +41,12 @@ function App() {
         <Route path="/auth" element={<Auth />} />
         <Route path="/about" element={<Placeholder name="About" />} />
         <Route path="/about-founder" element={<AboutFounder />} />
+        
+        {/* Journey Routes */}
+        <Route path="/journeys" element={<Journeys />} />
+        <Route path="/journey-templates" element={<JourneyTemplatesPage />} />
+        <Route path="/journey-index" element={<JourneyIndex />} />
+        <Route path="/journey/:slug" element={<Placeholder name="Journey" />} />
         
         {/* Protected Routes */}
         <Route 
@@ -80,14 +88,6 @@ function App() {
         
         {/* Journey Experience Routes */}
         <Route 
-          path="/journeys" 
-          element={
-            <ProtectedRoute>
-              <Journeys />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
           path="/journey/:journeySlug/experience" 
           element={
             <ProtectedRoute>
@@ -95,7 +95,6 @@ function App() {
             </ProtectedRoute>
           } 
         />
-        <Route path="/journey/:slug" element={<Placeholder name="Journey" />} />
         
         {/* Fallback for missing routes */}
         <Route path="*" element={<Placeholder name="Not Found" />} />
