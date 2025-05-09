@@ -6,6 +6,7 @@ import { ChakraTag, getChakraColor } from '@/types/chakras';
 import { getArchetypeForChakra } from '@/utils/archetypes';
 import { normalizeStringArray } from '@/utils/parsers';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 interface EnhancedJourneyCardProps {
   journey: Journey;
@@ -16,6 +17,7 @@ const EnhancedJourneyCard: React.FC<EnhancedJourneyCardProps> = ({
   journey,
   className
 }) => {
+  const navigate = useNavigate();
   const chakraTag = journey.chakra_tag as ChakraTag;
   const archetype = getArchetypeForChakra(chakraTag);
   const chakraColor = getChakraColor(chakraTag) || '#8B5CF6'; // Default to purple
@@ -23,6 +25,11 @@ const EnhancedJourneyCard: React.FC<EnhancedJourneyCardProps> = ({
   const isPremium = journey.veil_locked;
   const frequencyText = journey.sound_frequencies || journey.frequencies?.join(', ');
   const tags = normalizeStringArray(journey.tags || []);
+
+  const handleStartJourney = () => {
+    // Navigate to journey experience page with the journey ID or filename
+    navigate(`/journey/${journey.filename || journey.id}/experience`);
+  };
   
   return (
     <div className={`relative overflow-hidden rounded-xl h-full ${className}`}>
@@ -95,17 +102,17 @@ const EnhancedJourneyCard: React.FC<EnhancedJourneyCardProps> = ({
         
         {/* Button */}
         <div className="p-3 mt-auto">
-          <motion.a
+          <motion.button
             whileHover={{ scale: 1.03 }}
             className="flex justify-center items-center py-2 px-4 w-full rounded-md text-white font-medium transition-all"
-            href={`/journey/${journey.filename || journey.id}/experience`}
+            onClick={handleStartJourney}
             style={{
               background: `linear-gradient(to right, ${chakraColor}, ${chakraColor}90)`,
             }}
           >
             <Play className="h-4 w-4 mr-2" />
             <span>Enter Journey</span>
-          </motion.a>
+          </motion.button>
         </div>
       </div>
     </div>
