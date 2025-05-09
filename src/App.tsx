@@ -11,7 +11,7 @@ import SacredCirclePage from './pages/SacredCirclePage';
 import FrequencyEnginePage from './pages/FrequencyEnginePage';
 import SacredShifterHome from './pages/SacredShifterHome';
 import AboutFounder from './pages/AboutFounder';
-import Journeys from './pages/Journeys';
+import Journeys from './pages/JourneysPage';
 import Auth from './pages/Auth';
 import ProtectedRoute from './components/ProtectedRoute';
 import HeartDashboard from './pages/HeartDashboard';

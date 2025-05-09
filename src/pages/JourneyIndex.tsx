@@ -12,6 +12,7 @@ import { normalizeStringArray } from '@/utils/parsers';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { toast } from 'sonner';
 import JourneyAwareSpiralVisualizer from '@/components/visualizer/JourneyAwareSpiralVisualizer';
+import { motion } from 'framer-motion';
 
 const JourneyIndex: React.FC = () => {
   const [journeys, setJourneys] = useState<Journey[]>([]);
@@ -35,13 +36,15 @@ const JourneyIndex: React.FC = () => {
         const akashicJourney = allJourneys.find(j => 
           j.filename === 'journey_akashic_reconnection' || 
           j.title?.includes('Akashic') || 
-          j.tags?.some(t => t.toLowerCase().includes('akashic'))
+          j.tags?.some(t => t && t.toLowerCase().includes('akashic'))
         );
         
         if (akashicJourney) {
+          console.log("Found Akashic journey:", akashicJourney);
           setFeaturedJourney(akashicJourney);
         } else if (allJourneys.length > 0) {
           // If no Akashic journey, use the first one as featured
+          console.log("No Akashic journey found, using first journey as featured");
           setFeaturedJourney(allJourneys[0]);
         }
         
@@ -61,7 +64,14 @@ const JourneyIndex: React.FC = () => {
   return (
     <PageLayout title="Sacred Journeys" className="bg-gradient-to-b from-purple-900/40 to-black">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl md:text-4xl font-bold mb-6 text-center text-white">Sacred Journey Index</h1>
+        <motion.h1 
+          className="text-3xl md:text-4xl font-bold mb-6 text-center text-white"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          Sacred Journey Index
+        </motion.h1>
         
         {loading ? (
           <div className="flex justify-center items-center h-64">
@@ -74,27 +84,34 @@ const JourneyIndex: React.FC = () => {
         ) : (
           <>
             {featuredJourney && (
-              <div className="mb-12">
+              <motion.div 
+                className="mb-12"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.2 }}
+              >
                 <h2 className="text-2xl font-bold mb-4 text-purple-300">Featured Journey</h2>
                 <Card className="bg-black/60 backdrop-blur-md border-purple-500/50 overflow-hidden">
-                  <div className="relative h-40 overflow-hidden">
+                  <div className="relative h-64 overflow-hidden">
                     <JourneyAwareSpiralVisualizer 
                       journeyId={featuredJourney.id || featuredJourney.filename}
-                      className="absolute inset-0"
+                      autoSync={false}
                       showControls={false}
+                      containerId={`featuredJourneySpiral`}
+                      className="w-full h-full"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end">
-                      <div className="p-4">
-                        <h3 className="text-2xl font-bold text-white">{featuredJourney.title}</h3>
+                      <div className="p-6">
+                        <h3 className="text-2xl md:text-3xl font-bold text-white">{featuredJourney.title}</h3>
                         {featuredJourney.sound_frequencies && (
-                          <p className="text-purple-300 text-sm">Frequency: {featuredJourney.sound_frequencies}</p>
+                          <p className="text-purple-300 text-sm mt-2">Frequency: {featuredJourney.sound_frequencies}</p>
                         )}
                       </div>
                     </div>
                   </div>
                   <CardContent className="p-6">
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {normalizeStringArray(featuredJourney.tags).map((tag, i) => (
+                      {normalizeStringArray(featuredJourney.tags || []).map((tag, i) => (
                         <Badge key={i} variant="outline" className="bg-purple-900/50 text-purple-100 border-purple-500/50">
                           {tag.trim()}
                         </Badge>
@@ -112,7 +129,7 @@ const JourneyIndex: React.FC = () => {
                     </Link>
                   </CardContent>
                 </Card>
-              </div>
+              </motion.div>
             )}
             
             {journeys.length === 0 && !featuredJourney && (
@@ -125,44 +142,56 @@ const JourneyIndex: React.FC = () => {
               </Alert>
             )}
             
-            <h2 className="text-2xl font-bold mb-4 text-purple-300">All Sacred Journeys</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {journeys.map(journey => (
-                <Card 
-                  key={`${journey.id || journey.filename}`}
-                  className="bg-black/50 backdrop-blur-md border-purple-500/30 hover:border-purple-500/70 transition-all"
-                >
-                  <CardHeader>
-                    <CardTitle className="text-white">{journey.title}</CardTitle>
-                    {journey.sound_frequencies && (
-                      <CardDescription className="text-gray-300">
-                        Frequency: {journey.sound_frequencies}
-                      </CardDescription>
-                    )}
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      {normalizeStringArray(journey.tags || []).map((tag, i) => (
-                        <Badge key={i} variant="outline" className="bg-purple-900/50 text-purple-100 border-purple-500/50">
-                          {tag.trim()}
-                        </Badge>
-                      ))}
-                    </div>
-                    {journey.description && (
-                      <p className="text-sm text-gray-300 mt-2">{journey.description}</p>
-                    )}
-                  </CardContent>
-                  <CardFooter>
-                    <Link 
-                      to={`/journey/${journey.filename || journey.id}`} 
-                      className="w-full bg-purple-700 hover:bg-purple-600 text-white py-2 px-4 rounded-md text-center transition-colors"
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <h2 className="text-2xl font-bold mb-4 text-purple-300">All Sacred Journeys</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {journeys.map((journey, index) => (
+                  <motion.div
+                    key={`${journey.id || journey.filename}`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 * index }}
+                  >
+                    <Card 
+                      className="bg-black/50 backdrop-blur-md border-purple-500/30 hover:border-purple-500/70 transition-all h-full flex flex-col"
                     >
-                      Enter Journey
-                    </Link>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
+                      <CardHeader>
+                        <CardTitle className="text-white">{journey.title}</CardTitle>
+                        {journey.sound_frequencies && (
+                          <CardDescription className="text-gray-300">
+                            Frequency: {journey.sound_frequencies}
+                          </CardDescription>
+                        )}
+                      </CardHeader>
+                      <CardContent className="flex-grow">
+                        <div className="flex flex-wrap gap-2 mb-2">
+                          {normalizeStringArray(journey.tags || []).map((tag, i) => (
+                            <Badge key={i} variant="outline" className="bg-purple-900/50 text-purple-100 border-purple-500/50">
+                              {tag.trim()}
+                            </Badge>
+                          ))}
+                        </div>
+                        {journey.description && (
+                          <p className="text-sm text-gray-300 mt-2">{journey.description}</p>
+                        )}
+                      </CardContent>
+                      <CardFooter>
+                        <Link 
+                          to={`/journey/${journey.filename || journey.id}`} 
+                          className="w-full bg-purple-700 hover:bg-purple-600 text-white py-2 px-4 rounded-md text-center transition-colors"
+                        >
+                          Enter Journey
+                        </Link>
+                      </CardFooter>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
           </>
         )}
       </div>

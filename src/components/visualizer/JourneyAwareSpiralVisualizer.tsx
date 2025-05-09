@@ -61,7 +61,7 @@ const JourneyAwareSpiralVisualizer: React.FC<JourneyAwareSpiralVisualizerProps> 
   };
 
   // Only render if the journey is active or we're not auto-syncing
-  const shouldRenderSpiral = !autoSync || isJourneyActive;
+  const shouldRenderSpiral = !autoSync || isJourneyActive || !!journeyId;
 
   if (!shouldRenderSpiral) {
     return (
