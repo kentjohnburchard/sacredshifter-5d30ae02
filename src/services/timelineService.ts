@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { JourneyTimelineEvent } from '@/types/journey';
 
@@ -29,18 +28,41 @@ export const logTimelineEvent = async (
     
     const userId = userData.user.id;
     
-    const { data, error } = await supabase
+    // Validate and prepare the data
+    const sanitizedDetails = details ? { ...details } : {};
+    
+    // Ensure we're sending valid types for all fields
+    if (sanitizedDetails.frequency && typeof sanitizedDetails.frequency !== 'number') {
+      try {
+        sanitizedDetails.frequency = parseFloat(sanitizedDetails.frequency as any);
+        if (isNaN(sanitizedDetails.frequency)) {
+          delete sanitizedDetails.frequency;
+        }
+      } catch (e) {
+        delete sanitizedDetails.frequency;
+      }
+    }
+    
+    // Make sure journeyId is a string if present
+    if (sanitizedDetails.journeyId) {
+      sanitizedDetails.journeyId = String(sanitizedDetails.journeyId);
+    }
+    
+    // Ensure tag is valid
+    const validTag = tag ? String(tag).replace(/_/g, ' ') : 'event';
+    
+    const { error } = await supabase
       .from('timeline_snapshots')
       .insert({
         user_id: userId,
-        tag,
-        title: details?.title || tag.replace(/_/g, ' '),
-        journey_id: details?.journeyId,
-        component: details?.component,
-        notes: details?.notes,
-        frequency: details?.frequency,
-        chakra: details?.chakra,
-        details: details ? { ...details } : undefined
+        tag: validTag,
+        title: details?.title || validTag,
+        journey_id: sanitizedDetails.journeyId,
+        component: sanitizedDetails.component,
+        notes: sanitizedDetails.notes,
+        frequency: sanitizedDetails.frequency,
+        chakra: sanitizedDetails.chakra,
+        details: sanitizedDetails
       });
     
     if (error) {

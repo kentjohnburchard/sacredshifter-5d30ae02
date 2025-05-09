@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageLayout } from '@/components/layout/PageLayout';
@@ -166,10 +165,15 @@ const JourneyPage: React.FC = () => {
       };
       
       // Record the start of the journey in the timeline
-      recordActivity('journey_start', { 
-        journeyId: formattedJourney.id,
-        title: formattedJourney.title
-      });
+      try {
+        recordActivity('journey_start', { 
+          journeyId: formattedJourney.id,
+          title: formattedJourney.title
+        });
+      } catch (timelineError) {
+        console.warn('Failed to log journey start to timeline:', timelineError);
+        // Continue with the journey even if timeline logging fails
+      }
       
       // Start the journey in the context
       startJourney(formattedJourney);
@@ -182,10 +186,14 @@ const JourneyPage: React.FC = () => {
     console.log("Completing journey:", journey?.title);
     
     // Record journey completion in timeline
-    recordActivity('journey_complete', {
-      journeyId: journey?.id,
-      title: journey?.title
-    });
+    try {
+      recordActivity('journey_complete', {
+        journeyId: journey?.id,
+        title: journey?.title
+      });
+    } catch (timelineError) {
+      console.warn('Failed to log journey completion to timeline:', timelineError);
+    }
     
     // Complete the journey in the context
     completeJourney();

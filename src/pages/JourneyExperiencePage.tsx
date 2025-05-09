@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import JourneyExperience from '@/components/journey/JourneyExperience';
 import { JourneyProvider, useJourney } from '@/context/JourneyContext';
-import { supabase } from '@/integrations/supabase/client';
 import LoadingScreen from '@/components/LoadingScreen';
 import { toast } from 'sonner';
 import { logTimelineEvent } from '@/services/timelineService';
@@ -64,12 +63,17 @@ const JourneyExperienceContent: React.FC = () => {
         console.log("Journey data loaded:", journey.title);
         setJourneyData(journey);
         
-        // Record journey start to timeline
-        logTimelineEvent('journey_start', {
-          journeyId: journey.id,
-          title: journey.title,
-          chakra: journey.chakra_tag
-        });
+        // Record journey start to timeline - handle silently if it fails
+        try {
+          await logTimelineEvent('journey_start', {
+            journeyId: journey.id?.toString(),
+            title: journey.title,
+            chakra: journey.chakra_tag
+          });
+        } catch (timelineError) {
+          console.warn('Failed to log journey start to timeline:', timelineError);
+          // Continue with the journey even if timeline logging fails
+        }
         
         // Initialize journey context with properly normalized tags
         startJourney({
