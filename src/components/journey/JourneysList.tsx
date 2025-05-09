@@ -3,12 +3,10 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchJourneys } from '@/services/journeyService';
 import { Journey } from '@/types/journey';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tag, Clock, Music, Star } from 'lucide-react';
-import { extractFrequencyValue, fileNameToSlug } from '@/utils/journeyLoader';
 import { getAllJourneys } from '@/utils/coreJourneyLoader';
 import { normalizeStringArray } from '@/utils/parsers';
+import { Loader2, Tag } from 'lucide-react';
+import JourneyCard from './JourneyCard';
 
 interface JourneysListProps {
   filter?: string;
@@ -99,7 +97,7 @@ const JourneysList: React.FC<JourneysListProps> = ({
   if (loading) {
     return (
       <div className="flex justify-center items-center p-8">
-        <div className="animate-spin h-8 w-8 border-t-2 border-b-2 border-purple-500 rounded-full"></div>
+        <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
       </div>
     );
   }
@@ -113,66 +111,24 @@ const JourneysList: React.FC<JourneysListProps> = ({
     );
   }
 
-  const renderJourneyCard = (journey: Journey) => {
-    const slug = journey.filename || '';
-    const frequency = extractFrequencyValue(journey.sound_frequencies);
-    
-    return (
-      <Card key={journey.id} className="h-full flex flex-col transition-transform hover:scale-102">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg font-medium line-clamp-2">{journey.title}</CardTitle>
-          {journey.intent && (
-            <CardDescription className="line-clamp-2">
-              {journey.intent}
-            </CardDescription>
-          )}
-        </CardHeader>
-        
-        <CardContent className="pb-2 flex-grow">
-          {showTags && journey.tags && (
-            <div className="flex flex-wrap gap-1 mb-2">
-              {normalizeStringArray(journey.tags).map((tag, i) => (
-                <Badge variant="outline" key={i} className="text-xs">
-                  {tag.trim()}
-                </Badge>
-              ))}
-            </div>
-          )}
-        </CardContent>
-        
-        <CardFooter className="pt-0 flex gap-4 text-xs text-muted-foreground">
-          {journey.duration && (
-            <div className="flex items-center gap-1">
-              <Clock size={14} />
-              <span>{journey.duration}</span>
-            </div>
-          )}
-          
-          {frequency && (
-            <div className="flex items-center gap-1">
-              <Music size={14} />
-              <span>{frequency}Hz</span>
-            </div>
-          )}
-        </CardFooter>
-      </Card>
-    );
-  };
-
   // If using groups
   if (Object.keys(groupedJourneys).length > 0 && !filter) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-12">
         {Object.entries(groupedJourneys).map(([group, journeys]) => (
-          <div key={group}>
-            <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-              <Tag size={16} />
+          <div key={group} className="mb-8">
+            <h3 className="text-xl font-semibold mb-4 flex items-center gap-2 text-white/90">
+              <Tag size={16} className="text-purple-400" />
               {group}
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {journeys.map(journey => (
-                <Link to={`/journey/${journey.filename}`} key={journey.id}>
-                  {renderJourneyCard(journey)}
+                <Link 
+                  to={`/journey/${journey.filename}`} 
+                  key={journey.id} 
+                  className="block h-full"
+                >
+                  <JourneyCard journey={journey} />
                 </Link>
               ))}
             </div>
@@ -184,10 +140,14 @@ const JourneysList: React.FC<JourneysListProps> = ({
 
   // Simple list without grouping
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {displayedJourneys.map(journey => (
-        <Link to={`/journey/${journey.filename}`} key={journey.id}>
-          {renderJourneyCard(journey)}
+        <Link 
+          to={`/journey/${journey.filename}`} 
+          key={journey.id} 
+          className="block h-full"
+        >
+          <JourneyCard journey={journey} />
         </Link>
       ))}
     </div>

@@ -1,0 +1,27 @@
+
+<svg width="800" height="800" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="#FFFFFF" stroke-width="1.5">
+    <!-- Flower of Life pattern -->
+    <circle cx="400" cy="400" r="200" opacity="0.5" />
+    <circle cx="400" cy="227" r="200" opacity="0.4" />
+    <circle cx="400" cy="573" r="200" opacity="0.4" />
+    <circle cx="573" cy="400" r="200" opacity="0.4" />
+    <circle cx="227" cy="400" r="200" opacity="0.4" />
+    <circle cx="513" cy="287" r="200" opacity="0.3" />
+    <circle cx="287" cy="287" r="200" opacity="0.3" />
+    <circle cx="287" cy="513" r="200" opacity="0.3" />
+    <circle cx="513" cy="513" r="200" opacity="0.3" />
+    
+    <!-- Metatron's cube -->
+    <circle cx="400" cy="400" r="120" opacity="0.6" />
+    
+    <!-- Sacred spirals -->
+    <path d="M400 400 L400 280 A120 120 0 0 1 520 400 A120 120 0 0 1 400 520 A120 120 0 0 1 280 400 A120 120 0 0 1 400 280" opacity="0.7" />
+    
+    <!-- Additional sacred geometry elements -->
+    <polygon points="400,280 470,330 470,470 400,520 330,470 330,330" fill="none" stroke-width="0.8" opacity="0.5" />
+    <polygon points="400,310 450,345 450,435 400,470 350,435 350,345" fill="none" stroke-width="0.8" opacity="0.6" />
+    <line x1="400" y1="280" x2="400" y2="520" opacity="0.5" />
+    <line x1="280" y1="400" x2="520" y2="400" opacity="0.5" />
+  </g>
+</svg>
