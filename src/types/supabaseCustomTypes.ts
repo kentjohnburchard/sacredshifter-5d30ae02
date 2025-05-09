@@ -34,6 +34,7 @@ export interface ExtendedProfile extends Profiles {
   onboarding_completed: boolean;
   is_premium: boolean | null;
   is_lifetime_member: boolean | null;
+  role: 'user' | 'admin' | null;
 }
 
 // Helper function to convert OnboardingData to database format
