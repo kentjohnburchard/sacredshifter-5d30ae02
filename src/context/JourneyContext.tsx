@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { ChakraTag } from '@/types/chakras';
 import { Journey, JourneyTimelineItem } from '@/types/journey';
 import { normalizeStringArray, normalizeId } from '@/utils/parsers';
+import { logTimelineEvent } from '@/services/timelineService';
 
 // Lightbearer Code interface
 export interface LightbearerCode {
@@ -130,8 +131,18 @@ export const JourneyProvider: React.FC<JourneyProviderProps> = ({ children }) =>
       details
     });
     
-    // Here you could integrate with timelineService.logTimelineEvent or other tracking
-    // This part may need additional implementation based on your specific needs
+    // Log the timeline event using the timelineService
+    try {
+      logTimelineEvent(action as any, {
+        journeyId: activeJourney?.id || details?.journeyId,
+        title: details?.title || activeJourney?.title,
+        ...details
+      }).catch(error => {
+        console.warn('Failed to log timeline event:', error);
+      });
+    } catch (error) {
+      console.warn('Error in recordActivity:', error);
+    }
   };
 
   // Fetch prompts for the current location
