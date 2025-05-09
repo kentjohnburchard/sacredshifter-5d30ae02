@@ -12,7 +12,6 @@ import {
   HeroSection,
   FeaturesSection,
   HermeticSection,
-  ExploreSection,
   JoinSection,
   SoundLibraryPreview
 } from '@/components/landing';
@@ -47,7 +46,6 @@ const LandingPage: React.FC = () => {
         
         <div className="hidden md:flex items-center space-x-6">
           <a href="#features" className="text-white/80 hover:text-white transition-colors">Features</a>
-          <a href="#journeys" className="text-white/80 hover:text-white transition-colors">Journeys</a>
           <a href="#hermetic" className="text-white/80 hover:text-white transition-colors">Sacred Math</a>
           <a href="#about" className="text-white/80 hover:text-white transition-colors">About</a>
           
@@ -75,9 +73,6 @@ const LandingPage: React.FC = () => {
       
       {/* Features Section */}
       <FeaturesSection />
-      
-      {/* Sacred Journeys Section */}
-      <ExploreSection />
       
       {/* Hermetic/Mathematical Section */}
       <HermeticSection />

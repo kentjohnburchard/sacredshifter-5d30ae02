@@ -2,38 +2,45 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Music, Sparkles, Star, Heart, Users, Activity } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const FeaturesSection: React.FC = () => {
   const features = [
     {
       icon: <Music className="h-12 w-12 text-purple-400" />,
       title: "Frequency Engine",
-      description: "Immerse yourself in healing frequencies precisely tuned to Solfeggio and sacred mathematics."
+      description: "Immerse yourself in healing frequencies precisely tuned to Solfeggio and sacred mathematics.",
+      link: "/frequency-engine"
     },
     {
       icon: <Sparkles className="h-12 w-12 text-blue-400" />,
       title: "Sacred Journeys",
-      description: "Follow guided spiritual paths designed to elevate consciousness and awaken inner wisdom."
+      description: "Follow guided spiritual paths designed to elevate consciousness and awaken inner wisdom.",
+      link: "/journey-templates"
     },
     {
       icon: <Star className="h-12 w-12 text-amber-400" />,
       title: "Lightbearer System",
-      description: "Track your spiritual growth and unlock new levels of enlightenment as you progress."
+      description: "Track your spiritual growth and unlock new levels of enlightenment as you progress.",
+      link: "/lightbearer"
     },
     {
       icon: <Heart className="h-12 w-12 text-red-400" />,
       title: "Chakra Alignment",
-      description: "Balance and energize your energy centers with personalized practices and visualizations."
+      description: "Balance and energize your energy centers with personalized practices and visualizations.",
+      link: "/alignment"
     },
     {
       icon: <Users className="h-12 w-12 text-green-400" />,
       title: "Sacred Circle",
-      description: "Connect with like-minded seekers and lightworkers on the path of spiritual growth."
+      description: "Connect with like-minded seekers and lightworkers on the path of spiritual growth.",
+      link: "/sacred-circle"
     },
     {
       icon: <Activity className="h-12 w-12 text-indigo-400" />,
       title: "Reality Optimizer",
-      description: "Manifest your desires with powerful visualization tools and frequency calibration."
+      description: "Manifest your desires with powerful visualization tools and frequency calibration.",
+      link: "/reality-optimizer"
     }
   ];
 
@@ -65,13 +72,13 @@ const FeaturesSection: React.FC = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <div className="flex flex-col items-center">
+              <Link to={feature.link} className="flex flex-col items-center h-full">
                 <div className="mb-4">
                   {feature.icon}
                 </div>
                 <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
                 <p className="text-white/70 text-center">{feature.description}</p>
-              </div>
+              </Link>
             </motion.div>
           ))}
         </div>
