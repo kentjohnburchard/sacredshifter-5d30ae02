@@ -7,3 +7,6 @@ export { default as JoinSection } from './JoinSection';
 export { default as SoundLibraryPreview } from './SoundLibraryPreview';
 export { default as CosmicFooter } from './CosmicFooter';
 export { default as LogoWatermark } from './LogoWatermark';
+export { default as AnimatedText } from './AnimatedText';
+export { default as RotatingSoulText } from './RotatingSoulText';
+export { default as CallToAction } from './CallToAction';

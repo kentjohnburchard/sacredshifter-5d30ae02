@@ -1,6 +1,6 @@
 
 import React, { Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import LandingPage from './pages/landing/LandingPage';
 import Dashboard from './pages/Dashboard';
@@ -38,8 +38,10 @@ function App() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <Routes>
-        {/* Public Routes */}
+        {/* Root Path - Direct to Landing Page */}
         <Route path="/" element={<LandingPage />} />
+        
+        {/* Public Routes */}
         <Route path="/home" element={<LandingPage />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/about" element={<Placeholder name="About" />} />
