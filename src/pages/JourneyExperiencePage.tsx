@@ -74,7 +74,9 @@ const JourneyExperienceContent: React.FC = () => {
           description: journey.description || '',
           tags: Array.isArray(journey.tags) 
             ? journey.tags 
-            : journey.tags?.split(',').map((t: string) => t.trim()) || [],
+            : typeof journey.tags === 'string' && journey.tags
+              ? journey.tags.split(',').map((t: string) => t.trim())
+              : [],
           chakra_tag: journey.chakra_tag
         });
         
