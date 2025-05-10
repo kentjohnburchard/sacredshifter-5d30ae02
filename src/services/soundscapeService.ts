@@ -29,21 +29,8 @@ export async function ensureSoundscapeBucket() {
     
     const bucketExists = buckets?.some(bucket => bucket.name === bucketName);
     
-    if (!bucketExists) {
-      // Create the bucket if it doesn't exist
-      const { error } = await supabase.storage.createBucket(bucketName, {
-        public: true
-      });
-      
-      if (error) {
-        console.error('Error creating soundscapes bucket:', error);
-        return {
-          exists: false,
-          name: bucketName,
-          error: error.message
-        };
-      }
-    }
+    // The bucket should exist now as we've created it via SQL
+    console.log('Bucket exists:', bucketExists, buckets);
     
     return {
       exists: true,
@@ -51,11 +38,11 @@ export async function ensureSoundscapeBucket() {
       error: null
     };
   } catch (error) {
-    console.error('Error checking/creating soundscapes bucket:', error);
+    console.error('Error checking soundscapes bucket:', error);
     return {
       exists: false,
       name: 'soundscapes',
-      error: 'Failed to check or create bucket'
+      error: 'Failed to check bucket'
     };
   }
 }
@@ -65,11 +52,8 @@ export async function ensureSoundscapeBucket() {
  */
 export async function uploadSoundscapeFile(file: File, onProgress?: (progress: number) => void) {
   try {
-    // Ensure bucket exists first
+    // Verify bucket exists first
     const bucketInfo = await ensureSoundscapeBucket();
-    if (!bucketInfo.exists) {
-      console.log('Creating bucket because it does not exist');
-    }
     
     // Create a unique file name
     const timestamp = new Date().getTime();
@@ -89,11 +73,14 @@ export async function uploadSoundscapeFile(file: File, onProgress?: (progress: n
     }
 
     try {
+      console.log('Starting file upload to soundscapes bucket:', filePath);
+      
       // Upload file to the soundscapes bucket
-      const uploadResult = await supabase.storage
+      const { data, error } = await supabase.storage
         .from('soundscapes')
         .upload(filePath, file, {
-          cacheControl: '3600'
+          cacheControl: '3600',
+          upsert: true
         });
       
       // Clear the progress interval
@@ -101,9 +88,12 @@ export async function uploadSoundscapeFile(file: File, onProgress?: (progress: n
         clearInterval(progressInterval);
       }
       
-      if (uploadResult.error) {
-        throw uploadResult.error;
+      if (error) {
+        console.error('Upload error:', error);
+        throw error;
       }
+      
+      console.log('Upload successful, data:', data);
       
       // Get public URL for the file
       const { data: publicUrlData } = supabase.storage
@@ -126,6 +116,7 @@ export async function uploadSoundscapeFile(file: File, onProgress?: (progress: n
       if (progressInterval) {
         clearInterval(progressInterval);
       }
+      console.error('Upload error caught:', uploadError);
       throw uploadError;
     }
   } catch (error) {
@@ -150,11 +141,16 @@ export async function deleteSoundscapeFile(filePath: string) {
       }
     }
     
+    console.log('Deleting file:', path);
+    
     const { error } = await supabase.storage
       .from('soundscapes')
       .remove([path]);
     
-    if (error) throw error;
+    if (error) {
+      console.error('Delete file error:', error);
+      throw error;
+    }
     
     return true;
   } catch (error) {
