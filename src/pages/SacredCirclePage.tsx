@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import SacredLayout from '@/components/layout/SacredLayout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -7,7 +6,6 @@ import { motion } from 'framer-motion';
 import { ChakraTag, CHAKRA_COLORS } from '@/types/chakras';
 import { PlusCircle, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { CommunityProvider } from '@/contexts/CommunityContext';
 
 // Import our circle components
 import AmbientBackground from '@/components/circle/AmbientBackground';
@@ -141,9 +139,7 @@ const SacredCirclePage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.1 }}
             >
-              <CommunityProvider>
-                <CircleFeed initialChakra={activeChakra} />
-              </CommunityProvider>
+              <CircleFeed initialChakra={activeChakra} />
             </motion.div>
             
             {/* Sidebar Content */}
