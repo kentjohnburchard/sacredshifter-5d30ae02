@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -47,9 +48,9 @@ const JourneyTemplatesAdmin: React.FC = () => {
   };
 
   const handleExportParams = () => {
-    // Generate output using paramsCache and useSpiralParams for each template
-    const output = templates.reduce((acc, template) => {
-      acc[template.id] = useSpiralParams(template.id);
+    // Generate output using paramsCache
+    const output = Object.keys(paramsCache).reduce((acc, journeyId) => {
+      acc[journeyId] = paramsCache[journeyId];
       return acc;
     }, {} as Record<string, SpiralParams>);
     

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useJourney } from '@/context/JourneyContext';
 import SpiralVisualizer from '@/components/visualizer/SpiralVisualizer';
-import useSpiralParams from '@/hooks/useSpiralParams';
+import useSpiralParams, { SpiralParams } from '@/hooks/useSpiralParams';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from 'lucide-react';
 
@@ -102,7 +102,7 @@ const JourneyAwareSpiralVisualizer: React.FC<JourneyAwareSpiralVisualizerProps> 
   }
 
   // Ensure parameters have all required fields before passing to SpiralVisualizer
-  const completeParams = {
+  const completeParams: SpiralParams = {
     coeffA: spiralParams?.coeffA || 1.2,
     coeffB: spiralParams?.coeffB || 0.8,
     coeffC: spiralParams?.coeffC || 1.0,
