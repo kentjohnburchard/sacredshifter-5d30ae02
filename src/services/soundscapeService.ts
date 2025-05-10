@@ -65,58 +65,71 @@ export async function ensureSoundscapeBucket() {
  */
 export async function uploadSoundscapeFile(file: File, onProgress?: (progress: number) => void) {
   try {
-    // Ensure bucket exists
-    await ensureSoundscapeBucket();
+    // Ensure bucket exists first
+    const bucketInfo = await ensureSoundscapeBucket();
+    if (!bucketInfo.exists) {
+      console.log('Creating bucket because it does not exist');
+    }
     
     // Create a unique file name
     const timestamp = new Date().getTime();
     const cleanFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
     const filePath = `${timestamp}-${cleanFileName}`;
     
-    // Simulate progress updates since direct upload progress isn't supported in this context
-    let progressInterval: ReturnType<typeof setInterval> | null = null;
+    // Simulate progress updates 
+    let progressInterval: number | null = null;
     if (onProgress) {
       let progressValue = 0;
-      progressInterval = setInterval(() => {
+      progressInterval = window.setInterval(() => {
         progressValue += 10;
         if (progressValue <= 90) {
           onProgress(progressValue);
-        } else {
-          clearInterval(progressInterval!);
         }
       }, 200);
     }
 
-    // Upload file to the soundscapes bucket
-    const uploadResult = await supabase.storage
-      .from('soundscapes')
-      .upload(filePath, file, {
-        cacheControl: '3600'
-      });
-    
-    // Clear the progress interval if it exists
-    if (progressInterval) {
-      clearInterval(progressInterval);
+    try {
+      // Upload file to the soundscapes bucket
+      const uploadResult = await supabase.storage
+        .from('soundscapes')
+        .upload(filePath, file, {
+          cacheControl: '3600'
+        });
+      
+      // Clear the progress interval
+      if (progressInterval) {
+        clearInterval(progressInterval);
+      }
+      
+      if (uploadResult.error) {
+        throw uploadResult.error;
+      }
+      
+      // Get public URL for the file
+      const { data: publicUrlData } = supabase.storage
+        .from('soundscapes')
+        .getPublicUrl(filePath);
+      
+      // Set final progress to 100%
+      if (onProgress) {
+        onProgress(100);
+      }
+      
+      console.log('File uploaded successfully:', publicUrlData.publicUrl);
+      
+      return {
+        path: filePath,
+        url: publicUrlData.publicUrl
+      };
+    } catch (uploadError) {
+      // Clear interval on error too
+      if (progressInterval) {
+        clearInterval(progressInterval);
+      }
+      throw uploadError;
     }
-    
-    if (uploadResult.error) throw uploadResult.error;
-    
-    // Get public URL for the file
-    const { data: publicUrlData } = supabase.storage
-      .from('soundscapes')
-      .getPublicUrl(filePath);
-    
-    // Set final progress to 100%
-    if (onProgress) {
-      onProgress(100);
-    }
-    
-    return {
-      path: filePath,
-      url: publicUrlData.publicUrl
-    };
   } catch (error) {
-    console.error('Error uploading soundscape file:', error);
+    console.error('Error in uploadSoundscapeFile:', error);
     throw error;
   }
 }
