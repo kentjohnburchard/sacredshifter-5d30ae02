@@ -1,11 +1,10 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import JourneyExperience from '@/components/journey/JourneyExperience';
 import { JourneyProvider, useJourney } from '@/context/JourneyContext';
 import LoadingScreen from '@/components/LoadingScreen';
 import { toast } from 'sonner';
-import { logTimelineEvent } from '@/services/timelineService';
+import { logTimelineEvent } from '@/services/timeline';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { fetchJourneyBySlug } from '@/services/journeyService';

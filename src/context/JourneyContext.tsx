@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { ChakraTag } from '@/types/chakras';
 import { Journey, JourneyTimelineItem } from '@/types/journey';
 import { normalizeStringArray, normalizeId } from '@/utils/parsers';
-import { logTimelineEvent } from '@/services/timelineService';
+import { logTimelineEvent } from '@/services/timeline';
 import { toast } from 'sonner';
 
 // Lightbearer Code interface
@@ -164,7 +164,7 @@ export const JourneyProvider: React.FC<JourneyProviderProps> = ({ children }) =>
       details
     });
     
-    // Log the timeline event using the timelineService with proper error handling
+    // Log the timeline event using the timeline service with proper error handling
     try {
       logTimelineEvent(action as any, {
         journeyId,
