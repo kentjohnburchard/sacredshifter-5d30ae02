@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,7 +18,7 @@ import {
   updateJourneySoundscape, 
   deleteJourneySoundscape 
 } from '@/services/journeyService';
-import { Plus, Trash2, ExternalLink, FileMusic, Youtube, Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { Plus, Trash2, ExternalLink, FileMusic, Youtube, Play, Pause, Volume2, VolumeX, PencilIcon } from 'lucide-react';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -60,6 +61,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
   const [urlValidationState, setUrlValidationState] = useState<'valid' | 'invalid' | 'checking' | 'idle'>('idle');
   const [bulkUploadDialogOpen, setBulkUploadDialogOpen] = useState(false);
   const [bulkUploadText, setBulkUploadText] = useState('');
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -72,10 +74,11 @@ const JourneySoundscapeAdmin: React.FC = () => {
       const journeysData = await fetchJourneys();
       setJourneys(journeysData);
       
-      // Load soundscapes
+      // Load all soundscapes initially
       const soundscapesData = await fetchJourneySoundscapes();
       setSoundscapes(soundscapesData);
       console.log("Loaded soundscapes:", soundscapesData);
+      setIsDataLoaded(true);
     } catch (error) {
       console.error('Error loading data:', error);
       toast.error('Failed to load data');
@@ -155,7 +158,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
     setFormData({
       title: '',
       description: '',
-      journey_id: '',
+      journey_id: selectedJourney ? String(selectedJourney) : '',
       source_link: '',
       file_url: ''
     });
@@ -368,6 +371,12 @@ const JourneySoundscapeAdmin: React.FC = () => {
   const filteredSoundscapes = selectedJourney
     ? soundscapes.filter(s => String(s.journey_id) === String(selectedJourney))
     : soundscapes;
+    
+  const noSoundscapesMessage = loading 
+    ? "Loading soundscapes..." 
+    : isDataLoaded 
+      ? "No soundscapes found for the selected journey. Click 'Add Soundscape' to create one." 
+      : "No soundscapes data available. Try refreshing the page.";
 
   return (
     <PageLayout title="Journey Soundscapes">
@@ -383,7 +392,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
             <Button onClick={() => setBulkUploadDialogOpen(true)} variant="outline">
               <FileMusic className="mr-2 h-4 w-4" /> Bulk Import
             </Button>
-            <Button onClick={handleOpenNewDialog}>
+            <Button onClick={handleOpenNewDialog} className="bg-purple-600 hover:bg-purple-700">
               <Plus className="mr-2 h-4 w-4" /> Add Soundscape
             </Button>
           </div>
@@ -435,12 +444,15 @@ const JourneySoundscapeAdmin: React.FC = () => {
           {/* Soundscape list */}
           <div className="col-span-1 lg:col-span-3">
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>
                   {selectedJourney 
                     ? `Soundscapes for "${journeys.find(j => String(j.id) === String(selectedJourney))?.title}"` 
                     : "All Soundscapes"}
                 </CardTitle>
+                <Button onClick={handleOpenNewDialog} size="sm" className="bg-purple-600 hover:bg-purple-700">
+                  <Plus className="mr-2 h-4 w-4" /> Add
+                </Button>
               </CardHeader>
               <CardContent>
                 {loading ? (
@@ -448,8 +460,14 @@ const JourneySoundscapeAdmin: React.FC = () => {
                     <div className="animate-spin h-6 w-6 border-b-2 border-purple-500 rounded-full"></div>
                   </div>
                 ) : filteredSoundscapes.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    No soundscapes found for the selected journey
+                  <div className="text-center py-8 text-gray-500 flex flex-col items-center">
+                    {noSoundscapesMessage}
+                    <Button 
+                      onClick={handleOpenNewDialog} 
+                      className="mt-4 bg-purple-600 hover:bg-purple-700"
+                    >
+                      <Plus className="mr-2 h-4 w-4" /> Create Your First Soundscape
+                    </Button>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -496,7 +514,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
                                 size="sm" 
                                 onClick={() => handleEditSoundscape(soundscape)}
                               >
-                                Edit
+                                <PencilIcon className="h-4 w-4 mr-1" /> Edit
                               </Button>
                               <Button 
                                 variant="outline" 
@@ -526,6 +544,11 @@ const JourneySoundscapeAdmin: React.FC = () => {
             <DialogTitle>
               {selectedSoundscape ? 'Edit Soundscape' : 'Add New Soundscape'}
             </DialogTitle>
+            <DialogDescription>
+              {selectedSoundscape 
+                ? 'Update the details of this soundscape' 
+                : 'Create a new audio soundscape for a journey'}
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
@@ -548,7 +571,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
             </div>
             
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="title" className="text-right">Title</Label>
+              <Label htmlFor="title" className="text-right">Title *</Label>
               <Input
                 id="title"
                 name="title"
@@ -592,7 +615,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
                 
                 <TabsContent value="file" className="mt-4">
                   <div className="space-y-2">
-                    <Label htmlFor="file_url">Audio File URL</Label>
+                    <Label htmlFor="file_url">Audio File URL *</Label>
                     <div className="flex space-x-2">
                       <Input
                         id="file_url"
@@ -615,7 +638,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
                 
                 <TabsContent value="youtube" className="mt-4">
                   <div className="space-y-2">
-                    <Label htmlFor="source_link">YouTube URL</Label>
+                    <Label htmlFor="source_link">YouTube URL *</Label>
                     <Input
                       id="source_link"
                       name="source_link"
@@ -636,8 +659,8 @@ const JourneySoundscapeAdmin: React.FC = () => {
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSubmit}>
-              {selectedSoundscape ? 'Update' : 'Create'} Soundscape
+            <Button onClick={handleSubmit} className="bg-purple-600 hover:bg-purple-700">
+              {selectedSoundscape ? 'Update Soundscape' : 'Create Soundscape'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -688,7 +711,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
             <Button variant="outline" onClick={() => setBulkUploadDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={processBulkUpload}>
+            <Button onClick={processBulkUpload} className="bg-purple-600 hover:bg-purple-700">
               Import Soundscapes
             </Button>
           </DialogFooter>
