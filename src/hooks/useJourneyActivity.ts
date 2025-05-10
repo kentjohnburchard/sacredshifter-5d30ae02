@@ -32,7 +32,8 @@ export const useJourneyActivity = () => {
       recordActivity('journey_start', {
         journeyId: processedJourney.id,
         title: processedJourney.title,
-        chakra: processedJourney.chakra_tag || processedJourney.chakra
+        // Use chakra instead of chakra_tag for consistency
+        chakra: processedJourney.chakra || processedJourney.chakra_tag
       });
     } catch (error) {
       console.warn('Failed to record journey start:', error);
@@ -51,7 +52,8 @@ export const useJourneyActivity = () => {
       recordActivity('journey_complete', {
         journeyId: activeJourney.id,
         title: activeJourney.title,
-        chakra: activeJourney.chakra_tag || activeJourney.chakra
+        // Use chakra instead of chakra_tag for consistency
+        chakra: activeJourney.chakra || activeJourney.chakra_tag
       });
     } catch (error) {
       console.warn('Failed to record journey completion:', error);
@@ -96,6 +98,8 @@ export const useJourneyActivity = () => {
       logTimelineEvent(action as any, {
         journeyId,
         title: details?.title || activeJourney?.title,
+        // Use chakra instead of chakra_tag for consistency with database column
+        chakra: details?.chakra || activeJourney?.chakra || activeJourney?.chakra_tag,
         ...details
       }).catch(error => {
         // Handle silently - don't block the user experience for logging errors
@@ -111,12 +115,7 @@ export const useJourneyActivity = () => {
   const getJourneyChakra = (): ChakraTag | undefined => {
     if (!activeJourney) return undefined;
     
-    // Check for explicit chakra_tag
-    if (activeJourney.chakra_tag) {
-      return activeJourney.chakra_tag as ChakraTag;
-    }
-    
-    // Check the older chakra field
+    // Check for chakra first, then fall back to chakra_tag for backward compatibility
     if (activeJourney.chakra) {
       // Try to convert string to ChakraTag
       const chakra = activeJourney.chakra.trim();
@@ -124,6 +123,11 @@ export const useJourneyActivity = () => {
            'Throat', 'Third Eye', 'Crown', 'Transpersonal'].includes(chakra)) {
         return chakra as ChakraTag;
       }
+    }
+    
+    // Check the older chakra_tag field as fallback
+    if (activeJourney.chakra_tag) {
+      return activeJourney.chakra_tag as ChakraTag;
     }
     
     return undefined;
@@ -134,8 +138,9 @@ export const useJourneyActivity = () => {
     if (activeJourney) {
       setActiveJourney({
         ...activeJourney,
-        chakra_tag: chakra,
-        chakra: chakra // Update both for backward compatibility
+        // Set both properties for compatibility
+        chakra: chakra,
+        chakra_tag: chakra
       });
     }
   };

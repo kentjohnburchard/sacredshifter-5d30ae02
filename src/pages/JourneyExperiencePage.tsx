@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import JourneyExperience from '@/components/journey/JourneyExperience';
@@ -70,7 +71,8 @@ const JourneyExperienceContent: React.FC = () => {
           await logTimelineEvent('journey_start', {
             journeyId,
             title: journey.title,
-            chakra: journey.chakra_tag
+            // Use chakra field instead of chakra_tag 
+            chakra: journey.chakra || journey.chakra_tag
           });
         } catch (timelineError) {
           console.warn('Failed to log journey start to timeline:', timelineError);
@@ -83,7 +85,8 @@ const JourneyExperienceContent: React.FC = () => {
           title: journey.title,
           description: journey.description || '',
           tags: normalizeStringArray(journey.tags),
-          chakra_tag: journey.chakra_tag
+          // Use chakra field consistently
+          chakra: journey.chakra || journey.chakra_tag
         });
         
         // Begin entrance transition
@@ -146,7 +149,8 @@ const JourneyExperienceContent: React.FC = () => {
           frequency: journeyData.sound_frequencies 
             ? parseFloat(journeyData.sound_frequencies) 
             : undefined,
-          chakra: journeyData.chakra_tag,
+          // Ensure chakra is passed consistently
+          chakra: journeyData.chakra || journeyData.chakra_tag,
           audioFile: journeyData.audio_filename
         }}
       />

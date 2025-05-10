@@ -63,7 +63,7 @@ export interface JourneyTimelineItem {
   title: string;
   tag: string;
   notes?: string;
-  chakra_tag?: string;
+  chakra?: string; // Changed from chakra_tag to chakra to match database schema
   created_at: string;
   journey_id?: string;
   component?: string;
@@ -76,7 +76,7 @@ export interface JourneyAwareComponentProps {
   autoSync?: boolean;
 }
 
-// Add JourneyPrompt interface that was missing
+// Exported JourneyPrompt interface
 export interface JourneyPrompt {
   id: string;
   journey_id: string;
@@ -89,7 +89,7 @@ export interface JourneyPrompt {
   saved?: boolean;
 }
 
-// Add VisualMapping interface for the JourneyAudioMapper component
+// Visual Mapping interface for the JourneyAudioMapper component
 export interface VisualMapping {
   id: string;
   journey_template_id: string;

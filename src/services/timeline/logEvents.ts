@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { formatJourneyId } from './formatters';
 import { TimelineEventDetails } from './types';
@@ -57,7 +58,8 @@ export const logTimelineEvent = async (
       title: sanitizedDetails.title || validTag,
       component: sanitizedDetails.component,
       notes: sanitizedDetails.notes,
-      chakra_tag: sanitizedDetails.chakra,
+      // Changed chakra_tag to chakra to match the database schema
+      chakra: sanitizedDetails.chakra,
       details: sanitizedDetails
     };
     
@@ -110,7 +112,8 @@ export const createTimelineItem = async (
         title,
         tag,
         details,
-        chakra_tag: chakraTag,
+        // Changed chakra_tag to chakra to match the database schema
+        chakra: chakraTag,
         journey_id: journey_id,
         created_at: new Date().toISOString()
       });
