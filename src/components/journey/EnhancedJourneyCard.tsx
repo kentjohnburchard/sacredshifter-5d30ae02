@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Play, Lock } from 'lucide-react';
 import { Journey } from '@/types/journey';
@@ -33,9 +32,9 @@ const EnhancedJourneyCard: React.FC<EnhancedJourneyCardProps> = ({
     
     try {
       // Determine the correct journey ID to use
-      const journeyId = journey.slug || // First try slug
-                      journey.filename?.replace(/\.md$/, '') || // Then try filename without .md
-                      journey.id; // Fallback to ID
+      let journeyId = journey.slug || // First try slug
+                     (journey.filename?.replace(/\.md$/, '')) || // Then try filename without .md
+                     journey.id; // Fallback to ID
     
       if (!journeyId) {
         toast.error("Cannot start journey: Invalid journey ID");

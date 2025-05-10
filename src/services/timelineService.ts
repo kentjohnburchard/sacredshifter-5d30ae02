@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { JourneyTimelineEvent } from '@/types/journey';
 
@@ -12,7 +13,7 @@ interface TimelineEventDetails {
 }
 
 /**
- * Validates if a string is a valid UUID
+ * Checks if a string is a valid UUID format
  */
 const isValidUUID = (str: string): boolean => {
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -20,22 +21,38 @@ const isValidUUID = (str: string): boolean => {
 };
 
 /**
+ * Creates a deterministic UUID-like string from a numeric ID
+ * This allows us to use numeric IDs in the timeline_snapshots table
+ */
+const createPseudoUUID = (numericId: string | number): string => {
+  const id = String(numericId).padStart(8, '0');
+  return `journey-${id}-0000-0000-000000000000`;
+};
+
+/**
  * Safely formats journey ID to ensure compatibility with the database
- * If it's not a valid UUID, it returns null
+ * If it's a valid UUID, it returns it directly
+ * If it's a numeric ID, it converts it to a pseudo-UUID format
+ * Returns null if the ID is invalid or missing
  */
 const formatJourneyId = (id?: string | number): string | null => {
   if (!id) return null;
   
-  const strId = String(id);
+  const strId = String(id).trim();
   
-  // If it's a valid UUID, use it directly
+  // If it's already a valid UUID, use it directly
   if (isValidUUID(strId)) {
     return strId;
   }
   
-  // For numeric IDs or other formats, we can't use them directly in the timeline_snapshots table
-  // as it expects a UUID for journey_id. Return null to indicate this ID can't be used.
-  return null;
+  // For numeric IDs, create a deterministic UUID-like string
+  if (/^\d+$/.test(strId)) {
+    return createPseudoUUID(strId);
+  }
+  
+  // For other formats that don't match UUID or numeric patterns
+  console.warn(`Invalid journey ID format: ${strId}, will use pseudo-UUID`);
+  return createPseudoUUID(strId);
 };
 
 /**
@@ -74,10 +91,6 @@ export const logTimelineEvent = async (
     let journey_id = null;
     if (sanitizedDetails.journeyId) {
       journey_id = formatJourneyId(sanitizedDetails.journeyId);
-      // If journey_id isn't a valid UUID, we'll still log the event but without the journey association
-      if (!journey_id) {
-        console.warn(`Invalid journey ID format: ${sanitizedDetails.journeyId}, timeline event will be logged without journey association`);
-      }
     }
     
     // Ensure tag is valid
@@ -89,7 +102,7 @@ export const logTimelineEvent = async (
         user_id: userId,
         tag: validTag,
         title: sanitizedDetails.title || validTag,
-        journey_id: journey_id, // Only use journey_id if it's a valid UUID
+        journey_id: journey_id,
         component: sanitizedDetails.component,
         notes: sanitizedDetails.notes,
         frequency: sanitizedDetails.frequency,

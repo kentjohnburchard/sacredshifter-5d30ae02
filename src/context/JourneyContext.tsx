@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { ChakraTag } from '@/types/chakras';
 import { Journey, JourneyTimelineItem } from '@/types/journey';
@@ -139,15 +140,22 @@ export const JourneyProvider: React.FC<JourneyProviderProps> = ({ children }) =>
 
   // Record user activity within a journey
   const recordActivity = (action: string, details?: Record<string, any>) => {
+    // We can record activity even without active journey if journeyId is provided
     if (!activeJourney && !details?.journeyId) {
-      console.log("Cannot record activity - no active journey");
+      console.log("Cannot record activity - no active journey and no journeyId provided");
       return;
     }
     
-    // Convert the journeyId to string if provided as a number
-    let journeyId = activeJourney?.id;
-    if (details?.journeyId) {
-      journeyId = String(details.journeyId);
+    // Use provided journeyId or fall back to active journey's ID
+    const journeyId = details?.journeyId 
+      ? String(details.journeyId) 
+      : activeJourney?.id 
+        ? String(activeJourney.id) 
+        : undefined;
+    
+    if (!journeyId) {
+      console.log("Cannot record activity - no valid journey ID");
+      return;
     }
     
     console.log(`Recording activity: ${action}`, {
@@ -155,7 +163,7 @@ export const JourneyProvider: React.FC<JourneyProviderProps> = ({ children }) =>
       details
     });
     
-    // Log the timeline event using the timelineService
+    // Log the timeline event using the timelineService with proper error handling
     try {
       logTimelineEvent(action as any, {
         journeyId,
