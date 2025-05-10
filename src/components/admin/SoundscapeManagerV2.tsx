@@ -380,7 +380,7 @@ const SoundscapeManagerV2 = () => {
         .update({
           title: formData.title,
           description: formData.description || null,
-          journey_id: parseInt(formData.journey_id),
+          journey_id: parseInt(formData.journey_id), // Convert string to number
           file_url: fileUrl
         })
         .eq('id', selectedSoundscape.id)
