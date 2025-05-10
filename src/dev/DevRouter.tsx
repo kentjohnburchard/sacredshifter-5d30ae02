@@ -41,6 +41,7 @@ const DevRouter: React.FC = () => {
         <Route path="/dev/journey/:slug" element={<JourneyPage />} />
         <Route path="/dev/sacred-circle" element={<SacredCirclePage />} />
         <Route path="/dev/sandbox" element={<LovablePlayground />} />
+        <Route path="/dev" element={<LovablePlayground />} />
       </Routes>
     </BrowserRouter>
   );
