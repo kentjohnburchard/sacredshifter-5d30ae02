@@ -47,6 +47,10 @@ const AppRoutes: React.FC = () => {
       <Route path="/frequency-engine" element={<FrequencyEnginePage />} />
       <Route path="/reality-optimizer" element={<RealityOptimizerPage />} />
       
+      {/* Admin Routes */}
+      <Route path="/admin/journeys/templates" element={<JourneyTemplatesAdmin />} />
+      <Route path="/admin/journeys/soundscapes" element={<JourneySoundscapeAdmin />} />
+      
       {/* Protected Routes */}
       <Route 
         path="/dashboard" 
@@ -80,10 +84,6 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         } 
       />
-      
-      {/* Admin Routes */}
-      <Route path="/admin/journeys/templates" element={<JourneyTemplatesAdmin />} />
-      <Route path="/admin/journeys/soundscapes" element={<JourneySoundscapeAdmin />} />
       
       {/* Public Feature Routes */}
       <Route path="/circle" element={<SacredCirclePage />} />

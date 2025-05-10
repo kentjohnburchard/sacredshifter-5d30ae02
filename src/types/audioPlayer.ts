@@ -48,8 +48,8 @@ export interface GlobalAudioPlayerContextType {
   registerPrimeCallback: (callback: (prime: number) => void) => (() => void) | undefined;
   getAudioElement: () => HTMLAudioElement | null;
   forceVisualSync: () => void;
-  currentAudioId?: string;
-  isMuted?: boolean;
-  toggleMute?: () => void;
-  stopAudio?: () => void;
+  currentAudioId: string | undefined;
+  isMuted: boolean;
+  toggleMute: () => void;
+  stopAudio: () => void;
 }

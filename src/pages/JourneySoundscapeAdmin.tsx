@@ -76,6 +76,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
       if (error) throw error;
       
       setSoundscapes(data || []);
+      console.log("Loaded soundscapes:", data);
     } catch (error) {
       console.error('Error loading data:', error);
       toast.error('Failed to load data');
