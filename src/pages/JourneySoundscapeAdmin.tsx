@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchJourneys } from '@/services/journeyService';
-import { Plus, Trash2, ExternalLink, FileMusic, Youtube } from 'lucide-react';
+import { Plus, Trash2, ExternalLink, FileMusic, Youtube, Play } from 'lucide-react';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 
 interface Journey {

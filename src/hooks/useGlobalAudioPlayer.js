@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 export function useGlobalAudioPlayer() {
@@ -7,6 +6,8 @@ export function useGlobalAudioPlayer() {
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [volume, setVolume] = useState(0.7);
+  const [currentAudioId, setCurrentAudioId] = useState(undefined);
+  const [isMuted, setIsMuted] = useState(false);
   
   const audioRef = useRef(null);
   const onEndedCallbackRef = useRef(null);
@@ -100,8 +101,9 @@ export function useGlobalAudioPlayer() {
       });
     }
     
-    // Update current audio info
+    // Update current audio info and ID
     setCurrentAudio(audioInfo);
+    setCurrentAudioId(audioInfo.id);
   }, [currentAudio, isPlaying, volume]);
   
   // Toggle play/pause
@@ -118,6 +120,25 @@ export function useGlobalAudioPlayer() {
       });
     }
   }, [isPlaying]);
+  
+  // Toggle mute function
+  const toggleMute = useCallback(() => {
+    if (!audioRef.current) return;
+    
+    const audio = audioRef.current;
+    audio.muted = !audio.muted;
+    setIsMuted(audio.muted);
+  }, []);
+  
+  // Stop audio function
+  const stopAudio = useCallback(() => {
+    if (!audioRef.current) return;
+    
+    const audio = audioRef.current;
+    audio.pause();
+    audio.currentTime = 0;
+    setIsPlaying(false);
+  }, []);
   
   // Seek to a specific time
   const seek = useCallback((time) => {
@@ -186,9 +207,13 @@ export function useGlobalAudioPlayer() {
     duration,
     currentTime,
     volume,
+    currentAudioId,
+    isMuted,
     audioElement: audioRef.current,
     playAudio,
     togglePlayPause,
+    toggleMute,
+    stopAudio,
     seek,
     setVolume: setVolumeLevel,
     setOnEndedCallback,

@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useEffect, useRef, useCallback } from 'react';
 import { VisualRegistration, PlayerInfo, GlobalAudioPlayerContextType, PlayerState } from '@/types/audioPlayer';
 import { useAudioSetup } from '@/hooks/useAudioSetup';
@@ -29,7 +28,11 @@ const defaultAudioContext: GlobalAudioPlayerContextType = {
   getVolume: () => 0.7,
   registerPrimeCallback: () => undefined,
   getAudioElement: () => null,
-  forceVisualSync: () => {}
+  forceVisualSync: () => {},
+  currentAudioId: undefined,
+  isMuted: false,
+  toggleMute: () => {},
+  stopAudio: () => {}
 };
 
 // Create the context
@@ -55,6 +58,8 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
     trackEnded: false,
     error: null
   });
+  const [currentAudioId, setCurrentAudioId] = useState<string | undefined>(undefined);
+  const [isMuted, setIsMuted] = useState(false);
   
   // Use the shared audio setup hook
   const {
@@ -182,6 +187,9 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
               reg.setAudioSource(info.source || '', info);
             }
           });
+          
+          // Update current audio ID
+          setCurrentAudioId(info.id);
         })
         .catch(error => {
           console.error("Error playing audio:", error);
@@ -293,6 +301,27 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
     }
   }, [currentAudio, visualRegistrationsRef]);
   
+  // Toggle mute
+  const toggleMute = useCallback(() => {
+    if (!audioRef.current) return;
+    
+    setIsMuted(prevMuted => {
+      const newMuted = !prevMuted;
+      audioRef.current!.muted = newMuted;
+      return newMuted;
+    });
+  }, []);
+  
+  // Stop audio
+  const stopAudio = useCallback(() => {
+    if (!audioRef.current) return;
+    
+    const audio = audioRef.current;
+    audio.pause();
+    audio.currentTime = 0;
+    setIsPlaying(false);
+  }, []);
+  
   // Context value
   const contextValue: GlobalAudioPlayerContextType = {
     currentAudio,
@@ -314,7 +343,11 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
     getVolume,
     registerPrimeCallback,
     getAudioElement,
-    forceVisualSync
+    forceVisualSync,
+    currentAudioId,
+    isMuted,
+    toggleMute,
+    stopAudio
   };
   
   return (
