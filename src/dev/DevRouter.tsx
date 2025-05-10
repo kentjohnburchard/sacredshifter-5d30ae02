@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import HomePage from '../pages/HomePage';
 import FrequencyEnginePage from '../pages/FrequencyEnginePage';
 import JourneyPage from '../pages/JourneyPage';
+import SacredCirclePage from '../pages/SacredCirclePage';
 
 // Optional playground component
 const LovablePlayground: React.FC = () => {
@@ -16,6 +17,11 @@ const LovablePlayground: React.FC = () => {
       <div className="p-6 border border-purple-500/30 rounded-lg bg-black/20 backdrop-blur-sm">
         <h2 className="text-xl font-semibold mb-2">Testing Area</h2>
         <p>Add components here for isolated testing.</p>
+        <div className="mt-4 space-y-2">
+          <a href="/dev/sacred-circle" className="text-blue-400 hover:underline block">Test Sacred Circle</a>
+          <a href="/dev/frequency-engine" className="text-blue-400 hover:underline block">Test Frequency Engine</a>
+          <a href="/dev/home" className="text-blue-400 hover:underline block">Test Home</a>
+        </div>
       </div>
     </div>
   );
@@ -33,6 +39,7 @@ const DevRouter: React.FC = () => {
         <Route path="/dev/home" element={<HomePage />} />
         <Route path="/dev/frequency-engine" element={<FrequencyEnginePage />} />
         <Route path="/dev/journey/:slug" element={<JourneyPage />} />
+        <Route path="/dev/sacred-circle" element={<SacredCirclePage />} />
         <Route path="/dev/sandbox" element={<LovablePlayground />} />
       </Routes>
     </BrowserRouter>

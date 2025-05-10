@@ -1,131 +1,219 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import AppShell from '@/components/layout/AppShell';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { motion } from 'framer-motion';
-import { Users, MessageCircle } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+import { ChakraTag, CHAKRA_COLORS } from '@/types/chakras';
+import { PlusCircle, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+
+// Import our new circle components
+import AmbientBackground from '@/components/circle/AmbientBackground';
+import CircleFeed from '@/components/circle/CircleFeed';
+import GuideCard from '@/components/circle/GuideCard';
+import VibeOrb from '@/components/circle/VibeOrb';
+
+// Mock data for guided resonance cards
+const guidedResonanceCards = [
+  {
+    id: '1',
+    title: 'Heart Opening Journey',
+    type: 'journey' as const,
+    description: 'Connect with your heart center through this guided meditation with 528Hz frequency',
+    chakra: 'Heart' as ChakraTag,
+    frequency: 528,
+    audioUrl: '/frequencies/528hz.mp3',
+    upvotes: 24,
+    imageUrl: 'https://images.unsplash.com/photo-1519834785169-98be25ec3f84?q=80&w=500&auto=format&fit=crop',
+    authorName: 'Cosmic Guide',
+  },
+  {
+    id: '2',
+    title: 'Theta Wave Resonance',
+    type: 'tone' as const,
+    description: 'Deep meditation frequency to access subconscious wisdom',
+    chakra: 'Third Eye' as ChakraTag,
+    frequency: 7.83,
+    audioUrl: '/frequencies/theta.mp3',
+    upvotes: 18,
+    imageUrl: 'https://images.unsplash.com/photo-1546484475-7f7bd55792da?q=80&w=500&auto=format&fit=crop',
+  },
+  {
+    id: '3',
+    title: 'As Above, So Below',
+    type: 'quote' as const,
+    description: 'Hermetic wisdom from the Kybalion to contemplate during your spiritual practice',
+    chakra: 'Crown' as ChakraTag,
+    upvotes: 32,
+    saved: true,
+    imageUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=500&auto=format&fit=crop',
+    authorName: 'Hermetic Teachings',
+  }
+];
 
 const SacredCirclePage: React.FC = () => {
   const navigate = useNavigate();
+  const [activeChakra, setActiveChakra] = useState<ChakraTag>('Heart');
+  const [ambientIntensity, setAmbientIntensity] = useState(0.5);
+  
+  // Increase ambient intensity when user interacts with the page
+  useEffect(() => {
+    const handleInteraction = () => {
+      setAmbientIntensity(0.8);
+      setTimeout(() => setAmbientIntensity(0.5), 3000);
+    };
+    
+    window.addEventListener('click', handleInteraction);
+    
+    return () => {
+      window.removeEventListener('click', handleInteraction);
+    };
+  }, []);
+  
+  // Handle guide card actions
+  const handlePlayGuide = (id: string) => {
+    console.log(`Playing guide: ${id}`);
+    // Implement actual play functionality
+  };
+  
+  const handleSaveGuide = (id: string) => {
+    console.log(`Saving guide: ${id}`);
+    // Implement actual save functionality
+  };
+  
+  const handleShareGuide = (id: string) => {
+    console.log(`Sharing guide: ${id}`);
+    // Implement actual share functionality
+  };
   
   return (
     <AppShell 
       pageTitle="Sacred Circle" 
-      chakraColor="#EC4899" // Pink color for sacred circle
+      chakraColor={CHAKRA_COLORS[activeChakra]} // Dynamic color based on active chakra
     >
-      <div className="p-6">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <h1 className="text-3xl font-bold text-white mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
-            Sacred Circle
-          </h1>
-        </motion.div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Content Card */}
-          <motion.div 
-            className="lg:col-span-2"
-            initial={{ opacity: 0, y: 20 }}
+      {/* Ambient Background */}
+      <AmbientBackground 
+        activeChakra={activeChakra} 
+        intensity={ambientIntensity}
+        pulsing={true}
+      />
+      
+      <div className="relative z-10 p-6">
+        <div className="max-w-6xl mx-auto">
+          {/* Page Header */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+            transition={{ duration: 0.5 }}
+            className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
           >
-            <Card className="bg-black/40 border-pink-500/30">
-              <CardHeader>
-                <CardTitle className="text-xl text-white">Welcome to the Sacred Circle</CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <p className="text-gray-300 mb-4">
-                  Connect with fellow lightbearers on the path of spiritual evolution. 
-                  Share wisdom, support each other's journey, and grow together in consciousness.
-                </p>
-                <div className="flex gap-4 mt-6">
-                  <Button 
-                    onClick={() => navigate("/circle")}
-                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                  >
-                    <MessageCircle className="mr-2 h-4 w-4" />
-                    Join Community Chat
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="border-purple-500/30"
-                    onClick={() => navigate("/circle-info")}
-                  >
-                    <Users className="mr-2 h-4 w-4" />
-                    Learn More
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <div>
+              <h1 className="text-3xl font-bold mb-1 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
+                Sacred Circle
+              </h1>
+              <p className="text-white/70 max-w-xl">
+                Connect with fellow lightbearers in this high-frequency space for spiritual communion, wisdom sharing, and collective resonance.
+              </p>
+            </div>
+            
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => navigate("/circle")}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              >
+                Enter Full Circle
+              </Button>
+              <Button variant="outline" className="border-purple-500/30">
+                <Info className="h-4 w-4 mr-2" />
+                Learn More
+              </Button>
+            </div>
           </motion.div>
           
-          {/* Featured Member Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Card className="bg-black/40 border-purple-500/30 h-full">
-              <CardHeader>
-                <CardTitle className="text-lg text-white">Featured Lightbearers</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-400 text-sm">
-                  Meet fellow seekers and connect with other spiritual travelers on the path.
-                </p>
-                <div className="mt-4 space-y-2">
-                  {['Harmony Celestia', 'Luna Stellar', 'Orion Light'].map((name, i) => (
-                    <div key={i} className="flex items-center p-2 hover:bg-white/5 rounded-md">
-                      <div className="h-8 w-8 rounded-full bg-purple-700/30 flex items-center justify-center mr-3">
-                        {name.charAt(0)}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-white">{name}</p>
-                        <p className="text-xs text-gray-400">Active Now</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-4">
-                  <Button variant="ghost" size="sm" className="w-full text-sm text-purple-300">
-                    View All Members
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-        
-        {/* Coming Soon Features */}
-        <motion.div
-          className="mt-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <Card className="bg-black/30 border-indigo-500/30">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-medium mb-2 text-white">Coming Soon</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {[
-                  { title: 'Sacred Discussions', desc: 'Thread-based wisdom sharing' },
-                  { title: 'Frequency Circles', desc: 'Group healing sessions' },
-                  { title: 'Lightbearer Events', desc: 'Virtual gathering ceremonies' }
-                ].map((feature, i) => (
-                  <div key={i} className="p-3 bg-black/20 border border-indigo-500/10 rounded-lg">
-                    <h4 className="font-medium text-indigo-300">{feature.title}</h4>
-                    <p className="text-sm text-gray-400">{feature.desc}</p>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Main Circle Feed */}
+            <motion.div 
+              className="lg:col-span-2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+            >
+              <CircleFeed initialChakra={activeChakra} />
+            </motion.div>
+            
+            {/* Sidebar Content */}
+            <motion.div
+              className="space-y-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+            >
+              {/* Guided Resonance Cards */}
+              <Card className="bg-black/30 backdrop-blur-sm border-white/10">
+                <CardContent className="p-4 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-semibold text-white">Guided Resonance</h3>
+                    <Button variant="ghost" size="sm">
+                      <PlusCircle className="h-4 w-4 mr-1" />
+                      Add
+                    </Button>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+                  
+                  <div className="space-y-4">
+                    {guidedResonanceCards.map((card) => (
+                      <GuideCard 
+                        key={card.id}
+                        item={card}
+                        onPlay={handlePlayGuide}
+                        onSave={handleSaveGuide}
+                        onShare={handleShareGuide}
+                      />
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Featured Circle Members */}
+              <Card className="bg-black/30 backdrop-blur-sm border-white/10">
+                <CardContent className="p-4">
+                  <h3 className="font-semibold text-white mb-3">Featured Lightbearers</h3>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <VibeOrb 
+                      user={{
+                        id: '2',
+                        name: 'Cosmic Guide',
+                        currentVibe: 'Third Eye',
+                        chakraAlignment: 'Third Eye',
+                        currentFrequency: 852,
+                        isActive: true
+                      }}
+                      size="sm"
+                    />
+                    <VibeOrb 
+                      user={{
+                        id: '4',
+                        name: 'Harmony Celestia',
+                        currentVibe: 'Crown',
+                        chakraAlignment: 'Crown',
+                        currentFrequency: 963,
+                        isActive: true
+                      }}
+                      size="sm"
+                    />
+                  </div>
+                  
+                  <div className="mt-4 pt-4 border-t border-white/10">
+                    <Button variant="outline" size="sm" className="w-full">
+                      Find More Lightbearers
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        </div>
       </div>
     </AppShell>
   );
