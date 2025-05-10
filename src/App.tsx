@@ -5,6 +5,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { JourneyProvider } from './context/JourneyContext';
 import { IntentionProvider } from './context/IntentionContext';
+import HomePage from './pages/HomePage';
 import LandingPage from './pages/landing/LandingPage';
 import FrequencyEnginePage from './pages/FrequencyEnginePage';
 import MusicLibrary from './pages/MusicLibrary';
@@ -40,7 +41,8 @@ function App() {
           <IntentionProvider>
             <Routes>
               {/* Main Routes */}
-              <Route path="/" element={<LandingPage />} />
+              <Route path="/" element={<HomePage />} />
+              <Route path="/landing" element={<LandingPage />} />
               <Route path="/frequency-engine" element={<FrequencyEnginePage />} />
               <Route path="/music-library" element={<MusicLibrary />} />
               <Route path="/daily-practice" element={<DailyPracticePage />} />
