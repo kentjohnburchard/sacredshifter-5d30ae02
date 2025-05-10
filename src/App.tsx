@@ -10,7 +10,7 @@ import "@/styles/sacred-theme.css";
 // Import pages
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
-import DashboardPage from './pages/DashboardPage';
+import Dashboard from './pages/Dashboard';
 import SacredCirclePage from './pages/SacredCirclePage';
 import LightbearerPage from './pages/LightbearerPage';
 import JourneyPage from './pages/JourneyPage';
@@ -38,7 +38,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/sacred-circle" element={<SacredCirclePage />} />
         <Route path="/circle" element={<SacredCircle />} />
         <Route path="/lightbearer" element={<LightbearerPage />} />
