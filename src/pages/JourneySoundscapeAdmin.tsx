@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +10,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { fetchJourneys } from '@/services/journeyService';
+import { 
+  fetchJourneys, 
+  fetchJourneySoundscapes, 
+  createJourneySoundscape, 
+  updateJourneySoundscape, 
+  deleteJourneySoundscape 
+} from '@/services/journeyService';
 import { Plus, Trash2, ExternalLink, FileMusic, Youtube, Play, Pause, Volume2, VolumeX } from 'lucide-react';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import { Badge } from '@/components/ui/badge';
@@ -68,18 +73,32 @@ const JourneySoundscapeAdmin: React.FC = () => {
       setJourneys(journeysData);
       
       // Load soundscapes
-      const { data, error } = await supabase
-        .from('journey_soundscapes')
-        .select('*')
-        .order('created_at', { ascending: false });
-        
-      if (error) throw error;
-      
-      setSoundscapes(data || []);
-      console.log("Loaded soundscapes:", data);
+      const soundscapesData = await fetchJourneySoundscapes();
+      setSoundscapes(soundscapesData);
+      console.log("Loaded soundscapes:", soundscapesData);
     } catch (error) {
       console.error('Error loading data:', error);
       toast.error('Failed to load data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedJourney) {
+      loadJourneySoundscapes();
+    }
+  }, [selectedJourney]);
+
+  const loadJourneySoundscapes = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchJourneySoundscapes(selectedJourney);
+      setSoundscapes(data);
+      console.log("Loaded soundscapes for journey:", selectedJourney, data);
+    } catch (error) {
+      console.error('Error loading soundscapes:', error);
+      toast.error('Failed to load soundscapes');
     } finally {
       setLoading(false);
     }
@@ -174,12 +193,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
     if (!soundscapeToDelete) return;
     
     try {
-      const { error } = await supabase
-        .from('journey_soundscapes')
-        .delete()
-        .eq('id', soundscapeToDelete);
-        
-      if (error) throw error;
+      await deleteJourneySoundscape(soundscapeToDelete);
       
       setSoundscapes(prev => prev.filter(s => s.id !== soundscapeToDelete));
       toast.success('Soundscape deleted successfully');
@@ -255,29 +269,12 @@ const JourneySoundscapeAdmin: React.FC = () => {
       
       if (selectedSoundscape?.id) {
         // Update existing soundscape
-        const { data, error } = await supabase
-          .from('journey_soundscapes')
-          .update(soundscapeData)
-          .eq('id', selectedSoundscape.id)
-          .select()
-          .single();
-          
-        if (error) throw error;
-        updatedSoundscape = data;
-        
+        updatedSoundscape = await updateJourneySoundscape(selectedSoundscape.id, soundscapeData);
         setSoundscapes(prev => prev.map(s => s.id === updatedSoundscape.id ? updatedSoundscape : s));
         toast.success('Soundscape updated successfully');
       } else {
         // Create new soundscape
-        const { data, error } = await supabase
-          .from('journey_soundscapes')
-          .insert(soundscapeData)
-          .select()
-          .single();
-          
-        if (error) throw error;
-        updatedSoundscape = data;
-        
+        updatedSoundscape = await createJourneySoundscape(soundscapeData);
         setSoundscapes(prev => [updatedSoundscape, ...prev]);
         toast.success('Soundscape created successfully');
       }
@@ -343,16 +340,13 @@ const JourneySoundscapeAdmin: React.FC = () => {
           continue;
         }
         
-        // Create soundscape
-        const { error } = await supabase
-          .from('journey_soundscapes')
-          .insert(soundscapeData);
-          
-        if (error) {
+        try {
+          // Create soundscape
+          await createJourneySoundscape(soundscapeData);
+          successCount++;
+        } catch (error) {
           console.error('Error creating soundscape:', error);
           errorCount++;
-        } else {
-          successCount++;
         }
       }
       

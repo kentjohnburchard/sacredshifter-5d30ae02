@@ -1,203 +1,102 @@
-
 import { supabase } from '@/integrations/supabase/client';
-import { Journey } from '@/types/journey';
-import { normalizeStringArray, normalizeId } from '@/utils/parsers';
 
-// Helper function to normalize journey data from database
-const normalizeJourneyData = (data: any): Journey => {
-  return {
-    ...data,
-    id: normalizeId(data.id),
-    tags: typeof data.tags === 'string' ? normalizeStringArray(data.tags) : data.tags || [],
-    sound_frequencies: data.sound_frequencies || '',
-    assigned_songs: normalizeStringArray(data.assigned_songs),
-    visual_effects: normalizeStringArray(data.visual_effects),
-    strobe_patterns: normalizeStringArray(data.strobe_patterns),
-    recommended_users: normalizeStringArray(data.recommended_users),
-    frequencies: Array.isArray(data.frequencies) ? data.frequencies : 
-               (data.frequencies ? normalizeStringArray(data.frequencies) : []),
-    source: 'database' as const,
-    isEditable: true
-  };
-};
-
-// Helper function to prepare journey data for database
-const prepareJourneyForDb = (journey: Partial<Journey>): Record<string, any> => {
-  // Without stringifyArrayForDb, convert arrays to JSON strings
-  return {
-    ...journey,
-    id: journey.id && !isNaN(Number(journey.id)) ? parseInt(journey.id) : undefined,
-    tags: Array.isArray(journey.tags) ? JSON.stringify(journey.tags) : journey.tags,
-    assigned_songs: Array.isArray(journey.assigned_songs) ? JSON.stringify(journey.assigned_songs) : journey.assigned_songs,
-    visual_effects: Array.isArray(journey.visual_effects) ? JSON.stringify(journey.visual_effects) : journey.visual_effects,
-    strobe_patterns: Array.isArray(journey.strobe_patterns) ? JSON.stringify(journey.strobe_patterns) : journey.strobe_patterns,
-    recommended_users: Array.isArray(journey.recommended_users) ? JSON.stringify(journey.recommended_users) : journey.recommended_users,
-    frequencies: Array.isArray(journey.frequencies) ? JSON.stringify(journey.frequencies) : journey.frequencies,
-  };
-};
-
-export const fetchJourneys = async (): Promise<Journey[]> => {
+/**
+ * Fetch all journeys from the database
+ */
+export async function fetchJourneys() {
   try {
-    console.log('Fetching journeys from database...');
     const { data, error } = await supabase
       .from('journeys')
-      .select('id, title, filename, veil_locked, audio_filename, tags, sound_frequencies, frequencies')
-      .order('id');
-
-    if (error) {
-      console.error('Error fetching journeys:', error);
-      throw error;
-    }
-
-    console.log(`Successfully fetched ${data?.length || 0} journeys from database`);
+      .select('id, title, filename')
+      .order('title', { ascending: true });
     
-    // Mark all database journeys as editable and set source
-    const dbJourneys = (data || []).map(journey => normalizeJourneyData(journey));
-    return dbJourneys;
+    if (error) throw error;
+    
+    return data || [];
   } catch (error) {
-    console.error('Error in fetchJourneys:', error);
+    console.error('Error fetching journeys:', error);
     return [];
   }
-};
+}
 
-export const fetchJourneyBySlug = async (slug: string): Promise<Journey | null> => {
+/**
+ * Fetch soundscapes for a specific journey
+ */
+export async function fetchJourneySoundscapes(journeyId?: string | number | null) {
   try {
-    console.log(`Attempting to fetch journey with slug: "${slug}"`);
+    let query = supabase.from('journey_soundscapes').select('*');
     
-    if (!slug) {
-      console.error('No slug provided to fetchJourneyBySlug');
-      return null;
+    if (journeyId) {
+      query = query.eq('journey_id', journeyId);
     }
     
-    // Remove .md extension if present in the slug
-    const cleanSlug = slug.replace(/\.md$/, '');
+    const { data, error } = await query.order('created_at', { ascending: false });
     
-    // Try different approaches to find the journey
+    if (error) throw error;
     
-    // 1. First try direct match on filename or slug
-    const { data, error } = await supabase
-      .from('journeys')
-      .select('*')
-      .or(`filename.eq.${cleanSlug},slug.eq.${cleanSlug}`)
-      .limit(1);
-    
-    if (error) {
-      console.error(`Error fetching journey with slug ${slug}:`, error);
-      return null;
-    }
-    
-    // If we found a journey, return it
-    if (data && data.length > 0) {
-      console.log(`Successfully found journey: ${data[0].title} (ID: ${data[0].id})`);
-      return normalizeJourneyData(data[0]);
-    }
-    
-    // 2. Try with .md extension
-    const { data: mdData, error: mdError } = await supabase
-      .from('journeys')
-      .select('*')
-      .eq('filename', `${cleanSlug}.md`)
-      .limit(1);
-      
-    if (mdError) {
-      console.error(`Error in md extension search for journey ${slug}:`, mdError);
-    } else if (mdData && mdData.length > 0) {
-      console.log(`Found journey with .md extension: ${mdData[0].title}`);
-      return normalizeJourneyData(mdData[0]);
-    }
-    
-    // 3. Try fuzzy search as a last resort
-    const { data: fuzzyData, error: fuzzyError } = await supabase
-      .from('journeys')
-      .select('*')
-      .or(`filename.ilike.%${cleanSlug}%,slug.ilike.%${cleanSlug}%,title.ilike.%${cleanSlug.replace(/_/g, ' ')}%`)
-      .limit(1);
-      
-    if (fuzzyError) {
-      console.error(`Error in fuzzy search for journey ${slug}:`, fuzzyError);
-    } else if (fuzzyData && fuzzyData.length > 0) {
-      console.log(`Found journey with fuzzy match: ${fuzzyData[0].title} (ID: ${fuzzyData[0].id})`);
-      return normalizeJourneyData(fuzzyData[0]);
-    }
-    
-    console.log(`No journey found with slug: ${slug}`);
-    return null;
+    return data || [];
   } catch (error) {
-    console.error(`Error in fetchJourneyBySlug for slug ${slug}:`, error);
-    return null;
+    console.error('Error fetching journey soundscapes:', error);
+    return [];
   }
-};
+}
 
-export const updateJourney = async (journey: Partial<Journey> & { id: string }): Promise<Journey> => {
+/**
+ * Create a new soundscape
+ */
+export async function createJourneySoundscape(soundscapeData: any) {
   try {
-    console.log("Updating journey with data:", journey);
-    
-    const dbJourney = prepareJourneyForDb(journey);
-    
-    // Ensure we're dealing with numeric ID for database operations
-    const journeyId = parseInt(journey.id);
-    
     const { data, error } = await supabase
-      .from('journeys')
-      .update(dbJourney)
-      .eq('id', journeyId)
-      .select('*')
+      .from('journey_soundscapes')
+      .insert(soundscapeData)
+      .select()
       .single();
-
-    if (error) {
-      console.error('Error updating journey:', error);
-      throw error;
-    }
-
-    return normalizeJourneyData(data);
+      
+    if (error) throw error;
+    
+    return data;
   } catch (error) {
-    console.error('Error in updateJourney:', error);
-    throw new Error(`Failed to update journey: ${error instanceof Error ? error.message : String(error)}`);
+    console.error('Error creating soundscape:', error);
+    throw error;
   }
-};
+}
 
-export const createJourney = async (journey: Omit<Journey, 'id' | 'created_at' | 'updated_at'>): Promise<Journey> => {
+/**
+ * Update an existing soundscape
+ */
+export async function updateJourneySoundscape(id: string, soundscapeData: any) {
   try {
-    console.log("Creating new journey with data:", journey);
-    
-    const dbJourney = prepareJourneyForDb(journey);
-    
-    // Create new journey record with properly formatted data
     const { data, error } = await supabase
-      .from('journeys')
-      .insert({
-        title: journey.title,
-        filename: journey.filename,
-        tags: Array.isArray(journey.tags) ? JSON.stringify(journey.tags) : journey.tags,
-        veil_locked: journey.veil_locked,
-        audio_filename: journey.audio_filename,
-        sound_frequencies: journey.sound_frequencies,
-        intent: journey.intent,
-        duration: journey.duration,
-        assigned_songs: Array.isArray(journey.assigned_songs) ? JSON.stringify(journey.assigned_songs) : journey.assigned_songs,
-        visual_effects: Array.isArray(journey.visual_effects) ? JSON.stringify(journey.visual_effects) : journey.visual_effects,
-        strobe_patterns: Array.isArray(journey.strobe_patterns) ? JSON.stringify(journey.strobe_patterns) : journey.strobe_patterns,
-        recommended_users: Array.isArray(journey.recommended_users) ? JSON.stringify(journey.recommended_users) : journey.recommended_users,
-        env_lighting: journey.env_lighting,
-        env_temperature: journey.env_temperature,
-        env_incense: journey.env_incense,
-        env_posture: journey.env_posture,
-        env_tools: journey.env_tools,
-        script: journey.script,
-        notes: journey.notes,
-      })
-      .select('*')
+      .from('journey_soundscapes')
+      .update(soundscapeData)
+      .eq('id', id)
+      .select()
       .single();
-
-    if (error) {
-      console.error('Error creating journey:', error);
-      throw error;
-    }
-
-    console.log("Journey created successfully:", data);
-    return normalizeJourneyData(data);
+      
+    if (error) throw error;
+    
+    return data;
   } catch (error) {
-    console.error('Error in createJourney:', error);
-    throw new Error(`Failed to create journey: ${error instanceof Error ? error.message : String(error)}`);
+    console.error('Error updating soundscape:', error);
+    throw error;
   }
-};
+}
+
+/**
+ * Delete a soundscape
+ */
+export async function deleteJourneySoundscape(id: string) {
+  try {
+    const { error } = await supabase
+      .from('journey_soundscapes')
+      .delete()
+      .eq('id', id);
+      
+    if (error) throw error;
+    
+    return true;
+  } catch (error) {
+    console.error('Error deleting soundscape:', error);
+    throw error;
+  }
+}
