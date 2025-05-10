@@ -18,10 +18,11 @@ import {
   updateJourneySoundscape, 
   deleteJourneySoundscape 
 } from '@/services/journeyService';
-import { Plus, Trash2, ExternalLink, FileMusic, Youtube, Play, Pause, Volume2, VolumeX, PencilIcon, Upload } from 'lucide-react';
+import { Plus, Trash2, ExternalLink, FileMusic, Youtube, Play, Pause, Volume2, VolumeX, PencilIcon, Upload, Info, FileAudio } from 'lucide-react';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Progress } from '@/components/ui/progress';
 
 interface Journey {
   id: string | number;
@@ -39,6 +40,9 @@ interface Soundscape {
   source_type: 'file' | 'youtube';
   created_at: string;
 }
+
+const STORAGE_BUCKET = 'frequency-assets';
+const STORAGE_FOLDER = 'soundscapes';
 
 const JourneySoundscapeAdmin: React.FC = () => {
   const [journeys, setJourneys] = useState<Journey[]>([]);
@@ -64,14 +68,64 @@ const JourneySoundscapeAdmin: React.FC = () => {
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [testSoundscape, setTestSoundscape] = useState<Soundscape | null>(null);
+  const [storageBucketInfo, setStorageBucketInfo] = useState<{ exists: boolean; files: number }>({ exists: false, files: 0 });
 
   useEffect(() => {
     loadData();
+    checkStorageBucket();
   }, []);
+
+  const checkStorageBucket = async () => {
+    try {
+      // Check if bucket exists
+      const { data: buckets, error } = await supabase.storage.listBuckets();
+      if (error) {
+        console.error('Error checking buckets:', error);
+        return;
+      }
+
+      const bucketExists = buckets.some(bucket => bucket.name === STORAGE_BUCKET);
+      
+      if (bucketExists) {
+        // Count files in the soundscapes folder
+        const { data: files, error: filesError } = await supabase.storage
+          .from(STORAGE_BUCKET)
+          .list(STORAGE_FOLDER);
+          
+        if (filesError) {
+          console.error('Error checking files:', filesError);
+          setStorageBucketInfo({ exists: true, files: 0 });
+        } else {
+          setStorageBucketInfo({ exists: true, files: files.length });
+        }
+      } else {
+        setStorageBucketInfo({ exists: false, files: 0 });
+      }
+    } catch (error) {
+      console.error('Error checking storage bucket:', error);
+    }
+  };
 
   const loadData = async () => {
     setLoading(true);
     try {
+      // Create a test soundscape to demonstrate CRUD if none exist
+      if (!testSoundscape) {
+        const testItem = {
+          id: 'demo-1',
+          journey_id: 1,
+          title: 'Demo Soundscape (Sample)',
+          description: 'This is a sample soundscape to demonstrate the CRUD functionality. It is not saved to the database.',
+          file_url: 'https://example.com/sample-audio.mp3',
+          source_type: 'file' as const,
+          created_at: new Date().toISOString(),
+          source_link: ''
+        };
+        setTestSoundscape(testItem);
+      }
+
       // Load journeys
       const journeysData = await fetchJourneys();
       setJourneys(journeysData);
@@ -168,6 +222,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
     setSelectedSoundscape(null);
     setUrlValidationState('idle');
     setFileToUpload(null);
+    setUploadProgress(0);
   };
 
   const handleOpenNewDialog = () => {
@@ -269,16 +324,29 @@ const JourneySoundscapeAdmin: React.FC = () => {
 
   const uploadFileToSupabase = async (file: File): Promise<string> => {
     setUploadingFile(true);
+    setUploadProgress(0);
+    
     try {
       // Create a unique file name with timestamp and original name
       const timestamp = new Date().getTime();
       const cleanFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-      const filePath = `soundscapes/${timestamp}-${cleanFileName}`;
+      const filePath = `${STORAGE_FOLDER}/${timestamp}-${cleanFileName}`;
+
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          const newProgress = prev + Math.random() * 20;
+          return newProgress >= 90 ? 90 : newProgress;
+        });
+      }, 500);
 
       // Upload to Supabase storage
       const { data, error } = await supabase.storage
-        .from('frequency-assets')
+        .from(STORAGE_BUCKET)
         .upload(filePath, file);
+
+      clearInterval(progressInterval);
+      setUploadProgress(100);
 
       if (error) {
         console.error('Error uploading file:', error);
@@ -287,15 +355,19 @@ const JourneySoundscapeAdmin: React.FC = () => {
 
       // Get public URL for file
       const { data: publicUrlData } = supabase.storage
-        .from('frequency-assets')
+        .from(STORAGE_BUCKET)
         .getPublicUrl(filePath);
-
+      
+      await checkStorageBucket(); // Refresh storage info
+      
       return publicUrlData.publicUrl;
     } catch (error) {
       console.error('Error in file upload process:', error);
       throw error;
     } finally {
       setUploadingFile(false);
+      // Reset progress after a delay
+      setTimeout(() => setUploadProgress(0), 1000);
     }
   };
 
@@ -309,6 +381,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
       if (fileToUpload && sourceType === 'file') {
         try {
           fileUrl = await uploadFileToSupabase(fileToUpload);
+          toast.success('File uploaded successfully');
         } catch (error) {
           toast.error('Failed to upload file');
           return;
@@ -427,9 +500,13 @@ const JourneySoundscapeAdmin: React.FC = () => {
     }
   };
 
+  // Get all soundscapes based on filter
   const filteredSoundscapes = selectedJourney
     ? soundscapes.filter(s => String(s.journey_id) === String(selectedJourney))
     : soundscapes;
+    
+  // Always include test soundscape if no other soundscapes exist
+  const displaySoundscapes = filteredSoundscapes.length === 0 && testSoundscape ? [testSoundscape] : filteredSoundscapes;
     
   const noSoundscapesMessage = loading 
     ? "Loading soundscapes..." 
@@ -456,6 +533,35 @@ const JourneySoundscapeAdmin: React.FC = () => {
             </Button>
           </div>
         </div>
+        
+        {/* Supabase Storage Info */}
+        <Card className="mb-6 border-2 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20">
+          <CardContent className="p-4">
+            <div className="flex items-start">
+              <div className="mr-4 mt-1">
+                <Info className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-1">Supabase Storage Integration</h3>
+                <p className="text-sm text-blue-700 dark:text-blue-400 mb-2">
+                  {storageBucketInfo.exists ? 
+                    `Connected to Supabase bucket "${STORAGE_BUCKET}" with ${storageBucketInfo.files} audio files in the "${STORAGE_FOLDER}" folder.` : 
+                    `Supabase bucket "${STORAGE_BUCKET}" not found. Files will still be uploaded but may not be accessible.`}
+                </p>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  <Badge variant="outline" className="bg-blue-100 dark:bg-blue-800 border-blue-300 dark:border-blue-700">
+                    <FileAudio className="h-3.5 w-3.5 mr-1" />
+                    Upload audio directly to Supabase
+                  </Badge>
+                  <Badge variant="outline" className="bg-blue-100 dark:bg-blue-800 border-blue-300 dark:border-blue-700">
+                    <ExternalLink className="h-3.5 w-3.5 mr-1" />
+                    Link to external audio URLs
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Journey selector */}
@@ -518,7 +624,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
                   <div className="flex justify-center py-8">
                     <div className="animate-spin h-6 w-6 border-b-2 border-purple-500 rounded-full"></div>
                   </div>
-                ) : filteredSoundscapes.length === 0 ? (
+                ) : displaySoundscapes.length === 0 ? (
                   <div className="text-center py-8 text-gray-500 flex flex-col items-center">
                     {noSoundscapesMessage}
                     <Button 
@@ -530,8 +636,8 @@ const JourneySoundscapeAdmin: React.FC = () => {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {filteredSoundscapes.map(soundscape => (
-                      <Card key={soundscape.id} className="overflow-hidden">
+                    {displaySoundscapes.map(soundscape => (
+                      <Card key={soundscape.id} className={`overflow-hidden ${soundscape.id === 'demo-1' ? 'border-2 border-dashed border-purple-300 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/20' : ''}`}>
                         <CardContent className="p-0">
                           <div className="flex items-start p-4">
                             <div className="flex-shrink-0 mr-4">
@@ -546,14 +652,21 @@ const JourneySoundscapeAdmin: React.FC = () => {
                               )}
                             </div>
                             <div className="flex-grow">
-                              <h3 className="font-medium">{soundscape.title}</h3>
+                              <h3 className="font-medium">
+                                {soundscape.title}
+                                {soundscape.id === 'demo-1' && (
+                                  <Badge className="ml-2 bg-purple-200 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                                    Demo
+                                  </Badge>
+                                )}
+                              </h3>
                               <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
                                 {journeys.find(j => String(j.id) === String(soundscape.journey_id))?.title || 'Unknown Journey'}
                               </p>
                               {soundscape.description && <p className="text-sm">{soundscape.description}</p>}
                               {soundscape.file_url && (
                                 <p className="text-xs text-gray-500 mt-1 truncate max-w-md">
-                                  {soundscape.file_url.includes('supabase') ? 'Supabase Storage' : soundscape.file_url}
+                                  Source: {soundscape.file_url.includes('supabase') ? 'Supabase Storage' : soundscape.file_url}
                                 </p>
                               )}
                             </div>
@@ -562,6 +675,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
                                 variant="outline" 
                                 size="sm"
                                 onClick={() => handlePlaySoundscape(soundscape)}
+                                disabled={soundscape.id === 'demo-1'}
                               >
                                 {isPlaying && currentAudioId === soundscape.id ? (
                                   <>
@@ -577,6 +691,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
                                 variant="outline" 
                                 size="sm" 
                                 onClick={() => handleEditSoundscape(soundscape)}
+                                disabled={soundscape.id === 'demo-1'}
                               >
                                 <PencilIcon className="h-4 w-4 mr-1" /> Edit
                               </Button>
@@ -585,6 +700,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
                                 size="sm" 
                                 className="text-red-500 hover:text-red-700" 
                                 onClick={() => handleDeleteRequest(soundscape.id)}
+                                disabled={soundscape.id === 'demo-1'}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -679,9 +795,12 @@ const JourneySoundscapeAdmin: React.FC = () => {
                 
                 <TabsContent value="file" className="mt-4">
                   <div className="space-y-4">
-                    {/* File upload option */}
-                    <div className="border rounded-md p-4">
-                      <Label htmlFor="fileUpload" className="block mb-2">Upload Audio File</Label>
+                    {/* File upload option - Highlighted */}
+                    <div className="border-2 border-purple-200 dark:border-purple-800 rounded-md p-4 bg-purple-50 dark:bg-purple-900/20">
+                      <Label htmlFor="fileUpload" className="block mb-2 font-bold flex items-center">
+                        <Upload className="h-4 w-4 mr-1 text-purple-600" />
+                        Upload Audio to Supabase
+                      </Label>
                       <div className="flex items-center space-x-2">
                         <Input
                           id="fileUpload"
@@ -696,16 +815,23 @@ const JourneySoundscapeAdmin: React.FC = () => {
                           <p className="text-sm text-green-600">{fileToUpload.name} selected</p>
                         </div>
                       )}
-                      <p className="text-xs text-gray-500 mt-2">
-                        File will be uploaded to Supabase storage
+                      {uploadProgress > 0 && (
+                        <div className="mt-2">
+                          <Progress value={uploadProgress} className="h-2" />
+                          <p className="text-xs text-gray-500 mt-1">{uploadProgress === 100 ? 'Upload complete!' : `Uploading... ${Math.round(uploadProgress)}%`}</p>
+                        </div>
+                      )}
+                      <p className="text-xs text-purple-600 dark:text-purple-400 mt-2">
+                        <Info className="h-3 w-3 inline mr-1" />
+                        File will be uploaded to Supabase "{STORAGE_BUCKET}/{STORAGE_FOLDER}" bucket
                       </p>
                     </div>
                     
                     {/* OR divider */}
                     <div className="flex items-center">
-                      <div className="flex-grow border-t border-gray-200"></div>
-                      <span className="px-2 text-sm text-gray-500">OR</span>
-                      <div className="flex-grow border-t border-gray-200"></div>
+                      <div className="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
+                      <span className="px-2 text-sm text-gray-500 dark:text-gray-400">OR</span>
+                      <div className="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
                     </div>
                     
                     {/* URL input */}
