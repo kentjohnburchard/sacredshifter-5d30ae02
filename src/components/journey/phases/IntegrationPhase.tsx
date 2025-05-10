@@ -5,8 +5,10 @@ import { ChakraTag, getChakraColor } from '@/types/chakras';
 import SpiralVisualizer from '@/components/visualizer/SpiralVisualizer';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Download, Send } from 'lucide-react';
+import { Download, Send, Save } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/context/AuthContext';
 
 interface IntegrationPhaseProps {
   onComplete: () => void;
@@ -29,17 +31,52 @@ const IntegrationPhase: React.FC<IntegrationPhaseProps> = ({
   journeyData
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const chakraColor = getChakraColor(chakra) || '#FFFFFF';
+  const { user } = useAuth();
+
+  const handleSaveReflection = async () => {
+    if (!user?.id || !reflection.trim()) {
+      toast.error("Please enter a reflection first");
+      return;
+    }
+
+    setIsSaving(true);
+    
+    try {
+      // Save just the reflection without completing the journey
+      const { error } = await supabase
+        .from('session_reflections')
+        .insert({
+          user_id: user.id,
+          session_id: crypto.randomUUID(), // Generate a temporary session ID
+          content: reflection
+        });
+      
+      if (error) throw error;
+      
+      toast.success("Reflection saved");
+    } catch (error) {
+      console.error("Error saving reflection:", error);
+      toast.error("Unable to save your reflection");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleSubmit = () => {
+    if (!reflection.trim()) {
+      toast.warning("Please share your reflection before completing the journey");
+      return;
+    }
+
     setIsSubmitting(true);
     
-    // Simulate processing
+    // The actual saving happens in the parent component
     setTimeout(() => {
       setIsSubmitting(false);
-      toast.success("Journey reflection saved");
       onComplete();
-    }, 1200);
+    }, 500);
   };
 
   const handleDownload = () => {
@@ -152,17 +189,29 @@ ${journeyData.frequency ? `Frequency: ${journeyData.frequency}Hz` : ''}
           </div>
           
           <div className="flex flex-wrap gap-4 justify-between">
-            <Button
-              variant="outline"
-              onClick={handleDownload}
-              className="border-white/20 text-white hover:bg-white/10"
-            >
-              <Download className="mr-2 h-4 w-4" /> Download Summary
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="outline"
+                onClick={handleDownload}
+                className="border-white/20 text-white hover:bg-white/10"
+                disabled={!reflection.trim()}
+              >
+                <Download className="mr-2 h-4 w-4" /> Download
+              </Button>
+              
+              <Button
+                variant="outline"
+                onClick={handleSaveReflection}
+                className="border-white/20 text-white hover:bg-white/10"
+                disabled={isSaving || !reflection.trim()}
+              >
+                <Save className="mr-2 h-4 w-4" /> {isSaving ? "Saving..." : "Save"}
+              </Button>
+            </div>
             
             <Button
               onClick={handleSubmit}
-              disabled={isSubmitting}
+              disabled={isSubmitting || !reflection.trim()}
               style={{ backgroundColor: chakraColor }}
               className="text-black hover:opacity-90"
             >

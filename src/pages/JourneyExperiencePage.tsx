@@ -5,7 +5,7 @@ import JourneyExperience from '@/components/journey/JourneyExperience';
 import { JourneyProvider, useJourney } from '@/context/JourneyContext';
 import LoadingScreen from '@/components/LoadingScreen';
 import { toast } from 'sonner';
-import { logTimelineEvent } from '@/services/timeline'; // Updated import
+import { logTimelineEvent } from '@/services/timeline'; 
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { fetchJourneyBySlug } from '@/services/journeyService';
@@ -37,6 +37,7 @@ const JourneyExperienceContent: React.FC = () => {
   const [transitionActive, setTransitionActive] = useState(true);
   const { startJourney } = useJourney();
   const [eventLogged, setEventLogged] = useState(false); // Track if event has been logged
+  const [startTime, setStartTime] = useState<Date>(new Date()); // Track journey start time
   
   useEffect(() => {
     const loadJourney = async () => {
@@ -63,6 +64,7 @@ const JourneyExperienceContent: React.FC = () => {
         
         console.log("Journey data loaded:", journey.title);
         setJourneyData(journey);
+        setStartTime(new Date()); // Record start time for journey completion tracking
         
         // Convert the journey ID to string to ensure consistency
         const journeyId = journey.id?.toString();
@@ -107,6 +109,23 @@ const JourneyExperienceContent: React.FC = () => {
     
     loadJourney();
   }, [journeySlug, navigate, startJourney, eventLogged]);
+  
+  const handleJourneyComplete = (reflectionData: any) => {
+    // Calculate duration in seconds
+    const endTime = new Date();
+    const durationSeconds = Math.floor((endTime.getTime() - startTime.getTime()) / 1000);
+    
+    // Log journey completion with duration
+    if (journeyData?.id) {
+      logTimelineEvent('journey_complete', {
+        journeyId: journeyData.id.toString(),
+        title: journeyData.title,
+        chakra: journeyData.chakra || journeyData.chakra_tag,
+        durationSeconds,
+        reflection: reflectionData?.reflection
+      });
+    }
+  };
   
   if (loading) {
     return <LoadingScreen message={loadingMessage} />;
@@ -155,6 +174,7 @@ const JourneyExperienceContent: React.FC = () => {
           chakra: journeyData.chakra || journeyData.chakra_tag, // Use chakra field
           audioFile: journeyData.audio_filename
         }}
+        onComplete={handleJourneyComplete}
       />
     </>
   );

@@ -360,6 +360,41 @@ export type Database = {
         }
         Relationships: []
       }
+      journey_completions: {
+        Row: {
+          completed_at: string | null
+          duration_seconds: number | null
+          id: string
+          journey_id: string
+          reflection_id: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          duration_seconds?: number | null
+          id?: string
+          journey_id: string
+          reflection_id?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          duration_seconds?: number | null
+          id?: string
+          journey_id?: string
+          reflection_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journey_completions_reflection_id_fkey"
+            columns: ["reflection_id"]
+            isOneToOne: false
+            referencedRelation: "session_reflections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       journey_prompts: {
         Row: {
           active: boolean
