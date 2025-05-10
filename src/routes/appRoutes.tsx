@@ -4,7 +4,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import JourneyPage from '@/pages/JourneyPage';
 import JourneyTemplates from '@/pages/journey-templates';
 import JourneyTemplatesAdmin from '@/pages/JourneyTemplatesAdmin';
-import JourneySoundscapeAdmin from '@/pages/JourneySoundscapeAdmin'; // Add this line
+import JourneySoundscapeAdmin from '@/pages/JourneySoundscapeAdmin';
+import NotFound from '@/pages/NotFound';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -22,7 +23,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/admin/journeys/soundscapes" element={<JourneySoundscapeAdmin />} />
       
       {/* Fallback route */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };
