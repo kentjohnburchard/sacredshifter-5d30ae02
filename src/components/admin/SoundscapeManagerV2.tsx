@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { fetchJourneySoundscape } from '@/services/soundscapeService';
 import { useToast } from '@/components/ui/use-toast';
@@ -147,7 +146,14 @@ const SoundscapeManagerV2 = () => {
         .order('title');
 
       if (error) throw error;
-      setJourneys(data || []);
+      
+      // Transform the data to ensure it has the required tags property
+      const journeysWithTags = (data || []).map(journey => ({
+        ...journey,
+        tags: [] // Add the required tags property
+      })) as Journey[];
+      
+      setJourneys(journeysWithTags);
     } catch (error) {
       console.error('Error loading journeys:', error);
       toast({
@@ -631,9 +637,8 @@ const SoundscapeManagerV2 = () => {
                 onChange={handleInputChange}
                 className="w-full p-2 border rounded-md"
               >
-                <option value="">Select a journey</option>
                 {journeys.map(journey => (
-                  <option key={journey.id} value={journey.id}>
+                  <option key={journey.id} value={journey.id.toString()}>
                     {journey.title}
                   </option>
                 ))}
@@ -759,7 +764,7 @@ const SoundscapeManagerV2 = () => {
                 className="w-full p-2 border rounded-md"
               >
                 {journeys.map(journey => (
-                  <option key={journey.id} value={journey.id}>
+                  <option key={journey.id} value={journey.id.toString()}>
                     {journey.title}
                   </option>
                 ))}

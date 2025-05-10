@@ -1,4 +1,5 @@
-import React, { useEffect, Suspense } from 'react';
+
+import React, { useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
@@ -19,7 +20,7 @@ import FrequencyAdmin from './pages/admin/FrequencyAdmin';
 import UserAdmin from './pages/admin/UserAdmin';
 import JourneyAudioAdmin from './pages/admin/JourneyAudioAdmin';
 import JourneySoundscapesAdmin from './pages/admin/JourneySoundscapesAdmin';
-import { useAuth } from './context/AuthContext';
+import { useAuth } from './hooks/useAuthentication';
 
 function App() {
   const { user } = useAuth();
