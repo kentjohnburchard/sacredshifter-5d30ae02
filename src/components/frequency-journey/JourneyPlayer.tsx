@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -38,7 +37,7 @@ const JourneyPlayer = () => {
   const audioPlayAttemptedRef = useRef(false);
   
   // Get spiral parameters based on journey ID
-  const spiralParams = useSpiralParams(journeyId);
+  const { params: spiralParams } = useSpiralParams(journeyId);
   
   const { templates, loading: loadingTemplates } = useJourneyTemplates();
   
@@ -215,17 +214,17 @@ const JourneyPlayer = () => {
   return (
     <Layout pageTitle={journey?.title || "Sacred Journey"}>
       {spiralEnabled && <SpiralVisualizer params={{
-        coeffA: spiralParams.coeffA,
-        coeffB: spiralParams.coeffB,
-        coeffC: spiralParams.coeffC,
-        freqA: spiralParams.freqA,
-        freqB: spiralParams.freqB,
-        freqC: spiralParams.freqC,
-        color: spiralParams.color,
-        opacity: spiralParams.opacity,
-        strokeWeight: spiralParams.strokeWeight,
-        maxCycles: spiralParams.maxCycles,
-        speed: spiralParams.speed
+        coeffA: spiralParams?.coeffA || 1.2,
+        coeffB: spiralParams?.coeffB || 0.9,
+        coeffC: spiralParams?.coeffC || 0.6,
+        freqA: spiralParams?.freqA || 4.1,
+        freqB: spiralParams?.freqB || 3.6,
+        freqC: spiralParams?.freqC || 2.8,
+        color: spiralParams?.color || '180,180,255',
+        opacity: spiralParams?.opacity || 80,
+        strokeWeight: spiralParams?.strokeWeight || 0.5,
+        maxCycles: spiralParams?.maxCycles || 5,
+        speed: spiralParams?.speed || 0.0003
       }} />}
       
       <div className="max-w-4xl mx-auto p-4 relative z-10">

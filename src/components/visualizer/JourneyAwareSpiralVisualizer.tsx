@@ -39,7 +39,7 @@ const JourneyAwareSpiralVisualizer: React.FC<JourneyAwareSpiralVisualizerProps> 
               "effectiveJourneyId:", effectiveJourneyId);
   
   // Get spiral parameters for current journey
-  const spiralParams = useSpiralParams(effectiveJourneyId);
+  const { params: spiralParams } = useSpiralParams(effectiveJourneyId);
   
   // Initialize component
   useEffect(() => {

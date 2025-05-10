@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,6 +24,9 @@ const JourneyTemplatesAdmin: React.FC = () => {
     maxCycles: 5,
     speed: 0.001
   });
+
+  // Get the hook for the selected journey if available
+  const { params: journeyParams, setParams: setJourneyParams } = useSpiralParams(selectedJourney || undefined);
 
   const handleParamChange = (param: keyof SpiralParams, value: number) => {
     setParams(prev => ({

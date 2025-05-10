@@ -26,7 +26,7 @@ const AligningPhase: React.FC<AligningPhaseProps> = ({
 }) => {
   const { isPlaying, togglePlayPause } = useGlobalAudioPlayer();
   const [readyToProceed, setReadyToProceed] = useState(false);
-  const spiralParams = useSpiralParams();
+  const { params, getDefaultParamsForChakra } = useSpiralParams();
   
   // Allow proceeding after a set time
   useEffect(() => {
@@ -39,38 +39,12 @@ const AligningPhase: React.FC<AligningPhaseProps> = ({
   
   // Extract the chakra-specific spiral parameters
   const getSpiralParams = () => {
-    const baseParams = { ...spiralParams };
+    if (!chakra) return params;
     
-    if (chakra) {
-      // Adjust color based on chakra
-      switch (chakra) {
-        case 'Root':
-          baseParams.color = '255,0,0';
-          break;
-        case 'Sacral':
-          baseParams.color = '255,127,0';
-          break;
-        case 'Solar Plexus':
-          baseParams.color = '255,255,0';
-          break;
-        case 'Heart':
-          baseParams.color = '0,255,0';
-          break;
-        case 'Throat':
-          baseParams.color = '0,255,255';
-          break;
-        case 'Third Eye':
-          baseParams.color = '0,0,255';
-          break;
-        case 'Crown':
-          baseParams.color = '139,0,255';
-          break;
-        default:
-          baseParams.color = '255,255,255';
-      }
-    }
+    // Get chakra-specific parameters
+    const chakraParams = getDefaultParamsForChakra(chakra);
     
-    return baseParams;
+    return chakraParams;
   };
 
   return (
