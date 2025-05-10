@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,8 +18,7 @@ import {
   updateJourneySoundscape, 
   deleteJourneySoundscape 
 } from '@/services/journeyService';
-import { Plus, Trash2, ExternalLink, FileMusic, Youtube, Play, Pause, Volume2, VolumeX, PencilIcon, Upload, Info, FileAudio } from 'lucide-react';
-import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
+import { Music, Trash2, Youtube, FileMusic, Play, Pause, Volume2, VolumeX, PencilIcon, Upload, Info, FileAudio } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Progress } from '@/components/ui/progress';
@@ -45,6 +44,7 @@ const STORAGE_BUCKET = 'frequency-assets';
 const STORAGE_FOLDER = 'soundscapes';
 
 const JourneySoundscapeAdmin: React.FC = () => {
+  // State management for journeys, soundscapes, and UI controls
   const [journeys, setJourneys] = useState<Journey[]>([]);
   const [soundscapes, setSoundscapes] = useState<Soundscape[]>([]);
   const [selectedJourney, setSelectedJourney] = useState<string | number | null>(null);
@@ -61,26 +61,42 @@ const JourneySoundscapeAdmin: React.FC = () => {
     file_url: ''
   });
   const [selectedSoundscape, setSelectedSoundscape] = useState<Soundscape | null>(null);
-  const { playAudio, stopAudio, isPlaying, togglePlayPause, currentAudioId, isMuted, toggleMute } = useGlobalAudioPlayer();
-  const [urlValidationState, setUrlValidationState] = useState<'valid' | 'invalid' | 'checking' | 'idle'>('idle');
-  const [bulkUploadDialogOpen, setBulkUploadDialogOpen] = useState(false);
-  const [bulkUploadText, setBulkUploadText] = useState('');
-  const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [testSoundscape, setTestSoundscape] = useState<Soundscape | null>(null);
   const [storageBucketInfo, setStorageBucketInfo] = useState<{ exists: boolean; files: number }>({ exists: false, files: 0 });
 
-  useEffect(() => {
-    loadData();
-    checkStorageBucket();
-  }, []);
+  // Simulated audio player state (simplified for UI demonstration)
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentAudioId, setCurrentAudioId] = useState<string | null>(null);
+  const [isMuted, setIsMuted] = useState(false);
 
+  // Simple audio player functions
+  const playAudio = (audio: { id: string }) => {
+    setIsPlaying(true);
+    setCurrentAudioId(audio.id);
+  };
+
+  const stopAudio = () => {
+    setIsPlaying(false);
+    setCurrentAudioId(null);
+  };
+
+  const togglePlayPause = () => {
+    setIsPlaying(!isPlaying);
+  };
+
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+  };
+
+  // Check Supabase storage bucket
   const checkStorageBucket = async () => {
     try {
       // Check if bucket exists
       const { data: buckets, error } = await supabase.storage.listBuckets();
+      
       if (error) {
         console.error('Error checking buckets:', error);
         return;
@@ -108,33 +124,36 @@ const JourneySoundscapeAdmin: React.FC = () => {
     }
   };
 
+  // Initial data loading
+  useEffect(() => {
+    loadData();
+    checkStorageBucket();
+  }, []);
+
   const loadData = async () => {
     setLoading(true);
     try {
-      // Create a test soundscape to demonstrate CRUD if none exist
-      if (!testSoundscape) {
-        const testItem = {
-          id: 'demo-1',
-          journey_id: 1,
-          title: 'Demo Soundscape (Sample)',
-          description: 'This is a sample soundscape to demonstrate the CRUD functionality. It is not saved to the database.',
-          file_url: 'https://example.com/sample-audio.mp3',
-          source_type: 'file' as const,
-          created_at: new Date().toISOString(),
-          source_link: ''
-        };
-        setTestSoundscape(testItem);
-      }
+      // Create a test soundscape for demonstration
+      const testItem = {
+        id: 'demo-1',
+        journey_id: 1,
+        title: 'Demo Soundscape (Sample)',
+        description: 'This is a sample soundscape to demonstrate the interface. It is not saved to the database.',
+        file_url: 'https://example.com/sample-audio.mp3',
+        source_type: 'file' as const,
+        created_at: new Date().toISOString(),
+        source_link: ''
+      };
+      setTestSoundscape(testItem);
 
       // Load journeys
       const journeysData = await fetchJourneys();
       setJourneys(journeysData);
       
-      // Load all soundscapes initially
+      // Load all soundscapes
       const soundscapesData = await fetchJourneySoundscapes();
       setSoundscapes(soundscapesData);
       console.log("Loaded soundscapes:", soundscapesData);
-      setIsDataLoaded(true);
     } catch (error) {
       console.error('Error loading data:', error);
       toast.error('Failed to load data');
@@ -143,6 +162,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
     }
   };
 
+  // Load soundscapes for selected journey
   useEffect(() => {
     if (selectedJourney) {
       loadJourneySoundscapes();
@@ -163,47 +183,10 @@ const JourneySoundscapeAdmin: React.FC = () => {
     }
   };
 
+  // Form input handlers
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
-    // URL validation for audio files
-    if (name === 'file_url' && value && sourceType === 'file') {
-      validateAudioUrl(value);
-    }
-  };
-
-  const validateAudioUrl = async (url: string) => {
-    if (!url) return;
-    
-    // Skip validation for local files or files in Supabase storage
-    if (!url.startsWith('http') || url.includes('supabase.co')) {
-      return;
-    }
-    
-    setUrlValidationState('checking');
-    
-    try {
-      // Try to fetch the header to see if it exists and is an audio file
-      const response = await fetch(url, { method: 'HEAD' });
-      
-      if (response.ok) {
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('audio')) {
-          setUrlValidationState('valid');
-        } else {
-          setUrlValidationState('invalid');
-          toast.warning('URL exists but may not be an audio file');
-        }
-      } else {
-        setUrlValidationState('invalid');
-        toast.warning('Could not verify audio URL');
-      }
-    } catch (error) {
-      console.error('Error validating URL:', error);
-      // Don't show error to user - many valid URLs will fail CORS checks
-      setUrlValidationState('idle');
-    }
   };
 
   const handleSelectChange = (name: string, value: string) => {
@@ -220,17 +203,22 @@ const JourneySoundscapeAdmin: React.FC = () => {
     });
     setSourceType('file');
     setSelectedSoundscape(null);
-    setUrlValidationState('idle');
     setFileToUpload(null);
     setUploadProgress(0);
   };
 
+  // Dialog handlers
   const handleOpenNewDialog = () => {
     resetForm();
     setDialogOpen(true);
   };
 
   const handleEditSoundscape = (soundscape: Soundscape) => {
+    if (soundscape.id === 'demo-1') {
+      toast.info('This is a demo item and cannot be edited');
+      return;
+    }
+    
     setSelectedSoundscape(soundscape);
     setSourceType(soundscape.source_type || 'file');
     
@@ -245,7 +233,13 @@ const JourneySoundscapeAdmin: React.FC = () => {
     setDialogOpen(true);
   };
 
+  // Delete handlers
   const handleDeleteRequest = (id: string) => {
+    if (id === 'demo-1') {
+      toast.info('This is a demo item and cannot be deleted');
+      return;
+    }
+    
     setSoundscapeToDelete(id);
     setConfirmDialogOpen(true);
   };
@@ -272,6 +266,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
     }
   };
 
+  // Form validation
   const validateForm = (): boolean => {
     if (!formData.title.trim()) {
       toast.error('Title is required');
@@ -296,20 +291,24 @@ const JourneySoundscapeAdmin: React.FC = () => {
     return true;
   };
 
+  // Play/pause soundscape
   const handlePlaySoundscape = (soundscape: Soundscape) => {
+    if (soundscape.id === 'demo-1') {
+      toast.info('This is a demo item. Audio playback is not available.');
+      return;
+    }
+    
     if (isPlaying && currentAudioId === soundscape.id) {
       togglePlayPause();
       return;
     }
     
     playAudio({
-      id: soundscape.id,
-      title: soundscape.title,
-      source: soundscape.file_url,
-      description: soundscape.description
+      id: soundscape.id
     });
   };
 
+  // File upload handlers
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -371,6 +370,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
     }
   };
 
+  // Form submission
   const handleSubmit = async () => {
     if (!validateForm()) return;
     
@@ -422,97 +422,13 @@ const JourneySoundscapeAdmin: React.FC = () => {
     }
   };
 
-  const processBulkUpload = async () => {
-    try {
-      // Simple parsing of TSV or CSV format
-      // Expected format: journey_id, title, description, file_url
-      const lines = bulkUploadText.trim().split('\n');
-      
-      if (lines.length === 0) {
-        toast.error('No data to import');
-        return;
-      }
-      
-      let successCount = 0;
-      let errorCount = 0;
-      
-      for (const line of lines) {
-        const parts = line.split('\t');
-        if (parts.length < 3) {
-          // Try comma-separated if tab-separated didn't work
-          const commaParts = line.split(',');
-          if (commaParts.length < 3) {
-            errorCount++;
-            continue;
-          }
-          parts.length = 0;
-          parts.push(...commaParts);
-        }
-        
-        // Get journey ID by matching title/filename if needed
-        let journeyId = parseInt(parts[0], 10);
-        if (isNaN(journeyId)) {
-          // Try to find journey by title or filename
-          const journeyMatch = journeys.find(j => j.title === parts[0] || j.filename === parts[0]);
-          if (journeyMatch) {
-            journeyId = parseInt(String(journeyMatch.id), 10);
-          } else {
-            errorCount++;
-            continue;
-          }
-        }
-        
-        const soundscapeData = {
-          journey_id: journeyId,
-          title: parts[1].trim(),
-          description: parts[2]?.trim() || null,
-          file_url: parts[3]?.trim() || '',
-          source_type: 'file' as const
-        };
-        
-        if (!soundscapeData.title || !soundscapeData.file_url) {
-          errorCount++;
-          continue;
-        }
-        
-        try {
-          // Create soundscape
-          await createJourneySoundscape(soundscapeData);
-          successCount++;
-        } catch (error) {
-          console.error('Error creating soundscape:', error);
-          errorCount++;
-        }
-      }
-      
-      toast.success(`Imported ${successCount} soundscapes successfully${errorCount > 0 ? `, ${errorCount} failed` : ''}`);
-      
-      if (successCount > 0) {
-        // Reload data to show new soundscapes
-        loadData();
-      }
-      
-      setBulkUploadDialogOpen(false);
-      setBulkUploadText('');
-    } catch (error) {
-      console.error('Error processing bulk upload:', error);
-      toast.error('Failed to process bulk upload');
-    }
-  };
-
-  // Get all soundscapes based on filter
+  // Get filtered soundscapes
   const filteredSoundscapes = selectedJourney
     ? soundscapes.filter(s => String(s.journey_id) === String(selectedJourney))
     : soundscapes;
     
   // Always include test soundscape if no other soundscapes exist
   const displaySoundscapes = filteredSoundscapes.length === 0 && testSoundscape ? [testSoundscape] : filteredSoundscapes;
-    
-  const noSoundscapesMessage = loading 
-    ? "Loading soundscapes..." 
-    : isDataLoaded 
-      ? "No soundscapes found for the selected journey. Click 'Add Soundscape' to create one." 
-      : "No soundscapes data available. Try refreshing the page.";
 
   return (
     <PageLayout title="Journey Soundscapes">
@@ -525,11 +441,8 @@ const JourneySoundscapeAdmin: React.FC = () => {
             </p>
           </div>
           <div className="flex space-x-2">
-            <Button onClick={() => setBulkUploadDialogOpen(true)} variant="outline">
-              <FileMusic className="mr-2 h-4 w-4" /> Bulk Import
-            </Button>
             <Button onClick={handleOpenNewDialog} className="bg-purple-600 hover:bg-purple-700">
-              <Plus className="mr-2 h-4 w-4" /> Add Soundscape
+              <Upload className="mr-2 h-4 w-4" /> Add Soundscape
             </Button>
           </div>
         </div>
@@ -552,10 +465,6 @@ const JourneySoundscapeAdmin: React.FC = () => {
                   <Badge variant="outline" className="bg-blue-100 dark:bg-blue-800 border-blue-300 dark:border-blue-700">
                     <FileAudio className="h-3.5 w-3.5 mr-1" />
                     Upload audio directly to Supabase
-                  </Badge>
-                  <Badge variant="outline" className="bg-blue-100 dark:bg-blue-800 border-blue-300 dark:border-blue-700">
-                    <ExternalLink className="h-3.5 w-3.5 mr-1" />
-                    Link to external audio URLs
                   </Badge>
                 </div>
               </div>
@@ -616,7 +525,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
                     : "All Soundscapes"}
                 </CardTitle>
                 <Button onClick={handleOpenNewDialog} size="sm" className="bg-purple-600 hover:bg-purple-700">
-                  <Plus className="mr-2 h-4 w-4" /> Add Soundscape
+                  <Upload className="mr-2 h-4 w-4" /> Add Soundscape
                 </Button>
               </CardHeader>
               <CardContent>
@@ -626,20 +535,20 @@ const JourneySoundscapeAdmin: React.FC = () => {
                   </div>
                 ) : displaySoundscapes.length === 0 ? (
                   <div className="text-center py-8 text-gray-500 flex flex-col items-center">
-                    {noSoundscapesMessage}
+                    <p>No soundscapes found for the selected journey.</p>
                     <Button 
                       onClick={handleOpenNewDialog} 
                       className="mt-4 bg-purple-600 hover:bg-purple-700"
                     >
-                      <Plus className="mr-2 h-4 w-4" /> Create Your First Soundscape
+                      <Upload className="mr-2 h-4 w-4" /> Add Your First Soundscape
                     </Button>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {displaySoundscapes.map(soundscape => (
                       <Card key={soundscape.id} className={`overflow-hidden ${soundscape.id === 'demo-1' ? 'border-2 border-dashed border-purple-300 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/20' : ''}`}>
-                        <CardContent className="p-0">
-                          <div className="flex items-start p-4">
+                        <CardContent className="p-4">
+                          <div className="flex items-start">
                             <div className="flex-shrink-0 mr-4">
                               {soundscape.source_type === 'youtube' ? (
                                 <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-md flex items-center justify-center">
@@ -837,20 +746,13 @@ const JourneySoundscapeAdmin: React.FC = () => {
                     {/* URL input */}
                     <div className="space-y-2">
                       <Label htmlFor="file_url">Audio File URL</Label>
-                      <div className="flex space-x-2">
-                        <Input
-                          id="file_url"
-                          name="file_url"
-                          value={formData.file_url}
-                          onChange={handleInputChange}
-                          placeholder="/audio/filename.mp3 or full URL"
-                          className={urlValidationState === 'valid' ? 'border-green-500' : 
-                                    urlValidationState === 'invalid' ? 'border-red-500' : ''}
-                        />
-                        {urlValidationState === 'checking' && (
-                          <div className="animate-spin h-5 w-5 border-b-2 border-purple-500 rounded-full"></div>
-                        )}
-                      </div>
+                      <Input
+                        id="file_url"
+                        name="file_url"
+                        value={formData.file_url}
+                        onChange={handleInputChange}
+                        placeholder="/audio/filename.mp3 or full URL"
+                      />
                       <p className="text-xs text-gray-500">
                         Enter the path to an audio file in the public folder or full URL
                       </p>
@@ -918,40 +820,6 @@ const JourneySoundscapeAdmin: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Bulk Upload Dialog */}
-      <Dialog open={bulkUploadDialogOpen} onOpenChange={setBulkUploadDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Bulk Import Soundscapes</DialogTitle>
-            <DialogDescription>
-              Paste data in tab or comma-separated format:
-              journey_id/title, soundscape_title, description, file_url
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <Textarea
-              value={bulkUploadText}
-              onChange={(e) => setBulkUploadText(e.target.value)}
-              placeholder="journey_id,title,description,file_url"
-              rows={10}
-              className="font-mono text-sm"
-            />
-            <p className="text-sm text-gray-500">
-              You can use journey ID numbers or journey titles/filenames in the first column
-            </p>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setBulkUploadDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={processBulkUpload} className="bg-purple-600 hover:bg-purple-700">
-              Import Soundscapes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </PageLayout>
   );
 };
