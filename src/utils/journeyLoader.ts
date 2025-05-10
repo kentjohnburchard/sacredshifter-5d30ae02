@@ -62,30 +62,51 @@ export const extractFrequencyValue = (frequencyString?: string): string | null =
 
 /**
  * Parse the full journey content to extract various components
+ * Extended to include all required fields for JourneyPage
  */
 export const parseJourneyContent = (content: string): {
+  title?: string;
   frequencies?: string;
   description?: string;
   chakra?: string;
+  intent?: string;
+  veil?: boolean;
+  frequency?: string | number;
+  tags?: string[];
 } => {
-  const result: { frequencies?: string; description?: string; chakra?: string } = {};
+  // First get frontmatter data
+  const frontmatter = parseJourneyFrontmatter(content);
   
-  // Try to extract frequencies from the content
-  const frequencyMatch = content.match(/frequencies?:?\s*([^.\n]+)/i);
-  if (frequencyMatch) {
-    result.frequencies = frequencyMatch[1].trim();
+  // Extract values from frontmatter first
+  const result: Record<string, any> = {
+    title: frontmatter.title,
+    intent: frontmatter.intent || frontmatter.description,
+    veil: frontmatter.veil === 'true' || frontmatter.veil === true,
+    frequency: frontmatter.frequency,
+    tags: frontmatter.tags,
+    chakra: frontmatter.chakra
+  };
+  
+  // If values are not in frontmatter, try to extract from content
+  if (!result.frequencies) {
+    const frequencyMatch = content.match(/frequencies?:?\s*([^.\n]+)/i);
+    if (frequencyMatch) {
+      result.frequencies = frequencyMatch[1].trim();
+    }
   }
   
-  // Try to extract a description from the first paragraph
-  const paragraphs = removeFrontmatter(content).split('\n\n');
-  if (paragraphs[0] && !paragraphs[0].startsWith('#')) {
-    result.description = paragraphs[0].trim();
+  if (!result.description) {
+    const paragraphs = removeFrontmatter(content).split('\n\n');
+    if (paragraphs[0] && !paragraphs[0].startsWith('#')) {
+      result.description = paragraphs[0].trim();
+    }
   }
   
-  // Try to identify chakra references
-  const chakraMatches = content.match(/\b(root|sacral|solar plexus|heart|throat|third eye|crown)\b/i);
-  if (chakraMatches) {
-    result.chakra = chakraMatches[1].trim();
+  if (!result.chakra) {
+    const chakraMatches = content.match(/\b(root|sacral|solar plexus|heart|throat|third eye|crown)\b/i);
+    if (chakraMatches) {
+      result.chakra = chakraMatches[1].trim();
+    }
   }
   
   return result;

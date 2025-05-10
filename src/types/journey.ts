@@ -75,3 +75,25 @@ export interface JourneyAwareComponentProps {
   journeyId?: string;
   autoSync?: boolean;
 }
+
+// Add JourneyPrompt interface that was missing
+export interface JourneyPrompt {
+  id: string;
+  journey_id: string;
+  content: string;
+  display_type: 'dialog' | 'tooltip' | 'modal';
+  trigger: string;
+  location: string;
+  active: boolean;
+  priority_level?: number;
+  saved?: boolean;
+}
+
+// Add VisualMapping interface for the JourneyAudioMapper component
+export interface VisualMapping {
+  id: string;
+  journey_template_id: string;
+  visual_file_name: string;
+  visual_url: string | null;
+  created_at: string;
+}

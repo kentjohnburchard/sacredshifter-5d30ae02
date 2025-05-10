@@ -45,6 +45,16 @@ const JourneyAudioMapper: React.FC<JourneyAudioMapperProps> = ({ onlyShowTemplat
   
   const currentMappings = getCurrentMappings();
 
+  // Wrapper for addVisualMapping that matches the expected type in VisualMappingForm
+  const handleAddVisualMapping = async (
+    templateId: string, 
+    fileName: string, 
+    url?: string
+  ): Promise<void> => {
+    await addVisualMapping(templateId, fileName, url);
+    return;
+  };
+
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -100,7 +110,7 @@ const JourneyAudioMapper: React.FC<JourneyAudioMapperProps> = ({ onlyShowTemplat
                   templates={filteredTemplates}
                   selectedTemplate={selectedTemplate}
                   setSelectedTemplate={setSelectedTemplate}
-                  onAddMapping={addVisualMapping}
+                  onAddMapping={handleAddVisualMapping}
                 />
               </CardContent>
             </Card>

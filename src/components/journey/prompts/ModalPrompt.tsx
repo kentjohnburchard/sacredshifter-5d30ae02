@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { JourneyPrompt } from '@/context/JourneyContext';
+import { JourneyPrompt } from '@/types/journey';
 import { X, Check, Bookmark } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
