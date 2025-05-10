@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Play, Lock } from 'lucide-react';
 import { Journey } from '@/types/journey';
@@ -27,14 +28,18 @@ const EnhancedJourneyCard: React.FC<EnhancedJourneyCardProps> = ({
   const tags = normalizeStringArray(journey.tags || []);
 
   const handleStartJourney = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent default behavior (page refresh)
+    e.preventDefault(); // Prevent default behavior
     e.stopPropagation(); // Stop event propagation
     
     try {
-      // Determine the correct journey ID to use
-      let journeyId = journey.slug || // First try slug
-                     (journey.filename?.replace(/\.md$/, '')) || // Then try filename without .md
-                     journey.id; // Fallback to ID
+      // Use the slug for consistent journey identification
+      let journeyId = journey.slug || journey.filename?.replace(/\.md$/, '');
+      
+      // If filename or slug are unavailable, fall back to ID, but this isn't preferred
+      if (!journeyId && journey.id) {
+        console.warn("Using numeric ID for journey navigation - prefer slug or filename");
+        journeyId = journey.id;
+      }
     
       if (!journeyId) {
         toast.error("Cannot start journey: Invalid journey ID");
@@ -44,9 +49,9 @@ const EnhancedJourneyCard: React.FC<EnhancedJourneyCardProps> = ({
       // Normalize the journey ID to ensure it's a valid string
       const normalizedId = String(journeyId).trim();
       
+      console.log("Navigating to journey:", normalizedId);
       // Navigate to journey experience page using React Router's navigate
       navigate(`/journey/${normalizedId}/experience`);
-      console.log("Navigating to journey:", normalizedId);
     } catch (error) {
       console.error("Error navigating to journey:", error);
       toast.error("Failed to start journey");

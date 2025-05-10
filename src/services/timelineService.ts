@@ -23,16 +23,19 @@ const isValidUUID = (str: string): boolean => {
 /**
  * Creates a deterministic UUID-like string from a numeric ID
  * This allows us to use numeric IDs in the timeline_snapshots table
+ * IMPORTANT: This has been modified to return a proper UUID format
  */
 const createPseudoUUID = (numericId: string | number): string => {
+  // Instead of creating a journey- prefixed string, we'll create a proper UUID
+  // Using a deterministic method based on the numeric ID
   const id = String(numericId).padStart(8, '0');
-  return `journey-${id}-0000-0000-000000000000`;
+  return `a0000000-${id.slice(0, 4)}-${id.slice(4, 8)}-0000-000000000000`;
 };
 
 /**
  * Safely formats journey ID to ensure compatibility with the database
  * If it's a valid UUID, it returns it directly
- * If it's a numeric ID, it converts it to a pseudo-UUID format
+ * If it's a numeric ID, it converts it to a valid UUID format
  * Returns null if the ID is invalid or missing
  */
 const formatJourneyId = (id?: string | number): string | null => {
@@ -45,14 +48,22 @@ const formatJourneyId = (id?: string | number): string | null => {
     return strId;
   }
   
-  // For numeric IDs, create a deterministic UUID-like string
+  // For numeric IDs, create a deterministic UUID
   if (/^\d+$/.test(strId)) {
     return createPseudoUUID(strId);
   }
   
-  // For other formats that don't match UUID or numeric patterns
-  console.warn(`Invalid journey ID format: ${strId}, will use pseudo-UUID`);
-  return createPseudoUUID(strId);
+  // Handle journey- prefixed IDs (from previous implementation)
+  if (strId.startsWith('journey-')) {
+    console.warn(`Converting journey-prefixed ID to UUID format: ${strId}`);
+    const numPart = strId.replace('journey-', '').split('-')[0].replace(/^0+/, '');
+    if (numPart && /^\d+$/.test(numPart)) {
+      return createPseudoUUID(numPart);
+    }
+  }
+  
+  console.warn(`Invalid journey ID format: ${strId}, cannot log timeline event`);
+  return null;
 };
 
 /**
@@ -91,24 +102,38 @@ export const logTimelineEvent = async (
     let journey_id = null;
     if (sanitizedDetails.journeyId) {
       journey_id = formatJourneyId(sanitizedDetails.journeyId);
+      
+      // If we can't generate a valid UUID, don't include journey_id in the insert
+      if (journey_id === null) {
+        console.log(`Cannot log timeline event with journey ID - invalid format for ${sanitizedDetails.journeyId}`);
+        // Continue with the insert but without the journey_id
+      }
     }
     
     // Ensure tag is valid
     const validTag = tag ? String(tag).replace(/_/g, ' ') : 'event';
     
+    // Build the insert record
+    const insertRecord = {
+      user_id: userId,
+      tag: validTag,
+      title: sanitizedDetails.title || validTag,
+      component: sanitizedDetails.component,
+      notes: sanitizedDetails.notes,
+      frequency: sanitizedDetails.frequency,
+      chakra: sanitizedDetails.chakra,
+      details: sanitizedDetails
+    };
+    
+    // Only include journey_id if it's valid
+    if (journey_id !== null) {
+      // @ts-ignore: Adding journey_id to the object
+      insertRecord.journey_id = journey_id;
+    }
+    
     const { error } = await supabase
       .from('timeline_snapshots')
-      .insert({
-        user_id: userId,
-        tag: validTag,
-        title: sanitizedDetails.title || validTag,
-        journey_id: journey_id,
-        component: sanitizedDetails.component,
-        notes: sanitizedDetails.notes,
-        frequency: sanitizedDetails.frequency,
-        chakra: sanitizedDetails.chakra,
-        details: sanitizedDetails
-      });
+      .insert(insertRecord);
     
     if (error) {
       console.error('Error logging timeline event:', error);

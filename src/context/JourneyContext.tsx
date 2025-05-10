@@ -1,9 +1,9 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { ChakraTag } from '@/types/chakras';
 import { Journey, JourneyTimelineItem } from '@/types/journey';
 import { normalizeStringArray, normalizeId } from '@/utils/parsers';
 import { logTimelineEvent } from '@/services/timelineService';
+import { toast } from 'sonner';
 
 // Lightbearer Code interface
 export interface LightbearerCode {
@@ -109,6 +109,7 @@ export const JourneyProvider: React.FC<JourneyProviderProps> = ({ children }) =>
       });
     } catch (error) {
       console.warn('Failed to record journey start:', error);
+      // Don't show errors to the user for timeline logging
     }
   };
 
@@ -170,6 +171,7 @@ export const JourneyProvider: React.FC<JourneyProviderProps> = ({ children }) =>
         title: details?.title || activeJourney?.title,
         ...details
       }).catch(error => {
+        // Handle silently - don't block the user experience for logging errors
         console.warn('Failed to log timeline event:', error);
       });
     } catch (error) {
