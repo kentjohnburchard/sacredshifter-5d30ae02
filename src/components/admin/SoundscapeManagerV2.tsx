@@ -460,6 +460,7 @@ const SoundscapeManagerV2 = () => {
     setPlayingSoundscape(soundscape.id);
   };
 
+  // Fix the type comparison in the SELECT element by converting journey.id to string before comparison
   // Get journey title by ID
   const getJourneyTitle = (journeyId: number): string => {
     const journey = journeys.find(j => j.id === journeyId);
