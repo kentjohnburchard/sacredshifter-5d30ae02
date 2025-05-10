@@ -115,13 +115,22 @@ const FrequencyEnginePage: React.FC = () => {
 
   // Toggle playing a frequency
   const togglePlayFrequency = (frequency: FrequencyLibraryItem) => {
-    if (playingFrequencyId === frequency.id) {
+    console.log("Toggling play for frequency:", frequency.id);
+    
+    // Check if this is the currently playing frequency
+    if (playingFrequencyId === frequency.id && isPlaying) {
+      console.log("Pausing current frequency");
       togglePlayPause();
       return;
     }
-
-    const audioSource = frequency.audio_url || frequency.url || `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${frequency.frequency}Hz.mp3`;
-
+    
+    // Get a valid audio source
+    const audioSource = frequency.audio_url || frequency.url || 
+      `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${frequency.frequency}Hz.mp3`;
+    
+    console.log("Playing frequency with source:", audioSource);
+    
+    // Play the audio
     playAudio({
       title: `${frequency.frequency}Hz - ${frequency.title}`,
       artist: "Sacred Shifter",
@@ -136,18 +145,21 @@ const FrequencyEnginePage: React.FC = () => {
 
   // Filter frequencies based on search and active tab
   const filteredFrequencies = frequencies.filter(freq => {
-    // Apply search filter
+    // Apply search filter first
     const matchesSearch = 
       freq.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       freq.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       String(freq.frequency).includes(searchQuery);
     
-    // Apply tab filter
-    if (activeTab === 'all') return matchesSearch;
-    if (activeTab === 'saved') return matchesSearch && savedFrequencies.includes(freq.id);
-    if (activeTab === freq.chakra?.toLowerCase()) return matchesSearch;
+    if (!matchesSearch) return false;
     
-    return matchesSearch;
+    // Apply tab filter
+    if (activeTab === 'all') return true;
+    if (activeTab === 'saved') return savedFrequencies.includes(freq.id);
+    
+    // For chakra tabs
+    const chakraTab = activeTab.toLowerCase();
+    return freq.chakra?.toLowerCase() === chakraTab;
   });
 
   return (
@@ -196,81 +208,84 @@ const FrequencyEnginePage: React.FC = () => {
               </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredFrequencies.map((frequency) => (
-                  <Card 
-                    key={frequency.id} 
-                    className={`backdrop-blur-sm ${liftTheVeil ? 'bg-pink-950/20 border-pink-500/30' : 'bg-indigo-950/20 border-indigo-500/30'}`}
-                  >
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h3 className="text-xl font-semibold text-white">
-                            {frequency.frequency}Hz
-                          </h3>
-                          <p className="text-white/70 text-sm">{frequency.title}</p>
+                {filteredFrequencies.map((frequency) => {
+                  const isCurrentlyPlaying = playingFrequencyId === frequency.id && isPlaying;
+                  return (
+                    <Card 
+                      key={frequency.id} 
+                      className={`backdrop-blur-sm ${liftTheVeil ? 'bg-pink-950/20 border-pink-500/30' : 'bg-indigo-950/20 border-indigo-500/30'}`}
+                    >
+                      <CardContent className="p-6">
+                        <div className="flex justify-between items-start mb-3">
+                          <div>
+                            <h3 className="text-xl font-semibold text-white">
+                              {frequency.frequency}Hz
+                            </h3>
+                            <p className="text-white/70 text-sm">{frequency.title}</p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => toggleSaveFrequency(frequency.id)}
+                            className="hover:bg-white/10"
+                            disabled={!user}
+                          >
+                            {savedFrequencies.includes(frequency.id) ? (
+                              <Bookmark className="h-5 w-5 text-yellow-400" />
+                            ) : (
+                              <BookmarkPlus className="h-5 w-5 text-white/70" />
+                            )}
+                          </Button>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleSaveFrequency(frequency.id)}
-                          className="hover:bg-white/10"
-                          disabled={!user}
+                        
+                        {frequency.description && (
+                          <p className="text-white/70 text-sm mb-4">{frequency.description}</p>
+                        )}
+                        
+                        {frequency.chakra && (
+                          <div 
+                            className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mb-3"
+                            style={{ 
+                              backgroundColor: `${chakraMap[frequency.chakra]}30`,
+                              color: chakraMap[frequency.chakra],
+                              borderColor: `${chakraMap[frequency.chakra]}50`,
+                              borderWidth: '1px'
+                            }}
+                          >
+                            {frequency.chakra} Chakra
+                          </div>
+                        )}
+                        
+                        <div className="relative w-full h-32 mb-4 overflow-hidden rounded-md bg-black/30">
+                          <JourneyAwareSpiralVisualizer 
+                            journeyId={frequency.id} 
+                            showControls={false}
+                            containerId={`freq-${frequency.id}`}
+                            className="absolute inset-0"
+                          />
+                        </div>
+                        
+                        <Button 
+                          className="w-full"
+                          variant={isCurrentlyPlaying ? "outline" : "default"}
+                          onClick={() => togglePlayFrequency(frequency)}
                         >
-                          {savedFrequencies.includes(frequency.id) ? (
-                            <Bookmark className="h-5 w-5 text-yellow-400" />
+                          {isCurrentlyPlaying ? (
+                            <>
+                              <Pause className="h-4 w-4 mr-2" />
+                              Pause
+                            </>
                           ) : (
-                            <BookmarkPlus className="h-5 w-5 text-white/70" />
+                            <>
+                              <Play className="h-4 w-4 mr-2" />
+                              Play Frequency
+                            </>
                           )}
                         </Button>
-                      </div>
-                      
-                      {frequency.description && (
-                        <p className="text-white/70 text-sm mb-4">{frequency.description}</p>
-                      )}
-                      
-                      {frequency.chakra && (
-                        <div 
-                          className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mb-3"
-                          style={{ 
-                            backgroundColor: `${chakraMap[frequency.chakra]}30`,
-                            color: chakraMap[frequency.chakra],
-                            borderColor: `${chakraMap[frequency.chakra]}50`,
-                            borderWidth: '1px'
-                          }}
-                        >
-                          {frequency.chakra} Chakra
-                        </div>
-                      )}
-                      
-                      <div className="relative w-full h-32 mb-4 overflow-hidden rounded-md bg-black/30">
-                        <JourneyAwareSpiralVisualizer 
-                          journeyId={frequency.id} 
-                          showControls={false}
-                          containerId={`freq-${frequency.id}`}
-                          className="absolute inset-0"
-                        />
-                      </div>
-                      
-                      <Button 
-                        className="w-full"
-                        variant={playingFrequencyId === frequency.id && isPlaying ? "outline" : "default"}
-                        onClick={() => togglePlayFrequency(frequency)}
-                      >
-                        {playingFrequencyId === frequency.id && isPlaying ? (
-                          <>
-                            <Pause className="h-4 w-4 mr-2" />
-                            Pause
-                          </>
-                        ) : (
-                          <>
-                            <Play className="h-4 w-4 mr-2" />
-                            Play Frequency
-                          </>
-                        )}
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </div>

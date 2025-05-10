@@ -3,7 +3,7 @@ import React from 'react';
 import { useTheme } from '@/context/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
-import { PlayIcon, PauseIcon } from 'lucide-react';
+import { Play, Pause } from 'lucide-react';
 
 interface FrequencyPlayerProps {
   frequency?: number;
@@ -31,23 +31,45 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
   id
 }) => {
   const { liftTheVeil } = useTheme();
-  const { playAudio } = useGlobalAudioPlayer();
+  const { playAudio, togglePlayPause, isPlaying: globalIsPlaying, currentAudio } = useGlobalAudioPlayer();
 
   const handlePlay = () => {
+    console.log("FrequencyPlayer: handlePlay called", { audioUrl, url });
+    
     // If external control is provided, use that
     if (onPlayToggle) {
+      console.log("Using external onPlayToggle handler");
       onPlayToggle();
       return;
     }
     
-    // Otherwise, play the audio using the global audio player
+    // Check if we're already playing this frequency
+    const isCurrentlyPlaying = 
+      currentAudio?.id === frequencyId || 
+      currentAudio?.id === id;
+    
+    if (isCurrentlyPlaying && globalIsPlaying) {
+      console.log("Toggling pause for current frequency");
+      togglePlayPause();
+      return;
+    }
+    
+    // Get a valid audio source
+    const source = audioUrl || url || '';
+    if (!source) {
+      console.error("No audio source provided for FrequencyPlayer");
+      return;
+    }
+    
+    // Play the audio using the global audio player
+    console.log("Playing frequency with source:", source);
     playAudio({
       title: title || (frequency ? `${frequency}Hz Frequency` : 'Frequency'),
       artist: "Sacred Shifter",
-      source: audioUrl || url || '',
-      frequency: frequency, // This is fine as it's a numeric property for the player, not related to the Journey type
+      source: source,
+      frequency: frequency,
       chakra: description,
-      id: frequencyId || id // This is now allowed in PlayerInfo interface
+      id: frequencyId || id
     });
   };
 
@@ -67,12 +89,12 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
         >
           {isPlaying ? (
             <>
-              <PauseIcon className="h-4 w-4 mr-2" />
+              <Pause className="h-4 w-4 mr-2" />
               Pause
             </>
           ) : (
             <>
-              <PlayIcon className="h-4 w-4 mr-2" />
+              <Play className="h-4 w-4 mr-2" />
               Play Frequency
             </>
           )}
@@ -86,7 +108,7 @@ const FrequencyPlayer: React.FC<FrequencyPlayerProps> = ({
       <div className="relative w-full h-[200px] rounded-lg overflow-hidden bg-gradient-to-br from-purple-900/40 to-black/70">
         {/* Visualization placeholder */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-24 h-24 rounded-full bg-purple-500/20 animate-pulse"></div>
+          <div className={`w-24 h-24 rounded-full ${isPlaying ? 'animate-pulse bg-purple-500/30' : 'bg-purple-500/20'}`}></div>
         </div>
       </div>
     </div>
