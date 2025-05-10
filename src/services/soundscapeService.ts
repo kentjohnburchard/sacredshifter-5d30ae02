@@ -88,7 +88,7 @@ export async function uploadSoundscapeFile(file: File, onProgress?: (progress: n
     }
 
     // Upload file to the soundscapes bucket
-    const { data, error } = await supabase.storage
+    const uploadResult = await supabase.storage
       .from('soundscapes')
       .upload(filePath, file, {
         cacheControl: '3600'
@@ -99,7 +99,7 @@ export async function uploadSoundscapeFile(file: File, onProgress?: (progress: n
       clearInterval(progressInterval);
     }
     
-    if (error) throw error;
+    if (uploadResult.error) throw uploadResult.error;
     
     // Get public URL for the file
     const { data: publicUrlData } = supabase.storage
