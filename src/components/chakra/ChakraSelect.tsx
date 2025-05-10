@@ -49,7 +49,7 @@ const ChakraSelect: React.FC<ChakraSelectProps> = ({
         {basicChakras.map((chakra) => (
           <SelectItem 
             key={chakra.name} 
-            value={chakra.name} // Ensure this is never empty
+            value={chakra.name}
             className="flex items-center"
           >
             <div className="flex items-center">

@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { useCommunity } from '@/contexts/CommunityContext';
 import { useAuth } from '@/context/AuthContext';
 import { Sun, Moon, Undo2, Users, Search, MessageCircle, User } from 'lucide-react';
 
@@ -86,6 +87,7 @@ const SacredCircle: React.FC = () => {
   const [filteredProfiles, setFilteredProfiles] = useState<LightbearerProfile[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [alignmentFilter, setAlignmentFilter] = useState<string | null>(null);
+  const { getUserProfile } = useCommunity();
   
   // Initialize with mock data for now
   useEffect(() => {
@@ -134,151 +136,153 @@ const SacredCircle: React.FC = () => {
       showContextActions={true}
     >
       <div className="container mx-auto py-8 px-4">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-8"
-        >
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
-                Sacred Circle
-              </h1>
-              <p className="text-gray-400 max-w-3xl">
-                Connect with fellow lightbearers on the path of spiritual evolution. 
-                Share wisdom, support each other's journey, and grow together in consciousness.
-              </p>
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mb-8"
+          >
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+              <div>
+                <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
+                  Sacred Circle
+                </h1>
+                <p className="text-gray-400 max-w-3xl">
+                  Connect with fellow lightbearers on the path of spiritual evolution. 
+                  Share wisdom, support each other's journey, and grow together in consciousness.
+                </p>
+              </div>
+              
+              <div className="flex gap-4">
+                <Button 
+                  variant="outline" 
+                  className="border-purple-500/30 text-purple-200 hover:bg-purple-500/20"
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  Find Lightbearers
+                </Button>
+                <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  Join Discussions
+                </Button>
+              </div>
             </div>
             
-            <div className="flex gap-4">
-              <Button 
-                variant="outline" 
-                className="border-purple-500/30 text-purple-200 hover:bg-purple-500/20"
-              >
-                <Users className="mr-2 h-4 w-4" />
-                Find Lightbearers
-              </Button>
-              <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
-                <MessageCircle className="mr-2 h-4 w-4" />
-                Join Discussions
-              </Button>
-            </div>
-          </div>
-          
-          {/* Filters Section */}
-          <div className="bg-gray-900/50 border border-gray-800/50 rounded-lg p-4 mb-8">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-grow">
-                <Input
-                  placeholder="Search by name, title, or badge..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-gray-800/50 border-gray-700/50"
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button 
-                  variant={alignmentFilter === 'Light' ? "default" : "outline"}
-                  size="sm"
-                  className={alignmentFilter === 'Light' 
-                    ? "bg-yellow-500/20 text-yellow-200 hover:bg-yellow-500/30" 
-                    : "border-gray-700/50 text-gray-300"}
-                  onClick={() => setAlignmentFilter(alignmentFilter === 'Light' ? null : 'Light')}
-                >
-                  <Sun className="h-4 w-4 mr-1" />
-                  Light
-                </Button>
-                <Button 
-                  variant={alignmentFilter === 'Shadow' ? "default" : "outline"}
-                  size="sm"
-                  className={alignmentFilter === 'Shadow' 
-                    ? "bg-indigo-500/20 text-indigo-200 hover:bg-indigo-500/30" 
-                    : "border-gray-700/50 text-gray-300"}
-                  onClick={() => setAlignmentFilter(alignmentFilter === 'Shadow' ? null : 'Shadow')}
-                >
-                  <Moon className="h-4 w-4 mr-1" />
-                  Shadow
-                </Button>
-                <Button 
-                  variant={alignmentFilter === 'Unity' ? "default" : "outline"}
-                  size="sm"
-                  className={alignmentFilter === 'Unity' 
-                    ? "bg-purple-500/20 text-purple-200 hover:bg-purple-500/30" 
-                    : "border-gray-700/50 text-gray-300"}
-                  onClick={() => setAlignmentFilter(alignmentFilter === 'Unity' ? null : 'Unity')}
-                >
-                  <Undo2 className="h-4 w-4 mr-1" />
-                  Unity
-                </Button>
+            {/* Filters Section */}
+            <div className="bg-gray-900/50 border border-gray-800/50 rounded-lg p-4 mb-8">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-grow">
+                  <Input
+                    placeholder="Search by name, title, or badge..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="bg-gray-800/50 border-gray-700/50"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    variant={alignmentFilter === 'Light' ? "default" : "outline"}
+                    size="sm"
+                    className={alignmentFilter === 'Light' 
+                      ? "bg-yellow-500/20 text-yellow-200 hover:bg-yellow-500/30" 
+                      : "border-gray-700/50 text-gray-300"}
+                    onClick={() => setAlignmentFilter(alignmentFilter === 'Light' ? null : 'Light')}
+                  >
+                    <Sun className="h-4 w-4 mr-1" />
+                    Light
+                  </Button>
+                  <Button 
+                    variant={alignmentFilter === 'Shadow' ? "default" : "outline"}
+                    size="sm"
+                    className={alignmentFilter === 'Shadow' 
+                      ? "bg-indigo-500/20 text-indigo-200 hover:bg-indigo-500/30" 
+                      : "border-gray-700/50 text-gray-300"}
+                    onClick={() => setAlignmentFilter(alignmentFilter === 'Shadow' ? null : 'Shadow')}
+                  >
+                    <Moon className="h-4 w-4 mr-1" />
+                    Shadow
+                  </Button>
+                  <Button 
+                    variant={alignmentFilter === 'Unity' ? "default" : "outline"}
+                    size="sm"
+                    className={alignmentFilter === 'Unity' 
+                      ? "bg-purple-500/20 text-purple-200 hover:bg-purple-500/30" 
+                      : "border-gray-700/50 text-gray-300"}
+                    onClick={() => setAlignmentFilter(alignmentFilter === 'Unity' ? null : 'Unity')}
+                  >
+                    <Undo2 className="h-4 w-4 mr-1" />
+                    Unity
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProfiles.map((profile, index) => (
-            <motion.div
-              key={profile.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-            >
-              <Card className="h-full border border-gray-800/50 bg-gradient-to-br from-gray-900/80 to-gray-800/50 backdrop-blur-sm hover:shadow-md hover:shadow-purple-500/5 transition-all overflow-hidden">
-                <div className={`
-                  h-2 w-full 
-                  ${profile.soulAlignment === 'Light' ? 'bg-gradient-to-r from-yellow-500/70 to-orange-500/70' : 
-                    profile.soulAlignment === 'Shadow' ? 'bg-gradient-to-r from-indigo-500/70 to-blue-500/70' : 
-                    'bg-gradient-to-r from-purple-500/70 to-pink-500/70'}
-                `}></div>
-                <CardHeader className="p-4 pb-2 flex flex-row items-center gap-3">
-                  <Avatar className="h-12 w-12 border-2 border-white/10">
-                    <AvatarImage src={profile.avatarUrl} alt={profile.name} />
-                    <AvatarFallback className="bg-gradient-to-br from-purple-500/30 to-blue-500/30 text-white">
-                      {getInitials(profile.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <CardTitle className="text-base font-medium">{profile.name}</CardTitle>
-                    <div className="flex items-center gap-1 mt-1">
-                      {getAlignmentIcon(profile.soulAlignment)}
-                      <span className="text-xs text-gray-400">{profile.soulAlignment} Path</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredProfiles.map((profile, index) => (
+              <motion.div
+                key={profile.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <Card className="h-full border border-gray-800/50 bg-gradient-to-br from-gray-900/80 to-gray-800/50 backdrop-blur-sm hover:shadow-md hover:shadow-purple-500/5 transition-all overflow-hidden">
+                  <div className={`
+                    h-2 w-full 
+                    ${profile.soulAlignment === 'Light' ? 'bg-gradient-to-r from-yellow-500/70 to-orange-500/70' : 
+                      profile.soulAlignment === 'Shadow' ? 'bg-gradient-to-r from-indigo-500/70 to-blue-500/70' : 
+                      'bg-gradient-to-r from-purple-500/70 to-pink-500/70'}
+                  `}></div>
+                  <CardHeader className="p-4 pb-2 flex flex-row items-center gap-3">
+                    <Avatar className="h-12 w-12 border-2 border-white/10">
+                      <AvatarImage src={profile.avatarUrl} alt={profile.name} />
+                      <AvatarFallback className="bg-gradient-to-br from-purple-500/30 to-blue-500/30 text-white">
+                        {getInitials(profile.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <CardTitle className="text-base font-medium">{profile.name}</CardTitle>
+                      <div className="flex items-center gap-1 mt-1">
+                        {getAlignmentIcon(profile.soulAlignment)}
+                        <span className="text-xs text-gray-400">{profile.soulAlignment} Path</span>
+                      </div>
                     </div>
-                  </div>
-                </CardHeader>
-                
-                <CardContent className="p-4 pt-2">
-                  <div className="mb-3">
-                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-indigo-300 text-sm font-medium">
-                      {profile.ascensionTitle}
-                    </span>
-                    <div className="flex items-center gap-1.5 mt-1.5">
-                      <Badge variant="outline" className="bg-purple-900/30 border-purple-500/30 text-xs">
-                        Level {profile.level}
-                      </Badge>
-                      {profile.badges.length > 0 && (
-                        <span className="text-xs text-gray-500">{profile.badges.length} badge{profile.badges.length !== 1 ? 's' : ''}</span>
-                      )}
-                    </div>
-                  </div>
+                  </CardHeader>
                   
-                  {profile.badges.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mt-3">
-                      {profile.badges.slice(0, 2).map((badge, idx) => (
-                        <Badge 
-                          key={idx} 
-                          variant="outline"
-                          className="bg-indigo-900/20 border-indigo-500/20 text-gray-300 text-xs"
-                        >
-                          {badge}
+                  <CardContent className="p-4 pt-2">
+                    <div className="mb-3">
+                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-indigo-300 text-sm font-medium">
+                        {profile.ascensionTitle}
+                      </span>
+                      <div className="flex items-center gap-1.5 mt-1.5">
+                        <Badge variant="outline" className="bg-purple-900/30 border-purple-500/30 text-xs">
+                          Level {profile.level}
                         </Badge>
-                      ))}
-                      {profile.badges.length > 2 && (
-                        <Badge variant="outline" className="bg-gray-800/50 border-gray-700/50 text-gray-400 text-xs">
-                          +{profile.badges.length - 2} more
-                        </Badge>
-                      )}
+                        {profile.badges.length > 0 && (
+                          <span className="text-xs text-gray-500">{profile.badges.length} badge{profile.badges.length !== 1 ? 's' : ''}</span>
+                        )}
+                      </div>
                     </div>
+                    
+                    {profile.badges.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-3">
+                        {profile.badges.slice(0, 2).map((badge, idx) => (
+                          <Badge 
+                            key={idx} 
+                            variant="outline"
+                            className="bg-indigo-900/20 border-indigo-500/20 text-gray-300 text-xs"
+                          >
+                            {badge}
+                          </Badge>
+                        ))}
+                        {profile.badges.length > 2 && (
+                          <Badge variant="outline" className="bg-gray-800/50 border-gray-700/50 text-gray-400 text-xs">
+                            +{profile.badges.length - 2} more
+                          </Badge>
+                        )}
+                      </div>
+                    )}
                   </CardContent>
                   
                   <CardFooter className="p-4 pt-2">

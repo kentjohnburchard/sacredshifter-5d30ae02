@@ -7,7 +7,6 @@ import { Toaster } from "sonner";
 import App from "./App";
 import ThemeEnhancer from '@/components/ThemeEnhancer';
 import { AuthProvider } from '@/context/AuthContext';
-import { CommunityProvider } from '@/contexts/CommunityContext';
 
 // Create a React Query client
 const queryClient = new QueryClient();
@@ -18,11 +17,9 @@ function Root() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <ThemeProvider>
-            <CommunityProvider>
-              <App />
-              <ThemeEnhancer />
-              <Toaster position="top-right" richColors />
-            </CommunityProvider>
+            <App />
+            <ThemeEnhancer />
+            <Toaster position="top-right" richColors />
           </ThemeProvider>
         </AuthProvider>
       </QueryClientProvider>

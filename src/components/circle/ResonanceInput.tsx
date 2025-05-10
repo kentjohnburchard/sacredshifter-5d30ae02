@@ -114,7 +114,7 @@ const ResonanceInput: React.FC<ResonanceInputProps> = ({
                 <SelectValue placeholder="Add frequency" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">None</SelectItem>
+                <SelectItem value="">None</SelectItem>
                 {[432, 528, 639, 741, 852, 963].map((freq) => (
                   <SelectItem key={freq} value={String(freq)}>
                     {freq}Hz

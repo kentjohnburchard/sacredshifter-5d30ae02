@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import SacredLayout from '@/components/layout/SacredLayout';
+import AppShell from '@/components/layout/AppShell';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
@@ -7,7 +8,7 @@ import { ChakraTag, CHAKRA_COLORS } from '@/types/chakras';
 import { PlusCircle, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-// Import our circle components
+// Import our new circle components
 import AmbientBackground from '@/components/circle/AmbientBackground';
 import CircleFeed from '@/components/circle/CircleFeed';
 import GuideCard from '@/components/circle/GuideCard';
@@ -87,10 +88,9 @@ const SacredCirclePage: React.FC = () => {
   };
   
   return (
-    <SacredLayout 
+    <AppShell 
       pageTitle="Sacred Circle" 
-      chakraColor={CHAKRA_COLORS[activeChakra]}
-      themeIntensity="high"
+      chakraColor={CHAKRA_COLORS[activeChakra]} // Dynamic color based on active chakra
     >
       {/* Ambient Background */}
       <AmbientBackground 
@@ -150,10 +150,10 @@ const SacredCirclePage: React.FC = () => {
               transition={{ duration: 0.3, delay: 0.2 }}
             >
               {/* Guided Resonance Cards */}
-              <Card className="sacred-card">
+              <Card className="bg-black/30 backdrop-blur-sm border-white/10">
                 <CardContent className="p-4 space-y-4">
                   <div className="flex justify-between items-center">
-                    <h3 className="sacred-subheading">Guided Resonance</h3>
+                    <h3 className="font-semibold text-white">Guided Resonance</h3>
                     <Button variant="ghost" size="sm">
                       <PlusCircle className="h-4 w-4 mr-1" />
                       Add
@@ -175,9 +175,9 @@ const SacredCirclePage: React.FC = () => {
               </Card>
               
               {/* Featured Circle Members */}
-              <Card className="sacred-card">
+              <Card className="bg-black/30 backdrop-blur-sm border-white/10">
                 <CardContent className="p-4">
-                  <h3 className="sacred-subheading mb-3">Featured Lightbearers</h3>
+                  <h3 className="font-semibold text-white mb-3">Featured Lightbearers</h3>
                   
                   <div className="grid grid-cols-2 gap-3">
                     <VibeOrb 
@@ -215,7 +215,7 @@ const SacredCirclePage: React.FC = () => {
           </div>
         </div>
       </div>
-    </SacredLayout>
+    </AppShell>
   );
 };
 
