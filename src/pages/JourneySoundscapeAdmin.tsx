@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,7 @@ import {
   updateJourneySoundscape, 
   deleteJourneySoundscape 
 } from '@/services/journeyService';
-import { Plus, Trash2, ExternalLink, FileMusic, Youtube, Play, Pause, Volume2, VolumeX, PencilIcon } from 'lucide-react';
+import { Plus, Trash2, ExternalLink, FileMusic, Youtube, Play, Pause, Volume2, VolumeX, PencilIcon, Upload } from 'lucide-react';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -62,6 +62,8 @@ const JourneySoundscapeAdmin: React.FC = () => {
   const [bulkUploadDialogOpen, setBulkUploadDialogOpen] = useState(false);
   const [bulkUploadText, setBulkUploadText] = useState('');
   const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [fileToUpload, setFileToUpload] = useState<File | null>(null);
 
   useEffect(() => {
     loadData();
@@ -120,8 +122,8 @@ const JourneySoundscapeAdmin: React.FC = () => {
   const validateAudioUrl = async (url: string) => {
     if (!url) return;
     
-    // Only validate if it's a URL (not a file path)
-    if (!url.startsWith('http')) {
+    // Skip validation for local files or files in Supabase storage
+    if (!url.startsWith('http') || url.includes('supabase.co')) {
       return;
     }
     
@@ -165,6 +167,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
     setSourceType('file');
     setSelectedSoundscape(null);
     setUrlValidationState('idle');
+    setFileToUpload(null);
   };
 
   const handleOpenNewDialog = () => {
@@ -230,8 +233,8 @@ const JourneySoundscapeAdmin: React.FC = () => {
       return false;
     }
 
-    if (sourceType === 'file' && !formData.file_url.trim()) {
-      toast.error('Please enter an audio file URL');
+    if (sourceType === 'file' && !formData.file_url.trim() && !fileToUpload) {
+      toast.error('Please enter an audio file URL or upload a file');
       return false;
     }
 
@@ -252,10 +255,66 @@ const JourneySoundscapeAdmin: React.FC = () => {
     });
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type.startsWith('audio/')) {
+        setFileToUpload(file);
+      } else {
+        toast.error('Please select an audio file');
+        e.target.value = '';
+      }
+    }
+  };
+
+  const uploadFileToSupabase = async (file: File): Promise<string> => {
+    setUploadingFile(true);
+    try {
+      // Create a unique file name with timestamp and original name
+      const timestamp = new Date().getTime();
+      const cleanFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const filePath = `soundscapes/${timestamp}-${cleanFileName}`;
+
+      // Upload to Supabase storage
+      const { data, error } = await supabase.storage
+        .from('frequency-assets')
+        .upload(filePath, file);
+
+      if (error) {
+        console.error('Error uploading file:', error);
+        throw new Error('Failed to upload file');
+      }
+
+      // Get public URL for file
+      const { data: publicUrlData } = supabase.storage
+        .from('frequency-assets')
+        .getPublicUrl(filePath);
+
+      return publicUrlData.publicUrl;
+    } catch (error) {
+      console.error('Error in file upload process:', error);
+      throw error;
+    } finally {
+      setUploadingFile(false);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!validateForm()) return;
     
     try {
+      // First upload file if one is selected
+      let fileUrl = formData.file_url;
+      
+      if (fileToUpload && sourceType === 'file') {
+        try {
+          fileUrl = await uploadFileToSupabase(fileToUpload);
+        } catch (error) {
+          toast.error('Failed to upload file');
+          return;
+        }
+      }
+      
       // Convert journey_id to number
       const journeyId = parseInt(formData.journey_id, 10);
       
@@ -265,7 +324,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
         journey_id: journeyId,
         source_type: sourceType,
         source_link: sourceType === 'youtube' ? formData.source_link : null,
-        file_url: sourceType === 'file' ? formData.file_url : formData.source_link,
+        file_url: sourceType === 'file' ? fileUrl : formData.source_link,
       };
       
       let updatedSoundscape;
@@ -451,7 +510,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
                     : "All Soundscapes"}
                 </CardTitle>
                 <Button onClick={handleOpenNewDialog} size="sm" className="bg-purple-600 hover:bg-purple-700">
-                  <Plus className="mr-2 h-4 w-4" /> Add
+                  <Plus className="mr-2 h-4 w-4" /> Add Soundscape
                 </Button>
               </CardHeader>
               <CardContent>
@@ -492,6 +551,11 @@ const JourneySoundscapeAdmin: React.FC = () => {
                                 {journeys.find(j => String(j.id) === String(soundscape.journey_id))?.title || 'Unknown Journey'}
                               </p>
                               {soundscape.description && <p className="text-sm">{soundscape.description}</p>}
+                              {soundscape.file_url && (
+                                <p className="text-xs text-gray-500 mt-1 truncate max-w-md">
+                                  {soundscape.file_url.includes('supabase') ? 'Supabase Storage' : soundscape.file_url}
+                                </p>
+                              )}
                             </div>
                             <div className="flex space-x-2 ml-4">
                               <Button 
@@ -614,25 +678,57 @@ const JourneySoundscapeAdmin: React.FC = () => {
                 </TabsList>
                 
                 <TabsContent value="file" className="mt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="file_url">Audio File URL *</Label>
-                    <div className="flex space-x-2">
-                      <Input
-                        id="file_url"
-                        name="file_url"
-                        value={formData.file_url}
-                        onChange={handleInputChange}
-                        placeholder="/audio/filename.mp3"
-                        className={urlValidationState === 'valid' ? 'border-green-500' : 
-                                  urlValidationState === 'invalid' ? 'border-red-500' : ''}
-                      />
-                      {urlValidationState === 'checking' && (
-                        <div className="animate-spin h-5 w-5 border-b-2 border-purple-500 rounded-full"></div>
+                  <div className="space-y-4">
+                    {/* File upload option */}
+                    <div className="border rounded-md p-4">
+                      <Label htmlFor="fileUpload" className="block mb-2">Upload Audio File</Label>
+                      <div className="flex items-center space-x-2">
+                        <Input
+                          id="fileUpload"
+                          type="file"
+                          accept="audio/*"
+                          onChange={handleFileChange}
+                          className="flex-grow"
+                        />
+                      </div>
+                      {fileToUpload && (
+                        <div className="mt-2">
+                          <p className="text-sm text-green-600">{fileToUpload.name} selected</p>
+                        </div>
                       )}
+                      <p className="text-xs text-gray-500 mt-2">
+                        File will be uploaded to Supabase storage
+                      </p>
                     </div>
-                    <p className="text-xs text-gray-500">
-                      Enter the path to an audio file in the public folder or full URL
-                    </p>
+                    
+                    {/* OR divider */}
+                    <div className="flex items-center">
+                      <div className="flex-grow border-t border-gray-200"></div>
+                      <span className="px-2 text-sm text-gray-500">OR</span>
+                      <div className="flex-grow border-t border-gray-200"></div>
+                    </div>
+                    
+                    {/* URL input */}
+                    <div className="space-y-2">
+                      <Label htmlFor="file_url">Audio File URL</Label>
+                      <div className="flex space-x-2">
+                        <Input
+                          id="file_url"
+                          name="file_url"
+                          value={formData.file_url}
+                          onChange={handleInputChange}
+                          placeholder="/audio/filename.mp3 or full URL"
+                          className={urlValidationState === 'valid' ? 'border-green-500' : 
+                                    urlValidationState === 'invalid' ? 'border-red-500' : ''}
+                        />
+                        {urlValidationState === 'checking' && (
+                          <div className="animate-spin h-5 w-5 border-b-2 border-purple-500 rounded-full"></div>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        Enter the path to an audio file in the public folder or full URL
+                      </p>
+                    </div>
                   </div>
                 </TabsContent>
                 
@@ -659,8 +755,21 @@ const JourneySoundscapeAdmin: React.FC = () => {
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSubmit} className="bg-purple-600 hover:bg-purple-700">
-              {selectedSoundscape ? 'Update Soundscape' : 'Create Soundscape'}
+            <Button 
+              onClick={handleSubmit} 
+              className="bg-purple-600 hover:bg-purple-700"
+              disabled={uploadingFile}
+            >
+              {uploadingFile ? (
+                <>
+                  <div className="animate-spin mr-2 h-4 w-4 border-b-2 border-white rounded-full"></div>
+                  Uploading...
+                </>
+              ) : selectedSoundscape ? (
+                'Update Soundscape'
+              ) : (
+                'Create Soundscape'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
