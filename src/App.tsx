@@ -28,12 +28,13 @@ function App() {
   const { user } = useAuthentication();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Redirect authenticated users away from the landing page
-    if (user && window.location.pathname === '/') {
-      navigate('/frequency-engine');
-    }
-  }, [user, navigate]);
+  // Removing the redirect that forces users from homepage to frequency engine
+  // useEffect(() => {
+  //   // Redirect authenticated users away from the landing page
+  //   if (user && window.location.pathname === '/') {
+  //     navigate('/frequency-engine');
+  //   }
+  // }, [user, navigate]);
 
   return (
     <ThemeProvider>
