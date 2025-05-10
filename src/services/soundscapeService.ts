@@ -73,42 +73,33 @@ export async function uploadSoundscapeFile(file: File, onProgress?: (progress: n
     const cleanFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
     const filePath = `${timestamp}-${cleanFileName}`;
     
-    // Create a function to handle upload progress
-    const handleProgress = (progress: { loaded: number; total: number }) => {
-      const progressValue = (progress.loaded / progress.total) * 100;
-      if (onProgress) {
-        onProgress(progressValue);
-      }
-    };
-
-    // Upload file to the soundscapes bucket
-    // Use the event listener approach instead of the onUploadProgress option
-    const uploadPromise = new Promise<{path: string, url: string}>((resolve, reject) => {
-      // Start upload
-      const { data, error } = supabase.storage
-        .from('soundscapes')
-        .upload(filePath, file, {
-          cacheControl: '3600'
-        });
-      
-      // Handle the upload result
-      data ? resolve({ path: filePath, url: '' }) : reject(error);
-    });
-
-    // Simulate progress updates for now since event listeners aren't directly supported
+    // Simulate progress updates since direct upload progress isn't supported in this context
+    let progressInterval: ReturnType<typeof setInterval> | null = null;
     if (onProgress) {
       let progressValue = 0;
-      const interval = setInterval(() => {
+      progressInterval = setInterval(() => {
         progressValue += 10;
         if (progressValue <= 90) {
           onProgress(progressValue);
         } else {
-          clearInterval(interval);
+          clearInterval(progressInterval!);
         }
       }, 200);
     }
+
+    // Upload file to the soundscapes bucket
+    const { data, error } = await supabase.storage
+      .from('soundscapes')
+      .upload(filePath, file, {
+        cacheControl: '3600'
+      });
     
-    const uploadResult = await uploadPromise;
+    // Clear the progress interval if it exists
+    if (progressInterval) {
+      clearInterval(progressInterval);
+    }
+    
+    if (error) throw error;
     
     // Get public URL for the file
     const { data: publicUrlData } = supabase.storage
