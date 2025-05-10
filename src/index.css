@@ -22,6 +22,19 @@
   --radius: 0.5rem;
   --sidebar-bg: 268 59% 18%;
   --sidebar-bg-hover: 268 59% 22%;
+  
+  /* Theme variables for Sacred Circle aesthetic */
+  --primary-color: #8b5cf6;
+  --primary-light: #a78bfa;
+  --primary-dark: #6d28d9;
+  --accent-color: #818cf8;
+  --accent-glow: rgba(139, 92, 246, 0.5);
+  --glow-opacity: 0.5;
+  --primary-rgb: 139, 92, 246;
+  --card-bg: rgba(0, 0, 0, 0.3);
+  --card-border: rgba(139, 92, 246, 0.2);
+  --border-radius: 0.75rem;
+  --transition-speed: 0.3s;
 }
 
 .dark {
@@ -246,4 +259,51 @@
   .nav-link:hover {
     background: transparent;
   }
+}
+
+/* Add Sacred Circle site-wide styling */
+.bg-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.cosmic-background {
+  position: relative;
+}
+
+.cosmic-background::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(138, 43, 226, 0.2) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.veil-mode .cosmic-background::before {
+  background: radial-gradient(circle at center, rgba(236, 72, 153, 0.2) 0%, transparent 70%);
+}
+
+/* Add this for the buttons as used in Sacred Circle */
+.ui-button-primary {
+  @apply bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium px-4 py-2 rounded-md transition duration-300;
+}
+
+.veil-mode .ui-button-primary {
+  @apply bg-gradient-to-r from-pink-600 to-fuchsia-600 hover:from-pink-700 hover:to-fuchsia-700;
+}
+
+/* Add backdrop blur for cards */
+.backdrop-blur-card {
+  @apply bg-black/30 border-white/10 backdrop-blur-md rounded-lg;
+}
+
+.veil-mode .backdrop-blur-card {
+  @apply border-pink-500/20;
+}
+
+.standard-mode .backdrop-blur-card {
+  @apply border-purple-500/20;
 }
