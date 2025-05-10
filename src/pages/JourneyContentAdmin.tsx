@@ -187,7 +187,6 @@ const JourneyContentAdmin: React.FC = () => {
       const generatedContent = generateMarkdownContent();
       
       const journeyData = {
-        id: selectedJourney, // Already a string from selectedJourney state
         title: contentForm.title,
         tags: normalizeStringArray(contentForm.tags),
         veil_locked: contentForm.veilLocked,
@@ -195,7 +194,7 @@ const JourneyContentAdmin: React.FC = () => {
         filename: contentForm.filename
       };
       
-      await updateJourney(journeyData);
+      await updateJourney(selectedJourney, journeyData);
       
       // Also save spiral params using paramsCache
       paramsCache[selectedJourney] = {...params};

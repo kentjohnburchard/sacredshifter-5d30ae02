@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { PageTitle } from '@/components/ui/PageTitle';
 import { fetchJourneys, updateJourney, createJourney } from '@/services/journeyService';
@@ -181,7 +180,11 @@ const JourneysManager: React.FC = () => {
         if (!editingJourney.id) {
           throw new Error('Journey ID is required for updates');
         }
-        updatedJourney = await updateJourney(editingJourney as Journey & { id: string });
+        
+        // Extract id from editingJourney and pass remaining data as second argument
+        const { id, ...journeyData } = editingJourney;
+        updatedJourney = await updateJourney(id, journeyData);
+        
         toast.success('Journey updated successfully');
         
         // Update in list
