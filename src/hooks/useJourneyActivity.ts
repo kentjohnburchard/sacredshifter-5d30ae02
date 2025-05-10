@@ -3,13 +3,14 @@ import { useState } from 'react';
 import { ChakraTag } from '@/types/chakras';
 import { Journey } from '@/types/journey';
 import { normalizeStringArray, normalizeId } from '@/utils/parsers';
-import { logTimelineEvent } from '@/services/timeline';
+import { logTimelineEvent } from '@/services/timeline'; // Fixed import path
 
 /**
  * Hook for managing journey activity tracking
  */
 export const useJourneyActivity = () => {
   const [activeJourney, setActiveJourney] = useState<Journey | null>(null);
+  const [activityCache, setActivityCache] = useState<Record<string, number>>({});
 
   // Check if a journey is currently active
   const isJourneyActive = !!activeJourney;
@@ -27,17 +28,30 @@ export const useJourneyActivity = () => {
     
     setActiveJourney(processedJourney);
     
-    // Log journey start to timeline
-    try {
-      recordActivity('journey_start', {
-        journeyId: processedJourney.id,
-        title: processedJourney.title,
-        // Use chakra instead of chakra_tag for consistency
-        chakra: processedJourney.chakra || processedJourney.chakra_tag
-      });
-    } catch (error) {
-      console.warn('Failed to record journey start:', error);
-      // Don't show errors to the user for timeline logging
+    // Create a unique activity key to prevent duplicate events
+    const activityKey = `journey_start_${processedJourney.id}`;
+    const now = Date.now();
+    
+    // Only log if this exact activity hasn't been logged in the past 10 seconds
+    if (!activityCache[activityKey] || (now - activityCache[activityKey] > 10000)) {
+      try {
+        recordActivity('journey_start', {
+          journeyId: processedJourney.id,
+          title: processedJourney.title,
+          chakra: processedJourney.chakra // Use chakra field
+        });
+        
+        // Cache this activity with timestamp
+        setActivityCache(prev => ({
+          ...prev,
+          [activityKey]: now
+        }));
+      } catch (error) {
+        console.warn('Failed to record journey start:', error);
+        // Don't show errors to the user for timeline logging
+      }
+    } else {
+      console.log("Skipping duplicate journey_start event");
     }
   };
 
@@ -47,16 +61,28 @@ export const useJourneyActivity = () => {
     
     console.log('Completing journey:', activeJourney.title);
     
-    // Log journey completion to timeline
-    try {
-      recordActivity('journey_complete', {
-        journeyId: activeJourney.id,
-        title: activeJourney.title,
-        // Use chakra instead of chakra_tag for consistency
-        chakra: activeJourney.chakra || activeJourney.chakra_tag
-      });
-    } catch (error) {
-      console.warn('Failed to record journey completion:', error);
+    const activityKey = `journey_complete_${activeJourney.id}`;
+    const now = Date.now();
+    
+    // Only log if this exact activity hasn't been logged in the past 10 seconds
+    if (!activityCache[activityKey] || (now - activityCache[activityKey] > 10000)) {
+      try {
+        recordActivity('journey_complete', {
+          journeyId: activeJourney.id,
+          title: activeJourney.title,
+          chakra: activeJourney.chakra // Use chakra field
+        });
+        
+        // Cache this activity with timestamp
+        setActivityCache(prev => ({
+          ...prev,
+          [activityKey]: now
+        }));
+      } catch (error) {
+        console.warn('Failed to record journey completion:', error);
+      }
+    } else {
+      console.log("Skipping duplicate journey_complete event");
     }
     
     setActiveJourney(null);
@@ -68,7 +94,7 @@ export const useJourneyActivity = () => {
     setActiveJourney(null);
   };
 
-  // Record user activity within a journey
+  // Record user activity within a journey with deduplication
   const recordActivity = (action: string, details?: Record<string, any>) => {
     // We can record activity even without active journey if journeyId is provided
     if (!activeJourney && !details?.journeyId) {
@@ -88,26 +114,40 @@ export const useJourneyActivity = () => {
       return;
     }
     
-    console.log(`Recording activity: ${action}`, {
-      journeyId,
-      details
-    });
+    // Create a unique activity key for deduplication
+    const activityKey = `${action}_${journeyId}_${details?.title || ''}`;
+    const now = Date.now();
     
-    // Log the timeline event using the timeline service with proper error handling
-    try {
-      logTimelineEvent(action as any, {
+    // Only log if this exact activity hasn't been logged in the past 5 seconds
+    if (!activityCache[activityKey] || (now - activityCache[activityKey] > 5000)) {
+      console.log(`Recording activity: ${action}`, {
         journeyId,
-        title: details?.title || activeJourney?.title,
-        // Use chakra instead of chakra_tag for consistency with database column
-        chakra: details?.chakra || activeJourney?.chakra || activeJourney?.chakra_tag,
-        ...details
-      }).catch(error => {
-        // Handle silently - don't block the user experience for logging errors
-        console.warn('Failed to log timeline event:', error);
+        details
       });
-    } catch (error) {
-      console.warn('Error in recordActivity:', error);
-      // Don't rethrow the error - allow the app to continue even if logging fails
+      
+      // Cache this activity with timestamp
+      setActivityCache(prev => ({
+        ...prev,
+        [activityKey]: now
+      }));
+      
+      // Log the timeline event using the timeline service with proper error handling
+      try {
+        logTimelineEvent(action as any, {
+          journeyId,
+          title: details?.title || activeJourney?.title,
+          chakra: details?.chakra || activeJourney?.chakra, // Use chakra field
+          ...details
+        }).catch(error => {
+          // Handle silently - don't block the user experience for logging errors
+          console.warn('Failed to log timeline event:', error);
+        });
+      } catch (error) {
+        console.warn('Error in recordActivity:', error);
+        // Don't rethrow the error - allow the app to continue even if logging fails
+      }
+    } else {
+      console.log(`Skipping duplicate activity: ${action}`);
     }
   };
 

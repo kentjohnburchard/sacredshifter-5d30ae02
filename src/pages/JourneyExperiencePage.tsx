@@ -5,7 +5,7 @@ import JourneyExperience from '@/components/journey/JourneyExperience';
 import { JourneyProvider, useJourney } from '@/context/JourneyContext';
 import LoadingScreen from '@/components/LoadingScreen';
 import { toast } from 'sonner';
-import { logTimelineEvent } from '@/services/timeline';
+import { logTimelineEvent } from '@/services/timeline'; // Updated import
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { fetchJourneyBySlug } from '@/services/journeyService';
@@ -36,6 +36,7 @@ const JourneyExperienceContent: React.FC = () => {
   const [journeyData, setJourneyData] = useState<any>(null);
   const [transitionActive, setTransitionActive] = useState(true);
   const { startJourney } = useJourney();
+  const [eventLogged, setEventLogged] = useState(false); // Track if event has been logged
   
   useEffect(() => {
     const loadJourney = async () => {
@@ -66,28 +67,30 @@ const JourneyExperienceContent: React.FC = () => {
         // Convert the journey ID to string to ensure consistency
         const journeyId = journey.id?.toString();
         
-        // Record journey start to timeline - handle silently if it fails
-        try {
-          await logTimelineEvent('journey_start', {
-            journeyId,
+        // Only log the event once - prevents duplicates
+        if (!eventLogged) {
+          try {
+            // Log the timeline event for journey start
+            await logTimelineEvent('journey_start', {
+              journeyId,
+              title: journey.title,
+              chakra: journey.chakra || journey.chakra_tag // Use chakra field
+            });
+            setEventLogged(true); // Mark event as logged
+          } catch (timelineError) {
+            console.warn('Failed to log journey start to timeline:', timelineError);
+            // Continue with journey even if timeline logging fails
+          }
+          
+          // Initialize journey context with properly normalized tags
+          startJourney({
+            id: journeyId,
             title: journey.title,
-            // Use chakra field instead of chakra_tag 
-            chakra: journey.chakra || journey.chakra_tag
+            description: journey.description || '',
+            tags: normalizeStringArray(journey.tags),
+            chakra: journey.chakra || journey.chakra_tag // Use chakra field consistently
           });
-        } catch (timelineError) {
-          console.warn('Failed to log journey start to timeline:', timelineError);
-          // Continue with the journey even if timeline logging fails
         }
-        
-        // Initialize journey context with properly normalized tags
-        startJourney({
-          id: journeyId,
-          title: journey.title,
-          description: journey.description || '',
-          tags: normalizeStringArray(journey.tags),
-          // Use chakra field consistently
-          chakra: journey.chakra || journey.chakra_tag
-        });
         
         // Begin entrance transition
         setTimeout(() => {
@@ -103,7 +106,7 @@ const JourneyExperienceContent: React.FC = () => {
     };
     
     loadJourney();
-  }, [journeySlug, navigate, startJourney]);
+  }, [journeySlug, navigate, startJourney, eventLogged]);
   
   if (loading) {
     return <LoadingScreen message={loadingMessage} />;
@@ -149,8 +152,7 @@ const JourneyExperienceContent: React.FC = () => {
           frequency: journeyData.sound_frequencies 
             ? parseFloat(journeyData.sound_frequencies) 
             : undefined,
-          // Ensure chakra is passed consistently
-          chakra: journeyData.chakra || journeyData.chakra_tag,
+          chakra: journeyData.chakra || journeyData.chakra_tag, // Use chakra field
           audioFile: journeyData.audio_filename
         }}
       />

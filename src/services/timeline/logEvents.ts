@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { formatJourneyId } from './formatters';
 import { TimelineEventDetails } from './types';
@@ -42,9 +41,9 @@ export const logTimelineEvent = async (
     if (sanitizedDetails.journeyId) {
       journey_id = formatJourneyId(sanitizedDetails.journeyId);
       
-      // If we can't generate a valid UUID, don't include journey_id in the insert
+      // If we can't generate a valid UUID, just log a warning but still try to create the record
       if (journey_id === null) {
-        console.log(`Cannot log timeline event with journey ID - invalid format for ${sanitizedDetails.journeyId}`);
+        console.log(`Warning: Invalid journey ID format for ${sanitizedDetails.journeyId}, will create record without journey association`);
       }
     }
     
@@ -58,8 +57,7 @@ export const logTimelineEvent = async (
       title: sanitizedDetails.title || validTag,
       component: sanitizedDetails.component,
       notes: sanitizedDetails.notes,
-      // Changed chakra_tag to chakra to match the database schema
-      chakra: sanitizedDetails.chakra,
+      chakra: sanitizedDetails.chakra, // Ensure using the correct field name
       details: sanitizedDetails
     };
     
@@ -112,7 +110,6 @@ export const createTimelineItem = async (
         title,
         tag,
         details,
-        // Changed chakra_tag to chakra to match the database schema
         chakra: chakraTag,
         journey_id: journey_id,
         created_at: new Date().toISOString()

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useJourney } from '@/context/JourneyContext';
 import { ChakraTag, getChakraColor } from '@/types/chakras';
-import { logTimelineEvent } from '@/services/timelineService';
+import { logTimelineEvent } from '@/services/timeline';
 import { useAuth } from '@/context/AuthContext';
 import { useChakraActivations } from '@/hooks/useChakraActivations';
 import { useLightbearerProgress } from '@/hooks/useLightbearerProgress';
@@ -56,6 +56,7 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
   });
   const [reflection, setReflection] = useState('');
   const [audioStarted, setAudioStarted] = useState(false);
+  const [eventLogged, setEventLogged] = useState(false); // Track if we've already logged the journey_start event
 
   // Generate a chakra-specific background class
   const chakraClass = journeyData.chakra ? `chakra-${journeyData.chakra.toLowerCase().replace(/\s+/g, '-')}` : 'chakra-default';
@@ -65,28 +66,42 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
     if (!audioStarted && journeyData.audioFile) {
       // Start with a delay to allow the visual transition to complete
       setTimeout(() => {
-        const audioUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${journeyData.audioFile}`;
-        playAudio({
-          title: `${journeyData.title} Soundscape`,
-          source: audioUrl,
-          artist: "Sacred Shifter",
-          frequency: journeyData.frequency,
-          chakra: journeyData.chakra
-        });
-        setAudioStarted(true);
+        try {
+          const audioUrl = `https://mikltjgbvxrxndtszorb.supabase.co/storage/v1/object/public/frequency-assets/${journeyData.audioFile}`;
+          playAudio({
+            title: `${journeyData.title} Soundscape`,
+            source: audioUrl,
+            artist: "Sacred Shifter",
+            frequency: journeyData.frequency,
+            chakra: journeyData.chakra
+          });
+          setAudioStarted(true);
+        } catch (error) {
+          console.error("Failed to play audio:", error);
+          // Continue experience even if audio fails
+        }
       }, 2000);
     }
   }, [journeyData, audioStarted, playAudio]);
 
-  // On component mount, record journey start
+  // On component mount, record journey start - modified to prevent duplicate events
   useEffect(() => {
-    if (user?.id && journeyData.id) {
-      recordActivity('journey_start', {
-        journeyId: journeyData.id,
-        title: journeyData.title
-      });
+    if (user?.id && journeyData.id && !eventLogged) {
+      try {
+        // Log event with both recordActivity and logTimelineEvent for redundancy
+        recordActivity('journey_start', {
+          journeyId: journeyData.id,
+          title: journeyData.title,
+          chakra: journeyData.chakra
+        });
+        
+        setEventLogged(true); // Mark that we've logged the event
+      } catch (err) {
+        console.error("Error logging journey start:", err);
+        // Continue with journey experience even if logging fails
+      }
     }
-  }, [user?.id, journeyData.id, journeyData.title, recordActivity]);
+  }, [user?.id, journeyData.id, journeyData.title, recordActivity, eventLogged]);
 
   const completePhase = (phase: Exclude<JourneyPhase, 'complete'>) => {
     // Update completion state
