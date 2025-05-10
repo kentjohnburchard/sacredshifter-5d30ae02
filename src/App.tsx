@@ -1,38 +1,51 @@
-
 import React, { useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { JourneyProvider } from './context/JourneyContext';
 import { IntentionProvider } from './context/IntentionContext';
-import HomePage from './pages/HomePage';
-import Home from './pages/Home';
+import { useAuthentication } from './hooks/useAuthentication.tsx';
+
+// Pages
 import LandingPage from './pages/landing/LandingPage';
+import HomePage from './pages/HomePage';
 import FrequencyEnginePage from './pages/FrequencyEnginePage';
 import MusicLibrary from './pages/MusicLibrary';
 import DailyPracticePage from './pages/DailyPracticePage';
 import FrequencyDetailPage from './pages/FrequencyDetailPage';
 import Soundscapes from './pages/Soundscapes';
 import HermeticJourneyPage from './pages/HermeticJourneyPage';
-import NotFoundPage from './pages/NotFoundPage';
 import ComingSoonPage from './pages/ComingSoonPage';
+import NotFoundPage from './pages/NotFoundPage';
+
+// Journey Experience Pages
+import JourneyPage from './pages/JourneyPage';
+import JourneyPlayer from './components/frequency-journey/JourneyPlayer';
+import Journeys from './pages/JourneysPage';
+import JourneyIndex from './pages/JourneyIndex';
+import JourneyTemplatesPage from './pages/journey-templates';
+
+// Community & Info
+import AboutFounder from './pages/AboutFounder';
+import SacredCirclePage from './pages/SacredCirclePage';
+
+// Admin
 import AdminDashboard from './pages/admin/AdminDashboard';
 import JourneyAdmin from './pages/admin/JourneyAdmin';
 import FrequencyAdmin from './pages/admin/FrequencyAdmin';
 import UserAdmin from './pages/admin/UserAdmin';
 import JourneyAudioAdmin from './pages/admin/JourneyAudioAdmin';
 import JourneySoundscapesAdmin from './pages/admin/JourneySoundscapesAdmin';
-import { useAuthentication } from './hooks/useAuthentication.tsx';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   const { user } = useAuthentication();
   const navigate = useNavigate();
 
-  // Removing the redirect that forces users from homepage to frequency engine
+  // Optional redirect logic can be uncommented
   // useEffect(() => {
-  //   // Redirect authenticated users away from the landing page
   //   if (user && window.location.pathname === '/') {
-  //     navigate('/frequency-engine');
+  //     navigate('/home');
   //   }
   // }, [user, navigate]);
 
@@ -42,9 +55,12 @@ function App() {
         <JourneyProvider>
           <IntentionProvider>
             <Routes>
-              {/* Main Routes */}
+
+              {/* Public Routes */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/home" element={<HomePage />} />
+              <Route path="/about" element={<AboutFounder />} />
+              <Route path="/sacred-circle" element={<SacredCirclePage />} />
               <Route path="/frequency-engine" element={<FrequencyEnginePage />} />
               <Route path="/music-library" element={<MusicLibrary />} />
               <Route path="/daily-practice" element={<DailyPracticePage />} />
@@ -52,16 +68,30 @@ function App() {
               <Route path="/soundscapes" element={<Soundscapes />} />
               <Route path="/hermetic-journey" element={<HermeticJourneyPage />} />
               <Route path="/coming-soon" element={<ComingSoonPage />} />
+
+              {/* Journey Experience */}
+              <Route path="/journey/:slug" element={<JourneyPage />} />
+              <Route path="/journey-player" element={<JourneyPlayer />} />
+              <Route path="/journeys" element={<Journeys />} />
+              <Route path="/journey-index" element={<JourneyIndex />} />
+              <Route path="/journey-templates" element={<JourneyTemplatesPage />} />
+
+              {/* Admin (Protected) */}
+              <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/admin/journeys" element={<ProtectedRoute><JourneyAdmin /></ProtectedRoute>} />
+              <Route path="/admin/frequencies" element={<ProtectedRoute><FrequencyAdmin /></ProtectedRoute>} />
+              <Route path="/admin/users" element={<ProtectedRoute><UserAdmin /></ProtectedRoute>} />
+              <Route path="/admin/journey-audio" element={<ProtectedRoute><JourneyAudioAdmin /></ProtectedRoute>} />
+              <Route path="/admin/journeys/soundscapes" element={<ProtectedRoute><JourneySoundscapesAdmin /></ProtectedRoute>} />
+
+              {/* Optional Future Routes */}
+              {/* <Route path="/frequency-library" element={<FrequencyLibrary />} /> */}
+              {/* <Route path="/sacred-geometry" element={<SacredGeometryVisualizer />} /> */}
+              {/* <Route path="/lightbearer" element={<LightbearerPage />} /> */}
+
+              {/* Fallback */}
               <Route path="*" element={<NotFoundPage />} />
 
-              {/* Admin Routes */}
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/journeys" element={<JourneyAdmin />} />
-              <Route path="/admin/frequencies" element={<FrequencyAdmin />} />
-              <Route path="/admin/users" element={<UserAdmin />} />
-              <Route path="/admin/journey-audio" element={<JourneyAudioAdmin />} />
-              <Route path="/admin/journeys/soundscapes" element={<JourneySoundscapesAdmin />} />
-              
             </Routes>
           </IntentionProvider>
         </JourneyProvider>
