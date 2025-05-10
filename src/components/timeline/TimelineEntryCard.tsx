@@ -25,9 +25,9 @@ const TimelineEntryCard: React.FC<TimelineEntryCardProps> = ({ item }) => {
           </span>
         )}
         
-        {item.chakra_tag && (
+        {item.chakra && (
           <span className="text-xs px-2 py-0.5 bg-purple-900/50 border border-purple-500/20 rounded-full text-gray-200">
-            {item.chakra_tag}
+            {item.chakra}
           </span>
         )}
       </div>
