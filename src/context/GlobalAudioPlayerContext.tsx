@@ -1,6 +1,6 @@
 
 import React, { createContext, useState, useEffect, useRef, useCallback } from 'react';
-import { VisualRegistration, PlayerInfo, GlobalAudioPlayerContextType } from '@/types/audioPlayer';
+import { VisualRegistration, PlayerInfo, GlobalAudioPlayerContextType, PlayerState } from '@/types/audioPlayer';
 import { useAudioSetup } from '@/hooks/useAudioSetup';
 
 // Default context value
@@ -13,6 +13,12 @@ const defaultAudioContext: GlobalAudioPlayerContextType = {
   currentFrequency: null,
   activeFrequencies: [],
   activePrimeNumbers: [],
+  playerState: {
+    isBuffering: false,
+    isPlaying: false,
+    trackEnded: false,
+    error: null
+  },
   playAudio: () => {},
   togglePlayPause: () => {},
   seekTo: () => {},
@@ -43,6 +49,12 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
   const [currentFrequency, setCurrentFrequency] = useState<number | null>(null);
   const [activeFrequencies, setActiveFrequencies] = useState<number[]>([]);
   const [activePrimeNumbers, setActivePrimeNumbers] = useState<number[]>([]);
+  const [playerState, setPlayerState] = useState<PlayerState>({
+    isBuffering: false,
+    isPlaying: false,
+    trackEnded: false,
+    error: null
+  });
   
   // Use the shared audio setup hook
   const {
@@ -74,17 +86,20 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
     
     const handlePlay = () => {
       setIsPlaying(true);
+      setPlayerState(prev => ({...prev, isPlaying: true, trackEnded: false}));
       console.log("Audio play detected in GlobalAudioPlayerContext");
     };
     
     const handlePause = () => {
       setIsPlaying(false);
+      setPlayerState(prev => ({...prev, isPlaying: false}));
       console.log("Audio pause detected in GlobalAudioPlayerContext");
     };
     
     const handleEnded = () => {
       setIsPlaying(false);
       setCurrentTime(0);
+      setPlayerState(prev => ({...prev, isPlaying: false, trackEnded: true}));
       
       if (onEndedCallbackRef.current) {
         console.log("Triggering onEnded callback");
@@ -92,11 +107,27 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
       }
     };
     
+    const handleBuffering = () => {
+      setPlayerState(prev => ({...prev, isBuffering: true}));
+    };
+    
+    const handleCanPlay = () => {
+      setPlayerState(prev => ({...prev, isBuffering: false}));
+    };
+    
+    const handleError = (e: ErrorEvent) => {
+      setPlayerState(prev => ({...prev, error: new Error("Audio playback error")}));
+      console.error("Audio playback error:", e);
+    };
+    
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('durationchange', handleDurationChange);
     audio.addEventListener('play', handlePlay);
     audio.addEventListener('pause', handlePause);
     audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('waiting', handleBuffering);
+    audio.addEventListener('canplay', handleCanPlay);
+    audio.addEventListener('error', handleError as EventListener);
     
     return () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
@@ -104,6 +135,9 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
       audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('waiting', handleBuffering);
+      audio.removeEventListener('canplay', handleCanPlay);
+      audio.removeEventListener('error', handleError as EventListener);
     };
   }, [initializeAudioElement]);
   
@@ -120,6 +154,9 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
     }
     
     console.log("Playing audio:", info.title || "Unknown Track");
+    
+    // Reset track ended state
+    setPlayerState(prev => ({...prev, trackEnded: false, isBuffering: true}));
     
     // Set source and play
     audio.src = info.source || '';
@@ -148,6 +185,7 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
         })
         .catch(error => {
           console.error("Error playing audio:", error);
+          setPlayerState(prev => ({...prev, error: error as Error}));
         });
     }
   }, [currentAudio, isPlaying, volume, visualRegistrationsRef]);
@@ -163,6 +201,7 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
     } else if (audio.src) {
       audio.play().catch(error => {
         console.error("Error playing audio:", error);
+        setPlayerState(prev => ({...prev, error: error as Error}));
       });
     }
   }, [isPlaying]);
@@ -235,6 +274,12 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
     setCurrentTime(0);
     setDuration(0);
     setCurrentAudio(null);
+    setPlayerState({
+      isBuffering: false,
+      isPlaying: false,
+      trackEnded: false,
+      error: null
+    });
   }, []);
   
   // Force synchronization with visualizations
@@ -258,6 +303,7 @@ export const GlobalAudioPlayerProvider: React.FC<GlobalAudioPlayerProviderProps>
     currentFrequency,
     activeFrequencies,
     activePrimeNumbers,
+    playerState,
     playAudio,
     togglePlayPause,
     seekTo,

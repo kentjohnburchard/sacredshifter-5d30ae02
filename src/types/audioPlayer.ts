@@ -20,6 +20,13 @@ export interface VisualRegistration {
   onStop?: () => void;
 }
 
+export interface PlayerState {
+  isBuffering: boolean;
+  isPlaying: boolean;
+  trackEnded: boolean;
+  error: Error | null;
+}
+
 export interface GlobalAudioPlayerContextType {
   currentAudio: PlayerInfo | null;
   isPlaying: boolean;
@@ -29,6 +36,7 @@ export interface GlobalAudioPlayerContextType {
   currentFrequency: number | null;
   activeFrequencies: number[];
   activePrimeNumbers: number[];
+  playerState: PlayerState;
   playAudio: (info: PlayerInfo) => void;
   togglePlayPause: () => void;
   seekTo: (time: number) => void;

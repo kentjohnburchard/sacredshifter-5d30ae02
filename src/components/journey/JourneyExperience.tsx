@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useJourney } from '@/context/JourneyContext';
@@ -20,7 +19,7 @@ import ActivatingPhase from './phases/ActivatingPhase';
 import IntegrationPhase from './phases/IntegrationPhase';
 import JourneyProgress from './JourneyProgress';
 import SpiralVisualizer from '@/components/visualizer/SpiralVisualizer';
-import { useSpiralParams } from '@/hooks/useSpiralParams';
+import useSpiralParams from '@/hooks/useSpiralParams';
 
 // Types for journey phases
 export type JourneyPhase = 'grounding' | 'aligning' | 'activating' | 'integration' | 'complete';

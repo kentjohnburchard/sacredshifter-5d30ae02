@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { ChakraTag } from '@/types/chakras';
 import SpiralVisualizer from '@/components/visualizer/SpiralVisualizer';
-import { useSpiralParams } from '@/hooks/useSpiralParams';
+import useSpiralParams from '@/hooks/useSpiralParams';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Save, RotateCcw, Eye } from 'lucide-react';
