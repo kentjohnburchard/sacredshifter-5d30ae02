@@ -20,10 +20,10 @@ import FrequencyAdmin from './pages/admin/FrequencyAdmin';
 import UserAdmin from './pages/admin/UserAdmin';
 import JourneyAudioAdmin from './pages/admin/JourneyAudioAdmin';
 import JourneySoundscapesAdmin from './pages/admin/JourneySoundscapesAdmin';
-import { useAuth } from './hooks/useAuthentication';
+import { useAuthentication } from './hooks/useAuthentication.tsx';
 
 function App() {
-  const { user } = useAuth();
+  const { user } = useAuthentication();
   const navigate = useNavigate();
 
   useEffect(() => {

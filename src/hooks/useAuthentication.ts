@@ -159,3 +159,6 @@ export function useAuthentication() {
     isAuthenticated: !!user
   };
 }
+
+// Also export as useAuth to be compatible with both import forms
+export const useAuth = useAuthentication;
