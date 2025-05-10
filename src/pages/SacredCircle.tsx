@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { useCommunity } from '@/contexts/CommunityContext';
+import { CommunityProvider } from '@/contexts/CommunityContext';
 import { useAuth } from '@/context/AuthContext';
 import { Sun, Moon, Undo2, Users, Search, MessageCircle, User } from 'lucide-react';
 
@@ -87,7 +87,6 @@ const SacredCircle: React.FC = () => {
   const [filteredProfiles, setFilteredProfiles] = useState<LightbearerProfile[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [alignmentFilter, setAlignmentFilter] = useState<string | null>(null);
-  const { getUserProfile } = useCommunity();
   
   // Initialize with mock data for now
   useEffect(() => {
@@ -135,8 +134,8 @@ const SacredCircle: React.FC = () => {
       showNavbar={true}
       showContextActions={true}
     >
-      <div className="container mx-auto py-8 px-4">
-        <div className="max-w-7xl mx-auto">
+      <CommunityProvider>
+        <div className="container mx-auto py-8 px-4">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -340,7 +339,7 @@ const SacredCircle: React.FC = () => {
             </Button>
           </div>
         </div>
-      </div>
+      </CommunityProvider>
     </Layout>
   );
 };

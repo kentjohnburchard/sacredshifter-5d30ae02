@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 
 // Import pages needed for dev testing
 import HomePage from '../pages/HomePage';
@@ -29,21 +29,19 @@ const LovablePlayground: React.FC = () => {
 
 /**
  * DevRouter - Isolated routing layer for development and testing
- * This router is completely separate from the main application routing
- * and can be mounted independently for testing purposes.
+ * This router uses the same Router instance as the main application
+ * and simply adds extra routes for development purposes.
  */
 const DevRouter: React.FC = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/dev/home" element={<HomePage />} />
-        <Route path="/dev/frequency-engine" element={<FrequencyEnginePage />} />
-        <Route path="/dev/journey/:slug" element={<JourneyPage />} />
-        <Route path="/dev/sacred-circle" element={<SacredCirclePage />} />
-        <Route path="/dev/sandbox" element={<LovablePlayground />} />
-        <Route path="/dev" element={<LovablePlayground />} />
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      <Route path="/dev/home" element={<HomePage />} />
+      <Route path="/dev/frequency-engine" element={<FrequencyEnginePage />} />
+      <Route path="/dev/journey/:slug" element={<JourneyPage />} />
+      <Route path="/dev/sacred-circle" element={<SacredCirclePage />} />
+      <Route path="/dev/sandbox" element={<LovablePlayground />} />
+      <Route path="/dev" element={<LovablePlayground />} />
+    </Routes>
   );
 };
 
