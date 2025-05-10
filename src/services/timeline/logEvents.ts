@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { formatJourneyId } from './formatters';
 import { TimelineEventDetails } from './types';
@@ -6,6 +5,7 @@ import { JourneyTimelineEvent } from '@/types/journey';
 
 /**
  * Log a timeline event for the current user
+ * Returns a boolean indicating success or failure
  */
 export const logTimelineEvent = async (
   tag: JourneyTimelineEvent,
@@ -44,7 +44,6 @@ export const logTimelineEvent = async (
       // If we can't generate a valid UUID, don't include journey_id in the insert
       if (journey_id === null) {
         console.log(`Cannot log timeline event with journey ID - invalid format for ${sanitizedDetails.journeyId}`);
-        // Continue with the insert but without the journey_id
       }
     }
     
@@ -52,20 +51,18 @@ export const logTimelineEvent = async (
     const validTag = tag ? String(tag).replace(/_/g, ' ') : 'event';
     
     // Build the insert record
-    const insertRecord = {
+    const insertRecord: Record<string, any> = {
       user_id: userId,
       tag: validTag,
       title: sanitizedDetails.title || validTag,
       component: sanitizedDetails.component,
       notes: sanitizedDetails.notes,
-      frequency: sanitizedDetails.frequency,
-      chakra: sanitizedDetails.chakra,
+      chakra_tag: sanitizedDetails.chakra,
       details: sanitizedDetails
     };
     
     // Only include journey_id if it's valid
     if (journey_id !== null) {
-      // @ts-ignore: Adding journey_id to the object
       insertRecord.journey_id = journey_id;
     }
     
@@ -81,40 +78,6 @@ export const logTimelineEvent = async (
     return true;
   } catch (error) {
     console.error('Error in logTimelineEvent:', error);
-    return false;
-  }
-};
-
-/**
- * Record a journey event in the timeline
- */
-export const recordJourneyEvent = async (
-  userId: string,
-  tag: string,
-  title: string,
-  component?: string,
-  details?: any
-): Promise<boolean> => {
-  try {
-    const { error } = await supabase
-      .from('timeline_snapshots')
-      .insert({
-        user_id: userId,
-        tag,
-        title,
-        component,
-        details,
-        created_at: new Date().toISOString()
-      });
-    
-    if (error) {
-      console.error('Error recording journey event:', error);
-      return false;
-    }
-    
-    return true;
-  } catch (error) {
-    console.error('Error in recordJourneyEvent:', error);
     return false;
   }
 };
@@ -162,4 +125,15 @@ export const createTimelineItem = async (
     console.error('Error in createTimelineItem:', error);
     return false;
   }
+};
+
+// Keeping this function for backward compatibility
+export const recordJourneyEvent = async (
+  userId: string,
+  tag: string,
+  title: string,
+  component?: string,
+  details?: any
+): Promise<boolean> => {
+  return createTimelineItem(userId, title, tag, details, undefined, undefined);
 };

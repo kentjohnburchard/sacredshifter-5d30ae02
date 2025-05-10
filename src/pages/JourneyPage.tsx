@@ -1,20 +1,17 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageLayout } from '@/components/layout/PageLayout';
-import ReactMarkdown from 'react-markdown';
 import { fetchJourneyBySlug } from '@/services/journeyService';
 import { Journey } from '@/types/journey';
-import { parseJourneyContent, removeFrontmatter, parseJourneyFrontmatter } from '@/utils/journeyLoader';
-import JourneyAwareSoundscapePlayer from '@/components/journey/JourneyAwareSoundscapePlayer';
-import JourneyAwareSpiralVisualizer from '@/components/visualizer/JourneyAwareSpiralVisualizer';
-import JourneyTimelineView from '@/components/timeline/JourneyTimelineView';
-import { Card, CardContent } from '@/components/ui/card';
+import { parseJourneyContent } from '@/utils/journeyLoader';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
 import { useJourney } from '@/context/JourneyContext';
-import { Button } from '@/components/ui/button';
-import { Play, CirclePause, History, Headphones, ArrowLeft } from 'lucide-react';
-import { normalizeStringArray } from '@/utils/parsers';
 import { toast } from 'sonner';
-import { motion } from 'framer-motion';
+import JourneyContent from '@/components/journey/JourneyContent';
+import JourneySidebar from '@/components/journey/JourneySidebar';
+import JourneyAwareSpiralVisualizer from '@/components/visualizer/JourneyAwareSpiralVisualizer';
 
 interface CoreJourneyLoaderResult {
   content: string;
@@ -42,22 +39,16 @@ const loadCoreJourneyContent = async (slug: string): Promise<CoreJourneyLoaderRe
       const filename = matchingFile.split('/').pop()?.replace('.md', '') || '';
       
       // Parse frontmatter to get journey metadata
-      const frontmatter = parseJourneyFrontmatter(content);
-      
-      // Create a journey object from the content
       const parsedContent = parseJourneyContent(content);
-      
-      // Ensure tags is an array
-      const tags = normalizeStringArray(frontmatter.tags || []);
       
       const journey: Journey = {
         id: filename, 
         filename,
-        title: frontmatter.title || filename.replace(/_/g, ' '),
-        description: frontmatter.intent || '',
-        veil_locked: frontmatter.veil || false,
-        sound_frequencies: frontmatter.frequency?.toString() || parsedContent.frequencies || '',
-        tags: tags,
+        title: parsedContent.title || filename.replace(/_/g, ' '),
+        description: parsedContent.intent || '',
+        veil_locked: parsedContent.veil || false,
+        sound_frequencies: parsedContent.frequency?.toString() || parsedContent.frequencies || '',
+        tags: parsedContent.tags || [],
         content: content
       };
       
@@ -78,6 +69,7 @@ const JourneyPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [hasAudioContent, setHasAudioContent] = useState(false);
   const [showTimeline, setShowTimeline] = useState(true);
+  const [transitionActive, setTransitionActive] = useState(true);
   
   const { 
     activeJourney, 
@@ -129,6 +121,11 @@ const JourneyPage: React.FC = () => {
         // Determine if there's audio content based on metadata
         setHasAudioContent(!!journeyData.sound_frequencies || !!journeyData.audio_filename);
         setJourney(journeyData);
+        
+        // Begin entrance transition
+        setTimeout(() => {
+          setTransitionActive(false);
+        }, 1500);
       } catch (error) {
         console.error('Error loading journey:', error);
         toast.error("Error loading journey");
@@ -140,35 +137,16 @@ const JourneyPage: React.FC = () => {
     loadJourney();
   }, [slug]);
 
-  // Function to render markdown content with proper styling
-  const renderMarkdownContent = () => {
-    if (!content) return null;
-    
-    return (
-      <div className="prose prose-invert max-w-none text-white leading-relaxed">
-        <ReactMarkdown>{removeFrontmatter(content)}</ReactMarkdown>
-      </div>
-    );
-  };
-
   // Start journey function - creates timeline event and activates journey context
   const handleStartJourney = () => {
     if (journey) {
       console.log("Starting journey:", journey.title);
       
-      // Convert tags to string array if needed
-      const journeyTags = normalizeStringArray(journey.tags);
-      
-      const formattedJourney: Journey = {
-        ...journey,
-        tags: journeyTags
-      };
-      
       // Record the start of the journey in the timeline
       try {
         recordActivity('journey_start', { 
-          journeyId: formattedJourney.id,
-          title: formattedJourney.title
+          journeyId: journey.id,
+          title: journey.title
         });
       } catch (timelineError) {
         console.warn('Failed to log journey start to timeline:', timelineError);
@@ -176,7 +154,7 @@ const JourneyPage: React.FC = () => {
       }
       
       // Start the journey in the context
-      startJourney(formattedJourney);
+      startJourney(journey);
       toast.success("Sacred journey initiated");
     }
   };
@@ -207,19 +185,6 @@ const JourneyPage: React.FC = () => {
   
   // Check if the currently loaded journey matches the active journey
   const isCurrentJourneyActive = isJourneyActive && activeJourney?.id === journey?.id;
-
-  // Extract tags from content if available
-  const extractTagsFromContent = () => {
-    if (!content) return [];
-    
-    const frontmatter = parseJourneyFrontmatter(content);
-    if (frontmatter.tags) {
-      return normalizeStringArray(frontmatter.tags);
-    }
-    return [];
-  };
-
-  const journeyTags = journey?.tags?.length ? journey.tags : extractTagsFromContent();
 
   return (
     <PageLayout 
@@ -255,115 +220,49 @@ const JourneyPage: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left column: Spiral visualizer and audio player */}
-            <div className="lg:col-span-1 space-y-4">
-              <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl overflow-hidden">
-                <div className="h-64 relative">
-                  <JourneyAwareSpiralVisualizer 
-                    journeyId={journey?.id}
-                    autoSync={false}
-                    showControls={true}
-                    containerId={`journeySpiral-${slug}`}
-                    className="absolute inset-0 w-full h-full"
-                  />
-                </div>
-                <CardContent className="p-4">
-                  <h3 className="text-lg font-semibold mb-2 text-white">Sacred Frequencies</h3>
-                  <div className="text-sm text-white/80">
-                    {journey?.sound_frequencies || 'No frequency information available'}
-                  </div>
-                  
-                  <div className="flex justify-between items-center mt-4">
-                    {!isCurrentJourneyActive ? (
-                      <Button 
-                        onClick={handleStartJourney} 
-                        className="bg-purple-600 hover:bg-purple-700"
-                      >
-                        <Play className="h-4 w-4 mr-2" />
-                        Start Journey
-                      </Button>
-                    ) : (
-                      <Button 
-                        onClick={handleCompleteJourney} 
-                        variant="outline"
-                        className="border-purple-500/50 text-purple-200"
-                      >
-                        <CirclePause className="h-4 w-4 mr-2" />
-                        Complete Journey
-                      </Button>
-                    )}
-                    
-                    <Button 
-                      onClick={toggleTimeline} 
-                      variant="ghost"
-                      className="text-purple-200"
-                      title="Toggle Timeline"
-                    >
-                      <History className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              {/* Render audio player if journey has sound frequencies */}
-              {hasAudioContent && (
-                <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-lg font-semibold text-white">Sacred Audio</h3>
-                      <Headphones className="h-4 w-4 text-purple-300" />
-                    </div>
-                    
-                    {slug && (
-                      <JourneyAwareSoundscapePlayer 
-                        journeyId={slug} 
-                        autoSync={false}
-                        autoplay={false} 
-                      />
-                    )}
-                  </CardContent>
-                </Card>
-              )}
-              
-              {/* Journey Timeline (conditionally shown) */}
-              {showTimeline && (
-                <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl">
-                  <CardContent className="p-4">
-                    <h3 className="text-lg font-semibold mb-2 text-white">Journey Timeline</h3>
-                    <JourneyTimelineView 
-                      journeyId={journey?.id}
-                      autoSync={false}
-                      limit={5}
-                    />
-                  </CardContent>
-                </Card>
-              )}
+            <div className="lg:col-span-1">
+              <JourneySidebar
+                journey={journey}
+                hasAudioContent={hasAudioContent}
+                showTimeline={showTimeline}
+                isCurrentJourneyActive={isCurrentJourneyActive}
+                slug={slug}
+                handleStartJourney={handleStartJourney}
+                handleCompleteJourney={handleCompleteJourney}
+                toggleTimeline={toggleTimeline}
+              />
             </div>
             
             {/* Right column: Journey content */}
             <div className="lg:col-span-2">
-              <Card className="bg-black/80 backdrop-blur-lg border-purple-500/30 shadow-xl">
-                <CardContent className="p-6">
-                  <h1 className="text-3xl font-bold mb-4 text-white">{journey?.title}</h1>
-                  
-                  {journeyTags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {journeyTags.map((tag, i) => (
-                        <span key={i} className="px-2 py-1 bg-purple-900/60 rounded-full text-xs text-white font-medium">
-                          {tag.trim()}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  
-                  <div className="mt-6 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-                    {renderMarkdownContent()}
-                  </div>
-                </CardContent>
-              </Card>
+              <JourneyContent journey={journey} content={content} />
             </div>
           </div>
         )}
       </div>
+      
+      <AnimatePresence>
+        {transitionActive && (
+          <motion.div
+            className="fixed inset-0 z-50 bg-black flex items-center justify-center"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.5 }}
+          >
+            <motion.div 
+              className="text-center"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.7 }}
+            >
+              <h2 className="text-3xl font-semibold mb-3 text-white">{journey?.title}</h2>
+              <p className="text-purple-300 italic">
+                {journey?.description || "Begin your sacred journey..."}
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </PageLayout>
   );
 };

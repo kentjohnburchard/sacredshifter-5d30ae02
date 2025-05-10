@@ -2,14 +2,14 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Play, Info, Timer, Headphones, HeadphoneOff, Volume2 } from 'lucide-react';
+import { ArrowLeft, Play } from 'lucide-react';
 import { JourneyTemplate } from '@/data/journeyTemplates';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useJourneySongs } from '@/hooks/useJourneySongs';
 import JourneySongList from './JourneySongList';
-import { Switch } from "@/components/ui/switch";
-import { Slider } from "@/components/ui/slider";
+import JourneySettings from './JourneySettings';
+import JourneyFrequencies from './JourneyFrequencies';
 
 interface JourneyDetailProps {
   template: JourneyTemplate;
@@ -58,12 +58,6 @@ const JourneyDetail: React.FC<JourneyDetailProps> = ({
     toast.info('Song upload functionality coming soon');
   };
 
-  // Format the timers for display
-  const formatTimer = (minutes: number) => {
-    if (minutes === 0) return "No timer";
-    return `${minutes} minute${minutes > 1 ? 's' : ''}`;
-  };
-
   // Clean guided prompt text by removing \n characters
   const cleanGuidedPrompt = template.guidedPrompt?.replace(/\\n/g, ' ') || '';
 
@@ -84,36 +78,7 @@ const JourneyDetail: React.FC<JourneyDetailProps> = ({
             <div className="space-y-2 text-gray-700">
               <p><span className="font-medium">Purpose:</span> {template.purpose}</p>
               
-              <div className="mt-4">
-                <h4 className="text-md font-medium mb-2">Frequencies</h4>
-                <ul className="space-y-1">
-                  {template.frequencies.map((freq, index) => (
-                    <li key={index} className="flex gap-2">
-                      <span className="text-purple-600 font-medium">{freq.name}:</span> 
-                      <span>{freq.value}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              
-              {template.chakras && template.chakras.length > 0 && (
-                <p><span className="font-medium">Chakras:</span> {template.chakras.join(', ')}</p>
-              )}
-              
-              {template.visualTheme && (
-                <p><span className="font-medium">Visual Theme:</span> {template.visualTheme}</p>
-              )}
-              
-              {template.soundSources && template.soundSources.length > 0 && (
-                <div>
-                  <span className="font-medium">Sound Sources:</span>
-                  <ul className="list-disc pl-5">
-                    {template.soundSources.map((source, idx) => (
-                      <li key={idx}>{source}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              <JourneyFrequencies template={template} />
             </div>
           </div>
           
@@ -142,76 +107,16 @@ const JourneyDetail: React.FC<JourneyDetailProps> = ({
         </div>
         
         {/* Journey Settings */}
-        <div className="mb-6">
-          <h3 className="text-lg font-medium mb-3 text-purple-700">Journey Settings</h3>
-          <div className="space-y-4 bg-gray-50 p-4 rounded-md">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Volume2 className="h-4 w-4 text-purple-600" />
-                <span className="text-sm font-medium">Low Sensitivity Mode</span>
-              </div>
-              <Switch 
-                checked={lowSensitivityMode}
-                onCheckedChange={setLowSensitivityMode}
-              />
-              <span className="text-xs text-gray-500 ml-2 w-20">
-                {lowSensitivityMode ? 'Enabled' : 'Disabled'}
-              </span>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {useHeadphones ? (
-                  <Headphones className="h-4 w-4 text-purple-600" />
-                ) : (
-                  <HeadphoneOff className="h-4 w-4 text-purple-600" />
-                )}
-                <span className="text-sm font-medium">Use Headphones</span>
-              </div>
-              <Switch 
-                checked={useHeadphones}
-                onCheckedChange={setUseHeadphones}
-              />
-              <span className="text-xs text-gray-500 ml-2 w-20">
-                {useHeadphones ? 'Headphones' : 'Speakers'}
-              </span>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Timer className="h-4 w-4 text-purple-600" />
-                <span className="text-sm font-medium">Sleep Timer: {formatTimer(sleepTimer)}</span>
-              </div>
-              <Slider
-                min={0}
-                max={60}
-                step={5}
-                value={[sleepTimer]}
-                onValueChange={(value) => setSleepTimer(value[0])}
-                className="w-full"
-              />
-              <div className="flex justify-between text-xs text-gray-500">
-                <span>Off</span>
-                <span>30 min</span>
-                <span>60 min</span>
-              </div>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Info className="h-4 w-4 text-purple-600" />
-                <span className="text-sm font-medium">Save to Timeline</span>
-              </div>
-              <Switch 
-                checked={saveToTimeline}
-                onCheckedChange={setSaveToTimeline}
-              />
-              <span className="text-xs text-gray-500 ml-2 w-20">
-                {saveToTimeline ? 'Enabled' : 'Disabled'}
-              </span>
-            </div>
-          </div>
-        </div>
+        <JourneySettings
+          lowSensitivityMode={lowSensitivityMode}
+          setLowSensitivityMode={setLowSensitivityMode}
+          useHeadphones={useHeadphones}
+          setUseHeadphones={setUseHeadphones}
+          sleepTimer={sleepTimer}
+          setSleepTimer={setSleepTimer}
+          saveToTimeline={saveToTimeline}
+          setSaveToTimeline={setSaveToTimeline}
+        />
         
         <div className="mb-6">
           <JourneySongList

@@ -42,15 +42,21 @@ export const formatJourneyId = (id?: string | number): string | null => {
     return createPseudoUUID(strId);
   }
   
-  // Handle journey- prefixed IDs (from previous implementation)
+  // Handle legacy journey- prefixed IDs
   if (strId.startsWith('journey-')) {
-    console.warn(`Converting journey-prefixed ID to UUID format: ${strId}`);
+    // If it's already a UUID format with journey- prefix, extract it
+    if (isValidUUID(strId.replace('journey-', ''))) {
+      return strId.replace('journey-', '');
+    }
+    
+    // For numeric journey IDs with prefix
     const numPart = strId.replace('journey-', '').split('-')[0].replace(/^0+/, '');
     if (numPart && /^\d+$/.test(numPart)) {
       return createPseudoUUID(numPart);
     }
   }
   
+  // For any other format, log a warning but don't break functionality
   console.warn(`Invalid journey ID format: ${strId}, cannot log timeline event`);
   return null;
 };

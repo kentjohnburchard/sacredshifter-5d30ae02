@@ -1,16 +1,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { useJourneyTemplates } from '@/hooks/useJourneyTemplates';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
-import { Loader2, Music, Upload, Eye } from 'lucide-react';
-import { toast } from 'sonner';
+import { Upload } from 'lucide-react';
 import { JourneyTemplate } from '@/data/journeyTemplates';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AudioMappingForm from './AudioMappingForm';
+import VisualMappingForm from './VisualMappingForm';
 
 interface JourneyAudioMapperProps {
   onlyShowTemplatesWithoutAudio?: boolean;
@@ -20,12 +16,6 @@ const JourneyAudioMapper: React.FC<JourneyAudioMapperProps> = ({ onlyShowTemplat
   const { templates, audioMappings, addAudioMapping, addVisualMapping } = useJourneyTemplates();
   const [filteredTemplates, setFilteredTemplates] = useState<JourneyTemplate[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
-  const [audioFileName, setAudioFileName] = useState<string>('');
-  const [audioUrl, setAudioUrl] = useState<string>('');
-  const [visualFileName, setVisualFileName] = useState<string>('');
-  const [visualUrl, setVisualUrl] = useState<string>('');
-  const [isPrimary, setIsPrimary] = useState<boolean>(true);
-  const [loading, setLoading] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>('audio');
 
   // Filter templates based on the prop
@@ -44,67 +34,6 @@ const JourneyAudioMapper: React.FC<JourneyAudioMapperProps> = ({ onlyShowTemplat
     }
   }, [templates, audioMappings, onlyShowTemplatesWithoutAudio]);
 
-  const handleAudioSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!selectedTemplate) {
-      toast.error('Please select a journey template');
-      return;
-    }
-    
-    if (!audioFileName) {
-      toast.error('Please enter an audio file name');
-      return;
-    }
-    
-    try {
-      setLoading(true);
-      await addAudioMapping(selectedTemplate, audioFileName, audioUrl || undefined, isPrimary);
-      
-      // Reset form
-      setAudioFileName('');
-      setAudioUrl('');
-      setIsPrimary(true);
-      
-      toast.success('Audio mapping added successfully');
-    } catch (error) {
-      console.error('Error adding audio mapping:', error);
-      toast.error('Failed to add audio mapping');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVisualSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!selectedTemplate) {
-      toast.error('Please select a journey template');
-      return;
-    }
-    
-    if (!visualFileName) {
-      toast.error('Please enter a visual file name');
-      return;
-    }
-    
-    try {
-      setLoading(true);
-      await addVisualMapping(selectedTemplate, visualFileName, visualUrl || undefined);
-      
-      // Reset form
-      setVisualFileName('');
-      setVisualUrl('');
-      
-      toast.success('Visual mapping added successfully');
-    } catch (error) {
-      console.error('Error adding visual mapping:', error);
-      toast.error('Failed to add visual mapping');
-    } finally {
-      setLoading(false);
-    }
-  };
-  
   // Get current mappings for the selected template
   const getCurrentMappings = () => {
     if (!selectedTemplate) return [];
@@ -129,83 +58,12 @@ const JourneyAudioMapper: React.FC<JourneyAudioMapperProps> = ({ onlyShowTemplat
             <Card>
               <CardContent className="p-4 space-y-4">
                 <h3 className="text-lg font-medium">Add Audio Mapping</h3>
-                <form onSubmit={handleAudioSubmit} className="space-y-4">
-                  <div>
-                    <Label htmlFor="template">Journey Template</Label>
-                    <Select 
-                      value={selectedTemplate} 
-                      onValueChange={setSelectedTemplate}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a template" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {filteredTemplates.map(template => (
-                          <SelectItem key={template.id} value={template.id}>
-                            {template.title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="fileName">Audio File Name</Label>
-                    <div className="flex items-center gap-2">
-                      <Input 
-                        id="fileName" 
-                        value={audioFileName}
-                        onChange={(e) => setAudioFileName(e.target.value)}
-                        placeholder="journey/your-audio-file.mp3"
-                      />
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Path in Supabase storage, e.g., "journey/meditation.mp3"
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="url">Custom Audio URL (Optional)</Label>
-                    <Input 
-                      id="url" 
-                      value={audioUrl}
-                      onChange={(e) => setAudioUrl(e.target.value)}
-                      placeholder="https://example.com/audio.mp3"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Leave empty to use Supabase storage URL based on file name
-                    </p>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <input 
-                      type="checkbox" 
-                      id="isPrimary" 
-                      checked={isPrimary}
-                      onChange={(e) => setIsPrimary(e.target.checked)}
-                      className="h-4 w-4 rounded border-gray-300"
-                    />
-                    <Label htmlFor="isPrimary">Set as primary audio for this journey</Label>
-                  </div>
-                  
-                  <Button 
-                    type="submit" 
-                    disabled={loading || !selectedTemplate || !audioFileName}
-                    className="w-full"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Music className="mr-2 h-4 w-4" />
-                        Add Audio Mapping
-                      </>
-                    )}
-                  </Button>
-                </form>
+                <AudioMappingForm 
+                  templates={filteredTemplates}
+                  selectedTemplate={selectedTemplate}
+                  setSelectedTemplate={setSelectedTemplate}
+                  onAddMapping={addAudioMapping}
+                />
               </CardContent>
             </Card>
             
@@ -238,72 +96,12 @@ const JourneyAudioMapper: React.FC<JourneyAudioMapperProps> = ({ onlyShowTemplat
             <Card>
               <CardContent className="p-4 space-y-4">
                 <h3 className="text-lg font-medium">Add Visual Element Mapping</h3>
-                <form onSubmit={handleVisualSubmit} className="space-y-4">
-                  <div>
-                    <Label htmlFor="visualTemplate">Journey Template</Label>
-                    <Select 
-                      value={selectedTemplate} 
-                      onValueChange={setSelectedTemplate}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a template" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {filteredTemplates.map(template => (
-                          <SelectItem key={template.id} value={template.id}>
-                            {template.title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="visualFileName">Visual File Name</Label>
-                    <div className="flex items-center gap-2">
-                      <Input 
-                        id="visualFileName" 
-                        value={visualFileName}
-                        onChange={(e) => setVisualFileName(e.target.value)}
-                        placeholder="visuals/your-scene.glb"
-                      />
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Path in Supabase storage, e.g., "visuals/meditation-scene.glb"
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="visualUrl">Custom Visual URL (Optional)</Label>
-                    <Input 
-                      id="visualUrl" 
-                      value={visualUrl}
-                      onChange={(e) => setVisualUrl(e.target.value)}
-                      placeholder="https://example.com/scene.glb"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Leave empty to use Supabase storage URL based on file name
-                    </p>
-                  </div>
-                  
-                  <Button 
-                    type="submit" 
-                    disabled={loading || !selectedTemplate || !visualFileName}
-                    className="w-full"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Eye className="mr-2 h-4 w-4" />
-                        Add Visual Mapping
-                      </>
-                    )}
-                  </Button>
-                </form>
+                <VisualMappingForm 
+                  templates={filteredTemplates}
+                  selectedTemplate={selectedTemplate}
+                  setSelectedTemplate={setSelectedTemplate}
+                  onAddMapping={addVisualMapping}
+                />
               </CardContent>
             </Card>
             

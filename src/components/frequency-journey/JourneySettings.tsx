@@ -1,178 +1,107 @@
-import React from "react";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { 
-  Select, 
-  SelectTrigger, 
-  SelectValue, 
-  SelectContent, 
-  SelectItem
-} from "@/components/ui/select";
-import { 
-  Headphones, 
-  Volume2, 
-  Waves, 
-  Timer
-} from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-export interface JourneySettingsValues {
-  lowSensitivityMode: boolean;
-  useHeadphones: boolean;
-  pinkNoise: boolean;
-  sleepTimer: number; // 0 means off, otherwise minutes
-  saveToTimeline: boolean;
-}
+import React, { useState } from 'react';
+import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
+import { Volume2, Headphones, HeadphoneOff, Timer, Info } from 'lucide-react';
 
 interface JourneySettingsProps {
-  settings: JourneySettingsValues;
-  onChange: (settings: Partial<JourneySettingsValues>) => void;
-  disabled?: boolean;
+  lowSensitivityMode: boolean;
+  setLowSensitivityMode: (value: boolean) => void;
+  useHeadphones: boolean;
+  setUseHeadphones: (value: boolean) => void;
+  sleepTimer: number;
+  setSleepTimer: (value: number) => void;
+  saveToTimeline: boolean;
+  setSaveToTimeline: (value: boolean) => void;
 }
 
-const JourneySettings: React.FC<JourneySettingsProps> = ({ 
-  settings, 
-  onChange, 
-  disabled = false 
+const JourneySettings: React.FC<JourneySettingsProps> = ({
+  lowSensitivityMode,
+  setLowSensitivityMode,
+  useHeadphones,
+  setUseHeadphones,
+  sleepTimer,
+  setSleepTimer,
+  saveToTimeline,
+  setSaveToTimeline
 }) => {
+  // Format the timers for display
+  const formatTimer = (minutes: number) => {
+    if (minutes === 0) return "No timer";
+    return `${minutes} minute${minutes > 1 ? 's' : ''}`;
+  };
+
   return (
-    <TooltipProvider delayDuration={300}>
-      <div className="bg-white/80 backdrop-blur-sm rounded-lg border border-purple-100 p-4 space-y-4">
-        <h3 className="text-purple-800 font-medium mb-2">Journey Settings</h3>
+    <div className="mb-6">
+      <h3 className="text-lg font-medium mb-3 text-purple-700">Journey Settings</h3>
+      <div className="space-y-4 bg-gray-50 p-4 rounded-md">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Volume2 className="h-4 w-4 text-purple-600" />
+            <span className="text-sm font-medium">Low Sensitivity Mode</span>
+          </div>
+          <Switch 
+            checked={lowSensitivityMode}
+            onCheckedChange={setLowSensitivityMode}
+          />
+          <span className="text-xs text-gray-500 ml-2 w-20">
+            {lowSensitivityMode ? 'Enabled' : 'Disabled'}
+          </span>
+        </div>
         
-        <div className="space-y-3">
-          {/* Low Sensitivity Mode Toggle */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Volume2 className="h-4 w-4 text-purple-600" />
-              <Label htmlFor="low-sensitivity" className="text-sm text-gray-700">
-                Low Sensitivity Mode
-              </Label>
-              
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-purple-100 text-purple-600 text-xs font-medium cursor-help">?</span>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs">
-                  Limits high-pitched overtones. Applies a filter to reduce sharp sounds.
-                </TooltipContent>
-              </Tooltip>
-            </div>
-            
-            <Switch
-              id="low-sensitivity"
-              checked={settings.lowSensitivityMode}
-              onCheckedChange={(checked) => onChange({ lowSensitivityMode: checked })}
-              disabled={disabled}
-              className="data-[state=checked]:bg-purple-600"
-            />
-          </div>
-          
-          {/* Use Headphones Toggle */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {useHeadphones ? (
               <Headphones className="h-4 w-4 text-purple-600" />
-              <Label htmlFor="use-headphones" className="text-sm text-gray-700">
-                Enable Binaural Mode
-              </Label>
-              
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-purple-100 text-purple-600 text-xs font-medium cursor-help">?</span>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs">
-                  Intended for optimal experience with headphones.
-                </TooltipContent>
-              </Tooltip>
-            </div>
-            
-            <Switch
-              id="use-headphones"
-              checked={settings.useHeadphones}
-              onCheckedChange={(checked) => onChange({ useHeadphones: checked })}
-              disabled={disabled}
-              className="data-[state=checked]:bg-purple-600"
-            />
+            ) : (
+              <HeadphoneOff className="h-4 w-4 text-purple-600" />
+            )}
+            <span className="text-sm font-medium">Use Headphones</span>
           </div>
-          
-          {/* Pink Noise Toggle */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Waves className="h-4 w-4 text-purple-600" />
-              <Label htmlFor="pink-noise" className="text-sm text-gray-700">
-                Add Pink Noise
-              </Label>
-              
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-purple-100 text-purple-600 text-xs font-medium cursor-help">?</span>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs">
-                  Smooth background static to mask ringing.
-                </TooltipContent>
-              </Tooltip>
-            </div>
-            
-            <Switch
-              id="pink-noise"
-              checked={settings.pinkNoise}
-              onCheckedChange={(checked) => onChange({ pinkNoise: checked })}
-              disabled={disabled}
-              className="data-[state=checked]:bg-purple-600"
-            />
+          <Switch 
+            checked={useHeadphones}
+            onCheckedChange={setUseHeadphones}
+          />
+          <span className="text-xs text-gray-500 ml-2 w-20">
+            {useHeadphones ? 'Headphones' : 'Speakers'}
+          </span>
+        </div>
+        
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Timer className="h-4 w-4 text-purple-600" />
+            <span className="text-sm font-medium">Sleep Timer: {formatTimer(sleepTimer)}</span>
           </div>
-          
-          {/* Sleep Timer Dropdown */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Timer className="h-4 w-4 text-purple-600" />
-              <Label htmlFor="sleep-timer" className="text-sm text-gray-700">
-                Sleep Timer
-              </Label>
-              
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-purple-100 text-purple-600 text-xs font-medium cursor-help">?</span>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs">
-                  Automatically stops audio playback after selected time.
-                </TooltipContent>
-              </Tooltip>
-            </div>
-            
-            <Select
-              value={settings.sleepTimer.toString()}
-              onValueChange={(value) => onChange({ sleepTimer: parseInt(value) })}
-              disabled={disabled}
-            >
-              <SelectTrigger className="w-[120px]">
-                <SelectValue placeholder="Select" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="0">Off</SelectItem>
-                <SelectItem value="5">5 minutes</SelectItem>
-                <SelectItem value="30">30 minutes</SelectItem>
-                <SelectItem value="60">60 minutes</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          {/* Save to Timeline Toggle */}
-          <div className="flex items-center justify-between">
-            <Label htmlFor="save-timeline" className="text-sm text-gray-700">
-              Save to Timeline
-            </Label>
-            <Switch
-              id="save-timeline"
-              checked={settings.saveToTimeline}
-              onCheckedChange={(checked) => onChange({ saveToTimeline: checked })}
-              disabled={disabled}
-              className="data-[state=checked]:bg-purple-600"
-            />
+          <Slider
+            min={0}
+            max={60}
+            step={5}
+            value={[sleepTimer]}
+            onValueChange={(value) => setSleepTimer(value[0])}
+            className="w-full"
+          />
+          <div className="flex justify-between text-xs text-gray-500">
+            <span>Off</span>
+            <span>30 min</span>
+            <span>60 min</span>
           </div>
         </div>
+        
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Info className="h-4 w-4 text-purple-600" />
+            <span className="text-sm font-medium">Save to Timeline</span>
+          </div>
+          <Switch 
+            checked={saveToTimeline}
+            onCheckedChange={setSaveToTimeline}
+          />
+          <span className="text-xs text-gray-500 ml-2 w-20">
+            {saveToTimeline ? 'Enabled' : 'Disabled'}
+          </span>
+        </div>
       </div>
-    </TooltipProvider>
+    </div>
   );
 };
 
