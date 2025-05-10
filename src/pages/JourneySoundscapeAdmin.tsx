@@ -8,12 +8,14 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchJourneys } from '@/services/journeyService';
-import { Plus, Trash2, ExternalLink, FileMusic, Youtube, Play } from 'lucide-react';
+import { Plus, Trash2, ExternalLink, FileMusic, Youtube, Play, Pause, Volume2, VolumeX } from 'lucide-react';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
+import { Badge } from '@/components/ui/badge';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 interface Journey {
   id: string | number;
@@ -49,38 +51,80 @@ const JourneySoundscapeAdmin: React.FC = () => {
     file_url: ''
   });
   const [selectedSoundscape, setSelectedSoundscape] = useState<Soundscape | null>(null);
-  const { playAudio, stopAudio } = useGlobalAudioPlayer();
+  const { playAudio, stopAudio, isPlaying, togglePlayPause, currentAudioId, isMuted, toggleMute } = useGlobalAudioPlayer();
+  const [urlValidationState, setUrlValidationState] = useState<'valid' | 'invalid' | 'checking' | 'idle'>('idle');
+  const [bulkUploadDialogOpen, setBulkUploadDialogOpen] = useState(false);
+  const [bulkUploadText, setBulkUploadText] = useState('');
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        // Load journeys
-        const journeysData = await fetchJourneys();
-        setJourneys(journeysData);
-        
-        // Load soundscapes
-        const { data, error } = await supabase
-          .from('journey_soundscapes')
-          .select('*')
-          .order('created_at', { ascending: false });
-          
-        if (error) throw error;
-        
-        setSoundscapes(data || []);
-      } catch (error) {
-        console.error('Error loading data:', error);
-        toast.error('Failed to load data');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
     loadData();
   }, []);
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      // Load journeys
+      const journeysData = await fetchJourneys();
+      setJourneys(journeysData);
+      
+      // Load soundscapes
+      const { data, error } = await supabase
+        .from('journey_soundscapes')
+        .select('*')
+        .order('created_at', { ascending: false });
+        
+      if (error) throw error;
+      
+      setSoundscapes(data || []);
+    } catch (error) {
+      console.error('Error loading data:', error);
+      toast.error('Failed to load data');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // URL validation for audio files
+    if (name === 'file_url' && value && sourceType === 'file') {
+      validateAudioUrl(value);
+    }
+  };
+
+  const validateAudioUrl = async (url: string) => {
+    if (!url) return;
+    
+    // Only validate if it's a URL (not a file path)
+    if (!url.startsWith('http')) {
+      return;
+    }
+    
+    setUrlValidationState('checking');
+    
+    try {
+      // Try to fetch the header to see if it exists and is an audio file
+      const response = await fetch(url, { method: 'HEAD' });
+      
+      if (response.ok) {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('audio')) {
+          setUrlValidationState('valid');
+        } else {
+          setUrlValidationState('invalid');
+          toast.warning('URL exists but may not be an audio file');
+        }
+      } else {
+        setUrlValidationState('invalid');
+        toast.warning('Could not verify audio URL');
+      }
+    } catch (error) {
+      console.error('Error validating URL:', error);
+      // Don't show error to user - many valid URLs will fail CORS checks
+      setUrlValidationState('idle');
+    }
   };
 
   const handleSelectChange = (name: string, value: string) => {
@@ -97,6 +141,7 @@ const JourneySoundscapeAdmin: React.FC = () => {
     });
     setSourceType('file');
     setSelectedSoundscape(null);
+    setUrlValidationState('idle');
   };
 
   const handleOpenNewDialog = () => {
@@ -139,7 +184,9 @@ const JourneySoundscapeAdmin: React.FC = () => {
       toast.success('Soundscape deleted successfully');
       
       // Stop audio if the deleted soundscape was playing
-      stopAudio();
+      if (currentAudioId === soundscapeToDelete) {
+        stopAudio();
+      }
     } catch (error) {
       console.error('Error deleting soundscape:', error);
       toast.error('Failed to delete soundscape');
@@ -174,6 +221,11 @@ const JourneySoundscapeAdmin: React.FC = () => {
   };
 
   const handlePlaySoundscape = (soundscape: Soundscape) => {
+    if (isPlaying && currentAudioId === soundscape.id) {
+      togglePlayPause();
+      return;
+    }
+    
     playAudio({
       id: soundscape.id,
       title: soundscape.title,
@@ -237,6 +289,87 @@ const JourneySoundscapeAdmin: React.FC = () => {
     }
   };
 
+  const processBulkUpload = async () => {
+    try {
+      // Simple parsing of TSV or CSV format
+      // Expected format: journey_id, title, description, file_url
+      const lines = bulkUploadText.trim().split('\n');
+      
+      if (lines.length === 0) {
+        toast.error('No data to import');
+        return;
+      }
+      
+      let successCount = 0;
+      let errorCount = 0;
+      
+      for (const line of lines) {
+        const parts = line.split('\t');
+        if (parts.length < 3) {
+          // Try comma-separated if tab-separated didn't work
+          const commaParts = line.split(',');
+          if (commaParts.length < 3) {
+            errorCount++;
+            continue;
+          }
+          parts.length = 0;
+          parts.push(...commaParts);
+        }
+        
+        // Get journey ID by matching title/filename if needed
+        let journeyId = parseInt(parts[0], 10);
+        if (isNaN(journeyId)) {
+          // Try to find journey by title or filename
+          const journeyMatch = journeys.find(j => j.title === parts[0] || j.filename === parts[0]);
+          if (journeyMatch) {
+            journeyId = parseInt(String(journeyMatch.id), 10);
+          } else {
+            errorCount++;
+            continue;
+          }
+        }
+        
+        const soundscapeData = {
+          journey_id: journeyId,
+          title: parts[1].trim(),
+          description: parts[2]?.trim() || null,
+          file_url: parts[3]?.trim() || '',
+          source_type: 'file' as const
+        };
+        
+        if (!soundscapeData.title || !soundscapeData.file_url) {
+          errorCount++;
+          continue;
+        }
+        
+        // Create soundscape
+        const { error } = await supabase
+          .from('journey_soundscapes')
+          .insert(soundscapeData);
+          
+        if (error) {
+          console.error('Error creating soundscape:', error);
+          errorCount++;
+        } else {
+          successCount++;
+        }
+      }
+      
+      toast.success(`Imported ${successCount} soundscapes successfully${errorCount > 0 ? `, ${errorCount} failed` : ''}`);
+      
+      if (successCount > 0) {
+        // Reload data to show new soundscapes
+        loadData();
+      }
+      
+      setBulkUploadDialogOpen(false);
+      setBulkUploadText('');
+    } catch (error) {
+      console.error('Error processing bulk upload:', error);
+      toast.error('Failed to process bulk upload');
+    }
+  };
+
   const filteredSoundscapes = selectedJourney
     ? soundscapes.filter(s => String(s.journey_id) === String(selectedJourney))
     : soundscapes;
@@ -251,9 +384,14 @@ const JourneySoundscapeAdmin: React.FC = () => {
               Manage audio content for sacred journeys
             </p>
           </div>
-          <Button onClick={handleOpenNewDialog}>
-            <Plus className="mr-2 h-4 w-4" /> Add Soundscape
-          </Button>
+          <div className="flex space-x-2">
+            <Button onClick={() => setBulkUploadDialogOpen(true)} variant="outline">
+              <FileMusic className="mr-2 h-4 w-4" /> Bulk Import
+            </Button>
+            <Button onClick={handleOpenNewDialog}>
+              <Plus className="mr-2 h-4 w-4" /> Add Soundscape
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -348,7 +486,15 @@ const JourneySoundscapeAdmin: React.FC = () => {
                                 size="sm"
                                 onClick={() => handlePlaySoundscape(soundscape)}
                               >
-                                <Play className="h-4 w-4 mr-1" /> Play
+                                {isPlaying && currentAudioId === soundscape.id ? (
+                                  <>
+                                    <Pause className="h-4 w-4 mr-1" /> Pause
+                                  </>
+                                ) : (
+                                  <>
+                                    <Play className="h-4 w-4 mr-1" /> Play
+                                  </>
+                                )}
                               </Button>
                               <Button 
                                 variant="outline" 
@@ -452,15 +598,22 @@ const JourneySoundscapeAdmin: React.FC = () => {
                 <TabsContent value="file" className="mt-4">
                   <div className="space-y-2">
                     <Label htmlFor="file_url">Audio File URL</Label>
-                    <Input
-                      id="file_url"
-                      name="file_url"
-                      value={formData.file_url}
-                      onChange={handleInputChange}
-                      placeholder="/audio/filename.mp3"
-                    />
+                    <div className="flex space-x-2">
+                      <Input
+                        id="file_url"
+                        name="file_url"
+                        value={formData.file_url}
+                        onChange={handleInputChange}
+                        placeholder="/audio/filename.mp3"
+                        className={urlValidationState === 'valid' ? 'border-green-500' : 
+                                  urlValidationState === 'invalid' ? 'border-red-500' : ''}
+                      />
+                      {urlValidationState === 'checking' && (
+                        <div className="animate-spin h-5 w-5 border-b-2 border-purple-500 rounded-full"></div>
+                      )}
+                    </div>
                     <p className="text-xs text-gray-500">
-                      Enter the path to an audio file in the public folder
+                      Enter the path to an audio file in the public folder or full URL
                     </p>
                   </div>
                 </TabsContent>
@@ -496,18 +649,52 @@ const JourneySoundscapeAdmin: React.FC = () => {
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
-        <DialogContent>
+      <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this soundscape? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-500 hover:bg-red-600">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk Upload Dialog */}
+      <Dialog open={bulkUploadDialogOpen} onOpenChange={setBulkUploadDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogTitle>Bulk Import Soundscapes</DialogTitle>
+            <DialogDescription>
+              Paste data in tab or comma-separated format:
+              journey_id/title, soundscape_title, description, file_url
+            </DialogDescription>
           </DialogHeader>
-          <p>Are you sure you want to delete this soundscape? This action cannot be undone.</p>
+          <div className="space-y-4 py-4">
+            <Textarea
+              value={bulkUploadText}
+              onChange={(e) => setBulkUploadText(e.target.value)}
+              placeholder="journey_id,title,description,file_url"
+              rows={10}
+              className="font-mono text-sm"
+            />
+            <p className="text-sm text-gray-500">
+              You can use journey ID numbers or journey titles/filenames in the first column
+            </p>
+          </div>
+          
           <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setBulkUploadDialogOpen(false)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDeleteConfirm}>
-              Delete
+            <Button onClick={processBulkUpload}>
+              Import Soundscapes
             </Button>
           </DialogFooter>
         </DialogContent>
