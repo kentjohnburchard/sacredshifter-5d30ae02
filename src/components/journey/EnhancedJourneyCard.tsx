@@ -35,35 +35,38 @@ const EnhancedJourneyCard: React.FC<EnhancedJourneyCardProps> = ({
     
     try {
       // Get a valid journey ID for navigation
-      let journeyId = '';
+      let journeySlug = '';
       
       // Prioritize slug if available
       if (journey.slug && typeof journey.slug === 'string' && journey.slug.trim() !== '') {
-        journeyId = journey.slug.trim();
-        console.log("Using journey slug for navigation:", journeyId);
+        journeySlug = journey.slug.trim();
+        console.log("Using journey slug for navigation:", journeySlug);
       } 
       // Next try filename (without .md extension)
       else if (journey.filename && typeof journey.filename === 'string') {
-        journeyId = journey.filename.replace(/\.md$/, '').trim();
-        console.log("Using journey filename for navigation:", journeyId);
+        // Remove .md extension and convert to kebab-case for URL
+        journeySlug = journey.filename.replace(/\.md$/, '').trim()
+          .replace(/journey_/i, '')
+          .replace(/_/g, '-');
+        console.log("Using journey filename for navigation:", journeySlug);
       }
       // Last resort, use ID
       else if (journey.id) {
-        journeyId = journey.id.toString().trim();
-        console.log("Using journey ID for navigation:", journeyId);
+        journeySlug = journey.id.toString().trim();
+        console.log("Using journey ID for navigation:", journeySlug);
       }
       
-      if (!journeyId) {
+      if (!journeySlug) {
         toast.error("Cannot start journey: Missing journey identifier");
-        console.error("Failed to navigate: No valid journey ID found", journey);
+        console.error("Failed to navigate: No valid journey slug found", journey);
         return;
       }
       
       // Log the navigation
-      console.log(`Navigating to journey experience: /journey/${journeyId}/experience`);
+      console.log(`Navigating to journey experience: /journey/${journeySlug}/experience`);
       
       // Navigate to the journey experience page
-      navigate(`/journey/${journeyId}/experience`);
+      navigate(`/journey/${journeySlug}/experience`);
     } catch (error) {
       console.error("Error navigating to journey:", error);
       toast.error("Failed to start journey");

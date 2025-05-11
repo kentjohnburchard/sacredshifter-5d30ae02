@@ -26,30 +26,32 @@ const JourneysList: React.FC<JourneysListProps> = ({
     // Apply filtering logic
     let result = [...journeys];
     
-    if (filter) {
+    if (filter && filter.trim() !== '') {
+      const filterLower = filter.toLowerCase();
+      
       // Filter by tags, title, or chakra
       result = result.filter(journey => {
         // Check tags as array
         const hasMatchingArrayTag = journey.tags && 
           Array.isArray(journey.tags) && 
           journey.tags.some(tag => 
-            tag && typeof tag === 'string' && tag.toLowerCase().includes(filter.toLowerCase())
+            tag && typeof tag === 'string' && tag.toLowerCase().includes(filterLower)
           );
         
-        // Check tags as string - fixed TypeScript error with proper type guards
+        // Check tags as string
         const hasMatchingStringTag = journey.tags && 
-          typeof journey.tags === 'string' && // Ensure it's a string
-          journey.tags.toLowerCase().includes(filter.toLowerCase());
+          typeof journey.tags === 'string' && 
+          journey.tags.toLowerCase().includes(filterLower);
         
-        // Check title with type guard
+        // Check title
         const hasMatchingTitle = journey.title && 
           typeof journey.title === 'string' &&
-          journey.title.toLowerCase().includes(filter.toLowerCase());
+          journey.title.toLowerCase().includes(filterLower);
         
-        // Check chakra tag with type guard
+        // Check chakra tag
         const hasMatchingChakra = journey.chakra_tag && 
           typeof journey.chakra_tag === 'string' &&
-          journey.chakra_tag.toLowerCase().includes(filter.toLowerCase());
+          journey.chakra_tag.toLowerCase().includes(filterLower);
         
         return hasMatchingArrayTag || hasMatchingStringTag || hasMatchingTitle || hasMatchingChakra;
       });

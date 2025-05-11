@@ -1,209 +1,87 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { Journey } from '@/types/journey';
+import { getAllJourneys } from '@/utils/coreJourneyLoader';
 
-/**
- * Fetch all journeys from the database
- */
-export async function fetchJourneys() {
-  try {
-    const { data, error } = await supabase
-      .from('journeys')
-      .select('id, title, filename, tags, description, veil_locked, sound_frequencies, intent, chakra_tag')
-      .order('title', { ascending: true });
-    
-    if (error) throw error;
-    
-    // Ensure all journeys have tags array to satisfy TS requirements
-    const journeysWithTags = (data || []).map(journey => ({
-      ...journey,
-      tags: journey.tags ? 
-        (typeof journey.tags === 'string' ? [journey.tags] : journey.tags) : 
-        []
-    }));
-    
-    return journeysWithTags as Journey[];
-  } catch (error) {
-    console.error('Error fetching journeys:', error);
-    return [] as Journey[];
-  }
-}
-
-/**
- * Fetch a specific journey by slug or filename
- */
-export async function fetchJourneyBySlug(slug?: string) {
-  if (!slug) return null;
+// Fetch a specific journey by slug
+export async function fetchJourneyBySlug(slug: string): Promise<Journey | null> {
+  console.log(`Fetching journey with slug: ${slug}`);
   
   try {
-    // First try to match by slug
-    let { data, error } = await supabase
+    // Normalize the slug (remove .md extension if present)
+    const normalizedSlug = slug.replace(/\.md$/, '');
+    
+    // First try to get journey from database by slug
+    let { data: journeyData, error } = await supabase
       .from('journeys')
-      .select('*, tags')
-      .eq('slug', slug)
-      .single();
+      .select('*')
+      .eq('slug', normalizedSlug)
+      .maybeSingle();
     
-    // If not found by slug, try by filename
-    if (!data) {
-      const { data: filenameData, error: filenameError } = await supabase
-        .from('journeys')
-        .select('*, tags')
-        .eq('filename', slug)
-        .single();
-        
-      if (filenameError && filenameError.code !== 'PGRST116') {
-        throw filenameError;
-      }
-      
-      data = filenameData;
+    if (error) {
+      console.error('Error fetching journey from database:', error);
     }
     
-    if (data) {
-      // Ensure tags are always an array
-      return {
-        ...data,
-        tags: data.tags ? 
-          (typeof data.tags === 'string' ? [data.tags] : data.tags) : 
-          []
-      } as Journey;
+    // If found in database, return it
+    if (journeyData) {
+      console.log('Found journey in database:', journeyData.title);
+      return journeyData as Journey;
     }
     
+    // If not found in database, try to get from core_content
+    console.log('Journey not found in database, checking core_content');
+    const coreJourneys = await getAllJourneys([]);
+    
+    // First try direct match on slug
+    let journey = coreJourneys.find(j => j.slug === normalizedSlug);
+    
+    // Then try to match by filename (with or without .md)
+    if (!journey) {
+      journey = coreJourneys.find(j => {
+        if (!j.filename) return false;
+        const cleanFilename = j.filename.replace(/\.md$/, '');
+        return cleanFilename === normalizedSlug || 
+               // Allow for journey_ prefix in filenames
+               cleanFilename === `journey_${normalizedSlug}` ||
+               // Try kebab-case conversion from snake_case (without journey_ prefix)
+               cleanFilename.replace(/^journey_/, '').replace(/_/g, '-') === normalizedSlug;
+      });
+    }
+    
+    // Try matching by ID as string
+    if (!journey) {
+      journey = coreJourneys.find(j => j.id && j.id.toString() === normalizedSlug);
+    }
+    
+    if (journey) {
+      console.log('Found journey in core_content:', journey.title);
+      return journey;
+    }
+    
+    console.error(`Journey with slug "${slug}" not found in any source`);
     return null;
-  } catch (error) {
-    console.error(`Error fetching journey by slug ${slug}:`, error);
-    return null;
+  } catch (err) {
+    console.error('Error in fetchJourneyBySlug:', err);
+    throw err;
   }
 }
 
-/**
- * Create a new journey
- */
-export async function createJourney(journeyData: Partial<Journey>) {
+// Fetch all journeys
+export async function fetchJourneys(): Promise<Journey[]> {
   try {
     const { data, error } = await supabase
       .from('journeys')
-      .insert(journeyData)
-      .select()
-      .single();
-      
-    if (error) throw error;
+      .select('*')
+      .order('created_at', { ascending: false });
     
-    return {
-      ...data,
-      tags: data.tags ? 
-        (typeof data.tags === 'string' ? [data.tags] : data.tags) : 
-        []
-    } as Journey;
-  } catch (error) {
-    console.error('Error creating journey:', error);
-    throw error;
-  }
-}
-
-/**
- * Update an existing journey
- */
-export async function updateJourney(id: number | string, journeyData: Partial<Journey>) {
-  try {
-    const { data, error } = await supabase
-      .from('journeys')
-      .update(journeyData)
-      .eq('id', id)
-      .select()
-      .single();
-      
-    if (error) throw error;
-    
-    return {
-      ...data,
-      tags: data.tags ? 
-        (typeof data.tags === 'string' ? [data.tags] : data.tags) : 
-        []
-    } as Journey;
-  } catch (error) {
-    console.error('Error updating journey:', error);
-    throw error;
-  }
-}
-
-/**
- * Fetch soundscapes for a specific journey
- */
-export async function fetchJourneySoundscapes(journeyId?: string | number | null) {
-  try {
-    let query = supabase.from('journey_soundscapes').select('*');
-    
-    if (journeyId) {
-      query = query.eq('journey_id', journeyId);
+    if (error) {
+      console.error('Error fetching journeys:', error);
+      return [];
     }
     
-    const { data, error } = await query.order('created_at', { ascending: false });
-    
-    if (error) throw error;
-    
-    return data || [];
-  } catch (error) {
-    console.error('Error fetching journey soundscapes:', error);
+    return data as Journey[];
+  } catch (err) {
+    console.error('Error in fetchJourneys:', err);
     return [];
-  }
-}
-
-/**
- * Create a new soundscape
- */
-export async function createJourneySoundscape(soundscapeData: any) {
-  try {
-    const { data, error } = await supabase
-      .from('journey_soundscapes')
-      .insert(soundscapeData)
-      .select()
-      .single();
-      
-    if (error) throw error;
-    
-    return data;
-  } catch (error) {
-    console.error('Error creating soundscape:', error);
-    throw error;
-  }
-}
-
-/**
- * Update an existing soundscape
- */
-export async function updateJourneySoundscape(id: string, soundscapeData: any) {
-  try {
-    const { data, error } = await supabase
-      .from('journey_soundscapes')
-      .update(soundscapeData)
-      .eq('id', id)
-      .select()
-      .single();
-      
-    if (error) throw error;
-    
-    return data;
-  } catch (error) {
-    console.error('Error updating soundscape:', error);
-    throw error;
-  }
-}
-
-/**
- * Delete a soundscape
- */
-export async function deleteJourneySoundscape(id: string) {
-  try {
-    const { error } = await supabase
-      .from('journey_soundscapes')
-      .delete()
-      .eq('id', id);
-      
-    if (error) throw error;
-    
-    return true;
-  } catch (error) {
-    console.error('Error deleting soundscape:', error);
-    throw error;
   }
 }

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import JourneyExperience from '@/components/journey/JourneyExperience';
@@ -29,7 +28,7 @@ const BackButton = () => {
 };
 
 const JourneyExperienceContent: React.FC = () => {
-  const { journeySlug } = useParams<{ journeySlug: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [loadingMessage, setLoadingMessage] = useState("Preparing Your Sacred Journey...");
@@ -41,7 +40,7 @@ const JourneyExperienceContent: React.FC = () => {
   
   useEffect(() => {
     const loadJourney = async () => {
-      if (!journeySlug) {
+      if (!slug) {
         toast.error("No journey specified");
         navigate('/journey-index');
         return;
@@ -49,14 +48,14 @@ const JourneyExperienceContent: React.FC = () => {
       
       try {
         setLoading(true);
-        setLoadingMessage(`Loading journey experience for: ${journeySlug}`);
-        console.log(`Loading journey experience for: ${journeySlug}`);
+        setLoadingMessage(`Loading journey experience for: ${slug}`);
+        console.log(`Loading journey experience for: ${slug}`);
         
         // Use the journeyService to fetch the journey by slug
-        const journey = await fetchJourneyBySlug(journeySlug);
+        const journey = await fetchJourneyBySlug(slug);
         
         if (!journey) {
-          console.error("Journey not found:", journeySlug);
+          console.error("Journey not found:", slug);
           toast.error("Journey not found");
           navigate('/journey-index');
           return;
@@ -108,7 +107,7 @@ const JourneyExperienceContent: React.FC = () => {
     };
     
     loadJourney();
-  }, [journeySlug, navigate, startJourney, eventLogged]);
+  }, [slug, navigate, startJourney, eventLogged]);
   
   const handleJourneyComplete = (reflectionData: any) => {
     // Calculate duration in seconds

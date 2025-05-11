@@ -28,9 +28,23 @@ const JourneyCard: React.FC<JourneyCardProps> = ({ journey, variant = 'default' 
   const handleEnterJourney = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const journeyId = journey.slug || journey.filename || journey.id;
-    navigate(`/journey/${journeyId}/experience`);
-    console.log("Navigating to journey:", journeyId);
+    
+    let journeySlug = '';
+      
+    // Use the same logic as EnhancedJourneyCard for consistent behavior
+    if (journey.slug && typeof journey.slug === 'string' && journey.slug.trim() !== '') {
+      journeySlug = journey.slug.trim();
+    } else if (journey.filename && typeof journey.filename === 'string') {
+      // Remove .md extension and convert to kebab-case for URL
+      journeySlug = journey.filename.replace(/\.md$/, '').trim()
+        .replace(/journey_/i, '')
+        .replace(/_/g, '-');
+    } else if (journey.id) {
+      journeySlug = journey.id.toString().trim();
+    }
+    
+    console.log("Navigating to journey with slug:", journeySlug);
+    navigate(`/journey/${journeySlug}/experience`);
   };
   
   return (
