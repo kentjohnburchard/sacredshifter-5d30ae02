@@ -18,11 +18,14 @@ const HomePage: React.FC = () => {
     navigate('/features');
   };
   
+  const handleNavigate = (path: string) => {
+    navigate(path);
+  };
+  
   return (
     <AppShell 
       pageTitle="Sacred Shifter"
       showSidebar={true}
-      showGlobalWatermark={true}
     >
       <div className="relative min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
         <JourneyAwareSpiralVisualizer 
@@ -75,30 +78,63 @@ const HomePage: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             <motion.div 
-              className="bg-black/40 backdrop-blur-lg p-6 rounded-lg border border-purple-500/30 shadow-lg transition-all duration-300 hover:border-purple-500/50 hover:shadow-purple-600/20"
+              className="bg-black/40 backdrop-blur-lg p-6 rounded-lg border border-purple-500/30 shadow-lg transition-all duration-300 hover:border-purple-500/50 hover:shadow-purple-600/20 cursor-pointer"
               whileHover={{ y: -5, boxShadow: '0 10px 25px rgba(139, 92, 246, 0.2)' }}
               transition={{ duration: 0.3 }}
+              onClick={() => handleNavigate('/dashboard')}
             >
               <h2 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-white/80 mb-2 sacred-heading">Sacred Journeys</h2>
               <p className="text-purple-200">Explore guided experiences for spiritual growth</p>
             </motion.div>
             
             <motion.div 
-              className="bg-black/40 backdrop-blur-lg p-6 rounded-lg border border-purple-500/30 shadow-lg transition-all duration-300 hover:border-blue-500/50 hover:shadow-blue-600/20"
+              className="bg-black/40 backdrop-blur-lg p-6 rounded-lg border border-purple-500/30 shadow-lg transition-all duration-300 hover:border-blue-500/50 hover:shadow-blue-600/20 cursor-pointer"
               whileHover={{ y: -5, boxShadow: '0 10px 25px rgba(96, 165, 250, 0.2)' }}
               transition={{ duration: 0.3 }}
+              onClick={() => handleNavigate('/alignment')}
             >
               <h2 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-white/80 mb-2 sacred-heading">Sacred Spectrum</h2>
               <p className="text-purple-200">Discover the frequencies that resonate with your soul</p>
             </motion.div>
             
             <motion.div 
-              className="bg-black/40 backdrop-blur-lg p-6 rounded-lg border border-purple-500/30 shadow-lg transition-all duration-300 hover:border-green-500/50 hover:shadow-green-600/20"
+              className="bg-black/40 backdrop-blur-lg p-6 rounded-lg border border-purple-500/30 shadow-lg transition-all duration-300 hover:border-green-500/50 hover:shadow-green-600/20 cursor-pointer"
               whileHover={{ y: -5, boxShadow: '0 10px 25px rgba(74, 222, 128, 0.2)' }}
               transition={{ duration: 0.3 }}
+              onClick={() => handleNavigate('/circle')}
             >
               <h2 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-white/80 mb-2 sacred-heading">Sacred Circle</h2>
               <p className="text-purple-200">Connect with others on the path of enlightenment</p>
+            </motion.div>
+            
+            <motion.div 
+              className="bg-black/40 backdrop-blur-lg p-6 rounded-lg border border-purple-500/30 shadow-lg transition-all duration-300 hover:border-yellow-500/50 hover:shadow-yellow-600/20 cursor-pointer"
+              whileHover={{ y: -5, boxShadow: '0 10px 25px rgba(234, 179, 8, 0.2)' }}
+              transition={{ duration: 0.3 }}
+              onClick={() => handleNavigate('/lightbearer')}
+            >
+              <h2 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-white/80 mb-2 sacred-heading">Lightbearer System</h2>
+              <p className="text-purple-200">Advance your spiritual journey through light levels</p>
+            </motion.div>
+            
+            <motion.div 
+              className="bg-black/40 backdrop-blur-lg p-6 rounded-lg border border-purple-500/30 shadow-lg transition-all duration-300 hover:border-pink-500/50 hover:shadow-pink-600/20 cursor-pointer"
+              whileHover={{ y: -5, boxShadow: '0 10px 25px rgba(236, 72, 153, 0.2)' }}
+              transition={{ duration: 0.3 }}
+              onClick={() => handleNavigate('/reality-optimizer')}
+            >
+              <h2 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-white/80 mb-2 sacred-heading">Reality Optimizer</h2>
+              <p className="text-purple-200">Fine-tune your vibrational reality</p>
+            </motion.div>
+            
+            <motion.div 
+              className="bg-black/40 backdrop-blur-lg p-6 rounded-lg border border-purple-500/30 shadow-lg transition-all duration-300 hover:border-cyan-500/50 hover:shadow-cyan-600/20 cursor-pointer"
+              whileHover={{ y: -5, boxShadow: '0 10px 25px rgba(6, 182, 212, 0.2)' }}
+              transition={{ duration: 0.3 }}
+              onClick={() => handleNavigate('/about')}
+            >
+              <h2 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-white/80 mb-2 sacred-heading">About the Founder</h2>
+              <p className="text-purple-200">Learn about the vision behind Sacred Shifter</p>
             </motion.div>
           </motion.div>
         </motion.div>
