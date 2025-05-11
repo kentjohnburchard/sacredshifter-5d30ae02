@@ -110,6 +110,7 @@ const ThemeEnhancer: React.FC = () => {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8 }}
           className="fixed inset-0 pointer-events-none z-0"
+          key="grid-pattern"
         >
           <div className="absolute inset-0">
             <div className="absolute top-0 left-0 w-full h-full"
@@ -129,6 +130,7 @@ const ThemeEnhancer: React.FC = () => {
           exit={{ opacity: 0 }}
           transition={{ duration: 1 }}
           className="fixed inset-0 pointer-events-none z-0"
+          key="radial-glow"
         >
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200vw] h-[200vh] rounded-full" 
             style={{
@@ -147,6 +149,7 @@ const ThemeEnhancer: React.FC = () => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.8 }}
             className="fixed inset-0 pointer-events-none z-0"
+            key="veil-lifted-effects"
           >
             <div className="absolute inset-0">
               <div className="absolute top-0 left-0 w-full h-full opacity-35"

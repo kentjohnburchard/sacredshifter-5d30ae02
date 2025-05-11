@@ -40,15 +40,7 @@ const AmbientBackground: React.FC<AmbientBackgroundProps> = ({
     let lastFrame = 0;
     const frameDelay = 1000 / 30; // Target 30fps for performance
     
-    // Set canvas to full screen
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      // Reinitialize particles on resize to adjust for screen size
-      initParticles();
-    };
-    
-    // Initialize particles
+    // Define initParticles function first, before it's used in resize
     const initParticles = () => {
       const particles = [];
       // Adjust particle count based on screen size for better performance
@@ -71,6 +63,14 @@ const AmbientBackground: React.FC<AmbientBackgroundProps> = ({
       }
       
       particlesRef.current = particles;
+    };
+    
+    // Set canvas to full screen
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      // Reinitialize particles on resize to adjust for screen size
+      initParticles();
     };
 
     window.addEventListener('resize', resize);
