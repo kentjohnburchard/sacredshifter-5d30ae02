@@ -35,17 +35,22 @@ const EnhancedJourneyCard: React.FC<EnhancedJourneyCardProps> = ({
     
     try {
       // Get a valid journey ID for navigation
-      // Prioritize slug over filename for consistent routing
-      let journeyId = journey.slug;
+      let journeyId = '';
       
-      // Fallback to filename if slug isn't available
-      if (!journeyId && journey.filename) {
-        journeyId = journey.filename.replace(/\.md$/, '');
+      // Prioritize slug if available
+      if (journey.slug && typeof journey.slug === 'string' && journey.slug.trim() !== '') {
+        journeyId = journey.slug.trim();
+        console.log("Using journey slug for navigation:", journeyId);
+      } 
+      // Next try filename (without .md extension)
+      else if (journey.filename && typeof journey.filename === 'string') {
+        journeyId = journey.filename.replace(/\.md$/, '').trim();
+        console.log("Using journey filename for navigation:", journeyId);
       }
-      
-      // Last resort, use the numeric ID
-      if (!journeyId && journey.id) {
-        journeyId = journey.id.toString();
+      // Last resort, use ID
+      else if (journey.id) {
+        journeyId = journey.id.toString().trim();
+        console.log("Using journey ID for navigation:", journeyId);
       }
       
       if (!journeyId) {
@@ -54,12 +59,11 @@ const EnhancedJourneyCard: React.FC<EnhancedJourneyCardProps> = ({
         return;
       }
       
-      // Ensure journeyId is a string and properly formatted
-      const normalizedId = String(journeyId).trim();
-      console.log("Navigating to journey experience:", normalizedId);
+      // Log the navigation
+      console.log(`Navigating to journey experience: /journey/${journeyId}/experience`);
       
       // Navigate to the journey experience page
-      navigate(`/journey/${normalizedId}/experience`);
+      navigate(`/journey/${journeyId}/experience`);
     } catch (error) {
       console.error("Error navigating to journey:", error);
       toast.error("Failed to start journey");

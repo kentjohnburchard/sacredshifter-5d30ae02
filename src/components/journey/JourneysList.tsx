@@ -32,12 +32,14 @@ const JourneysList: React.FC<JourneysListProps> = ({
         // Check tags as array
         const hasMatchingArrayTag = journey.tags && 
           Array.isArray(journey.tags) && 
-          journey.tags.some(tag => tag && typeof tag === 'string' && tag.toLowerCase().includes(filter.toLowerCase()));
+          journey.tags.some(tag => 
+            tag && typeof tag === 'string' && tag.toLowerCase().includes(filter.toLowerCase())
+          );
         
         // Check tags as string
         const hasMatchingStringTag = journey.tags && 
           typeof journey.tags === 'string' && 
-          journey.tags.toLowerCase().includes(filter.toLowerCase());
+          journey.tags.toString().toLowerCase().includes(filter.toLowerCase());
         
         // Check title
         const hasMatchingTitle = journey.title && 
