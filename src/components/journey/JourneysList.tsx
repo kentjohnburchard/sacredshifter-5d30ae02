@@ -28,14 +28,27 @@ const JourneysList: React.FC<JourneysListProps> = ({
     
     if (filter) {
       // Filter by tags, title, or chakra
-      result = result.filter(journey => 
-        (journey.tags && Array.isArray(journey.tags) && journey.tags.some(tag => 
-          tag && typeof tag === 'string' && tag.toLowerCase().includes(filter.toLowerCase())
-        )) ||
-        (journey.tags && typeof journey.tags === 'string' && journey.tags.toLowerCase().includes(filter.toLowerCase())) ||
-        (journey.title && journey.title.toLowerCase().includes(filter.toLowerCase())) ||
-        (journey.chakra_tag && journey.chakra_tag.toLowerCase().includes(filter.toLowerCase()))
-      );
+      result = result.filter(journey => {
+        // Check tags as array
+        const hasMatchingArrayTag = journey.tags && 
+          Array.isArray(journey.tags) && 
+          journey.tags.some(tag => tag && typeof tag === 'string' && tag.toLowerCase().includes(filter.toLowerCase()));
+        
+        // Check tags as string
+        const hasMatchingStringTag = journey.tags && 
+          typeof journey.tags === 'string' && 
+          journey.tags.toLowerCase().includes(filter.toLowerCase());
+        
+        // Check title
+        const hasMatchingTitle = journey.title && 
+          journey.title.toLowerCase().includes(filter.toLowerCase());
+        
+        // Check chakra tag
+        const hasMatchingChakra = journey.chakra_tag && 
+          journey.chakra_tag.toLowerCase().includes(filter.toLowerCase());
+        
+        return hasMatchingArrayTag || hasMatchingStringTag || hasMatchingTitle || hasMatchingChakra;
+      });
     }
     
     // Apply maxItems limit

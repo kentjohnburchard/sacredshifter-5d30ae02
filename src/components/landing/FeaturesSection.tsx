@@ -16,7 +16,7 @@ const FeaturesSection: React.FC = () => {
       icon: <Sparkles className="h-12 w-12 text-blue-400" />,
       title: "Sacred Journeys",
       description: "Follow guided spiritual paths designed to elevate consciousness and awaken inner wisdom.",
-      link: "/journey-templates"
+      link: "/journeys"
     },
     {
       icon: <Star className="h-12 w-12 text-amber-400" />,

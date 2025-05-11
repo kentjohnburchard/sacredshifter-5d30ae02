@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import ArchetypeSymbol from '@/components/circle/ArchetypeSymbol';
+import { getChakraPulseStyle } from '@/lib/utils';
 
 interface EnhancedJourneyCardProps {
   journey: Journey;
@@ -33,25 +34,31 @@ const EnhancedJourneyCard: React.FC<EnhancedJourneyCardProps> = ({
     e.stopPropagation(); // Stop event propagation
     
     try {
-      // Use the slug for consistent journey identification
-      let journeyId = journey.slug || journey.filename?.replace(/\.md$/, '');
+      // Get a valid journey ID for navigation
+      // Prioritize slug over filename for consistent routing
+      let journeyId = journey.slug;
       
-      // If filename or slug are unavailable, fall back to ID, but this isn't preferred
-      if (!journeyId && journey.id) {
-        console.warn("Using numeric ID for journey navigation - prefer slug or filename");
-        journeyId = journey.id;
+      // Fallback to filename if slug isn't available
+      if (!journeyId && journey.filename) {
+        journeyId = journey.filename.replace(/\.md$/, '');
       }
-    
+      
+      // Last resort, use the numeric ID
+      if (!journeyId && journey.id) {
+        journeyId = journey.id.toString();
+      }
+      
       if (!journeyId) {
-        toast.error("Cannot start journey: Invalid journey ID");
+        toast.error("Cannot start journey: Missing journey identifier");
+        console.error("Failed to navigate: No valid journey ID found", journey);
         return;
       }
       
-      // Normalize the journey ID to ensure it's a valid string
+      // Ensure journeyId is a string and properly formatted
       const normalizedId = String(journeyId).trim();
+      console.log("Navigating to journey experience:", normalizedId);
       
-      console.log("Navigating to journey:", normalizedId);
-      // Route to journey experience page with proper ID
+      // Navigate to the journey experience page
       navigate(`/journey/${normalizedId}/experience`);
     } catch (error) {
       console.error("Error navigating to journey:", error);
@@ -61,34 +68,37 @@ const EnhancedJourneyCard: React.FC<EnhancedJourneyCardProps> = ({
   
   return (
     <div className={`relative overflow-hidden rounded-xl h-full ${className}`}>
-      {/* Background gradient */}
+      {/* Background gradient with more pronounced chakra theming */}
       <div 
-        className="absolute inset-0 bg-gradient-to-br from-gray-900/90 to-purple-950/90 z-0"
-        style={{ backdropFilter: 'blur(4px)' }}
+        className="absolute inset-0 bg-gradient-to-br z-0"
+        style={{ 
+          background: `linear-gradient(145deg, rgba(20, 20, 28, 0.95), rgba(30, 25, 45, 0.9))`,
+          backdropFilter: 'blur(4px)'
+        }}
       />
       
       {/* Sacred geometry background */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none z-0 flex items-center justify-center overflow-hidden">
+      <div className="absolute inset-0 opacity-15 pointer-events-none z-0 flex items-center justify-center overflow-hidden">
         <div className="w-full h-full" style={{ 
           backgroundImage: 'url(/assets/sacred-geometry.svg)', 
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          opacity: 0.15,
           transform: 'scale(1.5) rotate(15deg)'
         }}/>
       </div>
       
       {/* Enhanced glowing border with chakra color */}
       <div 
-        className="absolute inset-0 animate-pulse-subtle opacity-70 pointer-events-none z-0"
+        className="absolute inset-0 animate-pulse-subtle pointer-events-none z-0"
         style={{ 
           boxShadow: `inset 0 0 15px ${chakraColor}70, 0 0 25px ${chakraColor}50`,
           border: `1px solid ${chakraColor}60`,
-          borderRadius: 'inherit',
+          borderRadius: '0.75rem',
+          ...getChakraPulseStyle(chakraColor, 'medium')
         }} 
       />
 
-      {/* Archetype sigil/symbol overlay - positioned in corner */}
+      {/* Archetype sigil/symbol overlay */}
       {archetype && (
         <div className="absolute top-3 right-3 z-10 opacity-70">
           <ArchetypeSymbol archetype={archetype} size="sm" glow={true} />
@@ -114,7 +124,7 @@ const EnhancedJourneyCard: React.FC<EnhancedJourneyCardProps> = ({
         )}
         
         {/* Journey title */}
-        <h3 className="text-xl font-playfair font-bold text-white mb-3">
+        <h3 className="text-xl font-playfair font-bold text-white mb-3 line-clamp-2">
           {journey.title}
         </h3>
         
@@ -129,10 +139,10 @@ const EnhancedJourneyCard: React.FC<EnhancedJourneyCardProps> = ({
           </div>
         )}
 
-        {/* Intent/Description - only show if we have it */}
+        {/* Intent/Description */}
         {journey.intent && (
-          <div className="mb-4 text-sm text-white/70">
-            {journey.intent.length > 120 ? `${journey.intent.substring(0, 120)}...` : journey.intent}
+          <div className="mb-4 text-sm text-white/70 line-clamp-3">
+            {journey.intent}
           </div>
         )}
         
