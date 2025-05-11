@@ -48,12 +48,19 @@ const JourneysList: React.FC<JourneysListProps> = ({
           typeof journey.title === 'string' &&
           journey.title.toLowerCase().includes(filterLower);
         
-        // Check chakra tag with proper type guard to fix the TypeError
-        const hasMatchingChakra = journey.chakra_tag && 
-          typeof journey.chakra_tag === 'string' &&
+        // Check both chakra_tag and chakra fields with proper type guards
+        // First check chakra_tag field
+        const chakraTagMatch = journey.chakra_tag && 
+          typeof journey.chakra_tag === 'string' && 
           journey.chakra_tag.toLowerCase().includes(filterLower);
+          
+        // Then check chakra field as fallback
+        const chakraMatch = journey.chakra &&
+          typeof journey.chakra === 'string' &&
+          journey.chakra.toLowerCase().includes(filterLower);
         
-        return hasMatchingArrayTag || hasMatchingStringTag || hasMatchingTitle || hasMatchingChakra;
+        // Return true if any condition matches
+        return hasMatchingArrayTag || hasMatchingStringTag || hasMatchingTitle || chakraTagMatch || chakraMatch;
       });
     }
     

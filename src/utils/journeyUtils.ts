@@ -11,6 +11,9 @@ import { normalizeStringArray, normalizeId } from './parsers';
 export function normalizeJourney(journey: any): Journey {
   if (!journey) return {} as Journey;
   
+  // Determine chakra value from either chakra or chakra_tag field
+  const chakraValue = journey.chakra || journey.chakra_tag || null;
+  
   return {
     id: normalizeId(journey.id),
     title: journey.title || '',
@@ -49,8 +52,9 @@ export function normalizeJourney(journey: any): Journey {
     is_featured: journey.is_featured,
     needs_moderation: journey.needs_moderation,
     is_approved: journey.is_approved,
-    chakra: journey.chakra,
-    chakra_tag: journey.chakra_tag || journey.chakra, // Support both fields
+    // Set both chakra fields for consistency
+    chakra: chakraValue,
+    chakra_tag: chakraValue,
     
     // Optional legacy support
     frontmatter: journey.frontmatter

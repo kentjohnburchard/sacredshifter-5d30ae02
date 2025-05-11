@@ -48,7 +48,10 @@ export const getAllJourneys = async (dbJourneys: Journey[] = []): Promise<Journe
           tags: Array.isArray(frontmatter.tags) ? frontmatter.tags : 
                 frontmatter.tags ? [frontmatter.tags] : [],
           content,
-          isCoreContent: true
+          isCoreContent: true,
+          // Ensure both chakra and chakra_tag fields are set for consistency
+          chakra: frontmatter.chakra || null,
+          chakra_tag: frontmatter.chakra || null
         };
         
         return journey;
@@ -61,10 +64,10 @@ export const getAllJourneys = async (dbJourneys: Journey[] = []): Promise<Journe
     // Wait for all promises to resolve
     const coreJourneys = (await Promise.all(coreJourneyPromises)).filter(Boolean) as Journey[];
     
+    console.log(`Loaded ${coreJourneys.length} journeys from core_content`);
+    
     // Combine DB and core journeys
     const allJourneys = [...dbJourneys, ...coreJourneys];
-    
-    console.log(`Loaded ${coreJourneys.length} journeys from core_content`);
     
     return allJourneys;
   } catch (err) {
