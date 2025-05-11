@@ -3,19 +3,22 @@ import React, { useState, useEffect } from 'react';
 import { Journey } from '@/types/journey';
 import EnhancedJourneyCard from './EnhancedJourneyCard';
 import JourneysGrid from './JourneysGrid';
+import { Loader2 } from 'lucide-react';
 
 interface JourneysListProps {
   journeys?: Journey[];
   className?: string;
   filter?: string;
   maxItems?: number;
+  loading?: boolean;
 }
 
 const JourneysList: React.FC<JourneysListProps> = ({ 
   journeys = [], 
   className = '',
   filter = '',
-  maxItems
+  maxItems,
+  loading = false
 }) => {
   const [filteredJourneys, setFilteredJourneys] = useState<Journey[]>([]);
   
@@ -26,9 +29,12 @@ const JourneysList: React.FC<JourneysListProps> = ({
     if (filter) {
       // Filter by tags, title, or chakra
       result = result.filter(journey => 
-        journey.tags?.some(tag => tag.toLowerCase().includes(filter.toLowerCase())) ||
-        journey.title?.toLowerCase().includes(filter.toLowerCase()) ||
-        journey.chakra_tag?.toLowerCase() === filter.toLowerCase()
+        (journey.tags && Array.isArray(journey.tags) && journey.tags.some(tag => 
+          tag.toLowerCase().includes(filter.toLowerCase())
+        )) ||
+        (typeof journey.tags === 'string' && journey.tags.toLowerCase().includes(filter.toLowerCase())) ||
+        (journey.title && journey.title.toLowerCase().includes(filter.toLowerCase())) ||
+        (journey.chakra_tag && journey.chakra_tag.toLowerCase().includes(filter.toLowerCase()))
       );
     }
     
@@ -39,6 +45,18 @@ const JourneysList: React.FC<JourneysListProps> = ({
     
     setFilteredJourneys(result);
   }, [journeys, filter, maxItems]);
+
+  if (loading) {
+    return (
+      <div className="p-8 text-center bg-purple-900/20 rounded-lg border border-purple-500/20">
+        <Loader2 className="h-8 w-8 animate-spin text-purple-400 mx-auto mb-2" />
+        <h3 className="text-xl font-medium text-white mb-2">Loading Journeys</h3>
+        <p className="text-white/70">
+          Retrieving sacred experiences...
+        </p>
+      </div>
+    );
+  }
 
   if (filteredJourneys.length === 0) {
     return (

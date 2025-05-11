@@ -19,7 +19,10 @@ const JourneysGrid: React.FC<JourneysGridProps> = ({ journeys, className }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: index * 0.1 }}
           className="h-full"
-          whileHover={{ y: -5, transition: { duration: 0.2 } }}
+          whileHover={{ 
+            y: -5, 
+            transition: { duration: 0.2 } 
+          }}
         >
           <EnhancedJourneyCard journey={journey} className="h-full" />
         </motion.div>

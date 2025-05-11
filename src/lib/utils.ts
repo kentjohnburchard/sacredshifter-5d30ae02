@@ -174,13 +174,30 @@ export function getBackgroundIntensity(pathname: string): number {
 // Function to check device performance capability
 export function shouldReduceEffects(): boolean {
   // Check if user prefers reduced motion
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     return true;
   }
   
   // Check if device is likely mobile/low-power
-  const isMobileOrTablet = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  const isLowPowerMode = window.navigator.hardwareConcurrency && window.navigator.hardwareConcurrency <= 4;
+  if (typeof navigator !== 'undefined') {
+    const isMobileOrTablet = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isLowPowerMode = window.navigator.hardwareConcurrency && window.navigator.hardwareConcurrency <= 4;
+    
+    return isMobileOrTablet || isLowPowerMode;
+  }
   
-  return isMobileOrTablet || isLowPowerMode;
+  return false;
+}
+
+// NEW: Add animation style for pulsing glow effect on journey cards
+export function getChakraPulseStyle(chakraColor: string, intensity = 'medium') {
+  const intensityValue = intensity === 'low' ? 0.3 : 
+                        intensity === 'medium' ? 0.5 : 
+                        intensity === 'high' ? 0.7 : 0.5;
+  
+  return {
+    animation: 'pulse 2s infinite ease-in-out',
+    boxShadow: `0 0 15px ${getColorWithOpacity(chakraColor, intensityValue * 0.8)}, 
+                0 0 30px ${getColorWithOpacity(chakraColor, intensityValue * 0.4)}`,
+  };
 }

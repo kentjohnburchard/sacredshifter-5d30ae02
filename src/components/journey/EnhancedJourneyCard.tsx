@@ -8,6 +8,7 @@ import { normalizeStringArray } from '@/utils/parsers';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import ArchetypeSymbol from '@/components/circle/ArchetypeSymbol';
 
 interface EnhancedJourneyCardProps {
   journey: Journey;
@@ -19,7 +20,7 @@ const EnhancedJourneyCard: React.FC<EnhancedJourneyCardProps> = ({
   className
 }) => {
   const navigate = useNavigate();
-  const chakraTag = journey.chakra_tag as ChakraTag;
+  const chakraTag = journey.chakra_tag as ChakraTag || 'Crown';
   const archetype = getArchetypeForChakra(chakraTag);
   const chakraColor = getChakraColor(chakraTag) || '#8B5CF6'; // Default to purple
   
@@ -50,7 +51,7 @@ const EnhancedJourneyCard: React.FC<EnhancedJourneyCardProps> = ({
       const normalizedId = String(journeyId).trim();
       
       console.log("Navigating to journey:", normalizedId);
-      // Navigate to journey experience page using React Router's navigate
+      // Route to journey experience page with proper ID
       navigate(`/journey/${normalizedId}/experience`);
     } catch (error) {
       console.error("Error navigating to journey:", error);
@@ -77,64 +78,101 @@ const EnhancedJourneyCard: React.FC<EnhancedJourneyCardProps> = ({
         }}/>
       </div>
       
-      {/* Glowing border */}
+      {/* Enhanced glowing border with chakra color */}
       <div 
         className="absolute inset-0 animate-pulse-subtle opacity-70 pointer-events-none z-0"
         style={{ 
-          boxShadow: `inset 0 0 15px ${chakraColor}40, 0 0 25px ${chakraColor}30`,
-          border: `1px solid ${chakraColor}40`,
+          boxShadow: `inset 0 0 15px ${chakraColor}70, 0 0 25px ${chakraColor}50`,
+          border: `1px solid ${chakraColor}60`,
           borderRadius: 'inherit',
         }} 
       />
+
+      {/* Archetype sigil/symbol overlay - positioned in corner */}
+      {archetype && (
+        <div className="absolute top-3 right-3 z-10 opacity-70">
+          <ArchetypeSymbol archetype={archetype} size="sm" glow={true} />
+        </div>
+      )}
       
       {/* Content */}
-      <div className="relative z-10 h-full flex flex-col">
-        <div className="p-4 flex-grow">
-          {/* Chakra tag */}
-          <div className="flex justify-between items-start mb-2">
-            {chakraTag && (
-              <div 
-                className="text-xs font-medium px-2.5 py-1 rounded-full backdrop-blur-sm" 
-                style={{ backgroundColor: `${chakraColor}20`, color: chakraColor }}
-              >
-                {chakraTag}
-                {archetype && ` · ${archetype.name}`}
-              </div>
-            )}
-            
-            {/* Premium indicator */}
-            {isPremium && (
-              <div className="bg-black/40 backdrop-blur-sm p-1.5 rounded-full">
-                <Lock className="h-4 w-4 text-amber-300" />
-              </div>
-            )}
+      <div className="relative z-10 h-full flex flex-col p-5">
+        {/* Chakra tag with archetype */}
+        {chakraTag && (
+          <div 
+            className="text-sm font-medium px-3 py-1.5 rounded-full backdrop-blur-sm mb-3 inline-block" 
+            style={{ 
+              backgroundColor: `${chakraColor}25`, 
+              color: 'white',
+              boxShadow: `0 0 10px ${chakraColor}40`,
+              borderLeft: `2px solid ${chakraColor}` 
+            }}
+          >
+            {chakraTag}
+            {archetype && ` – ${archetype.name}`}
           </div>
-          
-          {/* Journey title */}
-          <h3 className="text-xl font-playfair font-bold text-white mb-2">
-            {journey.title}
-          </h3>
-          
-          {/* Frequency */}
-          {frequencyText && (
-            <div className="mb-3 text-sm text-white/70 flex items-center">
+        )}
+        
+        {/* Journey title */}
+        <h3 className="text-xl font-playfair font-bold text-white mb-3">
+          {journey.title}
+        </h3>
+        
+        {/* Frequency */}
+        {frequencyText && (
+          <div className="mb-3 text-sm text-white/80 flex items-center">
+            <span 
+              className="inline-block w-2 h-2 rounded-full mr-2 animate-pulse" 
+              style={{ backgroundColor: chakraColor }}
+            />
+            {frequencyText} Hz
+          </div>
+        )}
+
+        {/* Intent/Description - only show if we have it */}
+        {journey.intent && (
+          <div className="mb-4 text-sm text-white/70">
+            {journey.intent.length > 120 ? `${journey.intent.substring(0, 120)}...` : journey.intent}
+          </div>
+        )}
+        
+        {/* Tags */}
+        {tags && tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {tags.slice(0, 3).map((tag, idx) => (
               <span 
-                className="inline-block w-2 h-2 rounded-full mr-2 animate-pulse" 
-                style={{ backgroundColor: chakraColor }}
-              />
-              {frequencyText} Hz
-            </div>
-          )}
-        </div>
+                key={idx}
+                className="text-xs px-2 py-0.5 rounded-full" 
+                style={{ 
+                  backgroundColor: `${chakraColor}30`,
+                  color: 'white'
+                }}
+              >
+                {tag.trim()}
+              </span>
+            ))}
+          </div>
+        )}
+        
+        {/* Premium indicator */}
+        {isPremium && (
+          <div className="mb-2 flex items-center text-xs text-amber-300">
+            <Lock className="h-3 w-3 mr-1" />
+            <span>Premium Journey</span>
+          </div>
+        )}
         
         {/* Button */}
-        <div className="p-3 mt-auto">
+        <div className="mt-auto pt-3">
           <motion.button
-            whileHover={{ scale: 1.03 }}
-            className="flex justify-center items-center py-2 px-4 w-full rounded-md text-white font-medium transition-all"
+            whileHover={{ scale: 1.03, boxShadow: `0 0 15px ${chakraColor}70` }}
+            whileTap={{ scale: 0.98 }}
+            className="flex justify-center items-center py-2.5 px-4 w-full rounded-md text-white font-medium transition-all"
             onClick={handleStartJourney}
             style={{
               background: `linear-gradient(to right, ${chakraColor}, ${chakraColor}90)`,
+              boxShadow: `0 4px 12px ${chakraColor}40`,
+              textShadow: '0 1px 3px rgba(0, 0, 0, 0.3)'
             }}
           >
             <Play className="h-4 w-4 mr-2" />

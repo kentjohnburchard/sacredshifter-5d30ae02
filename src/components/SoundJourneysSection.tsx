@@ -14,7 +14,7 @@ const SoundJourneysSection = () => {
         
         <div className="flex flex-col md:flex-row justify-center gap-6 md:gap-12">
           <Link 
-            to="/journey-templates"
+            to="/journeys"
             className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all border border-purple-100 flex-1 max-w-md mx-auto"
           >
             <h3 className="text-2xl font-semibold mb-4 text-purple-800">Sound Journeys</h3>
