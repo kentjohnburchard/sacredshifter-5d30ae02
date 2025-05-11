@@ -8,6 +8,7 @@ interface PageLayoutProps {
   title?: string;
   showSidebar?: boolean;
   showPlayer?: boolean;
+  showChatBubble?: boolean;
   className?: string;
 }
 
@@ -16,6 +17,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
   title = 'Sacred Shifter',
   showSidebar = true,
   showPlayer = true,
+  showChatBubble = true,
   className = '',
 }) => {
   const { liftTheVeil } = useTheme();
@@ -53,6 +55,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
       pageTitle={title}
       showNavbar={showSidebar}
       showPlayer={showPlayer}
+      showChatBubble={showChatBubble}
       className={`${liftTheVeil ? 'veil-mode' : 'standard-mode'} ${className}`}
     >
       {children}
