@@ -244,14 +244,19 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
     if (currentIndex < phases.length - 1) {
       console.log(`Transitioning to phase: ${phases[currentIndex + 1]} after delay`);
       
-      // Small delay for better transitions
+      // Extended delay to ensure transitions complete properly (increased from 300ms to 800ms)
       setTimeout(() => {
         const nextPhase = phases[currentIndex + 1];
         console.log(`Setting current phase to: ${nextPhase}`);
         
         setCurrentPhase(nextPhase);
-        phaseTransitionInProgressRef.current = false;
-      }, 300);
+        
+        // Reset the transition lock after setting the new phase
+        setTimeout(() => {
+          phaseTransitionInProgressRef.current = false;
+          console.log("Phase transition lock released");
+        }, 300); // Wait additional time before allowing new transitions
+      }, 800);
     } else {
       console.log("Already at last phase, not transitioning");
       phaseTransitionInProgressRef.current = false;

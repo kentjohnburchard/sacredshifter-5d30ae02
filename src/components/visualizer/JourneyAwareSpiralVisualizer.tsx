@@ -116,7 +116,7 @@ const JourneyAwareSpiralVisualizer: React.FC<JourneyAwareSpiralVisualizerProps> 
     opacity: spiralParams?.opacity || 80,
     strokeWeight: spiralParams?.strokeWeight || 1.5,
     maxCycles: spiralParams?.maxCycles || 5,
-    speed: isInitialized ? (spiralParams?.speed || 0.00002) : 0.00001 // Use ultra slow speeds for stability
+    speed: isInitialized ? (spiralParams?.speed || 0.00001) : 0.000005 // Reduced by 50% for stability
   };
 
   return (

@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState } from 'react';
 import p5 from 'p5';
 
@@ -26,7 +25,7 @@ const initialParams: Required<SpiralParams> = {
   freqC: 2.7,
   opacity: 0.3, // Start more transparent
   strokeWeight: 0.8, // Thinner lines initially
-  speed: 0.00002, // Ultra slow for stability
+  speed: 0.00001, // Ultra slow for stability - reduced by 50%
   color: '255,255,255',
   maxCycles: 2 // Start with fewer cycles
 };
@@ -41,7 +40,7 @@ const defaultParams: Required<SpiralParams> = {
   freqC: 2.7,
   opacity: 0.8,
   strokeWeight: 1.5,
-  speed: 0.5,
+  speed: 0.25, // Reduced by 50% from original 0.5
   color: '255,255,255',
   maxCycles: 5
 };
@@ -90,7 +89,7 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
     if (startSmall) {
       let growthStep = 0;
       const growthInterval = setInterval(() => {
-        growthStep += 0.02; // 2% growth per interval
+        growthStep += 0.01; // 1% growth per interval - slower growth (reduced from 0.02)
         if (growthStep >= 1) {
           clearInterval(growthInterval);
           growthStep = 1;
@@ -176,7 +175,7 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
         animationSpeed = currentParams.speed || defaultParams.speed;
         
         // Slowly advance time based on speed parameter - using ultra slow speed
-        t += Math.min(animationSpeed * 0.01, 0.0001); // Cap the time advancement to avoid issues
+        t += Math.min(animationSpeed * 0.005, 0.0001); // Cap the time advancement to avoid issues, reduced by 50%
         
         // Apply a subtle fade to create trail effect
         p.background(0, 0, 0, 8);
