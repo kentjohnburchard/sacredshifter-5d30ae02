@@ -121,7 +121,8 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
       // Blend between initial and target parameters based on growth progress
       if (startSmall && growthProgress < 1) {
         const targetParams = { ...defaultParams, ...params };
-        const currentParams: Partial<SpiralParams> = { ...initialParams };
+        // Use a typed record to ensure we can assign values properly
+        const currentParams: Record<keyof SpiralParams, any> = { ...initialParams };
         
         // Interpolate between initial and target parameters
         Object.keys(targetParams).forEach((key) => {
