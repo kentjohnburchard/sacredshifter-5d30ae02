@@ -17,7 +17,7 @@ function Root() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <ThemeProvider>
-            <div className="relative min-h-screen w-full">
+            <div className="relative min-h-screen w-full sacred-app">
               {/* Fixed background */}
               <div className="fixed inset-0 z-[-2] bg-gradient-to-b from-black to-gray-900/95">
                 {/* Stars effect */}
@@ -51,24 +51,5 @@ function Root() {
     </BrowserRouter>
   );
 }
-
-// Add global CSS for stars background
-const styleElement = document.createElement("style");
-styleElement.textContent = `
-  .stars-bg {
-    background-image: radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
-                      radial-gradient(2px 2px at 40px 70px, #ffffff, rgba(0,0,0,0)),
-                      radial-gradient(2px 2px at 60px 110px, #ffffff, rgba(0,0,0,0)),
-                      radial-gradient(2px 2px at 80px 150px, #ffffff, rgba(0,0,0,0));
-    background-size: 200px 200px;
-    animation: stars-move 100s linear infinite;
-  }
-  
-  @keyframes stars-move {
-    0% { background-position: 0 0; }
-    100% { background-position: 200px 200px; }
-  }
-`;
-document.head.appendChild(styleElement);
 
 export default Root;

@@ -12,7 +12,7 @@ interface MathematicalBackgroundProps {
 
 const MathematicalBackground: React.FC<MathematicalBackgroundProps> = ({ 
   children,
-  intensity = 'high' 
+  intensity = 'medium' 
 }) => {
   const { liftTheVeil } = useTheme();
   
@@ -45,7 +45,7 @@ const MathematicalBackground: React.FC<MathematicalBackgroundProps> = ({
   }
   
   return (
-    <div className={`relative min-h-screen overflow-hidden ${liftTheVeil ? 'cosmic-background' : ''}`}>
+    <div className={`relative min-h-screen overflow-hidden ${liftTheVeil ? 'cosmic-background veil-mode' : 'standard-mode'}`}>
       {/* Fixed position background elements */}
       <div className="fixed inset-0 w-full h-full z-0">
         {/* Mathematical canvas background */}

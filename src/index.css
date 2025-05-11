@@ -23,6 +23,17 @@
   --radius: 0.5rem;
   --sidebar-bg: 268 59% 18%;
   --sidebar-bg-hover: 268 59% 22%;
+  
+  /* Sacred Circle specific variables */
+  --sacred-purple: 155, 135, 245;
+  --sacred-blue: 98, 147, 232;
+  --sacred-pink: 236, 72, 153;
+  --sacred-green: 95, 232, 185;
+  --sacred-glass-bg: rgba(15, 14, 31, 0.6);
+  --sacred-glass-border: rgba(255, 255, 255, 0.08);
+  --sacred-glow-purple: 0 0 15px rgba(155, 135, 245, 0.5);
+  --sacred-glow-blue: 0 0 15px rgba(98, 147, 232, 0.5);
+  --sacred-glow-pink: 0 0 15px rgba(232, 122, 208, 0.5);
 }
 
 .dark {
@@ -62,7 +73,7 @@
   }
 }
 
-/* Define sacred-heading directly in index.css to resolve the error */
+/* Define the sacred-heading class within the components layer */
 @layer components {
   .sacred-heading {
     @apply bg-clip-text text-transparent font-semibold;
@@ -276,4 +287,25 @@
   .nav-link:hover {
     background: transparent;
   }
+}
+
+/* Add global theme styles */
+.sacred-app {
+  background: radial-gradient(circle at center, #0f0e1f 0%, #050508 100%);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.sacred-card {
+  @apply backdrop-blur-lg bg-black/60 border border-white/10 shadow-xl;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(155, 135, 245, 0.1);
+}
+
+.sacred-input {
+  @apply bg-black/40 border-white/10 text-white focus:border-purple-500/70 shadow-lg backdrop-blur-lg;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.sacred-button {
+  @apply bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }

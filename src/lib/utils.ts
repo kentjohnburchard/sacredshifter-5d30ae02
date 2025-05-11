@@ -40,11 +40,11 @@ export function getGlassmorphismStyle(color = 'purple', opacity = 0.2, blur = 10
                     color === 'blue' ? '98, 147, 232' : 
                     color === 'pink' ? '236, 72, 153' : '155, 135, 245';
                     
-  // Fix: Ensure opacity is always a number before arithmetic
+  // Ensure opacity is always a number before arithmetic
   const opacityValue = typeof opacity === 'number' ? opacity : 
                        typeof opacity === 'string' ? parseFloat(opacity) || 0.2 : 0.2;
   
-  // Now opacityValue is guaranteed to be a number
+  // Store the calculation result in a separate variable
   const backgroundOpacity = opacityValue + 0.1;
   
   return {
@@ -71,4 +71,39 @@ export function getNeonTextStyle(color = 'purple', intensity = 'medium') {
     color: `rgba(${glowColor}, 1)`,
     textShadow: `0 0 5px rgba(${glowColor}, ${glowIntensity}), 0 0 10px rgba(${glowColor}, ${glowIntensity * 0.8})`,
   };
+}
+
+// Add a new function to apply Sacred Circle theme consistently across components
+export function getSacredThemeStyles(variant = 'default') {
+  switch(variant) {
+    case 'card':
+      return {
+        background: 'rgba(15, 14, 31, 0.7)',
+        backdropFilter: 'blur(12px)',
+        border: '1px solid rgba(155, 135, 245, 0.2)',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(155, 135, 245, 0.1)',
+        borderRadius: '0.5rem',
+      };
+    case 'input':
+      return {
+        background: 'rgba(15, 14, 31, 0.5)',
+        backdropFilter: 'blur(8px)',
+        border: '1px solid rgba(155, 135, 245, 0.2)',
+        color: 'rgba(255, 255, 255, 0.9)',
+        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
+      };
+    case 'button':
+      return {
+        background: 'linear-gradient(135deg, rgba(155, 135, 245, 0.8), rgba(98, 147, 232, 0.8))',
+        border: '1px solid rgba(155, 135, 245, 0.4)',
+        color: 'white',
+        textShadow: '0 1px 3px rgba(0, 0, 0, 0.4)',
+        boxShadow: '0 4px 12px rgba(98, 147, 232, 0.3)',
+      };
+    default:
+      return {
+        color: 'rgba(255, 255, 255, 0.9)',
+        textShadow: '0 1px 3px rgba(0, 0, 0, 0.4)',
+      };
+  }
 }

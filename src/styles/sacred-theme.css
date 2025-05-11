@@ -1,7 +1,8 @@
+
 /* Sacred Theme Global Styles */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* Root Variables */
+/* Root Variables - Already moved to index.css, keeping here for reference */
 :root {
   /* Base Colors */
   --sacred-bg-dark: #0a0a12;
@@ -71,8 +72,6 @@ h1, h2, h3, h4, h5, h6 {
   opacity: 0.3;
 }
 
-/* Note: sacred-heading is now defined in index.css to fix the Tailwind issue */
-
 /* Glass Card Styles */
 .sacred-glass {
   background: var(--sacred-glass-bg);
@@ -89,6 +88,28 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Button Styles */
+.sacred-button-base {
+  position: relative;
+  overflow: hidden;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.sacred-button-base::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  opacity: 0;
+  transition: opacity var(--sacred-transition-fast);
+}
+
+.sacred-button-base:hover::before {
+  opacity: 1;
+}
+
 .sacred-button {
   background: linear-gradient(135deg, var(--sacred-glass-bg), rgba(15, 14, 31, 0.4));
   border: 1px solid var(--sacred-glass-border);
@@ -101,6 +122,7 @@ h1, h2, h3, h4, h5, h6 {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 .sacred-button::before {
@@ -191,6 +213,7 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 0.375rem;
   padding: 0.5rem 1rem;
   transition: all var(--sacred-transition-fast);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .sacred-input:focus {
@@ -231,6 +254,28 @@ h1, h2, h3, h4, h5, h6 {
   50% { opacity: 0.7; }
 }
 
+/* Veil Mode Overrides */
+.veil-mode {
+  --sacred-purple: 236, 72, 153;
+  --sacred-blue: 219, 39, 119;
+  --sacred-accent: 236, 72, 153;
+}
+
+.veil-mode .sacred-heading {
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.95), rgba(219, 39, 119, 0.75));
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+.veil-mode .sacred-button-primary {
+  background: linear-gradient(135deg, #ec4899, #be185d);
+  border-color: rgba(236, 72, 153, 0.4);
+}
+
+.veil-mode .sacred-button-primary:hover {
+  box-shadow: var(--sacred-glow-pink);
+}
+
 /* Responsive Utilities */
 @media (max-width: 768px) {
   .sacred-container {
@@ -252,4 +297,19 @@ h1, h2, h3, h4, h5, h6 {
   .sacred-pulse {
     animation: none;
   }
+}
+
+/* Add global CSS for stars background */
+.stars-bg {
+  background-image: radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+                    radial-gradient(2px 2px at 40px 70px, #ffffff, rgba(0,0,0,0)),
+                    radial-gradient(2px 2px at 60px 110px, #ffffff, rgba(0,0,0,0)),
+                    radial-gradient(2px 2px at 80px 150px, #ffffff, rgba(0,0,0,0));
+  background-size: 200px 200px;
+  animation: stars-move 100s linear infinite;
+}
+
+@keyframes stars-move {
+  0% { background-position: 0 0; }
+  100% { background-position: 200px 200px; }
 }

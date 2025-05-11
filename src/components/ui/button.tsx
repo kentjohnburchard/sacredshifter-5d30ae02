@@ -20,6 +20,7 @@ const buttonVariants = cva(
         ghost: "hover:bg-white/10 hover:text-accent-foreground text-enhanced",
         link: "text-primary underline-offset-4 hover:underline font-semibold text-enhanced",
         gradient: "bg-gradient-to-r from-purple-600/90 to-indigo-600/90 text-white hover:from-purple-700/90 hover:to-indigo-700/90 shadow-lg shadow-purple-700/20 border border-white/10 backdrop-blur-md",
+        sacred: "bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg shadow-purple-700/20 border border-white/10 backdrop-blur-md",
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -48,7 +49,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <Comp
         className={cn(
           buttonVariants({ variant, size, className }), 
-          "shadow-lg"
+          "shadow-lg sacred-button-base"
         )}
         ref={ref}
         style={{

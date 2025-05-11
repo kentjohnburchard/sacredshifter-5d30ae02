@@ -39,17 +39,34 @@ const AppShell: React.FC<AppShellProps> = ({
   
   useEffect(() => {
     document.title = `${pageTitle} | Sacred Shifter`;
-  }, [pageTitle]);
+    
+    // Apply classes to body for Sacred Circle theme
+    document.body.classList.add('sacred-app');
+    const consciousnessClass = liftTheVeil ? 'veil-mode' : 'standard-mode';
+    document.body.classList.add(consciousnessClass);
+    
+    return () => {
+      // Clean up when component unmounts
+      document.body.classList.remove('sacred-app');
+      document.body.classList.remove('veil-mode');
+      document.body.classList.remove('standard-mode');
+    }
+  }, [pageTitle, liftTheVeil]);
   
   return (
     <CommunityProvider>
-      <div className={`relative flex min-h-screen w-full overflow-hidden ${className}`}>
+      <div className={`relative flex min-h-screen w-full overflow-hidden ${liftTheVeil ? 'veil-mode' : 'standard-mode'} ${className}`}>
         {/* Background Elements */}
         <div className="fixed inset-0 w-full h-full z-0">
           <JourneyAwareSpiralVisualizer 
             showControls={false} 
             containerId="backgroundSpiral"
             className="opacity-30"
+          />
+          
+          {/* Stars background */}
+          <div 
+            className="absolute inset-0 stars-bg opacity-50 pointer-events-none"
           />
         </div>
         
@@ -68,7 +85,7 @@ const AppShell: React.FC<AppShellProps> = ({
         <ThemeEnhancer />
 
         {/* Layout Structure */}
-        <div className="flex min-h-screen w-full z-10 relative">
+        <div className={`flex min-h-screen w-full z-10 relative ${liftTheVeil ? 'veil-mode' : 'standard-mode'}`}>
           {showSidebar && <SidebarNav />}
           
           <main className={`flex-1 flex flex-col min-h-screen relative ${showSidebar ? 'md:ml-16 lg:ml-64' : ''}`}>
@@ -76,7 +93,10 @@ const AppShell: React.FC<AppShellProps> = ({
             <div className="p-4 flex justify-end">
               {!user ? (
                 <Link to="/auth">
-                  <Button variant="outline" className="text-white border-white/20 hover:bg-white/10 hover:text-white">
+                  <Button 
+                    variant={liftTheVeil ? "sacred" : "gradient"} 
+                    className="text-white border-white/20 hover:bg-white/10"
+                  >
                     <LogIn className="h-4 w-4 mr-2" />
                     Sign In
                   </Button>
