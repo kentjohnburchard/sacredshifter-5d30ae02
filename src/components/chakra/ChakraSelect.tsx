@@ -50,13 +50,13 @@ const ChakraSelect: React.FC<ChakraSelectProps> = ({
       </SelectTrigger>
       <SelectContent>
         {basicChakras.map((chakra) => {
-          // Ensure every item has a valid non-empty value
-          const itemValue = chakra.name || `chakra-${Math.random().toString(36).slice(2, 7)}`;
+          // Generate a guaranteed non-empty value string for each item
+          const chakraValue = chakra.name || `chakra-${Math.random().toString(36).substring(2, 7)}`;
           
           return (
             <SelectItem 
-              key={chakra.name || itemValue} 
-              value={itemValue} 
+              key={chakraValue} 
+              value={chakraValue}
               className="flex items-center"
             >
               <div className="flex items-center">
