@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
@@ -24,6 +25,7 @@ import JourneyPlayer from './components/frequency-journey/JourneyPlayer';
 import Journeys from './pages/JourneysPage';
 import JourneyIndex from './pages/JourneyIndex';
 import JourneyTemplatesPage from './pages/journey-templates';
+import JourneyExperiencePage from './pages/JourneyExperiencePage';
 
 // Community & Info
 import AboutFounder from './pages/AboutFounder';
@@ -71,6 +73,7 @@ function App() {
 
               {/* Journey Experience */}
               <Route path="/journey/:slug" element={<JourneyPage />} />
+              <Route path="/journey/:slug/experience" element={<JourneyExperiencePage />} />
               <Route path="/journey-player" element={<JourneyPlayer />} />
               <Route path="/journeys" element={<Journeys />} />
               <Route path="/journey-index" element={<JourneyIndex />} />
