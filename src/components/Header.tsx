@@ -39,12 +39,13 @@ const Header: React.FC<HeaderProps> = ({
           )}
           
           <h1 
-            className="text-lg font-semibold bg-clip-text text-transparent"
+            className="text-lg font-semibold bg-clip-text text-transparent sacred-heading"
             style={{
               backgroundImage: liftTheVeil 
                 ? 'linear-gradient(to right, rgba(236, 72, 153, 1), rgba(236, 72, 153, 0.8))' 
                 : 'linear-gradient(to right, rgba(168, 85, 247, 1), rgba(168, 85, 247, 0.8))',
-              textShadow: '0 2px 10px rgba(0, 0, 0, 0.3)'
+              textShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
+              margin: 0
             }}
           >
             {title}

@@ -83,12 +83,9 @@ const Layout: React.FC<LayoutProps> = ({
           {!hideHeader && <Header />}
           
           {/* Content area with proper padding to avoid sidebar overlap */}
-          <div className={`flex-grow min-h-[calc(100vh-80px)] pb-32 relative ${showNavbar ? 'md:ml-20 lg:ml-64 pt-4' : 'pt-0'} overflow-x-hidden`}>
-            {/* Semi-transparent overlay for better text contrast */}
-            <div className="absolute inset-0 bg-black/50 z-0"></div>
-            
+          <div className={`flex-grow min-h-[calc(100vh-80px)] pb-32 relative ${showNavbar ? 'ml-0 md:ml-16 lg:ml-64 pt-4' : 'pt-0'} overflow-x-hidden`}>
             {/* Main content with responsive padding */}
-            <div className="w-full mx-auto relative z-10 px-4 sm:px-6 md:px-8">
+            <div className="w-full mx-auto relative z-10 px-3 sm:px-5 md:px-8">
               {children}
             </div>
           </div>

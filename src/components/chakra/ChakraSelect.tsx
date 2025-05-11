@@ -19,14 +19,14 @@ interface ChakraSelectProps {
 
 // Since CHAKRAS isn't available, use basic chakra set
 const basicChakras = [
-  { name: 'Root', color: '#FF0000' },
-  { name: 'Sacral', color: '#FF7F00' },
-  { name: 'Solar Plexus', color: '#FFFF00' },
-  { name: 'Heart', color: '#00FF00' },
-  { name: 'Throat', color: '#00FFFF' },
-  { name: 'Third Eye', color: '#0000FF' },
-  { name: 'Crown', color: '#8B00FF' },
-  { name: 'Transpersonal', color: '#FFFFFF' }
+  { name: 'Root', color: '#FF0000', id: 'root' },
+  { name: 'Sacral', color: '#FF7F00', id: 'sacral' },
+  { name: 'Solar Plexus', color: '#FFFF00', id: 'solar-plexus' },
+  { name: 'Heart', color: '#00FF00', id: 'heart' },
+  { name: 'Throat', color: '#00FFFF', id: 'throat' },
+  { name: 'Third Eye', color: '#0000FF', id: 'third-eye' },
+  { name: 'Crown', color: '#8B00FF', id: 'crown' },
+  { name: 'Transpersonal', color: '#FFFFFF', id: 'transpersonal' }
 ];
 
 const ChakraSelect: React.FC<ChakraSelectProps> = ({
@@ -45,30 +45,25 @@ const ChakraSelect: React.FC<ChakraSelectProps> = ({
       onValueChange={onChange}
       disabled={disabled}
     >
-      <SelectTrigger className={className}>
+      <SelectTrigger className={`${className} border-white/20 bg-black/40 backdrop-blur-md text-white`}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
-      <SelectContent>
-        {basicChakras.map((chakra) => {
-          // Generate a guaranteed non-empty value string for each item
-          const chakraValue = chakra.name || `chakra-${Math.random().toString(36).substring(2, 7)}`;
-          
-          return (
-            <SelectItem 
-              key={chakraValue} 
-              value={chakraValue}
-              className="flex items-center"
-            >
-              <div className="flex items-center">
-                <div 
-                  className="w-3 h-3 rounded-full mr-2"
-                  style={{ backgroundColor: chakra.color }}
-                ></div>
-                {chakra.name || "Unnamed Chakra"}
-              </div>
-            </SelectItem>
-          );
-        })}
+      <SelectContent className="bg-black/80 border-white/20 backdrop-blur-lg text-white">
+        {basicChakras.map((chakra) => (
+          <SelectItem 
+            key={chakra.id} 
+            value={chakra.id}
+            className="flex items-center focus:bg-white/10 focus:text-white data-[state=checked]:bg-white/20"
+          >
+            <div className="flex items-center">
+              <div 
+                className="w-3 h-3 rounded-full mr-2"
+                style={{ backgroundColor: chakra.color }}
+              ></div>
+              {chakra.name}
+            </div>
+          </SelectItem>
+        ))}
       </SelectContent>
     </Select>
   );

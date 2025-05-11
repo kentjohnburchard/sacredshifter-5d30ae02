@@ -1,12 +1,24 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import SidebarNavItems from '@/components/navigation/SidebarNavItems';
 
 const Sidebar = () => {
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(window.innerWidth < 1024);
   const { liftTheVeil } = useTheme();
+  
+  useEffect(() => {
+    // Handle responsive collapse state on resize
+    const handleResize = () => {
+      if (window.innerWidth < 1024 && !isCollapsed) {
+        setIsCollapsed(true);
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isCollapsed]);
   
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
@@ -15,10 +27,8 @@ const Sidebar = () => {
   return (
     <aside 
       className={`
-        fixed left-0 top-0 bottom-0 z-40 
-        ${isCollapsed ? 'w-16' : 'w-64'} 
-        transition-all duration-300 ease-in-out 
-        backdrop-blur-lg
+        fixed left-0 top-0 bottom-0 z-40 transition-all duration-300 ease-in-out backdrop-blur-lg
+        ${isCollapsed ? 'w-0 md:w-16' : 'w-64'} 
       `}
       style={{
         background: 'rgba(10, 10, 18, 0.85)',
@@ -52,11 +62,12 @@ const Sidebar = () => {
             className={`
               p-1.5 rounded-full transition-all duration-300
               hover:bg-white/10
-              ${isCollapsed ? 'ml-auto mr-auto' : ''}
+              ${isCollapsed ? 'ml-auto mr-auto hidden md:block' : ''}
             `}
             style={{
               color: liftTheVeil ? 'rgba(232, 122, 208, 1)' : 'rgba(155, 135, 245, 1)'
             }}
+            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             <ChevronRight 
               className={`h-4 w-4 transition-transform ${isCollapsed ? 'rotate-0' : 'rotate-180'}`} 
@@ -64,11 +75,25 @@ const Sidebar = () => {
           </button>
         </div>
         
+        {/* Mobile toggle button (outside the sidebar) */}
+        <button
+          className="fixed md:hidden top-4 left-4 z-50 bg-black/50 backdrop-blur-sm p-2 rounded-full shadow-lg border border-white/10"
+          onClick={toggleSidebar}
+          style={{
+            color: liftTheVeil ? 'rgba(232, 122, 208, 1)' : 'rgba(155, 135, 245, 1)'
+          }}
+          aria-label={isCollapsed ? 'Show menu' : 'Hide menu'}
+        >
+          <ChevronRight 
+            className={`h-5 w-5 transition-transform ${isCollapsed ? 'rotate-0' : 'rotate-180'}`} 
+          />
+        </button>
+        
         {/* Sidebar nav items */}
         <div className="flex-1 py-4 overflow-y-auto custom-scrollbar">
           <SidebarNavItems 
             isCollapsed={isCollapsed} 
-            onLinkClick={() => setIsCollapsed(true)}
+            onLinkClick={() => window.innerWidth < 1024 && setIsCollapsed(true)}
           />
         </div>
       </div>
