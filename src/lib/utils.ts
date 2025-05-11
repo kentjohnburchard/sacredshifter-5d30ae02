@@ -40,8 +40,11 @@ export function getGlassmorphismStyle(color = 'purple', opacity = 0.2, blur = 10
                     color === 'blue' ? '98, 147, 232' : 
                     color === 'pink' ? '236, 72, 153' : '155, 135, 245';
                     
+  // Fix: Convert opacity (which might be a string) to number before arithmetic
+  const opacityValue = typeof opacity === 'number' ? opacity : parseFloat(opacity.toString());
+  
   return {
-    background: `rgba(15, 14, 31, ${opacity + 0.1})`,
+    background: `rgba(15, 14, 31, ${opacityValue + 0.1})`,
     backdropFilter: `blur(${blur}px)`,
     WebkitBackdropFilter: `blur(${blur}px)`,
     border: `1px solid rgba(${baseColor}, 0.2)`,
