@@ -12,6 +12,7 @@ export function normalizeJourney(journey: any): Journey {
   if (!journey) return {} as Journey;
   
   // Determine chakra value from either chakra or chakra_tag field
+  // Explicitly convert to string or null for type safety
   const chakraValue = journey.chakra || journey.chakra_tag || null;
   
   return {
@@ -52,7 +53,8 @@ export function normalizeJourney(journey: any): Journey {
     is_featured: journey.is_featured,
     needs_moderation: journey.needs_moderation,
     is_approved: journey.is_approved,
-    // Set both chakra fields for consistency
+    // Ensure both chakra fields are always set consistently to the same value
+    // This is critical for type safety across the application
     chakra: chakraValue,
     chakra_tag: chakraValue,
     

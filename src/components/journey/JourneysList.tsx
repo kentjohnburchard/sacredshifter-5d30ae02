@@ -31,36 +31,25 @@ const JourneysList: React.FC<JourneysListProps> = ({
       
       // Filter by tags, title, or chakra
       result = result.filter(journey => {
-        // Check tags as array
-        const hasMatchingArrayTag = journey.tags && 
-          Array.isArray(journey.tags) && 
-          journey.tags.some(tag => 
-            tag && typeof tag === 'string' && tag.toLowerCase().includes(filterLower)
-          );
-        
-        // Check tags as string
-        const hasMatchingStringTag = journey.tags && 
-          typeof journey.tags === 'string' && 
-          journey.tags.toLowerCase().includes(filterLower);
+        // Check if any tag matches
+        const hasTags = Array.isArray(journey.tags) && journey.tags.length > 0;
+        const hasMatchingTag = hasTags && journey.tags.some(tag => 
+          tag && typeof tag === 'string' && tag.toLowerCase().includes(filterLower)
+        );
         
         // Check title
-        const hasMatchingTitle = journey.title && 
-          typeof journey.title === 'string' &&
-          journey.title.toLowerCase().includes(filterLower);
+        const hasTitle = journey.title && typeof journey.title === 'string';
+        const hasMatchingTitle = hasTitle && journey.title.toLowerCase().includes(filterLower);
         
-        // Check both chakra_tag and chakra fields with proper type guards
-        // First check chakra_tag field
-        const chakraTagMatch = journey.chakra_tag && 
-          typeof journey.chakra_tag === 'string' && 
-          journey.chakra_tag.toLowerCase().includes(filterLower);
-          
-        // Then check chakra field as fallback
-        const chakraMatch = journey.chakra &&
-          typeof journey.chakra === 'string' &&
-          journey.chakra.toLowerCase().includes(filterLower);
+        // Combined chakra check - handle both fields safely
+        const chakraTag = journey.chakra_tag || '';
+        const chakra = journey.chakra || '';
         
-        // Return true if any condition matches
-        return hasMatchingArrayTag || hasMatchingStringTag || hasMatchingTitle || chakraTagMatch || chakraMatch;
+        const hasMatchingChakra = 
+          (typeof chakraTag === 'string' && chakraTag.toLowerCase().includes(filterLower)) ||
+          (typeof chakra === 'string' && chakra.toLowerCase().includes(filterLower));
+        
+        return hasMatchingTag || hasMatchingTitle || hasMatchingChakra;
       });
     }
     

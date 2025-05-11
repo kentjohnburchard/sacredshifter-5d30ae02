@@ -38,6 +38,9 @@ export const getAllJourneys = async (dbJourneys: Journey[] = []): Promise<Journe
         // Parse frontmatter
         const frontmatter = parseJourneyFrontmatter(content);
         
+        // Get chakra value, defaulting to null
+        const chakraValue = frontmatter.chakra || null;
+        
         // Create journey object
         const journey: Journey = {
           id: `core-${filename}`,
@@ -50,8 +53,8 @@ export const getAllJourneys = async (dbJourneys: Journey[] = []): Promise<Journe
           content,
           isCoreContent: true,
           // Ensure both chakra and chakra_tag fields are set for consistency
-          chakra: frontmatter.chakra || null,
-          chakra_tag: frontmatter.chakra || null
+          chakra: chakraValue,
+          chakra_tag: chakraValue
         };
         
         return journey;
