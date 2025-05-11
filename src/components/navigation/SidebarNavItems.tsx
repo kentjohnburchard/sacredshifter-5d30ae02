@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useTheme } from '@/context/ThemeContext';
 import { 
   Home, Music, Radio, Heart, 
@@ -19,6 +19,7 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
   onLinkClick = () => {} 
 }) => {
   const { liftTheVeil } = useTheme();
+  const location = useLocation();
 
   // Define navigation items
   const navItems = [
@@ -88,16 +89,20 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
               : `text-gray-400 hover:bg-white/5 hover:text-white`}
             ${isCollapsed ? 'justify-center' : ''}
           `}
-          style={{
+          style={({ isActive }) => ({
             textShadow: isActive ? '0 0 10px rgba(255,255,255,0.5)' : 'none'
-          }}
+          })}
           onClick={onLinkClick}
         >
-          <item.icon
-            className={`h-5 w-5 shrink-0 transition-colors duration-300
-              ${liftTheVeil ? 'text-pink-400' : 'text-purple-400'}`}
-          />
-          {!isCollapsed && <span>{item.label}</span>}
+          {({ isActive }) => (
+            <>
+              <item.icon
+                className={`h-5 w-5 shrink-0 transition-colors duration-300
+                  ${liftTheVeil ? 'text-pink-400' : 'text-purple-400'}`}
+              />
+              {!isCollapsed && <span>{item.label}</span>}
+            </>
+          )}
         </NavLink>
       ))}
     </nav>
