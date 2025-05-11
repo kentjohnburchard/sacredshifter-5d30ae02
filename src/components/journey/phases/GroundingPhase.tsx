@@ -21,6 +21,7 @@ const GroundingPhase: React.FC<GroundingPhaseProps> = ({
   const [breathCount, setBreathCount] = useState(0);
   const [isBreathing, setIsBreathing] = useState(false);
   const [showContinue, setShowContinue] = useState(false);
+  const [completionInProgress, setCompletionInProgress] = useState(false);
 
   // Breath animation controller
   useEffect(() => {
@@ -46,9 +47,16 @@ const GroundingPhase: React.FC<GroundingPhaseProps> = ({
   };
 
   const handleComplete = () => {
-    // Remove the event parameter to avoid issues with event propagation
+    // Prevent multiple clicks
+    if (completionInProgress) return;
+    
     console.log("GroundingPhase handleComplete called");
-    onComplete();
+    setCompletionInProgress(true);
+    
+    // Small delay for visual feedback
+    setTimeout(() => {
+      onComplete();
+    }, 100);
   };
 
   const chakraColor = chakra ? getChakraColor(chakra) : '#8B5CF6'; // Default purple
@@ -114,6 +122,7 @@ const GroundingPhase: React.FC<GroundingPhaseProps> = ({
           >
             <Button 
               onClick={handleComplete}
+              disabled={completionInProgress}
               className="flex items-center gap-2 px-6 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-md"
             >
               Continue to Alignment

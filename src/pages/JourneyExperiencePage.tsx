@@ -1,7 +1,8 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import JourneyExperience from '@/components/journey/JourneyExperience';
-import { JourneyProvider, useJourney } from '@/context/JourneyContext';
+import { useJourney } from '@/context/JourneyContext';
 import LoadingScreen from '@/components/LoadingScreen';
 import { toast } from 'sonner';
 import { logTimelineEvent } from '@/services/timeline'; 
@@ -27,7 +28,7 @@ const BackButton = () => {
   );
 };
 
-const JourneyExperienceContent: React.FC = () => {
+const JourneyExperiencePage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -176,14 +177,6 @@ const JourneyExperienceContent: React.FC = () => {
         onComplete={handleJourneyComplete}
       />
     </>
-  );
-};
-
-const JourneyExperiencePage: React.FC = () => {
-  return (
-    <JourneyProvider>
-      <JourneyExperienceContent />
-    </JourneyProvider>
   );
 };
 

@@ -20,7 +20,7 @@ export interface SpiralParams {
 // Cache to store params by journey ID
 export const paramsCache: Record<string, SpiralParams> = {};
 
-// Default spiral parameters
+// Default spiral parameters with significantly reduced speeds
 const defaultParams: SpiralParams = {
   coeffA: 1.2,
   coeffB: 0.9,
@@ -32,7 +32,7 @@ const defaultParams: SpiralParams = {
   opacity: 80,
   strokeWeight: 0.5,
   maxCycles: 5,
-  speed: 0.0001 // Further reduced for slower, more meditative unfolding
+  speed: 0.00005 // Further reduced for slower, more meditative unfolding
 };
 
 // Chakra color mappings for default parameters
@@ -77,7 +77,7 @@ const useSpiralParams = (journeyId?: string) => {
           freqA: 3.0,
           freqB: 2.0,
           maxCycles: 3,
-          speed: 0.0001 // Reduced speed
+          speed: 0.00005 // Further reduced speed
         };
       case 'Sacral':
         return {
@@ -87,7 +87,7 @@ const useSpiralParams = (journeyId?: string) => {
           freqA: 3.5,
           freqB: 2.5,
           maxCycles: 4,
-          speed: 0.00012 // Reduced speed
+          speed: 0.00006 // Further reduced speed
         };
       case 'Solar Plexus':
         return {
@@ -97,7 +97,7 @@ const useSpiralParams = (journeyId?: string) => {
           freqA: 4.0,
           freqB: 3.0,
           maxCycles: 4,
-          speed: 0.00012 // Reduced speed
+          speed: 0.00006 // Further reduced speed
         };
       case 'Heart':
         return {
@@ -107,7 +107,7 @@ const useSpiralParams = (journeyId?: string) => {
           freqA: 4.5,
           freqB: 3.5,
           maxCycles: 5,
-          speed: 0.00013 // Reduced speed
+          speed: 0.000065 // Further reduced speed
         };
       case 'Throat':
         return {
@@ -117,7 +117,7 @@ const useSpiralParams = (journeyId?: string) => {
           freqA: 5.0,
           freqB: 4.0,
           maxCycles: 5,
-          speed: 0.00014 // Reduced speed
+          speed: 0.00007 // Further reduced speed
         };
       case 'Third Eye':
         return {
@@ -127,7 +127,7 @@ const useSpiralParams = (journeyId?: string) => {
           freqA: 5.5,
           freqB: 4.5,
           maxCycles: 6,
-          speed: 0.00015 // Reduced speed
+          speed: 0.000075 // Further reduced speed
         };
       case 'Crown':
         return {
@@ -137,12 +137,12 @@ const useSpiralParams = (journeyId?: string) => {
           freqA: 6.0,
           freqB: 5.0,
           maxCycles: 7,
-          speed: 0.00015 // Reduced speed
+          speed: 0.000075 // Further reduced speed
         };
       default:
         return {
           ...chakraParams,
-          speed: 0.0001 // Reduced default speed
+          speed: 0.00005 // Further reduced default speed
         };
     }
   }, []);
@@ -164,7 +164,7 @@ const useSpiralParams = (journeyId?: string) => {
             // Ensure we don't cause rendering loops by modifying the speed
             const safeParams = {
               ...journeyParams,
-              speed: Math.min(journeyParams.speed, 0.0005) // Cap the speed to avoid too fast animations
+              speed: Math.min(journeyParams.speed, 0.0002) // Cap the speed to avoid too fast animations
             };
             
             setParams(safeParams);

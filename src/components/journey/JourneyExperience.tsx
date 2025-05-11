@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useJourney } from '@/context/JourneyContext';
@@ -6,7 +7,6 @@ import { logTimelineEvent } from '@/services/timeline';
 import { useAuth } from '@/context/AuthContext';
 import { useChakraActivations } from '@/hooks/useChakraActivations';
 import { useLightbearerProgress } from '@/hooks/useLightbearerProgress';
-import { Journey } from '@/types/journey';
 import { toast } from 'sonner';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
@@ -70,6 +70,7 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
   const [eventLogged, setEventLogged] = useState(false);
   const [journeyStartTime] = useState<Date>(new Date());
   const [sessionId] = useState<string>(crypto.randomUUID());
+  const phaseChangeRef = useRef(false);
 
   // Background opacity animation based on scroll
   const backgroundOpacity = useTransform(scrollY, [0, 300], [1, 0.5]);
@@ -148,26 +149,26 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
     
     switch(currentPhase) {
       case 'grounding':
-        phaseParams.speed = 0.0001; // Further reduced from 0.0003
+        phaseParams.speed = 0.00005; // Further reduced from 0.0001
         phaseParams.opacity = 60;
         break;
       case 'aligning':
-        phaseParams.speed = 0.00015; // Further reduced from 0.0004
+        phaseParams.speed = 0.00007; // Further reduced from 0.00015
         phaseParams.strokeWeight = 1.2;
         phaseParams.opacity = 70;
         break;
       case 'activating':
-        phaseParams.speed = 0.0002; // Further reduced from 0.0005
+        phaseParams.speed = 0.0001; // Further reduced from 0.0002
         phaseParams.maxCycles = 5;
         phaseParams.opacity = 80;
         break;
       case 'integration':
-        phaseParams.speed = 0.00015; // Further reduced from 0.0004
+        phaseParams.speed = 0.00007; // Further reduced from 0.00015
         phaseParams.strokeWeight = 1.5;
         phaseParams.opacity = 90;
         break;
       case 'complete':
-        phaseParams.speed = 0.0001; // Further reduced from 0.0003
+        phaseParams.speed = 0.00005; // Further reduced from 0.0001
         phaseParams.maxCycles = 3;
         phaseParams.opacity = 50;
         break;
@@ -180,6 +181,13 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
   // Fixed to ensure phase completion logic works correctly
   const completePhase = (phase: Exclude<JourneyPhase, 'complete'>) => {
     console.log(`Completing phase: ${phase}`);
+    
+    if (phaseChangeRef.current) {
+      console.log("Phase change already in progress, ignoring");
+      return;
+    }
+    
+    phaseChangeRef.current = true;
     
     // Update completion state - using callback form to ensure we have the latest state
     setPhaseCompletion(prev => {
@@ -214,17 +222,18 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
     console.log(`Current phase index: ${currentIndex}, current phase: ${currentPhase}`);
     
     if (currentIndex < phases.length - 1) {
-      // Small delay for better transitions
       console.log(`Transitioning to phase: ${phases[currentIndex + 1]} after delay`);
       
-      // Use setTimeout to ensure state updates don't conflict
+      // Small delay for better transitions
       setTimeout(() => {
         const nextPhase = phases[currentIndex + 1];
         console.log(`Setting current phase to: ${nextPhase}`);
         setCurrentPhase(nextPhase);
+        phaseChangeRef.current = false;
       }, 300);
     } else {
       console.log("Already at last phase, not transitioning");
+      phaseChangeRef.current = false;
     }
   };
 
@@ -271,8 +280,12 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
   };
 
   const handleJourneyComplete = async () => {
+    if (phaseChangeRef.current) return;
+    phaseChangeRef.current = true;
+    
     if (!reflection.trim()) {
       toast.warning("Please share a brief reflection before completing the journey");
+      phaseChangeRef.current = false;
       return;
     }
 
@@ -329,6 +342,8 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
       console.error("Error completing journey:", error);
       toast.dismiss();
       toast.error("Error saving your journey experience");
+    } finally {
+      phaseChangeRef.current = false;
     }
   };
 
@@ -411,7 +426,7 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
     }
   };
 
-  // Create scroll-reactive geometric form
+  // Create scroll-reactive geometric form - FIX SVG LOADING ISSUE
   const ScrollReactiveGeometry = () => {
     const geometryOpacity = useTransform(scrollY, [0, 200, 400], [0, 0.5, 0.8]);
     const geometryScale = useTransform(scrollY, [0, 300], [0.8, 1.2]);
@@ -430,13 +445,23 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
           <div 
             className="w-96 h-96"
             style={{
-              backgroundImage: `url('/sacred-geometry-${journeyData.chakra?.toLowerCase().replace(/\s+/g, '-') || 'default'}.svg')`,
+              // Use a generic sacred geometry pattern instead of chakra-specific SVGs
+              background: `radial-gradient(circle at center, ${getChakraColor(journeyData.chakra)}30 0%, transparent 70%)`,
               backgroundSize: 'contain',
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
               opacity: 0.3
             }}
-          ></div>
+          >
+            {/* Simple sacred geometry SVG inline */}
+            <svg width="100%" height="100%" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="100" cy="100" r="80" fill="none" stroke="white" strokeWidth="0.5" opacity="0.5" />
+              <circle cx="100" cy="100" r="60" fill="none" stroke="white" strokeWidth="0.5" opacity="0.5" />
+              <circle cx="100" cy="100" r="40" fill="none" stroke="white" strokeWidth="0.5" opacity="0.5" />
+              {/* Add simple sacred geometry elements */}
+              <path d="M100,20 L180,150 L20,150 Z" fill="none" stroke="white" strokeWidth="0.3" opacity="0.3" />
+            </svg>
+          </div>
         </div>
       </motion.div>
     );

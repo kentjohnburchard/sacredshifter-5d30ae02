@@ -25,17 +25,21 @@ const IntegrationPhase: React.FC<IntegrationPhaseProps> = ({
   journeyData
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [completionInProgress, setCompletionInProgress] = useState(false);
   
   const handleComplete = () => {
-    // Remove event parameter
+    // Prevent multiple completions
+    if (completionInProgress) return;
+    
     console.log("IntegrationPhase handleComplete called");
     setIsSubmitting(true);
+    setCompletionInProgress(true);
     
     // Small delay for visual feedback
     setTimeout(() => {
       onComplete();
       setIsSubmitting(false);
-    }, 800);
+    }, 300);
   };
   
   const chakraColor = chakra ? getChakraColor(chakra) : '#8B5CF6'; // Default purple
@@ -72,7 +76,7 @@ const IntegrationPhase: React.FC<IntegrationPhaseProps> = ({
         <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
           <Button 
             onClick={handleComplete}
-            disabled={isSubmitting}
+            disabled={isSubmitting || completionInProgress}
             className="flex items-center gap-2 px-6 py-2"
             style={{ backgroundColor: chakraColor, color: 'white' }}
           >
