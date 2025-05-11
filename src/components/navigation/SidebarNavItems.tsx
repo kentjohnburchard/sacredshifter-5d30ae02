@@ -44,7 +44,7 @@ const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
       icon: Music,
     },
     {
-      to: '/circle',
+      to: '/sacred-circle',
       label: 'Sacred Circle',
       icon: Users,
     },
