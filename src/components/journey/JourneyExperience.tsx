@@ -122,10 +122,10 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
     }
   }, [user?.id, journeyData.id, journeyData.title, recordActivity, eventLogged]);
 
-  // Track audio completion
+  // Track audio completion - FIX: Add null/undefined check for playerState
   useEffect(() => {
-    // Check if audio playback has completed
-    if (playerState.trackEnded && audioStarted) {
+    // Check if playerState exists and audio playback has completed
+    if (playerState && playerState.trackEnded && audioStarted) {
       recordActivity('journey_audio_complete', {
         journeyId: journeyData.id,
         title: journeyData.title
@@ -138,7 +138,7 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
         });
       }
     }
-  }, [playerState.trackEnded, audioStarted, currentPhase, recordActivity, journeyData]);
+  }, [playerState, audioStarted, currentPhase, recordActivity, journeyData]);
 
   const completePhase = (phase: Exclude<JourneyPhase, 'complete'>) => {
     // Update completion state
@@ -366,6 +366,7 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.7 }}
+            key="complete-phase" // Add unique key to prevent duplicate key warning
           >
             <h2 className="text-3xl font-bold mb-4 text-white">Journey Complete</h2>
             <p className="text-lg text-white/80 mb-6">

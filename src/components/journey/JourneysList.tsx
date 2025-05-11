@@ -48,7 +48,7 @@ const JourneysList: React.FC<JourneysListProps> = ({
           typeof journey.title === 'string' &&
           journey.title.toLowerCase().includes(filterLower);
         
-        // Check chakra tag - Fix the toLowerCase() on potential 'never' type
+        // Check chakra tag with proper type guard to fix the toLowerCase() error
         const hasMatchingChakra = journey.chakra_tag && 
           typeof journey.chakra_tag === 'string' &&
           journey.chakra_tag.toLowerCase().includes(filterLower);
