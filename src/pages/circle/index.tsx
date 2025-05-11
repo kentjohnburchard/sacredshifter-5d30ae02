@@ -5,7 +5,6 @@ import CircleFeed from '@/components/community/CircleFeed';
 import CircleProfile from '@/components/community/CircleProfile';
 import { CommunityProvider } from '@/contexts/CommunityContext';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
-import SacredCircleMessenger from '@/components/circle/SacredCircleMessenger';
 
 const CircleHomePage: React.FC = () => {
   return (
@@ -80,9 +79,6 @@ const CircleHomePage: React.FC = () => {
             </div>
           </div>
         </div>
-        
-        {/* Add the SacredCircleMessenger component here */}
-        <SacredCircleMessenger />
       </CommunityProvider>
     </Layout>
   );

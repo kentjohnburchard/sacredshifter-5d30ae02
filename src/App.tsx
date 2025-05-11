@@ -31,7 +31,6 @@ import JourneyExperiencePage from './pages/JourneyExperiencePage';
 // Community & Info
 import AboutFounder from './pages/AboutFounder';
 import SacredCirclePage from './pages/SacredCirclePage';
-import CircleHomePage from './pages/circle/index';
 
 // Admin
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -65,7 +64,6 @@ function App() {
               <Route path="/home" element={<HomePage />} />
               <Route path="/about" element={<AboutFounder />} />
               <Route path="/sacred-circle" element={<SacredCirclePage />} />
-              <Route path="/circle" element={<CircleHomePage />} />
               <Route path="/frequency-engine" element={<FrequencyEnginePage />} />
               <Route path="/music-library" element={<MusicLibrary />} />
               <Route path="/daily-practice" element={<DailyPracticePage />} />
@@ -74,7 +72,7 @@ function App() {
               <Route path="/hermetic-journey" element={<HermeticJourneyPage />} />
               <Route path="/coming-soon" element={<ComingSoonPage />} />
               
-              {/* Auth Route */}
+              {/* Auth Route - Added this route */}
               <Route path="/auth" element={<Auth />} />
 
               {/* Journey Experience */}

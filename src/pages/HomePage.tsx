@@ -1,4 +1,3 @@
-
 import React from 'react';
 import AppShell from '@/components/layout/AppShell';
 import JourneyAwareSpiralVisualizer from '@/components/visualizer/JourneyAwareSpiralVisualizer';
@@ -21,7 +20,7 @@ const HomePage: React.FC = () => {
   return (
     <AppShell 
       pageTitle="Sacred Shifter"
-      showSidebar={true}
+      showNavbar={true}
       showGlobalWatermark={true}
     >
       <div className="relative min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
