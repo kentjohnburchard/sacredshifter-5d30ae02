@@ -37,7 +37,7 @@ const ChakraSelect: React.FC<ChakraSelectProps> = ({
   disabled = false
 }) => {
   // Ensure we're using a non-empty value for value prop
-  const safeValue = value || undefined; // undefined lets the placeholder show
+  const safeValue = value || "no-selection";
 
   return (
     <Select
@@ -49,21 +49,26 @@ const ChakraSelect: React.FC<ChakraSelectProps> = ({
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent className="bg-black/80 border-white/20 backdrop-blur-lg text-white">
-        {basicChakras.map((chakra) => (
-          <SelectItem 
-            key={chakra.id} 
-            value={chakra.id}
-            className="flex items-center focus:bg-white/10 focus:text-white data-[state=checked]:bg-white/20"
-          >
-            <div className="flex items-center">
-              <div 
-                className="w-3 h-3 rounded-full mr-2"
-                style={{ backgroundColor: chakra.color }}
-              ></div>
-              {chakra.name}
-            </div>
-          </SelectItem>
-        ))}
+        {basicChakras.length > 0 ? (
+          basicChakras.map((chakra) => (
+            <SelectItem 
+              key={chakra.id} 
+              value={chakra.id}
+              className="flex items-center focus:bg-white/10 focus:text-white data-[state=checked]:bg-white/20"
+            >
+              <div className="flex items-center">
+                <div 
+                  className="w-3 h-3 rounded-full mr-2"
+                  style={{ backgroundColor: chakra.color }}
+                ></div>
+                {chakra.name}
+              </div>
+            </SelectItem>
+          ))
+        ) : (
+          <SelectItem value="no-chakras" disabled>No chakras available</SelectItem>
+        )}
+        {!value && <SelectItem value="no-selection">Select a chakra</SelectItem>}
       </SelectContent>
     </Select>
   );

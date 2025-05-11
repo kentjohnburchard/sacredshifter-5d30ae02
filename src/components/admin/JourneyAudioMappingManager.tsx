@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,7 +19,7 @@ import {
 import { Journey } from '@/types/journey';
 
 interface AudioMapping {
-  journey_id: string; // Changed from number to string
+  journey_id: string; 
   filename: string;
   frequency: string | null;
   audio_filename: string | null;
@@ -27,13 +28,13 @@ interface AudioMapping {
 
 const JourneyAudioMappingManager: React.FC = () => {
   const [journeys, setJourneys] = useState<Journey[]>([]);
-  const [mappings, setMappings] = useState<Record<string, AudioMapping>>({}); // Changed from number to string key
+  const [mappings, setMappings] = useState<Record<string, AudioMapping>>({});
   const [availableAudioFiles, setAvailableAudioFiles] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loadingJourneys, setLoadingJourneys] = useState(true);
   const [loadingAudio, setLoadingAudio] = useState(true);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
-  const [playingId, setPlayingId] = useState<string | null>(null); // Changed from number to string
+  const [playingId, setPlayingId] = useState<string | null>(null);
   
   // Load journeys and their audio information
   useEffect(() => {
@@ -103,7 +104,7 @@ const JourneyAudioMappingManager: React.FC = () => {
   
   // Update mapping and save to database
   const handleUpdateMapping = async (
-    journeyId: string, // Changed from number to string
+    journeyId: string,
     updates: Partial<Pick<AudioMapping, 'audio_filename' | 'is_enabled'>>
   ) => {
     try {
@@ -134,7 +135,7 @@ const JourneyAudioMappingManager: React.FC = () => {
   };
   
   // Find suggested audio files for a journey
-  const findSuggestions = async (journeyId: string) => { // Changed from number to string
+  const findSuggestions = async (journeyId: string) => {
     const journey = journeys.find(j => j.id === journeyId);
     if (!journey) return;
     
@@ -155,7 +156,7 @@ const JourneyAudioMappingManager: React.FC = () => {
   };
   
   // Handle audio playback
-  const handlePlayPreview = (journeyId: string, audioFilename: string | null) => { // Changed from number to string
+  const handlePlayPreview = (journeyId: string, audioFilename: string | null) => {
     if (!audioFilename) {
       toast.error('No audio file selected');
       return;
@@ -262,17 +263,21 @@ const JourneyAudioMappingManager: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Select
-                        value={mapping.audio_filename || ''}
-                        onValueChange={(value) => handleUpdateMapping(journey.id, { audio_filename: value || null })}
+                        value={mapping.audio_filename || 'none'}
+                        onValueChange={(value) => handleUpdateMapping(journey.id, { audio_filename: value === 'none' ? null : value })}
                       >
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select audio file" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">None</SelectItem>
-                          {availableAudioFiles.map((file) => (
-                            <SelectItem key={file} value={file}>{file}</SelectItem>
-                          ))}
+                          <SelectItem value="none">None</SelectItem>
+                          {availableAudioFiles.length > 0 ? (
+                            availableAudioFiles.map((file) => (
+                              <SelectItem key={file} value={file}>{file}</SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="no-files" disabled>No audio files available</SelectItem>
+                          )}
                         </SelectContent>
                       </Select>
                     </TableCell>
@@ -310,6 +315,13 @@ const JourneyAudioMappingManager: React.FC = () => {
                   </TableRow>
                 );
               })}
+              {filteredJourneys.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-6">
+                    <p className="text-gray-500">No journeys found matching your search.</p>
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>

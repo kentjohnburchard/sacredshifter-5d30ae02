@@ -110,3 +110,16 @@ export function getSacredThemeStyles(variant = 'default') {
       };
   }
 }
+
+// Helper function for handling potentially empty select values
+export function ensureValidSelectValue<T extends string>(value: T | null | undefined, fallback: T = 'none' as T): T {
+  if (value === null || value === undefined || value === '') {
+    return fallback;
+  }
+  return value;
+}
+
+// Helper function for displaying placeholder text when no items are available
+export function getNoItemsMessage(itemType: string): string {
+  return `No ${itemType} available`;
+}

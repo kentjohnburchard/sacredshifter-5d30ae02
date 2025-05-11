@@ -63,8 +63,13 @@ const FrequencyFilters: React.FC<FrequencyFiltersProps> = ({
             <SelectContent>
               <SelectItem value="all-principles">All Principles</SelectItem>
               {principles.map(principle => (
-                <SelectItem key={principle} value={principle}>{principle}</SelectItem>
+                <SelectItem key={principle} value={principle || `principle-${principles.indexOf(principle)}`}>
+                  {principle || "Unnamed Principle"}
+                </SelectItem>
               ))}
+              {principles.length === 0 && (
+                <SelectItem value="no-principles" disabled>No principles available</SelectItem>
+              )}
             </SelectContent>
           </Select>
         </div>

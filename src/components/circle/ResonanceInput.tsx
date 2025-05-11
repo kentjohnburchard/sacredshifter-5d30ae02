@@ -24,7 +24,7 @@ const ResonanceInput: React.FC<ResonanceInputProps> = ({
 }) => {
   const [message, setMessage] = useState('');
   const [emotionalTone, setEmotionalTone] = useState('Peaceful');
-  const [frequencyValue, setFrequencyValue] = useState<string>('');
+  const [frequencyValue, setFrequencyValue] = useState<string>('none');
   const [isTyping, setIsTyping] = useState(false);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const { liftTheVeil } = useTheme();
@@ -56,10 +56,10 @@ const ResonanceInput: React.FC<ResonanceInputProps> = ({
       onSubmit({
         content: message,
         emotionalTone,
-        frequency: frequencyValue ? parseFloat(frequencyValue) : undefined
+        frequency: frequencyValue && frequencyValue !== 'none' ? parseFloat(frequencyValue) : undefined
       });
       setMessage('');
-      setFrequencyValue('');
+      setFrequencyValue('none');
     }
   };
   
@@ -73,7 +73,7 @@ const ResonanceInput: React.FC<ResonanceInputProps> = ({
       animate={{ opacity: 1, y: 0 }}
     >
       <div className="mb-3">
-        <div className="flex gap-3 mb-3">
+        <div className="flex flex-col md:flex-row gap-3 mb-3">
           <div className="flex-1">
             <label htmlFor="tone-select" className="block text-sm font-medium mb-1 text-white/70">
               Emotional Tone
@@ -105,7 +105,7 @@ const ResonanceInput: React.FC<ResonanceInputProps> = ({
             </Select>
           </div>
 
-          <div className="w-48">
+          <div className="w-full md:w-48">
             <label htmlFor="frequency-select" className="block text-sm font-medium mb-1 text-white/70">
               Frequency (Optional)
             </label>
@@ -114,17 +114,19 @@ const ResonanceInput: React.FC<ResonanceInputProps> = ({
                 <SelectValue placeholder="Add frequency" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 {[432, 528, 639, 741, 852, 963].map((freq) => (
                   <SelectItem key={freq} value={String(freq)}>
                     {freq}Hz
                   </SelectItem>
                 ))}
-                {frequencies.slice(0, 5).map((freq) => (
-                  <SelectItem key={freq.id} value={String(freq.frequency)}>
-                    {freq.frequency}Hz - {freq.title}
-                  </SelectItem>
-                ))}
+                {frequencies && frequencies.length > 0 ? (
+                  frequencies.slice(0, 5).map((freq) => (
+                    <SelectItem key={freq.id} value={String(freq.frequency)}>
+                      {freq.frequency}Hz - {freq.title}
+                    </SelectItem>
+                  ))
+                ) : null}
               </SelectContent>
             </Select>
           </div>

@@ -31,8 +31,13 @@ const JourneyAudioMapper: React.FC<JourneyAudioMapperProps> = ({ onlyShowTemplat
         // Show all templates
         setFilteredTemplates(templates);
       }
+      
+      // If we have templates but no selection, select the first one
+      if (templates.length > 0 && !selectedTemplate) {
+        setSelectedTemplate(templates[0].id);
+      }
     }
-  }, [templates, audioMappings, onlyShowTemplatesWithoutAudio]);
+  }, [templates, audioMappings, onlyShowTemplatesWithoutAudio, selectedTemplate]);
 
   // Get current mappings for the selected template
   const getCurrentMappings = () => {
@@ -118,8 +123,11 @@ const JourneyAudioMapper: React.FC<JourneyAudioMapperProps> = ({ onlyShowTemplat
             <Card>
               <CardContent className="p-4">
                 <h3 className="text-lg font-medium mb-4">Current Visual Mappings</h3>
-                <p className="text-gray-500">Select a template to view visual mappings.</p>
-                {/* Visual mappings will be displayed here once we fetch them */}
+                {selectedTemplate ? (
+                  <p className="text-gray-500">No visual mappings found for this template.</p>
+                ) : (
+                  <p className="text-gray-500">Select a template to view visual mappings.</p>
+                )}
               </CardContent>
             </Card>
           </div>
