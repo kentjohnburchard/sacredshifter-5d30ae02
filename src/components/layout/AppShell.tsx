@@ -22,6 +22,7 @@ interface AppShellProps {
   pageTitle?: string;
   chakraColor?: string;
   className?: string;
+  showGlobalWatermark?: boolean;
 }
 
 const AppShell: React.FC<AppShellProps> = ({
@@ -32,6 +33,7 @@ const AppShell: React.FC<AppShellProps> = ({
   pageTitle = 'Sacred Shifter',
   chakraColor,
   className = '',
+  showGlobalWatermark = true,
 }) => {
   const location = useLocation();
   const { liftTheVeil } = useTheme();
@@ -89,7 +91,7 @@ const AppShell: React.FC<AppShellProps> = ({
           {/* Use our consistent Sidebar component */}
           {showSidebar && <Sidebar />}
           
-          <main className={`flex-1 flex flex-col min-h-screen relative ${showSidebar ? 'md:ml-16 lg:ml-64' : ''}`}>
+          <main className={`flex-1 flex flex-col min-h-screen relative w-full`}>
             {/* Header with Auth Button */}
             <div className="p-4 flex justify-end">
               {!user ? (
@@ -124,7 +126,7 @@ const AppShell: React.FC<AppShellProps> = ({
             {/* Community Chat Component - Only show if user is logged in and showChatBubble is true */}
             {showChatBubble && user && <SacredChat />}
             
-            <GlobalWatermark />
+            {showGlobalWatermark && <GlobalWatermark />}
           </main>
         </div>
       </div>
