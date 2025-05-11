@@ -1,12 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ChakraTag, getChakraColor } from '@/types/chakras';
+import { ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ChakraTag, getChakraColor } from '@/types/chakras';
 import ReactMarkdown from 'react-markdown';
-import { Pause, Play, ZapOff } from 'lucide-react';
-import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
-import { toast } from 'sonner';
 
 interface ActivatingPhaseProps {
   onComplete: () => void;
@@ -21,136 +18,158 @@ const ActivatingPhase: React.FC<ActivatingPhaseProps> = ({
   frequency,
   script
 }) => {
-  const { isPlaying, togglePlayPause } = useGlobalAudioPlayer();
-  const [energyLevel, setEnergyLevel] = useState(0);
-  const [readyToProceed, setReadyToProceed] = useState(false);
-  const [activationTriggered, setActivationTriggered] = useState(false);
+  const [activationStep, setActivationStep] = useState(0);
+  const [showContinue, setShowContinue] = useState(false);
   
-  // Increase energy level over time
   useEffect(() => {
-    if (energyLevel < 100 && !activationTriggered) {
-      const timer = setTimeout(() => {
-        setEnergyLevel(prev => {
-          const newLevel = prev + 1;
-          if (newLevel === 100) {
-            setReadyToProceed(true);
-            toast.success("Activation complete! You may proceed when ready.");
-          }
-          return newLevel;
-        });
-      }, 300); // Fill in about 30 seconds
-      
-      return () => clearTimeout(timer);
+    // Auto-progress through activation steps
+    let timer: ReturnType<typeof setTimeout>;
+    
+    if (activationStep < activationSteps.length - 1) {
+      timer = setTimeout(() => {
+        setActivationStep(prev => prev + 1);
+      }, 10000); // 10 seconds per step
+    } else if (activationStep === activationSteps.length - 1 && !showContinue) {
+      timer = setTimeout(() => {
+        setShowContinue(true);
+      }, 10000);
     }
-  }, [energyLevel, activationTriggered]);
+    
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [activationStep, showContinue]);
   
-  const triggerActivation = () => {
-    setActivationTriggered(true);
+  const handleComplete = (e: React.MouseEvent) => {
+    // Prevent default behavior to avoid page refresh
+    e.preventDefault();
     
-    // Visual effect, then allow proceeding
-    toast.info(`${chakra || 'Energy'} activation in progress...`);
-    
-    // Quick fill the energy bar
-    const fillInterval = setInterval(() => {
-      setEnergyLevel(prev => {
-        const newLevel = prev + 5;
-        if (newLevel >= 100) {
-          clearInterval(fillInterval);
-          setReadyToProceed(true);
-          toast.success("Activation complete!");
-          return 100;
-        }
-        return newLevel;
-      });
-    }, 100);
-    
-    return () => clearInterval(fillInterval);
+    onComplete();
   };
-
+  
+  const chakraColor = chakra ? getChakraColor(chakra) : '#8B5CF6'; // Default purple
+  
+  // Get chakra-specific activation steps
+  const getActivationStepsForChakra = (): string[] => {
+    if (script) {
+      // Use script sections if available
+      return script.split('\n\n').filter(Boolean).slice(0, 3);
+    }
+    
+    // Otherwise use defaults based on chakra
+    switch (chakra) {
+      case 'Root':
+        return [
+          "Visualize a strong red light at the base of your spine.",
+          "Feel roots extending from your body deep into the earth.",
+          "Sense stability and security flowing through you."
+        ];
+      case 'Sacral':
+        return [
+          "Focus on an orange glow in your lower abdomen.",
+          "Feel creativity and passion awakening within you.",
+          "Allow emotions to flow freely through your body."
+        ];
+      case 'Solar Plexus':
+        return [
+          "Envision a bright yellow sun radiating in your upper abdomen.",
+          "Feel your personal power and confidence expanding.",
+          "Embrace your will and determination being activated."
+        ];
+      case 'Heart':
+        return [
+          "Visualize an emerald green light glowing in your chest.",
+          "Feel your heart opening to give and receive love.",
+          "Allow compassion and healing to radiate from your center."
+        ];
+      case 'Throat':
+        return [
+          "See a bright blue light illuminating your throat.",
+          "Feel your ability to express your truth strengthening.",
+          "Your authentic voice is now being activated."
+        ];
+      case 'Third Eye':
+        return [
+          "Envision an indigo light between your eyebrows.",
+          "Feel your intuition and inner vision awakening.",
+          "Your connection to higher wisdom is activating."
+        ];
+      case 'Crown':
+        return [
+          "Visualize a violet or white light above your head.",
+          "Feel your connection to universal consciousness opening.",
+          "Your highest spiritual awareness is now activating."
+        ];
+      default:
+        return [
+          "Feel the energy moving through your entire being.",
+          "Your highest vibration is being activated and aligned.",
+          "Universal wisdom is flowing through you now."
+        ];
+    }
+  };
+  
+  const activationSteps = getActivationStepsForChakra();
+  
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-black/40 backdrop-blur-md rounded-lg border border-gray-800">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-      >
-        <h2 className="text-2xl font-bold mb-4 text-white text-center">
-          Activate Your {chakra || "Energy"} Center
-        </h2>
-        
-        <div className="flex justify-center mb-6">
-          <button
-            onClick={togglePlayPause}
-            className="flex items-center px-4 py-2 bg-purple-900/50 hover:bg-purple-800/50 rounded-full text-white border border-purple-700/50 transition-colors"
-          >
-            {isPlaying ? <Pause size={18} className="mr-2" /> : <Play size={18} className="mr-2" />}
-            {isPlaying ? "Pause Audio" : "Resume Audio"}
-          </button>
-        </div>
-        
-        <div className="mb-8 prose prose-invert max-w-none">
-          {script ? (
-            <ReactMarkdown>{script}</ReactMarkdown>
-          ) : (
-            <div className="text-white/80">
-              <p>As the frequency resonates through your being, allow your {chakra || "energy"} center to fully activate.</p>
-              <p className="mt-4">Feel the energy building and expanding as you connect with the {frequency || "sacred"} Hz frequency.</p>
-              <p className="mt-4">Your consciousness is expanding, allowing you to access deeper wisdom and clarity.</p>
-            </div>
-          )}
-        </div>
-        
-        <div className="my-8">
-          <div className="mb-2 flex justify-between items-center">
-            <span className="text-white/80 text-sm">Activation Progress</span>
-            <span className="text-white font-medium">{energyLevel}%</span>
-          </div>
-          <div className="w-full h-4 bg-gray-800/50 rounded-full overflow-hidden">
-            <motion.div 
-              className="h-full rounded-full"
-              style={{ 
-                backgroundColor: getChakraColor(chakra) || '#8B5CF6',
-                width: `${energyLevel}%` 
-              }}
-              initial={{ width: '0%' }}
-              animate={{ width: `${energyLevel}%` }}
-              transition={{ duration: 0.3 }}
-            />
-          </div>
-          
-          {!activationTriggered && energyLevel < 100 && (
-            <div className="mt-4 flex justify-center">
-              <Button 
-                onClick={triggerActivation}
-                variant="outline"
-                className="border-white/20 text-white hover:bg-white/10"
-              >
-                <ZapOff className="mr-2 h-4 w-4" />
-                Accelerate Activation
-              </Button>
-            </div>
-          )}
-        </div>
-        
-        <div className="flex justify-center">
+    <div className="max-w-3xl mx-auto bg-black/40 backdrop-blur-md rounded-xl p-6 border border-white/10">
+      <h2 className="text-center text-2xl md:text-3xl font-bold mb-6 text-white">Activate Your Energy</h2>
+      
+      <div className="mb-8">
+        <div className="w-full bg-white/10 h-1 rounded-full mb-6">
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ 
-              opacity: readyToProceed ? 1 : 0,
-            }}
-            transition={{ duration: 0.7 }}
+            className="h-full rounded-full"
+            style={{ backgroundColor: chakraColor }}
+            initial={{ width: "0%" }}
+            animate={{ width: `${((activationStep + 1) / activationSteps.length) * 100}%` }}
+            transition={{ duration: 1 }}
+          />
+        </div>
+        
+        <AnimatedContent key={activationStep}>
+          <div className="prose prose-invert max-w-none text-center">
+            <ReactMarkdown>{activationSteps[activationStep]}</ReactMarkdown>
+          </div>
+        </AnimatedContent>
+      </div>
+      
+      <div className="flex justify-center items-center">
+        {showContinue ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
           >
             <Button 
-              onClick={onComplete}
-              className="px-8 py-6 bg-gradient-to-r from-purple-600 to-violet-600 text-white font-medium text-lg shadow-lg"
-              disabled={!readyToProceed}
+              onClick={handleComplete}
+              className="flex items-center gap-2 px-6 py-2"
+              style={{ backgroundColor: chakraColor, color: 'white' }}
             >
               Continue to Integration
+              <ChevronRight size={18} />
             </Button>
           </motion.div>
-        </div>
-      </motion.div>
+        ) : (
+          <div className="text-white/70 text-sm">
+            {activationStep + 1} of {activationSteps.length}
+          </div>
+        )}
+      </div>
     </div>
+  );
+};
+
+// Animated content wrapper
+const AnimatedContent: React.FC<{children: React.ReactNode}> = ({ children }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.5 }}
+    >
+      {children}
+    </motion.div>
   );
 };
 

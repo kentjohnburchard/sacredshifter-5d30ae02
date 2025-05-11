@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useJourney } from '@/context/JourneyContext';
@@ -286,26 +287,26 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
     
     switch(currentPhase) {
       case 'grounding':
-        phaseParams.speed = 0.05;
+        phaseParams.speed = 0.001; // Reduced from 0.05
         phaseParams.opacity = 60;
         break;
       case 'aligning':
-        phaseParams.speed = 0.15;
+        phaseParams.speed = 0.002; // Reduced from 0.15
         phaseParams.strokeWeight = 1.2;
         phaseParams.opacity = 70;
         break;
       case 'activating':
-        phaseParams.speed = 0.25;
+        phaseParams.speed = 0.003; // Reduced from 0.25
         phaseParams.maxCycles = 5;
         phaseParams.opacity = 80;
         break;
       case 'integration':
-        phaseParams.speed = 0.1;
+        phaseParams.speed = 0.002; // Reduced from 0.1
         phaseParams.strokeWeight = 1.5;
         phaseParams.opacity = 90;
         break;
       case 'complete':
-        phaseParams.speed = 0.05;
+        phaseParams.speed = 0.001; // Reduced from 0.05
         phaseParams.maxCycles = 3;
         phaseParams.opacity = 50;
         break;

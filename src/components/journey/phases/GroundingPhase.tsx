@@ -1,12 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ChakraTag, getChakraColor } from '@/types/chakras';
+import { ChevronRight, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Pause, Play } from 'lucide-react';
-import { useGlobalAudioPlayer } from '@/hooks/useGlobalAudioPlayer';
-import ReactMarkdown from 'react-markdown';
-import { toast } from 'sonner';
+import { ChakraTag, getChakraColor } from '@/types/chakras';
 
 interface GroundingPhaseProps {
   onComplete: () => void;
@@ -21,137 +18,111 @@ const GroundingPhase: React.FC<GroundingPhaseProps> = ({
   intent,
   frequency
 }) => {
-  const [secondsRemaining, setSecondsRemaining] = useState(60); // 1 minute grounding
-  const [isTimerRunning, setIsTimerRunning] = useState(false);
-  const [showButton, setShowButton] = useState(false);
-  const { isPlaying, togglePlayPause } = useGlobalAudioPlayer();
-  
-  // Start timer automatically after a short delay
+  const [breathCount, setBreathCount] = useState(0);
+  const [isBreathing, setIsBreathing] = useState(false);
+  const [showContinue, setShowContinue] = useState(false);
+
+  // Breath animation controller
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsTimerRunning(true);
-    }, 2000);
+    let breathTimer: ReturnType<typeof setTimeout>;
     
-    return () => clearTimeout(timer);
-  }, []);
-  
-  // Run countdown timer
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    
-    if (isTimerRunning && secondsRemaining > 0) {
-      interval = setInterval(() => {
-        setSecondsRemaining(prev => prev - 1);
-      }, 1000);
-    } else if (secondsRemaining === 0 && !showButton) {
-      setShowButton(true);
-      toast.success("You are now grounded. Continue when ready.", {
-        duration: 5000
-      });
+    if (isBreathing && breathCount < 3) {
+      breathTimer = setTimeout(() => {
+        setBreathCount(prev => prev + 1);
+        setIsBreathing(false);
+      }, 6000); // 6 seconds for a complete breath cycle
+    } else if (breathCount >= 3 && !showContinue) {
+      // Show continue button after 3 breaths
+      setShowContinue(true);
     }
     
-    return () => clearInterval(interval);
-  }, [isTimerRunning, secondsRemaining, showButton]);
-  
-  return (
-    <div className="max-w-2xl mx-auto p-6 bg-black/30 backdrop-blur-md rounded-xl border border-gray-800">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-      >
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-white mb-2">Begin Your Journey</h2>
-          <p className="text-white/75">
-            Take a deep breath and set your intention for this sacred experience
-          </p>
-        </div>
-        
-        <div className="my-8 relative">
-          <div className="flex justify-center items-center mb-6">
-            <motion.div
-              animate={{
-                scale: [1, 1.05, 1],
-              }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                repeatType: "reverse",
-              }}
-              className="p-8 rounded-full"
-              style={{
-                background: `radial-gradient(circle, ${getChakraColor(chakra)}40 0%, rgba(0,0,0,0) 70%)`,
-                boxShadow: `0 0 40px ${getChakraColor(chakra)}30`
-              }}
-            >
-              <motion.div
-                initial={{ opacity: 0.3 }}
-                animate={{ opacity: 0.7 }}
-                transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
-              >
-                <Sparkles 
-                  size={64}
-                  color={getChakraColor(chakra) || "#FFFFFF"}
-                  strokeWidth={1.5}
-                />
-              </motion.div>
-            </motion.div>
-          </div>
-          
-          <div className="text-center mb-8">
-            <p className="text-xl text-white mb-3">
-              {intent || "Centre your energy and connect with your higher self"}
-            </p>
-            {frequency && (
-              <p className="text-white/60 text-sm">
-                Frequency: {frequency}Hz
-              </p>
-            )}
-          </div>
-          
-          <div className="flex justify-center mb-4">
-            <button
-              onClick={togglePlayPause}
-              className="flex items-center px-4 py-2 bg-purple-900/50 hover:bg-purple-800/50 rounded-full text-white border border-purple-700/50 transition-colors"
-            >
-              {isPlaying ? <Pause size={18} className="mr-2" /> : <Play size={18} className="mr-2" />}
-              {isPlaying ? "Pause Audio" : "Resume Audio"}
-            </button>
-          </div>
-          
-          <div className="flex flex-col items-center">
-            <div 
-              className="w-24 h-24 rounded-full flex items-center justify-center text-2xl font-medium"
-              style={{
-                background: `conic-gradient(${getChakraColor(chakra) || '#8B5CF6'} ${(secondsRemaining / 60) * 100}%, transparent 0%)`,
-                boxShadow: `0 0 15px ${getChakraColor(chakra)}30`
-              }}
-            >
-              <div className="bg-black w-20 h-20 rounded-full flex items-center justify-center text-white">
-                {secondsRemaining}
-              </div>
-            </div>
-            <p className="mt-4 text-white/70 text-sm">
-              {isTimerRunning ? "Breathe deeply..." : "Preparing..."}
-            </p>
-          </div>
+    return () => {
+      if (breathTimer) clearTimeout(breathTimer);
+    };
+  }, [isBreathing, breathCount, showContinue]);
 
+  const handleStartBreathing = () => {
+    setIsBreathing(true);
+  };
+
+  const handleComplete = (e: React.MouseEvent) => {
+    // Prevent default behavior to avoid page refresh
+    e.preventDefault();
+    
+    onComplete();
+  };
+
+  const chakraColor = chakra ? getChakraColor(chakra) : '#8B5CF6'; // Default purple
+
+  return (
+    <div className="max-w-3xl mx-auto bg-black/40 backdrop-blur-md rounded-xl p-6 border border-white/10">
+      <h2 className="text-center text-2xl md:text-3xl font-bold mb-6 text-white">Ground Your Energy</h2>
+      
+      <div className="mb-8 text-center">
+        {intent && (
+          <div className="bg-purple-900/20 border border-purple-500/20 rounded-lg p-4 mb-6">
+            <h3 className="text-xl font-medium text-white mb-2">Your Intention</h3>
+            <p className="text-white/80 italic">{intent}</p>
+          </div>
+        )}
+        
+        <p className="text-lg text-white/90 mb-4">
+          Begin by taking three deep breaths to ground your energy and prepare for this experience.
+        </p>
+        
+        {frequency && (
+          <div className="flex justify-center items-center gap-2 text-sm text-white/70 mb-4">
+            <Info size={14} />
+            <span>This journey incorporates {frequency}Hz frequencies</span>
+          </div>
+        )}
+      </div>
+      
+      <div className="flex justify-center mb-8">
+        <div className="relative w-32 h-32">
           <motion.div
-            className="mt-12 flex justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: showButton ? 1 : 0 }}
+            className="absolute inset-0 rounded-full"
+            style={{ backgroundColor: `${chakraColor}20`, border: `2px solid ${chakraColor}40` }}
+            animate={isBreathing ? 
+              { scale: [1, 1.5, 1], opacity: [0.5, 0.7, 0.5] } : 
+              { scale: 1, opacity: 0.5 }
+            }
+            transition={{ duration: 6, ease: "easeInOut", repeat: 0 }}
+          />
+          
+          <div className="absolute inset-0 flex items-center justify-center text-white text-2xl font-bold">
+            {breathCount}/3
+          </div>
+        </div>
+      </div>
+      
+      <div className="flex flex-col items-center">
+        {breathCount < 3 && (
+          <Button
+            onClick={handleStartBreathing}
+            disabled={isBreathing}
+            className="px-6 py-2 bg-purple-700 hover:bg-purple-600 text-white rounded-md mb-4"
+          >
+            {isBreathing ? "Breathe..." : breathCount === 0 ? "Begin Breathing" : "Next Breath"}
+          </Button>
+        )}
+        
+        {showContinue && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
             <Button 
-              onClick={onComplete}
-              disabled={!showButton}
-              className="px-8 py-6 text-lg bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg shadow-purple-900/30"
+              onClick={handleComplete}
+              className="flex items-center gap-2 px-6 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-md"
             >
-              Continue Your Journey
+              Continue to Alignment
+              <ChevronRight size={18} />
             </Button>
           </motion.div>
-        </div>
-      </motion.div>
+        )}
+      </div>
     </div>
   );
 };
