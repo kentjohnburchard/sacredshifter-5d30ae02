@@ -8,7 +8,7 @@ import { ChakraTag, CHAKRA_COLORS } from '@/types/chakras';
 import { PlusCircle, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-// Import our new circle components
+// Import our circle components
 import AmbientBackground from '@/components/circle/AmbientBackground';
 import CircleFeed from '@/components/circle/CircleFeed';
 import GuideCard from '@/components/circle/GuideCard';
@@ -90,7 +90,7 @@ const SacredCirclePage: React.FC = () => {
   return (
     <AppShell 
       pageTitle="Sacred Circle" 
-      chakraColor={CHAKRA_COLORS[activeChakra]} // Dynamic color based on active chakra
+      chakraColor={CHAKRA_COLORS[activeChakra]}
     >
       {/* Ambient Background */}
       <AmbientBackground 
@@ -99,7 +99,7 @@ const SacredCirclePage: React.FC = () => {
         pulsing={true}
       />
       
-      <div className="relative z-10 p-6">
+      <div className="relative z-10 p-3 sm:p-4 md:p-6">
         <div className="max-w-6xl mx-auto">
           {/* Page Header */}
           <motion.div

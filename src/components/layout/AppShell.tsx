@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import SidebarNav from '@/components/navigation/SidebarNav';
+import Sidebar from '@/components/Sidebar';
 import { useTheme } from '@/context/ThemeContext';
 import ThemeEnhancer from '@/components/ThemeEnhancer';
 import GlobalWatermark from '@/components/GlobalWatermark';
@@ -86,7 +86,8 @@ const AppShell: React.FC<AppShellProps> = ({
 
         {/* Layout Structure */}
         <div className={`flex min-h-screen w-full z-10 relative ${liftTheVeil ? 'veil-mode' : 'standard-mode'}`}>
-          {showSidebar && <SidebarNav />}
+          {/* Use our consistent Sidebar component */}
+          {showSidebar && <Sidebar />}
           
           <main className={`flex-1 flex flex-col min-h-screen relative ${showSidebar ? 'md:ml-16 lg:ml-64' : ''}`}>
             {/* Header with Auth Button */}

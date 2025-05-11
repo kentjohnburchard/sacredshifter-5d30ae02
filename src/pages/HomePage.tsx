@@ -1,6 +1,5 @@
-
 import React from 'react';
-import Layout from '@/components/Layout';
+import AppShell from '@/components/layout/AppShell';
 import JourneyAwareSpiralVisualizer from '@/components/visualizer/JourneyAwareSpiralVisualizer';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -19,7 +18,7 @@ const HomePage: React.FC = () => {
   };
   
   return (
-    <Layout 
+    <AppShell 
       pageTitle="Sacred Shifter"
       showNavbar={true}
       showGlobalWatermark={true}
@@ -103,7 +102,7 @@ const HomePage: React.FC = () => {
           </motion.div>
         </motion.div>
       </div>
-    </Layout>
+    </AppShell>
   );
 };
 

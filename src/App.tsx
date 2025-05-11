@@ -18,6 +18,7 @@ import Soundscapes from './pages/Soundscapes';
 import HermeticJourneyPage from './pages/HermeticJourneyPage';
 import ComingSoonPage from './pages/ComingSoonPage';
 import NotFoundPage from './pages/NotFoundPage';
+import Auth from './pages/Auth';
 
 // Journey Experience Pages
 import JourneyPage from './pages/JourneyPage';
@@ -70,6 +71,9 @@ function App() {
               <Route path="/soundscapes" element={<Soundscapes />} />
               <Route path="/hermetic-journey" element={<HermeticJourneyPage />} />
               <Route path="/coming-soon" element={<ComingSoonPage />} />
+              
+              {/* Auth Route - Added this route */}
+              <Route path="/auth" element={<Auth />} />
 
               {/* Journey Experience */}
               <Route path="/journey/:slug" element={<JourneyPage />} />
