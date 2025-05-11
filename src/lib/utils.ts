@@ -42,10 +42,13 @@ export function getGlassmorphismStyle(color = 'purple', opacity = 0.2, blur = 10
                     
   // Fix: Ensure opacity is always a number before arithmetic
   const opacityValue = typeof opacity === 'number' ? opacity : 
-                       typeof opacity === 'string' ? parseFloat(opacity) : 0.2;
+                       typeof opacity === 'string' ? parseFloat(opacity) || 0.2 : 0.2;
+  
+  // Now opacityValue is guaranteed to be a number
+  const backgroundOpacity = opacityValue + 0.1;
   
   return {
-    background: `rgba(15, 14, 31, ${opacityValue + 0.1})`,
+    background: `rgba(15, 14, 31, ${backgroundOpacity})`,
     backdropFilter: `blur(${blur}px)`,
     WebkitBackdropFilter: `blur(${blur}px)`,
     border: `1px solid rgba(${baseColor}, 0.2)`,
