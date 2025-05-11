@@ -163,8 +163,9 @@ const ThemeEnhancer: React.FC = () => {
         }}
       />
       
-      {/* Add CSS animation for stars */}
-      <style jsx>{`
+      {/* CSS animations */}
+      <style>
+        {`
         @keyframes stars-move {
           0% { background-position: 0 0; }
           100% { background-position: 200px 200px; }
@@ -174,7 +175,8 @@ const ThemeEnhancer: React.FC = () => {
           0%, 100% { opacity: 0.5; }
           50% { opacity: 1; }
         }
-      `}</style>
+        `}
+      </style>
     </AnimatePresence>
   );
 };

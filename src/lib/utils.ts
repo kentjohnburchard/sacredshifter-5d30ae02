@@ -69,7 +69,7 @@ export function getNeonTextStyle(color = 'purple', intensity = 'medium') {
                        
   return {
     color: `rgba(${glowColor}, 1)`,
-    textShadow: `0 0 5px rgba(${glowColor}, ${glowIntensity}), 0 0 10px rgba(${glowColor}, ${glowIntensity * 0.8})`,
+    textShadow: `0 0 5px rgba(${glowColor}, ${glowIntensity}), 0 0 10px rgba(${glowColor}, ${parseFloat(glowIntensity) * 0.8})`,
   };
 }
 

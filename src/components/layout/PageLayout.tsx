@@ -26,11 +26,25 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
     const consciousnessClass = liftTheVeil ? 'veil-mode' : 'standard-mode';
     document.body.classList.add(consciousnessClass);
     
+    // Apply theme to root element for CSS variable accessibility
+    const root = document.documentElement;
+    if (liftTheVeil) {
+      root.classList.add('veil-mode');
+      root.classList.remove('standard-mode');
+    } else {
+      root.classList.add('standard-mode');
+      root.classList.remove('veil-mode');
+    }
+    
     return () => {
       // Cleanup classes when component unmounts
       document.body.classList.remove('sacred-app');
       document.body.classList.remove('veil-mode');
       document.body.classList.remove('standard-mode');
+      
+      // Cleanup root element classes
+      root.classList.remove('veil-mode');
+      root.classList.remove('standard-mode');
     }
   }, [liftTheVeil]);
   
