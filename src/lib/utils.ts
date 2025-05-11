@@ -61,13 +61,13 @@ export function getAmbientChakraForRoute(pathname: string): ChakraTag {
   } else if (pathname.includes('/throat') || pathname.includes('/communication')) {
     chakra = 'Throat';
   } else if (pathname.includes('/third-eye') || pathname.includes('/intuition')) {
-    chakra = 'ThirdEye';
+    chakra = 'Third Eye'; // Fixed: "ThirdEye" -> "Third Eye"
   } else if (pathname.includes('/sacral') || pathname.includes('/creativity')) {
     chakra = 'Sacral';
   } else if (pathname.includes('/root') || pathname.includes('/grounding')) {
     chakra = 'Root';
   } else if (pathname.includes('/solar') || pathname.includes('/power')) {
-    chakra = 'SolarPlexus';
+    chakra = 'Solar Plexus'; // Fixed: "SolarPlexus" -> "Solar Plexus"
   }
   
   return chakra;
