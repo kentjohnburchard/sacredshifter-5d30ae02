@@ -30,9 +30,9 @@ const JourneysList: React.FC<JourneysListProps> = ({
       // Filter by tags, title, or chakra
       result = result.filter(journey => 
         (journey.tags && Array.isArray(journey.tags) && journey.tags.some(tag => 
-          tag.toLowerCase().includes(filter.toLowerCase())
+          tag && typeof tag === 'string' && tag.toLowerCase().includes(filter.toLowerCase())
         )) ||
-        (typeof journey.tags === 'string' && journey.tags.toLowerCase().includes(filter.toLowerCase())) ||
+        (journey.tags && typeof journey.tags === 'string' && journey.tags.toLowerCase().includes(filter.toLowerCase())) ||
         (journey.title && journey.title.toLowerCase().includes(filter.toLowerCase())) ||
         (journey.chakra_tag && journey.chakra_tag.toLowerCase().includes(filter.toLowerCase()))
       );
