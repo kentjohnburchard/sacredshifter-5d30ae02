@@ -36,10 +36,11 @@ const JourneysList: React.FC<JourneysListProps> = ({
             tag && typeof tag === 'string' && tag.toLowerCase().includes(filter.toLowerCase())
           );
         
-        // Check tags as string
+        // Check tags as string - fixed TypeScript error by adding type guards
         const hasMatchingStringTag = journey.tags && 
-          typeof journey.tags === 'string' && 
-          journey.tags.toString().toLowerCase().includes(filter.toLowerCase());
+          !Array.isArray(journey.tags) && // Ensure it's not an array
+          typeof journey.tags === 'string' && // Ensure it's a string
+          journey.tags.toLowerCase().includes(filter.toLowerCase());
         
         // Check title
         const hasMatchingTitle = journey.title && 
