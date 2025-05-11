@@ -4,9 +4,12 @@ import { useTheme } from '@/context/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import AmbientBackground from '@/components/circle/AmbientBackground';
 import { ChakraTag } from '@/types/chakras';
+import { getAmbientChakraForRoute, getBackgroundIntensity } from '@/lib/utils';
+import { useLocation } from 'react-router-dom';
 
 const ThemeEnhancer: React.FC = () => {
   const { liftTheVeil } = useTheme();
+  const { pathname } = useLocation();
   
   // Apply global CSS variables when theme changes
   useEffect(() => {
@@ -85,15 +88,17 @@ const ThemeEnhancer: React.FC = () => {
     });
   };
 
-  // Determine active chakra based on the veil state
-  const activeChakra: ChakraTag = liftTheVeil ? 'heart' : 'crown';
+  // Determine active chakra based on the route and veil state
+  // Make sure to use the proper casing for chakra values according to the ChakraTag type
+  const activeChakra: ChakraTag = liftTheVeil ? 'Heart' : getAmbientChakraForRoute(pathname);
+  const intensity = getBackgroundIntensity(pathname);
   
   return (
     <>
       {/* AmbientBackground for neon glow circles on every page */}
       <AmbientBackground 
         activeChakra={activeChakra} 
-        intensity={0.4} 
+        intensity={intensity} 
         pulsing={true} 
       />
     

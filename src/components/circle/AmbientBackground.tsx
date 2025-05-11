@@ -36,6 +36,10 @@ const AmbientBackground: React.FC<AmbientBackgroundProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    let time = 0;
+    let lastFrame = 0;
+    const frameDelay = 1000 / 30; // Target 30fps for performance
+    
     // Set canvas to full screen
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -44,9 +48,6 @@ const AmbientBackground: React.FC<AmbientBackgroundProps> = ({
       initParticles();
     };
     
-    window.addEventListener('resize', resize);
-    resize();
-
     // Initialize particles
     const initParticles = () => {
       const particles = [];
@@ -72,14 +73,10 @@ const AmbientBackground: React.FC<AmbientBackgroundProps> = ({
       particlesRef.current = particles;
     };
 
-    initParticles();
-
-    // Set up throttling for animation frames
-    let lastFrame = 0;
-    const frameDelay = 1000 / 30; // Target 30fps for performance
-
+    window.addEventListener('resize', resize);
+    resize();
+    
     // Animation function
-    let time = 0;
     const draw = (currentTime: number) => {
       // Throttle frames for performance
       if (currentTime - lastFrame < frameDelay) {

@@ -1,6 +1,6 @@
-
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { ChakraTag } from "@/types/chakras"
  
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -124,27 +124,25 @@ export function getNoItemsMessage(itemType: string): string {
   return `No ${itemType} available`;
 }
 
-// New utilities for the ambient background
-
 // Get appropriate chakra color based on page context
 export function getAmbientChakraForRoute(pathname: string): ChakraTag {
-  if (pathname.includes('/heart')) return 'heart';
-  if (pathname.includes('/root')) return 'root';
-  if (pathname.includes('/throat')) return 'throat';
-  if (pathname.includes('/third-eye')) return 'third-eye';
-  if (pathname.includes('/crown')) return 'crown';
-  if (pathname.includes('/solar')) return 'solar-plexus';
-  if (pathname.includes('/sacral')) return 'sacral';
+  if (pathname.includes('/heart')) return 'Heart';
+  if (pathname.includes('/root')) return 'Root';
+  if (pathname.includes('/throat')) return 'Throat';
+  if (pathname.includes('/third-eye')) return 'Third Eye';
+  if (pathname.includes('/crown')) return 'Crown';
+  if (pathname.includes('/solar')) return 'Solar Plexus';
+  if (pathname.includes('/sacral')) return 'Sacral';
   
   // Default chakras for common sections
-  if (pathname.includes('/journey')) return 'crown';
-  if (pathname.includes('/love') || pathname.includes('/community')) return 'heart';
-  if (pathname.includes('/meditation')) return 'third-eye';
-  if (pathname.includes('/frequency')) return 'throat';
-  if (pathname.includes('/dashboard')) return 'solar-plexus';
+  if (pathname.includes('/journey')) return 'Crown';
+  if (pathname.includes('/love') || pathname.includes('/community')) return 'Heart';
+  if (pathname.includes('/meditation')) return 'Third Eye';
+  if (pathname.includes('/frequency')) return 'Throat';
+  if (pathname.includes('/dashboard')) return 'Solar Plexus';
   
   // Fallback to crown chakra
-  return 'crown';
+  return 'Crown';
 }
 
 // Function to determine appropriate background intensity based on page content
