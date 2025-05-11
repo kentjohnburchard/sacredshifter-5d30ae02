@@ -39,6 +39,9 @@ const JourneyExperiencePage: React.FC = () => {
   const [eventLogged, setEventLogged] = useState(false); // Track if event has been logged
   const [startTime, setStartTime] = useState<Date>(new Date()); // Track journey start time
   
+  // Console log to help debug loading issues
+  console.log("JourneyExperiencePage rendering with slug:", slug);
+  
   useEffect(() => {
     const loadJourney = async () => {
       if (!slug) {

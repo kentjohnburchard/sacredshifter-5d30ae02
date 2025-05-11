@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,7 @@ const GroundingPhase: React.FC<GroundingPhaseProps> = ({
   const [breathCount, setBreathCount] = useState(0);
   const [isBreathing, setIsBreathing] = useState(false);
   const [showContinue, setShowContinue] = useState(false);
-  const [completionInProgress, setCompletionInProgress] = useState(false);
+  const completionRef = useRef(false);
 
   // Breath animation controller
   useEffect(() => {
@@ -47,16 +47,12 @@ const GroundingPhase: React.FC<GroundingPhaseProps> = ({
   };
 
   const handleComplete = () => {
-    // Prevent multiple clicks
-    if (completionInProgress) return;
+    // Use ref to prevent duplicate calls
+    if (completionRef.current) return;
+    completionRef.current = true;
     
-    console.log("GroundingPhase handleComplete called");
-    setCompletionInProgress(true);
-    
-    // Small delay for visual feedback
-    setTimeout(() => {
-      onComplete();
-    }, 100);
+    console.log("GroundingPhase handleComplete called - completing phase");
+    onComplete();
   };
 
   const chakraColor = chakra ? getChakraColor(chakra) : '#8B5CF6'; // Default purple
@@ -122,7 +118,7 @@ const GroundingPhase: React.FC<GroundingPhaseProps> = ({
           >
             <Button 
               onClick={handleComplete}
-              disabled={completionInProgress}
+              disabled={completionRef.current}
               className="flex items-center gap-2 px-6 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-md"
             >
               Continue to Alignment

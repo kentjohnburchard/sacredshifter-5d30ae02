@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useJourney } from '@/context/JourneyContext';
@@ -51,26 +50,31 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
   const { playAudio, playerState } = useGlobalAudioPlayer();
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll({ container: containerRef });
-
+  const phaseTransitionInProgressRef = useRef(false);
+  
   // Spiral parameters
   const { getDefaultParamsForChakra } = useSpiralParams();
   const [spiralParams, setSpiralParams] = useState(() => 
     getDefaultParamsForChakra(journeyData.chakra || 'Heart')
   );
   
+  // Use a ref for the current phase to prevent issues with stale closures
+  const currentPhaseRef = useRef<JourneyPhase>('grounding');
   const [currentPhase, setCurrentPhase] = useState<JourneyPhase>('grounding');
+  
+  // Single state object for phase completion tracking
   const [phaseCompletion, setPhaseCompletion] = useState({
     grounding: false,
     aligning: false,
     activating: false,
     integration: false
   });
+  
   const [reflection, setReflection] = useState('');
   const [audioStarted, setAudioStarted] = useState(false);
   const [eventLogged, setEventLogged] = useState(false);
   const [journeyStartTime] = useState<Date>(new Date());
   const [sessionId] = useState<string>(crypto.randomUUID());
-  const phaseChangeRef = useRef(false);
 
   // Background opacity animation based on scroll
   const backgroundOpacity = useTransform(scrollY, [0, 300], [1, 0.5]);
@@ -104,11 +108,11 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
     }
   }, [journeyData, audioStarted, playAudio]);
 
-  // On component mount, record journey start - modified to prevent duplicate events
+  // On component mount, record journey start
   useEffect(() => {
     if (user?.id && journeyData.id && !eventLogged) {
       try {
-        // Log event with both recordActivity and logTimelineEvent for redundancy
+        // Log event with recordActivity for redundancy
         recordActivity('journey_start', {
           journeyId: journeyData.id,
           title: journeyData.title,
@@ -121,9 +125,16 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
         // Continue with journey experience even if logging fails
       }
     }
+    
+    // Log mounting of component
+    console.log("JourneyExperience component mounted");
+    
+    return () => {
+      console.log("JourneyExperience component unmounting");
+    };
   }, [user?.id, journeyData.id, journeyData.title, recordActivity, eventLogged]);
 
-  // Track audio completion - FIX: Add null/undefined check for playerState
+  // Track audio completion
   useEffect(() => {
     // Check if playerState exists and audio playback has completed
     if (playerState && playerState.trackEnded && audioStarted) {
@@ -141,7 +152,13 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
     }
   }, [playerState, audioStarted, currentPhase, recordActivity, journeyData]);
 
-  // Dynamic spiral parameters based on current phase - FIXING THE ANIMATION SPEEDS
+  // Update currentPhaseRef when currentPhase changes
+  useEffect(() => {
+    currentPhaseRef.current = currentPhase;
+    console.log(`Phase updated to: ${currentPhase}`);
+  }, [currentPhase]);
+
+  // Dynamic spiral parameters based on current phase
   useEffect(() => {
     // Adjust spiral parameters based on the current phase
     const baseParams = getDefaultParamsForChakra(journeyData.chakra || 'Heart');
@@ -149,26 +166,26 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
     
     switch(currentPhase) {
       case 'grounding':
-        phaseParams.speed = 0.00005; // Further reduced from 0.0001
+        phaseParams.speed = 0.000025; // Ultra slow for stability
         phaseParams.opacity = 60;
         break;
       case 'aligning':
-        phaseParams.speed = 0.00007; // Further reduced from 0.00015
+        phaseParams.speed = 0.00003; // Ultra slow for stability
         phaseParams.strokeWeight = 1.2;
         phaseParams.opacity = 70;
         break;
       case 'activating':
-        phaseParams.speed = 0.0001; // Further reduced from 0.0002
+        phaseParams.speed = 0.00004; // Ultra slow for stability
         phaseParams.maxCycles = 5;
         phaseParams.opacity = 80;
         break;
       case 'integration':
-        phaseParams.speed = 0.00007; // Further reduced from 0.00015
+        phaseParams.speed = 0.000035; // Ultra slow for stability
         phaseParams.strokeWeight = 1.5;
         phaseParams.opacity = 90;
         break;
       case 'complete':
-        phaseParams.speed = 0.00005; // Further reduced from 0.0001
+        phaseParams.speed = 0.000025; // Ultra slow for stability
         phaseParams.maxCycles = 3;
         phaseParams.opacity = 50;
         break;
@@ -178,26 +195,28 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
     setSpiralParams(phaseParams);
   }, [currentPhase, journeyData.chakra, getDefaultParamsForChakra]);
 
-  // Fixed to ensure phase completion logic works correctly
+  // Better phase transition handling
   const completePhase = (phase: Exclude<JourneyPhase, 'complete'>) => {
-    console.log(`Completing phase: ${phase}`);
+    console.log(`Completing phase: ${phase}, current phase: ${currentPhaseRef.current}`);
     
-    if (phaseChangeRef.current) {
-      console.log("Phase change already in progress, ignoring");
+    if (phaseTransitionInProgressRef.current) {
+      console.log("Phase transition already in progress, ignoring request");
       return;
     }
     
-    phaseChangeRef.current = true;
+    // Block concurrent transitions
+    phaseTransitionInProgressRef.current = true;
     
-    // Update completion state - using callback form to ensure we have the latest state
-    setPhaseCompletion(prev => {
-      console.log("Current phase completion:", prev);
-      return { ...prev, [phase]: true };
-    });
+    // Update completion state
+    setPhaseCompletion(prev => ({
+      ...prev,
+      [phase]: true
+    }));
 
     // Record the completion in the timeline
     if (user?.id && journeyData.id) {
       console.log(`Recording activity for phase: ${phase}`);
+      
       recordActivity('journey_progress', {
         journeyId: journeyData.id,
         phase,
@@ -207,6 +226,7 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
       // For aligning phase, record chakra activation
       if (phase === 'aligning' && journeyData.chakra) {
         console.log(`Recording chakra activation for: ${journeyData.chakra}`);
+        
         recordActivation(journeyData.chakra, 'journey', journeyData.id);
         
         // Award points for phase completion
@@ -217,9 +237,9 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
 
     // Move to next phase with a slight delay for transition effect
     const phases: JourneyPhase[] = ['grounding', 'aligning', 'activating', 'integration', 'complete'];
-    const currentIndex = phases.indexOf(currentPhase);
+    const currentIndex = phases.indexOf(currentPhaseRef.current);
     
-    console.log(`Current phase index: ${currentIndex}, current phase: ${currentPhase}`);
+    console.log(`Current phase index: ${currentIndex}, current phase: ${currentPhaseRef.current}`);
     
     if (currentIndex < phases.length - 1) {
       console.log(`Transitioning to phase: ${phases[currentIndex + 1]} after delay`);
@@ -228,12 +248,13 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
       setTimeout(() => {
         const nextPhase = phases[currentIndex + 1];
         console.log(`Setting current phase to: ${nextPhase}`);
+        
         setCurrentPhase(nextPhase);
-        phaseChangeRef.current = false;
+        phaseTransitionInProgressRef.current = false;
       }, 300);
     } else {
       console.log("Already at last phase, not transitioning");
-      phaseChangeRef.current = false;
+      phaseTransitionInProgressRef.current = false;
     }
   };
 
@@ -280,12 +301,17 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
   };
 
   const handleJourneyComplete = async () => {
-    if (phaseChangeRef.current) return;
-    phaseChangeRef.current = true;
+    if (phaseTransitionInProgressRef.current) {
+      console.log("Phase transition already in progress, ignoring completion request");
+      return;
+    }
+    
+    phaseTransitionInProgressRef.current = true;
+    console.log("Handling journey completion");
     
     if (!reflection.trim()) {
       toast.warning("Please share a brief reflection before completing the journey");
-      phaseChangeRef.current = false;
+      phaseTransitionInProgressRef.current = false;
       return;
     }
 
@@ -343,16 +369,17 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
       toast.dismiss();
       toast.error("Error saving your journey experience");
     } finally {
-      phaseChangeRef.current = false;
+      phaseTransitionInProgressRef.current = false;
     }
   };
 
-  // Map phase to component
+  // Map phase to component with key props to force recreation
   const renderCurrentPhase = () => {
     switch (currentPhase) {
       case 'grounding':
         return (
           <GroundingPhase
+            key="grounding-phase"
             onComplete={() => completePhase('grounding')}
             chakra={journeyData.chakra}
             intent={journeyData.intent}
@@ -363,6 +390,7 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
       case 'aligning':
         return (
           <AligningPhase
+            key="aligning-phase"
             onComplete={() => completePhase('aligning')}
             chakra={journeyData.chakra}
             frequency={journeyData.frequency}
@@ -374,6 +402,7 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
       case 'activating':
         return (
           <ActivatingPhase
+            key="activating-phase"
             onComplete={() => completePhase('activating')}
             chakra={journeyData.chakra}
             frequency={journeyData.frequency}
@@ -384,6 +413,7 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
       case 'integration':
         return (
           <IntegrationPhase
+            key="integration-phase"
             onComplete={handleJourneyComplete}
             chakra={journeyData.chakra}
             reflection={reflection}
@@ -399,7 +429,7 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.7 }}
-            key="complete-phase" // Add unique key to prevent duplicate key warning
+            key="complete-phase"
           >
             <h2 className="text-3xl font-bold mb-4 text-white">Journey Complete</h2>
             <p className="text-lg text-white/80 mb-6">
@@ -426,11 +456,12 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
     }
   };
 
-  // Create scroll-reactive geometric form - FIX SVG LOADING ISSUE
+  // Use a simple SVG element instead of trying to load external SVG files
   const ScrollReactiveGeometry = () => {
     const geometryOpacity = useTransform(scrollY, [0, 200, 400], [0, 0.5, 0.8]);
     const geometryScale = useTransform(scrollY, [0, 300], [0.8, 1.2]);
     const geometryRotation = useTransform(scrollY, [0, 500], [0, 90]);
+    const chakraColor = getChakraColor(journeyData.chakra) || '#8B5CF6';
 
     return (
       <motion.div 
@@ -442,24 +473,52 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
         }}
       >
         <div className="absolute inset-0 flex items-center justify-center">
-          <div 
-            className="w-96 h-96"
-            style={{
-              // Use a generic sacred geometry pattern instead of chakra-specific SVGs
-              background: `radial-gradient(circle at center, ${getChakraColor(journeyData.chakra)}30 0%, transparent 70%)`,
-              backgroundSize: 'contain',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-              opacity: 0.3
-            }}
-          >
-            {/* Simple sacred geometry SVG inline */}
-            <svg width="100%" height="100%" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="100" cy="100" r="80" fill="none" stroke="white" strokeWidth="0.5" opacity="0.5" />
-              <circle cx="100" cy="100" r="60" fill="none" stroke="white" strokeWidth="0.5" opacity="0.5" />
-              <circle cx="100" cy="100" r="40" fill="none" stroke="white" strokeWidth="0.5" opacity="0.5" />
-              {/* Add simple sacred geometry elements */}
-              <path d="M100,20 L180,150 L20,150 Z" fill="none" stroke="white" strokeWidth="0.3" opacity="0.3" />
+          <div className="w-96 h-96">
+            {/* Simple inline SVG for sacred geometry */}
+            <svg 
+              width="100%" 
+              height="100%" 
+              viewBox="0 0 200 200" 
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              {/* Base circle */}
+              <circle cx="100" cy="100" r="90" fill="none" stroke={chakraColor} strokeWidth="0.5" opacity="0.5" />
+              
+              {/* Flower of Life pattern */}
+              <circle cx="100" cy="100" r="30" fill="none" stroke="white" strokeWidth="0.5" opacity="0.3" />
+              <circle cx="130" cy="100" r="30" fill="none" stroke="white" strokeWidth="0.5" opacity="0.3" />
+              <circle cx="115" cy="126" r="30" fill="none" stroke="white" strokeWidth="0.5" opacity="0.3" />
+              <circle cx="85" cy="126" r="30" fill="none" stroke="white" strokeWidth="0.5" opacity="0.3" />
+              <circle cx="70" cy="100" r="30" fill="none" stroke="white" strokeWidth="0.5" opacity="0.3" />
+              <circle cx="85" cy="74" r="30" fill="none" stroke="white" strokeWidth="0.5" opacity="0.3" />
+              <circle cx="115" cy="74" r="30" fill="none" stroke="white" strokeWidth="0.5" opacity="0.3" />
+              
+              {/* Inner details */}
+              <path 
+                d="M100,20 L180,140 L20,140 Z" 
+                fill="none" 
+                stroke={chakraColor} 
+                strokeWidth="0.3" 
+                opacity="0.4"
+              />
+              
+              {/* Chakra-specific element */}
+              {journeyData.chakra === 'Crown' && (
+                <g opacity="0.6">
+                  <circle cx="100" cy="100" r="60" fill="none" stroke="purple" strokeWidth="0.5" />
+                  <path d="M70,70 L130,130 M70,130 L130,70" stroke="purple" strokeWidth="0.5" fill="none" />
+                </g>
+              )}
+              {journeyData.chakra === 'Heart' && (
+                <g opacity="0.6">
+                  <path d="M100,70 L130,100 L100,130 L70,100 Z" stroke="green" strokeWidth="0.5" fill="none" />
+                </g>
+              )}
+              {journeyData.chakra === 'Root' && (
+                <g opacity="0.6">
+                  <rect x="70" y="70" width="60" height="60" stroke="red" strokeWidth="0.5" fill="none" />
+                </g>
+              )}
             </svg>
           </div>
         </div>
