@@ -123,3 +123,65 @@ export function ensureValidSelectValue<T extends string>(value: T | null | undef
 export function getNoItemsMessage(itemType: string): string {
   return `No ${itemType} available`;
 }
+
+// New utilities for the ambient background
+
+// Get appropriate chakra color based on page context
+export function getAmbientChakraForRoute(pathname: string): ChakraTag {
+  if (pathname.includes('/heart')) return 'heart';
+  if (pathname.includes('/root')) return 'root';
+  if (pathname.includes('/throat')) return 'throat';
+  if (pathname.includes('/third-eye')) return 'third-eye';
+  if (pathname.includes('/crown')) return 'crown';
+  if (pathname.includes('/solar')) return 'solar-plexus';
+  if (pathname.includes('/sacral')) return 'sacral';
+  
+  // Default chakras for common sections
+  if (pathname.includes('/journey')) return 'crown';
+  if (pathname.includes('/love') || pathname.includes('/community')) return 'heart';
+  if (pathname.includes('/meditation')) return 'third-eye';
+  if (pathname.includes('/frequency')) return 'throat';
+  if (pathname.includes('/dashboard')) return 'solar-plexus';
+  
+  // Fallback to crown chakra
+  return 'crown';
+}
+
+// Function to determine appropriate background intensity based on page content
+export function getBackgroundIntensity(pathname: string): number {
+  // Reduce intensity on content-heavy pages for better readability
+  if (pathname.includes('/journey/') || 
+      pathname.includes('/meditation/') || 
+      pathname.includes('/read/')) {
+    return 0.3;
+  }
+  
+  // Lower intensity for dashboard and data-heavy pages
+  if (pathname.includes('/dashboard') || 
+      pathname.includes('/profile') || 
+      pathname.includes('/settings')) {
+    return 0.35;
+  }
+  
+  // Medium intensity for most pages
+  if (pathname === '/' || pathname.includes('/about')) {
+    return 0.5;
+  }
+  
+  // Default moderate intensity
+  return 0.4;
+}
+
+// Function to check device performance capability
+export function shouldReduceEffects(): boolean {
+  // Check if user prefers reduced motion
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    return true;
+  }
+  
+  // Check if device is likely mobile/low-power
+  const isMobileOrTablet = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const isLowPowerMode = window.navigator.hardwareConcurrency && window.navigator.hardwareConcurrency <= 4;
+  
+  return isMobileOrTablet || isLowPowerMode;
+}
