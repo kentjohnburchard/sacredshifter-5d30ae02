@@ -19,6 +19,7 @@ import HermeticJourneyPage from './pages/HermeticJourneyPage';
 import ComingSoonPage from './pages/ComingSoonPage';
 import NotFoundPage from './pages/NotFoundPage';
 import Auth from './pages/Auth';
+import Alignment from './pages/Alignment';
 
 // Journey Experience Pages
 import JourneyPage from './pages/JourneyPage';
@@ -40,6 +41,8 @@ import UserAdmin from './pages/admin/UserAdmin';
 import JourneyAudioAdmin from './pages/admin/JourneyAudioAdmin';
 import JourneySoundscapesAdmin from './pages/admin/JourneySoundscapesAdmin';
 import ProtectedRoute from './components/ProtectedRoute';
+import LightbearerPage from './pages/LightbearerPage';
+import RealityOptimizerPage from './pages/RealityOptimizerPage';
 
 function App() {
   const { user } = useAuthentication();
@@ -63,7 +66,9 @@ function App() {
               <Route path="/" element={<LandingPage />} />
               <Route path="/home" element={<HomePage />} />
               <Route path="/about" element={<AboutFounder />} />
+              <Route path="/about-founder" element={<AboutFounder />} />
               <Route path="/sacred-circle" element={<SacredCirclePage />} />
+              <Route path="/circle" element={<SacredCirclePage />} />
               <Route path="/frequency-engine" element={<FrequencyEnginePage />} />
               <Route path="/music-library" element={<MusicLibrary />} />
               <Route path="/daily-practice" element={<DailyPracticePage />} />
@@ -71,8 +76,11 @@ function App() {
               <Route path="/soundscapes" element={<Soundscapes />} />
               <Route path="/hermetic-journey" element={<HermeticJourneyPage />} />
               <Route path="/coming-soon" element={<ComingSoonPage />} />
+              <Route path="/alignment" element={<Alignment />} />
+              <Route path="/lightbearer" element={<LightbearerPage />} />
+              <Route path="/reality-optimizer" element={<RealityOptimizerPage />} />
               
-              {/* Auth Route - Added this route */}
+              {/* Auth Route */}
               <Route path="/auth" element={<Auth />} />
 
               {/* Journey Experience */}
@@ -94,7 +102,6 @@ function App() {
               {/* Optional Future Routes */}
               {/* <Route path="/frequency-library" element={<FrequencyLibrary />} /> */}
               {/* <Route path="/sacred-geometry" element={<SacredGeometryVisualizer />} /> */}
-              {/* <Route path="/lightbearer" element={<LightbearerPage />} /> */}
 
               {/* Fallback */}
               <Route path="*" element={<NotFoundPage />} />

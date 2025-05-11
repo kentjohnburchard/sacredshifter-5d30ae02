@@ -18,10 +18,6 @@ const HomePage: React.FC = () => {
     navigate('/features');
   };
   
-  const handleNavigate = (path: string) => {
-    navigate(path);
-  };
-  
   return (
     <AppShell 
       pageTitle="Sacred Shifter"
@@ -101,7 +97,7 @@ const HomePage: React.FC = () => {
             <motion.div 
               className="bg-black/40 backdrop-blur-lg p-6 rounded-lg border border-purple-500/30 shadow-lg transition-all duration-300 hover:border-green-500/50 hover:shadow-green-600/20 cursor-pointer"
               whileHover={{ y: -5, boxShadow: '0 10px 25px rgba(74, 222, 128, 0.2)' }}
-              onClick={() => navigate('/circle')}
+              onClick={() => navigate('/sacred-circle')}
             >
               <h2 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-white/80 mb-2 sacred-heading">Sacred Circle</h2>
               <p className="text-purple-200">Connect with others on the path of enlightenment</p>
@@ -131,7 +127,7 @@ const HomePage: React.FC = () => {
             <motion.div 
               className="bg-black/40 backdrop-blur-lg p-6 rounded-lg border border-purple-500/30 shadow-lg transition-all duration-300 hover:border-cyan-500/50 hover:shadow-cyan-600/20 cursor-pointer"
               whileHover={{ y: -5, boxShadow: '0 10px 25px rgba(6, 182, 212, 0.2)' }}
-              onClick={() => navigate('/about')}
+              onClick={() => navigate('/about-founder')}
             >
               <h2 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-white/80 mb-2 sacred-heading">About the Founder</h2>
               <p className="text-purple-200">Learn about the vision behind Sacred Shifter</p>
