@@ -2,7 +2,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import p5 from 'p5';
 
-type SpiralParams = {
+export type SpiralParams = {
   coeffA?: number;
   coeffB?: number;
   coeffC?: number;
@@ -121,14 +121,14 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
       // Blend between initial and target parameters based on growth progress
       if (startSmall && growthProgress < 1) {
         const targetParams = { ...defaultParams, ...params };
-        const currentParams = { ...initialParams };
+        const currentParams: Partial<SpiralParams> = { ...initialParams };
         
         // Interpolate between initial and target parameters
         Object.keys(targetParams).forEach((key) => {
           const paramKey = key as keyof SpiralParams;
           if (paramKey in initialParams && paramKey in targetParams) {
-            const initValue = initialParams[paramKey];
-            const targetValue = targetParams[paramKey];
+            const initValue = initialParams[paramKey as keyof Required<SpiralParams>];
+            const targetValue = targetParams[paramKey as keyof Required<SpiralParams>];
             
             if (typeof initValue === 'number' && typeof targetValue === 'number') {
               currentParams[paramKey] = initValue + (targetValue - initValue) * growthProgress;
