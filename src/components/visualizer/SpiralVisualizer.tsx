@@ -16,6 +16,22 @@ type SpiralParams = {
   maxCycles?: number;
 };
 
+// Reduced default parameters for initial state
+const initialParams: Required<SpiralParams> = {
+  coeffA: 1.0,
+  coeffB: 0.8, 
+  coeffC: 1.2,
+  freqA: 3.2,
+  freqB: 4.1,
+  freqC: 2.7,
+  opacity: 0.3, // Start more transparent
+  strokeWeight: 0.8, // Thinner lines initially
+  speed: 0.00002, // Ultra slow for stability
+  color: '255,255,255',
+  maxCycles: 2 // Start with fewer cycles
+};
+
+// Regular parameters for later stages
 const defaultParams: Required<SpiralParams> = {
   coeffA: 1.0,
   coeffB: 0.8, 
@@ -34,22 +50,28 @@ interface SpiralVisualizerProps {
   params?: SpiralParams;
   className?: string;
   containerId?: string;
+  startSmall?: boolean;
 }
 
 const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
   params = {},
   className = '',
-  containerId = 'spiralVisualizer'
+  containerId = 'spiralVisualizer',
+  startSmall = true
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const sketchRef = useRef<p5 | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const lastParamsRef = useRef<SpiralParams>(params);
   const animationFrameRef = useRef<number | null>(null);
+  const [growthProgress, setGrowthProgress] = useState(0);
 
   useEffect(() => {
+    // Start with minimal parameters if startSmall is true, otherwise use regular defaults
+    const baseDefaults = startSmall ? initialParams : defaultParams;
+    
     // Combine default parameters with provided ones, ensuring all params exist
-    const processedParams = { ...defaultParams, ...params };
+    const processedParams = { ...baseDefaults, ...params };
     lastParamsRef.current = processedParams;
     
     console.log("SpiralVisualizer received params:", processedParams);
@@ -64,21 +86,63 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
       }
     }, 100);
 
+    // Start growth animation if startSmall is true
+    if (startSmall) {
+      let growthStep = 0;
+      const growthInterval = setInterval(() => {
+        growthStep += 0.02; // 2% growth per interval
+        if (growthStep >= 1) {
+          clearInterval(growthInterval);
+          growthStep = 1;
+        }
+        setGrowthProgress(growthStep);
+      }, 200);
+      
+      return () => {
+        clearInterval(growthInterval);
+        clearTimeout(initTimer);
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+        }
+      };
+    }
+
     return () => {
       clearTimeout(initTimer);
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, []);
+  }, [startSmall]);
 
-  // Handle parameter updates separately for better performance
+  // Handle parameter updates and growth separately for better performance
   useEffect(() => {
-    if (isInitialized && JSON.stringify(lastParamsRef.current) !== JSON.stringify(params)) {
-      console.log("Parameters changed, updating spiral");
-      lastParamsRef.current = { ...defaultParams, ...params };
+    if (isInitialized) {
+      // Blend between initial and target parameters based on growth progress
+      if (startSmall && growthProgress < 1) {
+        const targetParams = { ...defaultParams, ...params };
+        const currentParams = { ...initialParams };
+        
+        // Interpolate between initial and target parameters
+        Object.keys(targetParams).forEach((key) => {
+          const paramKey = key as keyof SpiralParams;
+          if (paramKey in initialParams && paramKey in targetParams) {
+            const initValue = initialParams[paramKey];
+            const targetValue = targetParams[paramKey];
+            
+            if (typeof initValue === 'number' && typeof targetValue === 'number') {
+              currentParams[paramKey] = initValue + (targetValue - initValue) * growthProgress;
+            }
+          }
+        });
+        
+        lastParamsRef.current = currentParams;
+      } else if (JSON.stringify(lastParamsRef.current) !== JSON.stringify(params)) {
+        console.log("Parameters changed, updating spiral");
+        lastParamsRef.current = { ...defaultParams, ...params };
+      }
     }
-  }, [params, isInitialized]);
+  }, [params, growthProgress, isInitialized, startSmall]);
 
   const initSketch = (processedParams: Required<SpiralParams>) => {
     const sketch = (p: p5) => {
@@ -110,8 +174,8 @@ const SpiralVisualizer: React.FC<SpiralVisualizerProps> = ({
         const currentParams = lastParamsRef.current;
         animationSpeed = currentParams.speed || defaultParams.speed;
         
-        // Slowly advance time based on speed parameter
-        t += animationSpeed * 0.02;
+        // Slowly advance time based on speed parameter - using ultra slow speed
+        t += Math.min(animationSpeed * 0.01, 0.0001); // Cap the time advancement to avoid issues
         
         // Apply a subtle fade to create trail effect
         p.background(0, 0, 0, 8);

@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useJourney } from '@/context/JourneyContext';
 import SpiralVisualizer from '@/components/visualizer/SpiralVisualizer';
@@ -13,6 +13,7 @@ interface JourneyAwareSpiralVisualizerProps {
   className?: string;
   showControls?: boolean;
   containerId?: string;
+  startSmall?: boolean; // Add parameter to control starting size
 }
 
 const JourneyAwareSpiralVisualizer: React.FC<JourneyAwareSpiralVisualizerProps> = ({
@@ -20,12 +21,14 @@ const JourneyAwareSpiralVisualizer: React.FC<JourneyAwareSpiralVisualizerProps> 
   autoSync = true,
   className = '',
   showControls = true,
-  containerId = 'journeySpiral'
+  containerId = 'journeySpiral',
+  startSmall = true // Default to starting small and growing
 }) => {
   const { user } = useAuth();
   const { activeJourney, isJourneyActive, recordActivity } = useJourney();
   const [isVisible, setIsVisible] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
+  const mountTimeRef = useRef(Date.now());
 
   // Ensure journeyId is always a string when passed to useSpiralParams
   const stringJourneyId = journeyId ? String(journeyId) : undefined;
@@ -113,7 +116,7 @@ const JourneyAwareSpiralVisualizer: React.FC<JourneyAwareSpiralVisualizerProps> 
     opacity: spiralParams?.opacity || 80,
     strokeWeight: spiralParams?.strokeWeight || 1.5,
     maxCycles: spiralParams?.maxCycles || 5,
-    speed: isInitialized ? (spiralParams?.speed || 0.5) : 0.01 // Start with slow speed until initialized
+    speed: isInitialized ? (spiralParams?.speed || 0.00002) : 0.00001 // Use ultra slow speeds for stability
   };
 
   return (
@@ -122,6 +125,7 @@ const JourneyAwareSpiralVisualizer: React.FC<JourneyAwareSpiralVisualizerProps> 
         params={completeParams} 
         containerId={containerId}
         className="absolute inset-0"
+        startSmall={startSmall}
       />
       
       {showControls && (

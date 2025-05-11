@@ -27,7 +27,13 @@ const IntegrationPhase: React.FC<IntegrationPhaseProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const completionRef = useRef(false);
   
-  const handleComplete = () => {
+  const handleComplete = (e?: React.MouseEvent) => {
+    // Prevent default browser behavior
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     // Prevent multiple completions using ref instead of state
     if (completionRef.current) return;
     
@@ -79,6 +85,7 @@ const IntegrationPhase: React.FC<IntegrationPhaseProps> = ({
             disabled={isSubmitting || completionRef.current}
             className="flex items-center gap-2 px-6 py-2"
             style={{ backgroundColor: chakraColor, color: 'white' }}
+            type="button"
           >
             {isSubmitting ? "Saving..." : "Complete Journey"}
             {!isSubmitting && <ChevronRight size={18} />}

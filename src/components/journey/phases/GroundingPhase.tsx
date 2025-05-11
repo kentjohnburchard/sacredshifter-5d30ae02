@@ -46,7 +46,13 @@ const GroundingPhase: React.FC<GroundingPhaseProps> = ({
     setIsBreathing(true);
   };
 
-  const handleComplete = () => {
+  const handleComplete = (e?: React.MouseEvent) => {
+    // Prevent any default behavior and stop propagation
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     // Use ref to prevent duplicate calls
     if (completionRef.current) return;
     completionRef.current = true;
@@ -105,6 +111,7 @@ const GroundingPhase: React.FC<GroundingPhaseProps> = ({
             onClick={handleStartBreathing}
             disabled={isBreathing}
             className="px-6 py-2 bg-purple-700 hover:bg-purple-600 text-white rounded-md mb-4"
+            type="button"
           >
             {isBreathing ? "Breathe..." : breathCount === 0 ? "Begin Breathing" : "Next Breath"}
           </Button>
@@ -120,6 +127,7 @@ const GroundingPhase: React.FC<GroundingPhaseProps> = ({
               onClick={handleComplete}
               disabled={completionRef.current}
               className="flex items-center gap-2 px-6 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-md"
+              type="button" 
             >
               Continue to Alignment
               <ChevronRight size={18} />

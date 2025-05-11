@@ -20,7 +20,7 @@ export interface SpiralParams {
 // Cache to store params by journey ID
 export const paramsCache: Record<string, SpiralParams> = {};
 
-// Default spiral parameters with ultra-reduced speeds for stability
+// Ultra-stable default spiral parameters with reduced speeds
 const defaultParams: SpiralParams = {
   coeffA: 1.2,
   coeffB: 0.9,
@@ -32,7 +32,7 @@ const defaultParams: SpiralParams = {
   opacity: 80,
   strokeWeight: 0.5,
   maxCycles: 5,
-  speed: 0.00002 // Ultra slow for stability
+  speed: 0.00001 // Ultra slow for maximum stability
 };
 
 // Chakra color mappings for default parameters
@@ -77,7 +77,7 @@ const useSpiralParams = (journeyId?: string) => {
           freqA: 3.0,
           freqB: 2.0,
           maxCycles: 3,
-          speed: 0.00002 // Ultra slow for stability
+          speed: 0.00001 // Ultra slow for guaranteed stability
         };
       case 'Sacral':
         return {
@@ -87,7 +87,7 @@ const useSpiralParams = (journeyId?: string) => {
           freqA: 3.5,
           freqB: 2.5,
           maxCycles: 4,
-          speed: 0.000025 // Ultra slow for stability
+          speed: 0.000015 // Ultra slow for guaranteed stability
         };
       case 'Solar Plexus':
         return {
@@ -97,7 +97,7 @@ const useSpiralParams = (journeyId?: string) => {
           freqA: 4.0,
           freqB: 3.0,
           maxCycles: 4,
-          speed: 0.000025 // Ultra slow for stability
+          speed: 0.000015 // Ultra slow for guaranteed stability
         };
       case 'Heart':
         return {
@@ -107,7 +107,7 @@ const useSpiralParams = (journeyId?: string) => {
           freqA: 4.5,
           freqB: 3.5,
           maxCycles: 5,
-          speed: 0.00003 // Ultra slow for stability
+          speed: 0.00002 // Ultra slow for guaranteed stability
         };
       case 'Throat':
         return {
@@ -117,7 +117,7 @@ const useSpiralParams = (journeyId?: string) => {
           freqA: 5.0,
           freqB: 4.0,
           maxCycles: 5,
-          speed: 0.00003 // Ultra slow for stability
+          speed: 0.00002 // Ultra slow for guaranteed stability
         };
       case 'Third Eye':
         return {
@@ -127,7 +127,7 @@ const useSpiralParams = (journeyId?: string) => {
           freqA: 5.5,
           freqB: 4.5,
           maxCycles: 6,
-          speed: 0.000035 // Ultra slow for stability
+          speed: 0.000025 // Ultra slow for guaranteed stability
         };
       case 'Crown':
         return {
@@ -137,12 +137,12 @@ const useSpiralParams = (journeyId?: string) => {
           freqA: 6.0,
           freqB: 5.0,
           maxCycles: 7,
-          speed: 0.000035 // Ultra slow for stability
+          speed: 0.000025 // Ultra slow for guaranteed stability
         };
       default:
         return {
           ...chakraParams,
-          speed: 0.00002 // Ultra slow default for stability
+          speed: 0.00001 // Ultra slow default for guaranteed stability
         };
     }
   }, []);
@@ -169,11 +169,11 @@ const useSpiralParams = (journeyId?: string) => {
           const journeyParams = await fetchSpiralParams(journeyId);
           
           if (journeyParams && isMounted) {
-            // Ensure we don't cause rendering loops by modifying the speed
-            // Use ultra-slow speeds for stability
+            // Ensure we don't cause rendering loops by enforcing ultra-slow speeds
+            // Use ultra-slow speeds for guaranteed stability
             const safeParams = {
               ...journeyParams,
-              speed: Math.min(journeyParams.speed, 0.00005) // Cap the speed to avoid too fast animations
+              speed: 0.00001 // Force ultra-slow speed for all journeys
             };
             
             setParams(safeParams);
