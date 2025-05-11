@@ -235,7 +235,7 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
       }
     }
 
-    // Move to next phase with a slight delay for transition effect
+    // Move to next phase with a significant delay to ensure proper transitions
     const phases: JourneyPhase[] = ['grounding', 'aligning', 'activating', 'integration', 'complete'];
     const currentIndex = phases.indexOf(currentPhaseRef.current);
     
@@ -244,19 +244,21 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
     if (currentIndex < phases.length - 1) {
       console.log(`Transitioning to phase: ${phases[currentIndex + 1]} after delay`);
       
-      // Extended delay to ensure transitions complete properly (increased from 300ms to 800ms)
+      // CRITICAL FIX: Significantly increased delays to ensure transitions complete properly
+      // First delay to allow animations and state updates to complete
       setTimeout(() => {
         const nextPhase = phases[currentIndex + 1];
         console.log(`Setting current phase to: ${nextPhase}`);
         
+        // Force a state update with the new phase
         setCurrentPhase(nextPhase);
         
-        // Reset the transition lock after setting the new phase
+        // Second delay to ensure new phase is fully registered before allowing new transitions
         setTimeout(() => {
           phaseTransitionInProgressRef.current = false;
           console.log("Phase transition lock released");
-        }, 300); // Wait additional time before allowing new transitions
-      }, 800);
+        }, 1000); // Increased delay before allowing new transitions
+      }, 1500); // Increased delay for phase transition
     } else {
       console.log("Already at last phase, not transitioning");
       phaseTransitionInProgressRef.current = false;
