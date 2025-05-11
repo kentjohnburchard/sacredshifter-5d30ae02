@@ -36,9 +36,12 @@ const ChakraSelect: React.FC<ChakraSelectProps> = ({
   className = "",
   disabled = false
 }) => {
+  // Ensure we're using a non-empty value for value prop
+  const safeValue = value || undefined; // undefined lets the placeholder show
+
   return (
     <Select
-      value={value}
+      value={safeValue}
       onValueChange={onChange}
       disabled={disabled}
     >
@@ -46,21 +49,26 @@ const ChakraSelect: React.FC<ChakraSelectProps> = ({
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>
-        {basicChakras.map((chakra) => (
-          <SelectItem 
-            key={chakra.name} 
-            value={chakra.name || "chakra-placeholder"} // Ensure value is never empty
-            className="flex items-center"
-          >
-            <div className="flex items-center">
-              <div 
-                className="w-3 h-3 rounded-full mr-2"
-                style={{ backgroundColor: chakra.color }}
-              ></div>
-              {chakra.name}
-            </div>
-          </SelectItem>
-        ))}
+        {basicChakras.map((chakra) => {
+          // Ensure every item has a valid non-empty value
+          const itemValue = chakra.name || `chakra-${Math.random().toString(36).slice(2, 7)}`;
+          
+          return (
+            <SelectItem 
+              key={chakra.name || itemValue} 
+              value={itemValue} 
+              className="flex items-center"
+            >
+              <div className="flex items-center">
+                <div 
+                  className="w-3 h-3 rounded-full mr-2"
+                  style={{ backgroundColor: chakra.color }}
+                ></div>
+                {chakra.name || "Unnamed Chakra"}
+              </div>
+            </SelectItem>
+          );
+        })}
       </SelectContent>
     </Select>
   );
