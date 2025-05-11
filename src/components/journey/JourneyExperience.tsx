@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useJourney } from '@/context/JourneyContext';
@@ -142,11 +141,19 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
   }, [playerState, audioStarted, currentPhase, recordActivity, journeyData]);
 
   const completePhase = (phase: Exclude<JourneyPhase, 'complete'>) => {
+    console.log(`Completing phase: ${phase}`);
+    
     // Update completion state
-    setPhaseCompletion(prev => ({ ...prev, [phase]: true }));
+    setPhaseCompletion(prev => {
+      console.log("Current phase completion:", prev);
+      const newCompletion = { ...prev, [phase]: true };
+      console.log("New phase completion:", newCompletion);
+      return newCompletion;
+    });
 
     // Record the completion in the timeline
     if (user?.id && journeyData.id) {
+      console.log(`Recording activity for phase: ${phase}`);
       recordActivity('journey_progress', {
         journeyId: journeyData.id,
         phase,
@@ -155,6 +162,7 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
       
       // For aligning phase, record chakra activation
       if (phase === 'aligning' && journeyData.chakra) {
+        console.log(`Recording chakra activation for: ${journeyData.chakra}`);
         recordActivation(journeyData.chakra, 'journey', journeyData.id);
         
         // Award points for phase completion
@@ -167,11 +175,17 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
     const phases: JourneyPhase[] = ['grounding', 'aligning', 'activating', 'integration', 'complete'];
     const currentIndex = phases.indexOf(currentPhase);
     
+    console.log(`Current phase index: ${currentIndex}, current phase: ${currentPhase}`);
+    
     if (currentIndex < phases.length - 1) {
       // Small delay for better transitions
+      console.log(`Transitioning to phase: ${phases[currentIndex + 1]} after delay`);
       setTimeout(() => {
+        console.log(`Setting current phase to: ${phases[currentIndex + 1]}`);
         setCurrentPhase(phases[currentIndex + 1]);
       }, 300);
+    } else {
+      console.log("Already at last phase, not transitioning");
     }
   };
 
@@ -287,26 +301,26 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
     
     switch(currentPhase) {
       case 'grounding':
-        phaseParams.speed = 0.001; // Reduced from 0.05
+        phaseParams.speed = 0.0003; // Reduced from 0.001
         phaseParams.opacity = 60;
         break;
       case 'aligning':
-        phaseParams.speed = 0.002; // Reduced from 0.15
+        phaseParams.speed = 0.0004; // Reduced from 0.002
         phaseParams.strokeWeight = 1.2;
         phaseParams.opacity = 70;
         break;
       case 'activating':
-        phaseParams.speed = 0.003; // Reduced from 0.25
+        phaseParams.speed = 0.0005; // Reduced from 0.003
         phaseParams.maxCycles = 5;
         phaseParams.opacity = 80;
         break;
       case 'integration':
-        phaseParams.speed = 0.002; // Reduced from 0.1
+        phaseParams.speed = 0.0004; // Reduced from 0.002
         phaseParams.strokeWeight = 1.5;
         phaseParams.opacity = 90;
         break;
       case 'complete':
-        phaseParams.speed = 0.001; // Reduced from 0.05
+        phaseParams.speed = 0.0003; // Reduced from 0.001
         phaseParams.maxCycles = 3;
         phaseParams.opacity = 50;
         break;

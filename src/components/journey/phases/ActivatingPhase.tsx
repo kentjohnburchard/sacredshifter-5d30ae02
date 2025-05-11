@@ -43,7 +43,9 @@ const ActivatingPhase: React.FC<ActivatingPhaseProps> = ({
   const handleComplete = (e: React.MouseEvent) => {
     // Prevent default behavior to avoid page refresh
     e.preventDefault();
+    e.stopPropagation(); // Also stop propagation to prevent parent handlers
     
+    console.log("ActivatingPhase handleComplete called");
     onComplete();
   };
   

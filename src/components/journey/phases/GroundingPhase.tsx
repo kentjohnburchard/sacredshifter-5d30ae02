@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight, Info } from 'lucide-react';
@@ -48,7 +47,9 @@ const GroundingPhase: React.FC<GroundingPhaseProps> = ({
   const handleComplete = (e: React.MouseEvent) => {
     // Prevent default behavior to avoid page refresh
     e.preventDefault();
+    e.stopPropagation(); // Also stop propagation to prevent parent handlers
     
+    console.log("GroundingPhase handleComplete called");
     onComplete();
   };
 

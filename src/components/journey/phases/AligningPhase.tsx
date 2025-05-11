@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight, Music } from 'lucide-react';
@@ -42,7 +41,9 @@ const AligningPhase: React.FC<AligningPhaseProps> = ({
   const handleComplete = (e: React.MouseEvent) => {
     // Prevent default behavior to avoid page refresh
     e.preventDefault();
+    e.stopPropagation(); // Also stop propagation to prevent parent handlers
     
+    console.log("AligningPhase handleComplete called");
     onComplete();
   };
 
