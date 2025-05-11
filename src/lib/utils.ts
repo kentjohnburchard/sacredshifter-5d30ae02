@@ -67,9 +67,12 @@ export function getNeonTextStyle(color = 'purple', intensity = 'medium') {
                        intensity === 'medium' ? '0.5' : 
                        intensity === 'high' ? '0.7' : '0.5';
                        
+  // Ensure we're working with numbers for the arithmetic operation
+  const intensityValue = parseFloat(glowIntensity);
+  
   return {
     color: `rgba(${glowColor}, 1)`,
-    textShadow: `0 0 5px rgba(${glowColor}, ${glowIntensity}), 0 0 10px rgba(${glowColor}, ${parseFloat(glowIntensity) * 0.8})`,
+    textShadow: `0 0 5px rgba(${glowColor}, ${glowIntensity}), 0 0 10px rgba(${glowColor}, ${intensityValue * 0.8})`,
   };
 }
 
