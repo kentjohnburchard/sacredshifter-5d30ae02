@@ -1,137 +1,83 @@
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { getActiveNavItems, type NavItem, type PageKey } from "@/config/navigation";
-import { cn } from "@/lib/utils";
-import { useTheme } from "@/context/ThemeContext";
-// Import specific icon components instead of the entire library
-import { Circle, Layers } from "lucide-react";
-import { useLocation, Link } from "react-router-dom";
+import React from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { Home, Sparkles, Music, Brain, Users, Heart, Bookmark } from 'lucide-react';
+import { useTheme } from '@/context/ThemeContext';
+import { cn } from '@/lib/utils';
 
 interface SidebarNavItemsProps {
-  isCollapsed?: boolean;
+  isCollapsed: boolean;
   onLinkClick?: () => void;
 }
 
-interface NavLinkItemProps {
-  icon?: string;
-  label: string;
-  path: string;
-  isCollapsed?: boolean;
-  pageKey: PageKey;
-  isActive: boolean;
-  onClick?: () => void;
-  liftTheVeil: boolean;
-}
-
-const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({
-  isCollapsed = false,
-  onLinkClick,
-}) => {
+const SidebarNavItems: React.FC<SidebarNavItemsProps> = ({ isCollapsed, onLinkClick }) => {
+  const location = useLocation();
   const { liftTheVeil } = useTheme();
-  const { pathname: locationPath } = useLocation();
-  const [activeNavLinks, setActiveNavLinks] = useState<NavItem[]>([]);
-  const [themeState, setThemeState] = useState(liftTheVeil);
-
-  useEffect(() => {
-    console.log("SidebarNavItems theme updated, liftTheVeil:", liftTheVeil);
-    setThemeState(liftTheVeil);
-  }, [liftTheVeil]);
-
-  useEffect(() => {
-    const items = getActiveNavItems();
-    setActiveNavLinks(items);
-  }, []);
-
-  useEffect(() => {
-    const handleThemeChange = () => {
-      console.log("SidebarNavItems detected theme change event");
-      setThemeState(prev => !prev);
-    };
-
-    window.addEventListener('themeChanged', handleThemeChange);
-    return () => window.removeEventListener('themeChanged', handleThemeChange);
-  }, []);
-
+  
+  const navItems = [
+    { path: '/', icon: <Home />, label: 'Home' },
+    { path: '/journey-index', icon: <Sparkles />, label: 'Journeys' },
+    { path: '/frequency-engine', icon: <Music />, label: 'Frequencies' },
+    { path: '/reality-optimizer', icon: <Brain />, label: 'Optimizer' },
+    { path: '/sacred-circle', icon: <Users />, label: 'Circle' },
+    { path: '/heart-center', icon: <Heart />, label: 'Heart' },
+    { path: '/bookmarks', icon: <Bookmark />, label: 'Bookmarks' },
+  ];
+  
   return (
-    <div className="space-y-1 py-2">
-      {activeNavLinks.map((item) => {
-        const isActive = locationPath === item.path;
+    <nav className="px-2 space-y-1">
+      {navItems.map((item) => {
+        const isActive = location.pathname === item.path;
+        
         return (
-          <NavLinkItem
+          <NavLink
             key={item.path}
-            icon={item.icon}
-            label={item.label}
-            path={item.path}
-            pageKey={item.key}
-            isCollapsed={isCollapsed}
-            isActive={isActive}
+            to={item.path}
+            className={({ isActive }) => cn(
+              "flex items-center px-3 py-3 rounded-md transition-all duration-300",
+              isCollapsed ? "justify-center" : "justify-start",
+              isActive 
+                ? liftTheVeil
+                  ? "bg-pink-500/20 text-white" 
+                  : "bg-purple-500/20 text-white"
+                : "text-gray-400 hover:bg-white/10 hover:text-white"
+            )}
             onClick={onLinkClick}
-            liftTheVeil={liftTheVeil}
-          />
+            style={{
+              textShadow: isActive ? '0 0 10px rgba(255, 255, 255, 0.5)' : 'none',
+              boxShadow: isActive 
+                ? liftTheVeil 
+                  ? '0 0 15px rgba(236, 72, 153, 0.2)' 
+                  : '0 0 15px rgba(168, 85, 247, 0.2)' 
+                : 'none'
+            }}
+          >
+            <span className={cn(
+              "flex items-center justify-center",
+              isActive && liftTheVeil ? "text-pink-300" : isActive ? "text-purple-300" : ""
+            )}>
+              {React.cloneElement(item.icon, { 
+                size: isCollapsed ? 20 : 18,
+                className: cn(
+                  "transition-all duration-300",
+                  isCollapsed ? "" : "mr-3",
+                  isActive ? "animate-pulse-subtle" : ""
+                )
+              })}
+            </span>
+            
+            {!isCollapsed && (
+              <span className={cn(
+                "text-sm font-medium transition-all duration-300",
+                isActive && liftTheVeil ? "text-pink-100" : isActive ? "text-purple-100" : ""
+              )}>
+                {item.label}
+              </span>
+            )}
+          </NavLink>
         );
       })}
-    </div>
-  );
-};
-
-// Function to map icon string to a component
-const getIconComponent = (iconName: string) => {
-  switch(iconName) {
-    case 'Circle': return <Circle />;
-    case 'Layers': return <Layers />;
-    // Add other icon cases as needed for your navigation
-    default: return <Circle />;  // Default icon
-  }
-};
-
-// NavLink component that renders an individual navigation item
-const NavLinkItem: React.FC<NavLinkItemProps> = ({
-  icon,
-  label,
-  path,
-  isCollapsed,
-  isActive,
-  onClick,
-  liftTheVeil
-}) => {
-  const linkClasses = cn(
-    "group flex w-full items-center rounded-md border border-transparent px-2 py-1.5 hover:bg-white/10 nav-link text-white",
-    isActive ? 
-      liftTheVeil ? "bg-pink-900/40 font-bold" : "bg-purple-900/40 font-bold" 
-      : "",
-    isCollapsed ? "justify-center" : "justify-start",
-    "transition-all duration-200"
-  );
-
-  return (
-    <Link
-      to={path}
-      className={linkClasses}
-      onClick={onClick}
-    >
-      <div className="relative flex min-h-[32px] w-full items-center gap-3">
-        {/* Use the function to get the appropriate icon */}
-        <div className={cn(
-          "h-[18px] w-[18px] shrink-0 text-white",
-          isActive ? "text-shadow-md" : ""
-        )}>
-          {icon ? getIconComponent(icon) : <Circle />}
-        </div>
-
-        {!isCollapsed && (
-          <span className="truncate text-sm text-white">{label}</span>
-        )}
-
-        {isActive && !isCollapsed && (
-          <span
-            className={cn(
-              "ml-auto h-2 w-2 rounded-full",
-              liftTheVeil ? "bg-pink-400" : "bg-purple-400"
-            )}
-          />
-        )}
-      </div>
-    </Link>
+    </nav>
   );
 };
 

@@ -1,0 +1,251 @@
+
+/* Sacred Theme Global Styles */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Root Variables */
+:root {
+  /* Base Colors */
+  --sacred-bg-dark: #0a0a12;
+  --sacred-bg-darker: #050508;
+  --sacred-bg-lighter: #121220;
+  
+  /* Accent Colors */
+  --sacred-purple: #9b87f5;
+  --sacred-blue: #6293e8;
+  --sacred-pink: #e87ad0;
+  --sacred-green: #5fe8b9;
+  
+  /* Glassmorphism */
+  --sacred-glass-bg: rgba(15, 14, 31, 0.6);
+  --sacred-glass-border: rgba(255, 255, 255, 0.08);
+  --sacred-glass-highlight: rgba(255, 255, 255, 0.1);
+  --sacred-glass-shadow: rgba(0, 0, 0, 0.25);
+  
+  /* Text */
+  --sacred-text-primary: rgba(255, 255, 255, 0.95);
+  --sacred-text-secondary: rgba(255, 255, 255, 0.75);
+  --sacred-text-tertiary: rgba(255, 255, 255, 0.5);
+  
+  /* Animations */
+  --sacred-transition-fast: 0.2s ease;
+  --sacred-transition-medium: 0.3s ease;
+  --sacred-transition-slow: 0.5s ease;
+  
+  /* Shadows */
+  --sacred-shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.2);
+  --sacred-shadow-md: 0 4px 20px rgba(0, 0, 0, 0.25);
+  --sacred-shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.3);
+  
+  /* Glow Effects */
+  --sacred-glow-purple: 0 0 15px rgba(155, 135, 245, 0.5);
+  --sacred-glow-blue: 0 0 15px rgba(98, 147, 232, 0.5);
+  --sacred-glow-pink: 0 0 15px rgba(232, 122, 208, 0.5);
+  --sacred-glow-green: 0 0 15px rgba(95, 232, 185, 0.5);
+}
+
+/* Base Elements */
+body {
+  background-color: var(--sacred-bg-dark);
+  color: var(--sacred-text-primary);
+  font-family: 'Inter', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+  letter-spacing: 0.02em;
+}
+
+/* Background Styles */
+.sacred-background {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: radial-gradient(circle at center, var(--sacred-bg-lighter) 0%, var(--sacred-bg-darker) 100%);
+  overflow: hidden;
+}
+
+.sacred-background::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M50 50 L100 0 L0 100z' fill='%233a1f70' fill-opacity='0.03'/%3E%3Cpath d='M50 50 L0 0 L100 100z' fill='%233a1f70' fill-opacity='0.03'/%3E%3C/svg%3E") repeat;
+  opacity: 0.3;
+}
+
+/* Glass Card Styles */
+.sacred-glass {
+  background: var(--sacred-glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--sacred-glass-border);
+  box-shadow: var(--sacred-shadow-md);
+  transition: all var(--sacred-transition-medium);
+}
+
+.sacred-glass:hover {
+  border-color: var(--sacred-glass-highlight);
+  box-shadow: var(--sacred-shadow-md), var(--sacred-glow-purple);
+}
+
+/* Button Styles */
+.sacred-button {
+  background: linear-gradient(135deg, var(--sacred-glass-bg), rgba(15, 14, 31, 0.4));
+  border: 1px solid var(--sacred-glass-border);
+  color: var(--sacred-text-primary);
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.375rem;
+  transition: all var(--sacred-transition-fast);
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sacred-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  opacity: 0;
+  transition: opacity var(--sacred-transition-fast);
+}
+
+.sacred-button:hover {
+  border-color: var(--sacred-glass-highlight);
+  box-shadow: var(--sacred-glow-purple);
+}
+
+.sacred-button:hover::before {
+  opacity: 1;
+}
+
+.sacred-button-primary {
+  background: linear-gradient(135deg, var(--sacred-purple), #7a68c4);
+  border-color: rgba(155, 135, 245, 0.4);
+}
+
+.sacred-button-primary:hover {
+  box-shadow: var(--sacred-glow-purple);
+}
+
+.sacred-button-blue {
+  background: linear-gradient(135deg, var(--sacred-blue), #4e76c0);
+  border-color: rgba(98, 147, 232, 0.4);
+}
+
+.sacred-button-blue:hover {
+  box-shadow: var(--sacred-glow-blue);
+}
+
+.sacred-button-green {
+  background: linear-gradient(135deg, var(--sacred-green), #40c9a0);
+  border-color: rgba(95, 232, 185, 0.4);
+}
+
+.sacred-button-green:hover {
+  box-shadow: var(--sacred-glow-green);
+}
+
+/* Heading Styles */
+.sacred-heading {
+  background: linear-gradient(135deg, var(--sacred-text-primary), var(--sacred-text-secondary));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.sacred-heading-highlight {
+  background: linear-gradient(135deg, var(--sacred-purple), var(--sacred-blue));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Text Styles */
+.sacred-text-glow {
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+.sacred-text-gradient {
+  background: linear-gradient(135deg, var(--sacred-purple), var(--sacred-blue));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Input Styles */
+.sacred-input {
+  background: rgba(15, 14, 31, 0.4);
+  border: 1px solid var(--sacred-glass-border);
+  color: var(--sacred-text-primary);
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  transition: all var(--sacred-transition-fast);
+}
+
+.sacred-input:focus {
+  border-color: var(--sacred-purple);
+  box-shadow: var(--sacred-glow-purple);
+  outline: none;
+}
+
+.sacred-input::placeholder {
+  color: var(--sacred-text-tertiary);
+}
+
+/* Animation Utilities */
+.sacred-fade-in {
+  animation: sacredFadeIn var(--sacred-transition-medium) forwards;
+}
+
+.sacred-float {
+  animation: sacredFloat 3s ease-in-out infinite;
+}
+
+.sacred-pulse {
+  animation: sacredPulse 4s ease-in-out infinite;
+}
+
+@keyframes sacredFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sacredFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes sacredPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+  .sacred-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .sacred-heading {
+    font-size: 1.5rem;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .sacred-fade-in,
+  .sacred-float,
+  .sacred-pulse {
+    animation: none;
+  }
+}

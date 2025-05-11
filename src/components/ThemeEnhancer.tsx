@@ -13,7 +13,9 @@ const ThemeEnhancer: React.FC = () => {
     // Apply global theme changes
     if (liftTheVeil) {
       root.classList.add('veil-lifted');
-      root.style.setProperty('--primary-glow', 'rgba(255, 105, 180, 0.6)');
+      root.style.setProperty('--primary-glow', 'rgba(236, 72, 153, 0.6)');
+      root.style.setProperty('--accent-color', '#ec4899');
+      root.style.setProperty('--accent-secondary', '#f472b6');
       
       // Force navigation elements to update their styling
       document.querySelectorAll('.nav-link').forEach(el => {
@@ -21,7 +23,9 @@ const ThemeEnhancer: React.FC = () => {
       });
     } else {
       root.classList.remove('veil-lifted');
-      root.style.setProperty('--primary-glow', 'rgba(147, 51, 234, 0.5)');
+      root.style.setProperty('--primary-glow', 'rgba(168, 85, 247, 0.5)');
+      root.style.setProperty('--accent-color', '#a855f7');
+      root.style.setProperty('--accent-secondary', '#9333ea');
       
       // Reset navigation styling
       document.querySelectorAll('.nav-link').forEach(el => {
@@ -44,13 +48,15 @@ const ThemeEnhancer: React.FC = () => {
           <div className="absolute inset-0">
             <div className="absolute top-0 left-0 w-full h-full opacity-35"
               style={{
-                backgroundImage: `linear-gradient(0deg, transparent 24%, rgba(255, 105, 180, .7) 25%, rgba(255, 105, 180, .7) 26%, transparent 27%, transparent 74%, rgba(255, 105, 180, .7) 75%, rgba(255, 105, 180, .7) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 105, 180, .7) 25%, rgba(255, 105, 180, .7) 26%, transparent 27%, transparent 74%, rgba(255, 105, 180, .7) 75%, rgba(255, 105, 180, .7) 76%, transparent 77%, transparent)`,
+                backgroundImage: `linear-gradient(0deg, transparent 24%, rgba(236, 72, 153, .5) 25%, rgba(236, 72, 153, .5) 26%, transparent 27%, transparent 74%, rgba(236, 72, 153, .5) 75%, rgba(236, 72, 153, .5) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(236, 72, 153, .5) 25%, rgba(236, 72, 153, .5) 26%, transparent 27%, transparent 74%, rgba(236, 72, 153, .5) 75%, rgba(236, 72, 153, .5) 76%, transparent 77%, transparent)`,
                 backgroundSize: '50px 50px',
+                filter: 'blur(1px)',
               }}
             />
             
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200vw] h-[200vh] rounded-full bg-gradient-to-br from-pink-500/30 via-purple-500/20 to-transparent" 
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200vw] h-[200vh] rounded-full" 
               style={{
+                background: 'radial-gradient(circle, rgba(236, 72, 153, 0.15) 0%, rgba(168, 85, 247, 0.1) 40%, transparent 70%)',
                 animation: 'pulse 8s infinite alternate',
                 filter: 'blur(80px)',
               }}

@@ -1,7 +1,8 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import './styles/sacred-theme.css';
  
 :root {
   --foreground: 210 40% 98%;
@@ -46,11 +47,18 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    overflow-x: hidden;
   }
   
   /* Improved responsive base styling */
   html, body {
     @apply h-full w-full overflow-x-hidden;
+  }
+
+  /* Overall background */
+  #root {
+    position: relative;
+    min-height: 100vh;
   }
 }
 
@@ -109,7 +117,10 @@
 
 /* Card background with enhanced text readability */
 .card-cosmic {
-  @apply bg-black/70 backdrop-blur-md border border-white/10 shadow-xl;
+  background: var(--sacred-glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--sacred-glass-border);
+  box-shadow: var(--sacred-shadow-md);
 }
 
 /* Custom scrollbar styling */
@@ -136,10 +147,11 @@
   background-color: rgba(138, 75, 175, 0.8);
 }
 
-/* Sidebar styling */
+/* Sidebar styling with updated glassmorphism */
 .sidebar-gradient {
-  background: hsl(var(--sidebar-bg));
-  border-color: hsl(var(--sidebar-bg-hover));
+  background: rgba(43, 26, 55, 0.85);
+  backdrop-filter: blur(10px);
+  border-color: rgba(56, 38, 71, 0.5);
 }
 
 .nav-link {
@@ -173,13 +185,13 @@
   @apply text-purple-400 border-purple-900/30;
 }
 
-/* Improved markdown content styling */
+/* Improved markdown content styling with sacred theme colors */
 .prose {
   @apply text-base;
 }
 
 .prose h1 {
-  @apply text-2xl font-bold mb-4 text-white;
+  @apply text-2xl font-bold mb-4 text-white sacred-heading;
 }
 
 .prose h2 {
@@ -210,7 +222,7 @@
   @apply text-purple-300 hover:text-purple-200 underline;
 }
 
-/* Responsive utilities */
+/* Responsive utilities with sacred theme adjustments */
 @media (max-width: 640px) {
   .hide-scrollbar {
     -ms-overflow-style: none;

@@ -59,6 +59,16 @@ const Layout: React.FC<LayoutProps> = ({
           containerId="backgroundSpiral"
           className="opacity-30"
         />
+        
+        {/* Additional glowing line effect */}
+        <div className="absolute inset-0 z-0 opacity-20">
+          <div className="w-full h-full" style={{
+            backgroundImage: `radial-gradient(circle at 30% 40%, rgba(155, 135, 245, 0.4) 0%, transparent 60%), 
+                             radial-gradient(circle at 70% 60%, rgba(98, 147, 232, 0.4) 0%, transparent 60%)`,
+            backgroundSize: '100% 100%',
+            filter: 'blur(40px)'
+          }}></div>
+        </div>
       </div>
       
       {/* Overlay with increased opacity for better text readability */}
