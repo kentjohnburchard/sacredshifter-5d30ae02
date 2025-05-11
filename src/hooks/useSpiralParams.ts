@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useCallback } from 'react';
 import { fetchSpiralParams } from '@/services/spiralParamService';
 import { ChakraTag } from '@/types/chakras';
 
@@ -31,7 +32,7 @@ const defaultParams: SpiralParams = {
   opacity: 80,
   strokeWeight: 0.5,
   maxCycles: 5,
-  speed: 0.0003 // Extremely slow for meditative unfolding
+  speed: 0.0001 // Further reduced for slower, more meditative unfolding
 };
 
 // Chakra color mappings for default parameters
@@ -58,34 +59,8 @@ const useSpiralParams = (journeyId?: string) => {
   // Set default params with verified sacred geometry values
   const [params, setParams] = useState<SpiralParams>(defaultParams);
 
-  // If a journey ID is provided, attempt to load custom parameters
-  useEffect(() => {
-    if (journeyId) {
-      // Check cache first
-      if (paramsCache[journeyId]) {
-        setParams(paramsCache[journeyId]);
-        return;
-      }
-
-      // Otherwise try to fetch from API
-      const fetchParams = async () => {
-        try {
-          const journeyParams = await fetchSpiralParams(journeyId);
-          if (journeyParams) {
-            setParams(journeyParams);
-            // Cache the results
-            paramsCache[journeyId] = journeyParams;
-          }
-        } catch (error) {
-          console.error(`Error loading spiral params for journey ${journeyId}:`, error);
-        }
-      };
-
-      fetchParams();
-    }
-  }, [journeyId]);
-
-  const getDefaultParamsForChakra = (chakra: ChakraTag): SpiralParams => {
+  // Move getDefaultParamsForChakra outside of the component to prevent recreation on every render
+  const getDefaultParamsForChakra = useCallback((chakra: ChakraTag): SpiralParams => {
     // Create chakra-specific parameters
     const chakraParams: SpiralParams = {
       ...defaultParams,
@@ -101,7 +76,8 @@ const useSpiralParams = (journeyId?: string) => {
           coeffB: 1.2,
           freqA: 3.0,
           freqB: 2.0,
-          maxCycles: 3
+          maxCycles: 3,
+          speed: 0.0001 // Reduced speed
         };
       case 'Sacral':
         return {
@@ -110,7 +86,8 @@ const useSpiralParams = (journeyId?: string) => {
           coeffB: 1.1,
           freqA: 3.5,
           freqB: 2.5,
-          maxCycles: 4
+          maxCycles: 4,
+          speed: 0.00012 // Reduced speed
         };
       case 'Solar Plexus':
         return {
@@ -119,7 +96,8 @@ const useSpiralParams = (journeyId?: string) => {
           coeffB: 1.0,
           freqA: 4.0,
           freqB: 3.0,
-          maxCycles: 4
+          maxCycles: 4,
+          speed: 0.00012 // Reduced speed
         };
       case 'Heart':
         return {
@@ -128,7 +106,8 @@ const useSpiralParams = (journeyId?: string) => {
           coeffB: 0.9,
           freqA: 4.5,
           freqB: 3.5,
-          maxCycles: 5
+          maxCycles: 5,
+          speed: 0.00013 // Reduced speed
         };
       case 'Throat':
         return {
@@ -137,7 +116,8 @@ const useSpiralParams = (journeyId?: string) => {
           coeffB: 0.8,
           freqA: 5.0,
           freqB: 4.0,
-          maxCycles: 5
+          maxCycles: 5,
+          speed: 0.00014 // Reduced speed
         };
       case 'Third Eye':
         return {
@@ -146,7 +126,8 @@ const useSpiralParams = (journeyId?: string) => {
           coeffB: 0.7,
           freqA: 5.5,
           freqB: 4.5,
-          maxCycles: 6
+          maxCycles: 6,
+          speed: 0.00015 // Reduced speed
         };
       case 'Crown':
         return {
@@ -155,12 +136,49 @@ const useSpiralParams = (journeyId?: string) => {
           coeffB: 0.6,
           freqA: 6.0,
           freqB: 5.0,
-          maxCycles: 7
+          maxCycles: 7,
+          speed: 0.00015 // Reduced speed
         };
       default:
-        return chakraParams;
+        return {
+          ...chakraParams,
+          speed: 0.0001 // Reduced default speed
+        };
     }
-  };
+  }, []);
+
+  // If a journey ID is provided, attempt to load custom parameters
+  useEffect(() => {
+    if (journeyId) {
+      // Check cache first
+      if (paramsCache[journeyId]) {
+        setParams(paramsCache[journeyId]);
+        return;
+      }
+
+      // Otherwise try to fetch from API
+      const fetchParams = async () => {
+        try {
+          const journeyParams = await fetchSpiralParams(journeyId);
+          if (journeyParams) {
+            // Ensure we don't cause rendering loops by modifying the speed
+            const safeParams = {
+              ...journeyParams,
+              speed: Math.min(journeyParams.speed, 0.0005) // Cap the speed to avoid too fast animations
+            };
+            
+            setParams(safeParams);
+            // Cache the results
+            paramsCache[journeyId] = safeParams;
+          }
+        } catch (error) {
+          console.error(`Error loading spiral params for journey ${journeyId}:`, error);
+        }
+      };
+
+      fetchParams();
+    }
+  }, [journeyId]);
 
   return {
     params,

@@ -140,15 +140,51 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
     }
   }, [playerState, audioStarted, currentPhase, recordActivity, journeyData]);
 
+  // Dynamic spiral parameters based on current phase - FIXING THE ANIMATION SPEEDS
+  useEffect(() => {
+    // Adjust spiral parameters based on the current phase
+    const baseParams = getDefaultParamsForChakra(journeyData.chakra || 'Heart');
+    let phaseParams = {...baseParams};
+    
+    switch(currentPhase) {
+      case 'grounding':
+        phaseParams.speed = 0.0001; // Further reduced from 0.0003
+        phaseParams.opacity = 60;
+        break;
+      case 'aligning':
+        phaseParams.speed = 0.00015; // Further reduced from 0.0004
+        phaseParams.strokeWeight = 1.2;
+        phaseParams.opacity = 70;
+        break;
+      case 'activating':
+        phaseParams.speed = 0.0002; // Further reduced from 0.0005
+        phaseParams.maxCycles = 5;
+        phaseParams.opacity = 80;
+        break;
+      case 'integration':
+        phaseParams.speed = 0.00015; // Further reduced from 0.0004
+        phaseParams.strokeWeight = 1.5;
+        phaseParams.opacity = 90;
+        break;
+      case 'complete':
+        phaseParams.speed = 0.0001; // Further reduced from 0.0003
+        phaseParams.maxCycles = 3;
+        phaseParams.opacity = 50;
+        break;
+    }
+    
+    console.log(`Setting spiral params for phase: ${currentPhase}`, phaseParams);
+    setSpiralParams(phaseParams);
+  }, [currentPhase, journeyData.chakra, getDefaultParamsForChakra]);
+
+  // Fixed to ensure phase completion logic works correctly
   const completePhase = (phase: Exclude<JourneyPhase, 'complete'>) => {
     console.log(`Completing phase: ${phase}`);
     
-    // Update completion state
+    // Update completion state - using callback form to ensure we have the latest state
     setPhaseCompletion(prev => {
       console.log("Current phase completion:", prev);
-      const newCompletion = { ...prev, [phase]: true };
-      console.log("New phase completion:", newCompletion);
-      return newCompletion;
+      return { ...prev, [phase]: true };
     });
 
     // Record the completion in the timeline
@@ -180,9 +216,12 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
     if (currentIndex < phases.length - 1) {
       // Small delay for better transitions
       console.log(`Transitioning to phase: ${phases[currentIndex + 1]} after delay`);
+      
+      // Use setTimeout to ensure state updates don't conflict
       setTimeout(() => {
-        console.log(`Setting current phase to: ${phases[currentIndex + 1]}`);
-        setCurrentPhase(phases[currentIndex + 1]);
+        const nextPhase = phases[currentIndex + 1];
+        console.log(`Setting current phase to: ${nextPhase}`);
+        setCurrentPhase(nextPhase);
       }, 300);
     } else {
       console.log("Already at last phase, not transitioning");
@@ -292,42 +331,6 @@ const JourneyExperience: React.FC<JourneyExperienceProps> = ({
       toast.error("Error saving your journey experience");
     }
   };
-
-  // Dynamic spiral parameters based on current phase
-  useEffect(() => {
-    // Adjust spiral parameters based on the current phase
-    const baseParams = getDefaultParamsForChakra(journeyData.chakra || 'Heart');
-    let phaseParams = {...baseParams};
-    
-    switch(currentPhase) {
-      case 'grounding':
-        phaseParams.speed = 0.0003; // Reduced from 0.001
-        phaseParams.opacity = 60;
-        break;
-      case 'aligning':
-        phaseParams.speed = 0.0004; // Reduced from 0.002
-        phaseParams.strokeWeight = 1.2;
-        phaseParams.opacity = 70;
-        break;
-      case 'activating':
-        phaseParams.speed = 0.0005; // Reduced from 0.003
-        phaseParams.maxCycles = 5;
-        phaseParams.opacity = 80;
-        break;
-      case 'integration':
-        phaseParams.speed = 0.0004; // Reduced from 0.002
-        phaseParams.strokeWeight = 1.5;
-        phaseParams.opacity = 90;
-        break;
-      case 'complete':
-        phaseParams.speed = 0.0003; // Reduced from 0.001
-        phaseParams.maxCycles = 3;
-        phaseParams.opacity = 50;
-        break;
-    }
-    
-    setSpiralParams(phaseParams);
-  }, [currentPhase, journeyData.chakra, getDefaultParamsForChakra]);
 
   // Map phase to component
   const renderCurrentPhase = () => {

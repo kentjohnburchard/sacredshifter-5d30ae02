@@ -38,11 +38,8 @@ const AligningPhase: React.FC<AligningPhaseProps> = ({
     };
   }, [countdown, showContinue]);
 
-  const handleComplete = (e: React.MouseEvent) => {
-    // Prevent default behavior to avoid page refresh
-    e.preventDefault();
-    e.stopPropagation(); // Also stop propagation to prevent parent handlers
-    
+  const handleComplete = () => {
+    // Remove event parameter
     console.log("AligningPhase handleComplete called");
     onComplete();
   };

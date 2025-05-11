@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
@@ -25,11 +26,8 @@ const IntegrationPhase: React.FC<IntegrationPhaseProps> = ({
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const handleComplete = (e: React.MouseEvent) => {
-    // Prevent default behavior to avoid page refresh
-    e.preventDefault();
-    e.stopPropagation(); // Also stop propagation to prevent parent handlers
-    
+  const handleComplete = () => {
+    // Remove event parameter
     console.log("IntegrationPhase handleComplete called");
     setIsSubmitting(true);
     
